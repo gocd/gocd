@@ -17,8 +17,9 @@
 @import "../base/variables";
 
 .missing_plugin{
+  font-style: italic;
+  background: url(#{$image-path-andare}background-lines.png) ;
   .missing_plugin_link{
-    font-style: italic;
     padding-left: 22px;
     padding-top: 2px;
     padding-bottom: 2px;

@@ -81,6 +81,14 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
         }
     }
 
+    public void addNewConfigurationWithValue(String key, String value, boolean isSecure) {
+        if (isSecure) {
+            add(new ConfigurationProperty(new ConfigurationKey(key), new EncryptedConfigurationValue(value)));
+        } else {
+            add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
+        }
+    }
+
     public ConfigurationProperty getProperty(final String key) {
         return ListUtil.find(this, new ListUtil.Condition() {
             @Override

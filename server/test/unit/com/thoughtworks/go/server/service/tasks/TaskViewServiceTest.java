@@ -28,7 +28,10 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.plugins.presentation.Renderer;
 import com.thoughtworks.go.presentation.TaskViewModel;
@@ -40,12 +43,15 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.apache.poi.hssf.record.formula.functions.Proper;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.*;
+import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -100,6 +106,11 @@ public class TaskViewServiceTest {
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(task));
     }
 
+    private void storeTaskPreferences(String pluginId, Property... properties){
+        FakeTask task = new FakeTask(properties);
+        PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(task));
+    }
+
     @Test
     public void shouldGetViewModelsForPluggedInTasks_ButOnlyForExistingPlugins() throws Exception {
         String plugin1 = "task-plugin-1";
@@ -129,6 +140,22 @@ public class TaskViewServiceTest {
 
         verify(registry).getViewModelFor(expectedPluggableTaskForPlugin1, "new");
         verify(registry).getViewModelFor(expectedPluggableTaskForPlugin2, "new");
+    }
+
+    @Test
+    public void shouldStoreDefaultValuesGivenForPropertiesInAPluginWhenInitializingANewTaskPlugin() throws Exception {
+        String plugin = "task-plugin";
+        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(new GoPluginDescriptor(plugin, "1", null, null, null, false));
+        Property taskConfigProperty1 = new Property("key1");
+        Property taskConfigProperty2 = new Property("key2");
+        Property taskConfigProperty3 = new Property("key3");
+        storeTaskPreferences(plugin, taskConfigProperty1.withDefault("default1"), taskConfigProperty2.withDefault("default2"), taskConfigProperty3);
+        when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(PluggableTask.class));
+
+        PluggableTask pluggableTask = (PluggableTask) taskViewService.taskInstanceFor(new PluggableTask("", new PluginConfiguration(plugin, "1"), new Configuration()).getTaskType());
+        assertThat(pluggableTask.getConfiguration().getProperty("key1").getValue(), is("default1"));
+        assertThat(pluggableTask.getConfiguration().getProperty("key2").getValue(), is("default2"));
+        assertNull(pluggableTask.getConfiguration().getProperty("key3").getValue());
     }
 
     @Test
@@ -239,17 +266,29 @@ public class TaskViewServiceTest {
     }
 
     private class FakeTask implements com.thoughtworks.go.plugin.api.task.Task {
-        final String[] properties;
+        final Property[] properties;
 
         private FakeTask(String... properties) {
+            this.properties = (Property []) convertToProperties(properties).toArray();
+        }
+
+        private FakeTask(Property... properties) {
             this.properties = properties;
+        }
+
+        private List<TaskConfigProperty> convertToProperties(String[] properties) {
+            List<TaskConfigProperty> taskConfigProperties = new ArrayList<TaskConfigProperty>();
+            for (String property : properties) {
+                taskConfigProperties.add(new TaskConfigProperty(property, null));
+            }
+            return taskConfigProperties;
         }
 
         @Override
         public TaskConfig config() {
             TaskConfig taskConfig = new TaskConfig();
-            for (String property : properties) {
-                taskConfig.addProperty(property);
+            for (Property property : properties) {
+                taskConfig.add(property);
             }
             return taskConfig;
         }

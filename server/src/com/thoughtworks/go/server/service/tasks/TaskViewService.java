@@ -123,11 +123,10 @@ public class TaskViewService implements TaskFactory {
     private Configuration getConfiguration(TaskConfig taskConfig) {
         Configuration configuration = new Configuration();
         for (Property property : taskConfig.list()) {
-            configuration.addNewConfiguration(property.getKey(), false);
+            configuration.addNewConfigurationWithValue(property.getKey(), property.getValue(), false);
         }
         return configuration;
     }
-
 
     private List<Task> allPluginTasks() {
         final ArrayList<Task> tasks = new ArrayList<Task>();

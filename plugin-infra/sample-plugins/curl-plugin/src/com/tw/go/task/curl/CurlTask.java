@@ -27,13 +27,20 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 @Extension
 public class CurlTask implements Task {
 
-    public static final String MARKDOWN_INDEX_PAGE = "http://daringfireball.net/projects/markdown/index.text";
     public static final String URL_PROPERTY = "Url";
+    public static final String ADDITIONAL_OPTIONS = "AdditionalOptions";
+    public static final String SECURE_CONNECTION = "yes";
+    public static final String SECURE_CONNECTION_PROPERTY = "SecureConnection";
+    public static final String REQUEST_TYPE = "-G";
+    public static final String REQUEST_PROPERTY = "RequestType";
 
     @Override
     public TaskConfig config() {
         TaskConfig config = new TaskConfig();
-        config.addProperty(URL_PROPERTY).withDefault(MARKDOWN_INDEX_PAGE);
+        config.addProperty(URL_PROPERTY);
+        config.addProperty(SECURE_CONNECTION_PROPERTY).withDefault(SECURE_CONNECTION);
+        config.addProperty(REQUEST_PROPERTY).withDefault(REQUEST_TYPE);
+        config.addProperty(ADDITIONAL_OPTIONS);
         return config;
     }
 
@@ -57,7 +64,23 @@ public class CurlTask implements Task {
 							"<input type=\"url\" ng-model=\"Url\" ng-required=\"true\"></input>"+
 							"<span class=\"form_error\" ng-show=\"GOINPUTNAME[Url].$error.url\">Incorrect url format.</span>"+
 							"<span class=\"form_error\" ng-show=\"GOINPUTNAME[Url].$error.server\">{{ GOINPUTNAME[Url].$error.server }}</span>" +
-						"</div>";
+					   "</div>" +
+                       "<div class=\"form_item_block\">" +
+                            "<label>Secure Connection:</label>\n"+
+                            "<input type=\"radio\" ng-model=\"SecureConnection\" value=\"yes\">Yes</input>" +
+                            "<input type=\"radio\" ng-model=\"SecureConnection\" value=\"no\">No</input>" +
+                       "</div>" +
+                       "<div class=\"form_item_block\">" +
+                            "<label>Request Type:</label>\n" +
+                            "<select ng-model=\"RequestType\">" +
+                            "<option value=\"-G\">GET</option>" +
+                            "<option value=\"-d\">POST</option>" +
+                            "</select>" +
+                       "</div>" +
+                       "<div class=\"form_item_block\">" +
+                            "<label>Additional Options</label>\n" +
+                            "<input type=\"text\" ng-model=\"AdditionalOptions\"></input>" +
+					   "</div>";
             }
         };
         return taskView;

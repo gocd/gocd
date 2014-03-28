@@ -21,56 +21,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.thoughtworks.go</groupId>
-    <artifactId>development-utilities</artifactId>
+    <artifactId>development-agent</artifactId>
     <version>1.0</version>
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>main</artifactId>
         <version>1.0</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../</relativePath>
     </parent>
 
     <properties>
-        <main.dir>${project.basedir}/..</main.dir>
+        <main.dir>${project.basedir}/../../</main.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
 		<dependency>
-			<groupId>com.thoughtworks.go</groupId>
-			<artifactId>server</artifactId>
-			<version>1.0</version>
-			<classifier>classes</classifier>
-		</dependency>
-		<dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>agent</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0</version>
+        </dependency>
 
-        <!-- jetty -->
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-management</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-naming</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-sslengine</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <!-- jetty end -->
     </dependencies>
 
     <build>

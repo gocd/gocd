@@ -216,3 +216,4 @@ intellij-out/
 
 server/webapp/WEB-INF/rails/spec/javascripts/test_out/*
 server/webapp/WEB-INF/rails/spec/javascripts/node_modules/*
+**/*/target/*

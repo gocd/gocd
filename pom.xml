@@ -99,6 +99,7 @@
         <module>server</module>
         <module>server-launcher</module>
 
-        <module>development-utility</module>
+        <module>development-utility/development-agent</module>
+        <module>development-utility/development-server</module>
     </modules>
 </project>

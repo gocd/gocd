@@ -16,46 +16,41 @@
 
 package com.thoughtworks.go.server;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.command.ProcessRunner;
 import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
  * Working directory: <project-path>/server
- * VM arguments: -Xms512m -Xmx1024m -XX:PermSize=400m
- * classpath: Use classpath of current module.
+ * VM arguments: -Xms512m -Xmx1024m -XX:PermSize=400m -Djava.awt.headless=true
+ * classpath: Use classpath of 'development-server'
  */
 
 public class DevelopmentServer {
-
     public static void main(String[] args) throws Exception {
-        FileUtils.copyDirectoryToDirectory(new File("target/webapp/stylesheets/css_sass"), new File("webapp/stylesheets"));
-        File path = new File("target/classes");
+        copyDbFiles();
+        copyScss();
         File webapp = new File("webapp");
         if (!webapp.exists()) {
             throw new RuntimeException("No webapp found in " + webapp.getAbsolutePath());
         }
-        if (!path.exists()) {
-            throw new Exception("run b clean cruise:prepare");
-        }
 
         copyActivatorJarToClassPath();
-
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
         systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webapp.getAbsolutePath());
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
-        systemEnvironment.set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         File pluginsDist = new File("../tw-go-plugins/dist/");
         if (pluginsDist.exists()) {
-            new ZipUtil().zipFolderContents(pluginsDist, new File(path, "plugins.zip"));
+            new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
         }
         GoServer server = new GoServer();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
@@ -67,8 +62,33 @@ public class DevelopmentServer {
         }
     }
 
+
+    private static void copyScss() throws IOException, InterruptedException {
+        FileUtils.deleteDirectory(new File("webapp/stylesheets/css_sass"));
+        new ProcessRunner().command("sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+    }
+
+    private static void copyDbFiles() throws IOException {
+        FileUtils.copyDirectoryToDirectory(new File("db/migrate/h2deltas"), new File("db/"));
+        if (!new File("db/h2db/cruise.h2.db").exists()) {
+            FileUtils.copyDirectoryToDirectory(new File("db/dbtemplate/h2db"), new File("db/"));
+        }
+    }
+
     private static void copyActivatorJarToClassPath() throws IOException {
-        File activatorJar = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
-        FileUtils.copyFileToDirectory(activatorJar, new File("target/classes"));
+        File activatorJarFromTarget = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
+        File activatorJarFromMaven = new File(System.getProperty("user.home") + "/.m2/repository/com/thoughtworks/go/go-plugin-activator/1.0/go-plugin-activator-1.0.jar");
+        File activatorJar = activatorJarFromTarget.exists() ? activatorJarFromTarget : activatorJarFromMaven;
+        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
+
+        if (activatorJar.exists()) {
+            FileUtils.copyFileToDirectory(activatorJar, classpath());
+        } else {
+            System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded.");
+        }
+    }
+
+    private static File classpath() {
+        return new File("target/classes");
     }
 }

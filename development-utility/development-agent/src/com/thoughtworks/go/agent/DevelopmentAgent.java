@@ -17,41 +17,41 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.command.ProcessRunner;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @understands how to run a local development mode agent so we can develop live
  * Set the following before running the main method:
  * Working directory: <project-path>/agent
- * classpath: Use classpath of current module.
+ * VM arguments: -Djava.awt.headless=true
+ * classpath: Use classpath of 'development-agent'.
  */
 
 public class DevelopmentAgent {
     public static void main(String[] args) throws Exception {
-        runProcess("curl", "http://localhost:8153/go/admin/agent-plugins.zip", "-o", "agent-plugins.zip");
+        new ProcessRunner().command("curl", "http://localhost:8153/go/admin/agent-plugins.zip", "-o", "agent-plugins.zip").failOnError(false).run();
         copyActivatorJarToClassPath();
-        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
         AgentMain.main("https://localhost:8154/go");
     }
 
-    private static void runProcess(String... command) throws IOException, InterruptedException {
-        System.out.println("Trying to run command: " + Arrays.toString(command));
-        ProcessBuilder builder = new ProcessBuilder(command);
-        Process process = builder.start();
-        int exitCode = process.waitFor();
+    private static void copyActivatorJarToClassPath() throws IOException {
+        File activatorJarFromTarget = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
+        File activatorJarFromMaven = new File(System.getProperty("user.home") + "/.m2/repository/com/thoughtworks/go/go-plugin-activator/1.0/go-plugin-activator-1.0.jar");
+        File activatorJar = activatorJarFromTarget.exists() ? activatorJarFromTarget : activatorJarFromMaven;
+        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, activatorJar.getName());
 
-        System.out.println("Finished command: " + Arrays.toString(command) + ". Exit code: " + exitCode);
-        if (exitCode != 0)
-            throw new RuntimeException(String.format("Command exited with code %s. \n Exception: %s", exitCode, IOUtils.toString(process.getErrorStream())));
+        if (activatorJar.exists()) {
+            FileUtils.copyFileToDirectory(activatorJar, classpath());
+        } else {
+            System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded.");
+        }
     }
 
-    private static void copyActivatorJarToClassPath() throws IOException {
-        File activatorJar = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
-        FileUtils.copyFileToDirectory(activatorJar, new File("target/classes"));
+    private static File classpath() {
+        return new File("target/classes");
     }
 }

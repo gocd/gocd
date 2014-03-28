@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service.tasks;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.FetchTask;
@@ -28,38 +23,38 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.plugins.presentation.Renderer;
-import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
+import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.poi.hssf.record.formula.functions.Proper;
-import org.hamcrest.CoreMatchers;
+import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
+import com.thoughtworks.go.plugins.presentation.Renderer;
+import com.thoughtworks.go.presentation.TaskViewModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TaskViewServiceTest {
     private ConfigElementImplementationRegistry registry;
@@ -269,7 +264,7 @@ public class TaskViewServiceTest {
         final Property[] properties;
 
         private FakeTask(String... properties) {
-            this.properties = (Property []) convertToProperties(properties).toArray();
+            this.properties = convertToProperties(properties).toArray(new Property[]{});
         }
 
         private FakeTask(Property... properties) {
@@ -277,7 +272,7 @@ public class TaskViewServiceTest {
         }
 
         private List<TaskConfigProperty> convertToProperties(String[] properties) {
-            List<TaskConfigProperty> taskConfigProperties = new ArrayList<TaskConfigProperty>();
+            ArrayList<TaskConfigProperty> taskConfigProperties = new ArrayList<TaskConfigProperty>();
             for (String property : properties) {
                 taskConfigProperties.add(new TaskConfigProperty(property, null));
             }

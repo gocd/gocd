@@ -43,14 +43,15 @@ describe "admin/tasks/pluggable_task/list_entry.html.erb" do
     response.body.should have_tag("td.has_on_cancel", "No")
   end
 
+
   it "should display a missing icon if the associated plugin for a task is missing" do
     pluginId = "missing.plugin"
     task = plugin_task pluginId, [ConfigurationPropertyMother.create("KEY1", false, "value1")]
 
     render "admin/tasks/pluggable_task/_list_entry", :locals => {:scope => {:task_config => task, :tvm => tvm_for_missing_plugin(task), :tvm_of_cancel_task => nil}, :modify_onclick_callback => "on-click-callback"}
 
-    response.body.should have_tag("td a[href='#']", pluginId)
-    response.body.should have_tag("td a.missing_plugin_link", pluginId)
+    response.body.should have_tag("td label", pluginId)
+    response.body.should have_tag("td label.missing_plugin_link", pluginId)
     response.body.should have_tag("td.properties") do
       with_tag("ul") do
         with_tag("li.task_property.key1") do

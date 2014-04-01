@@ -185,9 +185,11 @@ describe "admin/tasks/index.html.erb" do
       before(:each) do
         @task_1 = plugin_task "curl.plugin", [ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("key2")]
         @task_2 = plugin_task "maven.plugin", [ConfigurationPropertyMother.create("KEY3"), ConfigurationPropertyMother.create("key4")]
+        @task_3 = plugin_task "missing.plugin", [ConfigurationPropertyMother.create("KEY5"), ConfigurationPropertyMother.create("key6")]
         @builtin_task_1 = ant_task
         @tvm_1 = pluggable_tvm_for(@task_1, "list-entry")
         @tvm_2 = pluggable_tvm_for(@task_2, "list-entry")
+        @tvm_3 = pluggable_tvm_for_missing(@task_3)
         @builtin_tvm_1 = tvm_for_list_entry(@builtin_task_1)
 
         fake_task_view_service = mock("task_view_service")
@@ -195,6 +197,7 @@ describe "admin/tasks/index.html.erb" do
 
         fake_task_view_service.stub(:getViewModel).with(@task_1, "list-entry").and_return(@tvm_1)
         fake_task_view_service.stub(:getViewModel).with(@task_2, "list-entry").and_return(@tvm_2)
+        fake_task_view_service.stub(:getViewModel).with(@task_3, "list-entry").and_return(@tvm_3)
         fake_task_view_service.stub(:getViewModel).with(@builtin_task_1, "list-entry").and_return(@builtin_tvm_1)
       end
 
@@ -228,6 +231,18 @@ describe "admin/tasks/index.html.erb" do
         end
       end
 
+      it "for missing plugin task, it should add missing class" do
+        assigns[:tasks] = [@task_1, @task_3]
+        @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
+        @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
+
+        render "admin/tasks/index.html"
+
+        response.body.should have_tag("table.list_table") do
+          with_tag("tr.missing_plugin")
+        end
+      end
+
       it "for plugin on-cancel task of a builtin task, it should show display value of plugin, and not 'pluggable task'" do
         @builtin_task_1.setCancelTask(@task_2)
 
@@ -256,6 +271,10 @@ describe "admin/tasks/index.html.erb" do
 
   def pluggable_tvm_for(task, display_value)
     PluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", com.thoughtworks.go.plugins.presentation.Renderer::ERB, display_value, "Curl - Template"
+  end
+
+  def pluggable_tvm_for_missing(task)
+    MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", com.thoughtworks.go.plugins.presentation.Renderer::ERB
   end
 
   def assert_has_delete_button_for_task index

@@ -1,6 +1,10 @@
-<%- missing_plugin_link = "missing_plugin_link instant-tooltip" if scope[:tvm].instance_of? com.thoughtworks.go.presentation.MissingPluggableTaskViewModel %>
+<%- is_plugin_missing = scope[:tvm].instance_of? com.thoughtworks.go.presentation.MissingPluggableTaskViewModel %>
 <td>
-    <%= link_to_function(scope[:tvm].getTypeForDisplay(), {:class => missing_plugin_link, :title => "This plug-in is removed.", :onclick => modify_onclick_callback}) -%>
+    <%- if (is_plugin_missing) %>
+        <%= label_tag "", scope[:tvm].getTypeForDisplay(), :title => "This plug-in is removed", :class => "missing_plugin_link instant-tooltip" -%>
+    <%- else %>
+        <%= link_to_function(scope[:tvm].getTypeForDisplay(), {:onclick => modify_onclick_callback}) -%>
+    <%- end %>
 </td>
 <td class="run_ifs"><%= scope[:task_config].getConditionsForDisplay() %></td>
 <td class="properties">

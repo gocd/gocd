@@ -65,11 +65,19 @@ public class CurlTask implements Task {
 							"<span class=\"form_error\" ng-show=\"GOINPUTNAME[Url].$error.url\">Incorrect url format.</span>"+
 							"<span class=\"form_error\" ng-show=\"GOINPUTNAME[Url].$error.server\">{{ GOINPUTNAME[Url].$error.server }}</span>" +
 					   "</div>" +
+
                        "<div class=\"form_item_block\">" +
                             "<label>Secure Connection:</label>\n"+
-                            "<input type=\"radio\" ng-model=\"SecureConnection\" value=\"yes\">Yes</input>" +
-                            "<input type=\"radio\" ng-model=\"SecureConnection\" value=\"no\">No</input>" +
+
+							"<div class=\"checkbox_row\">" +
+								"<input id=\"secureConnectionYes\" type=\"radio\" ng-model=\"SecureConnection\" value=\"yes\">" +
+								"<label for=\"secureConnectionYes\">Yes</label>" +
+
+								"<input id=\"secureConnectionNo\" type=\"radio\" ng-model=\"SecureConnection\" value=\"no\">" +
+								"<label for=\"secureConnectionNo\">No</label>" +
+							"</div>"+
                        "</div>" +
+
                        "<div class=\"form_item_block\">" +
                             "<label>Request Type:</label>\n" +
                             "<select ng-model=\"RequestType\">" +
@@ -77,6 +85,7 @@ public class CurlTask implements Task {
                             "<option value=\"-d\">POST</option>" +
                             "</select>" +
                        "</div>" +
+
                        "<div class=\"form_item_block\">" +
                             "<label>Additional Options</label>\n" +
                             "<input type=\"text\" ng-model=\"AdditionalOptions\"></input>" +

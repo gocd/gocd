@@ -126,17 +126,10 @@
     padding: 2px 5px 1px
 }
 
-#job_tasks .invalid_snippets {
-    /*margin-top: 60px;*/
-}
-
 .code_text{
     font-family: courier new, monospace;
 }
 
-.form_item_block{
-    padding-bottom:5px !important;
-}
 
 /*snippet details*/
 

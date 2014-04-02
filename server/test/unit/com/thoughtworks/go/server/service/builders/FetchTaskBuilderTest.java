@@ -44,11 +44,13 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -216,7 +218,7 @@ public class FetchTaskBuilderTest {
     public void shouldNormalizeDestOnAgent() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest\\pavan");
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat((FileHandler) fetchHandler , is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
+        assertThat((FileHandler) fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
     }
 
     @Test
@@ -233,7 +235,7 @@ public class FetchTaskBuilderTest {
         fetchTask.setSrcdir("log");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
-        assertThat((DirHandler) actual, is(new DirHandler("log",folderOnAgent)));
+        assertThat((DirHandler) actual, is(new DirHandler("log", folderOnAgent)));
     }
 
     @Test
@@ -243,6 +245,47 @@ public class FetchTaskBuilderTest {
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
         assertThat((FileHandler) actual, is(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc())));
+    }
+
+    @Test
+    public void shouldThrowExceptionWithAppropriateMessageWhenAncestorPipelineChanged() {
+        Pipeline downInstance = pipelineWithDepencencyMaterial("down", "up3", 1, "up3-label", "up3-stage", 1);
+        Pipeline up3Instance = pipelineWithDepencencyMaterial("up3", "up2", 1, "up2-label", "up2-stage", 1);
+        Pipeline up2Instance = pipelineWithDepencencyMaterial("up2", "old", 1, "old-label", "old-stage", 1);
+
+        when(resolver.buildCauseFor("up3", 1)).thenReturn(up3Instance.getBuildCause());
+        when(resolver.buildCauseFor("up2", 1)).thenReturn(up2Instance.getBuildCause());
+
+        FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "src", "dest");
+        try {
+
+            fetchTaskBuilder.createBuilder(builderFactory, fetchTask, downInstance, resolver);
+            fail("should have failed");
+        } catch (Exception e) {
+            assertEquals(String.format("Pipeline [down] could not fetch artifact [%s]. Unable to resolve revision for [up1] from build cause", fetchTask), e.getMessage());
+        } finally {
+            verify(resolver).buildCauseFor("up3", 1);
+            verify(resolver).buildCauseFor("up2", 1);
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithAppropriateMessageWhenFetchArtifactPipelinePathBroken() {
+        Pipeline downInstance = pipelineWithDepencencyMaterial("down", "up3", 1, "up3-label", "up3-stage", 1);
+        Pipeline up3Instance = pipelineWithDepencencyMaterial("up3", "old", 1, "old-label", "old-stage", 1);
+
+        when(resolver.buildCauseFor("up3", 1)).thenReturn(up3Instance.getBuildCause());
+
+        FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("up1/up2/up3"), new CaseInsensitiveString("up3-stage"), new CaseInsensitiveString("up3-job"), "src", "dest");
+        try {
+
+            fetchTaskBuilder.createBuilder(builderFactory, fetchTask, downInstance, resolver);
+            fail("should have failed");
+        } catch (Exception e) {
+            assertEquals(String.format("Pipeline [down] could not fetch artifact [%s]. Unable to resolve revision for [up2] from build cause", fetchTask), e.getMessage());
+        } finally {
+            verify(resolver).buildCauseFor("up3", 1);
+        }
     }
 
     private Pipeline pipelineWithStage(String pipelineName, int pipelineCounter, String label, String stagename, int stageCounter) {

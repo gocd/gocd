@@ -75,11 +75,17 @@ public class FetchTaskBuilder implements TaskBuilder<FetchTask> {
             DependencyMaterialRevision revision = null;
             if (pipelineNamePathFromAncestor.isAncestor()) {
                 BuildCause buildCause = currentPipeline.getBuildCause();
-                    for (CaseInsensitiveString parentPipelineName : pipelineNamePathFromAncestor.pathToAncestor()) {
-                        DependencyMaterialRevision dependencyMaterialRevision = dmrForPipeline(parentPipelineName, buildCause);
-                        buildCause = resolver.buildCauseFor(dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter());
+                for (CaseInsensitiveString parentPipelineName : pipelineNamePathFromAncestor.pathToAncestor()) {
+                    DependencyMaterialRevision dependencyMaterialRevision = dmrForPipeline(parentPipelineName, buildCause);
+                    if (dependencyMaterialRevision == null) {
+                        throw bomb(String.format("Pipeline [%s] could not fetch artifact [%s]. Unable to resolve revision for [%s] from build cause", currentPipeline.getName(), task, parentPipelineName));
                     }
-                    revision = dmrForPipeline(pipelineNamePathFromAncestor.getAncestorName(), buildCause);
+                    buildCause = resolver.buildCauseFor(dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter());
+                }
+                revision = dmrForPipeline(pipelineNamePathFromAncestor.getAncestorName(), buildCause);
+                if (revision == null) {
+                    throw bomb(String.format("Pipeline [%s] could not fetch artifact [%s]. Unable to resolve revision for [%s] from build cause", currentPipeline.getName(), task, pipelineNamePathFromAncestor.getAncestorName()));
+                }
             } else {
                 revision = dmrForPipeline(pipelineNamePathFromAncestor.getPath(), currentPipeline.getBuildCause());
                 if (revision == null) {

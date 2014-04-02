@@ -1,4 +1,10 @@
 <div class="on_cancel fieldset">
+    <%- if (scope[:task].hasCancelTask() && (scope[:task].cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask) && !scope[:config_store].preferenceFor(scope[:task].cancelTask().getPluginConfiguration().getId())) %>
+        <div class="flash" id="plugin_missing_error">
+            <p class="warning"><%= l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [scope[:task].cancelTask().getPluginConfiguration().getId()].to_java(java.lang.Object)) -%></p>
+        </div>
+    <%- end %>
+
     <%= scope[:form].check_box(com.thoughtworks.go.config.AbstractTask::HAS_CANCEL_TASK, :class => "has_cancel_task", :id => "has_cancel_task") -%>
     <%= label_tag :has_cancel_task, l.string("ON_CANCEL_TASK"), :class => "inline" -%>
     <div class="on_cancel_task <%= scope[:task].hasCancelTask() ? '' : 'hidden' %>">

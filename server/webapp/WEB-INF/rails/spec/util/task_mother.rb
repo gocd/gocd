@@ -79,6 +79,18 @@ module TaskMother
     task_plugin
   end
 
+  def simple_task_with_pluggable_on_cancel_task
+    task = rake_task
+    task.setCancelTask(plugin_task)
+    task
+  end
+
+  def task_with_on_cancel_task
+    task = rake_task
+    task.setCancelTask(rake_task)
+    task
+  end
+
   def vm_for task
     Spring.bean("taskViewService").getViewModel(task, 'new')
   end

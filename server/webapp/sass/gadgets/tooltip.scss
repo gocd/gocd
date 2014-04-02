@@ -2,22 +2,24 @@
 .instant-tooltip{
   display:inline;
   position:relative;
-
+  font-style: normal;
   &:hover{
     text-decoration:none;
     &:after{
-      background:#111;
-      background:rgba(0,0,0,.8);
-      border-radius:5px;
-      bottom:18px;
-      color:#fff;
-      content:attr(title);
-      display:block;
-      left:0;
-      padding:5px 15px;
-      position:absolute;
-      white-space:nowrap;
-      z-index:98
+      background: #111;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 5px;
+      bottom: 18px;
+      color: #fff;
+      content: attr(title);
+      display: block;
+      left: 0;
+      right:0;
+      margin:auto;
+      width:250px;
+      padding: 5px 15px;
+      position: absolute;
+      z-index: 98;
     }
     &:before{
       border:solid;

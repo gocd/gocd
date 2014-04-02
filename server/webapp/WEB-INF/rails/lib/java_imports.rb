@@ -220,4 +220,6 @@ module JavaImports
   import com.thoughtworks.go.server.service.materials.commands.PackageDefinitionCreator unless defined? PackageDefinitionCreator
   import com.thoughtworks.go.util.Pair unless defined? Pair
   import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel
+  import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
+  import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore unless defined? PluggableTaskConfigStore
 end

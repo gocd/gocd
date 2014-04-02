@@ -16,7 +16,7 @@
                 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
             </div>
             <h3><%= l.string("TASK_ADVANCED_OPTIONS") %></h3>
-            <%= render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => f}} %>
+            <%= render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => f, :config_store => scope[:config_store]}} %>
         </div>
     </div>
     <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => l.string("SAVE")}} %>

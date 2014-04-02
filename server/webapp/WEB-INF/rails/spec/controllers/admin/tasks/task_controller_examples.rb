@@ -190,6 +190,7 @@ shared_examples_for "task_controller"  do
         assigns[:task].should == @example_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         response.status.should == 200
+        assigns[:config_store].should == com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
       end
     end
 
@@ -264,6 +265,7 @@ shared_examples_for "task_controller"  do
         assigns[:task].should == @new_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         response.status.should == "200 OK"
+        assigns[:config_store].should == com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
       end
     end
 

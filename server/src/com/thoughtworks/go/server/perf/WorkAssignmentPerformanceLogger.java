@@ -35,6 +35,7 @@ public class WorkAssignmentPerformanceLogger {
 
     public void retrievedWorkForAgent(AgentRuntimeInfo agentRuntimeInfo, Work work, long retrieveWorkStartTime, long retrieveWorkEndTime) {
         if (work == null || !(work instanceof BuildWork)) {
+            performanceLogger.log("WORK-NOWORK {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), retrieveWorkStartTime, retrieveWorkEndTime);
             return;
         }
         BuildWork buildWork = (BuildWork) work;

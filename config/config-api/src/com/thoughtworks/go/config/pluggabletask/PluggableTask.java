@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.config.pluggabletask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.AbstractTask;
 import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
@@ -31,7 +26,15 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.util.ListUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands configuration of pluggable task
@@ -72,10 +75,14 @@ public class PluggableTask extends AbstractTask {
 
     @Override
     protected void setTaskConfigAttributes(Map attributes) {
-        for (ConfigurationProperty property : configuration) {
-            String key = property.getConfigurationKey().getName();
+        TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
+        for (Property property : taskConfig.list()) {
+            String key = property.getKey();
             if (attributes.containsKey(key)) {
-                property.setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                if (configuration.getProperty(key) == null) {
+                    configuration.addNewConfiguration(property.getKey(), property.getOption(Property.SECURE));
+                }
+                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
             }
         }
     }

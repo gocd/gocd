@@ -16,28 +16,26 @@
 
 package com.thoughtworks.go.config.pluggabletask;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.domain.TaskProperty;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluggableTaskTest {
     @Test
@@ -121,10 +119,20 @@ public class PluggableTaskTest {
 
     @Test
     public void shouldPopulateItselfFromConfigAttributesMap() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        TaskProperty property2 = new TaskProperty("Key2", "value2");
+        taskConfig.addProperty(property1.getName());
+        taskConfig.addProperty(property2.getName());
+
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
 
         task.setTaskConfigAttributes(attributeMap);
 
@@ -134,10 +142,20 @@ public class PluggableTaskTest {
 
     @Test
     public void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        TaskProperty property2 = new TaskProperty("Key2", null);
+        taskConfig.addProperty(property1.getName());
+        taskConfig.addProperty(property2.getName());
+
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
 
         task.setTaskConfigAttributes(attributeMap);
 
@@ -146,16 +164,47 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfiguration() throws Exception {
+    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        taskConfig.addProperty(property1.getName());
+
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
 
         task.setTaskConfigAttributes(attributeMap);
 
         assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
         assertFalse(task.configAsMap().containsKey("Key2"));
+    }
+
+    @Test
+    public void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        TaskProperty property2 = new TaskProperty("Key2", "value2");
+        taskConfig.addProperty(property1.getName());
+        taskConfig.addProperty(property2.getName());
+
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+
+        task.setTaskConfigAttributes(attributeMap);
+
+        assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
+        assertThat(task.configAsMap().get("Key2").get(PluggableTask.VALUE_KEY), is("value2"));
     }
 
     private void assertProperty(TaskProperty taskProperty, String name, String value, String cssClass) {

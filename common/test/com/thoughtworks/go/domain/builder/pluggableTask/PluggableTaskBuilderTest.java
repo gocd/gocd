@@ -174,6 +174,30 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
+    public void shouldReturnDefaultValueInExecConfigWhenConfigValueIsEmptyString() throws Exception {
+        TaskConfig defaultTaskConfig = new TaskConfig();
+        String propertyName = "URL";
+        String defaultValue = "ABC.TXT";
+
+        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        HashMap<String, String> configValue = new HashMap<String, String>();
+        configValue.put("value", "");
+
+        configMap.put(propertyName, configValue);
+
+        PluggableTask task = mock(PluggableTask.class);
+        when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
+        when(task.configAsMap()).thenReturn(configMap);
+
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory");
+
+        defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
+
+        TaskConfig config = taskBuilder.buildTaskConfig(defaultTaskConfig);
+        assertThat(config.getValue(propertyName), is(defaultValue));
+    }
+
+    @Test
     public void shouldReturnConfigValueInExecConfig() throws Exception {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";

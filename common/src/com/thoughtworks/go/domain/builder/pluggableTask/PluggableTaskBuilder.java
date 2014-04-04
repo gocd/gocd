@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -112,7 +113,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     private Property getExecProperty(TaskConfig defaultConfig, Property property) {
         String key = property.getKey();
         String configValue = pluginConfig.get(key) == null ? null : pluginConfig.get(key).get(PluggableTask.VALUE_KEY);
-        return configValue == null ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
+        return StringUtil.isBlank(configValue) ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
     }
 
     private PluginManager pluginManager() {

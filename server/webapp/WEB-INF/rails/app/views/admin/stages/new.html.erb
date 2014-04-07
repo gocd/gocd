@@ -3,7 +3,8 @@
     <%= render :partial => "shared/config_save_actions", :locals => { :scope => {}}-%>
     <% form_for(:stage, @stage,
                 :url => admin_stage_create_path,
-                :html => {:method => "POST",
+                :html => {"novalidate"=> "novalidate", :name => "pipeline_edit_form", :id => "pipeline_edit_form",
+                          :method => "POST",
                           :onsubmit => "return AjaxForm.jquery_ajax_submit(this);",
                           :class => "popup_form"}) do |f| %>
         <%= md5_field %>

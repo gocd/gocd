@@ -36,6 +36,14 @@ describe "admin/jobs/new.html.erb" do
     template.stub(:render_pluggable_form_template).and_return("template")
   end
 
+  it "should render form with name and id for angular binding" do
+    assigns[:job] = JobConfig.new
+
+    render "admin/jobs/new.html"
+
+    response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
+  end
+
   it "should render job name and hidden current tab field" do
     assigns[:job] = JobConfig.new
 

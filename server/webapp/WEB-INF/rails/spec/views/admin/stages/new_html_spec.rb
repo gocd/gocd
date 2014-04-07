@@ -41,6 +41,12 @@ describe "admin/stages new.html.erb" do
     assigns[:task_view_models] = tvms
   end
 
+  it "should render form with name and id for angular binding" do
+    render "admin/stages/new.html"
+
+    response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
+  end
+
   it "should render new form" do
     render NEW_STAGE_PAGE
 

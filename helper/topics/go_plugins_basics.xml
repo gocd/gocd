@@ -158,7 +158,10 @@
             <bullets>
                 <item>Plugin API Jar: <exref url="resources/go-plugin-api-current.jar">go-plugin-api-current.jar</exref></item>
                 <item>Plugin API Documentation: <exref url="resources/go-plugin-api-javadoc-current.jar">go-plugin-api-javadoc-current.jar</exref></item>
-                <item>Sample Plugins: <exref url="resources/go-sample-plugins.zip">go-sample-plugins.zip</exref></item>(Start with README file in the zip)
+                <item>
+                    Sample Plugins: A set of sample plugins that serves as a reference implementation <exref url="resources/go-sample-plugins.zip">go-sample-plugins.zip</exref>
+                    (Start with README file in the zip)
+                </item>
             </bullets>
         </subsection>
     </section>

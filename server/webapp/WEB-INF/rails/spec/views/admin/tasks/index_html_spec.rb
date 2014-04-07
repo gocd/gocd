@@ -243,6 +243,20 @@ describe "admin/tasks/index.html.erb" do
         end
       end
 
+      it "should have missing plugin class in on cancel task name if respective plugin is missing" do
+        @builtin_task_1.setCancelTask(@task_3)
+
+        assigns[:tasks] = [@builtin_task_1]
+        @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
+
+        render "admin/tasks/index.html"
+
+        response.body.should have_tag('table.list_table') do
+          with_tag("label.missing_plugin_link")
+        end
+
+      end
+
       it "for plugin on-cancel task of a builtin task, it should show display value of plugin, and not 'pluggable task'" do
         @builtin_task_1.setCancelTask(@task_2)
 

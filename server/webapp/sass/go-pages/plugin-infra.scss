@@ -19,13 +19,15 @@
 .missing_plugin{
   font-style: italic;
   background: url(#{$image-path-andare}background-lines.png) ;
-  .missing_plugin_link{
-    padding-left: 22px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    background: url(#{$image-path}icon-warning-small.gif) no-repeat ;
-  }
+}
+.missing_plugin_link{
+  padding-left: 22px;
+  font-style: italic;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  background: url(#{$image-path}icon-warning-small.gif) no-repeat ;
 }
  #plugin_missing_error{
   margin-bottom: 20px;
+
 }

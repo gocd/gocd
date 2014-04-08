@@ -342,6 +342,10 @@ img {
 	margin: 10px;
 }
 
+#14_1_bug_fixes img {
+	margin: 0px;
+}
+
 h5.steps-title,
 h5.bullets-title {
 	margin-bottom: 0px;

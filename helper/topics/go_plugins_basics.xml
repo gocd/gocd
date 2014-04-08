@@ -153,7 +153,7 @@
             </p>
         </subsection>
     </section>
-    <section title="Building a plugin">
+    <section title="Building a plugin" id="building_a_plugin">
         <subsection title="Plugin Essentials">
             <bullets>
                 <item>Plugin API Jar: <exref url="resources/go-plugin-api-current.jar">go-plugin-api-current.jar</exref></item>

@@ -94,4 +94,43 @@ module TaskMother
   def vm_for task
     Spring.bean("taskViewService").getViewModel(task, 'new')
   end
+
+  def set_up_registry
+    Spring.bean("defaultPluginRegistry").loadPlugin(GoPluginDescriptor.new("curl.plugin", nil, nil, nil, nil, false))
+  end
+
+  def unload_all_from_registry
+    Spring.bean("defaultPluginRegistry").unloadAll()
+  end
+
+  class ApiTaskViewForTest
+    include com.thoughtworks.go.plugin.api.task.TaskView
+
+    def displayValue()
+      "test curl"
+    end
+
+    def template()
+    end
+  end
+
+  class ApiTaskForTest
+    include com.thoughtworks.go.plugin.api.task.Task
+
+    def config()
+      config = com.thoughtworks.go.plugin.api.task.TaskConfig.new()
+      config.addProperty("Url")
+      config
+    end
+
+    def executor()
+    end
+
+    def view()
+      ApiTaskViewForTest.new
+    end
+
+    def validate(configuration)
+    end
+  end
 end

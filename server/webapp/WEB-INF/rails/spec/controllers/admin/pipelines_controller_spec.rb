@@ -23,6 +23,7 @@ describe Admin::PipelinesController do
   end
 
   include ConfigSaveStubbing
+  include TaskMother
 
   before(:each) do
     @user = Username.new(CaseInsensitiveString.new("loser"))
@@ -569,6 +570,10 @@ describe Admin::PipelinesController do
     end
 
     it "should be able to create a pipeline with a pluggable task" do
+      set_up_registry
+      task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
+      PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
+
       @pluggable_task_service.stub(:validate)
       task_view_service = mock('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
@@ -590,9 +595,16 @@ describe Admin::PipelinesController do
       assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
       pipeline_config = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new(pipeline_name))
       pipeline_config.getFirstStageConfig().getJobs().first().getTasks().first().instance_of?(PluggableTask).should == true
+
+      unload_all_from_registry
+      PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
     end
 
     it "should validate pluggable tasks before create" do
+      set_up_registry
+      task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
+      PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
+
       task_view_service = mock('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
       @pluggable_task_service.stub(:validate) do |task|
@@ -619,6 +631,9 @@ describe Admin::PipelinesController do
       task_to_be_saved.instance_of?(PluggableTask).should == true
       task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
       task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
+
+      unload_all_from_registry
+      PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
     end
   end
 

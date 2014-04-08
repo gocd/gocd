@@ -19,6 +19,17 @@ require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 describe Admin::TasksController do
   include ConfigSaveStubbing, TaskMother, FormUI
 
+  before :all do
+    set_up_registry
+    task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
+    PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
+  end
+
+  after :all do
+    unload_all_from_registry
+    PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
+  end
+
   before :each do
     controller.stub(:populate_health_messages)
     @on_cancel_task = plugin_task

@@ -24,6 +24,9 @@
 	</section>
     <section title="Bug fixes">
         <bullets>
+			<item id="6">
+				Fixed a corner case issue around job reschedule. <exref url="https://github.com/GoCD/GoCD/issues/6">(link)</exref>
+			</item>
 			<item id="9">
 				Fixed issue where SVN post-commit hook was not passing along credentials. <exref url="https://github.com/GoCD/GoCD/issues/9">(link)</exref>
 			</item>
@@ -32,6 +35,10 @@
 			</item>
             <item id="19">
 				Go Agent handles UnknownHostException by substituting host name with a generated name. <exref url="https://github.com/GoCD/GoCD/issues/19">(link)</exref>
+			</item>
+            <item id="21">
+				Task running executables in the working directory should now be prefixed with ./
+				<exref url="https://github.com/GoCD/GoCD/issues/21">(link)</exref>
 			</item>
         </bullets>
     </section>

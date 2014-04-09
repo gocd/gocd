@@ -19,6 +19,8 @@ load File.join(File.dirname(__FILE__), 'stages_controller_examples.rb')
 
 describe Admin::StagesController do
   include MockRegistryModule
+  include TaskMother
+
   before do
     controller.stub(:populate_health_messages)
     controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = mock('Pipeline Pause Service'))
@@ -186,15 +188,73 @@ describe Admin::StagesController do
     end
 
     describe "create" do
-      before do
+      before :all do
+        set_up_registry
+        task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
+        PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
+      end
+
+      after :all do
+        unload_all_from_registry
+        PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
+      end
+
+      before :each do
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        @pluggable_task_service = mock('Pluggable_task_service')
+        controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
+      end
+
+      it "should be able to create a stage with a pluggable task" do
+        @pluggable_task_service.stub(:validate)
+        task_view_service = mock('Task View Service')
+        controller.stub(:task_view_service).and_return(task_view_service)
+        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        stub_save_for_success
+
+        stage = {:name => "stage", :jobs => [{:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}]}
+        pipeline_name = "pipeline-name"
+        post :create, :stage_parent => "pipelines", :pipeline_name => pipeline_name, :config_md5 => "1234abcd", :stage => stage
+
+        @cruise_config.getAllErrors().size.should == 0
+        assert_save_arguments
+        assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
+        pipeline_config = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new(pipeline_name))
+        pipeline_config.last().name().should == CaseInsensitiveString.new("stage")
+        pipeline_config.last().getJobs().first().getTasks().first().instance_of?(PluggableTask).should == true
+      end
+
+      it "should validate pluggable tasks before create" do
+        task_view_service = mock('Task View Service')
+        controller.stub(:task_view_service).and_return(task_view_service)
+        @pluggable_task_service.stub(:validate) do |task|
+          task.getConfiguration().getProperty("key").addError("key", "some error")
+        end
+        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
+        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
+        stub_save_for_validation_error do |result, cruise_config, pipeline|
+          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+        end
+        task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
+
+        job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
+        stage = {:name => "stage", :jobs => [job]}
+        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => stage
+
+        task_to_be_saved = assigns[:pipeline].last().getJobs().first().getTasks().first()
+        task_to_be_saved.instance_of?(PluggableTask).should == true
+        task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
+        task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
       end
 
       it "should populate config_file_conflict when the md5 has already been changed" do
         stub_save_for_validation_error do |result, config, node|
           result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => []}
+        job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
+        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
 
         assigns[:config_file_conflict].should == true
         assert_save_arguments
@@ -208,7 +268,8 @@ describe Admin::StagesController do
           options[:location][:action].should == :index
         end
 
-        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => []}
+        job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
+        post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
 
         @cruise_config.getAllErrors().size.should == 0
         @pipeline.size().should == 2

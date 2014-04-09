@@ -19,6 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Admin::JobsController do
   include ConfigSaveStubbing
   include MockRegistryModule
+  include TaskMother
 
   def add_resource(job_name, resource)
     @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
@@ -279,6 +280,66 @@ describe Admin::JobsController do
     end
 
     describe "create" do
+      before :all do
+        set_up_registry
+        task_preference = com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference.new(TaskMother::ApiTaskForTest.new)
+        PluggableTaskConfigStore.store().setPreferenceFor("curl.plugin", task_preference)
+      end
+
+      after :all do
+        unload_all_from_registry
+        PluggableTaskConfigStore.store().removePreferenceFor("curl.plugin")
+      end
+
+      before :each do
+        @pluggable_task_service = mock('Pluggable_task_service')
+        controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
+      end
+
+      it "should be able to create a job with a pluggable task" do
+        @pluggable_task_service.stub(:validate)
+        task_view_service = mock('Task View Service')
+        controller.stub(:task_view_service).and_return(task_view_service)
+        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        stub_save_for_success
+
+        pipeline_name = "pipeline-name"
+        job = {:name => "new_job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}
+        post :create, :pipeline_name => pipeline_name, :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+
+        @cruise_config.getAllErrors().size.should == 0
+        assert_save_arguments
+        assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
+        pipeline_config = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new(pipeline_name))
+        pipeline_config.get(0).getJobs().last().name == JobConfig.new("new_job")
+        pipeline_config.get(0).getJobs().last().getTasks().first().instance_of?(PluggableTask).should == true
+      end
+
+      it "should validate pluggable tasks before create" do
+        task_view_service = mock('Task View Service')
+        controller.stub(:task_view_service).and_return(task_view_service)
+        @pluggable_task_service.stub(:validate) do |task|
+          task.getConfiguration().getProperty("key").addError("key", "some error")
+        end
+        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
+        task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
+        stub_save_for_validation_error do |result, cruise_config, pipeline|
+          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+        end
+        task_view_service.should_receive(:getTaskViewModelsWith).with(anything).and_return(Object.new)
+
+        job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
+        post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => job,  :config_md5 => "1234abcd", :stage_parent => "pipelines"
+
+        task_to_be_saved = assigns[:job].getTasks().first()
+        task_to_be_saved.instance_of?(PluggableTask).should == true
+        task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
+        task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
+      end
+
       it "should create a new job" do
         stub_save_for_success
 

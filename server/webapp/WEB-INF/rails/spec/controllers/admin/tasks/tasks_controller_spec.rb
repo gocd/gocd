@@ -122,4 +122,11 @@ describe Admin::TasksController do
       assigns[:task_view_models].should == tasks
     end
   end
+
+  describe "config_store" do
+    it "should return config store" do
+      actual = controller.send(:config_store)
+      actual.instance_of?(com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore).should == true
+    end
+  end
 end

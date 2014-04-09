@@ -41,9 +41,10 @@ module Admin
         include ::ConfigUpdate::PipelineOrTemplateNode
         include ::ConfigUpdate::RefsAsUpdatedRefs
 
-        def initialize params, user, security_service, stage
+        def initialize params, user, security_service, stage, pluggable_task_service
           super(params, user, security_service)
           @stage = stage
+          @pluggable_task_service = pluggable_task_service
         end
 
         def subject(pipeline)
@@ -51,9 +52,11 @@ module Admin
         end
 
         def update(pipeline)
+          task = @stage.getJobs().first().getTasks().first()
+          @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           pipeline.addStageWithoutValidityAssertion(@stage)
         end
-      end.new(params, current_user.getUsername(), security_service, @stage), {:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
+      end.new(params, current_user.getUsername(), security_service, @stage, pluggable_task_service), {:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
         assert_load(:pipeline, @node)
         assert_load(:stage, @subject)
         assert_load(:task_view_models, task_view_service.getTaskViewModelsWith(@stage.allBuildPlans().first().tasks().first())) unless @update_result.isSuccessful()

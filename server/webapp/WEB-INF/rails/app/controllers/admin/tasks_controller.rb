@@ -32,7 +32,7 @@ module Admin
     def edit
       @task_view_model = task_view_service.getViewModel(@task, 'edit')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
-      @config_store = com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
+      assert_load :config_store, config_store
       render :template => "/admin/tasks/plugin/edit", :layout => false
     end
 
@@ -41,7 +41,7 @@ module Admin
       assert_load :task, task_view_service.taskInstanceFor(type)
       assert_load :task_view_model, task_view_service.getViewModel(@task, 'new')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
-      @config_store = com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
+      assert_load :config_store, config_store
       render "/admin/tasks/plugin/new", :layout => false
     end
 
@@ -53,6 +53,7 @@ module Admin
         @errors = flatten_all_errors(all_errors)
         @task_view_model = task_view_service.getViewModel(@task, 'new')
         @on_cancel_task_vms = task_view_service.getOnCancelTaskViewModels(@task)
+        @config_store = config_store
         render :template => "/admin/tasks/plugin/new", :status => result.httpCode(), :layout => false
       end
 
@@ -135,6 +136,10 @@ module Admin
     end
 
     private
+
+    def config_store
+      com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
+    end
 
     def load_modify_task_variables
       assert_load :pipeline, ::ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config)

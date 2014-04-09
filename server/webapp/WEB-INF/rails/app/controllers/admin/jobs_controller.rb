@@ -47,9 +47,10 @@ module Admin
         include ::ConfigUpdate::JobsNode
         include ::ConfigUpdate::RefsAsUpdatedRefs
 
-        def initialize(params, user, security_service, job)
+        def initialize(params, user, security_service, job, pluggable_task_service)
           super(params, user, security_service)
           @job = job
+          @pluggable_task_service = pluggable_task_service
         end
 
         def subject(jobs)
@@ -57,9 +58,11 @@ module Admin
         end
 
         def update(jobs)
+          task = @job.getTasks().first()
+          @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           jobs.addJobWithoutValidityAssertion(@job)
         end
-      end.new(params, current_user.getUsername(), security_service, @job), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
+      end.new(params, current_user.getUsername(), security_service, @job, pluggable_task_service), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
         assert_load :job, @subject
         assert_load :task_view_models, task_view_service.getTaskViewModelsWith(@job.tasks().first()) unless @update_result.isSuccessful()
       end

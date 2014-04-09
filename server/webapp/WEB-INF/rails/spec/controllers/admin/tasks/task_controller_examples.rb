@@ -151,6 +151,8 @@ shared_examples_for "task_controller"  do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @pluggable_task_service = stub_service(:pluggable_task_service)
+      @config_store = mock('config store')
+      @controller.stub(:config_store).and_return(@config_store)
     end
 
     describe "destroy" do
@@ -190,7 +192,7 @@ shared_examples_for "task_controller"  do
         assigns[:task].should == @example_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         response.status.should == 200
-        assigns[:config_store].should == com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
+        assigns[:config_store].should == @config_store
       end
     end
 
@@ -265,7 +267,7 @@ shared_examples_for "task_controller"  do
         assigns[:task].should == @new_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         response.status.should == "200 OK"
-        assigns[:config_store].should == com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
+        assigns[:config_store].should == @config_store
       end
     end
 
@@ -287,6 +289,7 @@ shared_examples_for "task_controller"  do
         @tasks.length.should == 2
         @tasks.last.should == @created_task
         assigns[:task].should == @created_task
+        assigns[:config_store].should == nil
 
         response.status.should == "200 OK"
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode
@@ -307,6 +310,8 @@ shared_examples_for "task_controller"  do
         assigns[:errors].size.should == 1
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         assert_save_arguments
+        assigns[:config_store].should_not == nil
+        assigns[:config_store].should == @config_store
       end
     end
   end

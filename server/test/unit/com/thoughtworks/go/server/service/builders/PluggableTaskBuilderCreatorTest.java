@@ -22,6 +22,8 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -30,9 +32,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluggableTaskBuilderCreatorTest {
     private static final String DEFAULT_WORKING_DIRECTORY = "default/working/directory";
@@ -46,7 +46,7 @@ public class PluggableTaskBuilderCreatorTest {
 
     @Before
     public void setup() throws Exception {
-        pluggableTask = new PluggableTask();
+        pluggableTask = new PluggableTask("test-task", new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
         pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator();
         execTaskBuilder = new ExecTaskBuilder();
         builderFactory = mock(BuilderFactory.class);
@@ -61,7 +61,7 @@ public class PluggableTaskBuilderCreatorTest {
     @Test
     public void shouldCreatePluggableTaskBuilder() throws Exception {
         when(builderFactory.builderFor(pluggableTask.cancelTask(), pipeline, resolver)).thenReturn(null);
-        Builder builder = pluggableTaskBuilderCreator.createBuilder(builderFactory, new PluggableTask(), new Pipeline(), resolver);
+        Builder builder = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, new Pipeline(), resolver);
         assertThat(builder != null, is(true));
         assertThat(builder instanceof PluggableTaskBuilder, is(true));
     }
@@ -75,6 +75,12 @@ public class PluggableTaskBuilderCreatorTest {
         Builder expected = expectedBuilder(pluggableTask, builderForCancelTask);
         Builder actual = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, resolver);
         assertThat(actual, Is.is(expected));
+    }
+
+    @Test
+    public void shouldCreateBuilderWithAReasonableDescription() throws Exception {
+        Builder builder = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, resolver);
+        assertThat(builder.getDescription(), is("Plugin with ID: test-plugin-id"));
     }
 
     private Builder expectedBuilder(PluggableTask pluggableTask, Builder builderForCancelTask) {

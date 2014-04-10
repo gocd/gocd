@@ -17,14 +17,11 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
-import com.thoughtworks.go.plugin.api.config.PluginPreference;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskView;
 
 public final class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
     private static final PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
 
-    public static final PluggableTaskConfigStore store() {
+    public static PluggableTaskConfigStore store() {
         return PLUGGABLE_TASK_CONFIG_STORE;
     }
 }

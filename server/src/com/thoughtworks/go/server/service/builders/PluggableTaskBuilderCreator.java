@@ -30,6 +30,7 @@ public class PluggableTaskBuilderCreator implements TaskBuilder<PluggableTask> {
     public Builder createBuilder(BuilderFactory builderFactory, PluggableTask task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
         Builder cancelBuilder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);
         return new PluggableTaskBuilder(task.getConditions(), cancelBuilder,
-                task, task.describe(), pipeline.defaultWorkingFolder().getPath());
+                task, "Plugin with ID: " + task.getPluginConfiguration().getId(),
+                pipeline.defaultWorkingFolder().getPath());
     }
 }

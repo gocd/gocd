@@ -43,6 +43,7 @@ import java.util.Map;
 public class PluggableTask extends AbstractTask {
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
+
     @ConfigSubtag
     private PluginConfiguration pluginConfiguration = new PluginConfiguration();
 

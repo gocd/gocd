@@ -16,25 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
-import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.remote.work.BuildAssignment;
-import com.thoughtworks.go.remote.work.BuildWork;
-import com.thoughtworks.go.remote.work.DeniedAgentWork;
-import com.thoughtworks.go.remote.work.NoWork;
-import com.thoughtworks.go.remote.work.UnregisteredAgentWork;
-import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -45,6 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
@@ -201,7 +192,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
                     List<Task> tasks = goConfigService.tasksForJob(pipeline[0].getName(), job.getIdentifier().getStageName(), job.getName());
                     final List<Builder> builders = builderFactory.buildersForTasks(pipeline[0], tasks, resolver);
-
 
                     return transactionTemplate.execute(new TransactionCallback() {
                         public Object doInTransaction(TransactionStatus status) {

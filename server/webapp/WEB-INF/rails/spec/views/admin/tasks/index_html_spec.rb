@@ -239,7 +239,9 @@ describe "admin/tasks/index.html.erb" do
         render "admin/tasks/index.html"
 
         response.body.should have_tag("table.list_table") do
-          with_tag("tr.missing_plugin")
+          with_tag("tr.missing_plugin") do
+            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+          end
         end
       end
 
@@ -252,9 +254,28 @@ describe "admin/tasks/index.html.erb" do
         render "admin/tasks/index.html"
 
         response.body.should have_tag('table.list_table') do
-          with_tag("label.missing_plugin_link")
+          with_tag("td.has_on_cancel") do
+            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+          end
         end
+      end
 
+      it "should have missing plugin class in on-cancel task if both task & on-cancel task are pluggable task of a missing plugin" do
+        @task_3.setCancelTask(@task_3)
+
+        assigns[:tasks] = [@task_3]
+        @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
+
+        render "admin/tasks/index.html"
+
+        response.body.should have_tag('table.list_table') do
+          with_tag("tr.missing_plugin") do
+            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            with_tag("td.has_on_cancel") do
+              with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            end
+          end
+        end
       end
 
       it "for plugin on-cancel task of a builtin task, it should show display value of plugin, and not 'pluggable task'" do

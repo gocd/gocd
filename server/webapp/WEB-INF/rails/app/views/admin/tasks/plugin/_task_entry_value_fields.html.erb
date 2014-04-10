@@ -17,7 +17,7 @@
     <%- is_plugin_missing = scope[:tvm_of_cancel_task].instance_of? com.thoughtworks.go.presentation.MissingPluggableTaskViewModel %>
     <%- if (scope[:task_config].hasCancelTask()) %>
         <%- if (is_plugin_missing) %>
-            <%= label_tag "", scope[:tvm_of_cancel_task].getTypeForDisplay(), :title => l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [scope[:tvm].getTypeForDisplay()].to_java(java.lang.Object)), :class => "missing_plugin_link instant-tooltip" -%>
+            <%= label_tag "", scope[:tvm_of_cancel_task].getTypeForDisplay(), :title => l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [scope[:tvm_of_cancel_task].getTypeForDisplay()].to_java(java.lang.Object)), :class => "missing_plugin_link instant-tooltip" -%>
         <%- else %>
             <%= scope[:tvm_of_cancel_task].getTypeForDisplay() %>
         <%- end %>

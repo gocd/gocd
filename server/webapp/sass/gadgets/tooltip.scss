@@ -14,12 +14,14 @@
       content: attr(title);
       display: block;
       left: 0;
+      line-height: 16px;
       right:0;
       margin:auto;
       width:250px;
-      padding: 5px 15px;
+      padding: 10px 15px;
       position: absolute;
       z-index: 98;
+      font-size: 11px;
     }
     &:before{
       border:solid;

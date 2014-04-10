@@ -34,7 +34,8 @@ describe "admin/tasks/_on_cancel.html.erb" do
 
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
     response.body.should have_tag("div.on_cancel") do
-      with_tag("div#plugin_missing_error .warning", "Associated plugin 'curl.plugin' not found. Please contact the Go admin to install the plugin.")
+
+      with_tag("div#plugin_missing_error .warning", "On Cancel task is not available because associated plugin 'curl.plugin' is missing. Please contact Go admin to verify or re-install plugin. Click on ‘Save’ will replace the current On Cancel task.")
     end
   end
 

@@ -4,7 +4,7 @@
     %>
     <%- if (task.hasCancelTask() && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask) && !scope[:config_store].preferenceFor(task.cancelTask().getPluginConfiguration().getId())) %>
         <div class="flash" id="plugin_missing_error">
-            <p class="warning"><%= l.string("ASSOCIATED_PLUGIN_NOT_FOUND", [task.cancelTask().getPluginConfiguration().getId()].to_java(java.lang.Object)) -%></p>
+            <p class="warning"><%= l.string("ASSOCIATED_PLUGIN_NOT_FOUND_SAVE", [task.cancelTask().getPluginConfiguration().getId()].to_java(java.lang.Object)) -%></p>
         </div>
     <%- end %>
 

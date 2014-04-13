@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.plugin.api.task;
 
-import com.thoughtworks.go.plugin.api.annotation.UsedOnGoAgent;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 
 public interface TaskExecutor {
-    @UsedOnGoAgent
-    public ExecutionResult execute(TaskConfig config,TaskExecutionContext taskExecutionContext);
+    ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext);
 }

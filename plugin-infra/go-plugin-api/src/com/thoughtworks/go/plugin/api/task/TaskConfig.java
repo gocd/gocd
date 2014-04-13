@@ -26,7 +26,7 @@ public class TaskConfig extends Configuration {
         return property;
     }
 
-    public String getValue(String propertyName){
+    public String getValue(String propertyName) {
         Property property = super.get(propertyName);
         if (property == null) {
             return null;

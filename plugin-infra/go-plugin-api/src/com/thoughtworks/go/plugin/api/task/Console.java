@@ -17,18 +17,54 @@
 package com.thoughtworks.go.plugin.api.task;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.Map;
 
+/**
+ * Used to write information of a task run, out to the build log.
+ */
 public interface Console {
+    /**
+     * Print a line out to the build log.
+     *
+     * @param line Line to write.
+     */
     void printLine(String line);
 
+    /**
+     * Setup the console to read the input stream as standard error.
+     * <p/>
+     * This is used to connect the output of a process, to the build log. This is usually used as:
+     * console.readErrorOf(process.getErrorStream());
+     * <p/>
+     * where the "process" object is of type {@link java.lang.Process}.
+     *
+     * @param in The input stream to read as standard error.
+     */
     void readErrorOf(InputStream in);
 
+    /**
+     * Setup the console to read the input stream as standard output.
+     * <p/>
+     * This is used to connect the output of a process, to the build log. This is usually used as:
+     * console.readOutputOf(process.getInputStream());
+     * <p/>
+     * where the "process" object is of type {@link java.lang.Process}.
+     *
+     * @param in The input stream to read as standard output.
+     */
     void readOutputOf(InputStream in);
 
-    void printEnvironment(Map<String,String> environment,SecureEnvVarSpecifier secureEnvVarSpecifier);
+    /**
+     * Print details about the environment specified in the argument into the build log.
+     *
+     * @param environment Environment to print details of.
+     * @param secureEnvVarSpecifier {@link com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier}
+     */
+    void printEnvironment(Map<String, String> environment, SecureEnvVarSpecifier secureEnvVarSpecifier);
 
+    /**
+     * Used to specify which environment variables are secure and shouldn't be printed literally.
+     */
     interface SecureEnvVarSpecifier {
         public boolean isSecure(String variableName);
     }

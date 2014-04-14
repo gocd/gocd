@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 
 /**
- * PackageMaterialProvider class is the staring point for package repository as material plugin.
+ * PackageMaterialProvider interface is the starting point for package repository as material plugin.
  * It  provides
  * {@link com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration} and
  * {@link com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller}

@@ -18,6 +18,17 @@ package com.thoughtworks.go.plugin.api.task;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 
+/**
+ * The implementation of this TaskExecutor interface will be the one which does the actual work of the task.
+ *
+ */
 public interface TaskExecutor {
+    /**
+     * The plugin infrastructure will call the execute() method, on the agent side, when the task needs to be run.
+     *
+     * @param config Has the current configuration. Contains both the keys and the values provided by the user.
+     * @param taskExecutionContext Instance of {@link TaskExecutionContext}
+     * @return The result of the execution (decides the status of the task)
+     */
     ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext);
 }

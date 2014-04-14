@@ -19,13 +19,29 @@ package com.thoughtworks.go.plugin.api.task;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
+/**
+ * Allows the plugin to specify information about the configuration it accepts and expects.
+ *
+ * This class, at other times, is used to hold information about the value provided by the
+ * user, for the configuration.
+ */
 public class TaskConfig extends Configuration {
+    /**
+     * Adds a property to the configuration of this task.
+     *
+     * @param propertyName Name of the property (or key) in the configuration.
+     *
+     * @return an instance of {@link com.thoughtworks.go.plugin.api.task.TaskConfigProperty}
+     */
     public TaskConfigProperty addProperty(String propertyName) {
         TaskConfigProperty property = new TaskConfigProperty(propertyName);
         add(property);
         return property;
     }
 
+    /**
+     * The value of the specified property, or null if not found.
+     */
     public String getValue(String propertyName) {
         Property property = super.get(propertyName);
         if (property == null) {

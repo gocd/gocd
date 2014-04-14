@@ -18,19 +18,41 @@ package com.thoughtworks.go.plugin.api.response.execution;
 
 import com.thoughtworks.go.plugin.api.response.Result;
 
+/**
+ * Used to specify the result of an execution of a part of a plugin.
+ */
 public class ExecutionResult extends Result {
 
-    public static ExecutionResult failure(String message,Exception ex){
-       return failure(message);
+    /**
+     * Mark the result as 'Failure'.
+     *
+     * @param message More details about the failure.
+     * @param exception (currently not used)
+     * @return A new ExecutionResult instance, which is marked as 'Failure'.
+     */
+    public static ExecutionResult failure(String message, Exception exception) {
+        return failure(message);
     }
 
-    public static ExecutionResult failure(String message){
+    /**
+     * Mark the result as 'Failure'.
+     *
+     * @param message More details about the failure.
+     * @return A new ExecutionResult instance, which is marked as 'Failure'.
+     */
+    public static ExecutionResult failure(String message) {
         ExecutionResult executionResult = new ExecutionResult();
         executionResult.withErrorMessages(message);
         return executionResult;
     }
 
-    public static ExecutionResult success(String message){
+    /**
+     * Mark the result as 'Success'.
+     *
+     * @param message More details about the run.
+     * @return A new ExecutionResult instance, which is marked as 'Success'.
+     */
+    public static ExecutionResult success(String message) {
         ExecutionResult executionResult = new ExecutionResult();
         executionResult.withSuccessMessages(message);
         return executionResult;

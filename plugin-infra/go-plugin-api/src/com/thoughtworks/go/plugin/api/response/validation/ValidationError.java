@@ -24,7 +24,6 @@ public class ValidationError {
 
     private static final String EMPTY_KEY = "";
 
-
     private String key;
 
     private String message;

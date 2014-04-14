@@ -18,6 +18,9 @@ package com.thoughtworks.go.plugin.api.task;
 
 import com.thoughtworks.go.plugin.api.config.Property;
 
+/**
+ * Specialization of {@link com.thoughtworks.go.plugin.api.config.Property} class, for task configuration.
+ */
 public class TaskConfigProperty extends Property {
     protected TaskConfigProperty(String key) {
         super(key);

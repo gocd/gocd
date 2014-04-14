@@ -16,7 +16,18 @@
 
 package com.thoughtworks.go.plugin.api.task;
 
+/**
+ * Used to define the view of the task configuration.
+ */
 public interface TaskView {
+    /**
+     * Specifies the display value of this task plugin. This value is used in the job UI's task dropdown
+     * as well as in the title of the task definition dialog box.
+     */
     String displayValue();
+
+    /**
+     * The template for the task configuration, written using Angular.js templating language.
+     */
     String template();
 }

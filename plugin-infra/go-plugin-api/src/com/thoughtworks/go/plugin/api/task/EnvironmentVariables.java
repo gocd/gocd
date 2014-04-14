@@ -18,10 +18,22 @@ package com.thoughtworks.go.plugin.api.task;
 
 import java.util.Map;
 
+/**
+ * Environment variables for the task.
+ */
 public interface EnvironmentVariables {
+    /**
+     * @return A map (key-value pairs) of the environment variables.
+     */
     Map<String, String> asMap();
 
+    /**
+     * Write the environment variables to a {@link com.thoughtworks.go.plugin.api.task.Console}.
+     */
     void writeTo(Console console);
 
+    /**
+     * @return the {@link com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier}
+     */
     Console.SecureEnvVarSpecifier secureEnvSpecifier();
 }

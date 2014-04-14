@@ -17,18 +17,12 @@
 package com.thoughtworks.go.plugin.api.config;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Represents single configuration property.
  * A given property can have set of metadata which can be represented by options.
  * The valid options are Property.REQUIRED, Property.PART_OF_IDENTITY, Property.SECURE, Property.DISPLAY_NAME and Property.DISPLAY_ORDER
  */
-public class Property{
+public class Property {
 
     /**
      * Option to specify if a property is a mandatory when configuration is captured

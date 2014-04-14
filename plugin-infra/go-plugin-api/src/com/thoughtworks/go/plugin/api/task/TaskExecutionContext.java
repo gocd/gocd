@@ -16,10 +16,24 @@
 
 package com.thoughtworks.go.plugin.api.task;
 
+/**
+ * Used to provide the {@link com.thoughtworks.go.plugin.api.task.TaskExecutor} with context about the
+ * environment of the task run.
+ */
 public interface TaskExecutionContext {
+    /**
+     * The environment variables that this task should run with.
+     */
     EnvironmentVariables environment();
 
+    /**
+     * This Console instance will be setup such that any messages written to it will show
+     * up in the build log.
+     */
     Console console();
 
+    /**
+     * Working directory to be used by the task.
+     */
     String workingDir();
 }

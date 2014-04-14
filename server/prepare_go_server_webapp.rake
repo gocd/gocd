@@ -99,8 +99,8 @@ task :generate_help_documents do
   api_doc_files << File.join(plugin_api_target_dir, "classes/plugin-descriptor.xsd")
   api_doc_files << File.join("..", "plugin-infra", "sample-plugins", "target", "go-sample-plugins.zip")
 
-  rake = File.expand_path('../../tools/jruby/bin', __FILE__) + (Gem.win_platform? ? '/jruby.bat' : '/jruby')
-  sh "cd #{File.join("../helper/")} && #{rake} -S rake site build_sitemap"
+  ruby = File.expand_path('../../tools/jruby/bin', __FILE__) + (Gem.win_platform? ? '/jruby.bat' : '/jruby')
+  sh "cd #{File.join("../helper/")} && #{ruby} -S rake site build_sitemap"
 
   require 'fileutils'
   FileUtils::mkdir_p(File.join("../helper/build/resources"))

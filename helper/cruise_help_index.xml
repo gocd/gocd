@@ -147,6 +147,7 @@
         <entry reference="go_plugins_basics"/>
         <entry title="Go Plugin API" url="resources/javadoc/index.html" target="_blank"/>
         <entry reference="writing_go_package_material_plugin"/>
+        <entry reference="writing_go_task_plugins"/>
     </entry>
     <entry title="Bundled Plugins">
         <entry reference="yum_repository_poller"/>

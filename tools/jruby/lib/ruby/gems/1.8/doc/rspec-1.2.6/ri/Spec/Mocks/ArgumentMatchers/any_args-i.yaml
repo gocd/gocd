@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  object.should_receive(:message).with(any_args())
+is_singleton: false
+block_params: 
+name: any_args
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if object receives :message with any args at all. This is really a
+    more explicit variation of object.should_receive(:message)
+full_name: Spec::Mocks::ArgumentMatchers#any_args
+visibility: public
+aliases: []
+

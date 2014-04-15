@@ -1,0 +1,54 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: ERB::Util
+- !ruby/object:RI::IncludedModule 
+  name: NOOPMethodMissing
+name: HtmlFormatter
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: dump_failure
+- !ruby/object:RI::MethodSummary 
+  name: dump_summary
+- !ruby/object:RI::MethodSummary 
+  name: example_failed
+- !ruby/object:RI::MethodSummary 
+  name: example_group_number
+- !ruby/object:RI::MethodSummary 
+  name: example_group_started
+- !ruby/object:RI::MethodSummary 
+  name: example_number
+- !ruby/object:RI::MethodSummary 
+  name: example_passed
+- !ruby/object:RI::MethodSummary 
+  name: example_pending
+- !ruby/object:RI::MethodSummary 
+  name: example_started
+- !ruby/object:RI::MethodSummary 
+  name: extra_failure_content
+- !ruby/object:RI::MethodSummary 
+  name: global_scripts
+- !ruby/object:RI::MethodSummary 
+  name: global_styles
+- !ruby/object:RI::MethodSummary 
+  name: html_header
+- !ruby/object:RI::MethodSummary 
+  name: move_progress
+- !ruby/object:RI::MethodSummary 
+  name: percent_done
+- !ruby/object:RI::MethodSummary 
+  name: report_header
+- !ruby/object:RI::MethodSummary 
+  name: start
+- !ruby/object:RI::MethodSummary 
+  name: start_dump
+full_name: Spec::Runner::Formatter::HtmlFormatter
+superclass: BaseTextFormatter
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

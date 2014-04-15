@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (target,expected)
+is_singleton: false
+block_params: 
+name: diff_as_object
+comment: 
+full_name: Spec::Expectations::Differs::Default#diff_as_object
+visibility: public
+aliases: []
+

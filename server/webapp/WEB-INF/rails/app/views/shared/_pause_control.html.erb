@@ -1,0 +1,27 @@
+<% if scope[:pause_info].isPaused() %>
+    <form action="<%= unpause_pipeline_path(:pipeline_name => scope[:pipeline_name]) -%>" method="post" onsubmit="PipelineOperations.onUnPause(this, '<%= scope[:pipeline_name] -%>', '<%= unpause_pipeline_path(scope[:pipeline_name]) -%>'); return false;">
+        <div class='operate unpause_wrapper'>
+            <%= submit_button("Unpause", :type=> "image", :class => 'primary', :id => "unpause-#{scope[:pipeline_name]}") %>
+        </div>
+    </form>
+<% else
+    scope[:pause_info_id] = "pause-info-#{scope[:pipeline_name]}"
+    scope[:pause_onclick] = "Modalbox.show($(\"#{scope[:pause_info_id]}\"),{title: \"Pause pipeline: #{scope[:pipeline_name]} \",overlayClose:false})"
+-%>
+    <div class='operate pause_wrapper'>
+        <%= submit_button("Pause", {:type=> "image", :id => "confirm-pause-#{scope[:pipeline_name]}", :onclick => "#{scope[:pause_onclick]}"}) %>
+    </div>
+    <div id="<%= scope[:pause_info_id] %>" style="display:none">
+        <form action="<%= pause_pipeline_path(:pipeline_name => scope[:pipeline_name]) -%>" method="post" onsubmit="PipelineOperations.onPause(this, '<%= scope[:pipeline_name] -%>', '<%= pause_pipeline_path(scope[:pipeline_name]) -%>'); return false;">
+            <div class="sub_tab_container">
+                <div class='pause_reason'>
+                    Specify a reason for pausing schedule on pipeline '<%= scope[:pipeline_name] %>': <input type="text" name="pauseCause" maxlength="255"/>
+                </div>
+            </div>
+            <div class="actions">
+                <%= submit_button("Ok", :class=> "primary", :id => "pause-#{scope[:pipeline_name]}") %>
+                <%= submit_button("Close", :onclick => "Modalbox.hide()", :type => "button") %>
+            </div>
+        </form>
+    </div>
+<% end -%>

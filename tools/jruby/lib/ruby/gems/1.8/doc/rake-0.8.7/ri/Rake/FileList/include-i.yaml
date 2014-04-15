@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*filenames)
+is_singleton: false
+block_params: 
+name: include
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Add file names defined by glob patterns to the file list. If an array is given,
+    add each element of the array.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  file_list.include(&quot;*.java&quot;, &quot;*.cfg&quot;)\n  file_list.include \
+    %w( math.c lib.h *.o )\n"
+full_name: Rake::FileList#include
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: add

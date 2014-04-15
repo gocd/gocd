@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: ignoring_args?
+comment: 
+full_name: Spec::Mocks::MessageExpectation#ignoring_args?
+visibility: public
+aliases: []
+

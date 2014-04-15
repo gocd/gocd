@@ -1,0 +1,21 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: false
+block_params: 
+name: share_examples_for
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Creates an example group that can be shared by other example groups
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: " share_examples_for &quot;All Editions&quot; do\n   it &quot;all editions \
+    behaviour&quot; ...\n end\n\n describe SmallEdition do\n   it_should_behave_like \
+    &quot;All Editions&quot;\n\n   it &quot;should do small edition stuff&quot; do\n\
+    \     ...\n   end\n end\n"
+full_name: Spec::DSL::Main#share_examples_for
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: shared_examples_for

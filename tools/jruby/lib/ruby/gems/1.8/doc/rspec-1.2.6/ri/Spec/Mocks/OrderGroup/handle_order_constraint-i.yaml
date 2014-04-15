@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expectation)
+is_singleton: false
+block_params: 
+name: handle_order_constraint
+comment: 
+full_name: Spec::Mocks::OrderGroup#handle_order_constraint
+visibility: public
+aliases: []
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>example_failed (Spec::Runner::Reporter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/reporter.rb, line 39</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">example_failed</span>(<span class="ruby-identifier">example</span>, <span class="ruby-identifier">error</span>)
+        <span class="ruby-identifier">backtrace_tweaker</span>.<span class="ruby-identifier">tweak_backtrace</span>(<span class="ruby-identifier">error</span>)
+        <span class="ruby-identifier">failure</span> = <span class="ruby-constant">Failure</span>.<span class="ruby-identifier">new</span>(<span class="ruby-ivar">@example_group</span>.<span class="ruby-identifier">description</span>, <span class="ruby-identifier">example</span>.<span class="ruby-identifier">description</span>, <span class="ruby-identifier">error</span>)
+        <span class="ruby-ivar">@failures</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">failure</span>
+        <span class="ruby-identifier">formatters</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">f</span>.<span class="ruby-identifier">example_failed</span>(<span class="ruby-identifier">example</span>, <span class="ruby-ivar">@failures</span>.<span class="ruby-identifier">length</span>, <span class="ruby-identifier">failure</span>)
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

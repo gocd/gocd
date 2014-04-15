@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (str)
+is_singleton: false
+block_params: 
+name: quote
+comment: 
+full_name: Rake::RDocTask#quote
+visibility: public
+aliases: []
+

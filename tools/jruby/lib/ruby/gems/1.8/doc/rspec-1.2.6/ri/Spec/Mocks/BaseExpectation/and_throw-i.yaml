@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (symbol)
+is_singleton: false
+block_params: 
+name: and_throw
+comment: 
+full_name: Spec::Mocks::BaseExpectation#and_throw
+visibility: public
+aliases: []
+

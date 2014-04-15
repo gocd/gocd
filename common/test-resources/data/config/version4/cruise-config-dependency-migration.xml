@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="4">
+  <server>
+    <license user="Cruise Test License with 36 Users">
+        M83LmtvD27f1Bt6FUlEvTeuOCyjD3TseNmLmTzs653wGY0T00cmTo6HGBc3m
+        ICsrLggtIclM/xUi08LtQKicIT9i4tDv3rObeXOaoEXk+nwY6eAN3pT+ORNE
+        HUPG9NHLQ9iwooQAIo3enTMaarJoPExuFws07jReyGl0lCkK5NjaHpjvcZgZ
+        O7YMRS6D2z11AVB7JodtvKbjyZWbTPbbXMRdrlgHOkYumQUWa3D94k5oBvQK
+        7RYts714dNmWlsE1ANKGwK7+nUuCi70/CrRjvt8r3cNyoON89nJ2nx7mGS0F
+        yQOdSVX/kBc3XHWAYsL2D45D69JIIP54KgMysc0g5A==        
+    </license>
+  </server>
+  <pipelines>
+    <pipeline name="multiple">
+      <materials>
+        <svn url="file:///home/cceuser/projects/cruise/manual-testing/multiple/repo/trunk/part1"
+         dest="part1"
+        />
+      </materials>
+      <stage name="helloworld-part2">
+        <jobs>
+          <job name="run1">
+            <tasks>
+              <exec command="/bin/bash" args="helloworld.sh" workingdir="part1" />
+            </tasks>
+          </job>
+       </jobs>
+      </stage>
+   </pipeline>
+    <pipeline name="depends">
+        <dependencies>
+            <depends pipeline="multiple" stage="helloworld-part2"/>
+        </dependencies>
+      <materials>
+          <svn url="file:///home/cceuser/projects/cruise/manual-testing/multiple/repo/trunk/part1"
+           dest="part1"
+          />
+      </materials>
+      <stage name="depends-1">
+        <jobs>
+          <job name="run1">
+            <tasks>
+              <exec command="/bin/bash" args="helloworld.sh" workingdir="part1" />
+            </tasks>
+          </job>
+       </jobs>
+      </stage>
+   </pipeline>
+  </pipelines>
+</cruise>

@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Stage Details">
+	<p>The Stage Details page shows the details of a specific stage.</p>
+	<screenshot alttext="Stage Details Page" src="resources/images/cruise/stage_details.png"/>
+	<subsection title="Key">
+		<steps>
+			<item>Details of a specific stage run: run number, status, when it was triggered, who triggered it, duration of the stage</item>
+			<item>Name of the stage</item>
+			<item>The jobs in this stage are grouped based on status: Passed, Failed, Cancelled, In Progress. Expand these sections to see the jobs.</item>
+			<item>Failed jobs: Click the job name to view <cref topic="job_details_page">job details</cref> for that job.</item>
+			<item>Stage History shows the status and the pipeline label in which this stage has run. The latest 10 are shown by default. The rest are paginated, the user can select to view the details of this particular stage in any of the pipeline instances. This will indicate if the stage was a re-run and show the stage counter. Click on the stage instance in the stage history section to view the stage details page for that stage.</item>
+			<item>Displays a graphical visualization of the pipeline dependency chain.</item>
+            <item>Lists all the material changes that were part of the build in this stage.</item>
+            <item>Displays detailed information about the jobs in this stage.</item>
+            <item>Shows the failed build history for tests failing in the stage.</item>
+            <item>Cancelled job.  Click the job name to view <cref topic="job_details_page"> job details</cref> for that job</item>
+            <item>RSS feed for the stage in Atom format</item>
+            <item>Name of the stage</item>
+		</steps>
+	</subsection>
+    <section title="Failed Build History" id="failed_build_history">
+        <p>Results of test runs from jobs within a stage are aggregated up to the stage level. Failures are listed under the relevant pipeline instance label . Tests listed are ones that are failing in the stage instance currently being viewed. The tests are grouped by pipeline instance in which they started to fail (and are still failing). This gives you information about which users' checkins are responsible for test failures. On clicking the CHANGES link next to the Pipeline Label, the popup shows you the modifications to materials that have been built in this instance of the pipeline.  All the stage instances till the time this stage was last seen green are listed in the failed build history. The pipelines are sorted by <cref topic="ordering_of_pipelines">natural ordering</cref>.</p>
+        <subsection title="Test Failures in the current stage">
+            <p>Other information that the Failed Build History section on the Stage Details page shows: (Image need annotation)</p>
+            <steps>
+            <img src="resources/images/cruise/failed_build_history_1.png"/>
+            <item>Total number of tests run</item>
+            <item>Total number of failures</item>
+            <item>Total number of errors</item>
+            <item>Failing test names grouped by the test suites in which they ran</item>
+            <item>Details link next to each of the job names which gives a popup with the failure/error message with a stack trace caused by the test</item>
+            <item>Users whose check-ins are responsible for the failing test in a given instance.</item>
+            <item>Pipeline labels where the currently failing tests started failing and are still failing in the instance being viewed.</item>
+            <item>The names of the jobs in which the test ran. Clicking on the job name will take you to the job details page.</item>
+            <item>Shows modifications which caused the stage instance to be triggered.</item>
+            <item>Shows the failure message and stack trace for the test failure/error for that job.</item>
+            </steps>
+        </subsection>
+        <subsection title="Example 1" collapsed="true">
+            <p>You are viewing stage 'Dev' of pipeline label '60'. The pipeline has been failing since label '59'. There are currently 4 failing tests.
+            This is how they are listed.
+            <bullets>
+            <img src="resources/images/cruise/failed_build_history_2.png"/>
+            <item>60 has 3 failing test all of which started failing in 60</item>
+            <item>59 and 58 are listed because the 'dev' stage failed but none of the currently failing tests started failing because of the changes in 59 or 58. This could be because the tests that were failing in 59 got fixed by the checkins in 60. But these check-ins broke other tests. Or this could be because none of the test ran in 59 and 58, an error occured before the tests started running.</item>
+            <item>The pipeline instances are listed in <cref topic="ordering_of_pipelines">natural order</cref>. In this case the schedule and natural order are the same.</item>
+            </bullets>
+            </p>
+        </subsection>
+        <subsection title="Example 2" collapsed="true">
+            <p>You are viewing stage 'Dev' of pipeline label '59'. The pipeline has been failing since label '65'. There are currently 6 failing tests.
+            This is how they are listed.
+            <bullets>
+            <img src="resources/images/cruise/failed_build_history_3.png"/>
+            <item>The natural order of pipelines is 61, 60, 65, 59, 58, 57, 56, 55. This is the order in which they are listed.</item>
+            <item>65's changes caused 2 failing test which are still failing in 61 (instance being viewed).</item>
+            <item>60 had 1 new failing test which is still failing in 61.</item>
+            <item>61 has 3 newly failing tests.</item>
+            <item>None of the currently failing tests started failing in 59, 58. 57, 56 or 55.</item>
+            </bullets>
+        </p>
+         <p>If there are no tests configured in the stage or Go is still computing results, this is the message that is displayed.
+         <img src="resources/images/cruise/no_tests_configured.png"/>
+         </p>
+        </subsection>
+    </section>
+
+    <section title="Also See">
+        <bullets>
+		    <item><cref topic="job_details_page">Job details</cref></item>
+            <item><cref topic="job_rerun">Re-running job(s)</cref></item>
+            <item><cref topic="stage_old_config">Historical Configuration</cref></item>
+        </bullets>
+    </section>
+</topic>

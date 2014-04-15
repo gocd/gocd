@@ -1,0 +1,21 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: RuleRecursionOverflowError
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Error indicating a recursion overflow error in task selection.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add_target
+- !ruby/object:RI::MethodSummary 
+  name: message
+full_name: Rake::RuleRecursionOverflowError
+superclass: StandardError
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

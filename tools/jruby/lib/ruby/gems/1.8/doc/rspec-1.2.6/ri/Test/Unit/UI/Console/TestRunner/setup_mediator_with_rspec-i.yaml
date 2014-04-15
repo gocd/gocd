@@ -1,0 +1,11 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: setup_mediator_with_rspec
+comment: 
+full_name: Test::Unit::UI::Console::TestRunner#setup_mediator_with_rspec
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: setup_mediator

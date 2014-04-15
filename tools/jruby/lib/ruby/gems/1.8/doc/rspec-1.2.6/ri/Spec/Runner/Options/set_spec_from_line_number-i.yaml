@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: set_spec_from_line_number
+comment: 
+full_name: Spec::Runner::Options#set_spec_from_line_number
+visibility: protected
+aliases: []
+

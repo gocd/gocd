@@ -1,0 +1,45 @@
+<div id="search_users_table" class='users_table'>
+    <table class='list_table'>
+        <tr class='user_header'>
+            <th class="select"><%=l.string("Select")%></th>
+            <th class='username'><%=l.string("User Name")%></th>
+            <th class='fullname'><%=l.string("Full Name")%></th>
+            <th class='email'><%=l.string("Email Address")%></th>
+            <th class='source'><%=l.string("Source")%></th>
+        </tr>
+        <% scope[:users].each do |user_search_model| %>
+            <tr class='user'>
+                <td>
+                    <%- scope[:user] = user_search_model.getUser() -%>
+                    <%- scope[:selection_field] = random_dom_id("selection_button_user_#{scope[:user].getName().gsub('.', '_dot_')}") -%>
+                    <%- scope[:name_field] = random_dom_id("name_user_#{scope[:user].getName()}") -%>
+                    <%- scope[:full_name_field] = random_dom_id("display_name_user_#{scope[:user].getDisplayName()}") -%>
+                    <%- scope[:email_field] = random_dom_id("email_user_#{scope[:user].getName()}") -%>
+                    <input type="radio" id="<%= scope[:selection_field] -%>" name="selection"/>
+                    <script type="text/javascript">
+                        jQuery('#<%= scope[:selection_field] -%>').change(Util.disable_or_enable_submittable_fields(<%= [scope[:name_field], scope[:full_name_field], scope[:email_field]].to_json -%>));
+                    </script>
+                    <input type="hidden"
+                           id="<%= scope[:name_field] -%>"
+                           name="selections[][name]"
+                           value ="<%= scope[:user].getName() -%>"
+                           disabled="disabled"/>
+                    <input type="hidden"
+                           id="<%= scope[:full_name_field] -%>"
+                           name="selections[][full_name]"
+                           value ="<%= scope[:user].getDisplayName() -%>"
+                           disabled="disabled"/>
+                    <input type="hidden"
+                           id="<%= scope[:email_field] -%>"
+                           name="selections[][email]"
+                           value ="<%= scope[:user].getEmail() -%>"
+                           disabled="disabled"/>
+                </td>
+                <%= cell_with_title( user_search_model.getUser().getName(), 'fullname') %>
+                <%= cell_with_title( user_search_model.getUser().getDisplayName(), 'username') %>
+                <%= cell_with_title( user_search_model.getUser().getEmail(), 'email') %>
+                <%= cell_with_title( user_search_model.getUserSourceType().displayString(), 'source') %>
+            </tr>
+        <% end %>
+    </table>
+</div>

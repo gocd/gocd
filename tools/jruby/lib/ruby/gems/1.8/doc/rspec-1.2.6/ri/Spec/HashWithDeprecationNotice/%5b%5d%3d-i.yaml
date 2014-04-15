@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (k,v)
+is_singleton: false
+block_params: 
+name: '[]='
+comment: 
+full_name: Spec::HashWithDeprecationNotice#[]=
+visibility: public
+aliases: []
+

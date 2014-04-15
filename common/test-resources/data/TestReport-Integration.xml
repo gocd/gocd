@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!--This file represents the results of running a test suite-->
+<test-results name="E:\evolve\branches\release2a\src\Test.Integration\bin\Release\Macquarie.Evolve.Test.Integration.dll" total="415" failures="0" not-run="44" date="2008-02-27" time="05:39:45">
+  <environment nunit-version="2.2.8.0" clr-version="2.0.50727.1433" os-version="Microsoft Windows NT 5.2.3790 Service Pack 2" platform="Win32NT" cwd="E:\evolve\branches\release2a\src" machine-name="EVOLVE-PAIR-7" user="Administrator" user-domain="EVOLVE-PAIR-7" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite name="E:\evolve\branches\release2a\src\Test.Integration\bin\Release\Macquarie.Evolve.Test.Integration.dll" success="True" time="114.766" asserts="0">
+    <results>
+      <test-suite name="E:\evolve\branches\release2a\src\Test.Integration\bin\Release\Macquarie.Evolve.Test.Integration.dll" success="True" time="114.734" asserts="0">
+        <results>
+          <test-suite name="Macquarie" success="True" time="114.656" asserts="0">
+            <results>
+              <test-suite name="Macquarie.Evolve" success="True" time="114.656" asserts="0">
+                <results>
+                  <test-suite name="Macquarie.Evolve.Test" success="True" time="114.609" asserts="0">
+                    <results>
+                      <test-suite name="Macquarie.Evolve.Test.Integration" success="True" time="114.609" asserts="0">
+                        <results>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.ClickToDial" success="True" time="0.016" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.ClickToDial.RecordPlaybackTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.RecordPlaybackTest.should_exercise_full_call_cycle_against_real_server_recording" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.RecordPlaybackTest.test_should_be_able_to_record_playback" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_fail_to_login_using_wrong_server_username_and_or_password" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_get_connected_status_when_call_is_connected" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_get_failure_status_when_call_is_failure" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_hang_up_after_connected" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_login" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ClickToDial.TelephoneTest.should_report_connecting_status_after_dialing" executed="False">
+                                    <reason>
+                                      <message><![CDATA[need SonicMQ installed in order to run this..]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess" success="True" time="10.734" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest" success="True" time="3.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.AddAccountToPriorityList_should_throw_exceptionp_if_specified_account_directory_unexsit" executed="True" success="True" time="2.125" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.AddAccountToPriorityList_should_throw_exceptionp_if_version_doesnt_match" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.AddAccountToPriorityList_test" executed="True" success="True" time="0.109" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.LoadAccountDirectoryWithRegionAccounts_return_value_should_contains_regional_accounts_in_order_of_rank" executed="True" success="True" time="0.063" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.LoadAccountDirectoryWithRegionAccounts_test" executed="True" success="True" time="0.031" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.RemoveAccountFromAccountDirectory_should_throw_AccountDirectoryNotExistException_when_directory_doesnot_exist" executed="True" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.RemoveAccountFromAccountDirectory_should_throw_AccountDirectoryObsoleteException_when_version_is_not_match" executed="True" success="True" time="0.031" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.RemoveAccountFromAccountDirectory_test" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.ReorderAccountPriorityList_should_throw_AccountDirectoryObsoleteException_when_version_is_not_match" executed="True" success="True" time="0.031" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.ReorderAccountPriorityList_test" executed="True" success="True" time="0.031" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_be_able_to_add_more_accounts_than_7" executed="True" success="True" time="0.094" asserts="11" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_get_all_account_directory_contains_account" executed="True" success="True" time="0.141" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_get_max_rankno_of_a_given_account_directory" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_get_region_accounts_of_account" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_get_region_accounts_served_by_certain_manager" executed="True" success="True" time="0.078" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_load_root_directory" executed="True" success="True" time="0.047" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_throw_account_directory_obsolete_exception_when_the_version_number_received_is_obsolete" executed="True" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.should_update_region_account" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AccountDirectoryRepositoryTest.throw_exception_when_trying_to_load_unexist_account_directory" executed="True" success="True" time="0.016" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest" success="True" time="0.563" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_ignore_contact_notes_having_system_alerts_sent_while_searching_for_system_alert_candidates" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_ignore_replied_contact_notes_while_searching_for_system_alert_candidates" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_load_alert_Type_from_Recipients" executed="True" success="True" time="0.141" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_load_all_action_alerts_with_unreplied_contact_notes_beyond_threshold" executed="True" success="True" time="0.063" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_retrieve_only_unread_alerts" executed="True" success="True" time="0.031" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_save_and_load_tag_alert" executed="True" success="True" time="0.172" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPersistenceTest.should_save_load_alert" executed="True" success="True" time="0.047" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPreferencePersistenceTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertPreferencePersistenceTest.should_save_and_load_AlertPreference_instance" executed="True" success="True" time="0.078" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.AlertRepositoryTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AlertRepositoryTest.CloseAlert_test" executed="True" success="True" time="0.031" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest" success="True" time="0.203" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_by_all_parameters" executed="True" success="True" time="0.063" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_by_audit_domain_name_if_not_empty" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_by_changedByUserId_if_not_empty" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_By_domain_type" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_include_selected_date" executed="True" success="True" time="0.047" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.GetAuditLog_should_get_audit_log_order_by_changedAt" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.AuditLogRepositoryTest.SaveContactAuditLog_test" executed="True" success="True" time="0.031" asserts="8" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactHistoryPersistenceTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactHistoryPersistenceTest.should_save_contact_history" executed="True" success="True" time="0.047" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest" success="True" time="0.750" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_handle_lastContactedOn_for_meeting_note" executed="True" success="True" time="0.281" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_inherit_postal_address_from_organisation" executed="True" success="True" time="0.078" asserts="9" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_inherit_postal_addresses_and_phone_numbers_from_parent_organisation" executed="True" success="True" time="0.047" asserts="25" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_inherit_telephone_numbers_from_organisation" executed="True" success="True" time="0.031" asserts="16" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_addresses_for_each_contact" executed="True" success="True" time="0.031" asserts="10" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_all_contact_lists_for_a_user" executed="True" success="True" time="0.031" asserts="11" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_all_details_for_each_contact" executed="True" success="True" time="0.047" asserts="14" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_all_details_for_each_user_contact_detail" executed="True" success="True" time="0.031" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_all_enabled_contacts_for_each_contact_list" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_electronic_research_reports_for_each_contact" executed="True" success="True" time="0.031" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_emailAddresses_for_each_contact" executed="True" success="True" time="0.047" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_organisation_for_each_contact" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListDAOTest.should_load_telephone_numbers_for_each_contact" executed="True" success="True" time="0.031" asserts="17" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest" success="True" time="0.641" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.SaveContactListOrder_test" executed="True" success="True" time="0.078" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_add_and_return_default_contact_list_if_doesnt_exist" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_add_new_contacts_to_target_contact_list_at_highest_priority" executed="True" success="True" time="0.203" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_audit_added_contacts_when_copy_lists_if_duplication_not_exist" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_audit_removed_and_added_contacts_when_copy_lists_if_duplication_exist" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_copy_contact_list_to_users_and_overwrite_same_name_contact_lists" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Will Fix this.]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_copy_contact_list_to_users_if_users_without_contact_list_with_same_name" executed="True" success="True" time="0.047" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_copy_contacts_from_one_contact_list_to_another_keeping_source_list_intact" executed="True" success="True" time="0.016" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_get_user_contact_for_organisation_ignoring_disabled_users" executed="True" success="True" time="0.078" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_not_add_contacts_if_they_are_already_in_target_contact_list" executed="True" success="True" time="0.031" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_not_rename_my_contact_list_if_new_name_already_exist" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_rename_my_contact_list_if_new_name_does_not_exist" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactListRepositoryTest.should_rename_my_contact_list_if_only_cases_diff_with_its_original_name" executed="True" success="True" time="0.016" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteLoaderTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteLoaderTest.should_find_all_contact_note_for_org" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteLoaderTest.should_load_contact_note_subtype" executed="True" success="True" time="0.031" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNotePersistenceTest" success="True" time="0.125" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNotePersistenceTest.should_just_load_the_enabled_recipients_when_loading_contact_note_from_database" executed="True" success="True" time="0.063" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNotePersistenceTest.should_save_and_load_complete_contact_note" executed="True" success="True" time="0.063" asserts="15" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteRecipientRepositoryTest" success="True" time="0.063" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteRecipientRepositoryTest.save_and_load_contact_note_recipient" executed="True" success="True" time="0.063" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteThreadPersistenceTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteThreadPersistenceTest.should_be_unable_to_save_contact_notes_through_saving_thread" executed="True" success="True" time="0.016" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteThreadPersistenceTest.should_load_thread_with_created_on_time_desc_order" executed="True" success="True" time="0.047" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactNoteThreadPersistenceTest.should_save_thread_when_saving_contact_note" executed="True" success="True" time="0.016" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest" success="True" time="0.313" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_get_contact_with_correct_monthly_call_target" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_get_contact_with_empty_monthly_call_target" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_get_contacts_with_contact_ids" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_GetContactByFullName" executed="True" success="True" time="0.047" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_save_client_notes" executed="True" success="True" time="0.031" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_save_load_detailed_contact" executed="True" success="True" time="0.125" asserts="16" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactPersistenceTest.should_save_load_simple_contact" executed="True" success="True" time="0.031" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest" success="True" time="0.422" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.GetContactByEmail_test" executed="True" success="True" time="0.109" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.SearchContactsInOrganisation_test" executed="True" success="True" time="0.094" asserts="11" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.should_convert_and_save_contact" executed="True" success="True" time="0.063" asserts="21" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.should_convert_BLOOMBERG_true_to_string_empty" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.should_load_contacts_of_give_org" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.should_not_save_MreWebAccess_if_it_is_empty" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.UpdateContact_should_disable_old_contact_and_add_new_contact_when_organisation_changed" executed="True" success="True" time="0.047" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.UpdateContact_when_conflicted" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ContactRepositoryTest.UpdateContact_without_changing_organisation" executed="True" success="True" time="0.031" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest" success="True" time="0.094" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest.GetAllCountries_should_load_all_country_order_by_name_asc" executed="True" success="True" time="0.000" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest.GetCountryByName_should_get_country_with_same_name" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest.GetCountryByName_should_get_null_when_no_country_with_same_name" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest.GetProvinceByName_test" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.LocationRepositoryTest.GetProvincesByCountryId_and_order_by_name_asc" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingPersistanceTest" success="True" time="0.203" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingPersistanceTest.CancelMeeting_should_delete_meeting_alerts_and_meeting_itself" executed="True" success="True" time="0.156" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingPersistanceTest.should_save_meeting" executed="True" success="True" time="0.047" asserts="6" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest" success="True" time="0.516" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetClientFutureMeetings_should_filter_by_contact_id" executed="True" success="True" time="0.016" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetClientFutureMeetings_should_filter_by_date_range" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetClientPastMeetings_should_filter_by_contact_id" executed="True" success="True" time="0.031" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetClientPastMeetings_should_filter_by_date_range" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetClientPastMeetings_should_filter_out_meeting_have_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetMeeting_should_find_by_outlookEntryId" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetMeeting_should_return_null_when_cannot_find_by_outlookEntryId" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetMeetingOfContactNote_should_get_meeting_of_contact_note" executed="True" success="True" time="0.141" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserFutureMeetings_should_also_get_meetings_when_user_is_attendee" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserFutureMeetings_should_filter_by_date_range" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserFutureMeetings_should_filter_by_user_id" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserMeetings_should_find_by_userId" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserPastMeetings_should_also_get_meeting_when_user_is_attendee" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserPastMeetings_should_filter_by_date_range" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.GetUserPastMeetings_should_filter_by_user_id" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.IsMeetingDeleted_should_be_false_when_some_meeting_with_that_id" executed="True" success="True" time="0.000" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.IsMeetingDeleted_should_be_true_when_no_meeting_that_id" executed="True" success="True" time="0.000" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MeetingRepositoryTest.UpdateMeeting_test" executed="True" success="True" time="0.047" asserts="13" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.MsSqlDatabaseTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MsSqlDatabaseTest.should_create_appropriate_parameter" executed="True" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.MsSqlDatabaseTest.should_execute_command" executed="True" success="True" time="0.016" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.NotEnteredContactNoteMeetingsCheckerTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.NotEnteredContactNoteMeetingsCheckerTest.should_create_meeting_alert_after_2_days" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.NotEnteredContactNoteMeetingsCheckerTest.should_not_create_meeting_alert_if_has_sent_one" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationPersistenceTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationPersistenceTest.should_save_load_detailed_organisation" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest" success="True" time="0.578" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.CreateOrganisation_test" executed="True" success="True" time="0.031" asserts="7" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.GetById_test" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_be_able_to_get_all_monthly_call_targets_ignoring_disabled_user_for_an_organisation" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_actual_calls_of_current_month_ignore_the_other_kind_of_contact_note" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_actual_calls_of_current_month_ignoring_disabled_user_for_organisation" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_organisation_by_full_name" executed="True" success="True" time="0.063" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_organisations_by_name_and_alphabeta_order" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_organisations_not_disabled" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_get_top_15_organisations" executed="True" success="True" time="0.109" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.should_not_get_organisations_if_name_not_match" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.UpdateOrganisation_should_return_INVALID_PARENT_ORGANISATION_when_can_not_be_my_child" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.UpdateOrganisation_should_return_SUCCESSFUL_when_no_conflict_and_can_be_child" executed="True" success="True" time="0.047" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.OrganisationRepositoryTest.UpdateOrganisation_should_return_VERSION_CONFLICTED_when_conflicted" executed="True" success="True" time="0.031" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest" success="True" time="0.313" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest.GetPanelReview_should_load_PanelReview_from_db" executed="True" success="True" time="0.047" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest.GetPanelReviews_should_filter_by_date_range_and_ordered" executed="True" success="True" time="0.047" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest.GetPanelReviews_should_filter_by_organisation_id" executed="True" success="True" time="0.047" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest.should_save_load_PanelReview" executed="True" success="True" time="0.109" asserts="19" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PanelReviewPersistenceTest.UpdatePanelReview_test" executed="True" success="True" time="0.063" asserts="13" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.PartyInterestHistoryPersistenceTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PartyInterestHistoryPersistenceTest.should_be_able_to_save_and_load_party_interest_history" executed="True" success="True" time="0.078" asserts="7" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.PartyInterestPersistenceTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PartyInterestPersistenceTest.should_load_all_region_sector_interests_after_saving" executed="True" success="True" time="0.031" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PartyInterestPersistenceTest.should_save_and_load_partyInterest" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.PostalAddressPersistenceTest" success="True" time="0.094" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.PostalAddressPersistenceTest.should_save_and_load_postal_address" executed="True" success="True" time="0.094" asserts="8" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.RegionAccountPersistentTest" success="True" time="0.094" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RegionAccountPersistentTest.should_save_and_load_region_account" executed="True" success="True" time="0.094" asserts="5" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.RegionPersistenceTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RegionPersistenceTest.should_save_and_load_region" executed="True" success="True" time="0.016" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.RemoveContactFromMyContactsHandlerTest" success="True" time="0.141" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RemoveContactFromMyContactsHandlerTest.should_ignore_contacts_not_in_my_contacts_list" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RemoveContactFromMyContactsHandlerTest.should_remove_alert_preference_if_user_no_longer_has_any_contact_which_belongs_to_the_same_organisation" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RemoveContactFromMyContactsHandlerTest.should_remove_alert_preference_if_user_no_longer_has_given_contact_in_his_list" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RemoveContactFromMyContactsHandlerTest.should_remove_contacts_from_contact_list_by_handler" executed="True" success="True" time="0.047" asserts="5" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest" success="True" time="0.609" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.find_by_sql_should_find_only_one_user" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.load_all" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_find_by_sql" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_Find_user_from_db_by_username" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_all_results" executed="True" success="True" time="0.156" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_contact_with_client_notes_ordered_by_created_date_descendently" executed="True" success="True" time="0.031" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_from_ids" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_nothing_from_empty_id_list" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_load_only_max_results" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_not_return_duplicated_users_after_saving_contact_note_twice" executed="True" success="True" time="0.219" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_retrive_objects_from_db" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_save_If_updated" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.RepositoryTest.should_save_object_to_database" executed="True" success="True" time="0.016" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.SectorPersistenceTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.SectorPersistenceTest.load_all_sectors_when_no_data_in_database" executed="True" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.SectorPersistenceTest.should_save_load_sector" executed="True" success="True" time="0.016" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.ServiceHistoryRepositoryTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.ServiceHistoryRepositoryTest.should_load_service_history_with_correct_contact_note_count" description="EVO-2358" executed="True" success="True" time="0.078" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.StockPersistenceTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.StockPersistenceTest.should_save_and_load_stock" executed="True" success="True" time="0.047" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.TagGroupPersistenceTest" success="True" time="0.031" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.TagGroupPersistenceTest.should_save_and_load_tagGroup" executed="True" success="True" time="0.031" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.TagPersistenceTest" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.TagPersistenceTest.should_save_and_load_tag" executed="True" success="True" time="0.016" asserts="7" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactDetailTest" success="True" time="0.047" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactDetailTest.should_return_true_if_user_contains_contact" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactDetailTest.should_save_and_load_contact_list" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactListMemberHistoryPersistenceTest" success="True" time="0.094" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactListMemberHistoryPersistenceTest.should_save_and_load_user_contact_list_member_history" executed="True" success="True" time="0.094" asserts="6" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactListTest" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactListTest.should_report_if_user_has_contact" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserContactListTest.should_save_contact_note_when_contactnote_added_from_global_contact_list" executed="True" success="True" time="0.047" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest" success="True" time="0.172" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_add_default_contact_list_if_it_doesnt_exist" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_load_AlertPreferenceOnContact_list_of_user" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_load_all_stock_interests_after_saving_successfully" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_load_contact_list_ordered_by_display_order_ascending" executed="True" success="True" time="0.047" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_load_user_and_contacts_from_db" executed="True" success="True" time="0.016" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_save_and_load_stock_interest" executed="True" success="True" time="0.016" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_save_load_detailed_organisation" executed="True" success="True" time="0.016" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserPersistenceTest.should_sort_correctly" executed="True" success="True" time="0.016" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryNotRepliedContactNoteTest" success="True" time="0.203" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryNotRepliedContactNoteTest.not_replied_alerts_should_be_0_if_all_recipients_replied_in_same_thread" executed="True" success="True" time="0.141" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryNotRepliedContactNoteTest.not_replied_alerts_should_be_1_if_not_all_recipients_replied_in_same_thread" executed="True" success="True" time="0.063" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest" success="True" time="0.672" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.FindUserByOrganisationPreference_test" executed="True" success="True" time="0.094" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.FindUserPreferSpecifiedContacts_test" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_apply_144_hours_restricting_on_Action_alerts_which_has_been_replied" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_find_user_region_sector_with_alert_preference" executed="True" success="True" time="0.031" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_find_user_who_is_the_account_manager_of_an_organization" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_find_user_who_is_the_relationship_manager_of_an_organization" executed="True" success="True" time="0.047" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_find_user_who_is_the_sales_and_trading_manager_of_an_organization" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_contacts_of_user_by_domain_name" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_no_user_alerts" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_no_user_by_empty_stock_interests" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_not_replied_alert" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_service_covered_users_for_organisations" executed="True" success="True" time="0.063" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_user_alerts" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_user_and_contact_frequency" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_get_users_by_stock_interests_with_alert_preference" executed="True" success="True" time="0.031" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_not_apply_144_hours_restricting_on_Action_alerts_which_has_not_been_replied" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_not_load_normal_alerts_if_more_than_144_hours" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_not_load_old_normal_alerts_if_from_date_specified" executed="True" success="True" time="0.031" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.DataAccess.UserRepositoryTest.should_save_and_load_user" executed="True" success="True" time="0.016" asserts="4" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.endToEnd" success="True" time="4.063" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.endToEnd.AccountPriorityGatewayTest" success="True" time="4.047" asserts="0">
+                                <categories>
+                                  <category name="networking" />
+                                </categories>
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.endToEnd.AccountPriorityGatewayTest.should_throw_proper_exception_when_getting_unexited_account_priority_list" executed="True" success="True" time="2.672" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.endToEnd.AdLoginTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.endToEnd.AdLoginTest.should_login_and_fetch_detail_from_ad_when_login" executed="False">
+                                    <reason>
+                                      <message><![CDATA[just for AD testing, be sure that the CONENCT domain controller is up. Ask Wangyu/Michael for help in case of trouble.]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.EndToEnd" success="True" time="15.922" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.EndToEnd.AlertsTest" success="True" time="13.516" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.AlertsTest.should_generate_an_alert" executed="True" success="True" time="4.359" asserts="8" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.AlertsTest.should_not_bring_same_action_alerts" executed="True" success="True" time="4.813" asserts="10" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.AlertsTest.should_not_miss_alerts" executed="True" success="True" time="4.328" asserts="8" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest" success="True" time="0.000" asserts="0">
+                                <categories>
+                                  <category name="networking" />
+                                </categories>
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.should_not_add_duplicate_contact_to_contact_list" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_correctly_fetch_contact_when_add_contact_note" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_correctly_update_contact_when_add_contact_note" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_search_inmemory_cache_for_my_contacts" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_should_copy_contact_to_new_contact_list" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_should_find_newly_added_contact_when_searching_my_contact" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_should_hit_inmemory_cache_correctly_when_adding_to_my_contacts" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.ContactModelTest.test_should_hit_inmemory_cache_correctly_when_adding_to_my_contacts_after_contact_note_added_already" executed="False">
+                                    <reason>
+                                      <message><![CDATA[will be fixed by Xiao Qiang and Chris]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.EndToEnd.UpdateableResponsesShouldBeUpdatedByCommandsInMemoryTest" success="True" time="2.406" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.UpdateableResponsesShouldBeUpdatedByCommandsInMemoryTest.test_should_update_get_my_contacts_response_correctly_with_command_add_list" executed="True" success="True" time="0.203" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.EndToEnd.UpdateableResponsesShouldBeUpdatedByCommandsInMemoryTest.test_should_update_last_contacted_time_correctly_when_adding_a_contact_note_to_one_of_my_contacts" executed="True" success="True" time="2.172" asserts="4" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.LDAP" success="True" time="0.016" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests.should_fail_get_full_domainname_returned_from_search" executed="True" success="True" time="0.016" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests.should_get_full_domainname_returned_from_search" executed="False">
+                                    <reason>
+                                      <message><![CDATA[cruise machine and user is not currently part of domain]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests.should_get_full_domainname_returned_from_search_using_default" executed="False">
+                                    <reason>
+                                      <message><![CDATA[cruise machine and user is not currently part of domain]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests.should_get_user_information_correctly_from_ldap" executed="False">
+                                    <reason>
+                                      <message><![CDATA[cruise machine and user is not currently part of domain]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.LDAP.LDAPTests.should_update_user_info_from_ldap_search_result" executed="True" success="True" time="0.000" asserts="11" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.Networking" success="True" time="43.719" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.ClientVersionVerificationTest" success="True" time="0.141" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ClientVersionVerificationTest.should_not_throw_exception_if_client_version_is_same_as_server_version" executed="True" success="True" time="0.047" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ClientVersionVerificationTest.should_throw_exception_if_client_version_is_earlier_than_server_version" executed="True" success="True" time="0.047" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ClientVersionVerificationTest.should_throw_exception_if_client_version_is_later_than_server_version" executed="True" success="True" time="0.047" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest" success="True" time="33.406" asserts="0">
+                                <categories>
+                                  <category name="networking" />
+                                </categories>
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_add_contactnote_over_network" executed="True" success="True" time="0.156" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_cope_with_very_large_contact_lists" executed="False">
+                                    <reason>
+                                      <message><![CDATA[For performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_async_multicall_par" executed="True" success="True" time="0.188" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_async_multicall_seq" executed="True" success="True" time="0.156" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_async_sync_without_blocking" executed="True" success="True" time="10.172" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_async_with_large_payload_sync_without_blocking" executed="True" success="True" time="10.172" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_async_without_blocking" executed="True" success="True" time="10.141" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_do_commands_over_network_with_large_payload" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_fetch_all_users" executed="True" success="True" time="0.156" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_get_contact_over_network" executed="True" success="True" time="0.156" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_get_my_contacts_over_network" executed="True" success="True" time="0.156" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_keep_correct_priority_of_my_contacts" executed="True" success="True" time="0.219" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_not_have_long_running_async_blocking_sync_calls" executed="True" success="True" time="0.188" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_piggyback_alerts_on_sync_calls" executed="True" success="True" time="1.156" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_search_contact_by_email_address_over_network" executed="True" success="True" time="0.203" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.CommandExecutorNetworkTest.should_search_contact_by_email_address_over_network_async" executed="True" success="True" time="0.156" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.ContactHistoryTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ContactHistoryTest.should_load_big_contactHistory" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Performance test for a specific bug]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests" success="True" time="4.422" asserts="0">
+                                <categories>
+                                  <category name="networking" />
+                                </categories>
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_add_contact_over_network" executed="True" success="True" time="0.234" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_add_contactnote_over_network" executed="True" success="True" time="0.172" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_add_lots_of_contact_notes" executed="False">
+                                    <reason>
+                                      <message><![CDATA[For performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_cope_with_copy_of_large_contacts_lists_between_users" executed="False">
+                                    <reason>
+                                      <message><![CDATA[For performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_cope_with_very_large_contact_lists" executed="False">
+                                    <reason>
+                                      <message><![CDATA[For performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_cope_with_very_large_number_of_contact_lists" executed="False">
+                                    <reason>
+                                      <message><![CDATA[For performance testing only]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_execute_batched_request_and_get_responses" executed="True" success="True" time="0.203" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_fetch_all_users" executed="True" success="True" time="0.156" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_get_contact_over_network" executed="True" success="True" time="0.156" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_get_my_contact_interests" executed="True" success="True" time="0.250" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_get_my_contacts_over_network" executed="True" success="True" time="0.156" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_just_get_one_alert_when_creating_one_contact_note_with_one_tag_recipient" executed="True" success="True" time="1.188" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_keep_correct_priority_of_my_contacts" executed="True" success="True" time="0.203" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_search_contact_by_email_address_over_network" executed="True" success="True" time="0.156" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_send_contact_note_with_tag_which_doesnot_contain_currency_or_amount_info_and_get_alert_back" executed="True" success="True" time="1.156" asserts="6" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkingTests.should_update_contact_note_number_when_adding_contact_note_for_new_added_contact" executed="True" success="True" time="0.375" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.NetworkUnavailableTests" success="True" time="1.188" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.NetworkUnavailableTests.should_throw_correct_exception_when_network_is_unavailable" executed="True" success="True" time="1.188" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.OneWayCommandExecutionTest" success="True" time="4.141" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.OneWayCommandExecutionTest.aborting_the_channel_should_not_stop_client_from_communicating_with_server" executed="False">
+                                    <reason>
+                                      <message><![CDATA[for spike]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.OneWayCommandExecutionTest.one_way_command_execution_should_not_timeout_at_client_side" executed="True" success="True" time="4.141" asserts="1" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.PerformanceTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.PerformanceTest.should_load_alerts_quickly" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Does testing with lots of data. hence not suitable for all the builds]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.PerformanceTest.should_load_alertsNot" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Does testing with lots of data. hence not suitable for all the builds]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.PerformanceTest.should_Load_contacts" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Does testing with lots of data. hence not suitable for all the builds]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.PerformanceTest.should_login_quickly" executed="False">
+                                    <reason>
+                                      <message><![CDATA[Does testing with lots of data. hence not suitable for all the builds]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.ServerExceptionTests" success="True" time="0.125" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ServerExceptionTests.should_properly_handle_non_client_exceptions" executed="True" success="True" time="0.094" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ServerExceptionTests.should_properly_handle_non_client_exceptions_for_async_calls" executed="True" success="True" time="0.031" asserts="3" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Networking.ServiceConnectionLimitTest" success="True" time="0.297" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ServiceConnectionLimitTest.client_should_not_hold_onto_connections_on_async_calls_releasing_them_once_execution_is_complete" executed="True" success="True" time="0.125" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ServiceConnectionLimitTest.client_should_not_hold_onto_connections_releasing_them_once_execution_is_complete" executed="True" success="True" time="0.094" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Networking.ServiceConnectionLimitTest.should_ensure_that_channels_are_released_when_exceptions_are_thrown" executed="True" success="True" time="0.063" asserts="3" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.Offline" success="True" time="34.156" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest" success="True" time="31.922" asserts="0">
+                                <categories>
+                                  <category name="networking" />
+                                </categories>
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_add_contact_list_to_cache_after_adding_contact_list_for_offline_usage" executed="True" success="True" time="1.063" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_get_correct_contacts_even_if_client_starts_again" executed="True" success="True" time="1.016" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_get_correct_contacts_in_offline_mode" executed="True" success="True" time="1.109" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_rename_cached_contact_list_after_renaming_contact_list_for_offline_usage" executed="True" success="True" time="1.188" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_update_cached_interest_for_current_user_after_adding_interest_for_offline_usage" executed="True" success="True" time="1.109" asserts="2" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_update_cached_interest_for_current_user_after_adding_new_contact" executed="True" success="True" time="1.203" asserts="5" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_update_cached_interest_for_current_user_after_removing_interest_for_offline_usage" executed="True" success="True" time="1.125" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_update_cached_interest_for_given_contact_after_adding_interest_for_offline_usage" executed="True" success="True" time="1.391" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.should_update_cached_interest_for_given_contact_after_deleting_interest_for_offline_usage" executed="True" success="True" time="1.219" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.test_should_come_back_online_via_periodic_alerts_check" executed="True" success="True" time="20.063" asserts="4" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTest.test_should_transition_between_on_off_on_line" executed="True" success="True" time="1.438" asserts="7" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTestlForAsynchTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.OfflineScenarioTestlForAsynchTest.should_call_error_handler_when_going_offline_for_contact_history" executed="False">
+                                    <reason>
+                                      <message><![CDATA[This test is failing intermitently]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest" success="True" time="2.234" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest.GetMyContactList_AddNewContactList_sequence" executed="True" success="True" time="0.141" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest.GetMyContactList_CopyContacts_SendContactNote_Sequence" executed="False">
+                                    <reason>
+                                      <message><![CDATA[In Progress 10/8]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest.GetMyContactList_SetContactFrequency_AddNewContactList_sequence" executed="True" success="True" time="0.203" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest.GetMyContactLists_WaitForMyContactListCacheExpiry_AddNewContactList_GetMyContactLists_sequence" executed="True" success="True" time="0.766" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Offline.UpdateableResponsesCommandsTest.test_should_update_get_my_contacts_response_correctly_on_disc_with_command_add_list" executed="True" success="True" time="1.125" asserts="2" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.ResearchReportService" success="True" time="0.000" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest" success="True" time="0.000" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest.getResearchReports_should_return_reasearchReport_correctly_load" executed="False">
+                                    <reason>
+                                      <message><![CDATA[only works in OAT]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest.GetResearchReports_should_return_ReasearchReportCorrectly" executed="False">
+                                    <reason>
+                                      <message><![CDATA[only works in OAT]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest.should_get_static_data" executed="False">
+                                    <reason>
+                                      <message><![CDATA[only works in OAT]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest.should_search_documents" executed="False">
+                                    <reason>
+                                      <message><![CDATA[only works in OAT]]></message>
+                                    </reason>
+                                  </test-case>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.ResearchReportService.EvolveFacadeWebserviceTest.test_search_by_different_criterias_and_get_the_first_result" executed="False">
+                                    <reason>
+                                      <message><![CDATA[only works in OAT]]></message>
+                                    </reason>
+                                  </test-case>
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.Server" success="True" time="5.750" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Domain" success="True" time="0.188" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest" success="True" time="0.172" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_add_new_node_to_tree_structure" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_delete_node" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_delete_region_account_with_directory_version_updated" executed="True" success="True" time="0.016" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_find_parent" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_load_region_accounts_ordered_by_internal_rank" executed="True" success="True" time="0.016" asserts="5" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_remove_priority_of_account" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_rename_node" executed="True" success="True" time="0.000" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_save_and_load_node_tree" executed="True" success="True" time="0.016" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.should_update_region_account_with_directory_version_updated" executed="True" success="True" time="0.031" asserts="5" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.AccountDirectoryPersistentTest.version_test" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Domain.RecipientsTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.RecipientsTest.should_get_action_contact_note_recipient" executed="True" success="True" time="0.000" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.RecipientsTest.should_get_contact_note_recipient_user_id" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Domain.RecipientsTest.should_get_interest_contact_note_recipient" executed="True" success="True" time="0.000" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.EvolveServiceServerTest" success="True" time="0.031" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Server.EvolveServiceServerTest.should_get_contact_note_by_contactNoteId" executed="True" success="True" time="0.031" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers" success="True" time="4.016" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddAlertPreferenceHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddAlertPreferenceHandlerTest.should_add_alert_preference_for_current_user" executed="True" success="True" time="0.016" asserts="5" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactListHandlerTest" success="True" time="0.000" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactListHandlerTest.AddContactListHandler_test" executed="False">
+                                        <reason>
+                                          <message><![CDATA[gabbar- Unknown reason]]></message>
+                                        </reason>
+                                      </test-case>
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExcutorPerformanceTest" success="True" time="0.000" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExcutorPerformanceTest.should_load_contact_notes_with_Threads_and_contacts_correctly" executed="False">
+                                        <reason>
+                                          <message><![CDATA[Performance tests]]></message>
+                                        </reason>
+                                      </test-case>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExcutorPerformanceTest.should_load_correctly" executed="False">
+                                        <reason>
+                                          <message><![CDATA[Performance tests]]></message>
+                                        </reason>
+                                      </test-case>
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest" success="True" time="0.938" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.returned_contact_note_should_be_updated_with_contacts_when_replying_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.save_completed_contact_note_from_dto" executed="True" success="True" time="0.063" asserts="13" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.save_completed_contact_note_from_dto_and_then_load_Lastest_Contact_note" executed="True" success="True" time="0.078" asserts="14" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.save_contact_note_should_save_mutiple_contacts_to_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.save_email_contact_note_from_dto" executed="True" success="True" time="0.250" asserts="7" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.save_meeting_contact_note_from_dto" executed="True" success="True" time="0.047" asserts="6" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_copy_contacts_from_parent_contact_note_if_reply_note" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_create_new_thread_if_no_thread_id_in_dto" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_load_meeting_history" executed="True" success="True" time="0.047" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_mark_previous_not_replied_alerts_in_thead_as_replied_when_save_replied_contact_note" executed="True" success="True" time="0.156" asserts="7" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_mark_related_action_alerts_in_same_thread_as_replied_when_save_replied_contact_note" executed="True" success="True" time="0.031" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_merge_recipients_from_interests_and_additional_selected_recipients" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_not_send_alert_if_left_voice_mail" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_save_additional_recipients" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactNoteCommandExecutorTest.should_using_existing_thread_when_dto_has_thread" executed="True" success="True" time="0.047" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest" success="True" time="0.219" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_multiple_contacts" executed="True" success="True" time="0.078" asserts="8" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_to_the_begin_of_another_contact_in_correct_contact_list" executed="True" success="True" time="0.031" asserts="6" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_add_to_the_end_of_another_contact_in_correct_contact_list_and_return_added_contact" executed="True" success="True" time="0.047" asserts="6" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_retrive_newly_added_contact_interests" executed="True" success="True" time="0.031" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddContactsToMyContactsHandlerTest.should_set_alert_preference_info" executed="True" success="True" time="0.031" asserts="4" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddInterestForContactHandlerTest" success="True" time="0.031" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.AddInterestForContactHandlerTest.should_delete_old_interests_item_from_db_when_update_contact_interests" executed="True" success="True" time="0.031" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.CheckContactListsDuplicationHandlerTest" success="True" time="0.031" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.CheckContactListsDuplicationHandlerTest.should_not_return_user_id_if_this_user_doesnt_have_duplicated_contact_list" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.CheckContactListsDuplicationHandlerTest.should_return_user_id_if_this_user_have_duplicated_contact_list" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAdditionalContactInfoHandlerTest" success="True" time="0.063" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAdditionalContactInfoHandlerTest.should_get_additional_contact_info" executed="True" success="True" time="0.063" asserts="4" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAllUsersHandlerTest" success="True" time="0.078" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAllUsersHandlerTest.should_get_all_users_and_convert_to_user_basic_info" executed="True" success="True" time="0.016" asserts="10" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAllUsersHandlerTest.should_get_users_order_by_givenName_and_familyName" executed="True" success="True" time="0.031" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetAllUsersHandlerTest.should_not_get_disabled_users" executed="True" success="True" time="0.031" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactInfoHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactInfoHandlerTest.should_get_last_contact_info" executed="True" success="True" time="0.016" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactInterestsHandlerTest" success="True" time="0.047" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactInterestsHandlerTest.should_load_contacts" executed="True" success="True" time="0.047" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactsByContactNoteIdhandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetContactsByContactNoteIdhandlerTest.should_get_all_contacts_by_contact_note_id" executed="True" success="True" time="0.016" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyAlertsHandlerTest" success="True" time="0.094" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyAlertsHandlerTest.should_get_latest_144_hours_alerts" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyAlertsHandlerTest.should_get_my_alerts_oldest_first" executed="True" success="True" time="0.031" asserts="5" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyAlertsHandlerTest.should_not_apply_144_hours_restricting_on_Action_alerts" executed="True" success="True" time="0.031" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactInterestsHandlerTest" success="True" time="0.063" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactInterestsHandlerTest.should_load_contacts" executed="True" success="True" time="0.063" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactsHandlerTest" success="True" time="0.188" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactsHandlerTest.should_get_alert_preference_info_if_exists" executed="True" success="True" time="0.109" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactsHandlerTest.should_get_last_contact_info_if_exists" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactsHandlerTest.should_get_my_contact_lists_and_convert_to_dto" executed="True" success="True" time="0.016" asserts="6" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetMyContactsHandlerTest.should_not_get_disabled_contacts" executed="True" success="True" time="0.031" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetNotRepliedContactNotesHandlerTest" success="True" time="0.063" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetNotRepliedContactNotesHandlerTest.should_Load_RepliedContactNotes" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetNotRepliedContactNotesHandlerTest.should_Load_RepliedContactNotes_with_multiple_un_replied" executed="True" success="True" time="0.047" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetRecipientsByStockInterestsHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetRecipientsByStockInterestsHandlerTest.should_get_recipients_by_stock_interests" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetRegionAccountsOfAccountHandlerTest" success="True" time="0.047" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetRegionAccountsOfAccountHandlerTest.should_get_region_accounts_of_account" executed="True" success="True" time="0.047" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest" success="True" time="0.172" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest.should_show_contact_not_served_by_any_user" executed="True" success="True" time="0.063" asserts="8" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest.should_show_contact_not_served_when_user_adds_contact_note_but_not_add_to_contact_list" executed="True" success="True" time="0.031" asserts="8" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest.should_show_contact_served_by_user_with_contact_note" executed="True" success="True" time="0.031" asserts="10" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest.should_show_contact_served_by_user_without_contact_note" executed="True" success="True" time="0.016" asserts="10" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageItemsHandlerTest.should_show_no_longer_serviced_if_user_removes_contact" executed="True" success="True" time="0.031" asserts="10" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageUsersHandlerTest" success="True" time="0.203" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageUsersHandlerTest.should_get_service_coveraged_users_by_organizations" executed="True" success="True" time="0.063" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageUsersHandlerTest.should_get_users_by_ancestor_organizations" executed="True" success="True" time="0.047" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageUsersHandlerTest.should_get_valid_user" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetServiceCoverageUsersHandlerTest.should_not_get_the_user_who_has_service_coverage_of_uncle_relation" executed="True" success="True" time="0.047" asserts="4" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetTagDetailsHandlerTest" success="True" time="0.172" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetTagDetailsHandlerTest.should_be_able_to_get_tags_by_organisation" executed="True" success="True" time="0.078" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetTagDetailsHandlerTest.should_be_able_to_get_tags_for_user" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetTagDetailsHandlerTest.should_get_tags_for_org_without_duplication_even_if_tag_based_on_multiple_contacts_in_same_org" executed="True" success="True" time="0.031" asserts="1">
+                                        <categories>
+                                          <category name="EVO-1619" />
+                                        </categories>
+                                      </test-case>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetTagDetailsHandlerTest.should_get_tags_for_user_without_duplication_even_if_tag_based_on_multiple_contacts" executed="True" success="True" time="0.031" asserts="1">
+                                        <categories>
+                                          <category name="EVO-1619" />
+                                        </categories>
+                                      </test-case>
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetUserContactListNamesHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.GetUserContactListNamesHandlerTest.should_be_able_to_get_contact_list_names" executed="True" success="True" time="0.016" asserts="4" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.LoginHandlerTest" success="True" time="0.063" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.LoginHandlerTest.login_should_update_user_info_when_user_change_the_info_in_AD" executed="True" success="True" time="0.031" asserts="16" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.LoginHandlerTest.should_create_user_from_ldap" executed="True" success="True" time="0.031" asserts="6" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.MarkAlertReadHandlerTest" success="True" time="0.188" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.MarkAlertReadHandlerTest.should_mark_alert_read" executed="True" success="True" time="0.188" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAccountsFromAccountDirectoryHandlerTest" success="True" time="0.078" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAccountsFromAccountDirectoryHandlerTest.should_not_remove_accounts_if_specified_account_directory_doesnot_exist" executed="True" success="True" time="0.016" asserts="0" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAccountsFromAccountDirectoryHandlerTest.should_not_remove_accounts_if_version_number_is_obsolete" executed="True" success="True" time="0.031" asserts="0" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAccountsFromAccountDirectoryHandlerTest.should_remove_accounts_from_account_directory" executed="True" success="True" time="0.031" asserts="3" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAlertPreferenceHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveAlertPreferenceHandlerTest.should_remove_alert_preference" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveContactListHandlerTest" success="True" time="0.078" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveContactListHandlerTest.should_remove_contact_list_with_specified_id" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RemoveContactListHandlerTest.should_remove_one_of_two_contact_lists_with_specified_id" executed="True" success="True" time="0.047" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.RenameMyContactListHandlerTest" success="True" time="0.031" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.RenameMyContactListHandlerTest.should_be_able_to_set_same_name_of_contact_list_for_different_users" executed="True" success="True" time="0.031" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.SaveMonthlyCallTargetsHandlerTest" success="True" time="0.016" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SaveMonthlyCallTargetsHandlerTest.should_save_monthly_call_target" executed="True" success="True" time="0.016" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.SaveTagGroupHandlerTest" success="True" time="0.031" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SaveTagGroupHandlerTest.should_save_tag_group_and_send_alert_accordingly" executed="True" success="True" time="0.031" asserts="5" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest" success="True" time="0.141" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_filter_duplicated_contact" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_not_search_disabled_contacts" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_return_empty_result_array_when_email_address_array_is_empty" executed="True" success="True" time="0.000" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_return_empty_result_array_when_no_contact_with_the_email_address" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_search_contacts_by_email_addresses" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchContactsByEmailAddressesHandlerTest.should_search_contacts_by_email_addresses_irrespective_of_email_address_type" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest" success="True" time="0.828" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_be_able_to_search_contact_with_space_in_names" executed="True" success="True" time="0.063" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_be_case_insensitive" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_match_at_the_begining_on_name" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_match_at_the_begining_on_organisation" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_not_search_for_disabled_contacts" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_order_by_givenName_familyName_organisation_in_ascending_order" executed="True" success="True" time="0.094" asserts="8" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_page_Less_results_than_max_if_not_available" executed="True" success="True" time="0.063" asserts="5" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_page_results" executed="True" success="True" time="0.047" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_page_results_as_specified" executed="True" success="True" time="0.063" asserts="10" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_return_correct_email_addresses_and_telephone_numbers" executed="True" success="True" time="0.047" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_return_nothing_for_empty_keywords" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_return_one_contact_if_contact_has_multiple_email_addresses" executed="True" success="True" time="0.031" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_search_for_a_single_global_contact_by_given_name" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_search_for_a_single_global_contact_by_organization_name" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_search_with_keyword_in_unicode" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_work_with_2_keywords" executed="True" success="True" time="0.047" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_work_with_3_keywords" executed="True" success="True" time="0.063" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.SearchGlobalContactsHandlerTest.should_work_with_multiple_results_when_query_single_keyword" executed="True" success="True" time="0.016" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Handlers.UpdateRegionSectorInterestAlertPreferenceHandlerTest" success="True" time="0.031" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.UpdateRegionSectorInterestAlertPreferenceHandlerTest.should_update_specified_party_interest_when_setting_to_false" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Handlers.UpdateRegionSectorInterestAlertPreferenceHandlerTest.should_update_specified_party_interest_when_setting_to_true" executed="True" success="True" time="0.016" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Mail" success="True" time="0.016" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Mail.ExchangeRecipientStrategyTest" success="True" time="0.000" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Mail.ExchangeRecipientStrategyTest.should_resolve_email_address_from_ldap" executed="False">
+                                        <reason>
+                                          <message><![CDATA[Environment specific test.  Goes to the real ldap]]></message>
+                                        </reason>
+                                      </test-case>
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Model" success="True" time="1.188" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest" success="True" time="1.094" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.GetContactListWithNumber_should_ignore_meeting_contact_note" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.GetContactListWithNumber_test" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.HasAddedMeetingContactNote_should_return_false_for_not_existing_meeting" executed="True" success="True" time="0.000" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.HasAddedMeetingContactNote_should_return_true_for_added_meeting_contact_note" executed="True" success="True" time="0.016" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.HasContactNote_test" executed="True" success="True" time="0.047" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.load_contact_history_should_only_pick_top_1_for_its_thread" executed="True" success="True" time="0.047" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.load_contact_history_should_order_by_happened_on_desc" executed="True" success="True" time="0.047" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.LoadContactHistory_should_be_aware_of_date_range" executed="True" success="True" time="0.047" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.LoadContactHistory_should_be_aware_of_different_contact" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.LoadUserContactHistory_should_filter_contact_notes_by_date_range_written_by_that_user" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.LoadUserContactHistory_should_only_pick_top_1_for_its_thread" executed="True" success="True" time="0.063" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.LoadUserContactHistory_should_order_by_create_on_desc" executed="True" success="True" time="0.047" asserts="5" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_copy_contacts_to_newly_created_reply_contact_note" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_all_contacts_of_contact_note_if_less_than_max_result" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_contact_count_of_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_contact_note_count_of_thread" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_first_contact_of_contact_note" executed="True" success="True" time="0.047" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_limited_contacts_of_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_be_able_to_get_limited_contacts_of_contact_note_if_more_than_max_result" executed="True" success="True" time="0.063" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_create_action_contact_note_recipient" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_get_contact_note_subtypes" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_get_empty_last_contact_note_if_not_exist" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_get_last_contact_note_if_exists" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_get_last_contact_time_by_user" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_by_date_criteria" executed="True" success="True" time="0.031" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_by_date_criteria_with_different_dates" executed="True" success="True" time="0.047" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_contact_note_thread_through_repository" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_from_saved_contact_note" executed="True" success="True" time="0.031" asserts="10" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_from_saved_email_contact_note" executed="True" success="True" time="0.047" asserts="12" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_from_saved_meeting_contact_note" executed="True" success="True" time="0.031" asserts="9" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_from_saved_meeting_note_without_meeting" executed="True" success="True" time="0.031" asserts="9" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.ContactNoteRepositoryTest.should_load_voice_mail_contact_notes_for_Telephone_contact_note" executed="True" success="True" time="0.031" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Model.LoadContactHistoryTest" success="True" time="0.078" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.LoadContactHistoryTest.should_load_contact_history_by_time" executed="True" success="True" time="0.031" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Model.LoadContactHistoryTest.should_load_user_history_by_time" executed="True" success="True" time="0.047" asserts="2" />
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Service" success="True" time="0.078" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest" success="True" time="0.063" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest.should_delete_attachments_older_than_1_day" executed="True" success="True" time="0.047" asserts="4" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest.should_get_0_attachments_when_no_file_is_found" executed="True" success="True" time="0.000" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest.should_get_attachments_in_given_dir" executed="True" success="True" time="0.000" asserts="3" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest.should_log_exception_if_cannot_purge_file" executed="True" success="True" time="0.016" asserts="2" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Service.FileTransferServiceTest.should_upload_file_to_supplied_directory" executed="True" success="True" time="0.000" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.TransactionalRepositoryTest" success="True" time="0.063" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Server.TransactionalRepositoryTest.should_commit_multiple_objects_In_transaction_on_success" executed="True" success="True" time="0.016" asserts="3" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Server.TransactionalRepositoryTest.should_commit_transaction_on_success" executed="True" success="True" time="0.016" asserts="1" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Server.TransactionalRepositoryTest.should_rollback" executed="True" success="True" time="0.016" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Server.TransactionalRepositoryTest.should_rollback_even_after_flushes" executed="True" success="True" time="0.016" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Server.Utils" success="True" time="0.172" asserts="0">
+                                <results>
+                                  <test-suite name="Macquarie.Evolve.Test.Integration.Server.Utils.ContactNoteServiceCoverageRecipientsInfoExtractorTest" success="True" time="0.172" asserts="0">
+                                    <results>
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Utils.ContactNoteServiceCoverageRecipientsInfoExtractorTest.should_get_recipients_on_recipient_selection" executed="True" success="True" time="0.125" asserts="1" />
+                                      <test-case name="Macquarie.Evolve.Test.Integration.Server.Utils.ContactNoteServiceCoverageRecipientsInfoExtractorTest.should_get_recipients_on_region_sector_interests" executed="True" success="True" time="0.047" asserts="1" />
+                                    </results>
+                                  </test-suite>
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite name="Macquarie.Evolve.Test.Integration.Service" success="True" time="0.188" asserts="0">
+                            <results>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceHostTest" success="True" time="0.063" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceHostTest.should_create_server_correctly" executed="True" success="True" time="0.047" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceHostTest.should_start_stop_scheduler" executed="True" success="True" time="0.016" asserts="0" />
+                                </results>
+                              </test-suite>
+                              <test-suite name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceServerTest" success="True" time="0.109" asserts="0">
+                                <results>
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceServerTest.should_close_repository_if_successful" executed="True" success="True" time="0.109" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceServerTest.should_disconnect_repository_if_Exception_is_thrown" executed="True" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceServerTest.should_disconnect_repository_if_Stale_exception_is_thrown" executed="True" success="True" time="0.000" asserts="0" />
+                                  <test-case name="Macquarie.Evolve.Test.Integration.Service.EvolveServiceServerTest.should_not_piggy_back_specific_commands" executed="True" success="True" time="0.000" asserts="0" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

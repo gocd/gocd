@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: README</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>README</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>README
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>RAKE &#8212; Ruby Make</h1>
+<p>
+Supporting Rake version: 0.8.6
+</p>
+<p>
+This package contains Rake, a simple ruby build program with capabilities
+similar to make.
+</p>
+<p>
+Rake has the following features:
+</p>
+<ul>
+<li>Rakefiles (rake&#8216;s version of Makefiles) are completely defined in
+standard Ruby syntax. No XML files to edit. No quirky Makefile syntax to
+worry about (is that a tab or a space?)
+
+</li>
+<li>Users can specify tasks with prerequisites.
+
+</li>
+<li>Rake supports rule patterns to synthesize implicit tasks.
+
+</li>
+<li>Flexible FileLists that act like arrays but know about manipulating file
+names and paths.
+
+</li>
+<li>A library of prepackaged tasks to make building rakefiles easier. For
+example, tasks for building tarballs, gems and RDoc output are provided.
+
+</li>
+<li>Supports parallel execution of tasks.
+
+</li>
+</ul>
+<h2>Installation</h2>
+<h3>Gem Installation</h3>
+<p>
+Download and install rake with the following.
+</p>
+<pre>
+   gem install rake
+</pre>
+<h3>Normal Installation</h3>
+<p>
+You can download the source tarball of the latest version of Rake from
+</p>
+<ul>
+<li><a
+href="http://rubyforge.org/project/showfiles.php?group_id=50">rubyforge.org/project/showfiles.php?group_id=50</a>
+
+</li>
+</ul>
+<p>
+Extract the tarball and run
+</p>
+<pre>
+  % ruby install.rb
+</pre>
+<p>
+from its distribution directory.
+</p>
+<h2>Usage</h2>
+<h3>Simple Example</h3>
+<p>
+First, you must write a &quot;Rakefile&quot; file which contains the build
+rules. Here&#8216;s a simple example:
+</p>
+<pre>
+  task :default =&gt; [:test]
+
+  task :test do
+    ruby &quot;test/unittest.rb&quot;
+  end
+</pre>
+<p>
+This Rakefile has two tasks:
+</p>
+<ul>
+<li>A task named &quot;test&quot;, which - upon invocation - will run a unit
+test file in Ruby.
+
+</li>
+<li>A task named &quot;default&quot;. This task does nothing by itself, but it
+has exactly one dependency, namely the &quot;test&quot; task. Invoking the
+&quot;default&quot; task will cause Rake to invoke the &quot;test&quot;
+task as well.
+
+</li>
+</ul>
+<p>
+Running the &quot;rake&quot; command without any options will cause it to
+run the &quot;default&quot; task in the Rakefile:
+</p>
+<pre>
+  % ls
+  Rakefile     test/
+  % rake
+  (in /home/some_user/Projects/rake)
+  ruby test/unittest.rb
+  ....unit test output here...
+</pre>
+<p>
+Type &quot;rake &#8212;help&quot; for all available options.
+</p>
+<h3>More Information</h3>
+<ul>
+<li>For details on Rake&#8216;s command-line invocation, read <a
+href="http://rake.rubyforge.org/files/doc/command_line_usage_rdoc.html">doc/command_line_usage.rdoc</a>
+
+</li>
+<li>For details on writing Rakefiles, see <a
+href="http://rake.rubyforge.org/files/doc/rakefile_rdoc.html">doc/rakefile.rdoc</a>.
+
+</li>
+<li>For the original announcement of Rake, see <a
+href="http://rake.rubyforge.org/files/doc/rational_rdoc.html">doc/rational.rdoc</a>.
+
+</li>
+<li>For a glossary of terms, see <a
+href="http://rake.rubyforge.org/files/doc/glossary_rdoc.html">doc/glossary.rdoc</a>.
+
+</li>
+</ul>
+<h2>Development</h2>
+<h3>Source Repository</h3>
+<p>
+Rake is currently hosted at github. The github web page is <a
+href="http://github.com/jimweirich/rake">github.com/jimweirich/rake</a>.
+The public git clone URL is
+</p>
+<ul>
+<li>git://github.com/jimweirich/rake.git
+
+</li>
+</ul>
+<h3>Running the Rake <a href="../classes/Test.html">Test</a> Suite</h3>
+<p>
+If you wish to run the unit and functional tests that come with Rake:
+</p>
+<ul>
+<li>Install the &#8216;session&#8217; gem in order to run the functional tests.
+
+</li>
+<li>CD into the top project directory of rake.
+
+</li>
+<li>Type one of the following:
+
+<pre>
+   rake                  # If you have a version of rake installed
+   ruby -Ilib bin/rake   # If you do not have a version of rake installed.
+</pre>
+</li>
+</ul>
+<h3>Issues and Bug Reports</h3>
+<p>
+Bugs, features requests and other issues can be logged at
+</p>
+<ul>
+<li><a
+href="http://onestepback.org/redmine/projects/show/rake">onestepback.org/redmine/projects/show/rake</a>
+
+</li>
+</ul>
+<p>
+You will need an account to before you can post issues. Register at <a
+href="http://onestepback.org/redmine/account/register">onestepback.org/redmine/account/register</a>.
+Or you can send me an email (at jim dot weirich at gmail dot com)
+</p>
+<h2>Online Resources</h2>
+<h3>Rake References</h3>
+<ul>
+<li>Rake Documentation Home: <a
+href="http://docs.rubyrake.org">docs.rubyrake.org</a>
+
+</li>
+<li>Rake Project Page: <a
+href="http://rubyforge.org/projects/rake">rubyforge.org/projects/rake</a>
+
+</li>
+<li>Rake API Documents: <a
+href="http://rake.rubyforge.org">rake.rubyforge.org</a>
+
+</li>
+<li>Rake Source Code Repo: <a
+href="http://github.com/jimweirich/rake">github.com/jimweirich/rake</a>
+
+</li>
+<li>Rake Git Repo Clone URL: git://github.com/jimweirich/rake.git
+
+</li>
+</ul>
+<h3>Presentations and Articles about Rake</h3>
+<ul>
+<li>Jim Weirich&#8216;s 2003 RubyConf presentation: <a
+href="http://onestepback.org/articles/buildingwithrake">onestepback.org/articles/buildingwithrake</a>/
+
+</li>
+<li>Martin Fowler&#8216;s article on Rake: <a
+href="http://martinfowler.com/articles/rake.html">martinfowler.com/articles/rake.html</a>
+
+</li>
+</ul>
+<h2>Other Make Reinvisionings &#8230;</h2>
+<p>
+Rake is a late entry in the make replacement field. Here are links to other
+projects with similar (and not so similar) goals.
+</p>
+<ul>
+<li><a
+href="http://directory.fsf.org/bras.html">directory.fsf.org/bras.html</a>
+&#8212; Bras, one of earliest implementations of &quot;make in a scripting
+language&quot;.
+
+</li>
+<li><a href="http://www.a-a-p.org">www.a-a-p.org</a> &#8212; Make in Python
+
+</li>
+<li><a
+href="http://www.aromatic.com/tools/jam.txt">www.aromatic.com/tools/jam.txt</a>
+&#8212; JAM, Java Automated Make
+
+</li>
+<li><a href="http://ant.apache.org">ant.apache.org</a> &#8212; The Ant project
+
+</li>
+<li><a
+href="http://ppt.perl.org/commands/make/index.html">ppt.perl.org/commands/make/index.html</a>
+&#8212; Make from the Perl Power Tools implementation.
+
+</li>
+<li><a
+href="http://search.cpan.org/search?query=PerlBuildSystem">search.cpan.org/search?query=PerlBuildSystem</a>
+&#8212; The Perl Build System
+
+</li>
+<li><a href="http://make.rubyforge.org">make.rubyforge.org</a> &#8212; Rant,
+another Ruby make tool.
+
+</li>
+</ul>
+<h2>Credits</h2>
+<dl>
+<dt><b>Ryan Dlugosz</b></dt><dd>For the initial conversation that sparked Rake.
+
+</dd>
+<dt><b>nobu.nokada@softhome.net</b></dt><dd>For the initial patch for rule support.
+
+</dd>
+<dt><b>Tilman Sauerbeck &lt;tilman@code-monkey.de&gt;</b></dt><dd>For the recursive rule patch.
+
+</dd>
+</dl>
+<h2>License</h2>
+<p>
+Rake is available under an MIT-style license.
+</p>
+<p>
+Copyright (c) 2003, 2004 Jim Weirich
+</p>
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+&quot;Software&quot;), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+<h2>Support</h2>
+<p>
+The Rake homepage is <a
+href="http://rake.rubyforge.org">rake.rubyforge.org</a>. You can find the
+Rake RubyForge page at <a
+href="http://rubyforge.org/projects/rake">rubyforge.org/projects/rake</a>.
+</p>
+<p>
+Feel free to submit commits or feature requests. If you send a patch,
+remember to update the corresponding unit tests. If fact, I prefer new
+feature to be submitted in the form of new unit tests.
+</p>
+<p>
+For other information, feel free to ask on the ruby-talk mailing list
+(which is mirrored to comp.lang.ruby) or contact jim dot weirich at
+gmail.com.
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

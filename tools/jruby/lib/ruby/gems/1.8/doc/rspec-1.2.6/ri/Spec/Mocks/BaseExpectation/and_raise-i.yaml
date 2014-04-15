@@ -1,0 +1,20 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  and_raise()
+  and_raise(Exception) #any exception class
+  and_raise(exception) #any exception object
+is_singleton: false
+block_params: 
+name: and_raise
+comment: 
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Warning
+- !ruby/struct:SM::Flow::P 
+  body: When you pass an exception class, the MessageExpectation will raise an instance
+    of it, creating it with <tt>new</tt>. If the exception class initializer requires
+    any parameters, you must pass in an instance and not the class.
+full_name: Spec::Mocks::BaseExpectation#and_raise
+visibility: public
+aliases: []
+

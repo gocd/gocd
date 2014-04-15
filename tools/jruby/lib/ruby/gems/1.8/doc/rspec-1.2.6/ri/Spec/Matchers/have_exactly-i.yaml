@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (n)
+is_singleton: false
+block_params: 
+name: have_exactly
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #have'
+full_name: Spec::Matchers#have_exactly
+visibility: public
+aliases: []
+

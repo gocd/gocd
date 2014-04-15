@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Command auto-complete tests</title>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+    <script language="javascript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+    <script language="javascript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+    <script language="javascript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+    <script language="javascript" type="text/javascript" src="../compressed/all.js"></script>
+    <script type="text/javascript" src="../app/after_load_enhancements.js"></script>
+
+    <script language="javascript" type="text/javascript">
+        var originalAjax;
+        var originalGet;
+        var url = "http://foo.bar/go/autocomplete";
+
+        function setUp() {
+            originalAjax = jQuery.ajax;
+            originalGet = jQuery.get;
+        }
+
+        function tearDown() {
+            jQuery.ajax = originalAjax;
+            jQuery.get = originalGet;
+        }
+
+        function testShouldSendWhateverIsEnteredInTheTextboxToTheAjaxCallToLookup() {
+            var dataItWasCalledWith = null;
+            jQuery.ajax = function(data) {
+                dataItWasCalledWith = data;
+            };
+            var commandLookup = new CommandSnippetLookup(jQuery(".under_test .lookup_command").get(0), url);
+            jQuery(".under_test .lookup_command").val("");
+            commandLookup.hookupAutocomplete();
+
+            var autoCompleteText = jQuery(".under_test .lookup_command");
+            autoCompleteText.val("ms");
+            autoCompleteText.search();
+            assertNotNull(dataItWasCalledWith);
+            assertEquals("ms", dataItWasCalledWith.data.lookup_prefix);
+            assertEquals(url, dataItWasCalledWith.url);
+        }
+
+        function testShouldPopulateCommandAndArgumentsWhenASnippetIsSelected() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("ls", jQuery(".under_test .command").val());
+            assertEquals("-abc\n-def\n", jQuery(".under_test .arguments").val());
+        }
+
+        function testShouldPopulateNameAndDescriptionWhenASnippetIsSelected() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", name: "Command name", description: "Some description"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("Command name", jQuery(".under_test .snippet_details .name .value").text());
+            assertEquals("Some description", jQuery(".under_test .snippet_details .description .value").text());
+        }
+
+        function testShouldPopulateAuthorDataWithoutLinkWhenAuthorInfoIsEmpty() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "Author - 1", authorinfo: null, moreinfo: "some-link"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("Author - 1", jQuery(".under_test .snippet_details .author .value").text());
+            assertTrue("Author should be visible", jQuery(".under_test .snippet_details .author .value").is(":visible"));
+            assertTrue("Author with link should not be visible", jQuery(".under_test .snippet_details .author .value-with-link").is(":hidden"));
+        }
+
+        function testShouldPopulateAuthorDataWithLinkWhenAuthorInfoIsNotEmpty() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "Author - 1", authorinfo: "http://author.link", moreinfo: "some-link"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("Author - 1", jQuery(".under_test .snippet_details .author .value-with-link a").text());
+            assertEquals("http://author.link", jQuery(".under_test .snippet_details .author .value-with-link a").attr('href'));
+            assertTrue("Author should not be visible", jQuery(".under_test .snippet_details .author .value").is(":hidden"));
+            assertTrue("Author with link should be visible", jQuery(".under_test .snippet_details .author .value-with-link a").is(":visible"));
+        }
+
+        function testShouldPopulateMoreInfoIfMoreInfoIsNotEmpty() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "Author - 1", authorinfo: "http://author.link", moreinfo: "http://some-link"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("more info", jQuery(".under_test .snippet_details .more-info .value-with-link a").text());
+            assertEquals("http://some-link", jQuery(".under_test .snippet_details .more-info .value-with-link a").attr('href'));
+            assertTrue("more info should be visible", jQuery(".under_test .snippet_details .more-info").is(':visible'));
+        }
+
+        function testShouldHideMoreInfoIfMoreInfoIsEmpty() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "Author - 1", authorinfo: "http://author.link", moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertTrue("more info should be hidden", jQuery(".under_test .snippet_details .more-info .value-with-link a").is(':hidden'));
+        }
+
+        function testShouldHideAuthorInfoIfAllAuthorInfoIsEmpty() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: null, moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertTrue("Author info should be hidden", jQuery(".under_test .snippet_details .author").is(':hidden'));
+        }
+
+        function testShouldDefaultAuthorNameIfOnlyAuthorInfoIsAvailable() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: "http://author.link", moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("link", jQuery(".under_test .snippet_details .author .value-with-link a").text());
+            assertEquals("http://author.link", jQuery(".under_test .snippet_details .author .value-with-link a").attr('href'));
+            assertTrue("Author should not be visible", jQuery(".under_test .snippet_details .author .value").is(":hidden"));
+            assertTrue("Author with link should be visible", jQuery(".under_test .snippet_details .author .value-with-link a").is(":visible"));
+        }
+
+        function testShouldDefaultDefaultDescriptionIfItIsNotAvailable() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, description: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("No description available.", jQuery(".under_test .snippet_details .description .value").text());
+        }
+
+        function testShouldAddHttpSchemePrefixToAuthorInfoLinkIfItDoesNotStartWithASchemeFollowedByColonFollowedByTwoSlashes() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "author", authorinfo: "author.link", moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("http://author.link", jQuery(".under_test .snippet_details .author .value-with-link a").attr('href'));
+        }
+
+        function testShouldNotAddHttpSchemePrefixToAuthorInfoLinkIfItStartsWithASchemeFollowedByColonFollowedByTwoSlashes() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: "author", authorinfo: "HTTPS://author.link", moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("HTTPS://author.link", jQuery(".under_test .snippet_details .author .value-with-link a").attr('href'));
+        }
+
+        function testShouldAddHttpSchemePrefixToMoreInfoInfoLinkIfItDoesNotStartWithASchemeFollowedByColonFollowedByTwoSlashes() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: null, moreinfo: "moreinfo.link"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("http://moreinfo.link", jQuery(".under_test .snippet_details .more-info .value-with-link a").attr('href'));
+        }
+
+        function testShouldNotAddHttpSchemePrefixToMoreInfoLinkIfItStartsWithASchemeFollowedByColonFollowedByTwoSlashes() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: null, moreinfo: "ftp://moreinfo.link"};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertEquals("ftp://moreinfo.link", jQuery(".under_test .snippet_details .more-info .value-with-link a").attr('href'));
+        }
+
+        function testShouldDisableCommandRepositoryFeatureIfArgumentsAreOldStyleArgs() {
+            TaskSnippet.attachClickHandlers('.under_test_for_old_style_args', 'some-command-lookup-url', 'some-command-definition-url', ".command", ".arguments-textarea-which-cannot-be-found");
+
+            assertTrue("Lookup command textbox should be disabled", jQuery(".under_test_for_old_style_args .lookup_command").is(":disabled"));
+            assertEquals("The lookup feature is only available for the new style of custom commands.", jQuery(".under_test_for_old_style_args .error-message-for-old-args").text());
+            assertTrue("Message about old style args for command repo should be visible", jQuery(".under_test_for_old_style_args .error-message-for-old-args").is(':visible'));
+        }
+
+        function testShouldHideInvalidSnippetDetailsOnFirstCommandSnippetSelection() {
+            var fakeDataFromServer = {command: "ls", arguments: "-abc\n-def\n", author: null, authorinfo: "http://author.link", moreinfo: null};
+            setupCommandSnippetData(fakeDataFromServer);
+
+            jQuery(".under_test .invalid_snippets").show();
+
+            triggerSelectionFromAutoCompleteOptions();
+
+            assertTrue("Invalid Snippet Details should be hidden. ", jQuery(".under_test .invalid_snippets").is(":hidden"));
+        }
+
+        function setupCommandSnippetData(fakeDataFromServer) {
+            var urlItWasCalledWith = null;
+            var queryParamsItWasCalledWith = null;
+            jQuery.get = function(url, queryParams, callBack) {
+                urlItWasCalledWith = url;
+                queryParamsItWasCalledWith = queryParams;
+                return callBack(fakeDataFromServer);
+            };
+
+            TaskSnippet.attachClickHandlers('.under_test', 'some-command-lookup-url', 'some-command-definition-url', ".command", ".arguments");
+        }
+
+        function triggerSelectionFromAutoCompleteOptions() {
+            jQuery(".under_test .lookup_command").trigger('result', ["msbuild", "/path/to/msbuild.xml"]);
+        }
+    </script>
+</head>
+
+<body>
+<div class='under_test'>
+    <input type="text" class="command" name="command"/>
+    <textarea class="arguments"></textarea>
+
+    <div class="gist_based_auto_complete">
+        <input type="text" class="lookup_command" name="lookup_command"/>
+    </div>
+
+    <div class="snippet_details hidden">
+        <div class="name">
+            <span class="value"></span>
+        </div>
+        <div class="description">
+            <span class="value"></span>
+        </div>
+        <div class="author">
+            <span class="key">Author:</span>
+            <span class="value"></span>
+            <span class="value-with-link"><a></a></span>
+        </div>
+        <div class="more-info">
+            <span class="value-with-link"><a>more info</a></span>
+        </div>
+    </div>
+
+    <div class="invalid_snippets">
+    </div>
+</div>
+
+<div class='under_test_for_old_style_args'>
+    <input type="text" class="command" name="command"/>
+    <input type="text" class="arguments-text-box-not-text-area"/>
+
+    <div class="gist_based_auto_complete">
+        <input type="text" class="lookup_command" name="lookup_command"/>
+        <div class="error-message-for-old-args hidden">The lookup feature is only available for the new style of custom commands.</div>
+    </div>
+
+    <div class="snippet_details hidden">
+    </div>
+</div>
+</body>
+</html>

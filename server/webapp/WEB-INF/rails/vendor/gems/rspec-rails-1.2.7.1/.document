@@ -1,0 +1,7 @@
+lib/**/*.rb
+History.rdoc
+License.txt
+README.rdoc
+Upgrade.rdoc
+features/**/*.feature
+

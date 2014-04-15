@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>invoke_return_block (Spec::Mocks::BaseExpectation)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/message_expectation.rb, line 165</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">invoke_return_block</span>(<span class="ruby-identifier">args</span>, <span class="ruby-identifier">block</span>)
+        <span class="ruby-identifier">args</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">block</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">block</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-comment cmt"># Ruby 1.9 - when we set @return_block to return values</span>
+        <span class="ruby-comment cmt"># regardless of arguments, any arguments will result in</span>
+        <span class="ruby-comment cmt"># a &quot;wrong number of arguments&quot; error</span>
+        <span class="ruby-ivar">@return_block</span>.<span class="ruby-identifier">arity</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span> <span class="ruby-operator">?</span> <span class="ruby-ivar">@return_block</span>.<span class="ruby-identifier">call</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) <span class="ruby-operator">:</span> <span class="ruby-ivar">@return_block</span>.<span class="ruby-identifier">call</span>()
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

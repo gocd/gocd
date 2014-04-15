@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Expectations</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Expectations</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/spec/expectations/errors_rb.html">
+                lib/spec/expectations/errors.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/expectations/fail_with_rb.html">
+                lib/spec/expectations/fail_with.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/expectations/handler_rb.html">
+                lib/spec/expectations/handler.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/expectations_rb.html">
+                lib/spec/expectations.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/differs/default_rb.html">
+                lib/spec/runner/differs/default.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+<a href="Expectations.html">Spec::Expectations</a> lets you set
+expectations on your objects.
+</p>
+<pre>
+  result.should == 37
+  team.should have(11).players_on_the_field
+</pre>
+<h2>How <a href="Expectations.html">Expectations</a> work.</h2>
+<p>
+<a href="Expectations.html">Spec::Expectations</a> adds two methods to <a
+href="../Object.html">Object</a>:
+</p>
+<pre>
+  should(matcher=nil)
+  should_not(matcher=nil)
+</pre>
+<p>
+Both methods take an optional Expression Matcher (See <a
+href="Matchers.html">Spec::Matchers</a>).
+</p>
+<p>
+When <tt>should</tt> receives an Expression Matcher, it calls
+<tt>matches?(self)</tt>. If it returns <tt>true</tt>, the spec passes and
+execution continues. If it returns <tt>false</tt>, then the spec fails with
+the message returned by <tt>matcher.failure_message</tt>.
+</p>
+<p>
+Similarly, when <tt>should_not</tt> receives a matcher, it calls
+<tt>matches?(self)</tt>. If it returns <tt>false</tt>, the spec passes and
+execution continues. If it returns <tt>true</tt>, then the spec fails with
+the message returned by <tt>matcher.negative_failure_message</tt>.
+</p>
+<p>
+RSpec ships with a standard set of useful matchers, and writing your own
+matchers is quite simple. See <a href="Matchers.html">Spec::Matchers</a>
+for details.
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Expectations/Differs.html" class="link">Spec::Expectations::Differs</a><br />
+Class <a href="Expectations/ExpectationNotMetError.html" class="link">Spec::Expectations::ExpectationNotMetError</a><br />
+Class <a href="Expectations/InvalidMatcherError.html" class="link">Spec::Expectations::InvalidMatcherError</a><br />
+Class <a href="Expectations/NegativeExpectationHandler.html" class="link">Spec::Expectations::NegativeExpectationHandler</a><br />
+Class <a href="Expectations/PositiveExpectationHandler.html" class="link">Spec::Expectations::PositiveExpectationHandler</a><br />
+
+    </div>
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">differ</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

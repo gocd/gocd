@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, kind, option)
+is_singleton: false
+block_params: 
+name: load_class
+comment: 
+full_name: Spec::Runner::Options#load_class
+visibility: protected
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (file, line_number, example_file, example_line)
+is_singleton: false
+block_params: 
+name: is_best_match?
+comment: 
+full_name: Spec::Runner::SpecParser#is_best_match?
+visibility: protected
+aliases: []
+

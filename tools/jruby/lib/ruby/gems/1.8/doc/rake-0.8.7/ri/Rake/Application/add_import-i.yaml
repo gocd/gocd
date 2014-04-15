@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (fn)
+is_singleton: false
+block_params: 
+name: add_import
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Add a file to the list of files to be imported.
+full_name: Rake::Application#add_import
+visibility: public
+aliases: []
+

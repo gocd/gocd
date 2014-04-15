@@ -1,0 +1,162 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <context-param>
+        <param-name>org.mortbay.jetty.servlet.MaxAge</param-name>
+        <param-value>36000</param-value>
+    </context-param>
+
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>*.js</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>*.json</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>*.css</url-pattern>
+    </filter-mapping>
+
+    <!-- This is the older UI pages -->
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/tab/*</url-pattern>
+    </filter-mapping>
+
+    <!-- New pages need to be added explicitly since
+        the old /tab/* approach won't work -->
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/pipelines</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/pipelines/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/home</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/agents</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/environments</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/stylesheets</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/admin</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>
+
+    <!-- This capturees logs which are served out frequently
+        e.g. on the console tab of the job page-->
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
+        <url-pattern>*.log</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>gizFilter</filter-name>
+        <filter-class>org.mortbay.servlet.GzipFilter</filter-class>
+    </filter>
+
+    <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
+        <init-param>
+            <param-name>cacheControl</param-name>
+            <param-value>max-age=36000,public</param-value>
+        </init-param>
+        <init-param>
+            <param-name>acceptRanges</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dirAllowed</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redirectWelcome</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxCacheSize</param-name>
+            <param-value>30000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxCachedFileSize</param-name>
+            <param-value>254000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxCachedFiles</param-name>
+            <param-value>1000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>useFileMappedBuffer</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/css/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.js</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/images/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/help/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+

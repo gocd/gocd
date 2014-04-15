@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Spec::Mocks::Proxy)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/proxy.rb, line 18</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">target</span>, <span class="ruby-identifier">name</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-identifier">options</span>={})
+        <span class="ruby-ivar">@target</span> = <span class="ruby-identifier">target</span>
+        <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+        <span class="ruby-ivar">@error_generator</span> = <span class="ruby-constant">ErrorGenerator</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">target</span>, <span class="ruby-identifier">name</span>
+        <span class="ruby-ivar">@expectation_ordering</span> = <span class="ruby-constant">OrderGroup</span>.<span class="ruby-identifier">new</span> <span class="ruby-ivar">@error_generator</span>
+        <span class="ruby-ivar">@expectations</span> = []
+        <span class="ruby-ivar">@messages_received</span> = []
+        <span class="ruby-ivar">@stubs</span> = []
+        <span class="ruby-ivar">@proxied_methods</span> = []
+        <span class="ruby-ivar">@options</span> = <span class="ruby-identifier">options</span> <span class="ruby-value">? </span><span class="ruby-constant">DEFAULT_OPTIONS</span>.<span class="ruby-identifier">dup</span>.<span class="ruby-identifier">merge</span>(<span class="ruby-identifier">options</span>) <span class="ruby-operator">:</span> <span class="ruby-constant">DEFAULT_OPTIONS</span>
+        <span class="ruby-ivar">@already_proxied_respond_to</span> = <span class="ruby-keyword kw">false</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

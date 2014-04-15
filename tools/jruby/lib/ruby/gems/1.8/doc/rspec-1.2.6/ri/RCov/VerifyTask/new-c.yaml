@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name=:verify_rcov) {|self if block_given?| ...}
+is_singleton: true
+block_params: self if block_given?
+name: new
+comment: 
+full_name: RCov::VerifyTask::new
+visibility: public
+aliases: []
+

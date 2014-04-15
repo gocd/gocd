@@ -1,0 +1,17 @@
+<% if !@current_server_health_states.isRealSuccess() %>
+    <a onclick="Modalbox.show($('cruise_message_body'), {title: 'Error and warning messages', overlayClose:false})">
+        <span class="messages">
+            <% if @current_server_health_states.warningCount() > 0  && @current_server_health_states.errorCount() > 0 %>
+                <span class="error_count"><%= l.errorCount(@current_server_health_states.errorCount()) %></span> &
+                <span class="warning_count"><%= l.warningCount(@current_server_health_states.warningCount()) %></span>
+            <% else %>
+                <% if @current_server_health_states.errorCount() > 0 %>
+                    <span class="error_count"><%= l.errorCount(@current_server_health_states.errorCount()) %></span>
+                <% end %>
+                <% if @current_server_health_states.warningCount() > 0 %>
+                    <span class="warning_count"><%= l.warningCount(@current_server_health_states.warningCount()) %></span>
+                <% end %>
+            <% end %>
+        </span>
+    </a>
+<% end %>

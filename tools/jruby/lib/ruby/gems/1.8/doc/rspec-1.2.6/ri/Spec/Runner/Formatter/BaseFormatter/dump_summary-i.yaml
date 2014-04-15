@@ -1,0 +1,30 @@
+--- !ruby/object:RI::MethodDescription 
+params: (duration, example_count, failure_count, pending_count)
+is_singleton: false
+block_params: 
+name: dump_summary
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This method is invoked after the dumping of examples and failures.
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'duration:'
+    body: the total time for the entire run
+  - !ruby/struct:SM::Flow::LI 
+    label: 'example_count:'
+    body: the number of examples run
+  - !ruby/struct:SM::Flow::LI 
+    label: 'failure_count:'
+    body: the number of examples that failed
+  - !ruby/struct:SM::Flow::LI 
+    label: 'pending_count:'
+    body: the number of examples that are pending
+full_name: Spec::Runner::Formatter::BaseFormatter#dump_summary
+visibility: public
+aliases: []
+

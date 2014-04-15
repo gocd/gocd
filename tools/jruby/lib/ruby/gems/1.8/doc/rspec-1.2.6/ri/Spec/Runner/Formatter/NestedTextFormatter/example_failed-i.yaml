@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example, counter, failure)
+is_singleton: false
+block_params: 
+name: example_failed
+comment: 
+full_name: Spec::Runner::Formatter::NestedTextFormatter#example_failed
+visibility: public
+aliases: []
+

@@ -1,0 +1,216 @@
+---
+layout: default
+title: Contributing
+---
+
+Buildr is a community effort, and we welcome all contributors.  Here's your chance to get involved and help your fellow developers.
+
+h2(#involved).  Getting involved
+
+All our discussions are done in the open, over "email":mailing_lists.html, and that would be the first place to look for answers, raise ideas, etc.  For bug reports, issues and patches, "see below":#bugs.
+
+
+h2(#mailing_lists).  Mailing Lists
+
+We run two mailing lists, the "users":http://buildr.markmail.org/search/list:users mailing list for developers working with Buildr, that would be you if you're using Buildr or interested in using it.  There's the "dev":http://buildr.markmail.org/search/list:dev mailing list for talking about development of Buildr itself. There's also "commits":http://buildr.markmail.org/search/list:commits mailing list for following SVN commits and JIRA issues.
+
+Check the "mailing lists":mailing_lists.html page for more information on subscribing, searching and posting to the mailing list.
+
+
+h2(#bugs).  Bugs (aka Issues)
+
+We really do try to keep bugs to a minimum, and anticipate everything you'll ever want to do with Buildr.  We're also, not perfect.  So you may have found a bug, or have an enhancement in mind, or better yet, a patch to contribute. Here's what you can do.
+
+If it's a bug, enhancement or patch, add it to "JIRA":http://issues.apache.org/jira/browse/Buildr.  For trivial stuff, that's good enough.
+
+If it needs more attention, start a discussion over on the mailing list.  We will still use JIRA to log the progress, but the mailing list is a better place for talking things through.
+
+When reporting a bug, please tell us which version of Ruby, Buildr and Java you are using, and also which operating system you are on:
+
+<notextile>
+{% highlight sh %}
+$ ruby --version
+$ buildr --version
+$ java --version
+{% endhighlight %}
+</notextile>
+
+
+h2(#wiki).  Community Wiki
+
+Our community Wiki is available at "http://cwiki.apache.org/confluence/display/BUILDR/Index":http://cwiki.apache.org/confluence/display/BUILDR/Index.
+
+
+h2(#code).  Contributing Code
+
+Yes, please.
+
+If you have a patch to submit, do it through "JIRA":http://issues.apache.org/jira/browse/Buildr.  We want to make sure Apache gets the right to use your contribution, and the JIRA upload form includes a simple contribution agreement.  Lawyer not included.
+
+h3.  The Perfect Patch
+
+If you want to get your patch accepted quickly:
+
+#  Provide a good summary of the bug/fix.  We use that to decide which issue we can do quickly, and also copy and paste it into the changelog.
+#  Provide short explanation of what failed, under what conditions, why, and what else could be affected by the change (when relevant).  The helps us understand the problem and move on to the next step.
+#  Provide a patch with relevant specs, or a fix to incomplete/broken specs. First thing we have to do is replicate the problem, before applying the change, and then make sure the change fixes that problem.  And we need to have those specs in there, they make sure we don't accidentally break it again in the future.
+#  Provide a patch with the fix/change itself.  Keep it separate from the specs, so it's easy to apply them individually.
+
+If you don't know how to fix it, but can at least write a spec for the correct behavior (which, obviously would fail), do just that.  A spec is preferred to a fix.
+
+h3.  Working on a new feature?
+
+If you want to work on a cool new feature, but not quite ready to submit a patch, there's still a way you can get the Buildr community involved.  We're experimenting with using Git for that.  You can use Git to maintain a fork of Buildr that can keep up with changes in the main branch (tip: use @git rebase@), while developing your own changes/features on it.
+
+That way you can get other people involved, checking out the code, and eventually merge it back with the main branch.  Check out the "Git section":#git below and the post "Git forking for fun and profit":http://blog.labnotes.org/2008/04/30/git-forking-for-fun-and-profit/.
+
+
+h2(#edge).  Living on the edge
+
+Did we mention Buildr is an open source project?  In fact, when you install Buildr you get all the source code, documentation, test case and everything you need to use it, extend it and patch it.  Have a look in your Gem directory.
+
+h3(#svn).  SVN
+
+But if you want to work with the latest and greatest, you'll want to check out "Buildr from SVN":http://svn.apache.org/repos/asf/buildr:
+
+{% highlight sh %}
+$ svn co http://svn.apache.org/repos/asf/buildr/trunk buildr
+{% endhighlight %}
+
+You can also browse the "Buildr repository":http://svn.apache.org/repos/asf/buildr.
+
+h3(#git).  Git
+
+Not a fan SVN?  We understand.  You can also grab a copy of "Buildr from GitHub":http://github.com/buildr/buildr/tree/master:
+
+<notextile>
+{% highlight sh %}
+$ git clone git://github.com/buildr/buildr.git
+{% endhighlight %}
+</notextile>
+
+If you want to learn more about Git, you can start by watching Scott Chacon’s "Git presentation":http://en.oreilly.com/rails2008/public/asset/attachment/2816 (PDF), or any of the "Git screencasts":http://www.gitcasts.com/.  For more, there's also the "Git Internals book":http://peepcode.com/products/git-internals-pdf.
+
+And keep this "Git cheat sheet":http://ktown.kde.org/~zrusin/git/git-cheat-sheet-medium.png close at hand. Very useful.
+
+*Note:* The GitHub repository is maintained by contributors to this project, but is *not* an official Apache repository.  To obtain Buildr from the official Apache repository, consider using @git-svn@ instead.
+
+h3. Working with Source Code
+
+To install Buildr from the source directory:
+
+{% highlight sh %}
+$ cd buildr
+$ rake setup install
+{% endhighlight %}
+
+When using Buildr for JRuby:
+
+{% highlight sh %}
+$ cd buildr
+$ jruby -S rake setup install
+{% endhighlight %}
+
+The _setup_ task takes care of installing all the necessary dependencies used for building, testing and running Buildr. Once in a while we upgrade or add new dependencies, if you're experiencing a missing dependency, simply run @rake setup@ again.
+
+The _install_ task creates a Gem in your working directory (_pkg/_) and install it in your local repository. Since Ruby Gems uses version numbers to detect new releases, if you installed Buildr this way and want to upgrade to the latest official release, you need to use @gem install buildr@ rather than @gem upgrade@.
+
+Both _setup_ and _install_ tasks use the @sudo@ command on platforms that require it (i.e. not Windows), so there's no need to run @sudo rake@ when working with the Buildr source code.
+
+
+h3. Using development build
+
+Occasionally we'll make development builds from the current code in trunk/head. We appreciate if you can take the time to test those out and report any bugs. To install development builds, use the Gem repository at @people.apache.org/~assaf/buildr/snapshot@:
+
+{% highlight sh %}
+gem source --add http://people.apache.org/~assaf/buildr/snapshot/
+{% endhighlight %}
+
+Since Ruby Gems uses version numbers to detect new releases, if you installed Buildr from a snapshot and want to upgrade to a newer snapshot or the latest official release, you need to use @gem install buildr@ rather than @gem upgrade@.
+
+If you want to go back to using the RubyForge releases:
+
+<notextile>
+{% highlight sh %}
+gem source --remove http://people.apache.org/~assaf/buildr/snapshot/
+gem install buildr
+{% endhighlight %}
+</notextile>
+
+
+h2(#testing).  Tested and Documented
+
+Two things we definitely encourage!
+
+h3.  Testing/Specs
+
+Obviously we won't turn down patches, but we'll love you even more if you include a test case.  One that will fail without the patch, and run successfully with it.  If not for our love, then think of the benefit to you: once we add that test case, we won't accidentally break that feature in the next release.
+
+We test using "RSpec":http://rspec.info/, a Behavior-Driven Development test framework.  The main difference between RSpec and xUnit is that RSpec helps you formulate test cases in terms of specifications: you describe how the code should behave, and run RSpec to make sure it matches that specification.
+
+You can run an individual specifications using the @spec@ command, for example:
+
+{% highlight sh %}
+$ spec spec/compiler_spec.rb
+$ spec spec/compiler_spec.rb -l 409
+{% endhighlight %}
+
+The first command will run all the specifications in @compiler_spec@, the second command will run only the specification identified by line 409 of that file. You can use line numbers to point at a particular specification (lines starting with @it@), or set of specifications (lines starting with @describe@). You can also use the @-e@ command line option to name a particular specification.
+
+To make sure your change did not break anything else, you can run all the specifications (be patient, we have a lot of these):
+
+{% highlight sh %}
+$ rake spec
+{% endhighlight %}
+
+If you get any failures, you can use @rake failed@ to run only the failed specs, and repeat until there are no more failed specs to run. The list of failed specs is stored in the file _failed_.
+
+We always @rake spec@ before making a release.
+
+For full test coverage:
+
+{% highlight sh %}
+$ rake coverage
+{% endhighlight %}
+
+Specification and coverage reports are HTML files you can view with a Web browser, look for them in the _reports_ directory. You can also check out the "RSpec report":specs.html and "test coverage":coverage/index.html we publish with each release.
+
+
+h2(#docs).  Documentation
+
+Yes, we do make typos, spelling errors and sometimes we write things that don't make sense, so if you find a documentation bug, or want to help make the documentation even better, here's the way to do it.
+
+For simple typos and quick fixes, just send a message to the mailing list or log an issue in JIRA.
+
+If you end up rewriting a significant piece of text, or add new documentation (you rock!), send a patch.  Making documentation patches is fairly easy.  All the documentation is generated from text files in the @doc/pages@ directory, so all you need to do is check it out from SVN, edit, and @svn diff@ to create a patch.
+
+We use "Textile":http://www.textism.com/tools/textile/ as the markup language, it takes all of a few minutes to learn, it's intuitive to use, and produces clean HTML.  You can learn it all in a few minutes from the "Textile Reference Manual":http://redcloth.org/textile.  Also check out the "Textile Quick Reference":http://hobix.com/textile/quick.html.
+
+You can always check the documentation to see which conventions we use, and also a couple of extensions we have for styling source code (with syntax highlighting!) and handling footnotes.  The table of contents is auto-generated form H1/H2 headers.
+
+The tool we use for this is called Docter, which we developed specifically for Buildr, and use to create the Web site and printable PDF.  If you want to try it out you'll need to first @gem install docter@.  To generate a copy of the Web site, simple run @rake html@ .
+
+If you're thinking of editing the docs, and using @rake html@ to see what the HTML looks like, you may want to try something simpler.  Start by running the Docter Web server with @rake docter@ and then point your browser at @http://localhost:3000@.  To see your edits, simply refresh the page.
+
+Generating the PDF is a bit more tricky, we use the HTML in combination with print media CSS stylesheets and run them through the wonderful "PrinceXML":http://www.princexml.com/, so you'll need to install PrinceXML first before you can @rake pdf@.
+
+
+h2(#contributors).  Contributors
+
+Here is the list of people who are actively working and committing on Buildr:
+
+*"Assaf Arkin":http://labnotes.org* (assaf at apache.org)
+
+*Alex Boisvert*
+
+Came to Buildr as a refuge from the Maven Uncertainty Principle.  Alex has been working mostly on the Scala integration and believes Ruby scripting is a great complement to statically typed languages. 
+
+*"Matthieu Riou":http://offthelip.org*
+
+*Victor Hugo Borja* (vborja at apache.org)
+
+Currently a Java Developer at "http://jwmsolutions.com":http://jwmsolutions.com, Victor has been enjoying and using Apache's software since 1999 when he started with Java, now he prefers programming Ruby and is happy to help on Apache's first ruby project. 
+
+*Lacton* (lacton at apache.org)
+
+A test-infected developer since 2001, Lacton yearns for a development infrastructure that would shorten feedback loops so much that testing, building, refactoring and committing would feel as easy and natural as breathing air.

@@ -1,0 +1,78 @@
+Dependencies for Building
+=========================
+
+- You need rake to build the extensions and install them.
+
+  You can get it from rubyforge:
+    http://rubyforge.org/projects/rake
+
+  or just type
+
+  # gem install rake
+
+  for the installation via rubygems.
+
+- If you want to rebuild the parser.c file or draw nice graphviz images of the
+  state machines, you need ragel from:
+    http://www.cs.queensu.ca/~thurston/ragel
+
+Installation
+============
+
+It's recommended to use the extension variant of JSON, because it's quite a bit
+faster than the pure ruby variant. If you cannot build it on your system, you
+can settle for the latter.
+
+Just type into the command line as root:
+
+# rake install
+
+The above command will build the extensions and install them on your system.
+
+# rake install_pure
+
+or
+
+# ruby install.rb
+
+will just install the pure ruby implementation of JSON.
+
+If you use Rubygems you can type
+
+# gem install json
+
+instead, to install the newest JSON version.
+
+There is also a pure ruby json only variant of the gem, that can be installed
+with:
+
+# gem install json_pure
+
+Testing and Examples
+====================
+
+To run the tests type:
+
+$ rake test_ext
+
+This will build the extensions first and then test them.
+
+$ rake test_pure
+
+This will test the pure ruby extensions.
+
+There is also a small example in tools/server.rb if you want to see, how
+receiving a JSON object from a webrick server in your browser with the
+javasript prototype library (http://www.prototypejs.org) works.
+
+Author
+======
+
+Florian Frank <flori@ping.de>
+
+License
+=======
+
+Ruby License, see the COPYING file included in the source distribution. The
+Ruby License includes the GNU General Public License (GPL), Version 2, so see
+the file GPL as well.

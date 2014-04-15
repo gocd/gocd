@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*wildcards) {|fn| ...}
+is_singleton: false
+block_params: (fn)
+name: for_files
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Perform a block with each file matching a set of wildcards.
+full_name: Sys#for_files
+visibility: public
+aliases: []
+

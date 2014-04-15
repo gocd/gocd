@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (matcher=nil)
+is_singleton: false
+block_params: 
+name: should
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: When <tt>should</tt> is called with no explicit receiver, the call is delegated
+    to the object returned by <tt>subject</tt>. Combined with an implicit subject
+    (see <tt>subject</tt>), this supports very concise expressions.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe Person do\n    it { should be_eligible_to_vote }\n  end\n"
+full_name: Spec::Example::Subject::ExampleMethods#should
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (location)
+is_singleton: false
+block_params: 
+name: parse_location
+comment: 
+full_name: Spec::Runner::SpecParser#parse_location
+visibility: protected
+aliases: []
+

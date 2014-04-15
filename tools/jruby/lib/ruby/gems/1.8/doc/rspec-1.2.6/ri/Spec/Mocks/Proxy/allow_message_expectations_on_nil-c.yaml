@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: allow_message_expectations_on_nil
+comment: 
+full_name: Spec::Mocks::Proxy::allow_message_expectations_on_nil
+visibility: public
+aliases: []
+

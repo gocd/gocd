@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: after_all_parts
+comment: 
+full_name: Spec::Example::ExampleGroupHierarchy#after_all_parts
+visibility: public
+aliases: []
+

@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: true
+block_params: 
+name: define_task
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Define a task given <tt>args</tt> and an option block. If a rule with the
+    given name already exists, the prerequisites and actions are added to the existing
+    task. Returns the defined task.
+full_name: Rake::Task::define_task
+visibility: public
+aliases: []
+

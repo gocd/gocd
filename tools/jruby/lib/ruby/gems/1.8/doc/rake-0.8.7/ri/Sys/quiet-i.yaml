@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (&block)
+is_singleton: false
+block_params: 
+name: quiet
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Perform a block with $verbose disabled.
+full_name: Sys#quiet
+visibility: public
+aliases: []
+

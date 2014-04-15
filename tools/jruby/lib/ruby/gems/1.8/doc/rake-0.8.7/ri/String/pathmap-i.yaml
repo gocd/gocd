@@ -1,0 +1,84 @@
+--- !ruby/object:RI::MethodDescription 
+params: (spec=nil, &block)
+is_singleton: false
+block_params: 
+name: pathmap
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Map the path according to the given specification. The specification controls
+    the details of the mapping. The following special patterns are recognized:'
+- !ruby/object:SM::Flow::LIST 
+  type: :BULLET
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%p</b> -- The complete path.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%f</b> -- The base file name of the path, with its file extension, but
+      without any directories.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%n</b> -- The file name of the path without its file extension.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%d</b> -- The directory list of the path.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%x</b> -- The file extension of the path. An empty string if there is
+      no extension.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%X</b> -- Everything <b>but</b> the file extension.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%s</b> -- The alternate file separater if defined, otherwise use the
+      standard file separator.
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <b>%%</b> -- A percent sign.
+- !ruby/struct:SM::Flow::P 
+  body: The %d specifier can also have a numeric prefix (e.g. '%2d'). If the number
+    is positive, only return (up to) <tt>n</tt> directories in the path, starting
+    from the left hand side. If <tt>n</tt> is negative, return (up to) |<tt>n</tt>|
+    directories from the right hand side of the path.
+- !ruby/struct:SM::Flow::P 
+  body: 'Examples:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  'a/b/c/d/file.txt'.pathmap(&quot;%2d&quot;)   =&gt; 'a/b'\n  'a/b/c/d/file.txt'.pathmap(&quot;%-2d&quot;) \
+    \ =&gt; 'c/d'\n"
+- !ruby/struct:SM::Flow::P 
+  body: Also the %d, %p, %f, %n, %x, and %X operators can take a pattern/replacement
+    argument to perform simple string substititions on a particular part of the path.
+    The pattern and replacement are speparated by a comma and are enclosed by curly
+    braces. The replacement spec comes after the % character but before the operator
+    letter. (e.g. &quot;%{old,new}d&quot;). Muliple replacement specs should be separated
+    by semi-colons (e.g. &quot;%{old,new;src,bin}d&quot;).
+- !ruby/struct:SM::Flow::P 
+  body: Regular expressions may be used for the pattern, and back refs may be used
+    in the replacement text. Curly braces, commas and semi-colons are excluded from
+    both the pattern and replacement text (let's keep parsing reasonable).
+- !ruby/struct:SM::Flow::P 
+  body: 'For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "   &quot;src/org/onestepback/proj/A.java&quot;.pathmap(&quot;%{^src,bin}X.class&quot;)\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'returns:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "   &quot;bin/org/onestepback/proj/A.class&quot;\n"
+- !ruby/struct:SM::Flow::P 
+  body: If the replacement text is '*', then a block may be provided to perform some
+    arbitrary calculation for the replacement.
+- !ruby/struct:SM::Flow::P 
+  body: 'For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  &quot;/path/to/file.TXT&quot;.pathmap(&quot;%X%{.*,*}x&quot;) { |ext|\n\
+    \     ext.downcase\n  }\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'Returns:'
+- !ruby/struct:SM::Flow::VERB 
+  body: " &quot;/path/to/file.txt&quot;\n"
+full_name: String#pathmap
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (projname, user)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Rake::RubyForgePublisher::new
+visibility: public
+aliases: []
+

@@ -1,0 +1,28 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args)
+is_singleton: false
+block_params: 
+name: mock
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Shortcut for creating an instance of Spec::Mocks::Mock.
+- !ruby/struct:SM::Flow::P 
+  body: <tt>name</tt> is used for failure reporting, so you should use the role that
+    the mock is playing in the example.
+- !ruby/struct:SM::Flow::P 
+  body: <tt>stubs_and_options</tt> lets you assign options and stub values at the
+    same time. The only option available is :null_object. Anything else is treated
+    as a stub value.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  stub_thing = mock(&quot;thing&quot;, :a =&gt; &quot;A&quot;)\n  stub_thing.a \
+    == &quot;A&quot; =&gt; true\n\n  stub_person = stub(&quot;thing&quot;, :name =&gt; \
+    &quot;Joe&quot;, :email =&gt; &quot;joe@domain.com&quot;)\n  stub_person.name \
+    =&gt; &quot;Joe&quot;\n  stub_person.email =&gt; &quot;joe@domain.com&quot;\n"
+full_name: Spec::Mocks::ExampleMethods#mock
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: stub

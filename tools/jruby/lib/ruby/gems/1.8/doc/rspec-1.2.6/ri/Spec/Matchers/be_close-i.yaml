@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should be_close(expected, delta)
+  should_not be_close(expected, delta)
+is_singleton: false
+block_params: 
+name: be_close
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if actual == expected +/- delta
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Example
+- !ruby/struct:SM::Flow::VERB 
+  body: "  result.should be_close(3.0, 0.5)\n"
+full_name: Spec::Matchers#be_close
+visibility: public
+aliases: []
+

@@ -1,0 +1,74 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+
+
+.content_header h3 { 
+  display: inline;
+  float: left;
+}
+
+.content_header ul {
+  float: right;
+  clear:right;
+}
+
+.content_header ul li { 
+  display: inline;
+  font-size: 9pt;
+  padding-right: 3em;
+}
+
+a.contextual_help { 
+  color: #fff;
+  cursor: help;
+}
+
+.material li span {
+  display: inline;
+  margin-right: .5em;
+  vertical-align: top;
+}
+
+.material div.deployment_info {
+    margin-left: 1em;
+}
+
+.material div.deployment_info div {
+    margin-bottom: .5em;
+}
+
+.material div.revisions {
+    overflow-y:auto;
+    margin-bottom: 1em;
+    border: 1px solid #9E9E9E;
+}
+
+.material .current {
+    font-style: italic;
+}
+
+.content_header ul li strong {
+  color: #fff;
+  font-size: 10pt;
+  padding-left: 1em;
+}
+
+
+
+.shadedDefaultValue {
+    color: #aaa;
+}

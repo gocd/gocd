@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Example::Subject::ExampleMethods</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Example::Subject::ExampleMethods</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../../files/lib/spec/example/subject_rb.html">
+                lib/spec/example/subject.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000061">should</a>&nbsp;&nbsp;
+      <a href="#M000062">should_not</a>&nbsp;&nbsp;
+      <a href="#M000060">subject</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000061" class="method-detail">
+        <a name="M000061"></a>
+
+        <div class="method-heading">
+          <a href="ExampleMethods.src/M000061.html" target="Code" class="method-signature"
+            onclick="popupCode('ExampleMethods.src/M000061.html');return false;">
+          <span class="method-name">should</span><span class="method-args">(matcher=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+When <tt><a href="ExampleMethods.html#M000061">should</a></tt> is called
+with no explicit receiver, the call is delegated to the object returned by
+<tt><a href="ExampleMethods.html#M000060">subject</a></tt>. Combined with
+an implicit <a href="ExampleMethods.html#M000060">subject</a> (see <tt><a
+href="ExampleMethods.html#M000060">subject</a></tt>), this supports very
+concise expressions.
+</p>
+<h2>Examples</h2>
+<pre>
+  describe Person do
+    it { should be_eligible_to_vote }
+  end
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000062" class="method-detail">
+        <a name="M000062"></a>
+
+        <div class="method-heading">
+          <a href="ExampleMethods.src/M000062.html" target="Code" class="method-signature"
+            onclick="popupCode('ExampleMethods.src/M000062.html');return false;">
+          <span class="method-name">should_not</span><span class="method-args">(matcher=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Just like <tt><a href="ExampleMethods.html#M000061">should</a></tt>, <tt><a
+href="ExampleMethods.html#M000062">should_not</a></tt> delegates to the <a
+href="ExampleMethods.html#M000060">subject</a> (implicit or explicit) of
+the example group.
+</p>
+<h2>Examples</h2>
+<pre>
+  describe Person do
+    it { should_not be_eligible_to_vote }
+  end
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000060" class="method-detail">
+        <a name="M000060"></a>
+
+        <div class="method-heading">
+          <a href="ExampleMethods.src/M000060.html" target="Code" class="method-signature"
+            onclick="popupCode('ExampleMethods.src/M000060.html');return false;">
+          <span class="method-name">subject</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns the <a href="ExampleMethods.html#M000060">subject</a> defined in <a
+href="ExampleGroupMethods.html#M000059">ExampleGroupMethods#subject</a>.
+The <a href="ExampleMethods.html#M000060">subject</a> block is only
+executed once per example, the result of which is cached and returned by
+any subsequent calls to <tt><a
+href="ExampleMethods.html#M000060">subject</a></tt>.
+</p>
+<p>
+If a class is passed to <tt>describe</tt> and no <a
+href="ExampleMethods.html#M000060">subject</a> is explicitly declared in
+the example group, then <tt><a
+href="ExampleMethods.html#M000060">subject</a></tt> will return a new
+instance of that class.
+</p>
+<h2>Examples</h2>
+<pre>
+  # explicit subject defined by the subject method
+  describe Person do
+    subject { Person.new(:birthdate =&gt; 19.years.ago) }
+    it &quot;should be eligible to vote&quot; do
+      subject.should be_eligible_to_vote
+    end
+  end
+
+  # implicit subject =&gt; { Person.new }
+  describe Person do
+    it &quot;should be eligible to vote&quot; do
+      subject.should be_eligible_to_vote
+    end
+  end
+</pre>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

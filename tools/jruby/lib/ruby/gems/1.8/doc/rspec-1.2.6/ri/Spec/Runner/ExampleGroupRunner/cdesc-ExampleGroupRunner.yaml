@@ -1,0 +1,31 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleGroupRunner
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: example_groups
+- !ruby/object:RI::MethodSummary 
+  name: finish
+- !ruby/object:RI::MethodSummary 
+  name: load_files
+- !ruby/object:RI::MethodSummary 
+  name: number_of_examples
+- !ruby/object:RI::MethodSummary 
+  name: prepare
+- !ruby/object:RI::MethodSummary 
+  name: reporter
+- !ruby/object:RI::MethodSummary 
+  name: reverse
+- !ruby/object:RI::MethodSummary 
+  name: run
+full_name: Spec::Runner::ExampleGroupRunner
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

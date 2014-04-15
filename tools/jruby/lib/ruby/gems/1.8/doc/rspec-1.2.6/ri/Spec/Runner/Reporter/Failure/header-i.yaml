@@ -1,0 +1,22 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: header
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Header messsage for reporting this failure, including the name of the example
+    and an indicator of the type of failure. FAILED indicates a failed expectation.
+    FIXED indicates a pending example that passes, and no longer needs to be pending.
+    RuntimeError indicates that a RuntimeError occured.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  'A new account should have a zero balance' FAILED\n  'A new account should \
+    have a zero balance' FIXED\n  RuntimeError in 'A new account should have a zero \
+    balance'\n"
+full_name: Spec::Runner::Reporter::Failure#header
+visibility: public
+aliases: []
+

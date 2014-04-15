@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (pub)
+is_singleton: false
+block_params: 
+name: add
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Add a publisher to the composite.
+full_name: Rake::CompositePublisher#add
+visibility: public
+aliases: []
+

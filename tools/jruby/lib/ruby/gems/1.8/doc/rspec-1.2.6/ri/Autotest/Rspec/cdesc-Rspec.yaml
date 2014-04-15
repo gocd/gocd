@@ -1,0 +1,19 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Rspec
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: consolidate_failures
+- !ruby/object:RI::MethodSummary 
+  name: make_test_cmd
+full_name: Autotest::Rspec
+superclass: Autotest
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

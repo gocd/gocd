@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>heckle_class_or_module (Spec::Runner::HeckleRunner)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/heckle_runner.rb, line 33</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">heckle_class_or_module</span>(<span class="ruby-identifier">class_or_module_name</span>)
+          <span class="ruby-identifier">verify_constant</span>(<span class="ruby-identifier">class_or_module_name</span>)
+          <span class="ruby-identifier">pattern</span> = <span class="ruby-node">/^#{class_or_module_name}/</span>
+          <span class="ruby-identifier">classes</span> = []
+          <span class="ruby-constant">ObjectSpace</span>.<span class="ruby-identifier">each_object</span>(<span class="ruby-constant">Class</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">classes</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">klass</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">name</span> <span class="ruby-operator">=~</span> <span class="ruby-identifier">pattern</span>
+          <span class="ruby-keyword kw">end</span>
+        
+          <span class="ruby-identifier">classes</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">instance_methods</span>(<span class="ruby-keyword kw">false</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">method_name</span><span class="ruby-operator">|</span>
+              <span class="ruby-identifier">heckle</span> = <span class="ruby-ivar">@heckle_class</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">klass</span>.<span class="ruby-identifier">name</span>, <span class="ruby-identifier">method_name</span>, <span class="ruby-constant">Spec</span><span class="ruby-operator">::</span><span class="ruby-constant">Runner</span>.<span class="ruby-identifier">options</span>)
+              <span class="ruby-identifier">heckle</span>.<span class="ruby-identifier">validate</span>
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

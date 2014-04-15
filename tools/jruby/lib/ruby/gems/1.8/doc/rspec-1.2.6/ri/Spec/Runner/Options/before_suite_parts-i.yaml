@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: before_suite_parts
+comment: 
+full_name: Spec::Runner::Options#before_suite_parts
+visibility: public
+aliases: []
+

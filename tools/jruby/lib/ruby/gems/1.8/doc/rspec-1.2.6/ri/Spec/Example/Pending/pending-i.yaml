@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (message = "TODO") {|| ...}
+is_singleton: false
+block_params: ""
+name: pending
+comment: 
+full_name: Spec::Example::Pending#pending
+visibility: public
+aliases: []
+

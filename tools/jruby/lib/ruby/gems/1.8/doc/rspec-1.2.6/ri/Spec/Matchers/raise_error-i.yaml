@@ -1,0 +1,42 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should raise_error()
+  should raise_error(NamedError)
+  should raise_error(NamedError, String)
+  should raise_error(NamedError, Regexp)
+  should raise_error() { |error| ... }
+  should raise_error(NamedError) { |error| ... }
+  should raise_error(NamedError, String) { |error| ... }
+  should raise_error(NamedError, Regexp) { |error| ... }
+  should_not raise_error()
+  should_not raise_error(NamedError)
+  should_not raise_error(NamedError, String)
+  should_not raise_error(NamedError, Regexp)
+is_singleton: false
+block_params: 
+name: raise_error
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: With no args, matches if any error is raised. With a named error, matches
+    only if that specific error is raised. With a named error and messsage specified
+    as a String, matches only if both match. With a named error and messsage specified
+    as a Regexp, matches only if both match. Pass an optional block to perform extra
+    verifications on the exception matched
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  lambda { do_something_risky }.should raise_error\n  lambda { do_something_risky \
+    }.should raise_error(PoorRiskDecisionError)\n  lambda { do_something_risky }.should \
+    raise_error(PoorRiskDecisionError) { |error| error.data.should == 42 }\n  lambda \
+    { do_something_risky }.should raise_error(PoorRiskDecisionError, &quot;that was \
+    too risky&quot;)\n  lambda { do_something_risky }.should raise_error(PoorRiskDecisionError, \
+    /oo ri/)\n\n  lambda { do_something_risky }.should_not raise_error\n  lambda { \
+    do_something_risky }.should_not raise_error(PoorRiskDecisionError)\n  lambda { \
+    do_something_risky }.should_not raise_error(PoorRiskDecisionError, &quot;that \
+    was too risky&quot;)\n  lambda { do_something_risky }.should_not raise_error(PoorRiskDecisionError, \
+    /oo ri/)\n"
+full_name: Spec::Matchers#raise_error
+visibility: public
+aliases: []
+

@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name)
+is_singleton: false
+block_params: 
+name: test_finished
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #test_finished_with_rspec'
+full_name: Test::Unit::UI::Console::TestRunner#test_finished
+visibility: public
+aliases: []
+

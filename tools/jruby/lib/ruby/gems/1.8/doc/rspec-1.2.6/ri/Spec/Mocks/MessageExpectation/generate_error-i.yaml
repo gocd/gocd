@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: generate_error
+comment: 
+full_name: Spec::Mocks::MessageExpectation#generate_error
+visibility: public
+aliases: []
+

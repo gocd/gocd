@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+visibility: public
+block_params: 
+comment: 
+full_name: TapFormatter#example_failed
+params: (example)
+name: example_failed
+is_singleton: false
+aliases: []
+

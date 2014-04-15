@@ -1,0 +1,28 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: run
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Run the Rake application. The run method performs the following three steps:'
+- !ruby/object:SM::Flow::LIST 
+  type: :BULLET
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: Initialize the command line options (<tt>init</tt>).
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: Define the tasks (<tt>load_rakefile</tt>).
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: Run the top level tasks (<tt>run_tasks</tt>).
+- !ruby/struct:SM::Flow::P 
+  body: If you wish to build a custom rake command, you should call <tt>init</tt>
+    on your application. The define any tasks. Finally, call <tt>top_level</tt> to
+    run your top level tasks.
+full_name: Rake::Application#run
+visibility: public
+aliases: []
+

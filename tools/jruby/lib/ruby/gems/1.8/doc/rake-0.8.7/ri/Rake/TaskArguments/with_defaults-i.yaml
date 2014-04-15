@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (defaults)
+is_singleton: false
+block_params: 
+name: with_defaults
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Specify a hash of default values for task arguments. Use the defaults only
+    if there is no specific value for the given argument.
+full_name: Rake::TaskArguments#with_defaults
+visibility: public
+aliases: []
+

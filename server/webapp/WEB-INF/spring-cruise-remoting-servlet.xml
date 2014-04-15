@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+       default-init-method="init">
+
+    <context:annotation-config/>
+    <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+
+    <import resource="propertyConfigurer.xml"/>
+
+    <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"
+          p:service-ref="buildRepositoryImpl"
+          p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote"/>
+
+    <bean id="produceBuildCausesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="pipelineScheduler"
+          p:targetMethod="onTimer"/>
+
+    <bean id="consumeBuildCausesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="scheduleService"
+          p:targetMethod="autoSchedulePipelinesFromRequestBuffer"/>
+
+    <bean id="rescheduleHungBuildTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="scheduleService"
+          p:targetMethod="rescheduleHungJobs"/>
+
+    <bean id="cancelHungJob" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="scheduleService"
+          p:targetMethod="cancelHungJobs"/>
+
+    <bean id="checkDiskSpaceTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+        p:targetObject-ref="goDiskSpaceMonitor"
+        p:targetMethod="onTimer"/>
+
+    <bean id="buildAssignmentServiceRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="buildAssignmentService"
+          p:targetMethod="onTimer"/>
+
+    <bean id="cachedGoConfigRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="cachedGoConfig"
+          p:targetMethod="onTimer"/>
+
+    <bean id="materialUpdaterExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="materialUpdateService"
+          p:targetMethod="onTimer"/>
+
+    <bean id="checkLicenseViolation" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="licenseViolationChecker"
+          p:targetMethod="checkForViolation"/>
+
+    <bean name="licenseViolationCheckerThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="60000"
+                      p:period="300000"
+                      p:timerTask-ref="checkLicenseViolation"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- auto build cause producing thread -->
+    <bean name="produceBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="${cruise.produce.build.cause.delay}"
+                      p:period="${cruise.produce.build.cause.interval}"
+                      p:timerTask-ref="produceBuildCausesTask"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean name="materialUpdateThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="${cruise.material.update.delay}"
+                      p:period="${cruise.material.update.interval}"
+                      p:timerTask-ref="materialUpdaterExecutor"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--Build Cause consume thread-->
+    <bean name="consumeBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="10000"
+                      p:period="${cruise.buildCause.consumer.interval}"
+                      p:timerTask-ref="consumeBuildCausesTask"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- reschedule a building job whose agent has not pinged the server in a while -->
+    <bean name="rescheduleHungBuildThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="3000"
+                      p:period="${cruise.reschedule.hung.builds.interval}"
+                      p:timerTask-ref="rescheduleHungBuildTask"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- cancel a hung job thread -->
+    <bean name="cancelHungJobThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="3000"
+                      p:period="${cruise.cancel.hung.jobs.interval}"
+                      p:timerTask-ref="cancelHungJob"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- buildAssignmentServiceRefreshExecutorThread -->
+    <bean name="buildAssignmentServiceRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="10000"
+                      p:period="${cruise.build.assignment.service.interval}"
+                      p:timerTask-ref="buildAssignmentServiceRefreshExecutor"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- cachedGoConfigRefreshExecutorThread -->
+    <bean name="cachedGoConfigRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="5000"
+                      p:period="${cruise.config.refresh.interval}"
+                      p:timerTask-ref="cachedGoConfigRefreshExecutor"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- goDiskSpaceMonitorThread -->
+    <bean name="goDiskSpaceMonitorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="5000"
+                      p:period="${cruise.disk.space.check.interval}"
+                      p:timerTask-ref="checkDiskSpaceTask"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="buildRepositoryRemoteImpl" class="com.thoughtworks.go.remote.BuildRepositoryRemoteImpl" />
+
+    <bean id="buildRepositoryImpl" class="com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer" autowire="constructor"/>
+
+    <bean id="agentServiceRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="agentService"
+          p:targetMethod="refresh"/>
+
+    <bean name="agentServiceRefreshThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="10000"
+                      p:period="${cruise.agent.service.refresh.interval}"
+                      p:timerTask-ref="agentServiceRefreshExecutor"/>
+            </list>
+        </property>
+    </bean>
+</beans>

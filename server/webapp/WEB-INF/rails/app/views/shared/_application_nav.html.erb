@@ -1,0 +1,57 @@
+<div class="application_nav">
+  <%= hidden_field_tag("server_time", Time.now.to_i, :id => "server_timestamp") -%>
+    <% if @user.anonymous? %>
+        <ul class="user">
+            <li class="help">
+                <%= link_to(l.string("HELP_SMALL"), url_for_path('help/index.html'), :target => "_blank") %>
+            </li>
+        </ul>
+    <% else %>
+        <ul class="user">
+            <li class="current_user icon">
+                <a href="#" class="current_user_name dropdown-arrow-icon"><%= @user.display_name %></a>
+                <ul class='enhanced_dropdown hidden'>
+                    <li>
+                        <%= link_to l.string('PREFERENCES_LOWER'), url_for_path('/tab/mycruise/user') %>
+                    </li>
+                    <li class="logout">
+                        <%= link_to l.string('Sign out'), url_for_path('auth/logout'), :id => "nav-logout", :class => "sign_out" %>
+                    </li>
+                </ul>
+            </li>
+            <li class="help">
+                <%= link_to(l.string("HELP_SMALL"), url_for_path('help/index.html'), :target => "_blank") %>
+            </li>
+        </ul>
+    <% end %>
+
+  <% unless @no_tabs %>
+    <ul class="tabs">
+        <%= tab_with_display_name('recent-activity', l.string('PIPELINES'), :url => '/pipelines') %>
+        <%= tab_with_display_name("environments", l.string('ENVIRONMENTS_CAPS')) %>
+        <%= tab_with_display_name('agents', l.string("AGENTS")) %>
+        <li id="cruise-header-tab-admin" class="<%="current" if @current_tab_name == "admin"%>">
+            <%
+               admin_header_link_label = l.string("ADMIN")
+            %>
+            <% unless can_view_admin_page? -%>
+                <span><%= admin_header_link_label -%></span>
+            <% else -%>
+                <%= link_to admin_header_link_label, '#', 'data-toggle' => 'dropdown', 'class' => 'dropdown-arrow-icon' -%>
+                <ul class="dropdown-menu" role="menu">
+                    <%- if is_user_an_admin? -%>
+                        <%= render :partial => 'shared/dropdown_admin.html' -%>
+                    <%- elsif is_user_a_group_admin? -%>
+                        <%= render :partial => 'shared/dropdown_pipeline_group_admin.html' -%>
+                    <%- elsif is_user_a_template_admin? -%>
+                        <%= render :partial => 'shared/dropdown_template_admin.html' -%>
+                    <%- end -%>
+                </ul>
+            <% end -%>
+        </li>
+    </ul>
+    <%= render :partial => "shared/error_messaging_counter" %>
+    <%= render :partial => "shared/go_license_about_to_expire.html" %>
+  <% end %>
+</div>
+<div class="back_to_top" title="Scroll to Top">Top</div>

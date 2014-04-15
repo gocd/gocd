@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: differ_class=
+comment: 
+full_name: Spec::Runner::Options#differ_class=
+visibility: protected
+aliases: []
+

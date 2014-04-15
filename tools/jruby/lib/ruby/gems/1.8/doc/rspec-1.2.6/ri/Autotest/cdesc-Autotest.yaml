@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Autotest
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Autotest
+superclass: 
+class_methods: []
+

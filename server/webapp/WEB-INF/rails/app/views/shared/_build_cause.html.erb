@@ -1,0 +1,47 @@
+<%scope[:show_latest_only] = scope[:show_latest_only] || false%>
+<div class="build_cause">
+    <% if @stage.getStage().shouldFetchMaterials() %>
+      <% scope[:material_revisions].getRevisions().each do |material_revision_in_build_cause|
+        scope[:material] = material_revision_in_build_cause.getMaterial() %>
+        <div id="material_<%= material_revision_in_build_cause.getMaterial().getPipelineUniqueFingerprint() -%>" class="material<%= material_revision_in_build_cause.isChanged() ? ' changed' : ""  -%>">
+            <div class="material_name"><%= "#{scope[:material].getTypeForDisplay()}" %> - <%= "#{scope[:material].getDisplayName()}" -%></div>
+            <% if !dependency_material?(scope[:material]) %>
+                <%if scope[:show_latest_only]%>
+                    <%= render :partial => "shared/modification.html", :locals => {:scope => {:modification => material_revision_in_build_cause.getLatestModification(), :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
+                <%else%>
+                    <% material_revision_in_build_cause.getModifications().each do |mod_in_build_cause| %>
+                        <%= render :partial => "shared/modification.html", :locals => {:scope => {:modification => mod_in_build_cause, :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
+                    <% end %>
+                <%end%>
+
+            <% else %>
+                <div class="change">
+                    <% scope[:dmr] = material_revision_in_build_cause.getRevision() %>
+                    <div class="revision">
+                        <dl>
+                            <dt><%= l.string('REVISION:') -%></dt>
+                            <dd><%= link_to(scope[:dmr].getRevision(), path_for_stage(scope[:dmr]))-%></dd>
+                        </dl>
+                    </div>
+                    <div class="label">
+                        <dl>
+                            <dt><%= l.string('LABEL:') -%></dt>
+                            <dd><%= link_to(scope[:dmr].getPipelineLabel(), url_for_dmr(scope[:dmr])) -%></dd>
+                        </dl>
+                    </div>
+                    <div class="completed_at">
+                        <dl>
+                            <dt><%= l.string('COMPLETED AT:') -%></dt>
+                            <dd><%= material_revision_in_build_cause.getLatestModification().getModifiedTime().iso8601 -%></dd>
+                        </dl>
+                    </div>
+                </div>
+            <% end %>
+        </div>
+      <% end %>
+    <% else %>
+    <div class="information">
+        <p>No materials were fetched for this stage because the <a href="/go/help/configuration_reference.html#stage" target="_blank">fetchMaterials</a> flag was set to false</p>
+    </div>
+    <% end %>
+</div>

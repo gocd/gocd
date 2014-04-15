@@ -1,0 +1,65 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+            <div id="footer">
+                <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
+                    <li>Copyright &copy; 2014 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
+                        Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">$l.localize("APACHE_LICENSE_2_0")</a>.
+                        Go includes <a href="$req.getContextPath()/help/resources/NOTICE/cruise_notice_file.pdf" target="_blank">$l.localize("THIRD_PARTY_SOFTWARE")</a>.</li>
+                    <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>
+                </ul>
+                <ul class="links">
+                    <li><a target="_blank" href="$req.getContextPath()/cctray.xml">(cc) $l.localize("CCTRAY_FEED")</a></li>
+                    <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
+                    <li><a target="_blank" href="http://www.go.cd/community">$l.localize("COMMUNITY")</a></li>
+                    <li class="last"><a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a></li>
+                </ul>
+                <ul id="footer-links">
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <!-- end content -->
+    
+    </div></div></div><!-- end of body_bg, body_hightlight, body_wrapper-->
+            <div class="back_to_top" title="Scroll to Top">Top</div>
+    </body>
+    <script type="text/javascript">
+        restoreSidebarStatus();
+
+        if(FirebugDetector){
+            FirebugDetector.check();
+            if(window.dashboard_periodical_executer){
+                dashboard_periodical_executer.register(FirebugDetector);
+            }
+        }
+
+        new AjaxRefresher("$req.getContextPath()/server/messages.json", "$req.getContextPath()/auth/login", {executeImmediately: true});
+        
+        #if($global_error_message && $global_error_message != "")
+            FlashMessageLauncher.warn("$esc.javascript("$global_error_message")", null, true);
+        #end
+
+        if(Prototype.Browser.IE){
+            $$('.rounded-corner-for-body').each(function(container){
+                $(container);
+                if(container.getWidth() % 2 == 1){
+                    container.setStyle({width: container.getWidth() + 1 + 'px'});
+                }
+            })
+        }
+    </script>
+</html>

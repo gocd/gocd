@@ -1,0 +1,11 @@
+--- !ruby/object:RI::MethodDescription 
+params: (error_generator, expectation_ordering, expected_from, sym, method_block,
+  expected_received_count=1, opts={})
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Mocks::BaseExpectation::new
+visibility: public
+aliases: []
+

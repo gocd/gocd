@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_group_proxy)
+is_singleton: false
+block_params: 
+name: add_example_group
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Deprecated - use example_group_started instead
+full_name: Spec::Runner::Formatter::BaseFormatter#add_example_group
+visibility: public
+aliases: []
+

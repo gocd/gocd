@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: standard_rake_options
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: A list of all the standard options used in rake, suitable for passing to OptionParser.
+full_name: Rake::Application#standard_rake_options
+visibility: public
+aliases: []
+

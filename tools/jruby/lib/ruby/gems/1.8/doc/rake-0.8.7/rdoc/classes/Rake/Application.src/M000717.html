@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>standard_rake_options (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2193</span>
+2193:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">standard_rake_options</span>
+2194:       [
+2195:         [<span class="ruby-value str">'--classic-namespace'</span>, <span class="ruby-value str">'-C'</span>, <span class="ruby-value str">&quot;Put Task and FileTask in the top level namespace&quot;</span>,
+2196:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2197:             <span class="ruby-identifier">require</span> <span class="ruby-value str">'rake/classic_namespace'</span>
+2198:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">classic_namespace</span> = <span class="ruby-keyword kw">true</span>
+2199:           }
+2200:         ],
+2201:         [<span class="ruby-value str">'--describe'</span>, <span class="ruby-value str">'-D [PATTERN]'</span>, <span class="ruby-value str">&quot;Describe the tasks (matching optional PATTERN), then exit.&quot;</span>,
+2202:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2203:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_tasks</span> = <span class="ruby-keyword kw">true</span>
+2204:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">full_description</span> = <span class="ruby-keyword kw">true</span>
+2205:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_task_pattern</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">value</span> <span class="ruby-operator">||</span> <span class="ruby-value str">''</span>)
+2206:           }
+2207:         ],
+2208:         [<span class="ruby-value str">'--dry-run'</span>, <span class="ruby-value str">'-n'</span>, <span class="ruby-value str">&quot;Do a dry run without executing actions.&quot;</span>,
+2209:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2210:             <span class="ruby-identifier">verbose</span>(<span class="ruby-keyword kw">true</span>)
+2211:             <span class="ruby-identifier">nowrite</span>(<span class="ruby-keyword kw">true</span>)
+2212:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">dryrun</span> = <span class="ruby-keyword kw">true</span>
+2213:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">trace</span> = <span class="ruby-keyword kw">true</span>
+2214:           }
+2215:         ],
+2216:         [<span class="ruby-value str">'--execute'</span>,  <span class="ruby-value str">'-e CODE'</span>, <span class="ruby-value str">&quot;Execute some Ruby code and exit.&quot;</span>,
+2217:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2218:             <span class="ruby-identifier">eval</span>(<span class="ruby-identifier">value</span>)
+2219:             <span class="ruby-identifier">exit</span>
+2220:           }
+2221:         ],
+2222:         [<span class="ruby-value str">'--execute-print'</span>,  <span class="ruby-value str">'-p CODE'</span>, <span class="ruby-value str">&quot;Execute some Ruby code, print the result, then exit.&quot;</span>,
+2223:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2224:             <span class="ruby-identifier">puts</span> <span class="ruby-identifier">eval</span>(<span class="ruby-identifier">value</span>)
+2225:             <span class="ruby-identifier">exit</span>
+2226:           }
+2227:         ],
+2228:         [<span class="ruby-value str">'--execute-continue'</span>,  <span class="ruby-value str">'-E CODE'</span>,
+2229:           <span class="ruby-value str">&quot;Execute some Ruby code, then continue with normal task processing.&quot;</span>,
+2230:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">eval</span>(<span class="ruby-identifier">value</span>) }            
+2231:         ],
+2232:         [<span class="ruby-value str">'--libdir'</span>, <span class="ruby-value str">'-I LIBDIR'</span>, <span class="ruby-value str">&quot;Include LIBDIR in the search path for required modules.&quot;</span>,
+2233:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">$:</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">value</span>) }
+2234:         ],
+2235:         [<span class="ruby-value str">'--prereqs'</span>, <span class="ruby-value str">'-P'</span>, <span class="ruby-value str">&quot;Display the tasks and dependencies, then exit.&quot;</span>,
+2236:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_prereqs</span> = <span class="ruby-keyword kw">true</span> }
+2237:         ],
+2238:         [<span class="ruby-value str">'--quiet'</span>, <span class="ruby-value str">'-q'</span>, <span class="ruby-value str">&quot;Do not log messages to standard output.&quot;</span>,
+2239:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">verbose</span>(<span class="ruby-keyword kw">false</span>) }
+2240:         ],
+2241:         [<span class="ruby-value str">'--rakefile'</span>, <span class="ruby-value str">'-f [FILE]'</span>, <span class="ruby-value str">&quot;Use FILE as the rakefile.&quot;</span>,
+2242:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> 
+2243:             <span class="ruby-identifier">value</span> <span class="ruby-operator">||=</span> <span class="ruby-value str">''</span>
+2244:             <span class="ruby-ivar">@rakefiles</span>.<span class="ruby-identifier">clear</span> 
+2245:             <span class="ruby-ivar">@rakefiles</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">value</span>
+2246:           }
+2247:         ],
+2248:         [<span class="ruby-value str">'--rakelibdir'</span>, <span class="ruby-value str">'--rakelib'</span>, <span class="ruby-value str">'-R RAKELIBDIR'</span>,
+2249:           <span class="ruby-value str">&quot;Auto-import any .rake files in RAKELIBDIR. (default is 'rakelib')&quot;</span>,
+2250:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">rakelib</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">split</span>(<span class="ruby-value str">':'</span>) }
+2251:         ],
+2252:         [<span class="ruby-value str">'--require'</span>, <span class="ruby-value str">'-r MODULE'</span>, <span class="ruby-value str">&quot;Require MODULE before executing rakefile.&quot;</span>,
+2253:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2254:             <span class="ruby-keyword kw">begin</span>
+2255:               <span class="ruby-identifier">require</span> <span class="ruby-identifier">value</span>
+2256:             <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">LoadError</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">ex</span>
+2257:               <span class="ruby-keyword kw">begin</span>
+2258:                 <span class="ruby-identifier">rake_require</span> <span class="ruby-identifier">value</span>
+2259:               <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">LoadError</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">ex2</span>
+2260:                 <span class="ruby-identifier">raise</span> <span class="ruby-identifier">ex</span>
+2261:               <span class="ruby-keyword kw">end</span>
+2262:             <span class="ruby-keyword kw">end</span>
+2263:           }
+2264:         ],
+2265:         [<span class="ruby-value str">'--rules'</span>, <span class="ruby-value str">&quot;Trace the rules resolution.&quot;</span>,
+2266:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">trace_rules</span> = <span class="ruby-keyword kw">true</span> }
+2267:         ],
+2268:         [<span class="ruby-value str">'--no-search'</span>, <span class="ruby-value str">'--nosearch'</span>, <span class="ruby-value str">'-N'</span>, <span class="ruby-value str">&quot;Do not search parent directories for the Rakefile.&quot;</span>,
+2269:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">nosearch</span> = <span class="ruby-keyword kw">true</span> }
+2270:         ],
+2271:         [<span class="ruby-value str">'--silent'</span>, <span class="ruby-value str">'-s'</span>, <span class="ruby-value str">&quot;Like --quiet, but also suppresses the 'in directory' announcement.&quot;</span>,
+2272:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2273:             <span class="ruby-identifier">verbose</span>(<span class="ruby-keyword kw">false</span>)
+2274:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">silent</span> = <span class="ruby-keyword kw">true</span>
+2275:           }
+2276:         ],
+2277:         [<span class="ruby-value str">'--system'</span>,  <span class="ruby-value str">'-g'</span>,
+2278:           <span class="ruby-value str">&quot;Using system wide (global) rakefiles (usually '~/.rake/*.rake').&quot;</span>,
+2279:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">load_system</span> = <span class="ruby-keyword kw">true</span> }
+2280:         ],
+2281:         [<span class="ruby-value str">'--no-system'</span>, <span class="ruby-value str">'--nosystem'</span>, <span class="ruby-value str">'-G'</span>,
+2282:           <span class="ruby-value str">&quot;Use standard project Rakefile search paths, ignore system wide rakefiles.&quot;</span>,
+2283:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">ignore_system</span> = <span class="ruby-keyword kw">true</span> }
+2284:         ],
+2285:         [<span class="ruby-value str">'--tasks'</span>, <span class="ruby-value str">'-T [PATTERN]'</span>, <span class="ruby-value str">&quot;Display the tasks (matching optional PATTERN) with descriptions, then exit.&quot;</span>,
+2286:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2287:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_tasks</span> = <span class="ruby-keyword kw">true</span>
+2288:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_task_pattern</span> = <span class="ruby-constant">Regexp</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">value</span> <span class="ruby-operator">||</span> <span class="ruby-value str">''</span>)
+2289:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">full_description</span> = <span class="ruby-keyword kw">false</span>
+2290:           }
+2291:         ],
+2292:         [<span class="ruby-value str">'--trace'</span>, <span class="ruby-value str">'-t'</span>, <span class="ruby-value str">&quot;Turn on invoke/execute tracing, enable full backtrace.&quot;</span>,
+2293:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2294:             <span class="ruby-identifier">options</span>.<span class="ruby-identifier">trace</span> = <span class="ruby-keyword kw">true</span>
+2295:             <span class="ruby-identifier">verbose</span>(<span class="ruby-keyword kw">true</span>)
+2296:           }
+2297:         ],
+2298:         [<span class="ruby-value str">'--verbose'</span>, <span class="ruby-value str">'-v'</span>, <span class="ruby-value str">&quot;Log message to standard output.&quot;</span>,
+2299:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span> <span class="ruby-identifier">verbose</span>(<span class="ruby-keyword kw">true</span>) }
+2300:         ],
+2301:         [<span class="ruby-value str">'--version'</span>, <span class="ruby-value str">'-V'</span>, <span class="ruby-value str">&quot;Display the program version.&quot;</span>,
+2302:           <span class="ruby-identifier">lambda</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+2303:             <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;rake, version #{RAKEVERSION}&quot;</span>
+2304:             <span class="ruby-identifier">exit</span>
+2305:           }
+2306:         ]
+2307:       ]
+2308:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

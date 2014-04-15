@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+ <!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+ <chapter title="Clone an existing pipeline">
+    <p>Clone pipeline functionality helps you create a new pipeline from an existing pipeline by giving it a new name. Typically when setting up a pipeline for a new branch, it is very useful to take
+        an existing pipeline and clone it.
+    </p>
+    <p>If the user is a pipeline group admin, she can clone the new pipeline into a group that she has access to. If the user is an admin she can clone the pipeline into any group or give a new group name,
+    in which case the group gets created.</p>
+    <bullets>
+        <item>Navigate to the Admin tab</item>
+        <item>Locate the pipeline that needs to be cloned</item>
+        <item>In that row, click on the "Clone" icon.</item>
+	<img src="resources/images/cruise/admin/pipeline/clone_icon.png"/>
+	<item>Fill in the name of the new pipeline</item>
+	<img src="resources/images/cruise/admin/pipeline/clone_pipeline.png"/>
+        <item>Select a pipeline group. If you are an admin, you will be able to enter the name of the pipeline group using the auto suggest or enter a new group name</item>
+        <item>Click "Save"</item>
+    </bullets>
+ </chapter>

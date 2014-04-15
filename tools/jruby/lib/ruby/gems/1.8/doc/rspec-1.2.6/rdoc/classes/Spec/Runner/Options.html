@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Runner::Options</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Runner::Options</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib/spec/runner/options_rb.html">
+                lib/spec/runner/options.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000433">add_example_group</a>&nbsp;&nbsp;
+      <a href="#M000438">after_suite_parts</a>&nbsp;&nbsp;
+      <a href="#M000437">before_suite_parts</a>&nbsp;&nbsp;
+      <a href="#M000442">colour=</a>&nbsp;&nbsp;
+      <a href="#M000458">custom_runner</a>&nbsp;&nbsp;
+      <a href="#M000459">custom_runner?</a>&nbsp;&nbsp;
+      <a href="#M000463">default_differ</a>&nbsp;&nbsp;
+      <a href="#M000453">define_predicate_matchers</a>&nbsp;&nbsp;
+      <a href="#M000456">differ_class=</a>&nbsp;&nbsp;
+      <a href="#M000452">dry_run?</a>&nbsp;&nbsp;
+      <a href="#M000439">examples_run?</a>&nbsp;&nbsp;
+      <a href="#M000455">examples_should_be_run?</a>&nbsp;&nbsp;
+      <a href="#M000440">examples_should_not_be_run</a>&nbsp;&nbsp;
+      <a href="#M000451">files_to_load</a>&nbsp;&nbsp;
+      <a href="#M000448">formatter_options</a>&nbsp;&nbsp;
+      <a href="#M000446">formatters</a>&nbsp;&nbsp;
+      <a href="#M000460">heckle</a>&nbsp;&nbsp;
+      <a href="#M000457">load_class</a>&nbsp;&nbsp;
+      <a href="#M000447">load_formatters</a>&nbsp;&nbsp;
+      <a href="#M000449">load_heckle_runner</a>&nbsp;&nbsp;
+      <a href="#M000441">mock_framework</a>&nbsp;&nbsp;
+      <a href="#M000432">new</a>&nbsp;&nbsp;
+      <a href="#M000450">number_of_examples</a>&nbsp;&nbsp;
+      <a href="#M000443">parse_diff</a>&nbsp;&nbsp;
+      <a href="#M000444">parse_example</a>&nbsp;&nbsp;
+      <a href="#M000445">parse_format</a>&nbsp;&nbsp;
+      <a href="#M000454">plugin_mock_framework</a>&nbsp;&nbsp;
+      <a href="#M000434">remove_example_group</a>&nbsp;&nbsp;
+      <a href="#M000435">require_ruby_debug</a>&nbsp;&nbsp;
+      <a href="#M000436">run_examples</a>&nbsp;&nbsp;
+      <a href="#M000464">set_spec_from_line_number</a>&nbsp;&nbsp;
+      <a href="#M000461">sorted_files</a>&nbsp;&nbsp;
+      <a href="#M000462">sorter</a>&nbsp;&nbsp;
+      <a href="#M000465">stderr?</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">FILE_SORTERS</td>
+          <td>=</td>
+          <td class="context-item-value">{         'mtime' =&gt; lambda {|file_a, file_b| File.mtime(file_b) &lt;=&gt; File.mtime(file_a)}</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">EXAMPLE_FORMATTERS</td>
+          <td>=</td>
+          <td class="context-item-value">{ # Load these lazily for better speed                 'silent' =&gt; ['spec/runner/formatter/silent_formatter',                 'Formatter::SilentFormatter'],                      'l' =&gt; ['spec/runner/formatter/silent_formatter',                 'Formatter::SilentFormatter'],                'specdoc' =&gt; ['spec/runner/formatter/specdoc_formatter',                'Formatter::SpecdocFormatter'],                      's' =&gt; ['spec/runner/formatter/specdoc_formatter',                'Formatter::SpecdocFormatter'],                 'nested' =&gt; ['spec/runner/formatter/nested_text_formatter',            'Formatter::NestedTextFormatter'],                      'n' =&gt; ['spec/runner/formatter/nested_text_formatter',            'Formatter::NestedTextFormatter'],                   'html' =&gt; ['spec/runner/formatter/html_formatter',                   'Formatter::HtmlFormatter'],                      'h' =&gt; ['spec/runner/formatter/html_formatter',                   'Formatter::HtmlFormatter'],               'progress' =&gt; ['spec/runner/formatter/progress_bar_formatter',           'Formatter::ProgressBarFormatter'],                      'p' =&gt; ['spec/runner/formatter/progress_bar_formatter',           'Formatter::ProgressBarFormatter'],       'failing_examples' =&gt; ['spec/runner/formatter/failing_examples_formatter',       'Formatter::FailingExamplesFormatter'],                      'e' =&gt; ['spec/runner/formatter/failing_examples_formatter',       'Formatter::FailingExamplesFormatter'], 'failing_example_groups' =&gt; ['spec/runner/formatter/failing_example_groups_formatter', 'Formatter::FailingExampleGroupsFormatter'],                      'g' =&gt; ['spec/runner/formatter/failing_example_groups_formatter', 'Formatter::FailingExampleGroupsFormatter'],                'profile' =&gt; ['spec/runner/formatter/profile_formatter',                'Formatter::ProfileFormatter'],                      'o' =&gt; ['spec/runner/formatter/profile_formatter',                'Formatter::ProfileFormatter'],               'textmate' =&gt; ['spec/runner/formatter/text_mate_formatter',              'Formatter::TextMateFormatter']</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">argv</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">autospec</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">backtrace_tweaker</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">colour</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">context_lines</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">debug</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">diff_format</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">differ_class</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">dry_run</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">error_stream</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">example_groups</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">examples</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">filename_pattern</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">files</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">heckle_runner</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">line_number</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">loadby</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">output_stream</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">profile</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">reporter</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">reverse</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">timeout</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">user_input_for_runner</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">verbose</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000432" class="method-detail">
+        <a name="M000432"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000432.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000432.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(error_stream, output_stream)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000433" class="method-detail">
+        <a name="M000433"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000433.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000433.html');return false;">
+          <span class="method-name">add_example_group</span><span class="method-args">(example_group)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000438" class="method-detail">
+        <a name="M000438"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000438.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000438.html');return false;">
+          <span class="method-name">after_suite_parts</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000437" class="method-detail">
+        <a name="M000437"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000437.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000437.html');return false;">
+          <span class="method-name">before_suite_parts</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000442" class="method-detail">
+        <a name="M000442"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000442.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000442.html');return false;">
+          <span class="method-name">colour=</span><span class="method-args">(colour)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000452" class="method-detail">
+        <a name="M000452"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000452.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000452.html');return false;">
+          <span class="method-name">dry_run?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000439" class="method-detail">
+        <a name="M000439"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000439.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000439.html');return false;">
+          <span class="method-name">examples_run?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000440" class="method-detail">
+        <a name="M000440"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000440.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000440.html');return false;">
+          <span class="method-name">examples_should_not_be_run</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000451" class="method-detail">
+        <a name="M000451"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000451.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000451.html');return false;">
+          <span class="method-name">files_to_load</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000448" class="method-detail">
+        <a name="M000448"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000448.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000448.html');return false;">
+          <span class="method-name">formatter_options</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000446" class="method-detail">
+        <a name="M000446"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000446.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000446.html');return false;">
+          <span class="method-name">formatters</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000447" class="method-detail">
+        <a name="M000447"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000447.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000447.html');return false;">
+          <span class="method-name">load_formatters</span><span class="method-args">(format_options, formatters)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000449" class="method-detail">
+        <a name="M000449"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000449.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000449.html');return false;">
+          <span class="method-name">load_heckle_runner</span><span class="method-args">(heckle)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000441" class="method-detail">
+        <a name="M000441"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000441.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000441.html');return false;">
+          <span class="method-name">mock_framework</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000450" class="method-detail">
+        <a name="M000450"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000450.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000450.html');return false;">
+          <span class="method-name">number_of_examples</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000443" class="method-detail">
+        <a name="M000443"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000443.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000443.html');return false;">
+          <span class="method-name">parse_diff</span><span class="method-args">(format)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000444" class="method-detail">
+        <a name="M000444"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000444.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000444.html');return false;">
+          <span class="method-name">parse_example</span><span class="method-args">(example)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000445" class="method-detail">
+        <a name="M000445"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000445.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000445.html');return false;">
+          <span class="method-name">parse_format</span><span class="method-args">(format_arg)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000434" class="method-detail">
+        <a name="M000434"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000434.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000434.html');return false;">
+          <span class="method-name">remove_example_group</span><span class="method-args">(example_group)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000435" class="method-detail">
+        <a name="M000435"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000435.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000435.html');return false;">
+          <span class="method-name">require_ruby_debug</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000436" class="method-detail">
+        <a name="M000436"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000436.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000436.html');return false;">
+          <span class="method-name">run_examples</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000458" class="method-detail">
+        <a name="M000458"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000458.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000458.html');return false;">
+          <span class="method-name">custom_runner</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000459" class="method-detail">
+        <a name="M000459"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000459.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000459.html');return false;">
+          <span class="method-name">custom_runner?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000463" class="method-detail">
+        <a name="M000463"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000463.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000463.html');return false;">
+          <span class="method-name">default_differ</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000453" class="method-detail">
+        <a name="M000453"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000453.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000453.html');return false;">
+          <span class="method-name">define_predicate_matchers</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000456" class="method-detail">
+        <a name="M000456"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000456.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000456.html');return false;">
+          <span class="method-name">differ_class=</span><span class="method-args">(klass)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000455" class="method-detail">
+        <a name="M000455"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000455.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000455.html');return false;">
+          <span class="method-name">examples_should_be_run?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000460" class="method-detail">
+        <a name="M000460"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000460.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000460.html');return false;">
+          <span class="method-name">heckle</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000457" class="method-detail">
+        <a name="M000457"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000457.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000457.html');return false;">
+          <span class="method-name">load_class</span><span class="method-args">(name, kind, option)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000454" class="method-detail">
+        <a name="M000454"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000454.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000454.html');return false;">
+          <span class="method-name">plugin_mock_framework</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000464" class="method-detail">
+        <a name="M000464"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000464.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000464.html');return false;">
+          <span class="method-name">set_spec_from_line_number</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000461" class="method-detail">
+        <a name="M000461"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000461.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000461.html');return false;">
+          <span class="method-name">sorted_files</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000462" class="method-detail">
+        <a name="M000462"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000462.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000462.html');return false;">
+          <span class="method-name">sorter</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000465" class="method-detail">
+        <a name="M000465"></a>
+
+        <div class="method-heading">
+          <a href="Options.src/M000465.html" target="Code" class="method-signature"
+            onclick="popupCode('Options.src/M000465.html');return false;">
+          <span class="method-name">stderr?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

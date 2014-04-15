@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>parse_format (Spec::Runner::Options)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/options.rb, line 189</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">parse_format</span>(<span class="ruby-identifier">format_arg</span>)
+        <span class="ruby-identifier">format</span>, <span class="ruby-identifier">where</span> = <span class="ruby-constant">ClassAndArgumentsParser</span>.<span class="ruby-identifier">parse</span>(<span class="ruby-identifier">format_arg</span>)
+        <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">where</span>
+          <span class="ruby-identifier">raise</span> <span class="ruby-value str">&quot;When using several --format options only one of them can be without a file&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@out_used</span>
+          <span class="ruby-identifier">where</span> = <span class="ruby-ivar">@output_stream</span>
+          <span class="ruby-ivar">@out_used</span> = <span class="ruby-keyword kw">true</span>
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-ivar">@format_options</span> <span class="ruby-operator">||=</span> []
+        <span class="ruby-ivar">@format_options</span> <span class="ruby-operator">&lt;&lt;</span> [<span class="ruby-identifier">format</span>, <span class="ruby-identifier">where</span>]
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

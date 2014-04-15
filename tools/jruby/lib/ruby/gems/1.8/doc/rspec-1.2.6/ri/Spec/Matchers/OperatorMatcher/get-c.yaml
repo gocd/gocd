@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass, operator)
+is_singleton: true
+block_params: 
+name: get
+comment: 
+full_name: Spec::Matchers::OperatorMatcher::get
+visibility: public
+aliases: []
+

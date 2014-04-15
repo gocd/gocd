@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope = :each, options={}, &proc)
+is_singleton: false
+block_params: 
+name: before
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #append_before'
+full_name: Spec::Runner::Configuration#before
+visibility: public
+aliases: []
+

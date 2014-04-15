@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>consider_example_for_best_match (Spec::Runner::SpecParser)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/spec_parser.rb, line 45</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">consider_example_for_best_match</span>(<span class="ruby-identifier">example</span>, <span class="ruby-identifier">example_group</span>, <span class="ruby-identifier">file</span>, <span class="ruby-identifier">line_number</span>)
+        <span class="ruby-identifier">example_file</span>, <span class="ruby-identifier">example_line</span> = <span class="ruby-identifier">parse_location</span>(<span class="ruby-identifier">example</span>.<span class="ruby-identifier">location</span>)
+        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">is_best_match?</span>(<span class="ruby-identifier">file</span>, <span class="ruby-identifier">line_number</span>, <span class="ruby-identifier">example_file</span>, <span class="ruby-identifier">example_line</span>)
+          <span class="ruby-identifier">best_match</span>.<span class="ruby-identifier">clear</span>
+          <span class="ruby-identifier">best_match</span>[<span class="ruby-identifier">:example_group</span>] = <span class="ruby-identifier">example_group</span>
+          <span class="ruby-identifier">best_match</span>[<span class="ruby-identifier">:example</span>] = <span class="ruby-identifier">example</span>
+          <span class="ruby-identifier">best_match</span>[<span class="ruby-identifier">:line</span>] = <span class="ruby-identifier">example_line</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

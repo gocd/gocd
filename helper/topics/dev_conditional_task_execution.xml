@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Conditional task execution">
+    <p>At times there are certain steps you need to execute only when you know that the build has already failed. For example, when a test suite fails you might want to output additional environment information to the console output</p>
+    <section title="Using web interface">
+        <p>Check the appropriate <strong>Run if conditions</strong> when defining the <strong>Task</strong></p>
+	<img src="resources/images/cruise/admin/conditional_task_execution.png" />
+    </section>
+    <section title="Using XML configuration">
+        <p>Usage: As a developer, I want to run a task only when the build has already failed.</p>
+        <bullets>
+            <item>On the <cref topic="administration_page">Administration Tab</cref>, edit the jobs that should run a task when the build has failed</item>
+            <item>Ensure the following "task" block is in the job configuration</item>
+            <img src="resources/images/cruise/dev/conditional_task/2_conditional_task_config.png" />
+            <item>Now we will get extra output only when the tests fail!</item>
+        </bullets>
+    </section>
+    <section title="Also See">
+        <bullets>
+            <item><cref topic="job_rerun">Re-running job(s)</cref></item>
+        </bullets>
+    </section>
+</chapter>

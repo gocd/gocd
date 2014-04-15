@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Pipeline">
+
+    <resultMap id="select-pipeline-identifier" class="com.thoughtworks.go.domain.PipelineIdentifier">
+        <result property="name" column="pipelineName"/>
+        <result property="label" column="label"/>
+        <result property="counter" column="pipelineCounter"/>
+    </resultMap>
+
+    <resultMap id="select-pipeline-pause-info" class="com.thoughtworks.go.domain.PipelinePauseInfo">
+        <result property="pauseCause" column="pause_cause" />
+        <result property="pauseBy" column="pause_by" />
+        <result property="paused" column="paused" />
+    </resultMap>
+
+    <resultMap id="select-pipeline" class="com.thoughtworks.go.domain.Pipeline">
+        <result property="id" column="pipelineId"/>
+        <result property="name" column="pipelineName"/>
+        <result property="buildCause" column="buildCauseType"/>
+        <result property="label" column="label"/>
+        <result property="buildCauseMessage" column="buildCauseMessage"/>
+        <result property="counter" column="pipelineCounter"/>
+        <result property="naturalOrder" column="naturalOrder"/>
+    </resultMap>
+
+    <resultMap id="select-pipeline-with-approver" class="com.thoughtworks.go.domain.Pipeline">
+        <result property="id" column="pipelineId"/>
+        <result property="name" column="pipelineName"/>
+        <result property="buildCause" column="buildCauseType"/>
+        <result property="label" column="label"/>
+        <result property="buildCauseMessage" column="buildCauseMessage"/>
+        <result property="approvedBy" column="approvedBy"/>
+        <result property="counter" column="pipelineCounter"/>
+        <result property="naturalOrder" column="naturalOrder"/>
+    </resultMap>
+
+    <resultMap id="select-pipeline-history" class="com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel" groupBy="id" >
+        <result property="id" column="pipelineId"/>
+        <result property="name" column="pipelineName"/>
+        <result property="buildCause" column="buildCauseType"/>
+        <result property="label" column="label"/>
+        <result property="counter" column="pipelineCounter"/>
+        <result property="naturalOrder" column="naturalOrder"/>
+        <result property="stageHistory" resultMap="Stage.stage-with-job-history"/>
+    </resultMap>
+
+    <resultMap id="pipeline-with-stage" class="com.thoughtworks.go.domain.Pipeline">
+        <result property="id" column="pipelineId"/>
+        <result property="label" column="label"/>
+        <result property="counter" column="pipelineCounter"/>
+
+        <result property="stages" resultMap="Stage.select-stage-without-builds"/>
+    </resultMap>
+
+    <resultMap id="stage-identifier" class="com.thoughtworks.go.domain.StageIdentifier">
+        <result property="pipelineName" column="pipelineName"/>
+        <result property="pipelineCounter" column="pipelineCounter"/>
+        <result property="pipelineLabel" column="pipelineLabel"/>
+        <result property="stageName" column="stageName"/>
+        <result property="stageCounter" column="stageCounter"/>
+    </resultMap>
+
+    <parameterMap id="insert-pipeline" class="com.thoughtworks.go.domain.Pipeline">
+        <parameter property="name"/>
+        <parameter property="counter"/>
+        <parameter property="buildCause"/>
+        <parameter property="label"/>
+        <parameter property="buildCauseMessage"/>
+    </parameterMap>
+
+    <insert id="insertPipeline" parameterMap="insert-pipeline">
+        INSERT INTO pipelines (name, counter, buildCauseType, label, buildCauseMessage)
+        VALUES (?, ?, ?, ?, ?)
+        <selectKey resultClass="long" keyProperty="id" type="post">
+            CALL IDENTITY();
+        </selectKey>
+    </insert>
+
+    <insert id="insertPipelineLabelCounter">
+        INSERT INTO pipelineLabelCounts (pipelineName, labelCount)
+        VALUES (#pipelineName#, #count#)
+    </insert>
+
+    <update id="updatePipelineLabelCounter">
+        UPDATE pipelineLabelCounts
+        SET labelCount = #count#
+        WHERE pipelineName = #pipelineName#
+    </update>
+
+    <update id="lockPipeline">
+        UPDATE pipelines
+        SET locked = true
+        WHERE id = #value#
+    </update>
+
+    <update id="unlockLockedPipeline" parameterClass="string">
+        UPDATE pipelines
+        SET locked = false
+        WHERE name = #value# and locked = true
+    </update>
+
+      
+    
+
+    <select id="allLockedPipelines" resultClass="String">
+        SELECT name FROM pipelines WHERE locked = true
+    </select>
+
+    <select id="getPipelineHistoryCount" resultClass="java.lang.Integer">
+        SELECT COUNT(1) FROM pipelines WHERE name = #value#
+    </select>
+
+    <select id="findPipelineByNameAndCounter" resultMap="select-pipeline">
+        SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
+        FROM pipelines
+        WHERE name = #name# AND counter=#counter#
+    </select>
+
+    <select id="findEarlierPipelineThatPassedForStage" resultMap="select-pipeline">
+        SELECT pipelineId, pipelineName, buildCauseType, pipelineLabel AS label, buildCauseMessage, pipelineCounter, naturalOrder
+        FROM _stages
+        WHERE pipelineName = #pipelineName#
+            AND naturalOrder &lt; #naturalOrder#
+            AND name = #stageName#
+            AND result = 'Passed'
+            AND latestRun = true
+        ORDER BY naturalOrder DESC
+        LIMIT 1
+    </select>
+
+    <select id="findPipelineByNameAndLabel" resultMap="select-pipeline">
+        SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
+        FROM pipelines
+        WHERE name=#name# AND label=#label#
+        ORDER BY pipelineId DESC
+        LIMIT 1
+    </select>
+
+    <select id="pipelineById" parameterClass="java.lang.Long" resultMap="select-pipeline">
+        SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
+        FROM pipelines
+        WHERE id = #value#
+    </select>
+
+    <select id="mostRecentPipeline" parameterClass="java.lang.String" resultMap="select-pipeline">
+        SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
+        FROM pipelines
+        WHERE name = #name#
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+
+    <select id="mostRecentLabel" parameterClass="java.lang.String" resultClass="string">
+        SELECT label  FROM pipelines WHERE name = #name# ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="hasPipelineInfoRow" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM pipelineLabelCounts
+        WHERE pipelineName = #value#
+    </select>
+
+    <select id="getCounterForPipeline" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+        SELECT labelCount
+        FROM pipelineLabelCounts
+        WHERE pipelineName = #value#
+        ORDER BY id DESC
+    </select>
+
+    <select id="getPipelinePauseState" resultMap="select-pipeline-pause-info">
+        SELECT pause_cause, pause_by, paused
+        FROM pipelineLabelCounts
+        WHERE pipelineName = #value#
+    </select>
+
+    <insert id="insertPipelinePauseState">
+        INSERT INTO pipelineLabelCounts (pipelineName, pause_cause, pause_by, paused)
+        VALUES (#pipelineName#, #pauseCause#, #pauseBy#, true)
+    </insert>
+
+    <update id="updatePipelinePauseState">
+        UPDATE pipelineLabelCounts
+        SET pause_cause = #pauseCause#, pause_by = #pauseBy#, paused = #paused#
+        WHERE pipelineName = #pipelineName#
+    </update>
+
+    <cacheModel id="pipeline-by-buildId" type="MEMORY" readOnly="true">
+        <flushInterval seconds="300"/>
+        <flushOnExecute statement="insertPipeline"/>
+        <flushOnExecute statement="insertPipelineLabelCounter"/>
+        <flushOnExecute statement="updatePipelineLabelCounter"/>
+    </cacheModel>
+
+    <select id="getPipelineByBuildId" parameterClass="java.lang.Long" resultMap="select-pipeline-with-approver" cacheModel="pipeline-by-buildId">
+        SELECT pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,
+        pipelines.counter as pipelineCounter, pipelines.naturalOrder, stages.approvedby as approvedby
+        FROM pipelines
+        INNER JOIN stages ON stages.pipelineId = pipelines.id
+        INNER JOIN builds ON builds.stageId = stages.id
+        WHERE builds.id= #buildId#
+    </select>
+
+    <cacheModel id="pipeline-by-stageId" type="MEMORY" readOnly="true">
+        <flushInterval seconds="300"/>
+        <flushOnExecute statement="insertPipeline"/>
+        <flushOnExecute statement="insertPipelineLabelCounter"/>
+        <flushOnExecute statement="updatePipelineLabelCounter"/>
+    </cacheModel>
+
+    <select id="getPipelineByStageId" parameterClass="java.lang.Long" resultMap="select-pipeline" cacheModel="pipeline-by-stageId">
+        SELECT pipelineId, pipelineName, buildCauseType, pipelineLabel AS label, buildCauseMessage, pipelineCounter, naturalOrder
+        FROM _stages
+        WHERE id = #stageId#
+    </select>
+
+    <sql id="selectLatestStageInPipeline">
+        stages.latestRun = true
+    </sql>
+
+    <select id="pipelineIdsForCounters" resultClass="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #name#
+        AND pipelines.counter in ($counters$)
+    </select>
+
+    <select id="getPipelineRange" resultClass="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #pipelineName#
+        ORDER BY pipelines.id DESC
+        LIMIT #limit#
+        OFFSET #offset#
+    </select>
+
+    <select id="getPipelineRangeForLabel" resultClass="java.lang.Long">
+        SELECT pipelines.id
+        FROM pipelines
+        WHERE pipelines.name = #pipelineName#
+        AND pipelines.id &lt;= (SELECT p.id FROM pipelines p WHERE p.name = #pipelineName# AND p.label = #pipelineLabel#)
+        ORDER BY pipelines.id DESC
+        LIMIT #limit#
+    </select>
+
+    <sql id="getPipelineHistory">
+        SELECT
+        pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,
+        pipelines.counter as pipelineCounter, pipelines.label as pipelineLabel, pipelines.naturalOrder as naturalOrder,
+        stages.name as stageName,stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy,
+        stages.approvalType as approvalType, stages.result as stageResult, stages.latestRun, stages.rerunOfCounter,
+        builds.id as buildId, builds.name as buildName, builds.state as buildState, builds.result as buildResult,
+        builds.scheduledDate as scheduledDate, stages.orderId as orderId
+        FROM pipelines
+        INNER JOIN stages ON stages.pipelineId = pipelines.id AND
+        <include refid="selectLatestStageInPipeline"/>
+        INNER JOIN builds ON builds.stageId = stages.id AND builds.ignored != true
+    </sql>
+
+    <select id="getPipelineHistoryByName" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.id &gt;= #from#
+        AND pipelines.id &lt;= #to#
+        AND pipelines.name = #pipelineName#
+        ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+    <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.id IN ($pipelineIds$)
+        ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+    <select id="findMatchingPipelineInstances" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.id IN (
+            SELECT * FROM (
+                (SELECT DISTINCT pmr.pipelineId
+                    FROM pipelines
+                        INNER JOIN pipelineMaterialRevisions pmr ON pmr.pipelineId = pipelines.id
+                        INNER JOIN modifications mod ON mod.id &gt;= pmr.fromRevisionId AND mod.id &lt;= pmr.toRevisionId AND pmr.materialId = mod.materialId
+                        LEFT JOIN pipelines upstream on mod.pipelineId = upstream.id
+                    WHERE pipelines.name = #pipelineName#
+                    AND (LOWER(pipelines.label) LIKE #pattern#
+                            OR LOWER(mod.comment) LIKE #pattern#
+                            OR LOWER(mod.userName) LIKE #pattern#
+                            OR LOWER(mod.revision) LIKE #pattern#
+                            OR LOWER(upstream.label) LIKE #pattern#
+                            OR LOWER(pipelines.buildCauseMessage) LIKE #pattern#)
+                    AND LOWER(pipelines.label) != #rawPattern#
+                )
+            ) AS temp
+            ORDER BY pipelineId DESC
+            LIMIT #limit#
+        )
+        ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+     <select id="findExactMatchingPipelineInstances" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        INNER JOIN
+            (SELECT * FROM 
+                (SELECT id
+                    FROM pipelines
+                    WHERE pipelines.name = #pipelineName# AND LOWER(pipelines.label) = #rawPattern#
+                    ORDER BY pipelines.id DESC
+                    LIMIT #limit#
+                ) AS temp
+            ) as tmp on tmp.id = pipelines.id
+         ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+    <select id="getPipelineHistoryById" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+
+        WHERE pipelines.id = #id#
+        ORDER BY stages.orderId ASC
+    </select>
+
+    <select id="latestPassedStageForPipelineId" resultMap="stage-identifier">
+        SELECT pipelines.name as pipelineName, pipelines.counter as pipelineCounter,
+        pipelines.label as pipelineLabel, stages.name as stageName,
+        stages.counter as stageCounter
+        FROM pipelines
+        INNER JOIN stages ON stages.pipelineId = pipelines.id
+        where pipelines.id= #id#
+        AND stages.name = #stage#
+        AND stages.result = 'Passed'
+        ORDER BY stages.id DESC
+        LIMIT 1
+    </select>
+
+    <select id="allActivePipelines" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        INNER JOIN (
+            SELECT stages.pipelineId AS id
+            FROM stages
+            WHERE stages.state = 'Building' AND latestRun = true
+        UNION
+            SELECT max(pipelines.id) AS id
+                FROM pipelines
+                GROUP BY pipelines.name
+        ) pipelines_to_show ON pipelines.id = pipelines_to_show.id
+        ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+      <sql id="getPipelineHistoryByNameAndCounterSQL">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.name = #pipelineName#
+          AND pipelines.counter = #pipelineCounter#
+    </sql>
+    
+    <select id="getPipelineHistoryByNameAndCounter" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistoryByNameAndCounterSQL"/>
+        ORDER BY stages.orderId ASC
+    </select>
+
+    <select id="getAllPipelineHistoryByName" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        WHERE pipelines.name = #name#
+        ORDER BY stages.orderId ASC
+    </select>
+
+     <select id="pipelineAndItsDepedenciesByNameAndCounter" resultMap="select-pipeline-history">
+        SELECT
+         pipelineId, pipelineName, buildCauseType, label, buildCauseMessage, pipelineCounter, pipelineLabel,
+         naturalOrder , stageName, stageCounter, stageId, approvedBy, approvalType, stageResult,
+         buildId, buildName, buildState, buildResult, scheduledDate, orderId, rerunOfCounter
+         FROM (
+            <include refid="getPipelineHistoryByNameAndCounterSQL"/>
+              UNION
+            <include refid="getPipelineHistory" />
+              INNER JOIN pipelinematerialrevisions on pipelinematerialrevisions.pipelineid=pipelines.id
+              INNER JOIN modifications ON modifications.id = pipelinematerialrevisions.torevisionid AND modifications.revision LIKE #stageLocator#
+              INNER JOIN materials ON materials.id=modifications.materialid AND materials.type = 'DependencyMaterial' AND materials.pipelinename = #pipelineName#
+        ) AS temp
+        ORDER BY orderId ASC
+    </select>
+
+    <select id="pipelineInstancesTriggeredOutOfDependencyMaterial" resultMap="select-pipeline-identifier">
+        SELECT pipelines.name as pipelineName, pipelines.label as label, pipelines.counter as pipelineCounter
+	    FROM pipelines
+	    WHERE pipelines.name = #pipelineName#
+        AND ID IN
+        (
+		  SELECT pipelinematerialrevisions.pipelineid
+		  FROM materials
+          INNER JOIN modifications ON materials.id= modifications.materialid AND materials.type = 'DependencyMaterial' AND materials.pipelinename = #dependencyPipelineName# AND modifications.revision LIKE #stageLocator#
+          INNER JOIN pipelinematerialrevisions ON modifications.id = pipelinematerialrevisions.torevisionid
+        )
+	    ORDER BY pipelines.id DESC
+    </select>
+
+    <select id="pipelineIdsByNames" parameterClass="list" resultClass="long">
+        SELECT max(id) as mid FROM TABLE(X VARCHAR_IGNORECASE(255)=
+        <iterate open="(" close=")" conjunction=",">#[]# </iterate>) T
+        INNER JOIN pipelines ON pipelines.name=T.X
+        group by name
+    </select>
+</sqlMap>

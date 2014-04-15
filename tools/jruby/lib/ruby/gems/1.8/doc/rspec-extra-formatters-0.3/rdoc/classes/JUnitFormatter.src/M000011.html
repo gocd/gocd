@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>dump_summary (JUnitFormatter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/rspec-extra-formatters/junit_formatter.rb, line 66</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump_summary</span>(<span class="ruby-identifier">duration</span>, <span class="ruby-identifier">example_count</span>, <span class="ruby-identifier">failure_count</span>, <span class="ruby-identifier">pending_count</span>)
+    <span class="ruby-keyword kw">super</span>(<span class="ruby-identifier">duration</span>, <span class="ruby-identifier">example_count</span>, <span class="ruby-identifier">failure_count</span>, <span class="ruby-identifier">pending_count</span>)
+    <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot; ?&gt;&quot;</span>)
+    <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-node">&quot;&lt;testsuite errors=\&quot;0\&quot; failures=\&quot;#{failure_count+pending_count}\&quot; tests=\&quot;#{example_count}\&quot; time=\&quot;#{duration}\&quot; timestamp=\&quot;#{Time.now.iso8601}\&quot;&gt;&quot;</span>)
+    <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;  &lt;properties /&gt;&quot;</span>)
+    <span class="ruby-ivar">@test_results</span>[<span class="ruby-identifier">:successes</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">md</span>          = <span class="ruby-identifier">t</span>.<span class="ruby-identifier">metadata</span>
+      <span class="ruby-identifier">runtime</span>     = <span class="ruby-identifier">md</span>[<span class="ruby-identifier">:execution_result</span>][<span class="ruby-identifier">:run_time</span>]
+      <span class="ruby-identifier">description</span> = <span class="ruby-identifier">_xml_escape</span>(<span class="ruby-identifier">md</span>[<span class="ruby-identifier">:full_description</span>])
+      <span class="ruby-identifier">file_path</span>   = <span class="ruby-identifier">_xml_escape</span>(<span class="ruby-identifier">md</span>[<span class="ruby-identifier">:file_path</span>])
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-node">&quot;  &lt;testcase classname=\&quot;#{file_path}\&quot; name=\&quot;#{description}\&quot; time=\&quot;#{runtime}\&quot; /&gt;&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-ivar">@test_results</span>[<span class="ruby-identifier">:failures</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">md</span>          = <span class="ruby-identifier">t</span>.<span class="ruby-identifier">metadata</span>
+      <span class="ruby-identifier">description</span> = <span class="ruby-identifier">_xml_escape</span>(<span class="ruby-identifier">md</span>[<span class="ruby-identifier">:full_description</span>])
+      <span class="ruby-identifier">file_path</span>   = <span class="ruby-identifier">_xml_escape</span>(<span class="ruby-identifier">md</span>[<span class="ruby-identifier">:file_path</span>])
+      <span class="ruby-identifier">runtime</span>     = <span class="ruby-identifier">md</span>[<span class="ruby-identifier">:execution_result</span>][<span class="ruby-identifier">:run_time</span>]
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-node">&quot;  &lt;testcase classname=\&quot;#{file_path}\&quot; name=\&quot;#{description}\&quot; time=\&quot;#{runtime}\&quot;&gt;&quot;</span>)
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;    &lt;failure message=\&quot;failure\&quot; type=\&quot;failure\&quot;&gt;&quot;</span>)
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-node">&quot;&lt;![CDATA[ #{read_failure(t)} ]]&gt;&quot;</span>)
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;    &lt;/failure&gt;&quot;</span>)
+      <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;  &lt;/testcase&gt;&quot;</span>)
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-identifier">output</span>.<span class="ruby-identifier">puts</span>(<span class="ruby-value str">&quot;&lt;/testsuite&gt;&quot;</span>)
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

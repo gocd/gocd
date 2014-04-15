@@ -1,0 +1,25 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NestedTextFormatter
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: current_indentation
+- !ruby/object:RI::MethodSummary 
+  name: example_failed
+- !ruby/object:RI::MethodSummary 
+  name: example_group_started
+- !ruby/object:RI::MethodSummary 
+  name: example_passed
+- !ruby/object:RI::MethodSummary 
+  name: example_pending
+full_name: Spec::Runner::Formatter::NestedTextFormatter
+superclass: BaseTextFormatter
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

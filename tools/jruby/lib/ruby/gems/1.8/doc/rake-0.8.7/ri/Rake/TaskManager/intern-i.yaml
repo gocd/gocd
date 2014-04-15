@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (task_class, task_name)
+is_singleton: false
+block_params: 
+name: intern
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lookup a task. Return an existing task if found, otherwise create a task of
+    the current type.
+full_name: Rake::TaskManager#intern
+visibility: public
+aliases: []
+

@@ -1,0 +1,22 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: QuietBacktraceTweaker
+constants: 
+- !ruby/object:RI::Constant 
+  name: IGNORE_PATTERNS
+  value: 'spec_files + [           /\/lib\/ruby\//,           /bin\/spec:/,           /bin\/rcov:/,           /lib\/rspec-rails/,           /vendor\/rails/,           #
+    TextMate''s Ruby and RSpec plugins           /Ruby\.tmbundle\/Support\/tmruby.rb:/,           /RSpec\.tmbundle\/Support\/lib/,           /temp_textmate\./,           /mock_frameworks\/rspec/,           /spec_server/'
+  comment: 
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Tweaks raised Exceptions to mask noisy (unneeded) parts of the backtrace
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: tweak_backtrace
+full_name: Spec::Runner::QuietBacktraceTweaker
+superclass: BacktraceTweaker
+class_methods: []
+

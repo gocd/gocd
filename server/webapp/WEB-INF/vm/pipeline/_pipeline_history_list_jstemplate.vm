@@ -1,0 +1,196 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+<!--To render each pipeline history item-->
+<!--START-->
+{eval}
+    pipelineHistoryPage.fixIEZIndexBugs(300);
+{/eval}
+
+<div id="new-pipeline-history" class="container-in-body">
+<div class="content_wrapper_outer" id="content_wrapper_outer_pipeline_history"><div class="content_wrapper_inner" id="content_wrapper_inner_pipeline_history">
+    <div class='page_header'>
+        <div class="entity_title" style="margin-bottom: 0;" id="pipeline_activity_header">
+            <ul class="entity_title">
+                <li class="last"><h1 id="page-title" class="entity_title" style="float: left;">$_page_title</h1></li>
+            </ul>
+            <span class="pipeline-buttons" style="float:left;">
+                {if pipelineHistoryPage.isPipelinePaused(data)}
+                    {if pipelineHistoryPage.canPause(data)}
+                        <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
+                           onclick="pipelineActions.unpausePipeline('${%data.pipelineName%}', this);"
+                           class="link_as_button" title="Resume scheduling">
+                            <span>Unpause</span>
+                        </a>
+                    {else}
+                        <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
+                           class="link_as_button disabled">
+                            <span>Unpause</span>
+                        </a>
+                    {/if}
+                {else}
+                    {if pipelineHistoryPage.canPause(data)}
+                    <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
+                       onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"
+                       class="link_as_button"
+                       title="Stop scheduling">
+                        <span>Pause</span>
+                       </a>
+                    {else}
+                    <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
+                       onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"
+                       class="link_as_button disabled"
+                       title="Stop scheduling">
+                        <span>Pause</span>
+                       </a>
+                    {/if}
+                {/if}
+            </span>
+                   ##        ${% data.pipelineName %}
+
+        </div>
+
+    </div>
+{if data.groups}
+
+    {for group in data.groups}
+    <table class="pipeline-history-group" cellpadding="0" cellspacing="0" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
+        <thead>
+            <tr>
+                <th class="" scope="col" style="visibility: hidden;">Pipeline label</th>
+                {for stage in group.config.stages}
+                <th class="column-header{if stage_index == group.config.stages.length - 1} last-stage{/if}" scope="col">
+                    <span>${% stage.name %}</span>
+                </th>
+                {/for}
+                <th class="spacer" scope="col">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            {if group_index == 0 && data.showForceBuildButton == 'true' }
+                <tr>
+                    <th class="pipeline-name" scope="row">
+                        <div class="wrapper">
+                            {if data.canForce == 'true'}
+                            <button class="{if pipelineActions.shouldShowPipelineScheduleButtonAsSpinner(data)}submiting-force-run-pipeline{else}force-run-pipeline{/if}"
+                                    title="Trigger this pipeline"
+                                    onclick="pipelineActions.schedulePipelineInHistoryPage('${%data.pipelineName%}', this);">Trigger</button>
+                            {else}
+                            <button class="force-run-pipeline-disabled" title="Cannot trigger this pipeline">Trigger</button>
+                            {/if}
+                            <span class="pipeline-label" title="revision: ">${% data.nextLabel %}</span><br/>
+                            <span class="pipeline-start-time">
+                                <span class="friendly-time"></span>
+                            </span>
+                        </div>
+                    </th>
+                    {for stage in group.config.stages}
+                        <td><div class="wrapper">
+                            {if stage_index != 0}
+                            <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"></button>
+                            {/if}
+                            <a class="empty-stage" href="javascript:void(0);"></a></div>
+                        </td>
+                    {/for}
+                    <td class="spacer">&nbsp;</td>
+                </tr>
+            {/if}
+            {for pipeline in group.history}
+            <tr id="pipeline-${% pipeline.pipelineId %}">
+                <th class="pipeline-name" scope="row" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
+                    <div class="wrapper" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
+                        <span id="pipeline-${% pipeline.pipelineId %}-label" class="pipeline-label"> <a href="$req.getContextPath()/pipelines/value_stream_map/${% data.pipelineName %}/${% pipeline.counterOrLabel %}" title="${% pipeline.label %}">${% pipeline.label.truncate(17) %}</a></span><br/>
+                        <span class="pipeline-info" id="pipeline-${% pipeline.pipelineId %}-revision" title="${% pipeline.revision %}">revision: ${% pipeline.revision %}</span><br/>
+                        <span id="pipeline-${% pipeline.pipelineId %}-modificationDate" class="pipeline-info">${% pipeline.modification_date %}</span><br/>
+                        <span id="pipeline-${% pipeline.pipelineId %}-buildCause"
+                              class="pipeline-info popup-${% pipelineHistoryPage.buildCauseActor.getBuildCauseClass(pipeline.pipelineId) %}" style="${%pipelineHistoryPage.fixIEZIndexBugs()%}">
+                            {if pipeline.buildCauseBy ==  ''} No modifications
+                            {else}
+                                <a href="javascript:void(0)"
+                                   onclick="pipelineHistoryPage.buildCauseActor.hideOrShowBuildCause('${%pipeline.pipelineId%}')">${% pipeline.buildCauseBy %}</a>
+                            {/if}
+                            <div id="pipeline-${%pipeline.pipelineId%}-buildCauseSummary" class="popup ${% pipelineHistoryPage.buildCauseActor.getPositionClass(pipeline.pipelineId) %}" style="${%pipelineHistoryPage.buildCauseActor.getStyleText(pipeline.pipelineId)%};">
+                                <div class="popup-arrow"></div>
+                                <button class="close-popup" onclick="pipelineHistoryPage.buildCauseActor.hideOrShowBuildCause('${%pipeline.pipelineId%}')"></button>
+                                {var materialRevisions = pipeline.materialRevisions}
+                                #parse('pipeline/_material_revisions_popup.vm')
+                            </div>
+                        </span>
+                    </div>
+                </th>
+                {for stage in pipeline.stages}
+                <td {if stage_index == pipeline.stages.length - 1} class="last-stage"{/if}>
+                    <div class="wrapper">
+                        {if stage_index != 0}
+                            {if stage.getCanRun == 'true' && stage.scheduled == 'false'}
+                                 <button class="${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate" title="Awaiting approval"
+                                         id="approve-${% pipeline.counterOrLabel %}-${% stage.stageName %}"
+                                         onclick="stageActions.runStage('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}', '${% stage.stageName %}');"></button>
+                            {elseif stage.approvedBy == 'changes'}
+                                 <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
+                                         title="{if stage.approvedBy}Automatically approved {/if}"></button>
+                            {else}
+                                 <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
+                                         title="Approved by ${% stage.approvedBy %}"></button>
+                            {/if}
+                        {/if}
+                        {if stage.scheduled == 'true'}
+                            {if window.cruise_is_running_in_ie6}
+                                <!-- for IE6 -->
+                                <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}"
+                                   class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage"
+                                   onmouseover="_IE6_onMouseComeInStage(this)" onmouseout="_IE6_onMouseComeOutStage()">
+                            {else}
+                                <!-- for none IE6 browser -->
+                                <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage">
+                            {/if}
+                             {if stage.stageStatus == 'Cancelled'}
+                                 <img alt="" src="$req.getContextPath()/images/g9/stage_bar_cancelled_icon.png">
+                             {/if}
+                                {if stage.getCanRun == 'true'}
+                                <a id="rerun-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="rerun" title="rerun this stage"
+                                        href="javascript:stageActions.runStage('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}', '${% stage.stageName %}');">Re-run</a>
+                                {/if}
+                                {if stage.getCanCancel == 'true'}
+                                <a id="cancel-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="cancel" title="Cancel this stage"
+                                        href="javascript:pipelineActions.cancelPipeline('${% stage.stageId %}', 'cancel-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}');">Cancel</a>
+                                {/if}
+                                <a id="stage-detail-${% pipeline.pipelineId %}-${% stage.stageName %}-link" class="detail" title="see the details of this stage"
+                                        href="$req.getContextPath()/pipelines/${% stage.stageLocator %}{if 'failed' == stage.stageStatus}#tab-failures{/if}{if 'passed' == stage.stageStatus}#tab-artifacts{/if}">
+                                        Details</a>
+                            </div>
+                        {else}
+                            <a class="empty-stage" href="javascript:void(0);"></a>
+                        {/if}
+                    </div>
+                </td>
+                {/for}
+                <td class="spacer">&nbsp;</td>
+            </tr>
+            {/for}
+        </tbody>
+    </table>
+    {/for}
+
+  {/if}
+
+  <div class="clear"></div>
+</div></div>
+</div>
+<!--END-->
+{eval}
+    pipelineHistoryPage.fixLayout.delay(0.1);
+{/eval}

@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: (names, values, parent=nil)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a TaskArgument object with a list of named arguments (given by :names)
+    and a set of associated values (given by :values). :parent is the parent argument
+    object.
+full_name: Rake::TaskArguments::new
+visibility: public
+aliases: []
+

@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Has
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: description
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should_not
+- !ruby/object:RI::MethodSummary 
+  name: matches?
+full_name: Spec::Matchers::Has
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

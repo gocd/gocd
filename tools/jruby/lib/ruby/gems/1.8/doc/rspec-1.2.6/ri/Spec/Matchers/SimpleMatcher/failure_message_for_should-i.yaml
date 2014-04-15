@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: failure_message_for_should
+comment: 
+full_name: Spec::Matchers::SimpleMatcher#failure_message_for_should
+visibility: public
+aliases: []
+

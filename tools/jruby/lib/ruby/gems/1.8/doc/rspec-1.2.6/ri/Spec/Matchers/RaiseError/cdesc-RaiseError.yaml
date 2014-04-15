@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: RaiseError
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Matchers::RaiseError
+superclass: Object
+class_methods: []
+

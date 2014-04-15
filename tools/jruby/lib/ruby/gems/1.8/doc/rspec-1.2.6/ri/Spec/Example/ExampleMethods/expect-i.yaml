@@ -1,0 +1,16 @@
+--- !ruby/object:RI::MethodDescription 
+params: (&block)
+is_singleton: false
+block_params: 
+name: expect
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Extends the submitted block with aliases to and to_not for should and should_not.
+    Allows expectations like this:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  expect { this_block }.to change{this.expression}.from(old_value).to(new_value)\n\
+    \  expect { this_block }.to raise_error\n"
+full_name: Spec::Example::ExampleMethods#expect
+visibility: public
+aliases: []
+

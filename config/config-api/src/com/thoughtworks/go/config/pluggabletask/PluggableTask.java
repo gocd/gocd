@@ -1,0 +1,150 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+package com.thoughtworks.go.config.pluggabletask;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.thoughtworks.go.config.AbstractTask;
+import com.thoughtworks.go.config.ConfigSubtag;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.TaskProperty;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.util.ListUtil;
+
+/**
+ * @understands configuration of pluggable task
+ */
+@ConfigTag("task")
+public class PluggableTask extends AbstractTask {
+    public static final String VALUE_KEY = "value";
+    public static final String ERRORS_KEY = "errors";
+    @ConfigSubtag
+    private PluginConfiguration pluginConfiguration = new PluginConfiguration();
+
+    @ConfigSubtag
+    private Configuration configuration = new Configuration();
+
+    public PluggableTask() {
+    }
+
+    public PluggableTask(String name, PluginConfiguration pluginConfiguration, Configuration configuration) {
+        this.pluginConfiguration = pluginConfiguration;
+        this.configuration = configuration;
+    }
+
+    public PluginConfiguration getPluginConfiguration() {
+        return pluginConfiguration;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    @Override
+    public boolean hasSameTypeAs(Task task) {
+        if (!getClass().equals(task.getClass())) {
+            return false;
+        }
+        return this.pluginConfiguration.equals(((PluggableTask) task).pluginConfiguration);
+    }
+
+    @Override
+    protected void setTaskConfigAttributes(Map attributes) {
+        for (ConfigurationProperty property : configuration) {
+            String key = property.getConfigurationKey().getName();
+            if (attributes.containsKey(key)) {
+                property.setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+            }
+        }
+    }
+
+    @Override
+    protected void validateTask(ValidationContext validationContext) {
+    }
+
+    @Override
+    public String getTaskType() {
+        return "pluggable_task_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
+    }
+
+    @Override
+    public String getTypeForDisplay() {
+        return "Pluggable Task";
+    }
+
+    @Override
+    public List<TaskProperty> getPropertiesForDisplay() {
+        ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        for (ConfigurationProperty property : configuration) {
+            taskProperties.add(new TaskProperty(property.getConfigKeyName(), property.getDisplayValue()));
+        }
+        return taskProperties;
+    }
+
+    public Map<String, Map<String, String>> configAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        for (ConfigurationProperty property : configuration) {
+            Map<String, String> mapValue = new HashMap<String, String>();
+            mapValue.put(VALUE_KEY, property.getConfigValue());
+            if (!property.errors().isEmpty()) {
+                mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        PluggableTask that = (PluggableTask) o;
+
+        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+            return false;
+        }
+        if (!pluginConfiguration.equals(that.pluginConfiguration)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + pluginConfiguration.hashCode();
+        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
+        return result;
+    }
+}

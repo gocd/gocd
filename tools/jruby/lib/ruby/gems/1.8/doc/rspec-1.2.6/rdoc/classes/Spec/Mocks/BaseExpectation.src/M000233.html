@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Spec::Mocks::BaseExpectation)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/message_expectation.rb, line 11</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">error_generator</span>, <span class="ruby-identifier">expectation_ordering</span>, <span class="ruby-identifier">expected_from</span>, <span class="ruby-identifier">sym</span>, <span class="ruby-identifier">method_block</span>, <span class="ruby-identifier">expected_received_count</span>=<span class="ruby-value">1</span>, <span class="ruby-identifier">opts</span>={})
+        <span class="ruby-ivar">@error_generator</span> = <span class="ruby-identifier">error_generator</span>
+        <span class="ruby-ivar">@error_generator</span>.<span class="ruby-identifier">opts</span> = <span class="ruby-identifier">opts</span>
+        <span class="ruby-ivar">@expected_from</span> = <span class="ruby-identifier">expected_from</span>
+        <span class="ruby-ivar">@sym</span> = <span class="ruby-identifier">sym</span>
+        <span class="ruby-ivar">@method_block</span> = <span class="ruby-identifier">method_block</span>
+        <span class="ruby-ivar">@return_block</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@actual_received_count</span> = <span class="ruby-value">0</span>
+        <span class="ruby-ivar">@expected_received_count</span> = <span class="ruby-identifier">expected_received_count</span>
+        <span class="ruby-ivar">@args_expectation</span> = <span class="ruby-constant">ArgumentExpectation</span>.<span class="ruby-identifier">new</span>([<span class="ruby-constant">ArgumentMatchers</span><span class="ruby-operator">::</span><span class="ruby-constant">AnyArgsMatcher</span>.<span class="ruby-identifier">new</span>])
+        <span class="ruby-ivar">@consecutive</span> = <span class="ruby-keyword kw">false</span>
+        <span class="ruby-ivar">@exception_to_raise</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@symbol_to_throw</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@order_group</span> = <span class="ruby-identifier">expectation_ordering</span>
+        <span class="ruby-ivar">@at_least</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@at_most</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@args_to_yield</span> = []
+        <span class="ruby-ivar">@failed_fast</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@args_to_yield_were_cloned</span> = <span class="ruby-keyword kw">false</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

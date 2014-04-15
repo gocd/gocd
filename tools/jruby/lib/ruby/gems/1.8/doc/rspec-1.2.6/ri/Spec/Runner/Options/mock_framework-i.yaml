@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: mock_framework
+comment: 
+full_name: Spec::Runner::Options#mock_framework
+visibility: public
+aliases: []
+

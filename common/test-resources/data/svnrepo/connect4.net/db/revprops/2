@@ -1,0 +1,14 @@
+K 10
+svn:author
+V 7
+cceuser
+K 8
+svn:date
+V 27
+2008-05-20T03:49:31.969246Z
+K 7
+svn:log
+V 96
+RL & GL : try putting test report into test-results folder instead of the defualt result folder
+
+END

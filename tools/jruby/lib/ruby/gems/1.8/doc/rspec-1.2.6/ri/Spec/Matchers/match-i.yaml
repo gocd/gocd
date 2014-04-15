@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should match(regexp)
+  should_not match(regexp)
+is_singleton: false
+block_params: 
+name: match
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Given a Regexp, passes if actual =~ regexp
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  email.should match(/^([^\\s]+)((?:[-a-z0-9]+\\.)+[a-z]{2,})$/i)\n"
+full_name: Spec::Matchers#match
+visibility: public
+aliases: []
+

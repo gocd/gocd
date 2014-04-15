@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (value, tail)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Rake::InvocationChain::new
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: verify_messages_received
+comment: 
+full_name: Spec::Mocks::MessageExpectation#verify_messages_received
+visibility: public
+aliases: []
+

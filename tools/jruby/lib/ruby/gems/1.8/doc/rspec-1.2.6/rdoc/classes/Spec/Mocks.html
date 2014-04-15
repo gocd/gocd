@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Mocks</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Mocks</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/spec/mocks/argument_expectation_rb.html">
+                lib/spec/mocks/argument_expectation.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/argument_matchers_rb.html">
+                lib/spec/mocks/argument_matchers.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/error_generator_rb.html">
+                lib/spec/mocks/error_generator.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/errors_rb.html">
+                lib/spec/mocks/errors.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/message_expectation_rb.html">
+                lib/spec/mocks/message_expectation.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/methods_rb.html">
+                lib/spec/mocks/methods.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/mock_rb.html">
+                lib/spec/mocks/mock.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/order_group_rb.html">
+                lib/spec/mocks/order_group.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/proxy_rb.html">
+                lib/spec/mocks/proxy.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/space_rb.html">
+                lib/spec/mocks/space.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks/spec_methods_rb.html">
+                lib/spec/mocks/spec_methods.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/mocks_rb.html">
+                lib/spec/mocks.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2><a href="Mocks.html">Mocks</a> and Stubs</h2>
+<p>
+RSpec will create <a href="Mocks/Mock.html">Mock</a> Objects and Stubs for
+you at runtime, or attach stub/mock behaviour to any of your real objects
+(Partial <a href="Mocks/Mock.html">Mock</a>/Stub). Because the underlying
+implementation for mocks and stubs is the same, you can intermingle mock
+and stub behaviour in either dynamically generated mocks or your
+pre-existing classes. There is a semantic difference in how they are
+created, however, which can help clarify the role it is playing within a
+given spec.
+</p>
+<h2><a href="Mocks/Mock.html">Mock</a> Objects</h2>
+<p>
+<a href="Mocks.html">Mocks</a> are objects that allow you to set and verify
+expectations that they will receive specific messages during run time. They
+are very useful for specifying how the subject of the spec interacts with
+its collaborators. This approach is widely known as &quot;interaction
+testing&quot;.
+</p>
+<p>
+<a href="Mocks.html">Mocks</a> are also very powerful as a design tool. As
+you are driving the implementation of a given class, <a
+href="Mocks.html">Mocks</a> provide an anonymous collaborator that can
+change in behaviour as quickly as you can write an expectation in your
+spec. This flexibility allows you to design the interface of a collaborator
+that often does not yet exist. As the shape of the class being specified
+becomes more clear, so do the requirements for its collaborators - often
+leading to the discovery of new types that are needed in your system.
+</p>
+<p>
+Read <a
+href="http://www.mockobjects.com/files/endotesting.pdf">Endo-Testing</a>
+for a much more in depth description of this process.
+</p>
+<h2>Stubs</h2>
+<p>
+Stubs are objects that allow you to set &quot;stub&quot; responses to
+messages. As Martin Fowler points out on his site, <a
+href="http://www.martinfowler.com/articles/mocksArentStubs.html">mocks_arent_stubs</a>.
+Paraphrasing Fowler&#8216;s paraphrasing of Gerard Meszaros: Stubs provide
+canned responses to messages they might receive in a test, while mocks
+allow you to specify and, subsquently, verify that certain messages should
+be received during the execution of a test.
+</p>
+<h2>Partial <a href="Mocks.html">Mocks</a>/Stubs</h2>
+<p>
+RSpec also supports partial mocking/stubbing, allowing you to add stub/mock
+behaviour to instances of your existing classes. This is generally
+something to be avoided, because changes to the class can have ripple
+effects on seemingly unrelated specs. When specs fail due to these ripple
+effects, the fact that some methods are being mocked can make it difficult
+to understand why a failure is occurring.
+</p>
+<p>
+That said, partials do allow you to expect and verify interactions with
+class methods such as +find+ and +create+ on <a href="Ruby.html">Ruby</a>
+on Rails model classes.
+</p>
+<h2>Further Reading</h2>
+<p>
+There are many different viewpoints about the meaning of mocks and stubs.
+If you are interested in learning more, here is some recommended reading:
+</p>
+<ul>
+<li><a href="Mocks/Mock.html">Mock</a> Objects: <a
+href="http://www.mockobjects.com">www.mockobjects.com</a>/
+
+</li>
+<li>Endo-Testing: <a
+href="http://www.mockobjects.com/files/endotesting.pdf">www.mockobjects.com/files/endotesting.pdf</a>
+
+</li>
+<li><a href="Mocks/Mock.html">Mock</a> Roles, Not Objects: <a
+href="http://www.mockobjects.com/files/mockrolesnotobjects.pdf">www.mockobjects.com/files/mockrolesnotobjects.pdf</a>
+
+</li>
+<li><a href="Test.html">Test</a> Double Patterns: <a
+href="http://xunitpatterns.com/Test%20Double%20Patterns.html">xunitpatterns.com/Test%20Double%20Patterns.html</a>
+
+</li>
+<li><a href="Mocks.html">Mocks</a> aren&#8216;t stubs: <a
+href="http://www.martinfowler.com/articles/mocksArentStubs.html">www.martinfowler.com/articles/mocksArentStubs.html</a>
+
+</li>
+</ul>
+<h2>Creating a <a href="Mocks/Mock.html">Mock</a></h2>
+<p>
+You can create a mock in any specification (or setup) using:
+</p>
+<pre>
+  mock(name, options={})
+</pre>
+<p>
+The optional <tt>options</tt> argument is a <tt>Hash</tt>. Currently the
+only supported option is +:null_object+. Setting this to true instructs the
+mock to ignore any messages it hasn’t been told to expect – and quietly
+return itself. For example:
+</p>
+<pre>
+  mock(&quot;person&quot;, :null_object =&gt; true)
+</pre>
+<h2>Creating a Stub</h2>
+<p>
+You can create a stub in any specification (or setup) using:
+</p>
+<pre>
+  stub(name, stub_methods_and_values_hash)
+</pre>
+<p>
+For example, if you wanted to create an object that always returns
+&quot;More?!?!?!&quot; to &quot;please_sir_may_i_have_some_more&quot; you
+would do this:
+</p>
+<pre>
+  stub(&quot;Mr Sykes&quot;, :please_sir_may_i_have_some_more =&gt; &quot;More?!?!?!&quot;)
+</pre>
+<h2>Creating a Partial <a href="Mocks/Mock.html">Mock</a></h2>
+<p>
+You don&#8216;t really &quot;create&quot; a partial mock, you simply add
+method stubs and/or mock expectations to existing classes and objects:
+</p>
+<pre>
+  Factory.should_receive(:find).with(id).and_return(value)
+  obj.stub!(:to_i).and_return(3)
+  etc ...
+</pre>
+<h2>Expecting Messages</h2>
+<pre>
+  my_mock.should_receive(:sym)
+  my_mock.should_not_receive(:sym)
+</pre>
+<h2>Expecting Arguments</h2>
+<pre>
+  my_mock.should_receive(:sym).with(*args)
+  my_mock.should_not_receive(:sym).with(*args)
+</pre>
+<h2>Argument <a href="Matchers.html">Matchers</a></h2>
+<p>
+Arguments that are passed to with are compared with actual arguments
+received using == by default. In cases in which you want to specify things
+about the arguments rather than the arguments themselves, you can use any
+of RSpec&#8216;s Expression <a href="Matchers.html">Matchers</a>. They
+don&#8216;t all make syntactic sense (they were primarily designed for use
+with <a href="Expectations.html">Spec::Expectations</a>), but you are free
+to create your own custom <a href="Matchers.html">Spec::Matchers</a>.
+</p>
+<p>
+<a href="Mocks.html">Spec::Mocks</a> does provide one additional Matcher
+method named ducktype.
+</p>
+<p>
+In addition, <a href="Mocks.html">Spec::Mocks</a> adds some keyword Symbols
+that you can use to specify certain kinds of arguments:
+</p>
+<pre>
+  my_mock.should_receive(:sym).with(no_args())
+  my_mock.should_receive(:sym).with(any_args())
+  my_mock.should_receive(:sym).with(1, kind_of(Numeric), &quot;b&quot;) #2nd argument can any kind of Numeric
+  my_mock.should_receive(:sym).with(1, boolean(), &quot;b&quot;) #2nd argument can true or false
+  my_mock.should_receive(:sym).with(1, /abc/, &quot;b&quot;) #2nd argument can be any String matching the submitted Regexp
+  my_mock.should_receive(:sym).with(1, anything(), &quot;b&quot;) #2nd argument can be anything at all
+  my_mock.should_receive(:sym).with(1, ducktype(:abs, :div), &quot;b&quot;)
+                           #2nd argument can be object that responds to #abs and #div
+</pre>
+<h2>Receive Counts</h2>
+<pre>
+  my_mock.should_receive(:sym).once
+  my_mock.should_receive(:sym).twice
+  my_mock.should_receive(:sym).exactly(n).times
+  my_mock.should_receive(:sym).at_least(:once)
+  my_mock.should_receive(:sym).at_least(:twice)
+  my_mock.should_receive(:sym).at_least(n).times
+  my_mock.should_receive(:sym).at_most(:once)
+  my_mock.should_receive(:sym).at_most(:twice)
+  my_mock.should_receive(:sym).at_most(n).times
+  my_mock.should_receive(:sym).any_number_of_times
+</pre>
+<h2>Ordering</h2>
+<pre>
+  my_mock.should_receive(:sym).ordered
+  my_mock.should_receive(:other_sym).ordered
+    #This will fail if the messages are received out of order
+</pre>
+<h2>Setting Reponses</h2>
+<p>
+Whether you are setting a mock expectation or a simple stub, you can tell
+the object precisely how to respond:
+</p>
+<pre>
+  my_mock.should_receive(:sym).and_return(value)
+  my_mock.should_receive(:sym).exactly(3).times.and_return(value1, value2, value3)
+    # returns value1 the first time, value2 the second, etc
+  my_mock.should_receive(:sym).and_return { ... } #returns value returned by the block
+  my_mock.should_receive(:sym).and_raise(error)
+    #error can be an instantiated object or a class
+    #if it is a class, it must be instantiable with no args
+  my_mock.should_receive(:sym).and_throw(:sym)
+  my_mock.should_receive(:sym).and_yield(values,to,yield)
+  my_mock.should_receive(:sym).and_yield(values,to,yield).and_yield(some,other,values,this,time)
+    # for methods that yield to a block multiple times
+</pre>
+<p>
+Any of these responses can be applied to a stub as well, but stubs do not
+support any qualifiers about the message received (i.e. you can&#8216;t
+specify arguments or receive counts):
+</p>
+<pre>
+  my_mock.stub!(:sym).and_return(value)
+  my_mock.stub!(:sym).and_return(value1, value2, value3)
+  my_mock.stub!(:sym).and_raise(error)
+  my_mock.stub!(:sym).and_throw(:sym)
+  my_mock.stub!(:sym).and_yield(values,to,yield)
+  my_mock.stub!(:sym).and_yield(values,to,yield).and_yield(some,other,values,this,time)
+</pre>
+<h2>Arbitrary Handling</h2>
+<p>
+Once in a while you&#8216;ll find that the available expectations
+don&#8216;t solve the particular problem you are trying to solve. Imagine
+that you expect the message to come with an Array argument that has a
+specific length, but you don&#8216;t care what is in it. You could do this:
+</p>
+<pre>
+  my_mock.should_receive(:sym) do |arg|
+    arg.should be_an_istance_of(Array)
+    arg.length.should == 7
+  end
+</pre>
+<p>
+Note that this would fail if the number of arguments received was different
+from the number of block arguments (in this case 1).
+</p>
+<h2>Combining Expectation Details</h2>
+<p>
+Combining the message name with specific arguments, receive counts and
+responses you can get quite a bit of detail in your expectations:
+</p>
+<pre>
+  my_mock.should_receive(:&lt;&lt;).with(&quot;illegal value&quot;).once.and_raise(ArgumentError)
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Mocks/ArgumentMatchers.html" class="link">Spec::Mocks::ArgumentMatchers</a><br />
+Module <a href="Mocks/ExampleMethods.html" class="link">Spec::Mocks::ExampleMethods</a><br />
+Module <a href="Mocks/Methods.html" class="link">Spec::Mocks::Methods</a><br />
+Class <a href="Mocks/AmbiguousReturnError.html" class="link">Spec::Mocks::AmbiguousReturnError</a><br />
+Class <a href="Mocks/ArgumentExpectation.html" class="link">Spec::Mocks::ArgumentExpectation</a><br />
+Class <a href="Mocks/BaseExpectation.html" class="link">Spec::Mocks::BaseExpectation</a><br />
+Class <a href="Mocks/ErrorGenerator.html" class="link">Spec::Mocks::ErrorGenerator</a><br />
+Class <a href="Mocks/MessageExpectation.html" class="link">Spec::Mocks::MessageExpectation</a><br />
+Class <a href="Mocks/Mock.html" class="link">Spec::Mocks::Mock</a><br />
+Class <a href="Mocks/MockExpectationError.html" class="link">Spec::Mocks::MockExpectationError</a><br />
+Class <a href="Mocks/NegativeMessageExpectation.html" class="link">Spec::Mocks::NegativeMessageExpectation</a><br />
+Class <a href="Mocks/OrderGroup.html" class="link">Spec::Mocks::OrderGroup</a><br />
+Class <a href="Mocks/Proxy.html" class="link">Spec::Mocks::Proxy</a><br />
+Class <a href="Mocks/Space.html" class="link">Spec::Mocks::Space</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

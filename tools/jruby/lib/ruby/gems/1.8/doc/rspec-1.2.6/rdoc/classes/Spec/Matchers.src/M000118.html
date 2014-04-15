@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>equal (Spec::Matchers)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/matchers/equal.rb, line 16</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">equal</span>(<span class="ruby-identifier">expected</span>)
+      <span class="ruby-constant">Matcher</span>.<span class="ruby-identifier">new</span> <span class="ruby-identifier">:equal</span>, <span class="ruby-identifier">expected</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">_expected_</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">match</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">actual</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">actual</span>.<span class="ruby-identifier">equal?</span>(<span class="ruby-identifier">_expected_</span>)
+        <span class="ruby-keyword kw">end</span>
+        
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">inspect_object</span>(<span class="ruby-identifier">o</span>)
+          <span class="ruby-node">&quot;#&lt;#{o.class}:#{o.object_id}&gt; =&gt; #{o.inspect}&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+        
+        <span class="ruby-identifier">failure_message_for_should</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">actual</span><span class="ruby-operator">|</span>
+          <span class="ruby-value str">&quot;\nexpected \#{inspect_object(_expected_)}\ngot \#{inspect_object(actual)}\n\nCompared using equal?, which compares object identity,\nbut expected and actual are not the same object. Use\n'actual.should == expected' if you don't care about\nobject identity in this example.\n\n&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+
+        <span class="ruby-identifier">failure_message_for_should_not</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">actual</span><span class="ruby-operator">|</span>
+          <span class="ruby-value str">&quot;\nexpected not \#{inspect_object(actual)}\ngot \#{inspect_object(_expected_)}\n\nCompared using equal?, which compares object identity.\n\n&quot;</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*cmd, &block)
+is_singleton: false
+block_params: 
+name: sh
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Run the system command <tt>cmd</tt>. If multiple arguments are given the command
+    is not run with the shell (same semantics as Kernel::exec and Kernel::system).
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  sh %{ls -ltr}\n\n  sh 'ls', 'file with spaces'\n\n  # check exit status \
+    after command runs\n  sh %{grep pattern file} do |ok, res|\n    if ! ok\n     \
+    \ puts &quot;pattern not found (status = #{res.exitstatus})&quot;\n    end\n  end\n"
+full_name: FileUtils#sh
+visibility: public
+aliases: []
+

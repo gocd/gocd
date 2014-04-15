@@ -1,0 +1,27 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: false
+block_params: 
+name: describe
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Creates and returns a class that includes the ExampleGroupMethods module.
+    Which ExampleGroup type is created depends on the directory of the file calling
+    this method. For example, Spec::Rails will use different classes for specs living
+    in <tt>spec/models</tt>, <tt>spec/helpers</tt>, <tt>spec/views</tt> and <tt>spec/controllers</tt>.
+- !ruby/struct:SM::Flow::P 
+  body: 'It is also possible to override autodiscovery of the example group type with
+    an options Hash as the last argument:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe &quot;name&quot;, :type =&gt; :something_special do ...\n"
+- !ruby/struct:SM::Flow::P 
+  body: The reason for using different example group classes is to have different
+    matcher methods available from within the <tt>describe</tt> block.
+- !ruby/struct:SM::Flow::P 
+  body: See Spec::Example::ExampleGroupFactory#register for details about how to register
+    special implementations.
+full_name: Spec::DSL::Main#describe
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: context

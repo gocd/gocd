@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym, &block)
+is_singleton: false
+block_params: 
+name: should_not_receive
+comment: 
+full_name: Spec::Mocks::Methods#should_not_receive
+visibility: public
+aliases: []
+

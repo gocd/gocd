@@ -1,0 +1,17 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope = :each, options={}, &proc)
+is_singleton: false
+block_params: 
+name: append_before
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Appends a global <tt>before</tt> block to all example groups. <tt>scope</tt>
+    can be any of <tt>:each</tt> (default), <tt>:all</tt>, or <tt>:suite</tt>. When
+    <tt>:each</tt>, the block is executed before each example. When <tt>:all</tt>,
+    the block is executed once per example group, before any of its examples are run.
+    When <tt>:suite</tt> the block is run once before the entire suite is run.
+full_name: Spec::Runner::Configuration#append_before
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: before

@@ -1,0 +1,20 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Space
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add
+- !ruby/object:RI::MethodSummary 
+  name: reset_all
+- !ruby/object:RI::MethodSummary 
+  name: verify_all
+full_name: Spec::Mocks::Space
+superclass: Object
+class_methods: []
+

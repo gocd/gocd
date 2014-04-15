@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (group)
+is_singleton: false
+block_params: 
+name: include?
+comment: 
+full_name: Spec::Example::SharedExampleGroup::ClassMethods#include?
+visibility: public
+aliases: []
+

@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleGroupFactory
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Example::ExampleGroupFactory
+superclass: Object
+class_methods: []
+

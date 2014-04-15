@@ -1,0 +1,35 @@
+= Installing HighLine
+
+RubyGems is the preferred easy install method for HighLine.  However, you can
+install HighLine manually as described below.
+
+== Installing the Gem
+
+HighLine is intended to be installed via the
+RubyGems[http://rubyforge.org/projects/rubygems/] system.  To get the latest
+version, simply enter the following into your command prompt:
+
+	$ sudo gem install highline
+
+You must have RubyGems[http://rubyforge.org/projects/rubygems/] installed for
+the above to work.
+
+== Installing Manually
+
+Download the latest version of HighLine from the
+{RubyForge project page}[http://rubyforge.org/frs/?group_id=683].  Navigate to
+the root project directory and enter:
+
+	$ sudo ruby setup.rb
+
+== Using termios
+
+While not a requirement, HighLine will take advantage of the termios library if
+installed (on Unix).  This slightly improves HighLine's character reading
+capabilities and thus is recommended for all Unix users.
+
+If using the HighLine gem, you should be able to add termios as easily as:
+
+	$ sudo gem install termios
+
+For manual installs, consult the termios documentation.

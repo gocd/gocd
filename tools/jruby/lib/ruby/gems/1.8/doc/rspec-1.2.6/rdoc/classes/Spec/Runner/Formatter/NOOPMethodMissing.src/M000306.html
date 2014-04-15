@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>respond_to? (Spec::Runner::Formatter::NOOPMethodMissing)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/formatter/no_op_method_missing.rb, line 5</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">message</span>, <span class="ruby-identifier">include_private</span> = <span class="ruby-keyword kw">false</span>)
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">include_private</span>
+            <span class="ruby-keyword kw">true</span>
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-operator">!</span><span class="ruby-identifier">private_methods</span>.<span class="ruby-identifier">any?</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">message</span>.<span class="ruby-identifier">to_s</span>, <span class="ruby-identifier">message</span>.<span class="ruby-identifier">to_sym</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>)}
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

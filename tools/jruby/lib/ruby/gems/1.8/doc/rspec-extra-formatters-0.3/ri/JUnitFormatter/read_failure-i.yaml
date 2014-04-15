@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+visibility: public
+block_params: 
+comment: 
+full_name: JUnitFormatter#read_failure
+params: (t)
+name: read_failure
+is_singleton: false
+aliases: []
+

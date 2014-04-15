@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>handle_options (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2311</span>
+2311:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">handle_options</span>
+2312:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">rakelib</span> = [<span class="ruby-value str">'rakelib'</span>]
+2313: 
+2314:       <span class="ruby-constant">OptionParser</span>.<span class="ruby-identifier">new</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">opts</span><span class="ruby-operator">|</span>
+2315:         <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">banner</span> = <span class="ruby-value str">&quot;rake [-f rakefile] {options} targets...&quot;</span>
+2316:         <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">separator</span> <span class="ruby-value str">&quot;&quot;</span>
+2317:         <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">separator</span> <span class="ruby-value str">&quot;Options are ...&quot;</span>
+2318: 
+2319:         <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">on_tail</span>(<span class="ruby-value str">&quot;-h&quot;</span>, <span class="ruby-value str">&quot;--help&quot;</span>, <span class="ruby-value str">&quot;-H&quot;</span>, <span class="ruby-value str">&quot;Display this help message.&quot;</span>) <span class="ruby-keyword kw">do</span>
+2320:           <span class="ruby-identifier">puts</span> <span class="ruby-identifier">opts</span>
+2321:           <span class="ruby-identifier">exit</span>
+2322:         <span class="ruby-keyword kw">end</span>
+2323: 
+2324:         <span class="ruby-identifier">standard_rake_options</span>.<span class="ruby-identifier">each</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">args</span><span class="ruby-operator">|</span> <span class="ruby-identifier">opts</span>.<span class="ruby-identifier">on</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) }
+2325:       <span class="ruby-keyword kw">end</span>.<span class="ruby-identifier">parse!</span>
+2326: 
+2327:       <span class="ruby-comment cmt"># If class namespaces are requested, set the global options</span>
+2328:       <span class="ruby-comment cmt"># according to the values in the options structure.</span>
+2329:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">classic_namespace</span>
+2330:         <span class="ruby-identifier">$show_tasks</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_tasks</span>
+2331:         <span class="ruby-identifier">$show_prereqs</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">show_prereqs</span>
+2332:         <span class="ruby-identifier">$trace</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">trace</span>
+2333:         <span class="ruby-identifier">$dryrun</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">dryrun</span>
+2334:         <span class="ruby-identifier">$silent</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">silent</span>
+2335:       <span class="ruby-keyword kw">end</span>
+2336:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

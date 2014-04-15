@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*names)
+is_singleton: true
+block_params: 
+name: attr_accessor
+comment: 
+full_name: Spec::Rake::SpecTask::attr_accessor
+visibility: public
+aliases: []
+

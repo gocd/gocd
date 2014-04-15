@@ -1,0 +1,226 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project basedir="..">
+    <property name="" value=""/>
+    <import file="clean.xml"/>
+    <property name="tmp.dist.pkg" value="target/pkg"/>
+    <property name="qa-environments" value="QA/environments"/>
+    <property name="pipelines" value="QA/pipelines"/>
+    <property name="server.config" value="/etc/cruise"/>
+
+    <!--default ip-->
+    <property name="qa.server.box.ip" value="10.18.3.19"/>
+    <property name="qa.agent.box.ip" value="10.18.3.19"/>
+
+    <property name="linux.server.user" value="cce"/>
+    <property name="linux.server.password" value="password"/>
+    <property name="tmp.server.deb.dir" value="/tmp/cruise-server"/>
+    <property name="tmp.server.repository.dir" value="/tmp/cruise-repository"/>
+
+
+    <property name="linux.agent.user" value="cce"/>
+    <property name="linux.agent.password" value="password"/>
+    <property name="tmp.agent.deb.dir" value="/tmp/cruise-agent"/>
+    <property name="tmp.config" value="/tmp/cruise-config"/>
+
+
+    <target name="-copy.remote.linux.server">
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="rm -fr ${tmp.server.deb.dir}" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="mkdir ${tmp.server.deb.dir}" trust="true"/>
+        <scp todir="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:/tmp/cruise-server" trust="true">
+            <fileset dir="${tmp.dist.pkg}" includes="*server*.deb"/>
+        </scp>
+    </target>
+
+    <target name="-run.shell.remote.linux.server">
+        <echo message="Purging old package"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo dpkg --purge cruise-server" trust="true"/>
+        <echo message="Waiting for the server to stop..."/>
+        <waitfor maxwait="2" maxwaitunit="minute" checkevery="100" checkeveryunit="millisecond"
+                 timeoutproperty="-cruise_server_not_stopped">
+            <not>
+                <http url="http://${qa.server.box.ip}:8153/cruise"/>
+            </not>
+        </waitfor>
+        <fail if="-cruise_server_not_stopped" message="Cruise Server did not stop."/>
+        <echo message="Installing new package"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 failonerror="false"
+                 command="nohup sudo dpkg -i ${tmp.server.deb.dir}/*.deb" trust="true" timeout="15000"/>
+        <echo message="Waiting for the server to start..."/>
+        <waitfor maxwait="2" maxwaitunit="minute" checkevery="100" checkeveryunit="millisecond"
+                 timeoutproperty="-cruise_server_not_started">
+            <http url="http://${qa.server.box.ip}:8153/cruise"/>
+        </waitfor>
+        <fail if="-cruise_server_not_started" message="Cruise Server is not started yet."/>
+    </target>
+
+    <target name="-copy.defined.configfile">
+        <echo message="***********************************************************"/>
+        <echo message="1, just for debugging, before remove old config file"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -f ${server.config}/cruise-config.xml" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -rf ${tmp.config}" trust="true"/>
+        <echo message="***********************************************************"/>
+        <echo message="2, just for debugging, after remove old config file, before copy new config file"/>
+       <!--since scp does not suppport user role change, will copy config file to tmp first then sshexec-->
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="mkdir ${tmp.config}" trust="true"/>
+        <echo message="scp ${qa-environments}/svn-hg-config/cruise-config.xml ${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:${tmp.config}"/>
+        <scp file="${qa-environments}/svn-hg-config/cruise-config.xml"
+             todir="${linux.server.user}@${qa.server.box.ip}:${tmp.config}" password="${linux.server.password}" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo cp -rp ${tmp.config}/cruise-config.xml ${server.config}/"  trust="true"/>
+        <echo message="***********************************************************"/>
+        <echo message="3, just for debugging, after copy new config file"/>
+    </target>
+
+    <target name="-copy.remote.linux.agent">
+        <sshexec host="${qa.agent.box.ip}" username="${linux.agent.user}" password="${linux.agent.password}"
+                 command="rm -fr ${tmp.agent.deb.dir}" trust="true"/>
+        <sshexec host="${qa.agent.box.ip}" username="${linux.agent.user}" password="${linux.agent.password}"
+                 command="mkdir ${tmp.agent.deb.dir}" trust="true"/>
+        <scp todir="${linux.agent.user}:${linux.agent.password}@${qa.agent.box.ip}:${tmp.agent.deb.dir}" trust="true">
+            <fileset dir="${tmp.dist.pkg}" includes="*agent*.deb"/>
+        </scp>
+    </target>
+
+    <target name="-run.shell.remote.linux.agent">
+        <sshexec host="${qa.agent.box.ip}" username="${linux.agent.user}" password="${linux.agent.password}"
+                 failonerror="false" timeout="15000"
+                 command="sudo dpkg --purge cruise-agent;sudo dpkg -i ${tmp.agent.deb.dir}/*.deb;sudo /etc/init.d/cruise-agent start"
+                 trust="true"/>
+    </target>
+
+    <target name="-save.linux.env">
+        <input addproperty="envId">Please input enviroment identifier to save...</input>
+        <delete dir="${qa-environments}/${envId}"/>
+        <mkdir dir="${qa-environments}/${envId}"/>
+        <scp file="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:/etc/cruise/cruise-config.xml"
+             todir="${qa-environments}/${envId}" trust="true"/>
+
+        <!--zip the db and download-->
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -f /tmp/db.zip" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="cd /var/lib/cruise-server; sudo zip -r /tmp/db.zip db" trust="true"/>
+        <scp file="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:/tmp/db.zip"
+             todir="${qa-environments}/${envId}" trust="true"/>
+        <!--zip the logs and download-->
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -f /tmp/logs.zip" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="cd /var/lib/cruise-server; sudo zip -r /tmp/logs.zip logs" trust="true"/>
+        <scp file="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:/tmp/logs.zip"
+             todir="${qa-environments}/${envId}" trust="true"/>
+    </target>
+
+    <target name="-askEnvId" unless="silent">
+        <input addproperty="envId">Please input enviroment identifier to restore...</input>
+    </target>
+
+    <target name="-change.own">
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo chown -R cruise:cruise /var/lib/cruise-server /etc/cruise/cruise-config.xml"
+                 trust="true"/>
+    </target>
+
+
+    <target name="-check.resourses">
+        <available file="${qa-environments}/${envId}/logs.zip" property="logs.exist"/>
+        <available file="${qa-environments}/${envId}/db.zip" property="db.exist"/>
+        <available file="${qa-environments}/${envId}/cruise-config.xml" property="config.exist"/>
+    </target>
+
+    <target name="-init.env.on.server">
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="rm -fr ${tmp.server.repository.dir}" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="mkdir  ${tmp.server.repository.dir}" trust="true"/>
+    </target>
+
+    <target name="-restore.logs" if="logs.exist">
+        <scp file="${qa-environments}/${envId}/logs.zip"
+             todir="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:${tmp.server.repository.dir}"
+             trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -fr /var/lib/cruise-server/logs" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo unzip ${tmp.server.repository.dir}/logs.zip -d /var/lib/cruise-server/" trust="true"/>
+    </target>
+
+    <target name="-restore.config.xml" if="config.exist">
+        <scp file="${qa-environments}/${envId}/cruise-config.xml"
+             todir="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:${tmp.server.repository.dir}"
+             trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo cp ${tmp.server.repository.dir}/cruise-config.xml /etc/cruise/cruise-config.xml"
+                 trust="true"/>
+    </target>
+
+    <target name="-restore.db" if="db.exist">
+        <scp file="${qa-environments}/${envId}/db.zip"
+             todir="${linux.server.user}:${linux.server.password}@${qa.server.box.ip}:${tmp.server.repository.dir}"
+             trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo rm -fr /var/lib/cruise-server/db" trust="true"/>
+        <sshexec host="${qa.server.box.ip}" username="${linux.server.user}" password="${linux.server.password}"
+                 command="sudo unzip ${tmp.server.repository.dir}/db.zip -d /var/lib/cruise-server" trust="true"/>
+    </target>
+
+    <target name="-checkin.hg">
+        <delete dir="${pipelines}"/>
+        <exec executable='hg'>
+            <arg value="clone"/>
+            <arg value="http://cruise:password@bjcruise.thoughtworks.com/hg/connectfour"/>
+            <arg value="${pipelines}"/>
+        </exec>
+        <echo message="10 new features added in realease." file="${pipelines}/dev/README.txt" append="true"/>
+        <exec executable='hg' dir="${pipelines}/dev">
+            <arg value="ci"/>
+            <arg value="-m"/>
+            <arg value="Added the release note in README.txt"/>
+            <arg value="-u"/>
+            <arg value="connectfour-committer"/>
+        </exec>
+        <exec executable='hg' dir="${pipelines}/dev">
+            <arg value="push"/>
+        </exec>
+    </target>
+
+    <!--controller tasks-->
+    <target name="--restore.linux.env"
+            depends="-askEnvId, -init.env.on.server, -check.resourses, -restore.config.xml, -restore.db, -restore.logs, -change.own"/>
+    <target name="--install.linux.server"
+            depends="-copy.remote.linux.server, -run.shell.remote.linux.server, -copy.defined.configfile, -change.own"/>
+    <target name="--install.linux.agent" depends="-copy.remote.linux.agent, -run.shell.remote.linux.agent"/>
+
+    <!--public tasks-->
+    <target name="restore.linux.env" depends="--restore.linux.env" description="restore the linux environment"/>
+    <target name="checkin.hg" depends="-checkin.hg" description="checkin the README file to hg repository"/>
+    <target name="install.linux.server" depends="--install.linux.server"
+            description="clean and install the linux server"/>
+    <target name="install.linux.agent" depends="--install.linux.agent" description="clean and install the linux agent"/>
+    <target name="run.shell.on.agent" depends="-run.shell.remote.linux.agent"
+            description="clean and install the linux agent"/>
+    <target name="save.linux.env" depends="-save.linux.env"
+            description="save the remote environment to local file system."/>
+</project>

@@ -1,0 +1,22 @@
+<p>
+  <b>Name:</b>
+  <%=h @oauth_client.name %>
+</p>
+
+<p>
+  <b>Client:</b>
+  <%=h @oauth_client.client_id %>
+</p>
+
+<p>
+  <b>Client secret:</b>
+  <%=h @oauth_client.client_secret %>
+</p>
+
+<p>
+  <b>Redirect URI:</b>
+  <%=h @oauth_client.redirect_uri %>
+</p>
+
+<%= link_to 'Edit', edit_oauth_client_path(@oauth_client) %> |
+<%= link_to 'Back', oauth_clients_path %>

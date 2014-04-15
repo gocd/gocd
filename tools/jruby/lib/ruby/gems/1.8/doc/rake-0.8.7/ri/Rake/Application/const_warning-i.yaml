@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (const_name)
+is_singleton: false
+block_params: 
+name: const_warning
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Warn about deprecated use of top level constant names.
+full_name: Rake::Application#const_warning
+visibility: public
+aliases: []
+

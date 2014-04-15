@@ -1,0 +1,16 @@
+<% if @page_header %>
+<div class="page_header">
+    <h1><%= @page_header %></h1>
+    <% if @show_pipeline_selector %>
+    <div class="pipelines_selector">
+        <%= render(:partial => 'pipelines/pipelines_selector', :locals => {:scope => {}}) %>
+    </div>
+    <% end %>
+    <% if @show_add_environments %>
+    <div class="add_new_environment">
+        <% title = l.string("ADD_A_NEW_ENVIRONMENT") %>
+        <%= link_to title, environment_new_path(), {:class => "link_as_header_button"} %>
+    </div>
+    <% end %>
+</div>
+<%end%>

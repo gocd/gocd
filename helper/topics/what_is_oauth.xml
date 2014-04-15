@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<topic title="OAuth 2.0">
+    <p>OAuth is an open-standard that enables a user to share private protected resources (e.g. photos or financial records) which she stores on one site (or application) with another one of her commonly used sites or applications without asking her to share any passwords between the two sites. OAuth is quickly becoming a widely adopted standard; for example, Yahoo, Facebook and Twitter have all adopted OAuth.</p>
+  <p>In the context of ThoughtWorks Studios applications, the application data is the private protected resource. For example, if someone had configured Go and Mingle integration, a Go user will only be allowed to see Mingle card information in Go that he would normally be allowed to see in Mingle. That is, when Go shows Mingle data in its pages, the Mingle authorization rules are not relaxed to allow all members of that Go pipeline group to automatically see the card activity for any Mingle project, rather he will only be able to see data from Mingle projects for which he has access. The same can be said when Mingle shows Go data in its pages. It should also be possible to maintain this principle when showing Go or Mingle content in a 3rd party, non-ThoughtWorks Studios context.</p>
+  <p>In order to make this work, Go and Mingle - and in the future all Studios server-based applications - use OAuth 2.0 (v9) as a means of allowing a user of one application to establish his identity in the other application, while also granting the appropriate data access for that user. Both applications are OAuth providers and both applications run a gadget rendering server capable of acting as an OAuth client. Currently, OAuth is only used for gadget-related communication, but we plan on expanding what data can be made available via OAuth in the future.</p>
+  <p>Below is a series of movies we've made that explain how OAuth works. Part 1 covers the basics and is likely enough for most users. Parts 2-4 get into the more technical details of how the protocol works.</p>
+    <p><youtubesingle videoid="LRNg4tDtrkE"/></p>
+    <p><youtubesingle videoid="2KG05SnAYlE"/></p>
+    <p><youtubesingle videoid="qPHLsLlQ7Rw"/></p>
+    <p><youtubesingle videoid="0PvQcLzVGF0"/></p>
+</topic>

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*methods_to_respond_to)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Mocks::ArgumentMatchers::DuckTypeMatcher::new
+visibility: public
+aliases: []
+

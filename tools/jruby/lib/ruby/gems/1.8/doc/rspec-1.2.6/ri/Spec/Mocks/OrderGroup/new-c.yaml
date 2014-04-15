@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (error_generator)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Mocks::OrderGroup::new
+visibility: public
+aliases: []
+

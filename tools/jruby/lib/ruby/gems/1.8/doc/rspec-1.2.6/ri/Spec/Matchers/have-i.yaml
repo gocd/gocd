@@ -1,0 +1,34 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should have(number).named_collection__or__sugar
+  should_not have(number).named_collection__or__sugar
+is_singleton: false
+block_params: 
+name: have
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if receiver is a collection with the submitted number of items OR if
+    the receiver OWNS a collection with the submitted number of items.
+- !ruby/struct:SM::Flow::P 
+  body: If the receiver OWNS the collection, you must use the name of the collection.
+    So if a <tt>Team</tt> instance has a collection named <tt>#players</tt>, you must
+    use that name to set the expectation.
+- !ruby/struct:SM::Flow::P 
+  body: If the receiver IS the collection, you can use any name you like for <tt>named_collection</tt>.
+    We'd recommend using either &quot;elements&quot;, &quot;members&quot;, or &quot;items&quot;
+    as these are all standard ways of describing the things IN a collection.
+- !ruby/struct:SM::Flow::P 
+  body: This also works for Strings, letting you set an expectation about its length
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  # Passes if team.players.size == 11\n  team.should have(11).players\n\n\
+    \  # Passes if [1,2,3].length == 3\n  [1,2,3].should have(3).items #&quot;items&quot; \
+    is pure sugar\n\n  # Passes if &quot;this string&quot;.length == 11\n  &quot;this \
+    string&quot;.should have(11).characters #&quot;characters&quot; is pure sugar\n"
+full_name: Spec::Matchers#have
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: have_exactly

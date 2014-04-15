@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!--This file represents the results of running a test suite-->
+<test-results name="UNNAMED" total="204" failures="0" not-run="6" date="2008-12-09" time="19:37:09">
+  <environment nunit-version="2.4.7.0" clr-version="2.0.50727.1433" os-version="Microsoft Windows NT 5.2.3790 Service Pack 2" platform="Win32NT" cwd="C:\cruise\pipelines\CustomerService\Services" machine-name="RELSERVICES2" user="SYSTEM" user-domain="TRAINLINE" />
+  <culture-info current-culture="en-GB" current-uiculture="en-US" />
+  <test-suite name="UNNAMED" success="True" time="80.231" asserts="0">
+    <results>
+      <test-suite name="C:\cruise\pipelines\CustomerService\Services\CustomerService\UnitTests\bin\Debug\UnitTests.dll" success="True" time="11.390" asserts="0">
+        <results>
+          <test-suite name="UnitTests" success="True" time="11.296" asserts="0">
+            <results>
+              <test-suite name="common" success="True" time="2.031" asserts="0">
+                <results>
+                  <test-suite name="CustomerMapperTest" success="True" time="0.109" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.common.CustomerMapperTest.ShouldCreateCustomerFromAmmendRegistrationInformation" executed="True" success="True" time="0.109" asserts="23" />
+                      <test-case name="UnitTests.common.CustomerMapperTest.ShouldCreateCustomerFromRegistrationInformation" executed="True" success="True" time="0.000" asserts="22" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="RepositoryTest" success="True" time="0.297" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.common.RepositoryTest.ShouldReturnFalseForInValidFields" executed="True" success="True" time="0.141" asserts="1" />
+                      <test-case name="UnitTests.common.RepositoryTest.ShouldReturnNullCustomerForInvalidFields" executed="True" success="True" time="0.156" asserts="3" />
+                      <test-case name="UnitTests.common.RepositoryTest.ShouldReturnTrueForValidFields" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="SSOErrorsTest" success="True" time="1.578" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.common.SSOErrorsTest.ShouldReturnInvalidCredentialsErrorFromCache" executed="True" success="True" time="1.562" asserts="1" />
+                      <test-case name="UnitTests.common.SSOErrorsTest.ShouldReturnInvalidCredentialsErrorFromDbIfNotPresentInCache" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.common.SSOErrorsTest.ShouldReturnNewErrorObject" executed="True" success="True" time="0.000" asserts="3" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="TokenTypeTest" success="True" time="0.016" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.common.TokenTypeTest.ShouldReturnCorrectTokenFormat" executed="True" success="True" time="0.016" asserts="2" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="DomainTests" success="True" time="5.031" asserts="0">
+                <results>
+                  <test-suite name="CustomerEqualityTest" success="True" time="0.016" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.DomainTests.CustomerEqualityTest.ChecksEqualityByHashCode" executed="True" success="True" time="0.016" asserts="3" />
+                      <test-case name="UnitTests.DomainTests.CustomerEqualityTest.EqualitySelfCheck" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerEqualityTest.ReturnFalseInCaseOfDifferentObjects" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerEqualityTest.ReturnFalseWhileComparingToNullValues" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerEqualityTest.ReturnTrueInCaseOfSameObjects" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="CustomerRegistrationTest" success="True" time="5.000" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.DomainTests.CustomerRegistrationTest.ChecksEqualityByHashCode" executed="True" success="True" time="1.000" asserts="3" />
+                      <test-case name="UnitTests.DomainTests.CustomerRegistrationTest.EqualitySelfCheck" executed="True" success="True" time="1.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerRegistrationTest.ReturnFalseInCaseOfDifferentObjects" executed="True" success="True" time="1.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerRegistrationTest.ReturnFalseWhileComparingToNullValues" executed="True" success="True" time="1.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerRegistrationTest.ReturnTrueInCaseOfSameObjects" executed="True" success="True" time="1.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="CustomerTest" success="True" time="0.016" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldCreateAImplicitCustomerWithBasicDetails" executed="True" success="True" time="0.000" asserts="18" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldNotUpdateCustomerOptionalFieldsWithNulls" executed="True" success="True" time="0.000" asserts="7" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnFalseStatusForDpaOrTnCWhenIndicatorNotExpired" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnFalseWhenDpa03IsNotChanged" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnFalseWhenDpa84IsNotChanged" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnFalseWhenTnCIsNotChanged" executed="True" success="True" time="0.016" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnTrueStatusForDpaOrTnCWhenIndicatorExpired" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnTrueWhenCustomerHasUpdatedDPA84FiveDaysAgoAndTheValuesChangedToday" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnTrueWhenDpa03IsChanged" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldReturnTrueWhenTnCIsChanged" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldUpdateOldCustomerWithNewCustomerDetails" executed="True" success="True" time="0.000" asserts="19" />
+                      <test-case name="UnitTests.DomainTests.CustomerTest.ShouldUpdateThePasswordOfGivenCustomer" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="ServicesTests" success="True" time="4.203" asserts="0">
+                <results>
+                  <test-suite name="AmendRegistrationValidatorTest" success="True" time="1.391" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnErrorForOptionalFieldsWithNullValues" executed="True" success="True" time="1.281" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnErrorForOptionalFieldsWithoutValue" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnInvalidCredentialErrorForValidEmailAddress" executed="True" success="True" time="0.000" asserts="6" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnInvalidPasswordErrorForEmptyNewPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnInvalidPasswordErrorForNullNewPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForEmptyTitle" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForForename" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForNewPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForSurname" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldNotThrowErrorForDOB" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForDayTimePhoneNumber" executed="True" success="True" time="0.047" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForMobileNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForNewPasswordHavingLengthLessThanSix" executed="True" success="True" time="0.016" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidEmailAddressErrorForNullEmailAddress" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidEmailErrorForInvalidEmailAddress" executed="True" success="True" time="0.000" asserts="8" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnInvalidPostcodeError" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForEmailAddress" executed="True" success="True" time="0.016" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForForename" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForNewPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForSurname" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnLengthExceededErrorForTitleIfSupplied" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldReturnMandatoryFieldRequiredErrorForManadatoryFields" executed="True" success="True" time="0.016" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldValidateAddress" executed="True" success="True" time="0.000" asserts="8" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldValidateFormatForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldValidateFormatForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.AmendRegistrationValidatorTest.ShouldValidateFormatForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="CustomerDetailsEqualityTest" success="True" time="0.000" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.CustomerDetailsEqualityTest.ChecksEqualityByHashCode" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.CustomerDetailsEqualityTest.EqualitySelfCheck" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.CustomerDetailsEqualityTest.ReturnFalseInCaseOfDifferentObjects" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.CustomerDetailsEqualityTest.ReturnFalseWhileComparingToNullValues" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.CustomerDetailsEqualityTest.ReturnTrueInCaseOfSameObjects" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="CustomerService" success="True" time="2.047" asserts="0">
+                    <results>
+                      <test-suite name="CustomerServiceTest" success="True" time="0.937" asserts="0">
+                        <results>
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ImplicitRegisterUserShouldReturnErrorAndCustomerForAlreadyRegisteredEmail" executed="True" success="True" time="0.875" asserts="3" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ImplicitRegisterUserShouldThrowErrorOnEmptyEmail" executed="True" success="True" time="0.000" asserts="3" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ImplicitRegisterUserShouldThrowErrorOnInvalidEmail" executed="True" success="True" time="0.000" asserts="3" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ImplicitRegisterUserShouldThrowErrorOnLengthExceededEmail" executed="True" success="True" time="0.000" asserts="3" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ShouldDeleteImplicitCustomerWhenTheImplicitCustomerExists" executed="True" success="True" time="0.031" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ShouldImplicitlyRegisterUser" executed="True" success="True" time="0.016" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ShouldReturnGUIDAsToken" executed="True" success="True" time="0.016" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.CustomerServiceTest.ShouldSaveCustomerDetailsAndReturnVerifiedCustomer" executed="True" success="True" time="0.000" asserts="4" />
+                        </results>
+                      </test-suite>
+                      <test-suite name="RegistrationControllerTest" success="True" time="1.109" asserts="0">
+                        <results>
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldDeleteImplicitCustomerWhenTheImplicitCustomerExists" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldDoNothingWhenTheImplicitCustomerDoesNotExist" executed="True" success="True" time="0.016" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldFetchCustomerWithValidEmailAddress" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldGenerateNewPasswordForValidEmailAddressForForgottenPassword" executed="True" success="True" time="0.031" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotFailOrReturnErrorOfSendEmailOnSuccessfulImplicitRegistration" executed="True" success="True" time="0.344" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotFailOrReturnErrorOfSendEmailOnSuccessfulRegistration" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfAmendedEmailAddressDoesNotAlreadyExistsUnderSameManagedGroupId" executed="True" success="True" time="0.016" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfCountryCodeIsValid" executed="True" success="True" time="0.016" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfCountryCodeIsValidWhileAmmendingRegistration" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfCustomerDoesNotAlreadyExistsWhileRegistering" executed="True" success="True" time="0.016" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfTitleIsValid" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotReturnErrorIfTitleIsValidWhileAmmendingRegistration" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotSendEmailIfNotRequestedAfterSuccessfulRegistration" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotSendEmailOnUnSuccessfulImplicitRegistration" executed="True" success="True" time="0.016" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotSendEmailOnUnSuccessfulRegistration" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldNotSendMailIfSendPasswordFails" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldResetPasswordEvenIfSendMailFails" executed="True" success="True" time="0.375" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfAmendedEmailAddressAlreadyExistsUnderSameManagedGroupId" executed="True" success="True" time="0.016" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfCountryCodeIsInvalid" executed="True" success="True" time="0.156" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfCountryCodeIsInvalidWhileAmmendingRegistration" executed="True" success="True" time="0.000" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfCustomerAlreadyExistsWhileRegistering" executed="True" success="True" time="0.016" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfCustomerIdDoesNotExists" executed="True" success="True" time="0.000" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfCustomerIdDoesNotExistsWithSameManagedGroupId" executed="True" success="True" time="0.000" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfTitleIsInvalid" executed="True" success="True" time="0.000" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorIfTitleIsInvalidWhileAmmendingRegistration" executed="True" success="True" time="0.016" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldReturnErrorWithInValidEmailAddress" executed="True" success="True" time="0.000" asserts="2" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldSendEmailOnSuccessfulImplicitRegistration" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldSendEmailOnSuccessfulRegistration" executed="True" success="True" time="0.000" asserts="1" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldSendMailAfterGeneratingNewPassword" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldSetEnvironementIdInCustomerAndCustomerRegistration" executed="True" success="True" time="0.000" asserts="0" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldUpdateCustomerDetailsInDBAndReturnCorrectResponse" executed="True" success="True" time="0.016" asserts="21" />
+                          <test-case name="UnitTests.ServicesTests.CustomerService.RegistrationControllerTest.ShouldValidateAmendRegistrationRequestAndReturnErrorsIfAny" executed="True" success="True" time="0.000" asserts="3" />
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                  <test-suite name="ErrorEqualityTest" success="True" time="0.016" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.ErrorEqualityTest.ChecksEqualityByHashCode" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.ErrorEqualityTest.EqualitySelfCheck" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.ErrorEqualityTest.ReturnFalseInCaseOfDifferentObjects" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.ErrorEqualityTest.ReturnFalseWhileComparingToNullValues" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.ErrorEqualityTest.ReturnTrueInCaseOfSameObjects" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="MailerTest" success="True" time="0.656" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.MailerTest.ShouldCreateSendMailRequest" executed="True" success="True" time="0.656" asserts="6" />
+                      <test-case name="UnitTests.ServicesTests.MailerTest.ShouldCreateSendPasswordMailRequest" executed="True" success="True" time="0.000" asserts="6" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="RegistrationValidatorTest" success="True" time="0.062" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnErrorForOptionalFieldsWithoutValue" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnInvalidCredentialErrorForValidEmailAddress" executed="True" success="True" time="0.000" asserts="6" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForEmptyTitle" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForForename" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForMobilePhoneNumber" executed="True" success="True" time="0.016" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotReturnLengthExceededErrorForSurname" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldNotThrowErrorForDOB" executed="True" success="True" time="0.000" asserts="2" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForMobileNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="3" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidDataEnteredErrorForPasswordHavingLengthLessThanSix" executed="True" success="True" time="0.016" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidEmailAddressErrorForNullEmailAddress" executed="False">
+                        <reason>
+                          <message><![CDATA[Jamie/Anand fixing this]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidEmailErrorForInvalidEmailAddress" executed="True" success="True" time="0.000" asserts="8" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidPasswordErrorForEmptyPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidPasswordErrorForNullPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnInvalidPostcodeError" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForEmailAddress" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForForename" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForPassword" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForSurname" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnLengthExceededErrorForTitleIfSupplied" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldReturnMandatoryFieldRequiredErrorForManadatoryFields" executed="True" success="True" time="0.000" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldValidateAddress" executed="True" success="True" time="0.016" asserts="8" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldValidateFormatForDayTimePhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldValidateFormatForEveningPhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                      <test-case name="UnitTests.ServicesTests.RegistrationValidatorTest.ShouldValidateFormatForMobilePhoneNumber" executed="True" success="True" time="0.000" asserts="4" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="SendEmailRequestTest" success="True" time="0.000" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.SendEmailRequestTest.ShouldGenerateXmlForSendEmailRequest" executed="True" success="True" time="0.000" asserts="1" />
+                      <test-case name="UnitTests.ServicesTests.SendEmailRequestTest.ShouldGenerateXmlForSendPasswordRequest" executed="True" success="True" time="0.000" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="SSOExceptionTest" success="True" time="0.000" asserts="0">
+                    <results>
+                      <test-case name="UnitTests.ServicesTests.SSOExceptionTest.ShouldReturnRecursiveInnerExceptionMessages" executed="True" success="True" time="0.000" asserts="6" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite name="C:\cruise\pipelines\CustomerService\Services\CustomerService\IntegrationTests\bin\Debug\IntegrationTests.dll" success="True" time="67.919" asserts="0">
+        <results>
+          <test-suite name="IntegrationTests" success="True" time="67.919" asserts="0">
+            <results>
+              <test-suite name="common" success="True" time="27.702" asserts="0">
+                <results>
+                  <test-suite name="InternalReferenceDataLoaderTest" success="True" time="4.625" asserts="0">
+                    <results>
+                      <test-case name="IntegrationTests.common.InternalReferenceDataLoaderTest.ShouldReturnCountryByCode" executed="True" success="True" time="4.625" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="SCFClientAdapterTest" success="True" time="23.077" asserts="0">
+                    <results>
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTFromEmailIdFromSCFForRegisterCustomer" executed="True" success="True" time="22.405" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTFromEmailIdFromSCFForSendPassword" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTRegisterCustomerEmailTemplateNameFromSCF" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTSendMailEmailTemplateNameFromSCF" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTSubjectFromSCFForRegisterCustomer" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchVTSubjectFromSCFForSendPassword" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCFromEmailIdFromSCFForImplicitRegistration" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCFromEmailIdFromSCFForRegisterCustomer" executed="True" success="True" time="0.078" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCFromEmailIdFromSCFForSendPassword" executed="True" success="True" time="0.047" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCImplicitRegisterCustomerTemplateNameFromSCF" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCRegisterCustomerEmailTemplateNameFromSCF" executed="True" success="True" time="0.031" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCSendMailEmailTemplateNameFromSCF" executed="True" success="True" time="0.062" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCSubjectFromSCFForImplicitRegistration" executed="True" success="True" time="0.047" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCSubjectFromSCFForRegisterCustomer" executed="True" success="True" time="0.016" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldFetchXCSubjectFromSCFForSendPassword" executed="True" success="True" time="0.047" asserts="1" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.ShouldReturnExactTokenExpiryTimeBasedOnManagedGroup" executed="True" success="True" time="0.031" asserts="2" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.SimpleTest" executed="True" success="True" time="0.047" asserts="0" />
+                      <test-case name="IntegrationTests.common.SCFClientAdapterTest.SimpleTestForDpaIndicatorsExpiryDuration" executed="True" success="True" time="0.047" asserts="1" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="CustomerService" success="True" time="37.608" asserts="0">
+                <results>
+                  <test-suite name="CustomerServiceIntegrationTest" success="True" time="19.718" asserts="0">
+                    <results>
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldAutoLoginAfterRegistration" executed="True" success="True" time="11.328" asserts="6" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldDoNothingInCaseCustomerIsNotRegisteredImplicitly" executed="True" success="True" time="0.547" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldGenerateNewPasswordForSendPasswordForValidCustomer" executed="True" success="True" time="0.797" asserts="4" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldGiveErrorIfCustomerIdDoesNotExistsWithSameManagedGroupIdOnAmendRegistration" executed="True" success="True" time="0.578" asserts="2" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldMakeRegistrationExplicit" executed="True" success="True" time="1.547" asserts="4" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldNotGenerateNewPasswordForSendPasswordForInValidCustomer" executed="True" success="True" time="0.500" asserts="2" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldNotReturnErrorIfCountryCodeIsValid" executed="True" success="True" time="0.562" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldNotReturnErrorIfTitleIsBlank" executed="True" success="True" time="0.391" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldNotReturnErrorIfTitleIsValid" executed="True" success="True" time="0.516" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldRegisterCustomerWithSameEmailAddressButDifferentManagedGroup" executed="False">
+                        <reason>
+                          <message><![CDATA[Fails at night between 12 to 4:30. Fix this.]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldRegisterImplicitCustomer" executed="True" success="True" time="0.219" asserts="2" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnErrorIfCustomerAlreadyRegisteredWithTheSameManagedGroup" executed="True" success="True" time="0.437" asserts="2" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnInvalidCountryCodeError" executed="True" success="True" time="0.141" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnInvalidCountryCodeErrorWhileAmmendingRegistration" executed="True" success="True" time="0.422" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnInvalidTitleError" executed="True" success="True" time="0.172" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnMandatoryFieldMissingErrorIfCountryCodeIsBlank" executed="True" success="True" time="0.172" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnSSOErrorForInvalidEmailAddress" executed="True" success="True" time="0.125" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnTitleCodeErrorWhileAmmendingRegistration" executed="True" success="True" time="0.453" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldReturnVerifiedCustomerAfterRegistration" executed="False">
+                        <reason>
+                          <message><![CDATA[Fails at night between 12 to 4:30. Fix this.]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldSaveCustomer" executed="False">
+                        <reason>
+                          <message><![CDATA[Fails at night between 12 to 4:30. Fix this.]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldUpdateCustomerOnAmendRegistration" executed="True" success="True" time="0.703" asserts="3" />
+                      <test-case name="IntegrationTests.CustomerService.CustomerServiceIntegrationTest.ShouldValidateRegistrationDetails" executed="True" success="True" time="0.109" asserts="4" />
+                    </results>
+                  </test-suite>
+                  <test-suite name="SendEmailIntegrationTest" success="True" time="0.000" asserts="0">
+                    <results>
+                      <test-case name="IntegrationTests.CustomerService.SendEmailIntegrationTest.ShouldSendImplicitRegistrationEmail" executed="False">
+                        <reason>
+                          <message><![CDATA[To be run manually. WARNING:- This test actually sends mail!]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="IntegrationTests.CustomerService.SendEmailIntegrationTest.ShouldSendRegistrationEmail" executed="False">
+                        <reason>
+                          <message><![CDATA[To be run manually. WARNING:- This test actually sends mail!]]></message>
+                        </reason>
+                      </test-case>
+                    </results>
+                  </test-suite>
+                  <test-suite name="SSOServicesProxyTest" success="True" time="17.890" asserts="0">
+                    <results>
+                      <test-case name="IntegrationTests.CustomerService.SSOServicesProxyTest.ShouldCallAmendRegistrationServiceThroughProxy" executed="True" success="True" time="15.031" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.SSOServicesProxyTest.ShouldCallCustomerServiceImplicitRegistrationThroughProxy" executed="True" success="True" time="0.687" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.SSOServicesProxyTest.ShouldCallCustomerServiceMakeRegistrationExplicitThroughProxy" executed="True" success="True" time="0.109" asserts="0" />
+                      <test-case name="IntegrationTests.CustomerService.SSOServicesProxyTest.ShouldCallCustomerServiceThroughProxy" executed="True" success="True" time="0.625" asserts="1" />
+                      <test-case name="IntegrationTests.CustomerService.SSOServicesProxyTest.ShouldCallSendPasswordServiceThroughProxy" executed="True" success="True" time="1.437" asserts="0" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="CustomerTokenIntegrationTest" success="True" time="0.750" asserts="0">
+                <results>
+                  <test-case name="IntegrationTests.CustomerTokenIntegrationTest.ShouldSaveCustomerToken" executed="True" success="True" time="0.375" asserts="1" />
+                  <test-case name="IntegrationTests.CustomerTokenIntegrationTest.ShouldSupportSavingMultipleTokensForSameCustomer" executed="True" success="True" time="0.375" asserts="1" />
+                </results>
+              </test-suite>
+              <test-suite name="GlobalTest" success="True" time="0.141" asserts="0">
+                <results>
+                  <test-case name="IntegrationTests.GlobalTest.ShouldInitializeCastleContainer" executed="True" success="True" time="0.141" asserts="1" />
+                </results>
+              </test-suite>
+              <test-suite name="RepositoryTest" success="True" time="1.719" asserts="0">
+                <results>
+                  <test-case name="IntegrationTests.RepositoryTest.ShoudFetchErrorByErrorCode" executed="True" success="True" time="0.109" asserts="1" />
+                  <test-case name="IntegrationTests.RepositoryTest.ShouldReturnCustomerAndCustomerRegistrationBasedOnEmailPasswordHomeManagedGroupAndEntryPointId" executed="True" success="True" time="0.297" asserts="3" />
+                  <test-case name="IntegrationTests.RepositoryTest.ShouldReturnCustomerBasedOnEmailAddressAndConsumerIdentity" executed="True" success="True" time="0.266" asserts="2" />
+                  <test-case name="IntegrationTests.RepositoryTest.ShouldReturnCustomerWithCaseInSensitiveMatchForPassword" executed="True" success="True" time="0.422" asserts="1" />
+                  <test-case name="IntegrationTests.RepositoryTest.ShouldReturnIsImplicitCustomerBasedOnId" executed="True" success="True" time="0.203" asserts="1" />
+                  <test-case name="IntegrationTests.RepositoryTest.ShouldUpdateCustomerBasedOnValidEmailAddress" executed="True" success="True" time="0.422" asserts="1" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

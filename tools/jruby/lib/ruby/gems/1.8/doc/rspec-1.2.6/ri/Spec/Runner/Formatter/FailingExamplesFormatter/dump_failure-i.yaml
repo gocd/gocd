@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (counter, failure)
+is_singleton: false
+block_params: 
+name: dump_failure
+comment: 
+full_name: Spec::Runner::Formatter::FailingExamplesFormatter#dump_failure
+visibility: public
+aliases: []
+

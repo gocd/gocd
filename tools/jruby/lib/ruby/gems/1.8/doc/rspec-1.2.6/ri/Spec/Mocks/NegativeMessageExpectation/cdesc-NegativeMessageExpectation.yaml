@@ -1,0 +1,17 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NegativeMessageExpectation
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: negative_expectation_for?
+full_name: Spec::Mocks::NegativeMessageExpectation
+superclass: MessageExpectation
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

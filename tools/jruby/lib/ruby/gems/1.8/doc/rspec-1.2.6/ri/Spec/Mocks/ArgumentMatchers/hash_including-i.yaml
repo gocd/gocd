@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args)
+is_singleton: false
+block_params: 
+name: hash_including
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: ":call-seq:"
+- !ruby/struct:SM::Flow::VERB 
+  body: "  object.should_receive(:message).with(hash_including(:key =&gt; val))\n\
+    \  object.should_receive(:message).with(hash_including(:key))\n  object.should_receive(:message).with(hash_including(:key, \
+    :key2 =&gt; val2))\n"
+- !ruby/struct:SM::Flow::P 
+  body: Passes if the argument is a hash that includes the specified key(s) or key/value
+    pairs. If the hash includes other keys, it will still pass.
+full_name: Spec::Mocks::ArgumentMatchers#hash_including
+visibility: public
+aliases: []
+

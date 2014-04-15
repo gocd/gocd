@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name=nil, version=nil) {|self if block_given?| ...}
+is_singleton: true
+block_params: self if block_given?
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a Package Task with the given name and version.
+full_name: Rake::PackageTask::new
+visibility: public
+aliases: []
+

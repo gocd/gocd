@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: SilentFormatter
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Runner::Formatter::SilentFormatter
+superclass: BaseFormatter
+class_methods: []
+

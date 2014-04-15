@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: command_line_usage.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>command_line_usage.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/command_line_usage.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rake Command Line Usage</h1>
+<p>
+Rake is invoked from the command line using:
+</p>
+<pre>
+   % rake [&lt;em&gt;options&lt;/em&gt; ...]  [&lt;em&gt;VAR&lt;/em&gt;=&lt;em&gt;VALUE&lt;/em&gt;]  [&lt;em&gt;targets&lt;/em&gt; ...]
+</pre>
+<p>
+Options are:
+</p>
+<dl>
+<dt><tt><em>name</em>=<em>value</em></tt></dt><dd>Set the environment variable <em>name</em> to <em>value</em> during the
+execution of the <b>rake</b> command. You can access the value by using
+ENV[&#8216;<em>name</em>&#8217;].
+
+</dd>
+<dt><tt>&#8212;classic-namespace</tt> (-n)</dt><dd>Import the Task, FileTask, and FileCreateTask into the top-level scope to
+be compatible with older versions of Rake. Alternatively you can include
+the line <tt>require &#8216;rake/classic_namespace&#8216;</tt> in your
+Rakefile to get the classic behavior.
+
+</dd>
+<dt><tt>&#8212;describe</tt> <em>pattern</em> (-D)</dt><dd>Describe the tasks (matching optional PATTERN), then exit.
+
+</dd>
+<dt><tt>&#8212;dry-run</tt> (-n)</dt><dd>Do a dry run. Print the tasks invoked and executed, but do not actually
+execute any of the actions.
+
+</dd>
+<dt><tt>&#8212;execute</tt> <em>code</em> (-e)</dt><dd>Execute some Ruby code and exit.
+
+</dd>
+<dt><tt>&#8212;execute-print</tt> <em>code</em> (-p)</dt><dd>Execute some Ruby code, print the result, and exit.
+
+</dd>
+<dt><tt>&#8212;execute-continue</tt> <em>code</em> (-p)</dt><dd>Execute some Ruby code, then continue with normal task processing.
+
+</dd>
+<dt><tt>&#8212;help</tt>  (-H)</dt><dd>Display some help text and exit.
+
+</dd>
+<dt><tt>&#8212;libdir</tt> <em>directory</em>  (-I)</dt><dd>Add <em>directory</em> to the list of directories searched for require.
+
+</dd>
+<dt><tt>&#8212;nosearch</tt>  (-N)</dt><dd>Do not search for a Rakefile in parent directories.
+
+</dd>
+<dt><tt>&#8212;prereqs</tt>  (-P)</dt><dd>Display a list of all tasks and their immediate prerequisites.
+
+</dd>
+<dt><tt>&#8212;quiet</tt> (-q)</dt><dd>Do not echo commands from <a
+href="../../classes/FileUtils.html">FileUtils</a>.
+
+</dd>
+<dt><tt>&#8212;rakefile</tt> <em>filename</em> (-f)</dt><dd>Use <em>filename</em> as the name of the rakefile. The default rakefile
+names are <tt>rakefile</tt> and <tt>Rakefile</tt> (with <tt>rakefile</tt>
+taking precedence). If the rakefile is not found in the current directory,
+<tt>rake</tt> will search parent directories for a match. The directory
+where the Rakefile is found will become the current directory for the
+actions executed in the Rakefile.
+
+</dd>
+<dt><tt>&#8212;rakelibdir</tt> <em>rakelibdir</em> (-R)</dt><dd>Auto-import any .rake files in RAKELIBDIR. (default is
+&#8216;rakelib&#8217;)
+
+</dd>
+<dt><tt>&#8212;require</tt> <em>name</em> (-r)</dt><dd>Require <em>name</em> before executing the Rakefile.
+
+</dd>
+<dt><tt>&#8212;rules</tt></dt><dd>Trace the rules resolution.
+
+</dd>
+<dt><tt>&#8212;silent (-s)</tt></dt><dd>Like &#8212;quiet, but also suppresses the &#8216;in directory&#8217;
+announcement.
+
+</dd>
+<dt><tt>&#8212;system</tt> (-g)</dt><dd>Use the system wide (global) rakefiles. The project Rakefile is ignored. By
+default, the system wide rakefiles are used only if no project Rakefile is
+found. On Unix-like system, the system wide rake files are located in
+$HOME/.rake. On a windows system they are stored in $APPDATA/Rake.
+
+</dd>
+<dt><tt>&#8212;no-system</tt> (-G)</dt><dd>Use the project level Rakefile, ignoring the system-wide (global)
+rakefiles.
+
+</dd>
+<dt><tt>&#8212;tasks</tt> (-T)</dt><dd>Display a list of the major tasks and their comments. Comments are defined
+using the &quot;desc&quot; command.
+
+</dd>
+<dt><tt>&#8212;trace</tt> (-t)</dt><dd>Turn on invoke/execute tracing. Also enable full backtrace on errors.
+
+</dd>
+<dt><tt>&#8212;usage</tt> (-h)</dt><dd>Display a usage message and exit.
+
+</dd>
+<dt><tt>&#8212;verbose</tt> (-v)</dt><dd>Echo the <a href="../../classes/Sys.html">Sys</a> commands to standard
+output.
+
+</dd>
+<dt><tt>&#8212;version</tt> (-V)</dt><dd>Display the program version and exit.
+
+</dd>
+</dl>
+<p>
+In addition, any command line option of the form
+<em>VAR</em>=<em>VALUE</em> will be added to the environment hash
+<tt>ENV</tt> and may be tested in the Rakefile.
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

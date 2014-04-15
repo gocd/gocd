@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (path, host, account, password) {|up| ...}
+is_singleton: true
+block_params: (up)
+name: connect
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create an uploader and pass it to the given block as <tt>up</tt>. When the
+    block is complete, close the uploader.
+full_name: Rake::FtpUploader::connect
+visibility: public
+aliases: []
+

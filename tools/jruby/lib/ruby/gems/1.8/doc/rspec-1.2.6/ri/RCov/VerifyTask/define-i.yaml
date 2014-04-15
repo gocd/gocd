@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: define
+comment: 
+full_name: RCov::VerifyTask#define
+visibility: public
+aliases: []
+

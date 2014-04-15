@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example, message, deprecated_pending_location=nil)
+is_singleton: false
+block_params: 
+name: example_pending
+comment: 
+full_name: Spec::Runner::Formatter::SpecdocFormatter#example_pending
+visibility: public
+aliases: []
+

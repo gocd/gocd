@@ -1,0 +1,81 @@
+---
+layout: default
+title: Apache Buildr
+---
+
+Apache Buildr is a build system for Java-based applications, including support for Scala, Groovy and a growing number of JVM languages and tools.  We wanted something that's simple and intuitive to use, so we only need to tell it what to do, and it takes care of the rest.  But also something we can easily extend for those one-off tasks, with a language that's a joy to use.  And of course, we wanted it to be fast, reliable and have outstanding dependency management.
+
+
+h2(#why).  Why Buildr Rocks
+
+"Daniel Spiewak":http://www.codecommit.com/blog:
+
+bq. If you think about it, the question isn’t “Why use Buildr?”, it’s really “Why use anything else?” The advantages afforded by Buildr are so substantial, I really can’t see myself going with any other tool, at least not when I have a choice.
+
+"Tristan Juricek":http://tristanhunt.com/:
+
+bq. That’s still the strongest sell: it builds everything I need, and as I’ve needed more, I just got things working without a lot of fuss.
+
+"Matthieu Riou":http://offthelip.org/:
+
+bq. We used to rely on Ant, with a fairly extensive set of scripts. It worked but was expensive to maintain. The biggest mistake afterward was to migrate to Maven2. I could write pages of rants explaining all the problems we ran into and we still ended up with thousands of lines of XML.
+
+"Martin Grotzke":http://www.javakaffee.de/blog/:
+
+bq. The positive side effect for me as a java user is that I learn a little ruby, and that’s easy but lots of fun… :-)
+
+"Ijonas Kisselbach":http://twitter.com/ijonas/statuses/4134103928:
+
+bq. I've cleaned up & migrated the Vamosa build process from 768 lines of Ant build.xml to 28 lines of Buildr.
+
+h2(#what).  What You Get
+
+* A simple way to specify projects, and build large projects out of smaller sub-projects.
+* Pre-canned tasks that require the least amount of configuration, keeping the build script DRY and simple.
+* Compiling, copying and filtering resources, JUnit/TestNG test cases, APT source code generation, Javadoc and more.
+* A dependency mechanism that only builds what has changed since the last release.
+* A drop-in replacement for Maven 2.0, Buildr uses the same file layout, artifact specifications, local and remote repositories.
+* All your Ant tasks are belong to us! Anything you can do with Ant, you can do with Buildr.
+* No overhead for building "plugins" or configuration. Just write new tasks or functions.
+* Buildr is Ruby all the way down.  No one-off task is too demanding when you write code using variables, functions and objects.
+* Simple way to upgrade to new versions.
+* Did we mention fast?
+
+So let's get started.  You can "read the documentation online":quick_start.html, or "download the PDF":buildr.pdf.
+
+
+h2(#news).  What's New
+
+Highlights from Buildr 1.4.11 (2013-03-14)
+
+* Fixed:  Multiple tests in TestNG 6.x versions were being incorrectly passed to the command line application.
+
+
+Highlights from Buildr 1.4.10 (2013-02-10)
+
+* Added:  Support a single intermediate directory for each project hierarchy through an addon 'buildr/single_intermediate_layout'.
+* Fixed:  Scala 2.10 support - compiler now uses additional/separate jars introduced in 2.10 such as scala-reflect.jar and scala-actor.jar
+* Added:  Add an addon for NSIS.
+* Change: BUILDR-612 - Support the TestNG 6.x versions and default to 6.8.
+* Added:  BUILDR-599 - Support the passing of arguments to testng test runner.
+* Fixed:  Observer the per-project source version when generating IDEA module files.
+* Change: Sort the components in IDEA project files in the same order the idea sorts them.
+* Added:  Created an addon 'buildr/wsgen' for generating wsdls from java and java from wsdls using the underlying wsgen tool.
+* Added:  Create a 'buildr/gpg' addon that signs and uploads signatures when uploading artifacts. Inspired by a similar extension in the Apache ODE project by Tammo van Lessen.
+* Change: Require 'bundler/setup' as part of buildr startup to ensure that buildr always runs with up to date dependencies if a Gemfile is present.
+* Added:  Create a simple extension that modifies the project layout to place generated files at the top level.
+
+This is a partial list -- see the "CHANGELOG":CHANGELOG for full details.
+
+h2(#notices).  Credits & Notices
+
+!http://www.apache.org/images/asf-logo.gif(A project of the Apache Software Foundation)!:http://www.apache.org
+
+The Apache Software Foundation is a non-profit organization, consider "sponsoring":http://www.apache.org/foundation/sponsorship.html and check the "thanks":http://www.apache.org/foundation/thanks.html page.
+
+"ColorCons":http://www.mouserunner.com/Spheres_ColoCons1_Free_Icons.html, copyright of Ken Saunders.  "DejaVu fonts":http://dejavu.sourceforge.net, copyright of Bitstream, Inc.
+
+Community member quotes from a thread on "Stack Overflow":http://stackoverflow.com/questions/1015525/why-use-buildr-instead-of-ant-or-maven/1055864.
+
+Developed with !http://www.jetbrains.com/ruby/features/ruby_banners/ruby1/ruby120x30_white.gif(Developed with RubyMine)!:http://www.jetbrains.com/ruby/features?utm_source=RubyMineUser&utm_medium=Banner&utm_campaign=RubyMine
+

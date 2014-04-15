@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args)
+is_singleton: false
+block_params: 
+name: invoke
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Invoke the task if it is needed. Prerequites are invoked first.
+full_name: Rake::Task#invoke
+visibility: public
+aliases: []
+

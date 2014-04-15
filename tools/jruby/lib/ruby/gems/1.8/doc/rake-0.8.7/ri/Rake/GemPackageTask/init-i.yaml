@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (gem)
+is_singleton: false
+block_params: 
+name: init
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Initialization tasks without the &quot;yield self&quot; or define operations.
+full_name: Rake::GemPackageTask#init
+visibility: public
+aliases: []
+

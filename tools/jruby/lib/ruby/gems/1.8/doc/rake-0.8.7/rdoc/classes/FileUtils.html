@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: FileUtils</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">FileUtils</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../files/lib/rake_rb.html">
+                lib/rake.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+This a <a href="FileUtils.html">FileUtils</a> extension that defines
+several additional commands to be added to the <a
+href="FileUtils.html">FileUtils</a> utility functions.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000747">ruby</a>&nbsp;&nbsp;
+      <a href="#M000748">safe_ln</a>&nbsp;&nbsp;
+      <a href="#M000746">sh</a>&nbsp;&nbsp;
+      <a href="#M000749">split_all</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">RUBY_EXT</td>
+          <td>=</td>
+          <td class="context-item-value">((Config::CONFIG['ruby_install_name'] =~ /\.(com|cmd|exe|bat|rb|sh)$/) ?     &quot;&quot; :     Config::CONFIG['EXEEXT'])</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">RUBY</td>
+          <td>=</td>
+          <td class="context-item-value">File.join(     Config::CONFIG['bindir'],     Config::CONFIG['ruby_install_name'] + RUBY_EXT).     sub(/.*\s.*/m, '&quot;\&amp;&quot;')</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">LN_SUPPORTED</td>
+          <td>=</td>
+          <td class="context-item-value">[true]</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000747" class="method-detail">
+        <a name="M000747"></a>
+
+        <div class="method-heading">
+          <a href="FileUtils.src/M000747.html" target="Code" class="method-signature"
+            onclick="popupCode('FileUtils.src/M000747.html');return false;">
+          <span class="method-name">ruby</span><span class="method-args">(*args,&amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Run a Ruby interpreter with the given arguments.
+</p>
+<p>
+Example:
+</p>
+<pre>
+  ruby %{-pe '$_.upcase!' &lt;README}
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000748" class="method-detail">
+        <a name="M000748"></a>
+
+        <div class="method-heading">
+          <a href="FileUtils.src/M000748.html" target="Code" class="method-signature"
+            onclick="popupCode('FileUtils.src/M000748.html');return false;">
+          <span class="method-name">safe_ln</span><span class="method-args">(*args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Attempt to do a normal file link, but fall back to a copy if the link
+fails.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000746" class="method-detail">
+        <a name="M000746"></a>
+
+        <div class="method-heading">
+          <a href="FileUtils.src/M000746.html" target="Code" class="method-signature"
+            onclick="popupCode('FileUtils.src/M000746.html');return false;">
+          <span class="method-name">sh</span><span class="method-args">(*cmd, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Run the system command <tt>cmd</tt>. If multiple arguments are given the
+command is not run with the shell (same semantics as Kernel::exec and
+Kernel::system).
+</p>
+<p>
+Example:
+</p>
+<pre>
+  sh %{ls -ltr}
+
+  sh 'ls', 'file with spaces'
+
+  # check exit status after command runs
+  sh %{grep pattern file} do |ok, res|
+    if ! ok
+      puts &quot;pattern not found (status = #{res.exitstatus})&quot;
+    end
+  end
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000749" class="method-detail">
+        <a name="M000749"></a>
+
+        <div class="method-heading">
+          <a href="FileUtils.src/M000749.html" target="Code" class="method-signature"
+            onclick="popupCode('FileUtils.src/M000749.html');return false;">
+          <span class="method-name">split_all</span><span class="method-args">(path)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Split a file path into individual directory names.
+</p>
+<p>
+Example:
+</p>
+<pre>
+  split_all(&quot;a/b/c&quot;) =&gt;  ['a', 'b', 'c']
+</pre>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

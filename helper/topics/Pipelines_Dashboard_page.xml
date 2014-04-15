@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Pipelines Dashboard">
+	<p>This shows the current activity in the system. You can see all the instances of a given pipeline that are currently in progress.</p>
+	<screenshot alttext="Pipelines Dashboard Page" src="resources/images/cruise/pipelines_dashboard.png"/>
+	<subsection title="Key">
+		<steps>
+			<item>The pipelines are listed under the pipeline group that they belong to</item>
+			<item>Click the pipeline name to see <cref topic="pipeline_activity_page">pipeline activity</cref> for that pipeline.</item>
+			<item>Click pipeline instance label to see details for that instance.</item>
+			<item>Click on each stage segment to see <cref topic="stage_details_page">stage details</cref> for that stage instance.</item>
+			<item>"triggered by [user name] about [how long ago]" gives you a quick look at who activated this pipeline and when this was triggered.</item>
+			<item>The "Trigger" button forces a pipeline to begin build activity</item>
+			<item>The <cref topic="trigger_with_options">Trigger with Options</cref> button allows the you to pick the revisions of materials that the pipelines should build with, and trigger the pipeline.</item>
+            <item>The "Pause" button pauses scheduling of the pipeline.</item>
+            <item>The "Changes" shows you the modifications to materials that have been built in this instance. The "!" indicates that the changes are being built for the first time.</item>
+			<item>"previously:[status]" tells you what the status of the currently running stage in the previous pipeline instance was. The previous instance is based on <cref topic="ordering_of_pipelines">natural ordering</cref>. On hover, you can see the label of the 'previous' pipeline instance.</item>
+			<item>This shows you the name and status of the last executed stage in that pipeline instance.</item>
+            <item>View all changes between the current pipeline instance with the previous one.</item>
+            <item>Lets you customize which pipelines are displayed on the dashboard. This view is saved across user sessions.</item>
+            <item>Lets you search for any pipeline configured to be visible on your pipeline dashboard.</item>
+            <item>If you are a Go pipeline group administrator or a super administrator, you can now navigate to edit a pipeline by clicking this settings icon on the pipeline dashboard or the environments page.</item>
+		</steps>
+	</subsection>
+	<bullets title="Also see...">
+		<item><cref topic="pipeline_activity_page">Pipeline activity</cref></item>
+		<item><cref topic="job_details_page">Job details</cref></item>
+		<item><cref topic="dev_clean_up_when_cancel">Clean up after canceling a task</cref></item>
+		<item><cref topic="welcome_to_go">Go overview</cref></item>
+	</bullets>
+</topic>

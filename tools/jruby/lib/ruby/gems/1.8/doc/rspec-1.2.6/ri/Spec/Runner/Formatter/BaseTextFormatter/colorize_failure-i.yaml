@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (message, failure)
+is_singleton: false
+block_params: 
+name: colorize_failure
+comment: 
+full_name: Spec::Runner::Formatter::BaseTextFormatter#colorize_failure
+visibility: public
+aliases: []
+

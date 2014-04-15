@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: UI
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Test::Unit::UI
+superclass: 
+class_methods: []
+

@@ -1,0 +1,38 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: FileUtils
+constants: 
+- !ruby/object:RI::Constant 
+  name: RUBY_EXT
+  value: '((Config::CONFIG[''ruby_install_name''] =~ /\.(com|cmd|exe|bat|rb|sh)$/)
+    ?     "" :     Config::CONFIG[''EXEEXT''])'
+  comment: 
+- !ruby/object:RI::Constant 
+  name: RUBY
+  value: File.join(     Config::CONFIG['bindir'],     Config::CONFIG['ruby_install_name']
+    + RUBY_EXT).     sub(/.*\s.*/m, '"\&"')
+  comment: 
+- !ruby/object:RI::Constant 
+  name: LN_SUPPORTED
+  value: '[true]'
+  comment: 
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This a FileUtils extension that defines several additional commands to be
+    added to the FileUtils utility functions.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: ruby
+- !ruby/object:RI::MethodSummary 
+  name: safe_ln
+- !ruby/object:RI::MethodSummary 
+  name: sh
+- !ruby/object:RI::MethodSummary 
+  name: split_all
+full_name: FileUtils
+superclass: 
+class_methods: []
+

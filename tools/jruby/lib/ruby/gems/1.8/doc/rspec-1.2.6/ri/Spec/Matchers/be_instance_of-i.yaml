@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expected)
+is_singleton: false
+block_params: 
+name: be_instance_of
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #be_an_instance_of'
+full_name: Spec::Matchers#be_instance_of
+visibility: public
+aliases: []
+

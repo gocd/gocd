@@ -1,0 +1,218 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+package com.thoughtworks.go.server.dao;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
+import com.thoughtworks.go.domain.NotificationFilter;
+import com.thoughtworks.go.domain.StageEvent;
+import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.server.cache.GoCache;
+import org.hamcrest.Matchers;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.SecondLevelCacheStatistics;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:WEB-INF/applicationContext-global.xml",
+        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml"
+})
+public class UserSqlMapDaoCachingTest {
+    @Autowired private UserSqlMapDao userDao;
+    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired private GoCache goCache;
+    @Autowired private SessionFactory sessionFactory;
+
+    @Before
+    public void setup() throws Exception {
+        sessionFactory.getStatistics().clear();
+        dbHelper.onSetUp();
+    }
+
+    @After
+    public void teardown() throws Exception {
+        dbHelper.onTearDown();
+        sessionFactory.getStatistics().clear();
+    }
+
+    @Test
+    public void shouldCacheUserOnFind() {
+        User first = new User("first");
+        first.addNotificationFilter(new NotificationFilter("pipline", "stage1", StageEvent.Fails, true));
+        first.addNotificationFilter(new NotificationFilter("pipline", "stage2", StageEvent.Fails, true));
+
+        userDao.saveOrUpdate(first);
+        long userId = userDao.findUser("first").getId();
+        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size(), is(1));
+        SecondLevelCacheStatistics notificationFilterCollectionCache = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters");
+        assertThat(notificationFilterCollectionCache.getEntries().size(), is(1));
+        assertThat(notificationFilterCollectionCache.getEntries().get(userId), is(Matchers.notNullValue()));
+    }
+
+    @Test
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsSaved() throws Exception {
+        makeSureThatCacheIsInitialized();
+
+        userDao.saveOrUpdate(new User("some-random-user"));
+
+        assertThatEnabledUserCacheHasBeenCleared();
+    }
+
+    @Test
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsDisabled() throws Exception {
+        userDao.saveOrUpdate(new User("some-random-user"));
+        makeSureThatCacheIsInitialized();
+
+        userDao.disableUsers(Arrays.asList("some-random-user"));
+
+        assertThatEnabledUserCacheHasBeenCleared();
+    }
+
+    @Test
+    public void shouldRemoveEnabledUserCountFromCacheWhenAUserIsEnabled() throws Exception {
+        userDao.saveOrUpdate(new User("some-random-user"));
+        makeSureThatCacheIsInitialized();
+
+        userDao.enableUsers(Arrays.asList("some-random-user"));
+
+        assertThatEnabledUserCacheHasBeenCleared();
+    }
+
+    @Test
+    public void shouldRemoveEnabledUserCountFromCacheWhenAllUsersAreDeleted() throws Exception {
+        makeSureThatCacheIsInitialized();
+
+        userDao.deleteAll();
+
+        assertThatEnabledUserCacheHasBeenCleared();
+    }
+
+    @Test
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUserHappens() throws Exception {
+        makeSureThatCacheIsInitialized();
+
+        userDao.findUser("some-random-user");
+
+        assertThatEnabledUserCacheExists();
+    }
+
+    @Test
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenAllUsersAreLoaded() throws Exception {
+        makeSureThatCacheIsInitialized();
+
+        userDao.allUsers();
+
+        assertThatEnabledUserCacheExists();
+    }
+
+    @Test
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenEnabledUsersAreLoaded() throws Exception {
+        makeSureThatCacheIsInitialized();
+
+        userDao.enabledUsers();
+
+        assertThatEnabledUserCacheExists();
+    }
+
+    @Test
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUsernamesForIds() throws Exception {
+        userDao.saveOrUpdate(new User("some-random-user"));
+        User user = userDao.findUser("some-random-user");
+
+        HashSet<Long> userIds = new HashSet<Long>();
+        userIds.add(user.getId());
+
+        makeSureThatCacheIsInitialized();
+
+        userDao.findUsernamesForIds(userIds);
+
+        assertThatEnabledUserCacheExists();
+    }
+
+    @Test
+    public void shouldNOTRemoveEnabledUserCountFromCacheWhenUserIsLoaded() throws Exception {
+        userDao.saveOrUpdate(new User("some-random-user"));
+        User user = userDao.findUser("some-random-user");
+
+        makeSureThatCacheIsInitialized();
+
+        userDao.load(user.getId());
+
+        assertThatEnabledUserCacheExists();
+    }
+
+    @Test(timeout = 20000)
+    public void enabledUserCacheShouldBeThreadSafe() throws Exception {
+        ThreadSafetyChecker threadSafetyChecker = new ThreadSafetyChecker(5000);
+
+        threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
+            @Override
+            public void execute(int runIndex) {
+                userDao.enabledUserCount();
+            }
+        });
+
+        threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
+            @Override
+            public void execute(int runIndex) {
+                userDao.deleteAll();
+            }
+        });
+
+        threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
+            @Override
+            public void execute(int runIndex) {
+                userDao.saveOrUpdate(new User("some-random-user " + runIndex));
+            }
+        });
+
+        threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
+            @Override
+            public void execute(int runIndex) {
+                userDao.enableUsers(Arrays.asList("some-random-user " + runIndex));
+            }
+        });
+
+        threadSafetyChecker.run(250);
+    }
+
+    private void assertThatEnabledUserCacheHasBeenCleared() {
+        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(nullValue()));
+    }
+
+    private void assertThatEnabledUserCacheExists() {
+        assertThat(goCache.get(UserSqlMapDao.ENABLED_USER_COUNT_CACHE_KEY), is(not(nullValue())));
+    }
+
+    private void makeSureThatCacheIsInitialized() {
+        Integer getCountSoThatCacheIsInitialized = userDao.enabledUserCount();
+        assertThatEnabledUserCacheExists();
+    }
+}

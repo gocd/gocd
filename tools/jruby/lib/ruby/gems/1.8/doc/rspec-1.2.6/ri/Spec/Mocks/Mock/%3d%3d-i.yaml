@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: (other)
+is_singleton: false
+block_params: 
+name: ==
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This allows for comparing the mock to other objects that proxy such as ActiveRecords
+    belongs_to proxy objects. By making the other object run the comparison, we're
+    sure the call gets delegated to the proxy target.
+full_name: Spec::Mocks::Mock#==
+visibility: public
+aliases: []
+

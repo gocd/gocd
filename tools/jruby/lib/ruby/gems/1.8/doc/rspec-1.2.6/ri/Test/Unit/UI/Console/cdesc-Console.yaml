@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Console
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Test::Unit::UI::Console
+superclass: 
+class_methods: []
+

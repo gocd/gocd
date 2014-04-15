@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (array)
+is_singleton: false
+block_params: 
+name: _pretty_print
+comment: 
+full_name: Spec::Matchers::Pretty#_pretty_print
+visibility: public
+aliases: []
+

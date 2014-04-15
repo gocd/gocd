@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
+        "http://tuckey.org/res/dtds/urlrewrite3.2.dtd">
+
+<!--
+    Configuration file for UrlRewriteFilter 2.6
+    http://tuckey.org/urlrewrite/
+-->
+<urlrewrite>
+    <rule>
+        <name>Initialize for_rails</name>
+        <from>.*</from>
+        <set name="rails_bound">false</set>
+    </rule>
+
+    <rule>
+        <name>Set flag if backup in progress</name>
+        <note>Figures out if the Go server backup is in progress and sets flag to indicate. Also sets original url only if backup in progress.</note>
+        <run class="com.thoughtworks.go.server.web.RedirectDuringBackup" method="setServerBackupFlag"/>
+    </rule>
+
+    <rule>
+        <name>Handle poll from maintenance page after backup is complete</name>
+        <note>Requests auto-refresher on maintenance page to throw user back to original url if backup is complete</note>
+        <condition type="attribute" name="backupInProgress">false</condition>
+        <from>^(/is_backup_finished\.json(\?.*)?)$</from>
+        <set name="X-GO-FORCE-LOAD-PAGE" type="response-header">%{param:from}</set>
+        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
+        <set name="echo-body">{}</set>
+        <to last="true" type="forward">/echo-attribute/echo</to>
+    </rule>
+
+    <rule>
+        <name>Handle explicit maintenance page request after backup is complete</name>
+        <note>Redirects to original page if maintenance page requested after backup is complete</note>
+        <condition type="attribute" name="backupInProgress">false</condition>
+        <from>^(/static/backup_in_progress\.html(\?.*)?)$</from>
+        <to last="true" type="redirect">%{param:from}</to>
+    </rule>
+
+    <rule>
+        <name>Static content when backup in progress</name>
+        <note>Serve static content when backup in progress</note>
+        <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/help/.*)|(/compressed/.*))$</from>
+        <to last="true">$1</to>
+    </rule>
+
+    <rule>
+        <name>no-op polling response</name>
+        <note>Informs auto-refresher to continue polling</note>
+        <from>^(/is_backup_finished\.json(\?.*)?)$</from>
+        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
+        <set name="echo-body">{}</set>
+        <to last="true" type="forward">/echo-attribute/echo</to>
+    </rule>
+
+    <rule>
+        <name>HealthMessage poll if backup in progress</name>
+        <note>Informs ServerHealthMessage poll to take user to maintenance page if backup in progress</note>
+        <condition type="attribute" name="backupInProgress">true</condition>
+        <from>^(/server/messages.json(\?.*)?)$</from>
+        <set name="X-GO-FORCE-LOAD-PAGE" type="response-header">%{context-path}/static/backup_in_progress.html?from=%{attribute:redirected_from}&amp;backup_started_at=%{attribute:backup_started_at}&amp;backup_started_by=%{attribute:backup_started_by}</set>
+        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
+        <set name="echo-body">{}</set>
+        <to last="true" type="forward">/echo-attribute/echo</to>
+    </rule>
+
+    <rule>
+        <name>API 503 if backup in progress</name>
+        <note>Informs Api that is server is unavailable</note>
+        <condition type="attribute" name="backupInProgress">true</condition>
+        <from>^((/api/.*)|(.*[^/]+\.(xml|json)(\?.*)?))$</from>
+        <set name="echo-body">Server is under maintenance mode, please try later.</set>
+        <set name="status" type="status">503</set>
+        <to last="true" type="forward">/echo-attribute/echo</to>
+    </rule>
+
+    <rule>
+        <name>App page request if backup in progress</name>
+        <note>Redirects app-page to maintenance page if backup in progress</note>
+        <condition type="attribute" name="backupInProgress">true</condition>
+        <to last="true" type="redirect">%{context-path}/static/backup_in_progress.html?from=%{attribute:redirected_from}&amp;backup_started_at=%{attribute:backup_started_at}&amp;backup_started_by=%{attribute:backup_started_by}</to>
+    </rule>
+
+    <rule match-type="regex">
+        <name>https enforcement opt-out</name>
+        <note>Opt-out from https-redirect for select actions</note>
+        <condition type="scheme" next="and">^http$</condition>
+        <from>^/(gadgets/(ifr|makeRequest|js/.+|concat|proxy))$</from>
+        <set name="skip_ssl">true</set>
+    </rule>
+
+    <rule>
+        <name>Populate the URL to which Oauth and Gadgets should be redirected to</name>
+        <note>Figures out if the request needs to redirect and what the secure_site URL is to which we need to redirect.</note>
+        <condition type="attribute" name="skip_ssl" operator="notequal" next="and">true</condition>
+        <condition type="scheme" next="and">^http$</condition>
+        <from>^((.*?/gadgets/.*)|(.*?/oauth/.*)|(.*?/admin/gadgets/.*))$</from>
+        <run class="com.thoughtworks.go.server.web.DeploymentContextWriter" method="writeSecureSiteUrl" />
+    </rule>
+
+    <rule>
+        <name>Redirect to the Secure Site URl if available.</name>
+        <note>Redirects to the secure_site URL in order to enforce SSL for oauth and gadget requests</note>
+        <condition type="attribute" name="force_ssl" next="and">true</condition>
+        <from>^(.*)$</from>
+        <to type="redirect" last="true">%{attribute:secure_site}</to>
+    </rule>
+
+    <rule>
+        <name>Rails UI</name>
+        <note>
+            Prepends 'rails/' to Rails urls, so that the request does not go through Java at all
+            (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
+        </note>
+        <from>^/((agents)|(agents/.*)|(agents\..*)|(environments)|(environments/.*)|(environments\..*)|(pipelines/.*)|(home/?)|(pipelines)|(history/.*)|(shine)|(shine/.*)|(gadgets/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(admin/oauth/.*)|(admin/gadgets/.*)|(oauth/.*)|(gadgets/.*)|(failures/.*)|(compare/.*)|(admin/pipelines)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/pipeline_group)|(admin/pipeline_group/.*)|(admin/templates)|(admin/templates/.*)|(users/dismiss_license_expiry_warning)|(users/dismiss_license_expiry_warning/.*)|(admin/backup)|(admin/backup/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/garage)|(admin/garage/.*))$</from>
+
+        <to last="true">/rails/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails API</name>
+        <from>^/(api/(?!admin/config).*)$</from>
+        <to last="true">/rails/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Already rails bound</name>
+        <from>^/(rails/.*)$</from>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Agent remoting repository</name>
+        <note>
+            This is to handle RESTful agent communication.
+            Acegi uses the /remoting url to use x509 authentication.
+        </note>
+        <from>^/remoting/([^/]+)/(.*)</from>
+        <to last="false">/$1/$2</to>
+    </rule>
+
+    <!-- RESTful URLS -->
+    <rule>
+        <name>Set _method attribute to METHOD type</name>
+        <condition type="attribute" name="rails_bound">false</condition>
+        <from>.+</from>
+        <set name="_method">%{method}</set>
+    </rule>
+
+    <rule>
+        <name>Reset _method attribute if _method parameter is passed in</name>
+        <condition type="attribute" name="rails_bound">false</condition>
+        <condition type="parameter" name="_method">.+</condition>
+        <from>.+</from>
+        <set name="_method">%{parameter:_method}</set>
+    </rule>
+
+    <rule>
+        <condition type="request-uri">(.+)\.csv$</condition>
+        <from>(.+)</from>
+        <set name="_type">csv</set>
+    </rule>
+
+    <rule>
+        <condition type="request-uri">(.+)\.json$</condition>
+        <from>(.+)</from>
+        <set name="_type">json</set>
+    </rule>
+
+    <rule>
+        <condition type="request-uri">(.+)\.html$</condition>
+        <from>(.+)</from>
+        <set name="_type">html</set>
+    </rule>
+
+    <rule>
+        <condition type="request-uri">(.+)\.xml$</condition>
+        <from>(.+)</from>
+        <set name="_type">xml</set>
+    </rule>
+
+    <rule>
+        <condition type="request-uri">(.+)\.zip$</condition>
+        <from>(.+)</from>
+        <set name="_type">zip</set>
+    </rule>
+
+    <rule>
+        <name>RESTful rerun - Rerun a stage</name>
+        <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
+        <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
+    </rule>
+
+    <rule>
+        <name>RESTful force - schedule pipeline or rerun its first stage</name>
+        <from>^/run/([^/]+)$</from>
+        <to type="forward">/admin/force?pipelineName=$1</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Artifacts - List All builds artifacts</name>
+        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
+        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Artifacts with start LineNumber</name>
+        <condition type="parameter" name="startLineNumber"/>
+        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+        <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=$6</to>
+        <set name="startLineNumber">{parameter:startLineNumber}</set>
+    </rule>
+
+    <rule>
+        <name>RESTful Artifacts with SHA1</name>
+        <condition type="parameter" name="sha1"/>
+        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=$6</to>
+        <set name="sha1">{parameter:sha1}</set>
+    </rule>
+
+
+    <rule>
+        <name>RESTful Artifacts</name>
+        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=$6</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Properties Search for one job</name>
+        <condition type="parameter" name="pipelineLabel"/>
+        <from>^/properties/search(\?.*)?$</from>
+        <to type="forward">/repository/restful/properties/job/search</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Properties Search for all jobs</name>
+        <from>^/properties/search(\?.*)?$</from>
+        <to type="forward">/repository/restful/properties/jobs/search</to>
+    </rule>
+
+    <rule>
+        <name>Post RESTful Property for a job</name>
+        <condition type="parameter" name="value"/>
+        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+        <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Property for a job</name>
+        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+    </rule>
+
+    <rule>
+        <name>RESTful Properties for a job</name>
+        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - Builds</name>
+        <from>^/admin/configuration/([^/]+)/([^/]+)/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
+        <to type="forward">/admin/restful/configuration/build/%{attribute:_method}/%{attribute:_type}?pipelineName=$2&amp;stageName=$3&amp;buildIndex=$4</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - Templates</name>
+        <from>^/admin/configuration/Pipeline%20Templates/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
+        <to type="forward">/admin/restful/configuration/template/stage/%{attribute:_method}/%{attribute:_type}?templateName=$1&amp;stageIndex=$2</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - Stages</name>
+        <from>^/admin/configuration/([^/]+)/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
+        <to type="forward">/admin/restful/configuration/stage/%{attribute:_method}/%{attribute:_type}?pipelineName=$2&amp;stageIndex=$3</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - Pipelines</name>
+        <from>^/admin/configuration/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
+        <to type="forward">
+            /admin/restful/configuration/pipeline/%{attribute:_method}/%{attribute:_type}?pipelineGroup=$1&amp;pipelineIndex=$2
+        </to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - File</name>
+        <from>^/api/admin/config.xml$</from>
+        <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - File</name>
+        <from>^/api/admin/config/([^/]+)\.xml$</from>
+        <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - File</name>
+        <from>^/admin/configuration/file\.xml(\?.*)?$</from>
+        <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
+    </rule>
+
+    <rule>
+        <name>Cruise Configuration Administration RESTful url - Pipeline Groups</name>
+        <from>^/admin/configuration/([^/]+)\.xml(\?.*)?$</from>
+        <to type="forward">
+            /admin/restful/configuration/group/%{attribute:_method}/%{attribute:_type}?pipelineGroup=$1
+        </to>
+    </rule>
+
+    <rule>
+        <name>Specific Build Detail</name>
+        <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
+        <to type="forward">/tab/build/recent?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+    </rule>
+
+
+    <rule>
+        <name>Pipeline history</name>
+        <from>/tab/pipeline/history/([^/]+)</from>
+        <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
+    </rule>
+
+    <rule>
+        <name>Add Simple Pipeline</name>
+        <from>/tab/admin/pipelines/([^/]+)\.json(\?.+)?$</from>
+        <to type="forward">/tab/admin/pipelines/management.json?name=$1</to>
+    </rule>
+
+    <rule>
+        <name>Stage detail beta</name>
+        <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
+        <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
+    </rule>
+</urlrewrite>
+

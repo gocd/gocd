@@ -1,0 +1,322 @@
+=== 1.11.0 / 2009-03-16
+
+* 2 minor enhancements:
+
+  * Added timebomb method. Set flay/flog thresholds to degrade over time.
+  * Switched to flog's new FlogTask, added flog_threshold.
+
+=== 1.10.0 / 2009-03-09
+
+* 2 minor enhancements:
+
+  * Switched to flay's new FlayTask, added flay_threshold.
+  * generate_key now creates the certificate package automatically.
+
+* 1 bug fix:
+
+  * Fixed generate_key if more than one developer on the project.
+
+=== 1.9.0 / 2009-02-26:
+
+* 7 minor enhancements:
+
+  * Added flog, flay, and rdoc tasks.
+  * Added ~/.hoe_template and basic erb templating to sow.
+  * install_gem automatically installs missing dependencies. From Dr. Nic.
+  * Parameterized history and readme paths for github users (*sigh*).
+  * Added rspec support including having both tests and specs.
+  * Match RubyGems' RDoc behavior and removed rdoc_pattern attribute.  Use
+    extra_rdoc_files instead.
+  * Added testlib and SUPPORTED_TEST_FRAMEWORKS to switch your testing library.
+
+* 1 bug fix:
+
+  * Fixed rdoc title command-line parameters.
+
+=== 1.8.3 / 2009-01-20:
+
+* 1 minor enhancement:
+
+  * Refactored sow's naming code to Hoe.normalize_names and wrote some
+    tests to flush out inconsistencies.
+
+=== 1.8.2 / 2008-10-24:
+
+* 1 minor enhancement:
+
+  * Now asks Inline for known inlined classes if you package w/ INLINE=1.
+
+=== 1.8.1 / 2008-10-22
+
+* 1 bug fix:
+
+  * Fixes for windows compatibility from Luis Lavena.
+
+=== 1.8.0 / 2008-10-09
+
+* 5 minor enhancements:
+
+  * Added Hoe.add_include_dirs to make setting up rake deps easier.
+  * Removed unused optional group arg in sow.
+  * Added testlib variable so you can specify what test library to use.
+  * Added deps:list to help you review dependent projects.
+  * Added deps:email to help you communicate with dependent projects.
+  * Added deps:fetch to help you search through dependent projects.
+
+=== 1.7.0 / 2008-06-30
+
+* 3 minor enhancements:
+
+  * Use rdoc 2.x gem if available. Eric likes his backslashes.
+  * Added extra_dev_deps for new rubygems developer dependencies.
+    * Switched hoe to dev dep. Fork off, bitches.
+  * Finally got a sane test that does something. Hey... it's a start.
+
+=== 1.6.0 / 2008-06-18
+
+* 1 minor enhancement
+
+  * blog categories! Defaults to array with project's name. Thanks Aaron!
+
+=== 1.5.3 / 2008-05-20
+
+* 1 Bug Fix
+
+  * hoe really really needs better tests. I suck. :/
+
+=== 1.5.2 / 2008-05-20
+
+* 4 Minor Enhancements:
+
+  * Added multiruby_skip attribute for 'rake multi' version invalidation.
+  * Improved error messages when files are missing.
+  * Added rubygems post_install_message accessor. Thanks to Dr. Nic.
+  * Cleaned up alternative_name... I didn't get it.
+
+* 1 Bug Fix:
+
+  * Removed require of rake/contrib/sshpublisher to fix 1.9.
+
+=== 1.5.1 / 2008-03-04
+
+* 2 Minor Enhancements:
+
+  * Removed install/uninstall tasks. Too buggy. Gems do a better job.
+  *	Added cleaning of rbc files to default list
+
+* 5 Bug Fixes:
+
+  * Correctly deal with errors intuiting history and readme files. Thanks Aaron!
+  * Fixed rdoc title. Thanks, Sander!
+  * Fixed sow to match new Rakefile and History format. Thanks, me!
+  *	Moved test/unit to the front for rake test. Fixes use of miniunit.
+  * Renamed shadowed variable.
+
+=== 1.5.0 / 2008-01-30
+
+* 9 Minor Enhancements:
+
+  * Added autopopulation of changes from History.txt.
+  * Added autopopulation of urls from History.txt.
+  * Added autopopulation of description from History.txt
+  * Added autopopulation of summary from description.
+  * Added description_sections to declare what sections of readme to use.
+  * Added summary_sentences to declare how many sentences you want in summary.
+  * Added developer(name, email) to cleanly populate both author/email arrays.
+  * author and email now default to "doofus".
+  * author and email warn that they'll blow up on 2008-04-01.
+
+=== 1.4.0 / 2007-12-20
+
+* 1 Major Enhancement:
+
+  * rake package now supports INLINE=1 and FORCE_PLATFORM=whatever.
+    * Supports ruby_inline extensions.
+    * Contributed by Luis Lavena. Thanks Luis!
+
+=== 1.3.0 / 2007-08-13
+
+* 1 Major Enhancement:
+
+  * Hoe now builds signed gems automatically.  Run the generate_key task to
+    automatically create a signing key.
+
+* 4 Minor Enhancements:
+
+  * Extended rdoc pattern to include ext dirs.
+  * Fixed dependency adding for versionless dependencies.
+  * Added NODOT env var to disable RDoc diagram generation.
+  * The config_hoe task automatically merges in new config entries.
+
+=== 1.2.2 / 2007-07-23
+
+* 2 Minor Enhancements:
+
+  * Added exclude parameter for check_manifest filtering to .hoerc.
+  * Documented .hoerc stuffs.
+
+* 1 Bug Fix:
+
+  * Various (untested) fixes for windows compatibility.
+
+=== 1.2.1 / 2007-05-21
+
+* 8 Minor Enhancements:
+
+  * Allow for spaces in filenames in manifest. Thanks to Aaron Patterson.
+  * Allow rsync flags to be set.
+  * Allow rdoc destination directory to be set.
+  * Deal with bad line-endings. Stupid windoze users... :(
+  * Added WINDOZE check for diff.exe and look for gdiff first.
+  * Use gdiff if available, diff otherwise. Allows to work on borked Solaris.
+  * Move RDoc to attr* from big 'ol chunk at the top of the class.
+  * Basic conversion of history/urls from rdoc to markdown.
+
+* 1 Bug Fix:
+
+  * Fixed executables regexp to /^bin/.
+
+=== 1.2.0 / 2007-02-13
+
+* 4 Minor Enhancements:
+
+  * Added more support for ext dirs.
+  * Added a simple config file (yaml). Use 'rake config_hoe' to edit.
+  * Added post_blog task (thanks Aaron!), configured via config_hoe.
+  * Announce task now posts to your blogs and/or publishes API
+    depending on config.
+
+=== 1.1.7 / 2007-01-10
+
+* 5 Minor Enhancements:
+
+  * extra_deps is now self-healing, and ensures no (direct) cycles.
+  * cleans check_manifest for CVS projects.
+  * rubyforge changes for config.
+  * Now uses rsync for publish_docs. YAY for fast!
+  * Bug #7193 fix spelling of 'synopsys'.  Submitted by Jacob Atzen.
+
+=== 1.1.6 / 2006-11-29
+
+* 1 Bug Fix:
+
+  * Fix release to work correctly with need_zip and need_tar.
+
+=== 1.1.5 / 2006-11-29
+
+* 2 Minor Enhancements:
+
+  * Reduced check_manifest dependencies to just diff for windows.
+  * Don't use default author in summary, description or changes.
+
+=== 1.1.4 / 2006-11-12
+
+* 3 Minor Enhancements:
+
+  * Added need_tar and need_zip to customize package requirements. Stupid windoze.
+  * Extended spec_extras to take procs as values. Passes in named parameter.
+  * Removed test from require_paths. I thought I already parameterized this. :/
+
+=== 1.1.3 / 2006-11-09
+
+* 6 Minor Enhancements:
+
+  * Added test_deps, now you can automatically discover test dependency ommisions.
+  * Added ext support! Build C extensions with hoe!
+  * Gemspec uses test_all.rb or result of test_globs. Tweak those tests.
+  * Now uses https to login to rubyforge. Rubyforge crackers beware!
+  * Fixed doco and automated updating of it.
+  * Added rdoc_pattern. Go doco go!
+
+=== 1.1.2 / 2006-10-22
+
+* 4 Minor Enhancements:
+
+  * Added -d and -t flags to sow to make dev or trunk subdirs for p4
+    and svn projects.
+  * Added install_gem to further test gem builds.
+  * Added test_globs to customize your test file list.
+  * Removed demo.rb from clean_globs. I'm torn on this one.
+
+* 1 Bug Fix:
+
+  * Fixed bug in install rule.
+
+=== 1.1.1 / 2006-10-11
+
+* 2 Bug Fixes:
+
+  * Fixed minor problem with subject of email.
+  * Fixed problem in test.
+
+=== 1.1.0 / 2006-10-04
+
+* 1 Major Enhancement:
+
+  * Added sow, a command-line tool for quickly creating new projects.
+
+* 1 Minor Enhancement:
+
+  * Added check_manifest task
+
+=== 1.0.5 / 2006-10-03
+
+* 8 Minor Enhancements:
+
+  * Doco cleanup.
+  * Removed Manifest.txt from rdoc and added title.
+  * Added changeset support.
+  * Added spec_extras for easy gemspec attribute setting.
+  * Added release_notes, changeset setting for releases.
+  * Added paragraphs_of utility method.
+  * Added email and rubyforge news announcement tasks.
+  * Url attribute may now be an array of urls.
+
+=== 1.0.4 / 2006-09-23
+
+* 1 Bug Fix:
+
+  * Damnit... I messed up. There is no rubygems gem to be dependent upon. Duh.
+
+=== 1.0.3 / 2006-09-23
+
+* 9 Minor Enhancements:
+
+  * Added debug_gem rule.
+  * Added lots of doco.
+  * Added proper deps to hoe for other's gems, and
+    rake/rubyforge/rubygems for hoe.
+  * Added ridocs to generate ri locally for testing.
+  * Added support for multiple authors.
+  * Rdoc now includes any top level .txt files.
+  * Renamed deploy to release.
+  * Renamed upload to publish_docs.
+  * publish_docs is now smart about subprojects and missing subdirectories.
+
+* 1 Bug Fix:
+
+  * Fixed include paths.
+
+=== 1.0.2 / 2006-09-20
+
+* 2 Minor Enhancements:
+
+  * Wee little tests.
+  * Fixed up gemspec's require_paths.
+
+=== 1.0.1 / 2006-09-20
+
+* 5 Minor Enhancements:
+
+  * Finally got deployment straightened out. Maybe. Some might be on
+    rubyforge.org.
+  * Added default description and summary.
+  * Added dependency mechanism.
+  * Improved gemspec debugging.
+  * Swapped gem with tgz in deploy... we'd rather screw up on tgz
+
+=== 1.0.0 / 2006-09-19
+
+* 1 Major Enhancement:
+
+  * Birthday!

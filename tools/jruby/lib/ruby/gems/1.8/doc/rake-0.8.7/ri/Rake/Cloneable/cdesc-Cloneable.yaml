@@ -1,0 +1,20 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Cloneable
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Mixin for creating easily cloned objects.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: clone
+- !ruby/object:RI::MethodSummary 
+  name: dup
+full_name: Rake::Cloneable
+superclass: 
+class_methods: []
+

@@ -1,0 +1,31 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: FileUtils
+name: RakeFileUtils
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: RakeFileUtils provides a custom version of the FileUtils methods that respond
+    to the <tt>verbose</tt> and <tt>nowrite</tt> commands.
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: nowrite_flag
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: verbose_flag
+  comment: 
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: nowrite
+- !ruby/object:RI::MethodSummary 
+  name: verbose
+- !ruby/object:RI::MethodSummary 
+  name: when_writing
+full_name: RakeFileUtils
+superclass: 
+class_methods: []
+

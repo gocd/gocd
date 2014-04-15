@@ -1,0 +1,1 @@
+jQuery.browser.msie = false;

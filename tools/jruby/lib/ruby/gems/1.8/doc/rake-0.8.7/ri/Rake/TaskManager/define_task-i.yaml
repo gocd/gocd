@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (task_class, *args, &block)
+is_singleton: false
+block_params: 
+name: define_task
+comment: 
+full_name: Rake::TaskManager#define_task
+visibility: public
+aliases: []
+

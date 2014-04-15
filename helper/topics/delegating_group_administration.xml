@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Delegating Group Administration">
+    <p>
+        A Go Administrator can authorize users and roles to be administrators for Pipeline Groups. These group
+        administrators have certain privileges which are explained in the section "Privileges of a Group
+        Administrator".
+    </p>
+    <section title="Steps to assign Group Administrators">
+        <p>
+            To assign a user as a group administrator:
+        </p>
+        <steps>
+            <item>Click on "Pipelines" tab on the <strong>Admin</strong> section</item>
+            <item>Locate the group you want to assign a group administrator to</item>
+            <item>Click the "Edit" link for that group</item>
+            <item>Here, you can define permissions for users and roles</item>
+        </steps>
+        <screenshot src="resources/images/cruise/group_admin_permissions.png" />
+        <p>
+            In the above screenshot, the Go admin has delegated group admin privileges to a user "jez" and all
+            users defined under the role "groupAdminRole". The privileges of a Group Administrator have been
+            described in the next section.
+        </p>
+        <p>
+            For power users, here's how you'd assign the same permissions via Config XML:
+        </p>
+        <code>
+            <cref topic="configuration_reference" anchor="pipelines">&lt;pipelines</cref> group="studios"&gt; &nbsp;
+     <cref topic="configuration_reference" anchor="group_authorization">&lt;authorization&gt;</cref>&nbsp;
+         <cref topic="configuration_reference" anchor="group_admins">&lt;admins&gt;</cref>&nbsp;
+            <cref topic="configuration_reference" anchor="user">&lt;user&gt;</cref> jez &lt;/user&gt;&nbsp;
+            <cref topic="configuration_reference" anchor="role">&lt;role&gt;</cref> groupAdminRole &lt;/role&gt;&nbsp;
+         &lt;/admins&gt;
+     &lt;/authorization&gt;
+     <cref topic="configuration_reference" anchor="pipeline">&lt;pipeline</cref> name="go_pipeline"&gt; &nbsp;
+     ...
+     &lt;/pipeline&gt;
+&lt;/pipelines&gt;
+        </code>
+
+    </section>
+
+    <section title="Privileges of a Group Administrator">
+        <p>As a group administrator of a pipeline group, a user is privileged to:</p>
+        <bullets>
+            <item>View and operate (trigger, rerun stages etc.) all the pipelines in this group.</item>
+            <item>Add other group admins to this group</item>
+            <item>Authorize users/roles with 'view' and 'operate' permissions for this pipeline group.</item>
+            <item>Add and Delete pipelines to/from the group.</item>
+            <item>Add a pipeline using the "Add New Pipeline" wizard, but only to the groups he is allowed to administer.</item>
+            <item>Edit pipelines belonging to the group. Which includes renaming, adding, deleting and modifying stages and jobs.</item>
+            <item>Restfully view and operate (trigger, rerun stages etc.) all the pipelines in this group.</item>
+            <item>Restfully edit the pipelines belonging to this group.</item>
+        </bullets>
+        <note>
+            <strong>Note:</strong> A group administrator can access "Pipelines" and "Config XML" tabs on the
+            Administration page to <cref topic="pipeline_group_admin_config">view and edit his/her pipeline groups</cref>. He/She cannot access Server Configuration or perform
+            user management. While a group administrator cannot access Pipeline Templates either, they can use
+            existing templates for pipelines within their pipeline group.
+        </note>
+    </section>
+</chapter>

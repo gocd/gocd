@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>collect_file (Test::Unit::Collector::Dir)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>    <span class="ruby-comment cmt"># File lib/rake/ruby182_test_unit_fix.rb, line 6</span>
+ 6:         <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">collect_file</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">suites</span>, <span class="ruby-identifier">already_gathered</span>)
+ 7:           <span class="ruby-comment cmt"># loadpath = $:.dup</span>
+ 8:           <span class="ruby-identifier">dir</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">name</span>))
+ 9:           <span class="ruby-identifier">$:</span>.<span class="ruby-identifier">unshift</span>(<span class="ruby-identifier">dir</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">$:</span>.<span class="ruby-identifier">first</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">dir</span>
+10:           <span class="ruby-keyword kw">if</span>(<span class="ruby-ivar">@req</span>)
+11:             <span class="ruby-ivar">@req</span>.<span class="ruby-identifier">require</span>(<span class="ruby-identifier">name</span>)
+12:           <span class="ruby-keyword kw">else</span>
+13:             <span class="ruby-identifier">require</span>(<span class="ruby-identifier">name</span>)
+14:           <span class="ruby-keyword kw">end</span>
+15:           <span class="ruby-identifier">find_test_cases</span>(<span class="ruby-identifier">already_gathered</span>).<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span> <span class="ruby-identifier">add_suite</span>(<span class="ruby-identifier">suites</span>, <span class="ruby-identifier">t</span>.<span class="ruby-identifier">suite</span>)}
+16:         <span class="ruby-keyword kw">ensure</span>
+17:           <span class="ruby-comment cmt"># $:.replace(loadpath)</span>
+18:           <span class="ruby-identifier">$:</span>.<span class="ruby-identifier">delete_at</span> <span class="ruby-identifier">$:</span>.<span class="ruby-identifier">rindex</span>(<span class="ruby-identifier">dir</span>)
+19:         <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

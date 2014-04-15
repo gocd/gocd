@@ -1,0 +1,22 @@
+#! /bin/sh
+
+JESPATH=/usr/local/jes
+case "$1" in
+start)
+echo "starting Java Email Server from $JESPATH/bin"
+sudo $JESPATH/bin/jes.sh start
+;;
+restart)
+sudo $JESPATH/bin/jes.sh restart
+;;
+stop)
+echo "stopping Java Email Server from $JESPATH/bin"
+sudo $JESPATH/bin/jes.sh stop
+;;
+*)
+echo $”usage: $0 {start|stop|restart}”
+exit 3
+;;
+esac
+:
+

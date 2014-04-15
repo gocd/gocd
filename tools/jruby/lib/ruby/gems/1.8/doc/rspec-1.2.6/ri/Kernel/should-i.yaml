@@ -1,0 +1,27 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should(matcher)
+  should == expected
+  should === expected
+  should =~ expected
+is_singleton: false
+block_params: 
+name: should
+comment: 
+- !ruby/struct:SM::Flow::VERB 
+  body: "  receiver.should(matcher)\n    =&gt; Passes if matcher.matches?(receiver)\n\
+    \n  receiver.should == expected #any value\n    =&gt; Passes if (receiver == expected)\n\
+    \n  receiver.should === expected #any value\n    =&gt; Passes if (receiver === \
+    expected)\n\n  receiver.should =~ regexp\n    =&gt; Passes if (receiver =~ regexp)\n"
+- !ruby/struct:SM::Flow::P 
+  body: See Spec::Matchers for more information about matchers
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Warning
+- !ruby/struct:SM::Flow::P 
+  body: NOTE that this does NOT support receiver.should != expected. Instead, use
+    receiver.should_not == expected
+full_name: Kernel#should
+visibility: public
+aliases: []
+

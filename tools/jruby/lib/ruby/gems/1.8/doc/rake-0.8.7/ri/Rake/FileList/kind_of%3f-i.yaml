@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: kind_of?
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #is_a?'
+full_name: Rake::FileList#kind_of?
+visibility: public
+aliases: []
+

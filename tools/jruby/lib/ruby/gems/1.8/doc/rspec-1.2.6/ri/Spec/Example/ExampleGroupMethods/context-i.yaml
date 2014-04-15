@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &example_group_block)
+is_singleton: false
+block_params: 
+name: context
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #describe'
+full_name: Spec::Example::ExampleGroupMethods#context
+visibility: public
+aliases: []
+

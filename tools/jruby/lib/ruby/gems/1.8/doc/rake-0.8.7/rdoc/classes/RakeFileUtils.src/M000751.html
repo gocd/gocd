@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>nowrite (RakeFileUtils)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1129</span>
+1129:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">nowrite</span>(<span class="ruby-identifier">value</span>=<span class="ruby-keyword kw">nil</span>)
+1130:     <span class="ruby-identifier">oldvalue</span> = <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">nowrite_flag</span>
+1131:     <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">nowrite_flag</span> = <span class="ruby-identifier">value</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">value</span>.<span class="ruby-identifier">nil?</span>
+1132:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">block_given?</span>
+1133:       <span class="ruby-keyword kw">begin</span>
+1134:         <span class="ruby-keyword kw">yield</span>
+1135:       <span class="ruby-keyword kw">ensure</span>
+1136:         <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">nowrite_flag</span> = <span class="ruby-identifier">oldvalue</span>
+1137:       <span class="ruby-keyword kw">end</span>
+1138:     <span class="ruby-keyword kw">end</span>
+1139:     <span class="ruby-identifier">oldvalue</span>
+1140:   <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

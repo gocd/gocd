@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: message
+comment: 
+full_name: Rake::RuleRecursionOverflowError#message
+visibility: public
+aliases: []
+

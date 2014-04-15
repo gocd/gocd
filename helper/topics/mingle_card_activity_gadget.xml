@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Mingle Card Activity Gadget">
+	<p>Go's Mingle card activity gadget allows users to see the new activity in a pipeline in terms of the Mingle cards that were worked on in that period.  This card activity can reflect information about your project, such as which features were just deployed to production or which features require testing.</p>
+	<hint>For this feature to work, the Go and Mingle administrators must first <cref topic="mingle_in_go">configure the display of Mingle gadgets in Go</cref>.
+	</hint>
+	<section title="Configuring Mingle Card Activity for a Go pipeline">
+		<p>Navigate to the Administration page for the pipeline for which you would like to view card activity.</p>
+		<p>Open the 'Project Management' section for the pipeline and select 'Mingle' for the 'Tracking Tool Integration'.</p>
+		<img src="resources/images/cruise/mingle_card_activity_configuration.png"/>
+		<p>There are three fields used by the card activity feature:</p>
+		<bullets>
+			<item><strong>URI</strong> - Required field. The base URI for the Mingle instance that hosts your Mingle project.</item>
+			<item><strong>Project Identifier</strong> - Required field. The identifier for your Mingle project. This identifier can be found in the 'Basic Information' section under the 'Project admin' tab for your Mingle project.</item>
+			<item><strong>MQL Grouping Conditions</strong> - Optional field. MQL snippet used to provide additional information regarding the cards that appear in your card activity table. This MQL is used to determine whether the cards are in a particular state, such as "Greater than In Development."  If this is supplied, the cards will be grouped into cards that currently meet the MQL condition, cards that once met the conditions but no longer do, and those that have never met the conditions.</item>
+		</bullets>
+		<p>Below is an example configuration for the card activity feature:</p>
+		<img src="resources/images/cruise/mingle_card_activity_example_configuration.png"/>
+	</section>
+	<section title="Accessing Mingle Card Activity in Go">
+		<p>There are several locations from where Mingle card activity can be accessed.  These include:</p>
+		<bullets>
+			<item>Pipelines Dashboard page</item>
+			<item>Pipeline instance details page</item>
+			<item>Environments page</item>
+			<item>Stage History section on the Materials page for a pipeline</item>
+		</bullets>
+		<p>On each of these pages, a 'Compare' link will be displayed for each pipeline or pipeline instance.  For example, the screenshot below depicts the 'Compare' link as displayed on the Pipelines Dashboard page.</p>
+	<img src="resources/images/cruise/mingle_card_activity_compare_link.png"/>
+	</section>
+	
+	<section title="Card Activity information">
+		<hint>For cards to be included in the card activity list, the commit messages must include the card number in the following format: #card_number (e.g. #412). Do not put a space between the # and the card number.
+	</hint>
+	<subsection title="With MQL Grouping Conditions">
+		<p>When MQL Grouping Conditions are used, the cards are listed in groups according to whether they:</p>
+		<table>
+            <header-row>
+                <col-header>Icon</col-header>
+                <col-header>Meaning</col-header>
+            </header-row>
+            <row>
+                <col><img src="resources/images/cruise/currently_meets_conditions.png"/></col>
+                <col>Currently meets the conditions</col>
+            </row>
+            <row>
+                <col><img src="resources/images/cruise/did_meet_conditions.png"/></col>
+                <col>Did meet the conditions, but no longer does</col>
+            </row>
+            <row>
+                <col><img src="resources/images/cruise/never_met_conditions.png"/></col>
+                <col>Never met the conditions</col>
+            </row>
+        </table>
+		<p>Below is an example of what the card activity will look like when MQL grouping conditions are supplied. Cards currently meeting the conditions will be shown at the top of the list.</p>
+		<img src="resources/images/cruise/mingle_card_activity_with_grouping_conditions.png"/>
+    </subsection>
+	<subsection title="Without MQL Grouping Conditions">
+		<p>When MQL Grouping Conditions are not provided, the cards are listed in the order in which the commits were made against them.</p>
+		<img src="resources/images/cruise/mingle_card_activity_without_grouping_conditions.png"/>
+	</subsection>
+		<warning>Card activity reflects the "live" state of Mingle, at the time you are viewing this page. That is, the card activity shown is not a snapshot of Mingle data from the time of pipeline execution of deployment. As changes are made to cards in Mingle, this page will reflect the latest card activity.</warning>
+		
+	</section>
+	<section title="Also see" file="mingle_integration_related_topics" collapsed="false"/>
+</chapter>

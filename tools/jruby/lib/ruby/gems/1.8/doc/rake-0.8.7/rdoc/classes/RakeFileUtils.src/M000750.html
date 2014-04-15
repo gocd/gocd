@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>verbose (RakeFileUtils)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1108</span>
+1108:   <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">verbose</span>(<span class="ruby-identifier">value</span>=<span class="ruby-keyword kw">nil</span>)
+1109:     <span class="ruby-identifier">oldvalue</span> = <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">verbose_flag</span>
+1110:     <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">verbose_flag</span> = <span class="ruby-identifier">value</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">value</span>.<span class="ruby-identifier">nil?</span>
+1111:     <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">block_given?</span>
+1112:       <span class="ruby-keyword kw">begin</span>
+1113:         <span class="ruby-keyword kw">yield</span>
+1114:       <span class="ruby-keyword kw">ensure</span>
+1115:         <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">verbose_flag</span> = <span class="ruby-identifier">oldvalue</span>
+1116:       <span class="ruby-keyword kw">end</span>
+1117:     <span class="ruby-keyword kw">end</span>
+1118:     <span class="ruby-constant">RakeFileUtils</span>.<span class="ruby-identifier">verbose_flag</span>
+1119:   <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

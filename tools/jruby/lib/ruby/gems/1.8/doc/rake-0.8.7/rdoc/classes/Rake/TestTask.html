@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Rake::TestTask</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Rake::TestTask</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake/testtask_rb.html">
+                lib/rake/testtask.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="TaskLib.html">
+                TaskLib
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Create a task that runs a set of tests.
+</p>
+<p>
+Example:
+</p>
+<pre>
+  Rake::TestTask.new do |t|
+    t.libs &lt;&lt; &quot;test&quot;
+    t.test_files = FileList['test/test*.rb']
+    t.verbose = true
+  end
+</pre>
+<p>
+If rake is invoked with a &quot;TEST=filename&quot; command line option,
+then the list of test files will be overridden to include only the filename
+specified on the command line. This provides an easy way to run just one
+test.
+</p>
+<p>
+If rake is invoked with a &quot;TESTOPTS=options&quot; command line option,
+then the given options are passed to the test process after a
+&#8217;&#8212;&#8217;. This allows <a
+href="../Test/Unit.html">Test::Unit</a> options to be passed to the test
+suite.
+</p>
+<p>
+Examples:
+</p>
+<pre>
+  rake test                           # run tests normally
+  rake test TEST=just_one_file.rb     # run just one test file.
+  rake test TESTOPTS=&quot;-v&quot;             # run in verbose mode
+  rake test TESTOPTS=&quot;--runner=fox&quot;   # use the fox test runner
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000604">define</a>&nbsp;&nbsp;
+      <a href="#M000603">new</a>&nbsp;&nbsp;
+      <a href="#M000602">test_files=</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">libs</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+List of directories to added to $LOAD_PATH before running the tests.
+(default is &#8216;lib&#8217;)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">loader</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Style of test loader to use. Options are:
+
+<ul>
+<li>:rake &#8212; Rake provided test loading script (default).
+
+</li>
+<li>:testrb &#8212; Ruby provided test loading script.
+
+</li>
+<li>:direct &#8212; Load tests using command line loader.
+
+</li>
+</ul>
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">name</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Name of test task. (default is :test)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">options</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+<a href="../Test.html">Test</a> options passed to the test suite. An
+explicit TESTOPTS=opts on the command line will override this. (default is
+NONE)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">pattern</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Glob pattern to match test files. (default is &#8216;test/test*.rb&#8217;)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">ruby_opts</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Array of commandline options to pass to ruby when running test loader.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">verbose</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+True if verbose test output desired. (default is false)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">warning</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Request that the tests be run with the warning flag set. E.g. warning=true
+implies &quot;ruby -w&quot; used to run the tests.
+
+</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000603" class="method-detail">
+        <a name="M000603"></a>
+
+        <div class="method-heading">
+          <a href="TestTask.src/M000603.html" target="Code" class="method-signature"
+            onclick="popupCode('TestTask.src/M000603.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(name=:test) {|self if block_given?| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a testing task.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000604" class="method-detail">
+        <a name="M000604"></a>
+
+        <div class="method-heading">
+          <a href="TestTask.src/M000604.html" target="Code" class="method-signature"
+            onclick="popupCode('TestTask.src/M000604.html');return false;">
+          <span class="method-name">define</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create the tasks defined by this task lib.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000602" class="method-detail">
+        <a name="M000602"></a>
+
+        <div class="method-heading">
+          <a href="TestTask.src/M000602.html" target="Code" class="method-signature"
+            onclick="popupCode('TestTask.src/M000602.html');return false;">
+          <span class="method-name">test_files=</span><span class="method-args">(list)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Explicitly <a href="TestTask.html#M000604">define</a> the list of test
+files to be included in a test. <tt>list</tt> is expected to be an array of
+file names (a <a href="FileList.html">FileList</a> is acceptable). If both
+<tt>pattern</tt> and <tt>test_files</tt> are used, then the list of test
+files is the union of the two.
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

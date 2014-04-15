@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (other)
+is_singleton: false
+block_params: 
+name: '*'
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Redefine * to return either a string or a new file list.
+full_name: Rake::FileList#*
+visibility: public
+aliases: []
+

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Job Details">
+    <p>The Job Details page shows the details of a job within a specific stage.</p>
+    <screenshot alttext="Job Details Page" src="resources/images/cruise/JobDetails.png"/>
+    <section title="Key">
+    <steps>
+        <item>The "Console" Tab shows the console output of the agent running the job in near-real time.</item>
+        <item>The "Tests" Tab shows junit compliant test output. (After you <cref topic="dev_upload_test_report">upload test reports</cref>)</item>
+        <item>The "Failures" Tab shows any test, server, compilation, or network error associated with a failed job run.</item>
+        <item>The "Artifacts" Tab shows a collapsible list of the job's artifacts.</item>
+        <item>The "Materials" Tab shows what activated the pipeline through a list of comments and revisions.</item>
+        <item>The "Properties" Tab shows the list of <cref topic="properties">properties</cref> for the job. Some properties are Go defaults. You can also automatically <cref topic="dev_save_properties">save custom properties</cref>.</item>
+        <item>The "Coverage" Tab is an example of a custom tab. You can create <cref topic="dev_see_artifact_as_tab">custom tabs</cref> to view any uploaded artifact.</item>
+        <item>Click "Export property history to spreadsheet (csv)" to view a job's property values over time in an excel compatible format.  This is useful for charting and graphing various build metrics.</item>
+        <item>The Jobs History sidebar lists recent jobs by date and time.  Each job is highlighted with a passed, failed, or canceled icon. Click the job to view its Job Details information.</item>
+    </steps>
+    </section>
+        <section title="Also See...">
+        <bullets>
+            <item><cref topic="job_rerun">Re-running job(s)</cref></item>
+        </bullets>
+    </section>
+</topic>

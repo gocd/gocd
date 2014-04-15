@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Managing pipelines">
+    <p>Go can be configured using
+        <cref topic="administration_page">Administration</cref>
+        Tab. You can perform operations like add/edit Pipelines, Stages, Jobs, Tasks, Templates and Pipeline group. You can also configure Go by editing the full XML file if you
+        wish, by clicking on the
+        <strong>Config XML</strong>
+        section of the
+        <cref topic="administration_page">Administration</cref>
+        tab. Go will check the syntax of the configuration before it saves it again
+    </p>
+    <section title="Creating a new pipeline">
+        <p>To create a new pipeline, go to the
+            <strong>Pipelines</strong>
+            sub-tab of the
+            <cref topic="administration_page">Administration</cref>
+            tab and click on the
+            <cref topic="quick_pipeline_setup">"Create a new pipeline within this group"</cref>
+            link as shown in the screen shot below.
+        </p>
+        <img src="resources/images/cruise/admin/create_new_pipeline_link.png"/>
+    </section>
+    <section file="admin_add_material" collapsed="true"/>
+    <section file="admin_add_stage" collapsed="true"/>
+    <section file="admin_add_job" collapsed="true"/>
+    <section file="admin_add_task" collapsed="true"/>
+    <section file="admin_clone_pipeline" collapsed="true"/>
+    <section file="pipeline_templates" collapsed="true"/>
+    <section title="Stage approvals in action" collapsed="true">
+        <p>By default, when one stage completes successfully, the next stage is automatically triggered by Go. However sometimes you don't want the next stage to be triggered
+            automatically. This might be the case if you have a stage that deploys your application to a testing, staging or production environment. Another case can be when you
+            don't want your pipeline to be automatically triggered by changes in version control. In these situations, you want the stage triggered by manual intervention. This can
+            be done through manual <cref topic="configuration_reference" anchor="approval">approvals</cref>.
+        </p>
+        <p>If you add a manual approval to the first stage in a pipeline, it will prevent the pipeline from being triggered from version control. Instead, it will only pick up
+            changes when you trigger the pipeline manually (this is sometimes known as "forcing the build").
+        </p>
+        <p>From Cruise 1.1 (legacy version of Go), you can control who can trigger manual approvals. See the section on
+            <cref topic="dev_authorization" anchor="approvals">Adding authorization to approvals</cref>
+            for more details.
+        </p>
+    </section>
+    <section title="Managing pipeline groups" collapsed="true">
+        <p>Starting with Cruise 1.3 (legacy version of Go), there is support for collecting multiple pipelines into a single named group. See the section
+            on
+            <cref topic="dev_authorization" anchor="pipeline-groups">Specifying who can view and operate pipeline groups</cref>
+            for more details.
+        </p>
+    </section>
+</chapter>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>use_custom_matcher_or_delegate (Spec::Matchers::OperatorMatcher)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/matchers/operator_matcher.rb, line 24</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">use_custom_matcher_or_delegate</span>(<span class="ruby-identifier">operator</span>)
+        <span class="ruby-identifier">define_method</span>(<span class="ruby-identifier">operator</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">expected</span><span class="ruby-operator">|</span>
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">matcher</span> = <span class="ruby-constant">OperatorMatcher</span>.<span class="ruby-identifier">get</span>(<span class="ruby-ivar">@actual</span>.<span class="ruby-identifier">class</span>, <span class="ruby-identifier">operator</span>)
+            <span class="ruby-ivar">@actual</span>.<span class="ruby-identifier">send</span>(<span class="ruby-operator">::</span><span class="ruby-constant">Spec</span><span class="ruby-operator">::</span><span class="ruby-constant">Matchers</span>.<span class="ruby-identifier">last_should</span>, <span class="ruby-identifier">matcher</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">expected</span>))
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-identifier">eval_match</span>(<span class="ruby-ivar">@actual</span>, <span class="ruby-identifier">operator</span>, <span class="ruby-identifier">expected</span>)
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

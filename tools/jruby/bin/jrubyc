@@ -1,0 +1,5 @@
+#!/usr/bin/env jruby
+
+require 'jruby/jrubyc'
+
+JRubyCompiler::compile_argv(ARGV)

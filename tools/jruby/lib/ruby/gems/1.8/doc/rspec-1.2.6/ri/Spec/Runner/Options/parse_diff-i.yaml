@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (format)
+is_singleton: false
+block_params: 
+name: parse_diff
+comment: 
+full_name: Spec::Runner::Options#parse_diff
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (message, include_private = false)
+is_singleton: false
+block_params: 
+name: respond_to?
+comment: 
+full_name: Spec::Runner::Formatter::NOOPMethodMissing#respond_to?
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (value)
+is_singleton: false
+block_params: 
+name: ==
+comment: 
+full_name: Spec::Mocks::ArgumentMatchers::MatcherMatcher#==
+visibility: public
+aliases: []
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs
+            title="<%=l.string('GADGET_NAME_PIPELINE_STATUS')%>"
+            author="Go"
+            author_email="support@thoughtworks.com"
+            author_link="http://www.thoughtworks.com/products/go-continuous-delivery">
+        <Require feature="oauthpopup"/>
+        <Require feature="setprefs"/>
+        <Require feature="dynamic-height" />
+        <OAuth>
+            <Service name="<%=l.string("GO")%>">
+                <Request method="GET" url="<%= url_for(:controller => '/oauth_token', :action => :get_token, :only_path => false) %>"/>
+                <Access method="GET" url="<%= url_for(:controller => '/oauth_token', :action => :get_token, :only_path => false) %>"/>
+                <Authorization url="<%= url_for(:controller => '/oauth_authorize', :action => :index, :only_path => false) %>"/>
+            </Service>
+        </OAuth>
+    </ModulePrefs>
+    <UserPref name="pipelineName" datatype="string" default_value="" display_name="Pipeline Name" />
+    <UserPref name="autoRefresh" datatype="bool" default_value="true" display_name="Enable Auto Refresh" />
+    <Content type="html">
+        <![CDATA[
+            <%= render :partial=>'pipeline_content.html', :locals => {:scope => {}} %>
+        ]]>
+    </Content>
+</Module>

@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>CCE Dashboard Tests</title>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css"/>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/main.css"/>
+    <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+<script type="text/javascript" src="../app/after_load_enhancements.js"></script>
+    <script language="JavaScript" type="text/javascript">
+
+        function test_should_update_when_revision_is_updated() {
+            var dirtyTracker = new DirtyTracker('materials_tab');
+            dirtyTracker.update(1);
+            assertEquals('Materials', $$('#materials_tab.updated')[0].down('a').innerHTML);
+        }
+
+        function test_should_remove_updated_when_update_is_undone() {
+            var dirtyTracker = new DirtyTracker('materials_tab');
+            dirtyTracker.update(1);
+            dirtyTracker.update(1);
+            dirtyTracker.undoUpdate(1);
+            assertTrue($$('#materials_tab.updated').length == 0);
+        }
+
+        function test_should_not_remove_updated_when_atleast_one_is_updated() {
+            var dirtyTracker = new DirtyTracker('materials_tab');
+            dirtyTracker.update(1);
+            dirtyTracker.update(2);
+            dirtyTracker.undoUpdate(1);
+            assertTrue($$('#materials_tab.updated').length != 0);
+        }
+
+    </script>
+</head>
+<body>
+<div class='under_test'>
+    <div class="change_materials">
+        <div class="sub_tabs_container">
+            <ul>
+                <li id="materials_tab" class="current_tab"><a>Materials</a></li>
+                <li id="environment_variables_tab" ><a>Environment Variables</a></li>
+            </ul>
+            <div class="clear"></div>
+        </div>
+        <div class="sub_tab_container rounded-corner-for-tab-container">
+        </div>
+    </div>
+</div>
+</body>
+</html>

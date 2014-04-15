@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, &declarations)
+is_singleton: false
+block_params: 
+name: create
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Deprecated - use define
+full_name: Spec::Matchers::DSL#create
+visibility: public
+aliases: []
+

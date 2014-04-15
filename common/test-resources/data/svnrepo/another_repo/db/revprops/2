@@ -1,0 +1,13 @@
+K 10
+svn:author
+V 7
+cceuser
+K 8
+svn:date
+V 27
+2008-08-14T07:38:10.497710Z
+K 7
+svn:log
+V 44
+added sleep target so we can use it in tests
+END

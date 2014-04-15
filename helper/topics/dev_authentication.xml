@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Authentication">
+    <p>Go was built from the bottom up with security in mind. Go server provides both an http service and an https service by default. The http service listens on port 8153 and the https service
+        listens on port 8154.
+    </p>
+    <p>By default, Go does not require users to authenticate. However we provide two mechanisms for you to force users to authenticate if you wish to. You can create a password file (in standard
+        Apache htpassd syntax) to authenticate log in requests. Alternatively Go can authenticate against LDAP or ActiveDirectory servers.
+    </p>
+    <p>You can use both password file and LDAP/ActiveDirectory authentication at the same time. In this case Go will first try and authenticate you against the password file. If it cannot find your
+        username, or if it finds that your username and password do not match, it will try LDAP/AD next. This can be very useful if you need a read-only user that can be used by scripts, and you do
+        not want to add this user to your LDAP.
+    </p>
+
+    <section title="File Based Authentication">
+        <p>The simplest way to authenticate people is to create a password file for Go to use. This is just a plain text file with the following format:</p>
+        <code>[username]:[password hashed with SHA1 and encoded with base 64]</code>
+        <p>If your SHA1 algorithm and base 64 encoding works properly, the password "badger" should come out as "ThmbShxAtJepX80c2JY1FzOEmUk=".</p>
+        <p>You can put as many username/hashed password pairs as you like -- use a new line for each one.</p>
+        <p>To configure Go to use a password file for authentication:</p>
+        <steps>
+            <item>Login to Go as an admin</item>
+            <item>Navigate to the "Admin" section</item>
+            <item>Click on the "Server Configuration" tab</item>
+            <item>Fill out the "Password File Settings" field under the "User Management" section</item>
+        </steps>
+        <img src="resources/images/cruise/admin/user_authentication_password_file.png"/>
+
+        <p>Go should pick up this change immediately and start authenticating new users (note that anybody already using Go will be required to re-authenticate).</p>
+        <note>The file format for the password file is the <exref url="http://docs.oracle.com/javase/7/docs/api/java/util/Properties.html#load(java.io.Reader)">standard one for Java
+            Properties</exref>, which means that spaces, the equals sign, and the colon are special characters in the username and must be escaped with a backslash.
+        </note>
+
+        <subsection title="Generating passwords using htpasswd" collapsed="true">
+            <p>You can use the
+                <exref url="http://httpd.apache.org/docs/2.0/programs/htpasswd.html">htpasswd program from Apache</exref>
+                to manage your password file.
+                <strong>You must use the -s option with htpasswd to force it to use SHA1 encoding for the password.</strong>
+                So for example, you can use the following command to create a password file called "passwd" and put the password for the user "user" in it:
+            </p>
+            <code>htpasswd -c -s passwd user</code>
+            <subsection title="htpasswd on Windows" collapsed="true">
+                <p>htpasswd is not available on windows, but there are plenty of
+                    <exref url="http://www.google.com/search?q=generate+htpasswd+sha">websites</exref>
+                    that perform the encryption for free. Make sure you use the SHA1 algorithm.
+                </p>
+            </subsection>
+            <subsection title="htpasswd on Mac OSX" collapsed="true">
+                <p>htpasswd is already installed by default on Mac OSX.</p>
+            </subsection>
+            <subsection title="htpasswd on Linux" collapsed="true">
+                <p>Debian based distributions (e.g. Ubuntu) htpasswd can be installed from the apache2-utils</p>
+                <code>$ apt-get install apache2-utils</code>
+            </subsection>
+        </subsection>
+        <subsection title="Generating passwords using python" collapsed="true">
+            <p>Another option is to use the following command (assumes python is installed on your system)</p>
+            <code>$ python -c "import sha;from base64 import b64encode;print b64encode(sha.new('my-password').digest())"</code>
+        </subsection>
+    </section>
+
+    <section title="LDAP/ActiveDirectory Authentication" id='ldap_authentication'>
+        <p>Go can authenticate against an LDAP or Active Directory (AD) server. Go uses the standard JNDI APIs to access LDAP/AD, using the well known Acegi Security framework. Go uses "bind"
+            authentication to authenticate directly to the LDAP/AD server.
+        </p>
+        <note>Note that LDAP/AD Authentication can be complex to configure. We highly recommend that you work with your network administration staff to configure this feature.</note>
+
+        <p>To configure Go to use LDAP/AD for authentication:</p>
+        <steps>
+            <item>Login to Go as an admin</item>
+            <item>Navigate to the "Admin" section</item>
+            <item>Click on the "Server Configuration" tab</item>
+            <item>Fill out the "LDAP Settings" under the "User Management" section</item>
+        </steps>
+        <img src="resources/images/cruise/admin/user_authentication_ldap.png"/>
+
+        <p>The
+            <strong>Manager DN</strong>
+            is the LDAP/AD manager user's DN, used to connect to the LDAP/AD server.
+        </p>
+        <p>The
+            <strong>Manager Password</strong>
+            is the LDAP/AD manager password, used to connect to the LDAP/AD server. Use the 'change password' checkbox to edit the password.
+        </p>
+        <p>The
+            <strong>Search Base</strong>
+            is the name of the context or object to search in for the user record. If you have more than one search base, please separate each of them with a new line.  
+        </p>
+        <p>The
+            <strong>Search Filter</strong>
+            is the expression used in the user search. It is an LDAP search filter as defined in
+            <exref url="http://www.ietf.org/rfc/rfc2254.txt">RFC 2254</exref>
+            with optional parameters -- in this case, the username is the only parameter. An example might be:
+        </p>
+        <code>(uid={0})</code>
+        <p>which would search for a username match on the uid attribute, or</p>
+        <code>(sAMAccountName={0})</code>
+        <p>which would search for a username match on the sAMAccountName attribute (for ActiveDirectory users)</p>
+	<p>Click on Check LDAP button to check if your LDAP configuration is correct.  This will bind to the LDAP server using the credentials provided in Manager DN and Manager Password.</p>
+	<note>Check LDAP will report an error if Search Base contains invalid <strong>dc</strong> information.  However, it will not detect invalid <strong>ou</strong> </note>
+        <p>The authentication operation has two steps: firstly, Go uses the Manager DN and Manager Password supplied to search for the user using the searchBase and searchFilter attributes. Go will
+            search subtrees and time out after five seconds. Go then uses the DN returned to attempt to bind to LDAP/AD using the username and password supplied by the user.
+        </p>
+        <p>Note that Go doesn't retrieve any further information from LDAP/AD such as roles, groups or email address. It simply gets the user's CN.</p>
+	<note>If multiple search bases are configured, Go server will look for the specified user in each search base, one after the other.  It will stop searching when it finds the information in a search base.  In case any of the search bases are invalid, Go server will log this information in the server log, but continue searching in the remaining search bases.</note>
+    </section>
+
+    <section title="Controlling User Access">
+        <p>Once a user is authenticated, Go checks to see if he is an existing user or a new user (logging in for the first time). If a new user, there are two behaviors Go can operate under:</p>
+        <bullets>
+            <item>Automatically register the new user in Go and continue with the login process. This option has implications on licensing because auto-registering any new user who is in LDAP might
+                cause you to run over your license limit. So keep that in mind when using this option.
+            </item>
+            <item>Deny access to the user if not already a registered Go user. New users will have to be explicitly added by an admin.</item>
+        </bullets>
+
+        <p>To switch the mode in which the Go Server operates:</p>
+        <steps>
+            <item>Login to Go as an admin</item>
+            <item>Navigate to the "Admin" section</item>
+            <item>Click on the "Server Configuration" tab</item>
+            <item>Set the "Allow users that exist in LDAP or in the password file to log into Go, even if they haven't been explicitly added to Go" checkbox</item>
+        </steps>
+        <img src="resources/images/cruise/admin/user_authentication_auto_login.png"/>
+    </section>
+
+    <section title="Common errors" id="common_errors">
+        <p>Below are few of the common errors you might encounter while integrating with an authentication provider</p>
+        <subsection title="Bad credentials" collapsed="true">
+            <bullets>
+                <item>Invalid username/password combination. Please check if the combination is valid and try again.</item>
+            </bullets>
+        </subsection>
+        <subsection title="User [username] not found in directory" collapsed="true">
+            <bullets>
+                <item>A user with [username] is not found in LDAP. Please check with your LDAP administrator to verify if the user exists.</item>
+                <item>Check with your Go Administrator to verify that the user with [username] exists in the LDAP search base configured in Go.</item>
+            </bullets>
+        </subsection>
+        <subsection title="Empty username not allowed" collapsed="true">
+            <bullets>
+                <item>The user has supplied an empty username. Please enter a valid username in the field.</item>
+            </bullets>
+        </subsection>
+        <subsection title="Failed to authenticate with your authentication provider. Please check if your authentication provider is up and available to serve requests." collapsed="true">
+            <bullets>
+                <item>Your LDAP server could not be reached by Go Server. Please check with your LDAP Administrator to resolve connectivity issues, if one exists, between Go Server and LDAP.</item>
+                <item>Please check with your Go Administrator to verify that the LDAP configuration is correct. Also check the Go Server logs for errors.</item>
+            </bullets>
+        </subsection>
+        <subsection title="User license limit exceeded, please contact the administrator" collapsed="true">
+	    <bullets>
+	        <item>
+		    This error is displayed when the number of users logged into Go has exceeded the number permited by the license.  This typically happens when an existing license expires. It can also happen if a license which allowed certain number of users has been replaced by another which allows a lesser number of users.  
+		</item>
+	    </bullets>
+	</subsection>
+        <subsection title="Your account has been disabled by the administrator" collapsed="true">
+	    <bullets>
+	        <item>
+		    This error is displayed when the user trying to log into Go has been disabled by the administrator.  Please check with your Go Administrator.
+		</item>
+	    </bullets>
+	  </subsection>
+    </section>
+
+</chapter>

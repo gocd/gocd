@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>load_heckle_runner (Spec::Runner::Options)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/options.rb, line 225</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load_heckle_runner</span>(<span class="ruby-identifier">heckle</span>)
+        <span class="ruby-ivar">@format_options</span> <span class="ruby-operator">||=</span> [[<span class="ruby-value str">'silent'</span>, <span class="ruby-ivar">@output_stream</span>]]
+        <span class="ruby-identifier">suffix</span> = ([<span class="ruby-regexp re">/mswin/</span>, <span class="ruby-regexp re">/java/</span>].<span class="ruby-identifier">detect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span> <span class="ruby-identifier">p</span> <span class="ruby-operator">=~</span> <span class="ruby-constant">RUBY_PLATFORM</span>} <span class="ruby-operator">||</span> <span class="ruby-constant">Spec</span><span class="ruby-operator">::</span><span class="ruby-constant">Ruby</span>.<span class="ruby-identifier">version</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">==</span> <span class="ruby-value">1.9</span>) <span class="ruby-operator">?</span> <span class="ruby-value str">'_unsupported'</span> <span class="ruby-operator">:</span> <span class="ruby-value str">''</span>
+        <span class="ruby-identifier">require</span> <span class="ruby-node">&quot;spec/runner/heckle_runner#{suffix}&quot;</span>
+        <span class="ruby-ivar">@heckle_runner</span> = <span class="ruby-operator">::</span><span class="ruby-constant">Spec</span><span class="ruby-operator">::</span><span class="ruby-constant">Runner</span><span class="ruby-operator">::</span><span class="ruby-constant">HeckleRunner</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">heckle</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

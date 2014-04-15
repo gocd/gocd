@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (options_file)
+is_singleton: false
+block_params: 
+name: write_generated_options
+comment: 
+full_name: Spec::Runner::OptionParser#write_generated_options
+visibility: protected
+aliases: []
+

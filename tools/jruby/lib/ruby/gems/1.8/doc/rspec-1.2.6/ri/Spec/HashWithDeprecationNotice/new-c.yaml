@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (method, alternate_method=nil, &block)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::HashWithDeprecationNotice::new
+visibility: public
+aliases: []
+

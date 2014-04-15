@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (s)
+is_singleton: true
+block_params: 
+name: parse
+comment: 
+full_name: Spec::Runner::ClassAndArgumentsParser::parse
+visibility: public
+aliases: []
+

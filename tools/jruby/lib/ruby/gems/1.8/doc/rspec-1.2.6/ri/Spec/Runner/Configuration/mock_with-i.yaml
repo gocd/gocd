@@ -1,0 +1,30 @@
+--- !ruby/object:RI::MethodDescription 
+params: (mock_framework)
+is_singleton: false
+block_params: 
+name: mock_with
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Chooses what mock framework to use. Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Runner.configure do |config|\n    config.mock_with :rspec, :mocha, \
+    :flexmock, or :rr\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'To use any other mock framework, you''ll have to provide your own adapter.
+    This is simply a module that responds to the following methods:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  setup_mocks_for_rspec\n  verify_mocks_for_rspec\n  teardown_mocks_for_rspec.\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'These are your hooks into the lifecycle of a given example. RSpec will call
+    setup_mocks_for_rspec before running anything else in each Example. After executing
+    the #after methods, RSpec will then call verify_mocks_for_rspec and teardown_mocks_for_rspec
+    (this is guaranteed to run even if there are failures in verify_mocks_for_rspec).'
+- !ruby/struct:SM::Flow::P 
+  body: 'Once you''ve defined this module, you can pass that to mock_with:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Runner.configure do |config|\n    config.mock_with MyMockFrameworkAdapter\n\
+    \  end\n"
+full_name: Spec::Runner::Configuration#mock_with
+visibility: public
+aliases: []
+

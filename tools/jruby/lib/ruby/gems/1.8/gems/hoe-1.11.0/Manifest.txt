@@ -1,0 +1,15 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/sow
+lib/hoe.rb
+template/.autotest.erb
+template/History.txt.erb
+template/Manifest.txt.erb
+template/README.txt.erb
+template/Rakefile.erb
+template/bin/file_name.erb
+template/lib/file_name.rb.erb
+template/test/test_file_name.rb.erb
+test/test_hoe.rb

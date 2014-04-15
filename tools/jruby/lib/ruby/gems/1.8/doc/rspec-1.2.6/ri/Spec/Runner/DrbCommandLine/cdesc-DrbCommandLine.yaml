@@ -1,0 +1,18 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: DrbCommandLine
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Facade to run specs by connecting to a DRB server
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Runner::DrbCommandLine
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: run

@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*wildcards)
+is_singleton: false
+block_params: 
+name: delete_all
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Recursively delete all files and directories matching <tt>wildcard</tt>.
+full_name: Sys#delete_all
+visibility: public
+aliases: []
+

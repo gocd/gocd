@@ -1,0 +1,125 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!-- These reliability tests ensure the system stays responsive under continual build requests.
+     TODO: Load testing in which the system is hit by multiple build requests for multiple agents.
+-->
+<project basedir="..">
+    <import file="common_properties.xml" />
+    <import file="dist.xml" />
+
+    <property name="version" value="0.9" />
+    <property name="perf.db.medium" location="${dir.server.test.performance}/hsqldb-medium.zip" />
+    <property name="perf.db.large" location="${dir.server.test.performance}/hsqldb-large.zip" />
+
+    <target name="perf.all" depends="perf.setup" />
+
+    <target name="perf.create_db" depends="perf.setup"
+            description="Only used for creating the db's when db schema has changed.">
+        <echo message="Start server and agent, then run checkin.sh X to create X completed pipelines"/>
+    </target>
+
+    <target name="perf.setup" >
+        <delete dir="${target.perf}" quiet="true" />
+        <copy todir="${target.perf}" overwrite="true" failonerror="true">
+            <fileset dir="${dir.server.test.performance.env}"/>
+        </copy>
+        <unzip dest="${target.perf}" src="${target.perf}/perf-hg-repo.zip" overwrite="true" />
+        <chmod file="${target.perf}/setup.sh" perm="777" />
+        <chmod file="${target.perf}/checkin.sh" perm="777" />
+        <exec dir="${target.perf}" executable="./setup.sh" vmlauncher="false"/>
+        <echo message="Created performance testing environment at ${target.perf}"/>
+    </target>
+
+    <target name="perf.setup.10.5.5">
+        <copy tofile="${target.perf}/cruise-server-${version}/cruise-config.xml"  failonerror="true" overwrite="true">
+            <fileset file="${target.perf}/cruise-config-10-5-5.xml" />
+        </copy>
+    </target>
+
+    <macrodef name="load.perf.data">
+        <attribute name="db.src" />
+        <sequential>
+            <delete dir="${target.perf}/cruise-server-${version}/db/hsqldb" />
+            <unzip dest="${target.perf}/cruise-server-${version}/db" src="@{db.src}" overwrite="true" />
+            <echo message="Start server and agent, then compare values in cruise-perf.log to other test data." />
+        </sequential>
+    </macrodef>
+
+    <target name="perf.small.db" depends="perf.setup" description="Uses the initial 0 record db in perf tests">
+        <echo message="Start server and agent, then run ant perf.small.result to copy perf logs." />
+    </target>
+
+    <target name="perf.medium.db" description="Uses the medium db in perf tests">
+        <load.perf.data db.src="${perf.db.medium}" />
+    </target>
+
+    <target name="perf.large.db" description="Uses the medium db in perf tests">
+        <load.perf.data db.src="${perf.db.large}" />
+    </target>
+
+    <macrodef name="save.db">
+        <attribute name="destfile" />
+        <sequential>
+            <zip basedir="${target.perf}/cruise-server-${version}/db" includes="h2db/*" destfile="@{destfile}" />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="save.logs">
+        <attribute name="log.name" />
+        <sequential>
+            <copy file="${target.perf}/cruise-server-${version}/cruise-perf.log" 
+                  tofile="${dir.server.test.performance}/results/@{log.name}" />
+        </sequential>
+    </macrodef>
+
+    <target name="perf.small.result" description="Saves results after small performance tests">
+        <!-- Just using the default database here -->
+        <save.logs log.name="small-perf.log" />
+    </target>
+
+    <target name="perf.medium.result" description="Saves results after medium performance tests">
+        <save.db destfile="${perf.db.medium}" />
+        <save.logs log.name="medium-perf.log" />
+    </target>
+
+    <target name="perf.large.result" description="Saves results after large performance tests">
+        <save.db destfile="${perf.db.large}" />
+        <save.logs log.name="large-perf.log" />
+    </target>
+
+    <target name="perf" depends="-run-test?, compile.util, compile.performance">
+        <mkdir dir="${target.reports}"/>
+        <mkdir dir="${target}/temp"/>
+
+        <junit dir="${dir.performance}" tempdir="${target}" haltonfailure="true" fork="true" forkMode="once" >
+            <classpath refid="classpath.performance"/>
+
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml"/>
+
+            <sysproperty key="java.io.tmpdir" value="${target}/temp"/>
+
+            <batchtest todir="${target.reports}">
+                <fileset dir="${dir.performance.test}">
+                    <include name="**/UATPerfTest.java"/>
+                    <include name="**/BJCruisePerfTest.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+    
+</project>

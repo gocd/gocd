@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: suite
+comment: 
+full_name: Test::Unit::TestCase::suite
+visibility: public
+aliases: []
+

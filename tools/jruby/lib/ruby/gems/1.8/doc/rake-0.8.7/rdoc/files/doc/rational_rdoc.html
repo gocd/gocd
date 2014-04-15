@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rational.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rational.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/rational.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Why rake?</h1>
+<p>
+Ok, let me state from the beginning that I never intended to write this
+code. I&#8216;m not convinced it is useful, and I&#8216;m not convinced
+anyone would even be interested in it. All I can say is that Why&#8216;s
+onion truck must by been passing through the Ohio valley.
+</p>
+<p>
+What am I talking about? &#8230; A Ruby version of Make.
+</p>
+<p>
+See, I can sense you cringing already, and I agree. The world certainly
+doesn&#8216;t need yet another reworking of the &quot;make&quot; program. I
+mean, we already have &quot;ant&quot;. Isn&#8216;t that enough?
+</p>
+<p>
+It started yesterday. I was helping a coworker fix a problem in one of the
+Makefiles we use in our project. Not a particularly tough problem, but
+during the course of the conversation I began lamenting some of the
+shortcomings of make. In particular, in one of my makefiles I wanted to
+determine the name of a file dynamically and had to resort to some simple
+scripting (in Ruby) to make it work. &quot;Wouldn&#8216;t it be nice if you
+could just use Ruby inside a Makefile&quot; I said.
+</p>
+<p>
+My coworker (a recent convert to Ruby) agreed, but wondered what it would
+look like. So I sketched the following on the whiteboard&#8230;
+</p>
+<pre>
+    &quot;What if you could specify the make tasks in Ruby, like this ...&quot;
+
+      task &quot;build&quot; do
+        java_compile(...args, etc ...)
+      end
+
+    &quot;The task function would register &quot;build&quot; as a target to be made,
+    and the block would be the action executed whenever the build
+    system determined that it was time to do the build target.&quot;
+</pre>
+<p>
+We agreed that would be cool, but writing make from scratch would be WAY
+too much work. And that was the end of that!
+</p>
+<p>
+&#8230; Except I couldn&#8216;t get the thought out of my head. What
+exactly would be needed to make the about syntax work as a make file? Hmmm,
+you would need to register the tasks, you need some way of specifying
+dependencies between tasks, and some way of kicking off the process. Hey!
+What if we did &#8230; and fifteen minutes later I had a working prototype
+of Ruby make, complete with dependencies and actions.
+</p>
+<p>
+I showed the code to my coworker and we had a good laugh. It was just about
+a page worth of code that reproduced an amazing amount of the functionality
+of make. We were both truely stunned with the power of Ruby.
+</p>
+<p>
+But it didn&#8216;t do everything make did. In particular, it didn&#8216;t
+have timestamp based file dependencies (where a file is rebuilt if any of
+its prerequisite files have a later timestamp). Obviously THAT would be a
+pain to add and so Ruby Make would remain an interesting experiment.
+</p>
+<p>
+&#8230; Except as I walked back to my desk, I started thinking about what
+file based dependecies would really need. Rats! I was hooked again, and by
+adding a new class and two new methods, file/timestamp dependencies were
+implemented.
+</p>
+<p>
+Ok, now I was really hooked. Last night (during CSI!) I massaged the code
+and cleaned it up a bit. The result is a bare-bones replacement for make in
+exactly 100 lines of code.
+</p>
+<p>
+For the curious, you can see it at &#8230;
+</p>
+<ul>
+<li>doc/proto_rake.rdoc
+
+</li>
+</ul>
+<p>
+Oh, about the name. When I wrote the example Ruby Make task on my
+whiteboard, my coworker exclaimed &quot;Oh! I have the perfect name: Rake
+&#8230; Get it? Ruby-Make. Rake!&quot; He said he envisioned the tasks as
+leaves and Rake would clean them up &#8230; or something like that.
+Anyways, the name stuck.
+</p>
+<p>
+Some quick examples &#8230;
+</p>
+<p>
+A simple task to delete backup files &#8230;
+</p>
+<pre>
+   task :clean do
+     Dir['*~'].each {|fn| rm fn rescue nil}
+   end
+</pre>
+<p>
+Note that task names are symbols (they are slightly easier to type than
+quoted strings &#8230; but you may use quoted string if you would rather).
+Rake makes the methods of the <a
+href="../../classes/FileUtils.html">FileUtils</a> module directly
+available, so we take advantage of the <tt>rm</tt> command. Also note the
+use of &quot;rescue nil&quot; to trap and ignore errors in the <tt>rm</tt>
+command.
+</p>
+<p>
+To run it, just type &quot;rake clean&quot;. Rake will automatically find a
+Rakefile in the current directory (or above!) and will invoke the targets
+named on the command line. If there are no targets explicitly named, rake
+will invoke the task &quot;default&quot;.
+</p>
+<p>
+Here&#8216;s another task with dependencies &#8230;
+</p>
+<pre>
+   task :clobber =&gt; [:clean] do
+     rm_r &quot;tempdir&quot;
+   end
+</pre>
+<p>
+Task :clobber depends upon task :clean, so :clean will be run before
+:clobber is executed.
+</p>
+<p>
+Files are specified by using the &quot;file&quot; command. It is similar to
+the task command, except that the task name represents a file, and the task
+will be run only if the file doesn&#8216;t exist, or if its modification
+time is earlier than any of its prerequisites.
+</p>
+<p>
+Here is a file based dependency that will compile &quot;hello.cc&quot; to
+&quot;hello.o&quot;.
+</p>
+<pre>
+   file &quot;hello.cc&quot;
+   file &quot;hello.o&quot; =&gt; [&quot;hello.cc&quot;] do |t|
+     srcfile = t.name.sub(/\.o$/, &quot;.cc&quot;)
+     sh %{g++ #{srcfile} -c -o #{t.name}}
+   end
+</pre>
+<p>
+I normally specify file tasks with string (rather than symbols). Some file
+names can&#8216;t be represented by symbols. Plus it makes the distinction
+between them more clear to the casual reader.
+</p>
+<p>
+Currently writing a task for each and every file in the project would be
+tedious at best. I envision a set of libraries to make this job easier. For
+instance, perhaps something like this &#8230;
+</p>
+<pre>
+   require 'rake/ctools'
+   Dir['*.c'].each do |fn|
+     c_source_file(fn)
+   end
+</pre>
+<p>
+where &quot;c_source_file&quot; will create all the tasks need to compile
+all the C source files in a directory. Any number of useful libraries could
+be created for rake.
+</p>
+<p>
+That&#8216;s it. There&#8216;s no documentation (other than whats in this
+message). Does this sound interesting to anyone? If so, I&#8216;ll continue
+to clean it up and write it up and publish it on RAA. Otherwise, I&#8216;ll
+leave it as an interesting excerise and a tribute to the power of Ruby.
+</p>
+<p>
+Why /might/ rake be interesting to Ruby programmers. I don&#8216;t know,
+perhaps &#8230;
+</p>
+<ul>
+<li>No weird make syntax (only weird Ruby syntax :-)
+
+</li>
+<li>No need to edit or read XML (a la ant)
+
+</li>
+<li>Platform independent build scripts.
+
+</li>
+<li>Will run anywhere Ruby exists, so no need to have &quot;make&quot;
+installed. If you stay away from the &quot;sys&quot; command and use things
+like &#8216;ftools&#8217;, you can have a perfectly platform independent
+build script. Also rake is only 100 lines of code, so it can easily be
+packaged along with the rest of your code.
+
+</li>
+</ul>
+<p>
+So &#8230; Sorry for the long rambling message. Like I said, I never
+intended to write this code at all.
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: DuckTypeMatcher
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: ==
+full_name: Spec::Mocks::ArgumentMatchers::DuckTypeMatcher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

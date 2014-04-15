@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (options, output)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Runner::Formatter::HtmlFormatter::new
+visibility: public
+aliases: []
+

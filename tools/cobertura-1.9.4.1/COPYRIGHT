@@ -1,0 +1,34 @@
+Cobertura - http://cobertura.sourceforge.net/
+
+List of all contributors to Cobertura
+Listed alphabetically by last name
+
+Copyright (C) 2005 Björn Beskow      <bbeskow a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2008 Matt Cordes        <mcordes a.t visa d.o.t com>
+Copyright (C) 2005 Erik Dick          <erdick a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Mark Doliner       <thekingant a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Joakim Erdfelt     <joakim a.t erdfelt d.o.t net>
+Copyright (C) 2008 Julian Gamble      <juliangamble a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2006 Dan Godfrey        <dgodfrey99 a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2008 Tri Bao Ho         <hotribao a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2006 Naoki Iwami        <naoki_iwami a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2003 jcoverage ltd.
+Copyright (C) 2009 John Lewis         <lewijw a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Grzegorz Lukasik   <hauserx a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2006 Jiri Mares         <jirimares a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2009 Amit Nithianandan  <ANithian a.t gmail d.o.t com>
+Copyright (C) 2005 Olivier Parent     <olivier-parent a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2009 Ed Randall         <ed_randall a.t yahoo d.o.t com>
+Copyright (C) 2005 Alex Ruiz          <alruiz15 a.t users d.o.t yahoo d.o.t com>
+Copyright (C) 2005 James Seigel       <cgul a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Mark Sinke         <marksinke a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2009 Charlie Squires    <rockonword a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2010 Piotr Tabor        <piotr.tabor a.t gmail d.o.t com>
+Copyright (C) 2005 Jeremy Thomerson   <jthomerson a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2009 Chris van Es       <cvanes a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2006 Srivathsan Varadarajan <vatsanv a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Nathan Wilson      <ndciwilson a.t users d.o.t sourceforge d.o.t net>
+Copyright (C) 2005 Alexei Yudichev    <sflexus a.t users d.o.t sourceforge d.o.t net>
+
+Code in the net.sourceforge.cobertura.javancss package is
+Copyright (C) 2000 Chr. Clemens Lee   <clemens a.t kclee d.o.t com>

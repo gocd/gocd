@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: to_s
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Convert a FileList to a string by joining all elements with a space.
+full_name: Rake::FileList#to_s
+visibility: public
+aliases: []
+

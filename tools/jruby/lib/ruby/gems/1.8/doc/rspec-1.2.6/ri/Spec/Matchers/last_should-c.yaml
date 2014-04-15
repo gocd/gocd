@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: last_should
+comment: 
+full_name: Spec::Matchers::last_should
+visibility: public
+aliases: []
+

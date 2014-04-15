@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (argv)
+is_singleton: false
+block_params: 
+name: process_args
+comment: 
+full_name: Test::Unit::AutoRunner#process_args
+visibility: public
+aliases: []
+

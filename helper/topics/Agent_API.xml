@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Agent API">
+    <p>A collection of APIs to get information and do operations on agents. They allow Go administrators to provision and de-provision agents without needing to use the web interface.</p>
+    <section title="List Agents">
+        <subsection title="Key">
+            <table caption="Parameters">
+                <header-row>
+                    <col-header>URL format</col-header>
+                    <col-header>HTTP Verb</col-header>
+                    <col-header>Data</col-header>
+                    <col-header>Explanation</col-header>
+                </header-row>
+                <row>
+                    <col>http://[server]/go/api/agents</col>
+                    <label>GET</label>
+                    <col>no parameters</col>
+                    <col>List all the agents of the Go Server in JSON format along with the their information.
+                    </col>
+                </row>
+            </table>
+            <p> The following information about each of the agents is returned in the JSON response:
+                <bullets>
+                    <item>uuid</item>
+                    <item>buildLocator</item>
+                    <item>agent_name: (Maps to "Agent Name" column of Agents tab)</item>
+                    <item>ipAddress: (Maps to "IP Address" column of Agents tab)</item>
+                    <item>status: (Maps to "Status" column of Agents tab)</item>
+                    <item>sandbox: (Maps to "Sandbox" column of Agents tab)</item>
+                    <item>os: (Maps to "OS" column of Agents tab)</item>
+                    <item>free_space: (Maps to "Free Space" column of Agents tab)</item>
+                    <item>resources: [] (Maps to "Resources" column of Agents tab)</item>
+                    <item>environments: [] (Maps to "Environments" column of Agents tab)</item>
+                </bullets>
+            </p>
+        </subsection>
+    </section>
+    <section title="Enable and Disable Agent" collapsed="true">
+        <subsection title="Key">
+            <table caption="Parameters">
+                <header-row>
+                    <col-header>URL format</col-header>
+                    <col-header>HTTP Verb</col-header>
+                    <col-header>Data</col-header>
+                    <col-header>Explanation</col-header>
+                </header-row>
+                <row>
+                    <col>http://[server]/go/api/agents/[agent-uuid]/enable</col>
+                    <label>POST</label>
+                    <col>no parameters</col>
+                    <col>Enable a disabled agent. Approve a pending agent.</col>
+                </row>
+                <row>
+                    <col>http://[server]/go/api/agents/[agent-uuid]/disable</col>
+                    <label>POST</label>
+                    <col>no parameters</col>
+                    <col>Disable an enabled/pending agent.</col>
+                </row>
+            </table>
+        </subsection>
+    </section>
+    <section title="Delete Agent" collapsed="true">
+        <subsection title="Key">
+            <table caption="Parameters">
+                <header-row>
+                    <col-header>URL format</col-header>
+                    <col-header>HTTP Verb</col-header>
+                    <col-header>Data</col-header>
+                    <col-header>Explanation</col-header>
+                </header-row>
+                <row>
+                    <col>http://[server]/go/api/agents/[agent-uuid]/delete</col>
+                    <label>POST</label>
+                    <col>no parameters</col>
+                    <col>Delete a disabled agent. Note that the agent will not be deleted unless it is in disabled state and is not building any job</col>
+                </row>
+            </table>
+        </subsection>
+        <subsection title="Response Codes">
+            <table>
+                <header-row>
+                    <col-header>HTTP response code</col-header>
+                    <col-header>Explanation</col-header>
+                </header-row>
+                <row>
+                    <label>200</label>
+                    <col>Agent deleted successfully</col>
+                </row>
+                <row>
+                    <label>404</label>
+                    <col>Agent with [uuid] does not exist</col>
+                </row>
+                <row>
+                    <label>406</label>
+                    <col>Agent is not 'Disabled' or is still 'Building' or 'Cancelled'</col>
+                </row>
+                <row>
+                    <label>401</label>
+                    <col>User does not have operate permission to delete agent</col>
+                </row>
+                <row>
+                    <label>500</label>
+                    <col>An internal server error occurred</col>
+                </row>
+            </table>
+        </subsection>
+        <note>
+            <p>
+                <strong>A note on deleting agents</strong>
+            </p>
+            <p>An agent continually contacts the Go server so long as it is running. If it is deleted from Go server, the next time it contacts Go server, Go will add it back to the list of agents.
+                Normally you do not want this to happen. Follow the steps below to achieve this.
+            </p>
+            <bullets>
+                <item>Use the list agents API and keep checking the status of the agent that you want to delete till it shows Idle</item>
+                <item>Use the disable agent API to disable the agent, using the UUID available from the list agent API</item>
+                <item>Stop the Go agent service, manually or through a script. This is to prevent the agent from contacting the server again. You need to do this within 5 seconds of the disable agent
+                    API
+                </item>
+                <item>Use the delete agents API to delete the agent</item>
+            </bullets>
+        </note>
+    </section>
+    <section title="Examples" collapsed="true">
+        <bullets>
+            <item>We use curl, a command line tool for transferring files with URL syntax, in the following examples. Of course, you can use any HTTP client library.</item>
+            <item>We assume that the URL of the Go server is<strong>http://goserver.com:8153/</strong>.
+            </item>
+            <item>We assume security has been switched on, and that there is a user named
+                <strong>jez</strong>
+                with the password<strong>badger</strong>.
+            </item>
+        </bullets>
+        <p>The configuration with agents like this:</p>
+        <code>
+            <![CDATA[
+        <cruise>
+        ....
+          <agents>
+            <agent hostname="agent-machine1" ipaddress="10.38.10.7" uuid="e4d86ae7-7b7d-4bb9-9b3e-876c06d01605" isDenied="true">
+              <resources>
+                <resource>twist</resource>
+                <resource>windows</resource>
+              </resources>
+            </agent>
+            <agent hostname="agent-machine2" ipaddress="10.2.12.26" uuid="bf0e5682-51ad-4183-8776-b13491cf2f59">
+              <resources>
+                <resource>ec2</resource>
+              </resources>
+            </agent>
+            <agent hostname="agent-machine3" ipaddress="10.2.12.26" uuid="259f7a6b-f386-4d10-bee3-28997678c05c"/>
+            <agent hostname="agent-machine3" ipaddress="10.18.3.152" uuid="098d4904-0533-4160-8c92-077849cd52df" />
+            <agent hostname="agent-machine4" ipaddress="10.18.3.153" uuid="31aea908-717a-435c-ad04-96dcc8d941df" isDisabled="true">
+          </agents>
+        </cruise>
+        ]]>
+		</code>
+
+        <p>If you want to get all agents' information</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/api/agents</code>
+
+        <p>If you want to enable agent on 'agent-machine1'</p>
+		    <code>curl -u jez:badger -d "" http://goserver.com:8153/go/api/agents/e4d86ae7-7b7d-4bb9-9b3e-876c06d01605/enable</code>
+
+        <p>If you want to disable agent on 'agent-machine2'</p>
+		    <code>curl -u jez:badger -d "" http://goserver.com:8153/go/api/agents/bf0e5682-51ad-4183-8776-b13491cf2f59/disable</code>
+
+        <p>If you want to delete agent on 'agent-machine4'</p>
+		    <code>curl -u jez:badger -d "" http://goserver.com:8153/go/api/agents/31aea908-717a-435c-ad04-96dcc8d941df/delete</code>
+    </section>
+</topic>

@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args)
+is_singleton: true
+block_params: 
+name: '[]'
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Create a new file list including the files listed. Similar to:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  FileList.new(*args)\n"
+full_name: Rake::FileList::[]
+visibility: public
+aliases: []
+

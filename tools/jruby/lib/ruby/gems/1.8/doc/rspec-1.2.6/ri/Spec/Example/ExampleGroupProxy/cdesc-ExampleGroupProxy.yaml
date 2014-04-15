@@ -1,0 +1,57 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleGroupProxy
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lightweight proxy for an example group. This is the object that is passed
+    to Spec::Runner::Formatter::BaseFormatter#example_group_started
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: description
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: This is the description passed to the <tt>describe()</tt> method or any
+      of its aliases
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: examples
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: A collection of ExampleGroupProxy objects, one for each example declared
+      in this group.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: location
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: The file and line number at which the proxied example group was declared.
+      This is extracted from <tt>caller</tt>, and is therefore formatted as an individual
+      line in a backtrace.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: nested_descriptions
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Used by Spec::Runner::Formatter::NestedTextFormatter to access the description
+      of each example group in a nested group separately.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: options
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Optional hash passed to the example group declaration. Note that RSpec uses
+      this hash internally and reserves the keys :location and :scope for its own
+      use (and removes them from this hash)
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: backtrace
+- !ruby/object:RI::MethodSummary 
+  name: filtered_description
+full_name: Spec::Example::ExampleGroupProxy
+superclass: Object
+class_methods: []
+

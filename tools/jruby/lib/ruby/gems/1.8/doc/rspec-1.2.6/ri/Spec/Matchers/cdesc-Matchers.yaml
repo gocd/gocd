@@ -1,0 +1,206 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Matchers
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'RSpec ships with a number of useful Expression Matchers. An Expression Matcher
+    is any object that responds to the following methods:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  matches?(actual)\n  failure_message_for_should\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'These methods are also part of the matcher protocol, but are optional:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  does_not_match?(actual)\n  failure_message_for_should_not\n  description \
+    #optional\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'These methods are from older versions of the protocol. They are still supported,
+    but are not recommended:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  failure_message          (use failure_message_for_should instead)\n  negative_failure_message \
+    (use failure_message_for_should_not instead)\n"
+- !ruby/struct:SM::Flow::P 
+  body: See Spec::Expectations to learn how to use these as Expectation Matchers.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Predicates
+- !ruby/struct:SM::Flow::P 
+  body: In addition to those Expression Matchers that are defined explicitly, RSpec
+    will create custom Matchers on the fly for any arbitrary predicate, giving your
+    specs a much more natural language feel.
+- !ruby/struct:SM::Flow::P 
+  body: A Ruby predicate is a method that ends with a &quot;?&quot; and returns true
+    or false. Common examples are +empty?+, +nil?+, and +instance_of?+.
+- !ruby/struct:SM::Flow::P 
+  body: 'All you need to do is write +should be_+ followed by the predicate without
+    the question mark, and RSpec will figure it out from there. For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  [].should be_empty =&gt; [].empty? #passes\n  [].should_not be_empty =&gt; \
+    [].empty? #fails\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'In addtion to prefixing the predicate matchers with &quot;be_&quot;, you
+    can also use &quot;be_a_&quot; and &quot;be_an_&quot;, making your specs read
+    much more naturally:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  &quot;a string&quot;.should be_an_instance_of(String) =&gt;&quot;a string&quot;.instance_of?(String) \
+    #passes\n\n  3.should be_a_kind_of(Fixnum) =&gt; 3.kind_of?(Numeric) #passes\n\
+    \  3.should be_a_kind_of(Numeric) =&gt; 3.kind_of?(Numeric) #passes\n  3.should \
+    be_an_instance_of(Fixnum) =&gt; 3.instance_of?(Fixnum) #passes\n  3.should_not \
+    be_instance_of(Numeric) =&gt; 3.instance_of?(Numeric) #fails\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'RSpec will also create custom matchers for predicates like +has_key?+. To
+    use this feature, just state that the object should have_key(:key) and RSpec will
+    call has_key?(:key) on the target. For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  {:a =&gt; &quot;A&quot;}.should have_key(:a) =&gt; {:a =&gt; &quot;A&quot;}.has_key?(:a) \
+    #passes\n  {:a =&gt; &quot;A&quot;}.should have_key(:b) =&gt; {:a =&gt; &quot;A&quot;}.has_key?(:b) \
+    #fails\n"
+- !ruby/struct:SM::Flow::P 
+  body: You can use this feature to invoke any predicate that begins with &quot;has_&quot;,
+    whether it is part of the Ruby libraries (like +Hash#has_key?+) or a method you
+    wrote on your own class.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Custom Matchers
+- !ruby/struct:SM::Flow::P 
+  body: When you find that none of the stock Expectation Matchers provide a natural
+    feeling expectation, you can very easily write your own using RSpec's matcher
+    DSL or writing one from scratch.
+- !ruby/struct:SM::Flow::H 
+  level: 3
+  text: Matcher DSL
+- !ruby/struct:SM::Flow::P 
+  body: 'Imagine that you are writing a game in which players can be in various zones
+    on a virtual board. To specify that bob should be in zone 4, you could say:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  bob.current_zone.should eql(Zone.new(&quot;4&quot;))\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'But you might find it more expressive to say:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  bob.should be_in_zone(&quot;4&quot;)\n"
+- !ruby/struct:SM::Flow::P 
+  body: and/or
+- !ruby/struct:SM::Flow::VERB 
+  body: "  bob.should_not be_in_zone(&quot;3&quot;)\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'You can create such a matcher like so:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Matchers.create :be_in_zone do |zone|\n    match do |player|\n   \
+    \   player.in_zone?(zone)\n    end\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'This will generate a <tt>be_in_zone</tt> method that returns a matcher with
+    logical default messages for failures. You can override the failure messages and
+    the generated description as follows:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Matchers.create :be_in_zone do |zone|\n    match do |player|\n   \
+    \   player.in_zone?(zone)\n    end\n    failure_message_for_should do |player|\n\
+    \      # generate and return the appropriate string.\n    end\n    failure_message_for_should_not \
+    do |player|\n      # generate and return the appropriate string.\n    end\n   \
+    \ description do\n      # generate and return the appropriate string.\n    end\n\
+    \  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: Each of the message-generation methods has access to the block arguments passed
+    to the <tt>create</tt> method (in this case, <tt>zone</tt>). The failure message
+    methods (<tt>failure_message_for_should</tt> and <tt>failure_message_for_should_not</tt>)
+    are passed the actual value (the receiver of <tt>should</tt> or <tt>should_not</tt>).
+- !ruby/struct:SM::Flow::H 
+  level: 3
+  text: Custom Matcher from scratch
+- !ruby/struct:SM::Flow::P 
+  body: 'You could also write a custom matcher from scratch, as follows:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  class BeInZone\n    def initialize(expected)\n      @expected = expected\n\
+    \    end\n    def matches?(target)\n      @target = target\n      @target.current_zone.eql?(Zone.new(@expected))\n\
+    \    end\n    def failure_message_for_should\n      &quot;expected #{@target.inspect} \
+    to be in Zone #{@expected}&quot;\n    end\n    def failure_message_for_should_not\n\
+    \      &quot;expected #{@target.inspect} not to be in Zone #{@expected}&quot;\n\
+    \    end\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: '... and a method like this:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  def be_in_zone(expected)\n    BeInZone.new(expected)\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'And then expose the method to your specs. This is normally done by including
+    the method and the class in a module, which is then included in your spec:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  module CustomGameMatchers\n    class BeInZone\n      ...\n    end\n\n  \
+    \  def be_in_zone(expected)\n      ...\n    end\n  end\n\n  describe &quot;Player \
+    behaviour&quot; do\n    include CustomGameMatchers\n    ...\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'or you can include in globally in a spec_helper.rb file <tt>require</tt>d
+    from your spec file(s):'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Runner.configure do |config|\n    config.include(CustomGameMatchers)\n\
+    \  end\n"
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: be
+- !ruby/object:RI::MethodSummary 
+  name: be_a
+- !ruby/object:RI::MethodSummary 
+  name: be_a_kind_of
+- !ruby/object:RI::MethodSummary 
+  name: be_an
+- !ruby/object:RI::MethodSummary 
+  name: be_an_instance_of
+- !ruby/object:RI::MethodSummary 
+  name: be_close
+- !ruby/object:RI::MethodSummary 
+  name: be_instance_of
+- !ruby/object:RI::MethodSummary 
+  name: be_kind_of
+- !ruby/object:RI::MethodSummary 
+  name: change
+- !ruby/object:RI::MethodSummary 
+  name: eql
+- !ruby/object:RI::MethodSummary 
+  name: equal
+- !ruby/object:RI::MethodSummary 
+  name: exist
+- !ruby/object:RI::MethodSummary 
+  name: have
+- !ruby/object:RI::MethodSummary 
+  name: have_at_least
+- !ruby/object:RI::MethodSummary 
+  name: have_at_most
+- !ruby/object:RI::MethodSummary 
+  name: have_exactly
+- !ruby/object:RI::MethodSummary 
+  name: helper
+- !ruby/object:RI::MethodSummary 
+  name: include
+- !ruby/object:RI::MethodSummary 
+  name: inspect_object
+- !ruby/object:RI::MethodSummary 
+  name: match
+- !ruby/object:RI::MethodSummary 
+  name: raise_error
+- !ruby/object:RI::MethodSummary 
+  name: respond_to
+- !ruby/object:RI::MethodSummary 
+  name: satisfy
+- !ruby/object:RI::MethodSummary 
+  name: simple_matcher
+- !ruby/object:RI::MethodSummary 
+  name: throw_symbol
+- !ruby/object:RI::MethodSummary 
+  name: wrap_expectation
+full_name: Spec::Matchers
+superclass: 
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: clear_generated_description
+- !ruby/object:RI::MethodSummary 
+  name: generated_description
+- !ruby/object:RI::MethodSummary 
+  name: last_matcher
+- !ruby/object:RI::MethodSummary 
+  name: last_matcher=
+- !ruby/object:RI::MethodSummary 
+  name: last_should
+- !ruby/object:RI::MethodSummary 
+  name: last_should=

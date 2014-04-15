@@ -1,0 +1,268 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/applicationContext-*.xml</param-value>
+    </context-param>
+
+    <filter>
+        <filter-name>Spring security Filter Chain Proxy</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <!-- This bean name 'filterChainProxy' is defined in applicationContext-acegi-security.xml -->
+            <param-value>filterChainProxy</param-value>
+        </init-param>
+        <init-param>
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>Locale resolver</filter-name>
+        <filter-class>com.thoughtworks.go.server.web.i18n.LocaleResolver</filter-class>
+    </filter>
+
+
+    <filter-mapping>
+        <filter-name>Spring security Filter Chain Proxy</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>Locale resolver</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <context-param>
+      <param-name>rails.env</param-name>                                 
+      <param-value>development</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>rails.root</param-name>
+      <param-value>/WEB-INF/rails</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>public.root</param-name>
+      <param-value>/</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>jruby.min.runtimes</param-name>
+      <param-value>1</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>jruby.max.runtimes</param-name>
+      <param-value>1</param-value>
+    </context-param>
+
+    <!-- DelegatingServlet below loads this servlet and delegates to it, the source is in PROJECT_ROOT/rack_hack. Default ant task for this project runs tests, packages a jar, and deploys to the correct localivy directory(it always overwrites becuase there is no version) -->
+    <context-param>
+      <param-name>delegate.servlet.name</param-name>
+      <param-value>org.jruby.rack.RackServlet</param-value>
+    </context-param>
+
+    <context-param>
+        <description>Spring Expression Language Support</description>
+        <param-name>springJspExpressionSupport</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <listener>
+        <!--
+            The spring listener needs to be before Rails listener so that Spring container is initialized. We access some beans in Rails env.rb and hence need Spring to be inited first.
+        -->
+       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+
+    <listener>
+      <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
+    </listener>
+
+    <listener>
+      <listener-class>com.thoughtworks.go.rackhack.DelegatingListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>rails</servlet-name>
+        <servlet-class>com.thoughtworks.go.rackhack.DelegatingServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-cruise-remoting</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-repository</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-pages</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-rest</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-tabs</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>echo-attr-servlet</servlet-name>
+        <servlet-class>com.thoughtworks.go.server.web.EchoAttributeServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>codahale-admin-servlet</servlet-name>
+        <servlet-class>com.yammer.metrics.reporting.AdminServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>codahale-admin-servlet</servlet-name>
+        <url-pattern>/metrics/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>echo-attr-servlet</servlet-name>
+        <url-pattern>/echo-attribute/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>rails</servlet-name>
+        <url-pattern>/rails/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>/properties/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-tabs</servlet-name>
+        <url-pattern>/tab/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-tabs</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/auth/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/about</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>*.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>/cctray.xml</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>/rss.xml</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>/files/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-rest</servlet-name>
+        <url-pattern>/run/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-cruise-remoting</servlet-name>
+        <url-pattern>/remoting/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-repository</servlet-name>
+        <url-pattern>/repository/*</url-pattern>
+    </servlet-mapping>
+
+<!-- START new UI -->
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/atom/*</url-pattern>
+    </servlet-mapping>
+<!-- END new UI -->
+
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <mime-mapping>
+        <extension>log</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+        <extension>xml</extension>
+        <mime-type>text/plain</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+        <extension>svg</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+</web-app>

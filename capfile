@@ -1,0 +1,73 @@
+#*************************GO-LICENSE-START********************************
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or a-qgreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#*************************GO-LICENSE-END**********************************
+
+YOURKIT = "#{Dir["/home/cruise/tools/yjp*"].first}/bin/yjp.sh"
+
+set :ssh_options, {:user => "cruise_builder"}
+
+go02 = "go02.thoughtworks.com"
+go03 = "go03.thoughtworks.com"
+uat = go02
+pbs = go03
+
+task :restart_uat, :hosts => uat do
+  sudo "/etc/init.d/cruise-server restart", :pty => true
+end
+
+task :tail_uat, :hosts => uat do
+  stream "tail -F /var/log/cruise-server/cruise-server.log"
+end
+
+task :start_profiling_uat, :hosts => uat do
+  run "java -jar yjp-controller-api-redist.jar localhost 6133 start-monitor-profiling"
+  run "java -jar yjp-controller-api-redist.jar localhost 6133 start-cpu-sampling"
+end
+
+task :stop_profiling_uat, :hosts => uat do
+  run "java -jar yjp-controller-api-redist.jar localhost 6133 stop-monitor-profiling"
+  run "java -jar yjp-controller-api-redist.jar localhost 6133 stop-cpu-profiling"
+end
+
+task :capture_snapshot_uat, :hosts => uat do
+  response = capture("java -jar yjp-controller-api-redist.jar localhost 6133 capture-performance-snapshot").grep(/Snapshot/).first.chomp
+  puts response
+  snapshot = $1 if response =~ /Snapshot captured: (.*)$/
+  puts snapshot
+  if snapshot =~ /.*\(\d+\).*/
+    snapshot = snapshot.gsub("(", "\\(").gsub(")", "\\)")
+  end
+  download snapshot, "/home/cruise/Snapshots/", :via => :scp
+  system "#{YOURKIT} -open #{snapshot} &"
+end
+
+task :profiling_status_uat, :hosts => uat do
+  run "java -jar yjp-controller-api-redist.jar localhost 6133 print-current-status"
+end
+
+task :tail_pbs, :hosts => pbs do
+  stream "tail -F /var/log/cruise-server/cruise-server.log"
+end
+
+hosts = (1..14).map{|n| sprintf("10.4.8.%d", n) }
+task :do_it, :hosts => hosts do
+  upload "/Users/yogi/Projects/lib/apache-ant-1.7.0/lib/xercesImpl.jar", "/tmp/xercesImpl.jar", :via => :scp
+  sudo "cp /tmp/xercesImpl.jar /usr/share/ant/lib", :pty => true
+#  sudo "/bin/sh -c 'cd /var/lib/cruise-agent/pipelines/acceptance-sahi/tools/sahi/userdata/bin && nohup ./start_sahi.sh&'", :pty => true
+#  run <<-END
+#    rm ~/cruise-test-artifact.jar
+#  END
+#  upload "target/cruise-server-2.0.0/cruise.jar", "/tmp/cruise-test-artifact.jar", :via => :scp
+end

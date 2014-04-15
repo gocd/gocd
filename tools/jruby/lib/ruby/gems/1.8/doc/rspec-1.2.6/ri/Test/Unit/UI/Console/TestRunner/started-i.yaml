@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (result)
+is_singleton: false
+block_params: 
+name: started
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #started_with_rspec'
+full_name: Test::Unit::UI::Console::TestRunner#started
+visibility: public
+aliases: []
+

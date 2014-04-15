@@ -1,0 +1,199 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Options
+constants: 
+- !ruby/object:RI::Constant 
+  name: FILE_SORTERS
+  value: '{         ''mtime'' => lambda {|file_a, file_b| File.mtime(file_b) <=> File.mtime(file_a)}'
+  comment: 
+- !ruby/object:RI::Constant 
+  name: EXAMPLE_FORMATTERS
+  value: '{ # Load these lazily for better speed                 ''silent'' => [''spec/runner/formatter/silent_formatter'',                 ''Formatter::SilentFormatter''],                      ''l''
+    => [''spec/runner/formatter/silent_formatter'',                 ''Formatter::SilentFormatter''],                ''specdoc''
+    => [''spec/runner/formatter/specdoc_formatter'',                ''Formatter::SpecdocFormatter''],                      ''s''
+    => [''spec/runner/formatter/specdoc_formatter'',                ''Formatter::SpecdocFormatter''],                 ''nested''
+    => [''spec/runner/formatter/nested_text_formatter'',            ''Formatter::NestedTextFormatter''],                      ''n''
+    => [''spec/runner/formatter/nested_text_formatter'',            ''Formatter::NestedTextFormatter''],                   ''html''
+    => [''spec/runner/formatter/html_formatter'',                   ''Formatter::HtmlFormatter''],                      ''h''
+    => [''spec/runner/formatter/html_formatter'',                   ''Formatter::HtmlFormatter''],               ''progress''
+    => [''spec/runner/formatter/progress_bar_formatter'',           ''Formatter::ProgressBarFormatter''],                      ''p''
+    => [''spec/runner/formatter/progress_bar_formatter'',           ''Formatter::ProgressBarFormatter''],       ''failing_examples''
+    => [''spec/runner/formatter/failing_examples_formatter'',       ''Formatter::FailingExamplesFormatter''],                      ''e''
+    => [''spec/runner/formatter/failing_examples_formatter'',       ''Formatter::FailingExamplesFormatter''],
+    ''failing_example_groups'' => [''spec/runner/formatter/failing_example_groups_formatter'',
+    ''Formatter::FailingExampleGroupsFormatter''],                      ''g'' => [''spec/runner/formatter/failing_example_groups_formatter'',
+    ''Formatter::FailingExampleGroupsFormatter''],                ''profile'' => [''spec/runner/formatter/profile_formatter'',                ''Formatter::ProfileFormatter''],                      ''o''
+    => [''spec/runner/formatter/profile_formatter'',                ''Formatter::ProfileFormatter''],               ''textmate''
+    => [''spec/runner/formatter/text_mate_formatter'',              ''Formatter::TextMateFormatter'']'
+  comment: 
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: argv
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: autospec
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: backtrace_tweaker
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: colour
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: context_lines
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: debug
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: diff_format
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: differ_class
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: dry_run
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: error_stream
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: example_groups
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: examples
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: filename_pattern
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: files
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: heckle_runner
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: line_number
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: loadby
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: output_stream
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: profile
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: reporter
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: reverse
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: timeout
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: user_input_for_runner
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: verbose
+  comment: 
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add_example_group
+- !ruby/object:RI::MethodSummary 
+  name: after_suite_parts
+- !ruby/object:RI::MethodSummary 
+  name: before_suite_parts
+- !ruby/object:RI::MethodSummary 
+  name: colour=
+- !ruby/object:RI::MethodSummary 
+  name: custom_runner
+- !ruby/object:RI::MethodSummary 
+  name: custom_runner?
+- !ruby/object:RI::MethodSummary 
+  name: default_differ
+- !ruby/object:RI::MethodSummary 
+  name: define_predicate_matchers
+- !ruby/object:RI::MethodSummary 
+  name: differ_class=
+- !ruby/object:RI::MethodSummary 
+  name: dry_run?
+- !ruby/object:RI::MethodSummary 
+  name: examples_run?
+- !ruby/object:RI::MethodSummary 
+  name: examples_should_be_run?
+- !ruby/object:RI::MethodSummary 
+  name: examples_should_not_be_run
+- !ruby/object:RI::MethodSummary 
+  name: files_to_load
+- !ruby/object:RI::MethodSummary 
+  name: formatter_options
+- !ruby/object:RI::MethodSummary 
+  name: formatters
+- !ruby/object:RI::MethodSummary 
+  name: heckle
+- !ruby/object:RI::MethodSummary 
+  name: load_class
+- !ruby/object:RI::MethodSummary 
+  name: load_formatters
+- !ruby/object:RI::MethodSummary 
+  name: load_heckle_runner
+- !ruby/object:RI::MethodSummary 
+  name: mock_framework
+- !ruby/object:RI::MethodSummary 
+  name: number_of_examples
+- !ruby/object:RI::MethodSummary 
+  name: parse_diff
+- !ruby/object:RI::MethodSummary 
+  name: parse_example
+- !ruby/object:RI::MethodSummary 
+  name: parse_format
+- !ruby/object:RI::MethodSummary 
+  name: plugin_mock_framework
+- !ruby/object:RI::MethodSummary 
+  name: remove_example_group
+- !ruby/object:RI::MethodSummary 
+  name: require_ruby_debug
+- !ruby/object:RI::MethodSummary 
+  name: run_examples
+- !ruby/object:RI::MethodSummary 
+  name: set_spec_from_line_number
+- !ruby/object:RI::MethodSummary 
+  name: sorted_files
+- !ruby/object:RI::MethodSummary 
+  name: sorter
+- !ruby/object:RI::MethodSummary 
+  name: stderr?
+full_name: Spec::Runner::Options
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

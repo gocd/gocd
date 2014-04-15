@@ -1,0 +1,21 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: CompositePublisher
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Manage several publishers as a single entity.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add
+- !ruby/object:RI::MethodSummary 
+  name: upload
+full_name: Rake::CompositePublisher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

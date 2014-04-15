@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Rake::TaskManager</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Rake::TaskManager</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake_rb.html">
+                lib/rake.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+The <a href="TaskManager.html">TaskManager</a> module is a mixin for
+managing <a href="TaskManager.html#M000555">tasks</a>.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000551">[]</a>&nbsp;&nbsp;
+      <a href="#M000557">clear</a>&nbsp;&nbsp;
+      <a href="#M000548">create_rule</a>&nbsp;&nbsp;
+      <a href="#M000559">current_scope</a>&nbsp;&nbsp;
+      <a href="#M000549">define_task</a>&nbsp;&nbsp;
+      <a href="#M000554">enhance_with_matching_rule</a>&nbsp;&nbsp;
+      <a href="#M000560">in_namespace</a>&nbsp;&nbsp;
+      <a href="#M000550">intern</a>&nbsp;&nbsp;
+      <a href="#M000558">lookup</a>&nbsp;&nbsp;
+      <a href="#M000547">new</a>&nbsp;&nbsp;
+      <a href="#M000553">resolve_args</a>&nbsp;&nbsp;
+      <a href="#M000552">synthesize_file_task</a>&nbsp;&nbsp;
+      <a href="#M000555">tasks</a>&nbsp;&nbsp;
+      <a href="#M000556">tasks_in_scope</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+    <div id="aliases-list">
+      <h3 class="section-bar">External Aliases</h3>
+
+      <div class="name-list">
+                        <table summary="aliases">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">last_description</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">last_comment</td>
+        </tr>
+                        </table>
+      </div>
+    </div>
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">last_description</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Track the last comment made in the Rakefile.
+
+</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000547" class="method-detail">
+        <a name="M000547"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000547.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000547.html');return false;">
+          <span class="method-name">new</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000551" class="method-detail">
+        <a name="M000551"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000551.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000551.html');return false;">
+          <span class="method-name">[]</span><span class="method-args">(task_name, scopes=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Find a matching task for <tt>task_name</tt>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000557" class="method-detail">
+        <a name="M000557"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000557.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000557.html');return false;">
+          <span class="method-name">clear</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clear all <a href="TaskManager.html#M000555">tasks</a> in this application.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000548" class="method-detail">
+        <a name="M000548"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000548.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000548.html');return false;">
+          <span class="method-name">create_rule</span><span class="method-args">(*args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000559" class="method-detail">
+        <a name="M000559"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000559.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000559.html');return false;">
+          <span class="method-name">current_scope</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return the list of scope names currently active in the task manager.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000549" class="method-detail">
+        <a name="M000549"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000549.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000549.html');return false;">
+          <span class="method-name">define_task</span><span class="method-args">(task_class, *args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000554" class="method-detail">
+        <a name="M000554"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000554.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000554.html');return false;">
+          <span class="method-name">enhance_with_matching_rule</span><span class="method-args">(task_name, level=0)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+If a rule can be found that matches the task name, enhance the task with
+the prerequisites and actions from the rule. Set the source attribute of
+the task appropriately for the rule. Return the enhanced task or nil of no
+rule was found.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000560" class="method-detail">
+        <a name="M000560"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000560.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000560.html');return false;">
+          <span class="method-name">in_namespace</span><span class="method-args">(name) {|ns| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Evaluate the block in a nested namespace named <tt>name</tt>. Create an
+anonymous namespace if <tt>name</tt> is nil.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000550" class="method-detail">
+        <a name="M000550"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000550.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000550.html');return false;">
+          <span class="method-name">intern</span><span class="method-args">(task_class, task_name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Lookup a task. Return an existing task if found, otherwise create a task of
+the current type.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000558" class="method-detail">
+        <a name="M000558"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000558.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000558.html');return false;">
+          <span class="method-name">lookup</span><span class="method-args">(task_name, initial_scope=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Lookup a task, using scope and the scope hints in the task name. This
+method performs straight lookups without trying to synthesize file <a
+href="TaskManager.html#M000555">tasks</a> or rules. Special scope names
+(e.g. &#8217;^&#8217;) are recognized. If no scope argument is supplied,
+use the current scope. Return nil if the task cannot be found.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000553" class="method-detail">
+        <a name="M000553"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000553.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000553.html');return false;">
+          <span class="method-name">resolve_args</span><span class="method-args">(args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Resolve the arguments for a task/rule. Returns a triplet of [task_name,
+arg_name_list, prerequisites].
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000552" class="method-detail">
+        <a name="M000552"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000552.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000552.html');return false;">
+          <span class="method-name">synthesize_file_task</span><span class="method-args">(task_name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000555" class="method-detail">
+        <a name="M000555"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000555.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000555.html');return false;">
+          <span class="method-name">tasks</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+List of all defined <a href="TaskManager.html#M000555">tasks</a> in this
+application.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000556" class="method-detail">
+        <a name="M000556"></a>
+
+        <div class="method-heading">
+          <a href="TaskManager.src/M000556.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskManager.src/M000556.html');return false;">
+          <span class="method-name">tasks_in_scope</span><span class="method-args">(scope)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+List of all the <a href="TaskManager.html#M000555">tasks</a> defined in the
+given scope (and its sub-scopes).
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

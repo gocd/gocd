@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: spec_command?
+comment: 
+full_name: Spec::Runner::OptionParser::spec_command?
+visibility: public
+aliases: []
+

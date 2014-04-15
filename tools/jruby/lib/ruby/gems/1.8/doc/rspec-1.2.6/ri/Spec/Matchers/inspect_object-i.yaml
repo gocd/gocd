@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (o)
+is_singleton: false
+block_params: 
+name: inspect_object
+comment: 
+full_name: Spec::Matchers#inspect_object
+visibility: public
+aliases: []
+

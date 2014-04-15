@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope)
+is_singleton: false
+block_params: 
+name: tasks_in_scope
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: List of all the tasks defined in the given scope (and its sub-scopes).
+full_name: Rake::TaskManager#tasks_in_scope
+visibility: public
+aliases: []
+

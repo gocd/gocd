@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>message_received (Spec::Mocks::Proxy)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/proxy.rb, line 91</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">message_received</span>(<span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-identifier">expectation</span> = <span class="ruby-identifier">find_matching_expectation</span>(<span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+        <span class="ruby-identifier">stub</span> = <span class="ruby-identifier">find_matching_method_stub</span>(<span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+
+        <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">stub</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">expectation</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">called_max_times?</span>) <span class="ruby-operator">||</span> (<span class="ruby-identifier">stub</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">expectation</span>)
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">expectation</span> = <span class="ruby-identifier">find_almost_matching_expectation</span>(<span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+            <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">advise</span>(<span class="ruby-identifier">args</span>, <span class="ruby-identifier">block</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">expected_messages_received?</span>
+          <span class="ruby-keyword kw">end</span>
+          <span class="ruby-identifier">stub</span>.<span class="ruby-identifier">invoke</span>(<span class="ruby-identifier">args</span>, <span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">expectation</span>
+          <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">invoke</span>(<span class="ruby-identifier">args</span>, <span class="ruby-identifier">block</span>)
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">expectation</span> = <span class="ruby-identifier">find_almost_matching_expectation</span>(<span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+          <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">advise</span>(<span class="ruby-identifier">args</span>, <span class="ruby-identifier">block</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">null_object?</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">expectation</span>.<span class="ruby-identifier">expected_messages_received?</span>
+          <span class="ruby-identifier">raise_unexpected_message_args_error</span>(<span class="ruby-identifier">expectation</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>) <span class="ruby-keyword kw">unless</span> (<span class="ruby-identifier">has_negative_expectation?</span>(<span class="ruby-identifier">sym</span>) <span class="ruby-keyword kw">or</span> <span class="ruby-identifier">null_object?</span>)
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-ivar">@target</span>.<span class="ruby-identifier">__send__</span> <span class="ruby-identifier">:method_missing</span>, <span class="ruby-identifier">sym</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

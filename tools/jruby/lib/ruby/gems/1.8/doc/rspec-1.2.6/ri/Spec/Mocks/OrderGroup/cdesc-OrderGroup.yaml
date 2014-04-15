@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: OrderGroup
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: consume
+- !ruby/object:RI::MethodSummary 
+  name: handle_order_constraint
+- !ruby/object:RI::MethodSummary 
+  name: ready_for?
+- !ruby/object:RI::MethodSummary 
+  name: register
+full_name: Spec::Mocks::OrderGroup
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

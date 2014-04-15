@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (host, remote_dir, local_dir, *files)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a publisher using the give host information.
+full_name: SshFilePublisher::new
+visibility: public
+aliases: []
+

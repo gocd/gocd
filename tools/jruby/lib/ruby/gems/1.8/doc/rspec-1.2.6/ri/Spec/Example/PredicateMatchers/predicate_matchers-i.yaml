@@ -1,0 +1,25 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  predicate_matchers[matcher_name] = method_on_object
+  predicate_matchers[matcher_name] = [method1_on_object, method2_on_object]
+is_singleton: false
+block_params: 
+name: predicate_matchers
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Dynamically generates a custom matcher that will match a predicate on your
+    class. RSpec provides a couple of these out of the box:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  exist (for state expectations)\n    File.should exist(&quot;path/to/file&quot;)\n\
+    \n  an_instance_of (for mock argument matchers)\n    mock.should_receive(:message).with(an_instance_of(String))\n"
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  class Fish\n    def can_swim?\n      true\n    end\n  end\n\n  describe \
+    Fish do\n    predicate_matchers[:swim] = :can_swim?\n    it &quot;should swim&quot; \
+    do\n      Fish.new.should swim\n    end\n  end\n"
+full_name: Spec::Example::PredicateMatchers#predicate_matchers
+visibility: public
+aliases: []
+

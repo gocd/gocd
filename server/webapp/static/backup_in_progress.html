@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<html>
+<head>
+	<title>Backup in Progress</title>
+	<script type="text/javascript" src="/go/compressed/all.js"></script>
+	<link href="/go/stylesheets/structure/reset.css" media="screen" rel="stylesheet" type="text/css">
+	<link href="/go/stylesheets/layout.css" media="screen" rel="stylesheet" type="text/css">
+	<link href="/go/stylesheets/structure.css" media="screen" rel="stylesheet" type="text/css">
+	<link href="/go/stylesheets/ie_hacks.css" media="screen" rel="stylesheet" type="text/css">
+	<link href="/go/stylesheets/structure/application.css" media="screen" rel="stylesheet" type="text/css">
+	<style type="text/css">
+        .header #application_logo {
+          background-image: url(../images/g9/logo_go.png);
+          background-repeat: no-repeat;
+          border-right: 1px solid #555;
+          border-right: 1px solid rgba(255, 255, 255, 0.15);
+          float:left;
+          height: 40px;
+          margin: 0 5px 0px 12px;
+          width: 114px;
+        }
+	</style>
+</head>
+<body>
+	<div id="body_bg">
+		<div id="header">
+			<div class="header clear_float">
+				<a href="#" id="application_logo">&nbsp;</a>
+				<div style="margin: 10px; float: left;">Go backup in progress. Backup initiated by '<span id="backup_started_by">&nbsp;</span>' on '<span id="backup_started_at">&nbsp;</span>'</div>
+			</div>
+		</div>
+		<div id="footer">
+			<ul class="copyright" onclick="dashboard_periodical_executer.stop();">
+                <li>Copyright &copy; 2014 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
+                    Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.
+                    Go includes <a href="$req.getContextPath()/help/resources/NOTICE/cruise_notice_file.pdf" target="_blank">third-party software</a>.</li>
+			</ul>
+			<ul class="links">
+				<li><a target="_blank" href="http://support.thoughtworks.com/categories/20002778-go-community-support">Community</a></li>
+				<li><a target="_blank" href="http://www.thoughtworks.com/products/support">Support</a></li>
+			</ul>
+        </div>
+	</div>
+
+</body>
+<script type="text/javascript">
+    AjaxRefreshers.addRefresher(new AjaxRefresher("/go/is_backup_finished.json?from=" + jQuery.url.param("from")));
+    Util.on_load(function() {
+        jQuery('#backup_started_by').text(decodeURIComponent(jQuery.url.param("backup_started_by")));
+        jQuery('#backup_started_at').text(decodeURIComponent(jQuery.url.param("backup_started_at")));
+    });
+</script>
+</html>

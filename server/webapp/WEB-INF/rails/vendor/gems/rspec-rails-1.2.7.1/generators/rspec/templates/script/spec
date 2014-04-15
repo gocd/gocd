@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+if ARGV.any? {|arg| %w[--drb -X --generate-options -G --help -h --version -v].include?(arg)}
+  require 'rubygems' unless ENV['NO_RUBYGEMS']
+else
+  gem 'test-unit', '1.2.3' if RUBY_VERSION.to_f >= 1.9
+  ENV["RAILS_ENV"] ||= 'test'
+  require File.expand_path(File.dirname(__FILE__) + "/../config/environment") unless defined?(RAILS_ROOT)
+end
+require 'spec/autorun'
+exit ::Spec::Runner::CommandLine.run

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Re-running Job(s)">
+    <p>
+        You may sometimes encounter situations where you want to re-run only a subset of jobs within a stage
+        rather than the entire stage or pipeline. Examples of such scenarios include:
+    </p>
+    <bullets>
+        <item>Environmental problems on a particular agent caused a job to fail</item>
+        <item>Unsuccessful build deployment to one (or more) servers within a cluster of servers</item>
+    </bullets>
+    <subsection title="To re-run a job">
+        <bullets>
+            <item>Navigate to the <strong>Stage Details</strong> screen of the stage who's job you want to re-run.</item>
+            <item>Click on the <strong>Jobs</strong> tab.</item>
+            <item>Check the job(s) you want to re-run and click the <strong>Rerun</strong> button.</item>
+        </bullets>
+        <note>
+            The "Rerun" option is only available for stages that have completed. You cannot re-run jobs for stages
+            that are still running.
+        </note>
+        <img src="resources/images/cruise/stage_details_pre_job_rerun.png" />
+        <p>
+            Job re-runs are denoted by a circular arrow overlay on the stages and jobs that have been re-run:
+        </p>
+        <img src="resources/images/cruise/stage_details_post_job_rerun.png" />
+    </subsection>
+</chapter>

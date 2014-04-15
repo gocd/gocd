@@ -1,0 +1,153 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: SpecTask
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: A Rake task that runs a set of specs.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Rake::SpecTask.new do |t|\n    t.warning = true\n    t.rcov = true\n\
+    \  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'This will create a task that can be run with:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  rake spec\n"
+- !ruby/struct:SM::Flow::P 
+  body: If rake is invoked with a &quot;SPEC=filename&quot; command line option, then
+    the list of spec files will be overridden to include only the filename specified
+    on the command line. This provides an easy way to run just one spec.
+- !ruby/struct:SM::Flow::P 
+  body: If rake is invoked with a &quot;SPEC_OPTS=options&quot; command line option,
+    then the given options will override the value of the <tt>spec_opts</tt> attribute.
+- !ruby/struct:SM::Flow::P 
+  body: If rake is invoked with a &quot;RCOV_OPTS=options&quot; command line option,
+    then the given options will override the value of the <tt>rcov_opts</tt> attribute.
+- !ruby/struct:SM::Flow::P 
+  body: 'Examples:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  rake spec                                      # run specs normally\n  \
+    rake spec SPEC=just_one_file.rb                # run just one spec file.\n  rake \
+    spec SPEC_OPTS=&quot;--diff&quot;                   # enable diffing\n  rake spec \
+    RCOV_OPTS=&quot;--aggregate myfile.txt&quot;   # see rcov --help for details\n"
+- !ruby/struct:SM::Flow::P 
+  body: Each attribute of this task may be a proc. This allows for lazy evaluation,
+    which is sometimes handy if you want to defer the evaluation of an attribute value
+    until the task is run (as opposed to when it is defined).
+- !ruby/struct:SM::Flow::P 
+  body: 'This task can also be used to run existing Test::Unit tests and get RSpec
+    output, for example like this:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  require 'spec/rake/spectask'\n  Spec::Rake::SpecTask.new do |t|\n    t.ruby_opts \
+    = ['-rtest/unit']\n    t.spec_files = FileList['test/**/*_test.rb']\n  end\n"
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: fail_on_error
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Whether or not to fail Rake when an error occurs (typically when specs fail).
+      Defaults to true.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: failure_message
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: A message to print to stderr when there are failures.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: libs
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of directories to be added to $LOAD_PATH before running the specs.
+      Defaults to ['&lt;the absolute path to RSpec's lib directory&gt;']
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: name
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Name of spec task. (default is :spec)
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: out
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Where RSpec's output is written. Defaults to $stdout. DEPRECATED. Use --format
+      FORMAT:WHERE in spec_opts.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: pattern
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Glob pattern to match spec files. (default is 'spec/**/*_spec.rb') Setting
+      the SPEC environment variable overrides this.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: rcov
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Whether or not to use RCov (default is false) See http://eigenclass.org/hiki.rb?rcov
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: rcov_dir
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Directory where the RCov report is written. Defaults to &quot;coverage&quot;
+      Ignored if rcov=false
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: rcov_opts
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of commandline options to pass to RCov. Defaults to ['--exclude',
+      'lib\/spec,bin\/spec']. Ignored if rcov=false Setting the RCOV_OPTS environment
+      variable overrides this.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: ruby_opts
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of commandline options to pass to ruby. Defaults to [].
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: spec_files
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Explicitly define the list of spec files to be included in a spec. <tt>spec_files</tt>
+      is expected to be an array of file names (a FileList is acceptable). If both
+      <tt>pattern</tt> and <tt>spec_files</tt> are used, then the list of spec files
+      is the union of the two. Setting the SPEC environment variable overrides this.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: spec_opts
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of commandline options to pass to RSpec. Defaults to []. Setting the
+      SPEC_OPTS environment variable overrides this.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: verbose
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Use verbose output. If this is set to true, the task will print the executed
+      spec command to stdout. Defaults to false.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: warning
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: If true, requests that the specs be run with the warning flag set. E.g.
+      warning=true implies &quot;ruby -w&quot; used to run the specs. Defaults to
+      false.
+  rw: RW
+instance_methods: []
+
+full_name: Spec::Rake::SpecTask
+superclass: "::Rake::TaskLib"
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: attr_accessor
+- !ruby/object:RI::MethodSummary 
+  name: new

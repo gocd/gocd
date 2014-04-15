@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Default
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: context_lines
+- !ruby/object:RI::MethodSummary 
+  name: diff_as_object
+- !ruby/object:RI::MethodSummary 
+  name: diff_as_string
+- !ruby/object:RI::MethodSummary 
+  name: format
+full_name: Spec::Expectations::Differs::Default
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

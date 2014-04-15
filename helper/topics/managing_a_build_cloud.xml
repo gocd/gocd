@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Managing agents">
+	<p>Go is designed to make managing a build cloud extremely simple. This page takes you through the lifecycle of expanding your cloud and maintaining your agents.</p>
+	<section title="Adding a Go agent to your cloud">
+		<p>The first thing you need to do is <cref topic="installing_go_agent">install Go agent</cref> on the machine you want to add to the cloud.</p>
+                <p>Once the Go agent has been installed and pointed at your Go server, go to the <cref topic="agents_page">Agents</cref> tab on the Go dashboard. You should see something like this:</p>
+		<img src="resources/images/cruise/enable_agent.png"/>
+		<p>Note that the hostname is as reported by the agent, and the IP address is as reported by the server.</p>
+		<p>To add the agent to the cloud, click "Enable". Note that even after you have clicked "Enable", the agent will not be enabled until it next contacts the server -- so if your agent has stopped talking to the server, nothing will happen.</p>
+		<p>Once your agent has successfully been enabled, it should no longer appear greyed out and will and be marked "idle". At this point your agent will automatically begin picking up jobs. Agents will automatically check out any code they need in order to start running jobs.</p>
+	</section>
+	<section title="Matching jobs to agents" id="jobstoagents"  collapsed="true">
+		<p>In its default state, Go server will assign scheduled jobs to the first available agent. Go doesn't have the ability to determine what operating system or other resources are present on a given agent. If you want particular jobs to run on particular agents, you'll need to specify <strong>resources</strong>.</p>
+		<p>You can specify one or more resources that a particular job needs in order to execute. In the same way, you can specify that an agent has one or more resources. Go will then match jobs to agents, such that a job will only run on agents which have at least the resources required for that job.</p>
+		<p>Resources are just plain text tags. There are no preset tags or conventions around tagging -- just use what makes sense to you. You might, for example, use operating systems as tags: "RHEL linux", "Windows XP". You could also use browsers, databases, or whatever else makes sense. We recommend you let your classification be driven by your jobs -- if you know that certain jobs will only work on certain machines, tag the jobs with the special resource or resources that job needs in order to work, and then classify the agents accordingly. </p>
+        <note>Notes: Resource matching is case-insensitive.</note>
+                <p>To specify the resources that a job needs, go to the <strong>Pipelines configuration</strong> section of the <cref topic="administration_page">Administration</cref> tab and edit the job that you want to specify resources for:</p>
+		<img src="resources/images/cruise/edit_job_resources.png"/>
+                <p>Once you’ve specified the resources your jobs need, you’ll want to describe the resources your agents have. You can do this very easily in the <cref topic="agents_page">Agents</cref> tab. Just select the agents you want to describe, and click on the <strong>Resources</strong> button.</p>
+                <subsection title="Associate selected agent(s) with a newly created resource">
+                  <p>Enter the name of the new resource and click the “Add” button.</p>
+                  <img src="resources/images/cruise/associate_agent_resources_new.png"/>
+                </subsection>
+                <subsection title="Associate selected agent(s) with existing resources">
+                  <p>All existing resources across your agents and jobs will appear in alphabetical order. Select one of three states for all resources you want to associate and then click the “Apply” button.</p>
+
+                  <bullets>
+                    <item>A resource <strong>with a check</strong> will add the resource to all selected agents.</item>
+                    <item>A resource <strong>with a forward slash</strong> means some of your selected agents are associated to it. No change will occur after clicking “Apply”.</item>
+                    <item>A resource <strong>without a check</strong> will remove the resource from all selected agents.</item>
+                  </bullets>
+                  <img src="resources/images/cruise/associate_agent_resources_existing.png"/>
+                </subsection>
+	</section>
+	<section title="Agent states"  collapsed="true">
+          <p>Go will tell you if it loses touch with agents. If Go server doesn't hear from an agent for two minutes, the agent will turn red in the <cref topic="agents_page">Agents</cref> tab, and Go will tell you the last time it heard from the agent. Go will also transparently re-assign the build to the next available agent that can run it, if the lost agent was building a job.</p>
+		<p>Go will also let you know if one of the agents it knows about has never contacted it since Go server was last started. In this case, the agent's state will be marked as "missing" and it will be gray.</p>
+		<p>If an agent is working on a job, it will turn orange, and display the name of the job it is working on. You can click on the job description to go to the job details page for that job:</p>
+	</section>
+	<section title="Removing agents"  collapsed="true" id="delete_agents">
+		<p>If you want to remove an agent from Go's build cloud, go to the agents tab, locate the agent you want to remove, and click on the button marked "Disable". Go will record in its configuration that this agent should be excluded from the build cloud. If you restart Go server, the agent will continue to be disabled. Disabled agents do not count towards Go's licensed agents.</p>
+                <p>To permanently remove an agent from Go's configuration, you can use the <cref topic="Agent_API">agent api</cref> or delete from the agents tab. The agent must be disabled before it can be deleted</p>
+		<p>Following this procedure, if you restart the agent, Go server will see it as a new agent, and you can enable it again in the same way as described above.
+			<img src="resources/images/cruise/delete_agent.png"/>
+		</p>
+	</section>
+    <section title="Pausing agents" id="pausing_agent"  collapsed="true">
+		<p>If you want to pause an agent or temporarily disable it so that Go server will not assign work to the agent. Go will record in its configuration file that the agent has been disabled. This means, if you restart Go server, the disabled agent will remain disabled. You can use the following api to <cref topic="Agent_API">disable agents</cref> or you can disable the agent from the agents tab.</p>
+        <p>A disabled agent can be enabled; this will make it eligible to pick up work again. You can use the api or enable an agent from the agents tab.</p>
+        <p>
+			<img src="resources/images/cruise/disable_agent.png"/>
+		</p>
+	</section>
+    <section file="agent_details" title="Details of a single agent" id="pausing_agent"  collapsed="true"/>
+</chapter>

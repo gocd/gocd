@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+if ARGV.any? {|arg| %w[--drb -X --generate-options -G --help -h --version -v].include?(arg)}
+  $LOAD_PATH << File.join(File.dirname(__FILE__), "..", "vendor", "gems", "rspec-1.2.8", "lib")
+  require 'rubygems' unless ENV['NO_RUBYGEMS']
+else
+  gem 'test-unit', '1.2.3' if RUBY_VERSION.to_f >= 1.9
+  ENV["RAILS_ENV"] ||= 'test'
+  require File.expand_path(File.dirname(__FILE__) + "/../config/environment") unless defined?(RAILS_ROOT)
+end
+require 'spec/autorun'
+val = ::Spec::Runner::CommandLine.run
+val = $spec_successful unless $spec_successful.nil?
+
+if (RUBY_PLATFORM == "java")
+  require 'java'
+  java.lang.System.exit(val ? 0 : 1)
+else
+  exit val
+end

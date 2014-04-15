@@ -1,0 +1,13 @@
+<div class="form_buttons actions">
+    <% if scope[:needs_next] %>
+        <button id="<%= "next_to_#{scope[:current_tab_name]}" -%>" class="right primary next submit"><span><%= l.string('NEXT_BUTTON') -%></span></button>
+    <% end %>
+    <% if scope[:needs_finish] %>
+        <%= submit_button(l.string("FINISH_BUTTON"), :class => 'primary finish') %>
+    <% end %>
+    <% if scope[:needs_prev] %>
+        <button id="<%= "prev_to_#{scope[:current_tab_name]}" -%>" class="right primary prev submit"><span><%= l.string('PREV_BUTTON') -%></span></button>
+    <% end %>
+
+    <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
+</div>

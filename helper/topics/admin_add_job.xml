@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+ <!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+ <chapter title="Add a new job to an existing stage">
+    <p>Now that we have a pipeline with stage(s), we can add more jobs to any of the existing stages. You can now use the tree navigation on the left side of the screen to edit
+        a stage or a job under a pipeline.
+    </p>
+    <bullets>
+        <item>Click on the stage name that you want to edit on the tree as shown below. The "defaultStage" is being edited.</item>
+        <img src="resources/images/cruise/admin/add_job/edit_stage_link_on_tree.png"/>
+        <item>Click on the Jobs tab</item>
+        <item>Click on "Add new job"</item>
+        <img src="resources/images/cruise/admin/add_job/add_new_job_link.png"/>
+        <item>Fill job name and job details</item>
+        <img src="resources/images/cruise/admin/add_job/add_new_job_window.png"/>
+        <item>Fill in the details for the initial task belonging to this job. You can edit this job later to
+            <cref
+                    topic="admin_add_task">add more tasks
+            </cref>
+        </item>
+        <item>You can choose the type of the task as required.</item>
+        <item>For task types Ant, Nant and Rake, the build file and target will default as per the tool used. For example, Ant task,
+            would look for build.xml in the working directory, and use the default task if nothing is mentioned.
+        </item>
+        <item>Click on help icon next to the fields to get additional details about the fields you are editing.</item>
+        <item>Click "Save"</item>
+    </bullets>
+ </chapter>

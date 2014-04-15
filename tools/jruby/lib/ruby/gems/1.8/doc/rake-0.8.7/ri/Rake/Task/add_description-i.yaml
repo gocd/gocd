@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (description)
+is_singleton: false
+block_params: 
+name: add_description
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Add a description to the task. The description can consist of an option argument
+    list (enclosed brackets) and an optional comment.
+full_name: Rake::Task#add_description
+visibility: public
+aliases: []
+

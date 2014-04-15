@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: expected_args
+comment: 
+full_name: Spec::Mocks::BaseExpectation#expected_args
+visibility: public
+aliases: []
+

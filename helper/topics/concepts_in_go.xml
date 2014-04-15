@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Concepts in Go">
+  <p>Go is an advanced Continuous Integration and Release Management system. It takes an innovative approach to managing the build, test and release process. In order to find your way around Go, you'll need to understand how Go sees the world. This page explains some basic concepts in Go.</p>
+	<p>If you want to know more about Continuous Integration, in general, refer to Martin Fowler's article on the subject: <exref url="http://martinfowler.com/articles/continuousIntegration.html">Continuous Integration</exref>.</p>
+	<section title="Build cloud" id="agents">
+		<p>As with all modern continuous integration systems, Go lets you distribute your builds across many computers -- think 'build grid' or 'build cloud'.</p>
+		<p>And why use a build cloud? There are three main reasons:</p>
+		<bullets>
+			<item>Run your tests on several different platforms to make sure your software works on all of them</item>
+			<item>Split your tests into several parallel suites and run them at the same time to get results faster</item>
+			<item>Manage all your environments centrally so you can promote builds from one environment to the next</item>
+		</bullets>
+		<p>It is extremely simple to get a cloud up and running in Go. First, install the Go agent software on each computer that is to be a part of your cloud. Next, configure each build agent to connect to your Go server. Finally, approve every build agent in your cloud from the management dashboard in the Go administration page. You are now ready to build. Additionally, you should associate relevant <strong>resource</strong> tags with each of your agents to better specify the kinds of build tasks with which each agent is compatible.</p>
+          <subsection title="Agent lifecycle">
+              <p>Go supports a grid of Agents that can run Jobs. Agents periodically contact the Go server to ask
+              if there is any work. The server checks to see what resources the Agent has, and assigns any available
+              Jobs that match those resources.</p>
+
+              <p>When an Agent runs a Job, it creates a sandbox directory under the agent's directory. All materials are
+              updated into this directory. This directory may be different on different agents depending on how the agent
+              was configured and which operating system the agent is running on.</p>
+
+              <p>For example consider a pipeline named "pipelines/my-pipeline".
+              On a default linux install this would be "/var/lib/go-agent/pipelines/my-pipeline". On a default Windows
+              installation it would be "C:\Program files\Go Agent\pipelines\my-pipeline".</p>
+
+              <p>All materials are updated in
+              this directory. If a material has a "dest" folder specified, then the material is updated into a folder of that
+              name, under the base sandbox directory.</p>
+
+              <p>For example suppose the pipeline has an SVN material with a destination folder name of "tools" then the svn
+              files will be checked out into that "tools" directory. When you have multiple materials specified, you must
+              specify a "dest" for each material.</p>
+
+              <p>Once the materials have all been updated, the Agent runs each of the tasks in turn. You can specify a
+              workingdir on a task. When the task runs it will be run relative to the pipeline sandbox.</p>
+
+              <p>For example if there is a task that runs "/usr/bin/make" with a workingdir of "tools/my-tool" then this will
+              run in the directory "pipelines/my-pipeline/tools/my-tool".</p>
+
+              <p>When all the tasks have been completed the agent will publish any artifacts defined in the Job. Again the
+              artifact directories are relative to the pipeline sandbox directory.</p>
+
+          </subsection>
+
+          <subsection title="Full example">
+              <p>Consider the following configuration:</p>
+      <code>
+          <![CDATA[
+          <pipeline name="my-product">
+            <materials>
+              <svn  url="http://my-svn-server/tools" dest="tools"/>
+              <svn  url="http://my-svn-server/my-project" dest="my-project"/>
+            </materials>
+            <stage name="compile">
+              <job name="linux">
+                <environmentvariables>
+                  <variable name="FOO">
+                     <value>bar</value>
+                  </variable>
+                </environmentvariables>
+                <resources>
+                  <resource>linux</resource>
+                </resources>
+                <tasks>
+                  <exec command="/usr/bin/make" args="-f Makefile" workingdir="tools/my-tool"/>
+                  <ant target="unit-test" workingdir="my-project"/>
+                </tasks>
+                <artifacts>
+                  <artifact src="my-project/target/deployable.jar" dest="pkg"/>
+                </artifacts>
+              </job>
+            </stage>
+          </pipeline>
+          ]]>
+      </code>
+
+              <p>The Go Agent will:</p>
+              <bullets>
+                  <item>Create the directory "[install-dir]/pipelines/my-product" if it does not exist</item>
+                  <item>Checkout or update the svn material "http://my-svn-server/tools" into "[install-dir]/pipelines/my-product/tools"</item>
+                  <item>Checkout or update the svn material "http://my-svn-server/my-project" into "[install-dir]/pipelines/my-product/my-project"</item>
+                  <item>run "/usr/bin/make" in the directory "[install-dir]/pipelines/my-product/tools/my-tool"</item>
+                  <item>run ant in the directory "[install-dir]/pipelines/my-product/tools/my-project"</item>
+                  <item>publish "[install-dir]/pipelines/my-product/my-project/target/deployable.jar" to the server</item>
+              </bullets>
+          </subsection>
+	</section>
+	<section title="Pipelines" id="pipelines">
+		<p>A pipeline allows you to break down a complex build into a sequence of simple stages for fast feedback, exhaustive validation and continuous deployment.</p>
+		<subsection title="How Go models distributed work">
+		<p>The unit of work in Go is called a <strong>job</strong>. A job is a set of build tasks that can be performed on a single agent in your cloud. You can associate specific build <strong>resources</strong> with each build agent -- a specific operating system or compiler version, for example. Go makes sure build jobs that require specific build resources are directed to build agents with the appropriate resources. By default, build jobs can be picked up by any agent. Resources are simple text tags which you associate with each agent. You can specify as many of them as you want. This flexibility is important as the agent process itself does not automatically determine anything about its environment.</p>
+		<p>Jobs are grouped into stages. A <strong>stage</strong> is a collection of build jobs that can be executed in parallel. This is the mechanism that allows you to, for example, split test suites into multiple parallel streams or run the same build on multiple platforms simultaneously. A stage passes only when all the jobs in the stage pass.</p>
+                <p>Stages are then joined sequentially into a <strong>pipeline</strong>. Stages trigger in the order they appear in the pipeline's raw configuration. They can be triggered by: a change in your version control system, manually forcing the pipeline to become active or by a dependency on a given stage of another pipeline. When a stage completes successfully, it triggers the next stage in the pipeline automatically, by default. Alternatively, you can require a manual <strong>approval</strong> to trigger the next stage. This manual approval requires user intervention. You can delegate the permissions for approval of stages to individuals or groups of users.</p>
+		</subsection>
+		<subsection title="An example pipeline">
+			<p>So what does a pipeline look like? Here's an example:</p>
+	<screenshot alttext="Example pipeline" src="resources/images/cruise/pipeline_example.png"/>
+			<p>The first stage has two jobs. The unit test job compiles the code and runs the unit tests. The compiled code is then uploaded to the artifact repository. This is the one and only time the code is compiled -- and of course if you're using an interpreted language you can skip this step. The second job does static analysis of the code, uploading the results as html test reports and build properties for further analysis.</p>
+			<p>When the first stage passes, it automatically triggers the functional test stage. The jobs in this stage download that binaries from the artifact repository, and run a series of functional tests. One job runs on a Linux box, the other on Windows. If your tests take a long time to run, you could split them into suites and run these as multiple jobs in parallel.</p>
+			<p>Finally there is a stage which deploys your software into your UAT environment for manual testing. This stage has a manual approval in front of it, meaning that somebody has to click a button in order to deploy the application into UAT. Running this stage proves out your automated deployment process -- and it should include some smoke tests that make the job fail if the deployment doesn't work.</p>
+			<p>The pipeline metaphor gives you several important benefits:</p>
+			<bullets>
+				<item>Because of the way pipelines are modeled and presented, it is trivially easy to match up an acceptance test failure, or a flaw in the UAT environment, with the version of the code that caused it.</item>
+				<item>Because you only compile once, you ensure that the thing you are testing is the same thing you will release, and you don't waste resources compiling repeatedly.</item>
+				<item>Finally, Go allows you to build manual steps into your testing process so that your QAs and users can manually test your software.</item>
+			</bullets>
+		</subsection>
+		<subsection title="Pipeline groups">
+		  <p>The Go dashboard allows you to visualize pipelines at a glance. You can then group pipelines together into pipeline groups. Beyond the visual convenience of grouping related pipelines, there are access and security features that allow you to control the set of users that can view a particular pipeline group. This can be a powerful way to carve out more secluded build areas for your users. Consult the Security section for more information </p>
+		</subsection>
+	</section>
+
+<section title="Pipeline dependencies">
+    <p>A dependency is created when a pipeline is configured to depend on either an SCM or another pipeline. The domain concept for this is called a material. If a pipeline has a dependency it has been configured to have either an <i>SCM material</i> or a <i>pipeline material</i>. </p>
+    <subsection title="SCM Dependency">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/scm_dependency.png"/>
+	   </label>
+	   <col>
+	   <p>Pipeline 1 depends on an SCM.</p>
+	   <p>Pipeline 1 will trigger each time it polls the SCM and detects a new revision.</p>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Pipeline Dependency">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/pipeline_dependency.png"/>
+	   </label>
+	   <col>
+	   <p>Pipeline 2 depends on Pipeline 1.</p>
+	   <p>Pipeline 2 will trigger each time Pipeline 1 successfully completes.</p>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Pipeline and SCM Dependency">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/pipeline_scm_dependency.png"/>
+	   </label>
+	   <col>
+	   <p>Pipeline 2 depends on Pipeline 1 and an SCM.</p>
+	   <p>The expectation may be that a new revision will trigger both Pipeline 1 and 2. That’s not the case.</p>
+	   <p>Instead, Pipeline 2 will only trigger if a new revision has successfully passed through Pipeline 1. </p>
+	   <p>Real world example:</p>
+	   <items>
+	   <item>SCM contains application code and acceptance tests</item>
+	   <item>Both pipelines depend on the SCM</item>
+	   <item>Pipeline 1 compiles code and creates an artifact</item>
+	   <item>Pipeline 2 fetches the build artifact and runs the tests that were written for the compiled code</item>
+	   <item>Pipeline 2 has to use the same acceptance tests committed with the code</item>
+	   <item>Someone commits code and tests as part of the same SCM commit.</item>
+	   </items>
+
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Fan-out">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/fan-out.png"/>
+	   </label>
+	   <col>
+	   <p>Pipeline 1 and 2 depend on the same SCM.</p>
+	   <p>A new revision will trigger both Pipeline 1 and 2.</p>
+	   <p>Why fan-out?</p>
+	   <items>
+	   <item> Speed up the feedback loop and enable a team to fail and learn faster.</item>
+	   </items>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Fan-in - Pipeline ">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/fan-in-pipeline.png"/>
+	   </label>
+	   <col>
+	   <p>Pipelines 1 and 2 depend on an SCM.</p>
+	   <p>Pipeline 3 depends on Pipelines 1 and 2.</p>
+	   <p>The expectation may be that any successful run of Pipeline 1 or Pipeline 2 will trigger Pipeline 3. That’s not the case.</p>
+	   <p>Instead, Pipeline 3 will only trigger if a new revision (SCM) has successfully passed through both Pipeline 1 and Pipeline 2. </p>
+	   <p>Why fan-in?</p>
+	   <items>
+	   <item>Faster feedback - You can fan-out to get significantly faster feedback now that Go handles the fan-in. </item>
+	   <item>Eliminates spurious builds - Test software only when it's necessary and don’t waste resources.</item>
+	   <item>Meaningful feedback - You won't have false-positives or false-negatives. </item>
+	   </items>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Fan-in - Pipeline and SCM">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/fan-in-pipeline-scm.png"/>
+	   </label>
+	   <col>
+              <p>Pipelines 1 and 2 depend on SCM 1.</p>
+              <p>Pipeline 3 depends on Pipelines 1 and 2, and SCM 2.</p>
+              <p>Pipeline 3 will trigger:</p>
+	      <items>
+	          <item>if a new revision (SCM 1) has successfully passed through both Pipeline 1 and Pipeline 2</item>
+                  <item>each time it polls SCM 2 and detects a new revision</item>
+              </items>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    <subsection title="Fan-in - Pipeline with different originating SCM">
+       <table>
+           <row>
+	   <label>
+		<img src="resources/images/cruise/fan-in-pipeline-different-scm.png"/>
+	   </label>
+	   <col>
+	   <p>Pipelines 1 and 2 depend on SCM 1.</p>
+	   <p>Pipeline 3 depends on SCM 2.</p>
+	   <p>Pipeline 4 depends on Pipelines 1, 2 and 3.</p>
+	   <p>Pipeline 4 will trigger:</p>
+	   <items>
+	   <item>if a new revision (SCM 1) has successfully passed through Pipelines 1 and 2. </item>
+	    <item>each time Pipeline 3 successfully completes (SCM 2)</item>
+	    </items>
+	   </col>
+	   </row>
+       </table>
+    </subsection>
+    </section>
+    <section title="Deployment and Environments" id="deployment_environments">
+      <p>Any moderately complex piece of software typically goes through a series of environments prior to release. A typical set of environments may look like this:</p>
+      <bullets>
+        <item>Development</item>
+        <item>User Acceptance Testing</item>
+        <item>Performance</item>
+        <item>Production</item>
+      </bullets>
+      <p>Deployment of software into an environment is often a non-trivial process that involves several steps, potentially required to be repeated on several machines. With Go, you have an easy to manage environment dashboard that simplifies the deployment process down to a single click.</p>
+      <p>An environment in Go is essentially a collection of agents and pipelines. Agents can be shared across environments, however, pipelines cannot. An environment pipeline is used to perform tasks specific to an environment.</p>
+      <subsection title="An example">
+        <p>So how would this work for me? Here's an example:</p>
+        <screenshot alttext="Environments example" src="resources/images/cruise/environment-deploy.png"></screenshot>
+        <p></p>
+        <p>In this scenario, we have three different environments -- User acceptance, Performance, and Production. At any given time, each environment may contain a different build of the deployed software.</p>
+        <p>Each environment has a pipeline (represented by the downward arrow) that performs a set of tasks specific to each environment.</p>
+        <bullets>
+          <item><strong>User Acceptance:</strong> The pipeline performs a <strong>deploy</strong> task on a single machine.</item>
+          <item><strong>Performance:</strong> The pipeline first performs a <strong>deploy</strong> on a cluster of performance machines and then triggers a suite of <strong>performance tests</strong>.</item>
+          <item><strong>Production:</strong> The pipeline first performs a <strong>deploy</strong> on a load balanced cluster of machines and then triggers a suite of <strong>smoke tests</strong> to validate the deployment.</item>
+        </bullets>
+        <p>Each of these environment pipelines deploys using the same build thereby mitigating any unforeseen issues due to inconsistent versions.</p>
+        <p>The environments dashboard also give you a bird's eye view of which versions are deployed in which environment giving you a configuration management console as well.</p>
+      </subsection>
+    </section>
+</chapter>

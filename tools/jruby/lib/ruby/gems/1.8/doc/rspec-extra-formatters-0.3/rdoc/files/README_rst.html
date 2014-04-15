@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: README.rst</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>README.rst</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>README.rst
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Fri Jul 22 10:20:19 UTC 2011</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h6>==========</h6>
+<p>
+RSpec Formatters
+</p>
+<h6>==========</h6>
+<p>
+::
+</p>
+<pre>
+    $ rake format=tap
+    ok 1 - TapFormatter should initialize the counter to 0
+    ok 2 - TapFormatter example_passed should increment the counter and use the full_description attribute
+    ok 3 - TapFormatter example_failed should increment the counter and use the full_description attribute
+    ok 4 - TapFormatter example_pending should do the same as example_failed
+    ok 5 - TapFormatter dump_summary should print the number of tests if there were tests
+    ok 6 - TapFormatter dump_summary should print nothing if there were not tests
+    ok 7 - JUnitFormatter should initialize the tests with failures and success
+    ok 8 - JUnitFormatter example_passed should push the example obj into success list
+    ok 9 - JUnitFormatter example_failed should push the example obj into failures list
+    ok 10 - JUnitFormatter example_pending should do the same as example_failed
+    ok 11 - JUnitFormatter read_failure should ignore if there is no exception
+    ok 12 - JUnitFormatter read_failure should read message and backtrace from the example
+    ok 13 - JUnitFormatter dump_summary should print the junit xml
+    1..13
+</pre>
+<p>
+::
+</p>
+<pre>
+    $ rake format=junit
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+    &lt;testsuite errors=&quot;0&quot; failures=&quot;0&quot; tests=&quot;13&quot; time=&quot;0.019992&quot; timestamp=&quot;2011-01-21T23:07:41-02:00&quot;&gt;
+      &lt;properties /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter should initialize the counter to 0&quot; time=&quot;0.001298&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter example_passed should increment the counter and use the full_description attribute&quot; time=&quot;0.001546&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter example_failed should increment the counter and use the full_description attribute&quot; time=&quot;0.001427&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter example_pending should do the same as example_failed&quot; time=&quot;0.001456&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter dump_summary should print the number of tests if there were tests&quot; time=&quot;0.00177&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/tap_formatter_spec.rb&quot; name=&quot;TapFormatter dump_summary should print nothing if there were not tests&quot; time=&quot;0.000398&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter should initialize the tests with failures and success&quot; time=&quot;0.000859&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter example_passed should push the example obj into success list&quot; time=&quot;0.000829&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter example_failed should push the example obj into failures list&quot; time=&quot;0.000778&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter example_pending should do the same as example_failed&quot; time=&quot;0.000758&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter read_failure should ignore if there is no exception&quot; time=&quot;0.00119&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter read_failure should read message and backtrace from the example&quot; time=&quot;0.001823&quot; /&gt;
+      &lt;testcase classname=&quot;/home/dsouza/dev/github/rspec_formatters/spec/junit_formatter_spec.rb&quot; name=&quot;JUnitFormatter dump_summary should print the junit xml&quot; time=&quot;0.003813&quot; /&gt;
+    &lt;/testsuite&gt;
+</pre>
+<p>
+Using it
+</p>
+<h6>==</h6>
+<p>
+Make sure you add `-r &quot;rspec-extra-formatters&quot;` to rspec options
+and both `-f <a href="../classes/JUnitFormatter.html">JUnitFormatter</a>`
+and `-f <a href="../classes/TapFormatter.html">TapFormatter</a>` should
+work. :-)
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

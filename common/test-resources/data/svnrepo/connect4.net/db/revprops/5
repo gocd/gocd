@@ -1,0 +1,13 @@
+K 10
+svn:author
+V 5
+Chris
+K 8
+svn:date
+V 27
+2008-07-24T07:57:54.939013Z
+K 7
+svn:log
+V 44
+Changed CRUISE_BUILD_NAME to CRUISE_JOB_NAME
+END

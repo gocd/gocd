@@ -1,0 +1,19 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NotYetImplementedError
+constants: 
+- !ruby/object:RI::Constant 
+  name: MESSAGE
+  value: '"Not Yet Implemented"'
+  comment: 
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Example::NotYetImplementedError
+superclass: ExamplePendingError
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

@@ -1,0 +1,125 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: PackageTask
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a packaging task that will package the project into distributable files
+    (e.g zip archive or tar files).
+- !ruby/struct:SM::Flow::P 
+  body: 'The PackageTask will create the following targets:'
+- !ruby/object:SM::Flow::LIST 
+  type: :LABELED
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>:package</b>
+    body: Create all the requested package files.
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>:clobber_package</b>
+    body: Delete all the package files. This target is automatically added to the
+      main clobber target.
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>:repackage</b>
+    body: Rebuild the package files from scratch, even if they are not out of date.
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>"<em>package_dir</em>/<em>name</em>-<em>version</em>.tgz"</b>
+    body: Create a gzipped tar package (if <em>need_tar</em> is true).
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>"<em>package_dir</em>/<em>name</em>-<em>version</em>.tar.gz"</b>
+    body: Create a gzipped tar package (if <em>need_tar_gz</em> is true).
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>"<em>package_dir</em>/<em>name</em>-<em>version</em>.tar.bz2"</b>
+    body: Create a bzip2'd tar package (if <em>need_tar_bz2</em> is true).
+  - !ruby/struct:SM::Flow::LI 
+    label: <b>"<em>package_dir</em>/<em>name</em>-<em>version</em>.zip"</b>
+    body: Create a zip package archive (if <em>need_zip</em> is true).
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Rake::PackageTask.new(&quot;rake&quot;, &quot;1.2.3&quot;) do |p|\n    \
+    p.need_tar = true\n    p.package_files.include(&quot;lib/**/*.rb&quot;)\n  end\n"
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: name
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Name of the package (from the GEM Spec).
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: need_tar
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: True if a gzipped tar file (tgz) should be produced (default is false).
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: need_tar_bz2
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: True if a bzip2'd tar file (tar.bz2) should be produced (default is false).
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: need_tar_gz
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: True if a gzipped tar file (tar.gz) should be produced (default is false).
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: need_zip
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: True if a zip file should be produced (default is false)
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: package_dir
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Directory used to store the package files (default is 'pkg').
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: package_files
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of files to be included in the package.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: tar_command
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Tar command for gzipped or bzip2ed archives. The default is 'tar'.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: version
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Version of the package (e.g. '1.3.2').
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: zip_command
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Zip command for zipped archives. The default is 'zip'.
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: define
+- !ruby/object:RI::MethodSummary 
+  name: init
+- !ruby/object:RI::MethodSummary 
+  name: package_dir_path
+- !ruby/object:RI::MethodSummary 
+  name: package_name
+- !ruby/object:RI::MethodSummary 
+  name: tar_bz2_file
+- !ruby/object:RI::MethodSummary 
+  name: tar_gz_file
+- !ruby/object:RI::MethodSummary 
+  name: tgz_file
+- !ruby/object:RI::MethodSummary 
+  name: zip_file
+full_name: Rake::PackageTask
+superclass: TaskLib
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

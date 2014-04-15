@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (list)
+is_singleton: false
+block_params: 
+name: test_files=
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Explicitly define the list of test files to be included in a test. <tt>list</tt>
+    is expected to be an array of file names (a FileList is acceptable). If both <tt>pattern</tt>
+    and <tt>test_files</tt> are used, then the list of test files is the union of
+    the two.
+full_name: Rake::TestTask#test_files=
+visibility: public
+aliases: []
+

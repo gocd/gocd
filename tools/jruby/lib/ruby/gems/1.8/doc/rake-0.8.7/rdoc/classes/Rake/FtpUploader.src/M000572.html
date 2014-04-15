@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Rake::FtpUploader)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>     <span class="ruby-comment cmt"># File lib/rake/contrib/ftptools.rb, line 108</span>
+108:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">host</span>, <span class="ruby-identifier">account</span>, <span class="ruby-identifier">password</span>)
+109:       <span class="ruby-ivar">@created</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>
+110:       <span class="ruby-ivar">@path</span> = <span class="ruby-identifier">path</span>
+111:       <span class="ruby-ivar">@ftp</span> = <span class="ruby-constant">Net</span><span class="ruby-operator">::</span><span class="ruby-constant">FTP</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">host</span>, <span class="ruby-identifier">account</span>, <span class="ruby-identifier">password</span>)
+112:       <span class="ruby-identifier">makedirs</span>(<span class="ruby-ivar">@path</span>)
+113:       <span class="ruby-ivar">@ftp</span>.<span class="ruby-identifier">chdir</span>(<span class="ruby-ivar">@path</span>)
+114:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

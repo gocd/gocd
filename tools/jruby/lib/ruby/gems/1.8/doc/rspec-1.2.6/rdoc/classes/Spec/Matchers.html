@@ -1,0 +1,1409 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Matchers</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Matchers</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/spec/matchers/be_rb.html">
+                lib/spec/matchers/be.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/be_close_rb.html">
+                lib/spec/matchers/be_close.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/be_instance_of_rb.html">
+                lib/spec/matchers/be_instance_of.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/be_kind_of_rb.html">
+                lib/spec/matchers/be_kind_of.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/change_rb.html">
+                lib/spec/matchers/change.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/dsl_rb.html">
+                lib/spec/matchers/dsl.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/eql_rb.html">
+                lib/spec/matchers/eql.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/equal_rb.html">
+                lib/spec/matchers/equal.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/errors_rb.html">
+                lib/spec/matchers/errors.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/exist_rb.html">
+                lib/spec/matchers/exist.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/generated_descriptions_rb.html">
+                lib/spec/matchers/generated_descriptions.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/has_rb.html">
+                lib/spec/matchers/has.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/have_rb.html">
+                lib/spec/matchers/have.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/include_rb.html">
+                lib/spec/matchers/include.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/match_rb.html">
+                lib/spec/matchers/match.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/match_array_rb.html">
+                lib/spec/matchers/match_array.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/matcher_rb.html">
+                lib/spec/matchers/matcher.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/method_missing_rb.html">
+                lib/spec/matchers/method_missing.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/operator_matcher_rb.html">
+                lib/spec/matchers/operator_matcher.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/pretty_rb.html">
+                lib/spec/matchers/pretty.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/raise_error_rb.html">
+                lib/spec/matchers/raise_error.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/respond_to_rb.html">
+                lib/spec/matchers/respond_to.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/satisfy_rb.html">
+                lib/spec/matchers/satisfy.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/simple_matcher_rb.html">
+                lib/spec/matchers/simple_matcher.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/throw_symbol_rb.html">
+                lib/spec/matchers/throw_symbol.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers/wrap_expectation_rb.html">
+                lib/spec/matchers/wrap_expectation.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/matchers_rb.html">
+                lib/spec/matchers.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+RSpec ships with a number of useful Expression <a
+href="Matchers.html">Matchers</a>. An Expression <a
+href="Matchers/Matcher.html">Matcher</a> is any object that responds to the
+following methods:
+</p>
+<pre>
+  matches?(actual)
+  failure_message_for_should
+</pre>
+<p>
+These methods are also part of the matcher protocol, but are optional:
+</p>
+<pre>
+  does_not_match?(actual)
+  failure_message_for_should_not
+  description #optional
+</pre>
+<p>
+These methods are from older versions of the protocol. They are still
+supported, but are not recommended:
+</p>
+<pre>
+  failure_message          (use failure_message_for_should instead)
+  negative_failure_message (use failure_message_for_should_not instead)
+</pre>
+<p>
+See <a href="Expectations.html">Spec::Expectations</a> to learn how to use
+these as Expectation <a href="Matchers.html">Matchers</a>.
+</p>
+<h2>Predicates</h2>
+<p>
+In addition to those Expression <a href="Matchers.html">Matchers</a> that
+are defined explicitly, RSpec will create custom <a
+href="Matchers.html">Matchers</a> on the fly for any arbitrary predicate,
+giving your specs a much more natural language feel.
+</p>
+<p>
+A <a href="Ruby.html">Ruby</a> predicate is a method that ends with a
+&quot;?&quot; and returns true or false. Common examples are +empty?+,
++nil?+, and +instance_of?+.
+</p>
+<p>
+All you need to do is write +should be_+ followed by the predicate without
+the question mark, and RSpec will figure it out from there. For example:
+</p>
+<pre>
+  [].should be_empty =&gt; [].empty? #passes
+  [].should_not be_empty =&gt; [].empty? #fails
+</pre>
+<p>
+In addtion to prefixing the predicate matchers with &quot;be_&quot;, you
+can also use &quot;be_a_&quot; and &quot;be_an_&quot;, making your specs
+read much more naturally:
+</p>
+<pre>
+  &quot;a string&quot;.should be_an_instance_of(String) =&gt;&quot;a string&quot;.instance_of?(String) #passes
+
+  3.should be_a_kind_of(Fixnum) =&gt; 3.kind_of?(Numeric) #passes
+  3.should be_a_kind_of(Numeric) =&gt; 3.kind_of?(Numeric) #passes
+  3.should be_an_instance_of(Fixnum) =&gt; 3.instance_of?(Fixnum) #passes
+  3.should_not be_instance_of(Numeric) =&gt; 3.instance_of?(Numeric) #fails
+</pre>
+<p>
+RSpec will also create custom matchers for predicates like +has_key?+. To
+use this feature, just state that the object should have_key(:key) and
+RSpec will call has_key?(:key) on the target. For example:
+</p>
+<pre>
+  {:a =&gt; &quot;A&quot;}.should have_key(:a) =&gt; {:a =&gt; &quot;A&quot;}.has_key?(:a) #passes
+  {:a =&gt; &quot;A&quot;}.should have_key(:b) =&gt; {:a =&gt; &quot;A&quot;}.has_key?(:b) #fails
+</pre>
+<p>
+You can use this feature to invoke any predicate that begins with
+&quot;has_&quot;, whether it is part of the <a href="Ruby.html">Ruby</a>
+libraries (like +Hash#has_key?+) or a method you wrote on your own class.
+</p>
+<h2>Custom <a href="Matchers.html">Matchers</a></h2>
+<p>
+When you find that none of the stock Expectation <a
+href="Matchers.html">Matchers</a> provide a natural feeling expectation,
+you can very easily write your own using RSpec&#8216;s matcher <a
+href="Matchers/DSL.html">DSL</a> or writing one from scratch.
+</p>
+<h3><a href="Matchers/Matcher.html">Matcher</a> <a href="Matchers/DSL.html">DSL</a></h3>
+<p>
+Imagine that you are writing a game in which players can <a
+href="Matchers.html#M000108">be</a> in various zones on a virtual board. To
+specify that bob should <a href="Matchers.html#M000108">be</a> in zone 4,
+you could say:
+</p>
+<pre>
+  bob.current_zone.should eql(Zone.new(&quot;4&quot;))
+</pre>
+<p>
+But you might find it more expressive to say:
+</p>
+<pre>
+  bob.should be_in_zone(&quot;4&quot;)
+</pre>
+<p>
+and/or
+</p>
+<pre>
+  bob.should_not be_in_zone(&quot;3&quot;)
+</pre>
+<p>
+You can create such a matcher like so:
+</p>
+<pre>
+  Spec::Matchers.create :be_in_zone do |zone|
+    match do |player|
+      player.in_zone?(zone)
+    end
+  end
+</pre>
+<p>
+This will generate a <tt>be_in_zone</tt> method that returns a matcher with
+logical default messages for failures. You can override the failure
+messages and the generated description as follows:
+</p>
+<pre>
+  Spec::Matchers.create :be_in_zone do |zone|
+    match do |player|
+      player.in_zone?(zone)
+    end
+    failure_message_for_should do |player|
+      # generate and return the appropriate string.
+    end
+    failure_message_for_should_not do |player|
+      # generate and return the appropriate string.
+    end
+    description do
+      # generate and return the appropriate string.
+    end
+  end
+</pre>
+<p>
+Each of the message-generation methods has access to the block arguments
+passed to the <tt>create</tt> method (in this case, <tt>zone</tt>). The
+failure message methods (<tt>failure_message_for_should</tt> and
+<tt>failure_message_for_should_not</tt>) are passed the actual value (the
+receiver of <tt>should</tt> or <tt>should_not</tt>).
+</p>
+<h3>Custom <a href="Matchers/Matcher.html">Matcher</a> from scratch</h3>
+<p>
+You could also write a custom matcher from scratch, as follows:
+</p>
+<pre>
+  class BeInZone
+    def initialize(expected)
+      @expected = expected
+    end
+    def matches?(target)
+      @target = target
+      @target.current_zone.eql?(Zone.new(@expected))
+    end
+    def failure_message_for_should
+      &quot;expected #{@target.inspect} to be in Zone #{@expected}&quot;
+    end
+    def failure_message_for_should_not
+      &quot;expected #{@target.inspect} not to be in Zone #{@expected}&quot;
+    end
+  end
+</pre>
+<p>
+&#8230; and a method like this:
+</p>
+<pre>
+  def be_in_zone(expected)
+    BeInZone.new(expected)
+  end
+</pre>
+<p>
+And then expose the method to your specs. This is normally done by
+including the method and the class in a module, which is then included in
+your spec:
+</p>
+<pre>
+  module CustomGameMatchers
+    class BeInZone
+      ...
+    end
+
+    def be_in_zone(expected)
+      ...
+    end
+  end
+
+  describe &quot;Player behaviour&quot; do
+    include CustomGameMatchers
+    ...
+  end
+</pre>
+<p>
+or you can <a href="Matchers.html#M000131">include</a> in globally in a
+spec_helper.rb file <tt>require</tt>d from your spec file(s):
+</p>
+<pre>
+  Spec::Runner.configure do |config|
+    config.include(CustomGameMatchers)
+  end
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000108">be</a>&nbsp;&nbsp;
+      <a href="#M000109">be_a</a>&nbsp;&nbsp;
+      <a href="#M000114">be_a_kind_of</a>&nbsp;&nbsp;
+      <a href="#M000110">be_an</a>&nbsp;&nbsp;
+      <a href="#M000112">be_an_instance_of</a>&nbsp;&nbsp;
+      <a href="#M000111">be_close</a>&nbsp;&nbsp;
+      <a href="#M000113">be_instance_of</a>&nbsp;&nbsp;
+      <a href="#M000115">be_kind_of</a>&nbsp;&nbsp;
+      <a href="#M000116">change</a>&nbsp;&nbsp;
+      <a href="#M000125">clear_generated_description</a>&nbsp;&nbsp;
+      <a href="#M000117">eql</a>&nbsp;&nbsp;
+      <a href="#M000118">equal</a>&nbsp;&nbsp;
+      <a href="#M000120">exist</a>&nbsp;&nbsp;
+      <a href="#M000126">generated_description</a>&nbsp;&nbsp;
+      <a href="#M000127">have</a>&nbsp;&nbsp;
+      <a href="#M000129">have_at_least</a>&nbsp;&nbsp;
+      <a href="#M000130">have_at_most</a>&nbsp;&nbsp;
+      <a href="#M000128">have_exactly</a>&nbsp;&nbsp;
+      <a href="#M000132">helper</a>&nbsp;&nbsp;
+      <a href="#M000131">include</a>&nbsp;&nbsp;
+      <a href="#M000119">inspect_object</a>&nbsp;&nbsp;
+      <a href="#M000121">last_matcher</a>&nbsp;&nbsp;
+      <a href="#M000122">last_matcher=</a>&nbsp;&nbsp;
+      <a href="#M000123">last_should</a>&nbsp;&nbsp;
+      <a href="#M000124">last_should=</a>&nbsp;&nbsp;
+      <a href="#M000133">match</a>&nbsp;&nbsp;
+      <a href="#M000134">raise_error</a>&nbsp;&nbsp;
+      <a href="#M000135">respond_to</a>&nbsp;&nbsp;
+      <a href="#M000136">satisfy</a>&nbsp;&nbsp;
+      <a href="#M000137">simple_matcher</a>&nbsp;&nbsp;
+      <a href="#M000138">throw_symbol</a>&nbsp;&nbsp;
+      <a href="#M000139">wrap_expectation</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Matchers/DSL.html" class="link">Spec::Matchers::DSL</a><br />
+Module <a href="Matchers/Pretty.html" class="link">Spec::Matchers::Pretty</a><br />
+Class <a href="Matchers/Has.html" class="link">Spec::Matchers::Has</a><br />
+Class <a href="Matchers/Matcher.html" class="link">Spec::Matchers::Matcher</a><br />
+Class <a href="Matchers/MatcherError.html" class="link">Spec::Matchers::MatcherError</a><br />
+Class <a href="Matchers/OperatorMatcher.html" class="link">Spec::Matchers::OperatorMatcher</a><br />
+Class <a href="Matchers/SimpleMatcher.html" class="link">Spec::Matchers::SimpleMatcher</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000125" class="method-detail">
+        <a name="M000125"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000125.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000125.html');return false;">
+          <span class="method-name">clear_generated_description</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000126" class="method-detail">
+        <a name="M000126"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000126.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000126.html');return false;">
+          <span class="method-name">generated_description</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000121" class="method-detail">
+        <a name="M000121"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000121.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000121.html');return false;">
+          <span class="method-name">last_matcher</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000122" class="method-detail">
+        <a name="M000122"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000122.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000122.html');return false;">
+          <span class="method-name">last_matcher=</span><span class="method-args">(last_matcher)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000123" class="method-detail">
+        <a name="M000123"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000123.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000123.html');return false;">
+          <span class="method-name">last_should</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000124" class="method-detail">
+        <a name="M000124"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000124.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000124.html');return false;">
+          <span class="method-name">last_should=</span><span class="method-args">(last_should)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000108" class="method-detail">
+        <a name="M000108"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000108.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000108.html');return false;">
+          <span class="method-name">should be_true<br />
+should be_false<br />
+should be_nil<br />
+should be_[arbitrary_predicate](*args)<br />
+should_not be_nil<br />
+should_not be_[arbitrary_predicate](*args)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Given true, false, or nil, will pass if actual value is true, false or nil
+(respectively). Given no args means the caller should <a
+href="Matchers.html#M000136">satisfy</a> an if condition (to <a
+href="Matchers.html#M000108">be</a> or not to <a
+href="Matchers.html#M000108">be</a>).
+</p>
+<p>
+Predicates are any <a href="Ruby.html">Ruby</a> method that ends in a
+&quot;?&quot; and returns true or false. Given be_ followed by
+arbitrary_predicate (without the &quot;?&quot;), RSpec will <a
+href="Matchers.html#M000133">match</a> convert that into a query against
+the target object.
+</p>
+<p>
+The arbitrary_predicate feature will handle any predicate prefixed with
+&quot;be_an_&quot; (e.g. <a
+href="Matchers.html#M000112">be_an_instance_of</a>), &quot;be_a_&quot;
+(e.g. <a href="Matchers.html#M000114">be_a_kind_of</a>) or &quot;be_&quot;
+(e.g. be_empty), letting you choose the prefix that best suits the
+predicate.
+</p>
+<h2>Examples</h2>
+<pre>
+  target.should be_true
+  target.should be_false
+  target.should be_nil
+  target.should_not be_nil
+
+  collection.should be_empty #passes if target.empty?
+  target.should_not be_empty #passes unless target.empty?
+  target.should_not be_old_enough(16) #passes unless target.old_enough?(16)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000109" class="method-detail">
+        <a name="M000109"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000109.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000109.html');return false;">
+          <span class="method-name">be_a</span><span class="method-args">(klass)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+passes if target.kind_of?(klass)
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000114" class="method-detail">
+        <a name="M000114"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000114.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000114.html');return false;">
+          <span class="method-name">should be_kind_of(expected)<br />
+should be_a_kind_of(expected)<br />
+should_not be_kind_of(expected)<br />
+should_not be_a_kind_of(expected)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual.kind_of?(expected)
+</p>
+<h2>Examples</h2>
+<pre>
+  5.should be_kind_of(Fixnum)
+  5.should be_kind_of(Numeric)
+  5.should_not be_kind_of(Float)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000110" class="method-detail">
+        <a name="M000110"></a>
+
+        <div class="method-heading">
+          <span class="method-name">be_an</span><span class="method-args">(klass)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="Matchers.html#M000109">be_a</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000112" class="method-detail">
+        <a name="M000112"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000112.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000112.html');return false;">
+          <span class="method-name">should be_instance_of(expected)<br />
+should be_an_instance_of(expected)<br />
+should_not be_instance_of(expected)<br />
+should_not be_an_instance_of(expected)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual.instance_of?(expected)
+</p>
+<h2>Examples</h2>
+<pre>
+  5.should be_instance_of(Fixnum)
+  5.should_not be_instance_of(Numeric)
+  5.should_not be_instance_of(Float)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000111" class="method-detail">
+        <a name="M000111"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000111.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000111.html');return false;">
+          <span class="method-name">should be_close(expected, delta)<br />
+should_not be_close(expected, delta)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual == expected +/- delta
+</p>
+<h2><a href="Example.html">Example</a></h2>
+<pre>
+  result.should be_close(3.0, 0.5)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000113" class="method-detail">
+        <a name="M000113"></a>
+
+        <div class="method-heading">
+          <span class="method-name">be_instance_of</span><span class="method-args">(expected)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="Matchers.html#M000112">be_an_instance_of</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000115" class="method-detail">
+        <a name="M000115"></a>
+
+        <div class="method-heading">
+          <span class="method-name">be_kind_of</span><span class="method-args">(expected)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="Matchers.html#M000114">be_a_kind_of</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000116" class="method-detail">
+        <a name="M000116"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000116.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000116.html');return false;">
+          <span class="method-name">should change(receiver, message, &block)<br />
+should change(receiver, message, &block).by(value)<br />
+should change(receiver, message, &block).from(old).to(new)<br />
+should_not change(receiver, message, &block)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Allows you to specify that a Proc will cause some value to <a
+href="Matchers.html#M000116">change</a>.
+</p>
+<h2>Examples</h2>
+<pre>
+  lambda {
+    team.add_player(player)
+  }.should change(roster, :count)
+
+  lambda {
+    team.add_player(player)
+  }.should change(roster, :count).by(1)
+
+  lambda {
+    team.add_player(player)
+  }.should change(roster, :count).by_at_least(1)
+
+  lambda {
+    team.add_player(player)
+  }.should change(roster, :count).by_at_most(1)
+
+  string = &quot;string&quot;
+  lambda {
+    string.reverse!
+  }.should change { string }.from(&quot;string&quot;).to(&quot;gnirts&quot;)
+
+  lambda {
+    person.happy_birthday
+  }.should change(person, :birthday).from(32).to(33)
+
+  lambda {
+    employee.develop_great_new_social_networking_app
+  }.should change(employee, :title).from(&quot;Mail Clerk&quot;).to(&quot;CEO&quot;)
+</pre>
+<p>
+Evaluates <tt>receiver.message</tt> or <tt>block</tt> before and after it
+evaluates the c object (generated by the lambdas in the examples above).
+</p>
+<p>
+Then compares the values before and after the <tt>receiver.message</tt> and
+evaluates the difference compared to the expected difference.
+</p>
+<h2>WARNING</h2>
+<p>
+<tt>should_not <a href="Matchers.html#M000116">change</a></tt> only
+supports the form with no subsequent calls to <tt>by</tt>,
+<tt>by_at_least</tt>, <tt>by_at_most</tt>, <tt>to</tt> or <tt>from</tt>.
+</p>
+<p>
+blocks passed to <tt>should</tt> <tt><a
+href="Matchers.html#M000116">change</a></tt> and <tt>should_not</tt> <tt><a
+href="Matchers.html#M000116">change</a></tt> must use the <tt>{}</tt> form
+(<tt>do/end</tt> is not supported).
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000117" class="method-detail">
+        <a name="M000117"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000117.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000117.html');return false;">
+          <span class="method-name">should eql(expected)<br />
+should_not eql(expected)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual and expected are of <a
+href="Matchers.html#M000118">equal</a> value, but not necessarily the same
+object.
+</p>
+<p>
+See <a
+href="http://www.ruby-doc.org/core/classes/Object.html#M001057">www.ruby-doc.org/core/classes/Object.html#M001057</a>
+for more information about equality in <a href="Ruby.html">Ruby</a>.
+</p>
+<h2>Examples</h2>
+<pre>
+  5.should eql(5)
+  5.should_not eql(3)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000118" class="method-detail">
+        <a name="M000118"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000118.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000118.html');return false;">
+          <span class="method-name">should equal(expected)<br />
+should_not equal(expected)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual and expected are the same object (object identity).
+</p>
+<p>
+See <a
+href="http://www.ruby-doc.org/core/classes/Object.html#M001057">www.ruby-doc.org/core/classes/Object.html#M001057</a>
+for more information about equality in <a href="Ruby.html">Ruby</a>.
+</p>
+<h2>Examples</h2>
+<pre>
+  5.should equal(5) #Fixnums are equal
+  &quot;5&quot;.should_not equal(&quot;5&quot;) #Strings that look the same are not the same object
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000120" class="method-detail">
+        <a name="M000120"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000120.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000120.html');return false;">
+          <span class="method-name">should exist<br />
+should_not exist<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual.exist?
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000127" class="method-detail">
+        <a name="M000127"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000127.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000127.html');return false;">
+          <span class="method-name">should have(number).named_collection__or__sugar<br />
+should_not have(number).named_collection__or__sugar<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if receiver is a collection with the submitted number of items OR if
+the receiver OWNS a collection with the submitted number of items.
+</p>
+<p>
+If the receiver OWNS the collection, you must use the name of the
+collection. So if a <tt>Team</tt> instance has a collection named
+<tt>players</tt>, you must use that name to set the expectation.
+</p>
+<p>
+If the receiver IS the collection, you can use any name you like for
+<tt>named_collection</tt>. We&#8216;d recommend using either
+&quot;elements&quot;, &quot;members&quot;, or &quot;items&quot; as these
+are all standard ways of describing the things IN a collection.
+</p>
+<p>
+This also works for Strings, letting you set an expectation about its
+length
+</p>
+<h2>Examples</h2>
+<pre>
+  # Passes if team.players.size == 11
+  team.should have(11).players
+
+  # Passes if [1,2,3].length == 3
+  [1,2,3].should have(3).items #&quot;items&quot; is pure sugar
+
+  # Passes if &quot;this string&quot;.length == 11
+  &quot;this string&quot;.should have(11).characters #&quot;characters&quot; is pure sugar
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000129" class="method-detail">
+        <a name="M000129"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000129.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000129.html');return false;">
+          <span class="method-name">should have_at_least(number).items<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Exactly like <a href="Matchers.html#M000127">have</a>() with &gt;=.
+</p>
+<h2>Warning</h2>
+<p>
+<tt>should_not</tt> <tt><a
+href="Matchers.html#M000129">have_at_least</a></tt> is not supported
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000130" class="method-detail">
+        <a name="M000130"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000130.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000130.html');return false;">
+          <span class="method-name">should have_at_most(number).items<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Exactly like <a href="Matchers.html#M000127">have</a>() with &lt;=.
+</p>
+<h2>Warning</h2>
+<p>
+<tt>should_not</tt> <tt><a
+href="Matchers.html#M000130">have_at_most</a></tt> is not supported
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000128" class="method-detail">
+        <a name="M000128"></a>
+
+        <div class="method-heading">
+          <span class="method-name">have_exactly</span><span class="method-args">(n)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="Matchers.html#M000127">have</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000132" class="method-detail">
+        <a name="M000132"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000132.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000132.html');return false;">
+          <span class="method-name">helper</span><span class="method-args">(actual, *_expected_)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000131" class="method-detail">
+        <a name="M000131"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000131.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000131.html');return false;">
+          <span class="method-name">should include(expected)<br />
+should_not include(expected)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if actual includes expected. This works for collections and Strings.
+You can also pass in multiple args and it will only pass if all args are
+found in collection.
+</p>
+<h2>Examples</h2>
+<pre>
+  [1,2,3].should include(3)
+  [1,2,3].should include(2,3) #would pass
+  [1,2,3].should include(2,3,4) #would fail
+  [1,2,3].should_not include(4)
+  &quot;spread&quot;.should include(&quot;read&quot;)
+  &quot;spread&quot;.should_not include(&quot;red&quot;)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000119" class="method-detail">
+        <a name="M000119"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000119.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000119.html');return false;">
+          <span class="method-name">inspect_object</span><span class="method-args">(o)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000133" class="method-detail">
+        <a name="M000133"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000133.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000133.html');return false;">
+          <span class="method-name">should match(regexp)<br />
+should_not match(regexp)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Given a Regexp, passes if actual =~ regexp
+</p>
+<h2>Examples</h2>
+<pre>
+  email.should match(/^([^\s]+)((?:[-a-z0-9]+\.)+[a-z]{2,})$/i)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000134" class="method-detail">
+        <a name="M000134"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000134.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000134.html');return false;">
+          <span class="method-name">should raise_error()<br />
+should raise_error(NamedError)<br />
+should raise_error(NamedError, String)<br />
+should raise_error(NamedError, Regexp)<br />
+should raise_error() { |error| ... }<br />
+should raise_error(NamedError) { |error| ... }<br />
+should raise_error(NamedError, String) { |error| ... }<br />
+should raise_error(NamedError, Regexp) { |error| ... }<br />
+should_not raise_error()<br />
+should_not raise_error(NamedError)<br />
+should_not raise_error(NamedError, String)<br />
+should_not raise_error(NamedError, Regexp)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+With no args, matches if any error is raised. With a named error, matches
+only if that specific error is raised. With a named error and messsage
+specified as a String, matches only if both <a
+href="Matchers.html#M000133">match</a>. With a named error and messsage
+specified as a Regexp, matches only if both <a
+href="Matchers.html#M000133">match</a>. Pass an optional block to perform
+extra verifications on the exception matched
+</p>
+<h2>Examples</h2>
+<pre>
+  lambda { do_something_risky }.should raise_error
+  lambda { do_something_risky }.should raise_error(PoorRiskDecisionError)
+  lambda { do_something_risky }.should raise_error(PoorRiskDecisionError) { |error| error.data.should == 42 }
+  lambda { do_something_risky }.should raise_error(PoorRiskDecisionError, &quot;that was too risky&quot;)
+  lambda { do_something_risky }.should raise_error(PoorRiskDecisionError, /oo ri/)
+
+  lambda { do_something_risky }.should_not raise_error
+  lambda { do_something_risky }.should_not raise_error(PoorRiskDecisionError)
+  lambda { do_something_risky }.should_not raise_error(PoorRiskDecisionError, &quot;that was too risky&quot;)
+  lambda { do_something_risky }.should_not raise_error(PoorRiskDecisionError, /oo ri/)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000135" class="method-detail">
+        <a name="M000135"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000135.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000135.html');return false;">
+          <span class="method-name">should respond_to(*names)<br />
+should_not respond_to(*names)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Matches if the target object responds to all of the names provided. Names
+can <a href="Matchers.html#M000108">be</a> Strings or Symbols.
+</p>
+<h2>Examples</h2>
+        </div>
+      </div>
+
+      <div id="method-M000136" class="method-detail">
+        <a name="M000136"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000136.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000136.html');return false;">
+          <span class="method-name">should satisfy {}<br />
+should_not satisfy {}<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Passes if the submitted block returns true. Yields target to the block.
+</p>
+<p>
+Generally speaking, this should <a href="Matchers.html#M000108">be</a>
+thought of as a last resort when you can&#8216;t find any other way to
+specify the behaviour you wish to specify.
+</p>
+<p>
+If you do find yourself in such a situation, you could always write a
+custom matcher, which would likely make your specs more expressive.
+</p>
+<h2>Examples</h2>
+<pre>
+  5.should satisfy { |n|
+    n &gt; 3
+  }
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000137" class="method-detail">
+        <a name="M000137"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000137.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000137.html');return false;">
+          <span class="method-name">simple_matcher</span><span class="method-args">(description=nil, &amp;match_block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+<a href="Matchers.html#M000137">simple_matcher</a> makes it easy for you to
+create your own custom matchers in just a few lines of code when you
+don&#8216;t need all the power of a completely custom matcher object.
+</p>
+<p>
+The <tt>description</tt> argument will appear as part of any failure
+message, and is also the source for auto-generated descriptions.
+</p>
+<p>
+The <tt>match_block</tt> can <a href="Matchers.html#M000127">have</a> an
+arity of 1 or 2. The first block argument will <a
+href="Matchers.html#M000108">be</a> the given value. The second, if the
+block accepts it will <a href="Matchers.html#M000108">be</a> the matcher
+itself, giving you access to set custom failure messages in favor of the
+defaults.
+</p>
+<p>
+The <tt>match_block</tt> should return a boolean: <tt>true</tt> indicates a
+<a href="Matchers.html#M000133">match</a>, which will pass if you use
+<tt>should</tt> and fail if you use <tt>should_not</tt>. false (or nil)
+indicates no <a href="Matchers.html#M000133">match</a>, which will do the
+reverse: fail if you use <tt>should</tt> and pass if you use
+<tt>should_not</tt>.
+</p>
+<p>
+An error in the <tt>match_block</tt> will bubble up, resulting in a
+failure.
+</p>
+<h2><a href="Example.html">Example</a> with default messages</h2>
+<pre>
+  def be_even
+    simple_matcher(&quot;an even number&quot;) { |given| given % 2 == 0 }
+  end
+
+  describe 2 do
+    it &quot;should be even&quot; do
+      2.should be_even
+    end
+  end
+</pre>
+<p>
+Given an odd number, this example would produce an error message stating:
+expected &quot;an even number&quot;, got 3.
+</p>
+<p>
+Unfortunately, if you&#8216;re a fan of auto-generated descriptions, this
+will produce &quot;should an even number.&quot; Not the most desirable
+result. You can control that using custom messages:
+</p>
+<h2><a href="Example.html">Example</a> with custom messages</h2>
+<pre>
+  def rhyme_with(expected)
+    simple_matcher(&quot;rhyme with #{expected.inspect}&quot;) do |given, matcher|
+      matcher.failure_message = &quot;expected #{given.inspect} to rhyme with #{expected.inspect}&quot;
+      matcher.negative_failure_message = &quot;expected #{given.inspect} not to rhyme with #{expected.inspect}&quot;
+      given.rhymes_with? expected
+    end
+  end
+
+  # OR
+
+  def rhyme_with(expected)
+    simple_matcher do |given, matcher|
+      matcher.description = &quot;rhyme with #{expected.inspect}&quot;
+      matcher.failure_message = &quot;expected #{given.inspect} to rhyme with #{expected.inspect}&quot;
+      matcher.negative_failure_message = &quot;expected #{given.inspect} not to rhyme with #{expected.inspect}&quot;
+      given.rhymes_with? expected
+    end
+  end
+
+  describe &quot;pecan&quot; do
+    it &quot;should rhyme with 'be gone'&quot; do
+      nut = &quot;pecan&quot;
+      nut.extend Rhymer
+      nut.should rhyme_with(&quot;be gone&quot;)
+    end
+  end
+</pre>
+<p>
+The resulting messages would <a href="Matchers.html#M000108">be</a>:
+</p>
+<pre>
+  description:              rhyme with &quot;be gone&quot;
+  failure_message:          expected &quot;pecan&quot; to rhyme with &quot;be gone&quot;
+  negative failure_message: expected &quot;pecan&quot; not to rhyme with &quot;be gone&quot;
+</pre>
+<h2>Wrapped <a href="Expectations.html">Expectations</a></h2>
+<p>
+Because errors will bubble up, it is possible to wrap other expectations in
+a <a href="Matchers/SimpleMatcher.html">SimpleMatcher</a>.
+</p>
+<pre>
+  def be_even
+    simple_matcher(&quot;an even number&quot;) { |given| (given % 2).should == 0 }
+  end
+</pre>
+<p>
+BE VERY CAREFUL when you do this. Only use wrapped expectations for
+matchers that will always <a href="Matchers.html#M000108">be</a> used in
+only the positive (<tt>should</tt>) or negative (<tt>should_not</tt>), but
+not both. The reason is that is you wrap a <tt>should</tt> and call the
+wrapper with <tt>should_not</tt>, the correct result (the <tt>should</tt>
+failing), will fail when you want it to pass.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000138" class="method-detail">
+        <a name="M000138"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000138.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000138.html');return false;">
+          <span class="method-name">should throw_symbol()<br />
+should throw_symbol(:sym)<br />
+should throw_symbol(:sym, arg)<br />
+should_not throw_symbol()<br />
+should_not throw_symbol(:sym)<br />
+should_not throw_symbol(:sym, arg)<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Given no argument, matches if a proc throws any Symbol.
+</p>
+<p>
+Given a Symbol, matches if the given proc throws the specified Symbol.
+</p>
+<p>
+Given a Symbol and an arg, matches if the given proc throws the specified
+Symbol with the specified arg.
+</p>
+<h2>Examples</h2>
+<pre>
+  lambda { do_something_risky }.should throw_symbol
+  lambda { do_something_risky }.should throw_symbol(:that_was_risky)
+  lambda { do_something_risky }.should throw_symbol(:that_was_risky, culprit)
+
+  lambda { do_something_risky }.should_not throw_symbol
+  lambda { do_something_risky }.should_not throw_symbol(:that_was_risky)
+  lambda { do_something_risky }.should_not throw_symbol(:that_was_risky, culprit)
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000139" class="method-detail">
+        <a name="M000139"></a>
+
+        <div class="method-heading">
+          <a href="Matchers.src/M000139.html" target="Code" class="method-signature"
+            onclick="popupCode('Matchers.src/M000139.html');return false;">
+          <span class="method-name">wrap_expectation</span><span class="method-args">(matcher, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+wraps an expectation in a block that will return true if the expectation
+passes and false if it fails (without bubbling up the failure).
+</p>
+<p>
+This is intended to <a href="Matchers.html#M000108">be</a> used in the
+context of a simple matcher, and is especially useful for wrapping multiple
+expectations or one or more assertions from test/unit extensions when
+running with test/unit.
+</p>
+<h2>Examples</h2>
+<pre>
+  def eat_cheese(cheese)
+    simple_matcher do |mouse, matcher|
+      matcher.failure_message = &quot;expected #{mouse} to eat cheese&quot;
+      wrap_expectation do |matcher|
+        assert_eats_cheese(mouse)
+      end
+    end
+  end
+
+  describe Mouse do
+    it &quot;eats cheese&quot; do
+      Mouse.new.should eat_cheese
+    end
+  end
+</pre>
+<p>
+You might <a href="Matchers.html#M000108">be</a> wondering &quot;why would
+I do this if I could just say&quot; assert_eats_cheese?&quot;, a fair
+question, indeed. You might prefer to replace the word assert with
+something more aligned with the rest of your code examples. You are using
+rspec, after all.
+</p>
+<p>
+The other benefit you get is that you can use the negative version of the
+matcher:
+</p>
+<pre>
+  describe Cat do
+    it &quot;does not eat cheese&quot; do
+      Cat.new.should_not eat_cheese
+    end
+  end
+</pre>
+<p>
+So in the event there is no assert_does_not_eat_cheese available,
+you&#8216;re all set!
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

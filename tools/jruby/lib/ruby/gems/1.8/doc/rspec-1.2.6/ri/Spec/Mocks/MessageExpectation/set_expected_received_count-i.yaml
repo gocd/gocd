@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (relativity, n)
+is_singleton: false
+block_params: 
+name: set_expected_received_count
+comment: 
+full_name: Spec::Mocks::MessageExpectation#set_expected_received_count
+visibility: protected
+aliases: []
+

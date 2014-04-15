@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>dup (Rake::Cloneable)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>     <span class="ruby-comment cmt"># File lib/rake.rb, line 291</span>
+291:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dup</span>
+292:       <span class="ruby-identifier">sibling</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">new</span>
+293:       <span class="ruby-identifier">instance_variables</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ivar</span><span class="ruby-operator">|</span>
+294:         <span class="ruby-identifier">value</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">instance_variable_get</span>(<span class="ruby-identifier">ivar</span>)
+295:         <span class="ruby-identifier">new_value</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">clone</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-identifier">value</span>
+296:         <span class="ruby-identifier">sibling</span>.<span class="ruby-identifier">instance_variable_set</span>(<span class="ruby-identifier">ivar</span>, <span class="ruby-identifier">new_value</span>)
+297:       <span class="ruby-keyword kw">end</span>
+298:       <span class="ruby-identifier">sibling</span>.<span class="ruby-identifier">taint</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">tainted?</span>
+299:       <span class="ruby-identifier">sibling</span>
+300:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

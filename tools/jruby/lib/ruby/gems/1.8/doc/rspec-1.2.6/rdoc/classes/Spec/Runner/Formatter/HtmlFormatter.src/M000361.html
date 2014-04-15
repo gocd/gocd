@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>dump_summary (Spec::Runner::Formatter::HtmlFormatter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/formatter/html_formatter.rb, line 119</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump_summary</span>(<span class="ruby-identifier">duration</span>, <span class="ruby-identifier">example_count</span>, <span class="ruby-identifier">failure_count</span>, <span class="ruby-identifier">pending_count</span>)
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">dry_run?</span>
+            <span class="ruby-identifier">totals</span> = <span class="ruby-value str">&quot;This was a dry-run&quot;</span>
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-identifier">totals</span> = <span class="ruby-node">&quot;#{example_count} example#{'s' unless example_count == 1}, #{failure_count} failure#{'s' unless failure_count == 1}&quot;</span>
+            <span class="ruby-identifier">totals</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-node">&quot;, #{pending_count} pending&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">pending_count</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>  
+          <span class="ruby-keyword kw">end</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;&lt;script type=\&quot;text/javascript\&quot;&gt;document.getElementById('duration').innerHTML = \&quot;Finished in &lt;strong&gt;#{duration} seconds&lt;/strong&gt;\&quot;;&lt;/script&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;&lt;script type=\&quot;text/javascript\&quot;&gt;document.getElementById('totals').innerHTML = \&quot;#{totals}\&quot;;&lt;/script&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/div&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/div&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/body&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;&lt;/html&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">flush</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

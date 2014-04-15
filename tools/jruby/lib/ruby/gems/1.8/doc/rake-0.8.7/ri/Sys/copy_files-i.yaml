@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (wildcard, dest_dir)
+is_singleton: false
+block_params: 
+name: copy_files
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Copy all files matching <tt>wildcard</tt> into the directory <tt>dest_dir</tt>.
+full_name: Sys#copy_files
+visibility: public
+aliases: []
+

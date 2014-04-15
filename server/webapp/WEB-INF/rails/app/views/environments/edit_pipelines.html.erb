@@ -1,0 +1,5 @@
+<%= render :partial => "edit_before.html" %>
+<%= render :partial => "edit_pipelines", :locals => {:scope => {:environment => @environment, :unavailable_pipelines => @unavailable_pipelines, :available_pipelines => @available_pipelines}} %>
+<%= config_md5_field %>
+<%= register_defaultable_list("environment>pipelines") %>
+<%= render :partial => "edit_after.html" %>

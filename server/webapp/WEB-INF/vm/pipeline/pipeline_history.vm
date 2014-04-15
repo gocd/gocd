@@ -1,0 +1,85 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+## layout level variable
+#set ($title = "Pipeline Activity - Go")
+#set($extra_css_list = ['toolkit', 'pipeline-tab','pipeline-history'])
+#set($current_tab='build')
+## page level variable
+#set($_hide_collapse-sidebar-button = true)
+#set($_page_title="$pipelineName")
+#parse("shared/_header.vm")
+
+<style type="text/css">
+.pipeline-history-group .wrapper .onHover .detail,
+.pipeline-history-group .wrapper .onHover .rerun,
+.pipeline-history-group .wrapper .onHover .disabled-rerun
+{
+    display:block;
+    zoom: 1;
+}
+</style>
+<![endif]-->
+<textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
+#parse('pipeline/_pipeline_history_list_jstemplate.vm')
+</textarea>
+<div id="yui-main">
+    <div class="yui-b">
+        <!-- breadcrumbs -->
+        #set($current_page="pipeline_history")
+        #set($pipelineName=$pipelineName)
+##        #parse("shared/_breadcrumbs.vm")
+        <!-- /breadcrumbs -->
+
+        #parse("shared/_page_intro_top.vm")
+        <p>This view shows you all build activity that has occured in your pipeline over time.
+            Click on a stage in the configuration panel to view activity only within that stage.
+            You can also manually approve stages from this screen to force the next stage to run.
+            <a class="more" target="_blank" title="Learn more from help documentation" href="/go/help/pipeline_activity_page.html">more...</a>
+        </p>
+        #parse("shared/_page_intro_bottom.vm")
+        <!-- pipeline start -->
+
+        <div id="pipeline-history">
+            Loading... <img src="$req.getContextPath()/images/spinner.gif" alt="loading..."/>
+        </div>
+
+        #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")
+        #set($nextPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage + 1)")
+        #set($page = "pipelineHistoryPage.switchToPage('$pipelineName', ${% page.pageNumber %})")
+        #parse("shared/_pagination_jstemplate.vm")
+        <!-- pipeline end -->
+    </div>
+</div>
+</div>
+
+<!-- end bd -->
+#parse("shared/_flash_message.vm")
+
+<script type="text/javascript">
+    var pipelineHistoryPage = new PipelineHistoryPage();
+    var pipelineActions = new PipelineActions();
+    var stageActions = new StageActions();
+    var paginator = new Paginator();
+
+    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineHistory.json?pipelineName=$pipelineName');
+    var pipelineHistoryObserver = new PipelineHistoryObserver('history');
+    dashboard_periodical_executer.register(pipelineHistoryObserver);
+
+    dashboard_periodical_executer.start();
+</script>
+
+#parse("shared/_footer.vm")

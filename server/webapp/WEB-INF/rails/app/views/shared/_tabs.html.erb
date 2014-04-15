@@ -1,0 +1,9 @@
+<ul class="tabs">
+    <li id="cruise-header-tab-recent-activity">
+        <%= link_to "DASHBOARD", url_for_path('tab/pipeline') %>
+    </li>
+    <%= tab_for("my cruise", :url => 'tab/mycruise/user', :link => mycruise_available? ? :enabled : :disabled) %>
+    <%= tab_for "agents" %>
+    <%= tab_for("help", :url => 'help/index.html', :target => "_blank", :anchor_class => "skip_dirty_stop") %>
+    <%= tab_for("admin", :url => 'tab/admin', :link => can_view_admin_page? ? :enabled : :disabled) %>
+</ul>

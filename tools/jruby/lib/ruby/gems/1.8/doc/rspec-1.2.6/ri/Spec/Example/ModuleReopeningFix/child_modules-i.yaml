@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: child_modules
+comment: 
+full_name: Spec::Example::ModuleReopeningFix#child_modules
+visibility: public
+aliases: []
+

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Welcome to Go">
+	<section title="Introduction">
+		<p>
+			Welcome to Go - the Continuous Integration and Release Management system from <exref url="http://www.thoughtworks.com/products">ThoughtWorks Studios</exref>. Please take a minute to understand <cref topic="concepts_in_go">the basic concepts in Go</cref> before you go any further.
+		</p>
+                <img alttext="Start using Go" src="resources/images/welcome.png" />
+	</section>
+	<section title="Quick help">
+		<p>Need help fast? Try out the topics below to get building in no time. </p>
+		<subsection title="Installation">
+			<bullets>
+				<item><cref topic="system_requirements">System requirements</cref> - Find out system requirements before you install Go.</item>
+				<item><cref topic="installing_go_server">Installing Go</cref> - Learn how to install Go.</item>
+				<item><cref topic="upgrading_go">Upgrading Go</cref> - Upgrade Go from an older version.</item>
+			</bullets>
+		</subsection>		<subsection title="Getting started">
+			<p>Installation done but need help setting up Go?</p>
+			<bullets>
+				<item><cref topic="quick_pipeline_setup">Set up your first pipeline</cref> - Go captures the build plan for your project in a pipeline. Find out how to set up your first pipeline.</item>
+				<item><cref topic="installing_go_agent">Install agents</cref> - You need a build agent in order to start building. Learn to deploy one or more agents here.</item>
+			</bullets>
+		</subsection>
+		<subsection title="Using Go">
+			<bullets>
+				<item><cref topic="concepts_in_go">Concepts in Go</cref> - Review basic concepts in Go. Understand how Go sees the world.</item>
+<!--				<item><cref topic="using_cruise">Using Go</cref> - Once a project is up and running, this section takes you through common tasks</item> -->
+<!--				<item><cref topic="cruise_tour">Getting around in Go</cref> - Find out how to navigate and get to the information you want.</item> -->
+				<item><cref topic="managing_pipelines">Managing pipelines</cref> - Release Management with Go.</item>
+				<item><cref topic="managing_a_build_cloud">Managing a build cloud</cref> - How to set up and scale your build cloud.</item>
+				<item><cref topic="managing_artifacts_and_reports">Managing artifacts and reports</cref> - Keep your test reports, binaries and other artifacts in Go's central repository.</item>
+			</bullets>
+		</subsection>
+	</section>
+	<section title="See Go in use">
+		<p>
+			<video url="http://www.thoughtworks-studios.com/go-agile-release-management/videos">Watch tutorials on some common Go concepts and tasks</video>
+		</p>
+	</section>
+	<section title="ThoughtWorks Studios">
+		<p>
+			Learn more about ThoughtWorks Studios at: <exref url="http://www.thoughtworks.com/studios"/>
+		</p>
+	</section>
+</chapter>

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: upload
+comment: 
+full_name: SshFreshDirPublisher#upload
+visibility: public
+aliases: []
+

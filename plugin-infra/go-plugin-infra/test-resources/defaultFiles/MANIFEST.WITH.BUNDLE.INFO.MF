@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.6.0_32-b05 (Sun Microsystems Inc.)
+Bundle-SymbolicName: testplugin.descriptorValidator
+Bundle-ClassPath: .,lib/go-plugin-activator.jar,lib/dependency.jar
+Bundle-Activator: com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator

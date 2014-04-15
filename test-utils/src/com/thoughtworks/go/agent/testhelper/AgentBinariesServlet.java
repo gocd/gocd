@@ -1,0 +1,63 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+package com.thoughtworks.go.agent.testhelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.MessageDigest;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+
+public class AgentBinariesServlet extends HttpServlet {
+
+    private File file;
+
+    public AgentBinariesServlet(final File file) {
+        this.file = file;
+    }
+
+    private byte[] getAgentAsByteStream() {
+        try {
+            return IOUtils.toByteArray(new FileInputStream(file));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void doHead(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            response.setHeader("Content-MD5",
+                    new String(new Base64().encode(MessageDigest.getInstance("MD5").digest(getAgentAsByteStream()))));
+            response.setHeader("Cruise-Server-Ssl-Port", "9443");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doHead(request, response);
+        response.getOutputStream().write(getAgentAsByteStream());
+    }
+}

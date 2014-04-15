@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, &block)
+is_singleton: true
+block_params: 
+name: define_module_function
+comment: 
+full_name: Rake::AltSystem::define_module_function
+visibility: public
+aliases: []
+

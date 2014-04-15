@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expected)
+is_singleton: false
+block_params: 
+name: be_kind_of
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #be_a_kind_of'
+full_name: Spec::Matchers#be_kind_of
+visibility: public
+aliases: []
+

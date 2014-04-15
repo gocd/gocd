@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>collect_tasks (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2426</span>
+2426:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">collect_tasks</span>
+2427:       <span class="ruby-ivar">@top_level_tasks</span> = []
+2428:       <span class="ruby-constant">ARGV</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">arg</span><span class="ruby-operator">|</span>
+2429:         <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^(\w+)=(.*)$/</span>
+2430:           <span class="ruby-constant">ENV</span>[<span class="ruby-identifier">$1</span>] = <span class="ruby-identifier">$2</span>
+2431:         <span class="ruby-keyword kw">else</span>
+2432:           <span class="ruby-ivar">@top_level_tasks</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">arg</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">arg</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^-/</span>
+2433:         <span class="ruby-keyword kw">end</span>
+2434:       <span class="ruby-keyword kw">end</span>
+2435:       <span class="ruby-ivar">@top_level_tasks</span>.<span class="ruby-identifier">push</span>(<span class="ruby-value str">&quot;default&quot;</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@top_level_tasks</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+2436:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

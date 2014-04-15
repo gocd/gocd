@@ -1,0 +1,20 @@
+--- !ruby/object:RI::MethodDescription 
+params: (value=nil) {|| ...}
+is_singleton: false
+block_params: ""
+name: verbose
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Get/set the verbose flag controlling output from the FileUtils utilities.
+    If verbose is true, then the utility method is echoed to standard output.
+- !ruby/struct:SM::Flow::P 
+  body: 'Examples:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "   verbose              # return the current value of the verbose flag\n\
+    \   verbose(v)           # set the verbose flag to <em>v</em>.\n   verbose(v) { \
+    code }  # Execute code with the verbose flag set temporarily to <em>v</em>.\n\
+    \                        # Return to the original value when code is done.\n"
+full_name: RakeFileUtils#verbose
+visibility: public
+aliases: []
+

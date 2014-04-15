@@ -1,0 +1,92 @@
+--- !ruby/object:Gem::Specification 
+name: multi_json
+version: !ruby/object:Gem::Version 
+  hash: 23
+  prerelease: 
+  segments: 
+  - 1
+  - 0
+  - 0
+  version: 1.0.0
+platform: ruby
+authors: 
+- Michael Bleigh
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2011-04-26 00:00:00 Z
+default_executable: 
+dependencies: []
+
+description: A gem to provide swappable JSON backends utilizing Yajl::Ruby, the JSON gem, ActiveSupport, or JSON pure.
+email: 
+- michael@intridea.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- LICENSE
+- README.rdoc
+files: 
+- .document
+- .gitignore
+- .rspec
+- .travis.yml
+- Gemfile
+- LICENSE
+- README.rdoc
+- Rakefile
+- lib/multi_json.rb
+- lib/multi_json/engines/json_gem.rb
+- lib/multi_json/engines/json_pure.rb
+- lib/multi_json/engines/ok_json.rb
+- lib/multi_json/engines/yajl.rb
+- lib/multi_json/vendor/ok_json.rb
+- lib/multi_json/version.rb
+- multi_json.gemspec
+- spec/multi_json_spec.rb
+- spec/spec.opts
+- spec/spec_helper.rb
+has_rdoc: 
+homepage: http://github.com/intridea/multi_json
+licenses: []
+
+post_install_message: 
+rdoc_options: 
+- --charset=UTF-8
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      hash: 3
+      segments: 
+      - 0
+      version: "0"
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      hash: 23
+      segments: 
+      - 1
+      - 3
+      - 6
+      version: 1.3.6
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.3.7
+signing_key: 
+specification_version: 3
+summary: A gem to provide swappable JSON backends.
+test_files: 
+- spec/multi_json_spec.rb
+- spec/spec.opts
+- spec/spec_helper.rb
+

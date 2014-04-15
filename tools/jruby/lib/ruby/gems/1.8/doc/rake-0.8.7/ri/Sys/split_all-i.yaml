@@ -1,0 +1,16 @@
+--- !ruby/object:RI::MethodDescription 
+params: (path)
+is_singleton: false
+block_params: 
+name: split_all
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Split a file path into individual directory names.
+- !ruby/struct:SM::Flow::P 
+  body: 'For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  split_all(&quot;a/b/c&quot;) =&gt;  ['a', 'b', 'c']\n"
+full_name: Sys#split_all
+visibility: public
+aliases: []
+

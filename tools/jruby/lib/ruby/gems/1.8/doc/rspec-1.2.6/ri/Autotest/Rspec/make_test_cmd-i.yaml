@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (files_to_test)
+is_singleton: false
+block_params: 
+name: make_test_cmd
+comment: 
+full_name: Autotest::Rspec#make_test_cmd
+visibility: public
+aliases: []
+

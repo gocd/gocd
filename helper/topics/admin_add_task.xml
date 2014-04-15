@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Add a new task to an existing Job">
+    <p>Now that we have a pipeline with stage(s) containing job(s) we can add tasks to any of the existing jobs. You can now use the tree navigation on the left side of the screen
+        to edit
+        a a job under a stage.
+    </p>
+    <bullets>
+        <item>Click on the job name that you want to edit on the tree as shown below. The "defaultJob" is being edited.</item>
+        <img src="resources/images/cruise/admin/add_task/edit_job_link_on_tree.png"/>
+        <item>Click on "Add new task". You can choose the task type from Ant, Nant, Rake and Fetch Artifact. Or you can choose "More..." to choose a command from <cref topic="command_repository">command repository</cref> or specify your own command</item>
+        <img src="resources/images/cruise/admin/add_task/add_new_task_link.png"/>
+        <item>Fill the basic settings for the task</item>
+        <item>Click on help icon next to the fields to get additional details about the fields you are editing.</item>
+        <item>Click "Save"</item>
+        <img src="resources/images/cruise/admin/add_task/add_new_task_window.png"/>
+        <item>Advanced Options section allows you to specify a Task in which you can provide the actions (typically clean up) that needs to be taken when users chooses to cancel the stage.
+        </item>
+        <img src="resources/images/cruise/admin/add_task/add_on_cancel_task.png"/>
+    </bullets>
+</chapter>

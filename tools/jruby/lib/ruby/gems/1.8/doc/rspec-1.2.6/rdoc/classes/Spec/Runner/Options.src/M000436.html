@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>run_examples (Spec::Runner::Options)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/options.rb, line 91</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">run_examples</span>
+        <span class="ruby-identifier">require_ruby_debug</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">debug</span>
+        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">true</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">examples_should_be_run?</span>
+        <span class="ruby-identifier">success</span> = <span class="ruby-keyword kw">true</span>
+        <span class="ruby-keyword kw">begin</span>
+          <span class="ruby-identifier">runner</span> = <span class="ruby-identifier">custom_runner</span> <span class="ruby-operator">||</span> <span class="ruby-constant">ExampleGroupRunner</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword kw">self</span>)
+
+          <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@files_loaded</span>
+            <span class="ruby-identifier">runner</span>.<span class="ruby-identifier">load_files</span>(<span class="ruby-identifier">files_to_load</span>)
+            <span class="ruby-ivar">@files_loaded</span> = <span class="ruby-keyword kw">true</span>
+          <span class="ruby-keyword kw">end</span>
+          
+          <span class="ruby-identifier">define_predicate_matchers</span>
+          <span class="ruby-identifier">plugin_mock_framework</span>
+
+          <span class="ruby-comment cmt"># TODO - this has to happen after the files get loaded,</span>
+          <span class="ruby-comment cmt"># otherwise the before_suite_parts are not populated</span>
+          <span class="ruby-comment cmt"># from the configuration. There is no spec for this</span>
+          <span class="ruby-comment cmt"># directly, but features/before_and_after_blocks/before_and_after_blocks.story</span>
+          <span class="ruby-comment cmt"># will fail if this happens before the files are loaded.</span>
+          <span class="ruby-identifier">before_suite_parts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">part</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">part</span>.<span class="ruby-identifier">call</span>
+          <span class="ruby-keyword kw">end</span>
+
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">example_groups</span>.<span class="ruby-identifier">empty?</span>
+            <span class="ruby-keyword kw">true</span>
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-identifier">set_spec_from_line_number</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">line_number</span>
+            <span class="ruby-identifier">success</span> = <span class="ruby-identifier">runner</span>.<span class="ruby-identifier">run</span>
+            <span class="ruby-ivar">@examples_run</span> = <span class="ruby-keyword kw">true</span>
+            <span class="ruby-identifier">heckle</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">heckle_runner</span>
+            <span class="ruby-identifier">success</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">ensure</span>
+          <span class="ruby-identifier">after_suite_parts</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">part</span><span class="ruby-operator">|</span>
+            <span class="ruby-identifier">part</span>.<span class="ruby-identifier">arity</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">part</span>.<span class="ruby-identifier">call</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">part</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">success</span>)
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

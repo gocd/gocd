@@ -1,0 +1,32 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should throw_symbol()
+  should throw_symbol(:sym)
+  should throw_symbol(:sym, arg)
+  should_not throw_symbol()
+  should_not throw_symbol(:sym)
+  should_not throw_symbol(:sym, arg)
+is_singleton: false
+block_params: 
+name: throw_symbol
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Given no argument, matches if a proc throws any Symbol.
+- !ruby/struct:SM::Flow::P 
+  body: Given a Symbol, matches if the given proc throws the specified Symbol.
+- !ruby/struct:SM::Flow::P 
+  body: Given a Symbol and an arg, matches if the given proc throws the specified
+    Symbol with the specified arg.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  lambda { do_something_risky }.should throw_symbol\n  lambda { do_something_risky \
+    }.should throw_symbol(:that_was_risky)\n  lambda { do_something_risky }.should \
+    throw_symbol(:that_was_risky, culprit)\n\n  lambda { do_something_risky }.should_not \
+    throw_symbol\n  lambda { do_something_risky }.should_not throw_symbol(:that_was_risky)\n\
+    \  lambda { do_something_risky }.should_not throw_symbol(:that_was_risky, culprit)\n"
+full_name: Spec::Matchers#throw_symbol
+visibility: public
+aliases: []
+

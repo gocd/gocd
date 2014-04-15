@@ -1,0 +1,58 @@
+before_script:
+  - "sh -e /etc/init.d/xvfb start"
+script: "DISPLAY=:99.0 bundle exec rake"
+
+rvm:
+  - "1.8.7"
+  - "1.9.2"
+  - "1.9.3"
+  - "ree"
+  - "jruby"
+  - "rbx"
+
+env:
+ - "RAILS_VERSION=rails2"
+ - "RAILS_VERSION=rails2_3_5"
+ - "RAILS_VERSION=rails3"
+ - "RAILS_VERSION=pojs-rspec1"
+ - "RAILS_VERSION=pojs-rspec2"
+
+matrix:
+  exclude:
+    - rvm: rbx
+      env: RAILS_VERSION=rails2
+    - rvm: rbx
+      env: RAILS_VERSION=rails2_3_5
+    - rvm: rbx
+      env: RAILS_VERSION=pojs-rspec1
+    - rvm: rbx
+      env: RAILS_VERSION=pojs-rspec2
+    - rvm: jruby
+      env: RAILS_VERSION=rails2
+    - rvm: jruby
+      env: RAILS_VERSION=rails2_3_5
+    - rvm: jruby
+      env: RAILS_VERSION=pojs-rspec1
+    - rvm: jruby
+      env: RAILS_VERSION=pojs-rspec2
+    - rvm: 1.9.2
+      env: RAILS_VERSION=rails2
+    - rvm: 1.9.2
+      env: RAILS_VERSION=rails2_3_5
+    - rvm: 1.9.2
+      env: RAILS_VERSION=pojs-rspec1
+    - rvm: 1.9.2
+      env: RAILS_VERSION=pojs-rspec2
+    - rvm: ree
+      env: RAILS_VERSION=pojs-rspec2
+    - rvm: 1.8.7
+      env: RAILS_VERSION=rails2
+    - rvm: 1.8.7
+      env: RAILS_VERSION=rails2_3_5
+    - rvm: 1.8.7
+      env: RAILS_VERSION=pojs-rspec1
+    - rvm: 1.8.7
+      env: RAILS_VERSION=pojs-rspec2
+  allow_failures:
+    - rvm: rbx
+    - rvm: jruby

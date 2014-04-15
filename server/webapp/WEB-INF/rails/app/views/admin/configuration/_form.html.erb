@@ -1,0 +1,30 @@
+<%
+   go_config = scope[:go_config]
+   go_config_revision = scope[:go_config_revision]
+   time = l.string("UNKNOWN")
+   config_modified_by = l.string("UNKNOWN")
+   if go_config_revision
+       config_modified_time = go_config_revision.getTime().to_s
+       time = "#{time_ago_in_words(Time.parse(config_modified_time))} #{l.string('AGO')}"
+       config_modified_by = go_config_revision.getUsername()
+   end
+-%>
+<% form_for :go_config, go_config, :url => config_update_path, :html => {:id => "config_editor_form", :method => :put} do |form| %>
+    <div class='form_heading'>
+        <div class="buttons-group">
+            <div class="config_change_timestamp" title="<%= "#{l.string('LAST_MODIFIED')}: #{(time)} #{l.string('BY')} #{(config_modified_by)}" -%>"><%= "#{l.string('LAST_MODIFIED')}: #{(time)} #{l.string('BY')} #{(config_modified_by)}" -%></div>
+            <%= link_to(l.string("CANCEL"), config_view_path, :class => "link_as_button", :id => "cancel_edit") %>
+            <%= form.submit(l.string("SAVE"), :class => "link_as_button primary" , :id => "save_config", :disabled => 'disabled') -%>
+        </div>
+    </div>
+    <div id="content_area">
+        <%= form.text_area html_escape(:content), :class => "code" ,:id => "content", :spellcheck => "false" %>
+        <%= form.hidden_field :md5 %>
+    </div>
+<% end %>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+       jQuery("input#save_config").removeAttr("disabled");
+    });
+</script>

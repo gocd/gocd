@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>verify_messages_received (Spec::Mocks::MessageExpectation)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/message_expectation.rb, line 189</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">verify_messages_received</span>
+        <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">expected_messages_received?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">failed_fast?</span>
+    
+        <span class="ruby-identifier">generate_error</span>
+      <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Spec</span><span class="ruby-operator">::</span><span class="ruby-constant">Mocks</span><span class="ruby-operator">::</span><span class="ruby-constant">MockExpectationError</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">error</span>
+        <span class="ruby-identifier">error</span>.<span class="ruby-identifier">backtrace</span>.<span class="ruby-identifier">insert</span>(<span class="ruby-value">0</span>, <span class="ruby-ivar">@expected_from</span>)
+        <span class="ruby-constant">Kernel</span><span class="ruby-operator">::</span><span class="ruby-identifier">raise</span> <span class="ruby-identifier">error</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,18 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Cloneable
+name: TaskLib
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Base class for Task Libraries.
+attributes: []
+
+instance_methods: []
+
+full_name: Rake::TaskLib
+superclass: Object
+class_methods: []
+

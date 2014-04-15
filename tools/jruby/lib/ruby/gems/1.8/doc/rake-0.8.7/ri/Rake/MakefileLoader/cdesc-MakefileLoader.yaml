@@ -1,0 +1,21 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: MakefileLoader
+constants: 
+- !ruby/object:RI::Constant 
+  name: SPACE_MARK
+  value: '"__&NBSP;__"'
+  comment: 
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Makefile loader to be used with the import file loader.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: load
+full_name: Rake::MakefileLoader
+superclass: Object
+class_methods: []
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>dump_pending (Spec::Runner::Formatter::BaseTextFormatter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/formatter/base_text_formatter.rb, line 73</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump_pending</span>
+          <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@pending_examples</span>.<span class="ruby-identifier">empty?</span>
+            <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span>
+            <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;Pending:&quot;</span>
+            <span class="ruby-ivar">@pending_examples</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">pending_example</span><span class="ruby-operator">|</span>
+              <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;\n#{pending_example[0]} (#{pending_example[1]})&quot;</span>
+              <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;#{pending_example[2]}\n&quot;</span>
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">end</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">flush</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

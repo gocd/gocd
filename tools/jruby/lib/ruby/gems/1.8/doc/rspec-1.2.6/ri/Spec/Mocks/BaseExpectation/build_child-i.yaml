@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expected_from, method_block, expected_received_count, opts={})
+is_singleton: false
+block_params: 
+name: build_child
+comment: 
+full_name: Spec::Mocks::BaseExpectation#build_child
+visibility: public
+aliases: []
+

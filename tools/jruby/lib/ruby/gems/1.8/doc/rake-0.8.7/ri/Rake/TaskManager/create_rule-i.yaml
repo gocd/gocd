@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: false
+block_params: 
+name: create_rule
+comment: 
+full_name: Rake::TaskManager#create_rule
+visibility: public
+aliases: []
+

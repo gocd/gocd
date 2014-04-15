@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: move_progress
+comment: 
+full_name: Spec::Runner::Formatter::HtmlFormatter#move_progress
+visibility: public
+aliases: []
+

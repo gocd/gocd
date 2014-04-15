@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Setup a new pipeline">
+	<section title="New Pipeline Wizard">
+		<p>
+            After you've entered your license information, clicking on the <strong>Pipelines</strong> tab will
+            take you to the "Add new pipeline" page. You can also add a pipeline by navigating to the Admin page and clicking on the "Create a new pipeline within a group" link. You can create a pipeline in 3 steps.
+        </p>
+    
+	<subsection title="Step 1: Basic Settings">
+
+		<img src="resources/images/cruise/admin/new_pipeline_1.png"/>
+		<steps>
+		<item>Fill in the pipeline name</item>
+		<item>Fill in the pipeline group</item>
+
+	</steps>
+        </subsection>
+       
+	<subsection title="Step 2: Material">
+		<img src="resources/images/cruise/admin/new_pipeline_2.png"/>
+
+		<steps>
+                <item>Choose the material type. The material can be your Source Control Management (SCM or version control) repository or another pipeline or a <cref topic="package_repository">package repository</cref> (e.g. yum). Currently Go supports the following SCMs:
+				<steps>
+				 <item>Subversion</item>
+				 <item>Mercurial</item>
+				 <item>Git</item>
+				 <item>Team Foundation Server.</item>
+				</steps>
+				and the yum repository.
+				</item>
+		<item>Fill in settings specific to the material type.</item>
+	
+	</steps>
+</subsection>
+	<subsection title="Step 3: Stage and Job">
+		<img src="resources/images/cruise/admin/new_pipeline_3.png"/>
+	
+		<p>A pipeline contains one or more stages. Define the first stage of your pipeline</p>
+		<steps>
+		<item>Fill in the Stage name.</item>
+		<item>Fill in the Job name.</item>
+		<item>Fill in the task type and the command for the task.</item>
+		<item>If you use Ant, NAnt or Rake for scripting, Go provides
+                convenience wrappers for these tools. To use any other scripting tool (e.g: Maven, msbuild, etc.), choose the "More..." option to use the <cref topic="command_repository">command repository</cref> or specify the command line syntax for that tool.
+	        </item>              
+	</steps>
+
+		<note>
+            See the <cref topic="managing_pipelines">Managing pipelines</cref> documentation for editing these
+            settings following the creation of your pipeline.
+            <!-- TODO : Mention default stage-->
+        </note>
+</subsection>
+</section>
+	<section title="Initial task settings">
+		<subsection title="Ant">
+			<p>
+                The Ant task allows you to run an ant script. Go does not include Ant and so you must ensure that
+                it is already on the command path. By default it will use build.xml in the agent's working directory
+                as the build file. If you want to customize the build file or build target, click the
+                <strong>edit</strong> link to change the defaults.
+            </p>
+            <p>
+                For this option to work, Ant needs to be installed on the Go Agent(s) and executable by it.
+            </p>
+		</subsection>
+		<subsection title="NAnt">
+			<p>
+                The NAnt task allows you to run a NAnt script. Go does not include NAnt and so you must ensure that
+                it is already on the command path. By default it will use default.build as build file in the agent's
+                working directory. If you want to customize the build file or build target, click the
+                <strong>edit</strong> link to change the defaults.
+            </p>
+            <p>
+                For this option to work, NAnt needs to be installed on the Go Agent(s) and executable by it.
+            </p>
+		</subsection>
+		<subsection title="Rake">
+			<p>
+                The Rake task allows you to run a ruby rake build. Go does not include ruby or rake and so you must
+                ensure that it is correctly installed on the agents. Go will assume the standard
+                <strong>rakefile</strong> exists in the working directory of the agent.
+            </p>
+            <p>
+                For this option to work, Rake needs to be installed on the Go Agent(s) and executable by it.
+            </p>
+		</subsection>
+		<subsection title="More...">
+			<p>In addition to the above tasks, Go allows you to run anything on the command line. You can use the <cref topic="command_repository">command repository</cref> to help you choose the command.  Alternately you can specify a command on your own.
+            </p>
+		</subsection>
+        <note>
+		You can see the complete configuration reference <cref topic="configuration_reference">here</cref>.
+        </note>
+	</section>
+    <section title="Also See">
+        <bullets>
+            <item><cref topic="admin_add_material">Adding a material to an existing pipeline</cref></item>
+            <item><cref topic="admin_add_stage">Adding a stage to an existing pipeline</cref></item>
+	    <item><cref topic="admin_add_job">Adding a job to an existing pipeline</cref></item>
+            <item><cref topic="dev_authorization">Role-based authorization</cref></item>
+            <item><cref topic="dev_authorization">Role-based authorization</cref></item>
+        </bullets>
+    </section>
+</chapter>

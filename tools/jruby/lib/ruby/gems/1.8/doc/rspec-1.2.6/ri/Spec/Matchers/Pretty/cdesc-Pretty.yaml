@@ -1,0 +1,20 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Pretty
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: _pretty_print
+- !ruby/object:RI::MethodSummary 
+  name: split_words
+- !ruby/object:RI::MethodSummary 
+  name: to_sentence
+full_name: Spec::Matchers::Pretty
+superclass: 
+class_methods: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (args, block)
+is_singleton: false
+block_params: 
+name: invoke_return_block
+comment: 
+full_name: Spec::Mocks::BaseExpectation#invoke_return_block
+visibility: protected
+aliases: []
+

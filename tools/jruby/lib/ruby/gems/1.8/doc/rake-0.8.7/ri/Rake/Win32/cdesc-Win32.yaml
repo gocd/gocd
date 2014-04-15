@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Win32
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Win 32 interface methods for Rake. Windows specific functionality will be
+    placed here to collect that knowledge in one spot.
+attributes: []
+
+instance_methods: []
+
+full_name: Rake::Win32
+superclass: 
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: normalize
+- !ruby/object:RI::MethodSummary 
+  name: rake_system
+- !ruby/object:RI::MethodSummary 
+  name: windows?

@@ -1,0 +1,37 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Matchers::Pretty
+name: Matcher
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: actual
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: expected
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: description
+- !ruby/object:RI::MethodSummary 
+  name: diffable
+- !ruby/object:RI::MethodSummary 
+  name: diffable?
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should_not
+- !ruby/object:RI::MethodSummary 
+  name: match
+- !ruby/object:RI::MethodSummary 
+  name: matches?
+full_name: Spec::Matchers::Matcher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

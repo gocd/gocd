@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>exclude? (Rake::FileList)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1565</span>
+1565:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">exclude?</span>(<span class="ruby-identifier">fn</span>)
+1566:       <span class="ruby-identifier">calculate_exclude_regexp</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@exclude_re</span>
+1567:       <span class="ruby-identifier">fn</span> <span class="ruby-operator">=~</span> <span class="ruby-ivar">@exclude_re</span> <span class="ruby-operator">||</span> <span class="ruby-ivar">@exclude_procs</span>.<span class="ruby-identifier">any?</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span> <span class="ruby-identifier">p</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">fn</span>) }
+1568:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

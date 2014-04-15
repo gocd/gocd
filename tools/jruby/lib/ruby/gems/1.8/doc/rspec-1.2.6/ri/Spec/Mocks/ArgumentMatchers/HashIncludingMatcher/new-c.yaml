@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expected)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Mocks::ArgumentMatchers::HashIncludingMatcher::new
+visibility: public
+aliases: []
+

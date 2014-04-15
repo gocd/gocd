@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Configure a Proxy">
+    It is sometimes useful to front Go with a proxy server. In this section, we give you some tips and examples
+    on how to achieve this.
+
+    <section title="Go with Apache">
+        <p>
+            An example of how to configure Go with Apache is shown below.
+        </p>
+        <p><strong>Assumptions:</strong></p>
+        <bullets>
+            <item>You have Apache with mod_proxy installed</item>
+            <item>The Apache server sits on the same machine as the Go server (localhost)</item>
+            <item>You want to enforce SSL connections</item>
+        </bullets>
+
+        <code>
+<![CDATA[
+Listen nnn.nnn.nnn.nnn:80
+NameVirtualHost nnn.nnn.nnn.nnn:80
+
+<VirtualHost nnn.nnn.nnn.nnn:80>
+    ServerName go.yourdomain.com
+    DocumentRoot /var/www/html
+    SSLProxyEngine on
+    SSLEngine on
+    ProxyPass / https://localhost:8154/
+    ProxyPassReverse / https://localhost:8154/
+</VirtualHost>]]>
+        </code>
+    </section>
+
+    <section title="OAuth 2.0 with Apache">
+        <p>
+            If you have set up Go to use <cref topic="mingle_in_go">OAuth 2.0 gadgets</cref> and Go is fronted
+            with an Apache server, then you have to set X_FORWARDED_PROTO to "https" in the https virtual host
+            configuration section.
+        </p>
+        <p>
+          <code>RequestHeader set X_FORWARDED_PROTO 'https'</code>
+        </p>
+        <p>
+          This directive can replace HTTP request headers. The header is modified just before the content handler
+          is run, allowing incoming headers to be changed to 'https'.
+        </p>
+    </section>
+
+    <section title="Also see...">
+        <bullets>
+            <item><cref topic="configuring_server_details" anchor="configure_site_url">Configure site URLs</cref></item>
+        </bullets>
+    </section>
+</chapter>

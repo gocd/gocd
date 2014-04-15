@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*cmd)
+is_singleton: true
+block_params: 
+name: rake_system
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Run a command line on windows.
+full_name: Rake::Win32::rake_system
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: exited?
+comment: 
+full_name: Rake::PseudoStatus#exited?
+visibility: public
+aliases: []
+

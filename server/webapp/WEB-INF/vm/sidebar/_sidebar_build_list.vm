@@ -1,0 +1,55 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+#macro( messages $id $messageList $headerTag $headerId)
+    #if ($messageList.size() > 0)
+        <$headerTag id="$id-header">Messages ($messageList.size())</$headerTag>
+        <p class="messages" id="$id">
+            #foreach( $message in $messageList )
+                <span class="$message.level">$message</span><br/>
+            #end
+        </p>
+    #end
+#end
+<div id="build_history_holder" class="sidebar-container">
+    <h4 class="entity_title">Job History</h4>
+    <div id="buildlist-container" class="round-content">
+        #if($presenter.recent25.size() == 0)
+            <p class="text-only">No jobs found.</p>
+        #end
+        <ul class="buildlist">
+            #foreach( $listPresenter in $presenter.recent25 )
+            <li id="build_list_${velocityCount}" #if($listPresenter.isSame($presenter.id)) class="current" #end >
+                <a href="$req.getContextPath()/tab/build/detail/${listPresenter.buildLocator}">
+                    #if($listPresenter.copy)
+                    <div class="color_code_small copied_job"></div>
+                    #else
+                    <div class="color_code_small"></div>
+                    #end
+                <strong>${listPresenter.buildLocatorForDisplay}</strong>
+                <div class="time_ago">${listPresenter.humanReadableScheduledDate}</div>
+                </a>
+                <!-- should be ${listPresenter.tabToShow} -->
+            </li>
+            #end
+        </ul>
+    </div>
+    <script type="text/javascript">
+        #foreach( $listPresenter in $presenter.recent25 )
+            json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()");
+        #end
+    </script>
+</div>

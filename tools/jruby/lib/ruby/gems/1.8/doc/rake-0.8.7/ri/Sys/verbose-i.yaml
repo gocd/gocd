@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (&block)
+is_singleton: false
+block_params: 
+name: verbose
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Perform a block with $verbose enabled.
+full_name: Sys#verbose
+visibility: public
+aliases: []
+

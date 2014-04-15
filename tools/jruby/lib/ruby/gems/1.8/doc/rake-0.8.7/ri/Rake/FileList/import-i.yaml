@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (array)
+is_singleton: false
+block_params: 
+name: import
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: '@exclude_patterns = DEFAULT_IGNORE_PATTERNS.dup'
+full_name: Rake::FileList#import
+visibility: public
+aliases: []
+

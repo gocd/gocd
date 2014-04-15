@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Runner::Formatter::BaseFormatter</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Runner::Formatter::BaseFormatter</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../../files/lib/spec/runner/formatter/base_formatter_rb.html">
+                lib/spec/runner/formatter/base_formatter.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+<a href="../Formatter.html">Formatter</a> base-class, which implements all
+required methods as no-ops, with the exception
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000310">add_example_group</a>&nbsp;&nbsp;
+      <a href="#M000319">close</a>&nbsp;&nbsp;
+      <a href="#M000316">dump_failure</a>&nbsp;&nbsp;
+      <a href="#M000318">dump_pending</a>&nbsp;&nbsp;
+      <a href="#M000317">dump_summary</a>&nbsp;&nbsp;
+      <a href="#M000313">example_failed</a>&nbsp;&nbsp;
+      <a href="#M000309">example_group_started</a>&nbsp;&nbsp;
+      <a href="#M000312">example_passed</a>&nbsp;&nbsp;
+      <a href="#M000314">example_pending</a>&nbsp;&nbsp;
+      <a href="#M000311">example_started</a>&nbsp;&nbsp;
+      <a href="#M000307">new</a>&nbsp;&nbsp;
+      <a href="#M000308">start</a>&nbsp;&nbsp;
+      <a href="#M000315">start_dump</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000307" class="method-detail">
+        <a name="M000307"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000307.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000307.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(options, output)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Formatters are initialized with <tt>options</tt> and <tt>output</tt>
+arguments. RSpec&#8216;s built-in formatters already expect this, and any
+custom formatters should as well.
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">options:</td><td>A struct containing boolean values for colour, autospec, and dry_run
+
+</td></tr>
+<tr><td valign="top">output:</td><td>Used by RSpec&#8216;s built-in formatters to determine where to write the
+output. Default is <tt>STDOUT</tt>, otherwise a filename is expected.
+
+</td></tr>
+</table>
+<h3><a href="../../Example.html">Example</a></h3>
+<p>
+If you invoke the <tt>spec</tt> command with:
+</p>
+<pre>
+  --format progress:progress_report.txt
+</pre>
+<p>
+&#8230; the value of <tt>output</tt> will be progress_report.txt. If you
+don&#8216;t identify an output destination, the default is STDOUT.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000310" class="method-detail">
+        <a name="M000310"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000310.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000310.html');return false;">
+          <span class="method-name">add_example_group</span><span class="method-args">(example_group_proxy)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Deprecated - use <a
+href="BaseFormatter.html#M000309">example_group_started</a> instead
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000319" class="method-detail">
+        <a name="M000319"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000319.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000319.html');return false;">
+          <span class="method-name">close</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked at the very end. Allows the formatter to clean up,
+like closing open streams.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000316" class="method-detail">
+        <a name="M000316"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000316.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000316.html');return false;">
+          <span class="method-name">dump_failure</span><span class="method-args">(counter, failure)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Dumps detailed information about an example failure. This method is invoked
+for each failed example after all examples have run. <tt>counter</tt> is
+the sequence number of the associated example. <tt>failure</tt> is a
+Failure object, which contains detailed information about the failure.
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">counter:</td><td>the sequential number of this failure
+
+</td></tr>
+<tr><td valign="top">failure:</td><td>instance of <a
+href="../Reporter/Failure.html">Spec::Runner::Reporter::Failure</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000318" class="method-detail">
+        <a name="M000318"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000318.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000318.html');return false;">
+          <span class="method-name">dump_pending</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This gets invoked after the summary
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000317" class="method-detail">
+        <a name="M000317"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000317.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000317.html');return false;">
+          <span class="method-name">dump_summary</span><span class="method-args">(duration, example_count, failure_count, pending_count)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked after the dumping of examples and failures.
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">duration:</td><td>the total time for the entire run
+
+</td></tr>
+<tr><td valign="top">example_count:</td><td>the number of examples run
+
+</td></tr>
+<tr><td valign="top">failure_count:</td><td>the number of examples that failed
+
+</td></tr>
+<tr><td valign="top">pending_count:</td><td>the number of examples that are pending
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000313" class="method-detail">
+        <a name="M000313"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000313.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000313.html');return false;">
+          <span class="method-name">example_failed</span><span class="method-args">(example_proxy, counter, failure)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked when an <tt>example</tt> fails, i.e. an exception
+occurred inside it (such as a failed should or other exception).
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_proxy:</td><td>The same instance of <a
+href="../../Example/ExampleProxy.html">Spec::Example::ExampleProxy</a> that
+was passed to <tt><a
+href="BaseFormatter.html#M000311">example_started</a></tt>
+
+</td></tr>
+<tr><td valign="top">counter:</td><td>the sequential number of this failure
+
+</td></tr>
+<tr><td valign="top">failure:</td><td>instance of <a
+href="../Reporter/Failure.html">Spec::Runner::Reporter::Failure</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000309" class="method-detail">
+        <a name="M000309"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000309.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000309.html');return false;">
+          <span class="method-name">example_group_started</span><span class="method-args">(example_group_proxy)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked at the beginning of the execution of each
+example_group. The next method to be invoked after this is <a
+href="BaseFormatter.html#M000311">example_started</a>
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_group_proxy:</td><td>instance of <a
+href="../../Example/ExampleGroupProxy.html">Spec::Example::ExampleGroupProxy</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000312" class="method-detail">
+        <a name="M000312"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000312.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000312.html');return false;">
+          <span class="method-name">example_passed</span><span class="method-args">(example_proxy)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked when an <tt>example</tt> passes.
+<tt>example_proxy</tt> is the same instance of <a
+href="../../Example/ExampleProxy.html">Spec::Example::ExampleProxy</a> that
+was passed to <a href="BaseFormatter.html#M000311">example_started</a>
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_proxy:</td><td>instance of <a
+href="../../Example/ExampleProxy.html">Spec::Example::ExampleProxy</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000314" class="method-detail">
+        <a name="M000314"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000314.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000314.html');return false;">
+          <span class="method-name">example_pending</span><span class="method-args">(example_proxy, message, deprecated_pending_location=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked when an example is not yet implemented (i.e. has not
+been provided a block), or when an ExamplePendingError is raised.
+<tt>message</tt> is the message from the ExamplePendingError, if it exists,
+or the default value of &quot;Not Yet Implemented&quot;.
+<tt>deprecated_pending_location</tt> is deprecated - use
+example_proxy.location instead
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_proxy:</td><td>instance of <a
+href="../../Example/ExampleProxy.html">Spec::Example::ExampleProxy</a>
+
+</td></tr>
+<tr><td valign="top">message:</td><td>the message passed to the pending message, or an internal default
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000311" class="method-detail">
+        <a name="M000311"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000311.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000311.html');return false;">
+          <span class="method-name">example_started</span><span class="method-args">(example_proxy)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked when an <tt>example</tt> starts. The next method to
+be invoked after this is <a
+href="BaseFormatter.html#M000312">example_passed</a>, <a
+href="BaseFormatter.html#M000313">example_failed</a>, or <a
+href="BaseFormatter.html#M000314">example_pending</a>
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_proxy:</td><td>instance of <a
+href="../../Example/ExampleProxy.html">Spec::Example::ExampleProxy</a>
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000308" class="method-detail">
+        <a name="M000308"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000308.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000308.html');return false;">
+          <span class="method-name">start</span><span class="method-args">(example_count)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked before any examples are run, right after they have
+all been collected. This can be useful for special formatters that need to
+provide progress on feedback (graphical ones)
+</p>
+<p>
+This method will only be invoked once, and the next one to be invoked is <a
+href="BaseFormatter.html#M000309">example_group_started</a>
+</p>
+<h4>Parameters</h4>
+<table>
+<tr><td valign="top">example_count:</td><td>the total number of examples to be run
+
+</td></tr>
+</table>
+        </div>
+      </div>
+
+      <div id="method-M000315" class="method-detail">
+        <a name="M000315"></a>
+
+        <div class="method-heading">
+          <a href="BaseFormatter.src/M000315.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseFormatter.src/M000315.html');return false;">
+          <span class="method-name">start_dump</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+This method is invoked after all of the examples have executed. The next
+method to be invoked after this one is <a
+href="BaseFormatter.html#M000316">dump_failure</a> (once for each failed
+example)
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

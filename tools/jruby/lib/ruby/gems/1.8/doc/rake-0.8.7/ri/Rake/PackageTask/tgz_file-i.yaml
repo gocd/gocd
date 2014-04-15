@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: tgz_file
+comment: 
+full_name: Rake::PackageTask#tgz_file
+visibility: public
+aliases: []
+

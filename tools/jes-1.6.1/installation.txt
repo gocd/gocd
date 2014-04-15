@@ -1,0 +1,21 @@
+To install and run this mail server, complete the following steps:
+
+1. Install a Java JDK or JRE version 1.4 or greater (http://java.sun.com).
+
+2. Expand the distribution archive.
+
+3. Modify the included script files for your local file system (if neccessary).
+
+4. Edit the mail.conf, user.conf and log.conf files.
+
+5. Run the mail server script file.
+
+Thats it!
+
+Please refer to the getting started guide for more detailed
+instructions:
+http://www.ericdaugherty.com/java/mailserver/gettingstarted.html
+
+Eric Daugherty
+java@ericdaugherty.com
+http://www.ericdaugherty.com/java/mailserver

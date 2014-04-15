@@ -1,0 +1,60 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: MessageExpectation
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: advise
+- !ruby/object:RI::MethodSummary 
+  name: any_number_of_times
+- !ruby/object:RI::MethodSummary 
+  name: at_least
+- !ruby/object:RI::MethodSummary 
+  name: at_most
+- !ruby/object:RI::MethodSummary 
+  name: clear_actual_received_count!
+- !ruby/object:RI::MethodSummary 
+  name: exactly
+- !ruby/object:RI::MethodSummary 
+  name: expected_messages_received?
+- !ruby/object:RI::MethodSummary 
+  name: generate_error
+- !ruby/object:RI::MethodSummary 
+  name: ignoring_args?
+- !ruby/object:RI::MethodSummary 
+  name: matches_at_least_count?
+- !ruby/object:RI::MethodSummary 
+  name: matches_at_most_count?
+- !ruby/object:RI::MethodSummary 
+  name: matches_exact_count?
+- !ruby/object:RI::MethodSummary 
+  name: matches_name_but_not_args
+- !ruby/object:RI::MethodSummary 
+  name: negative_expectation_for?
+- !ruby/object:RI::MethodSummary 
+  name: never
+- !ruby/object:RI::MethodSummary 
+  name: once
+- !ruby/object:RI::MethodSummary 
+  name: ordered
+- !ruby/object:RI::MethodSummary 
+  name: set_expected_received_count
+- !ruby/object:RI::MethodSummary 
+  name: similar_messages
+- !ruby/object:RI::MethodSummary 
+  name: times
+- !ruby/object:RI::MethodSummary 
+  name: twice
+- !ruby/object:RI::MethodSummary 
+  name: verify_messages_received
+- !ruby/object:RI::MethodSummary 
+  name: with
+full_name: Spec::Mocks::MessageExpectation
+superclass: BaseExpectation
+class_methods: []
+

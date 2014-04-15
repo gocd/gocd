@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleGroupCreationListener
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: register_example_group
+full_name: Spec::Runner::ExampleGroupCreationListener
+superclass: Object
+class_methods: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: windows?
+comment: 
+full_name: Rake::Application#windows?
+visibility: public
+aliases: []
+

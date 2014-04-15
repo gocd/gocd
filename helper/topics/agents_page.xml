@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<chapter title="Agents">
+    <p>The Agents page lists all the agents available to the server and their current status.</p>
+    <p>When an Agent first connects to the Server it is 'Pending'. An administrator must enable
+        the Agent before Go will schedule work on that agent.</p>
+    <p>Administrators can also disable agents. Go will not schedule work for a disabled Agent.
+        If a job is building on the agent when it is disabled, that job will be completed; the agent is then disabled.
+        An administrator will need to enable the Agent before it will again schedule work</p>
+    <p>Administrators can choose to delete an agent which is no longer required. The agent must be disabled before it can be deleted. An agent in a disabled(building) or disabled(cancelled) state cannot be deleted.</p>
+    <img src="resources/images/cruise/Agents.png"/>
+    <section title="Key" id="key">
+        <steps>
+            <item>Find out how many agents are pending, enabled and disabled.</item>
+            <item>Status is sorted by default. The order of sort is pending, lost contact, missing, building, idle, disabled, cancelled.</item>
+            <item>Click on a column header to sort by that column.</item>
+            <item>To enable or disable agents, first select the agents that you are interested in.
+                Then click the 'ENABLE' or 'DISABLE' button. If you try to disable an agent that is
+                already disabled, or enable an agent that is already enabled, Go will ignore that
+                change.</item>
+            <item>To associate a resource with an agent, first select the agents you are interested in. Then click the 'Resources' button.  You are now able to associate new or existing resources with your agents.</item>
+            <item>To associate an agent with an environment, first select the agents you are interested in. Then click the 'Environments' button.  You are now able to associate your agents with an environment.</item>
+            <item>Admin users can click here to get to the <cref topic="agent_details">Agent details</cref> of the given agent</item>
+	        <item>Filter the agents list. See the section below.</item>
+            <item>To delete agents, first select the agents that you are interested in. Then click the 'DELETE' button. If you try to delete an agent that is
+                in disabled(building) or disabled(cancelled), Go will not delete that agent.</item>
+	    </steps>
+    </section>
+    <section title="Filtering Agents" id="filter_agents">
+        <p>Since the agent list can become very long, it is useful to be able to filter it by various criteria.  The <strong>Filter</strong> option provides this functionality.</p>
+            <bullets>
+		<item>Format: tag:value</item>
+		<item>Supported tags: ip, resource, os, name, status, environment</item>
+		<item>Supported values: Free form text. After you specify a tag, enter a value. Go only displays agents containing the entered value.</item>
+		<item >The sort function will work with filtered lists.</item>
+		<item >Entering a tag:value combination that does not match any agents will result in an empty result set being displayed.</item>
+	    </bullets>
+	    Examples:
+	    <bullets>
+ 	    <item >If you want to see only missing agents, enter "status:missing".</item>
+	    <item >If you want to see only agents with resource names containing "java", enter "resource:java".</item>
+            </bullets>
+	    <subsection title="Autocompletion" id="autocomplete">
+	        <p>Go support autocompletion of searches.  After you specify a tag, Go suggests possible values for the tag, based on the exsting values entered.  You can choose an appropriate value from the autocompletion list and then search.</p>
+    	     <img src="resources/images/cruise/agents_autocomplete.png"/>
+	     <note>A maximum of 10 results is displayed for autocomplete, irrespetive of the number of actual matches.  For best results, ensure sufficient text is entered to narrow down the number of matches</note>
+	    </subsection>
+	    <subsection title="Exact search" id="exact_search">
+	        <p>Even with autocomplete, there are some limitations to the search criteria.</p>
+		<p>For example <strong>resource:windows</strong> matches both "windows" and "windows2k3", though you may have wanted an exact match on "windows".  This is because, the current filter is a wildcard search rathern than a token search</p>
+		<p><strong>Exact search</strong> addresses this problem.  The way to do exact search is to use quotes ("") to specify the values.  e.g. <strong>resource:"windows"</strong> will filter and return only those agents whose names are "windows" and nothing else.</p>
+		<note>You cannot combine autocomplete and exact search.  Once you specify the values in quotes, autocomplete will be turned off</note>
+	    </subsection>
+    </section>
+    <bullets title="Also see...">
+        <item>
+            <cref topic="managing_a_build_cloud">Managing Agents</cref>
+        </item>
+        <item>
+            <cref topic="welcome_to_go">Go overview</cref>
+        </item>
+    </bullets>
+</chapter>

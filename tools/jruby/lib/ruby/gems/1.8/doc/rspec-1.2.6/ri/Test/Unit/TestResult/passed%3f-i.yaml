@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: passed?
+comment: 
+full_name: Test::Unit::TestResult#passed?
+visibility: public
+aliases: []
+

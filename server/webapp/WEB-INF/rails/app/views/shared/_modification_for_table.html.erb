@@ -1,0 +1,11 @@
+<tr class="change <%= scope[:changed_css] -%>" id="<%= scope[:id] %>">
+    <td class="modified_by">
+        <%= smart_word_breaker(h(scope[:modification].getUserDisplayName())) -%><br/><%= smart_word_breaker(scope[:modification].getModifiedTime().iso8601) -%>
+    </td>
+    <td class="comment">
+        <%= render_comment(scope[:modification], scope[:pipeline_name]) %>
+    </td>
+    <td class="revision">
+        <%= smart_word_breaker(scope[:modification].getRevision()) -%>
+    </td>
+</tr>

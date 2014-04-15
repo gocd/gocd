@@ -1,0 +1,343 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project basedir="..">
+
+    <import file="should_run.xml" />
+    <import file="common_properties.xml" />
+    <import file="filesets.xml" />
+    <import file="ivy.xml" />
+    <import file="dist.xml" />
+
+    <target name="compile.all" depends="compile.util, compile.test-utils, compile.common, compile.agent, compile.agent-bootstrapper, compile.server,compile.tfs-impl" />
+
+    <target name="compile.util" depends="compile.util.src, compile.util.test"/>
+    <target name="compile.test-utils" depends="compile.test-utils.src, compile.test-utils.test"/>
+
+    <target name="compile.common" depends="compile.common.src, compile.common.test"/>
+    <target name="compile.performance" depends="compile.performance.test"/>
+    <target name="compile.agent" depends="compile.agent.src, compile.agent.test"/>
+    <target name="compile.tfs-impl" depends="compile.tfs-impl.src, compile.tfs-impl.test"/>
+
+
+    <target name="compile.agent-bootstrapper" depends="compile.agent-bootstrapper.src, compile.agent-bootstrapper.test"/>
+    <target name="compile.server" depends="compile.server.src, compile.server.test"/>
+
+    <target name="compile.tfs-impl.src" if="run.tfs-impl" depends="-run?, ivy.tfs-impl.release">
+        <cruise.compile.src src="${dir.tfs-impl.src}" dest="${target.tfs-impl}"
+                            classpathref="classpath.tfs-impl,classpath.util,classpath.common" />
+    </target>
+
+    <target name="compile.tfs-impl.test" if="run.tfs-impl.test" depends="-run-test?, dist.tfs-impl.src, ivy.tfs-impl.test">
+        <cruise.compile.test src="${dir.tfs-impl.test}" dest="${target.tfs-impl}"
+                             classpathref="classpath.tfs-impl" />
+    </target>
+
+    <target name="compile.util.src" if="run.util" depends="-run?, ivy.util.release">
+        <cruise.compile.src src="${dir.util.src}" dest="${target.util}"
+                            classpathref="classpath.util" />
+    </target>
+
+    <target name="compile.test-utils.src" if="run.test-utils" depends="-run?, ivy.test-utils.release">
+        <cruise.compile.src src="${dir.test-utils.src}" dest="${target.test-utils}"
+                            classpathref="classpath.test-utils" />
+    </target>
+
+    <target name="compile.scn" depends="compile.util, compile.test-utils, ivy.scn.test">
+        <copy file="${dir.common.src}/com/thoughtworks/go/config/cruise-config.xsd"
+              todir="${dir.scn.src}/com/thoughtworks/go/utils/configfile" overwrite="true"/>
+        <cruise.compile.src src="${dir.scn.src}" dest="${target.scn}" classpathref="classpath.scn" />
+    </target>
+
+
+    <target name="compile.util.test" if="run.util.test" depends="-run-test?, dist.util.src, ivy.util.test">
+        <cruise.compile.test src="${dir.util.test}" dest="${target.util}"
+                             classpathref="classpath.util" />
+    </target>
+
+
+    <target name="compile.test-utils.test" if="run.test-utils.test" depends="-run-test?, dist.test-utils.src, ivy.test-utils.test">
+        <cruise.compile.test src="${dir.test-utils.test}" dest="${target.test-utils}"
+                             classpathref="classpath.test-utils" />
+    </target>
+
+    <target name="compile.common.src" if="run.common" depends="-run?, compile.util, compile.test-utils, ivy.common.release">
+        <cruise.compile.src src="${dir.common.src}" dest="${target.common}"
+                            classpathref="classpath.common" />
+    </target>
+
+    <target name="compile.common.test" if="run.common.test" depends="-run-test?, dist.common.src, ivy.common.test">
+        <cruise.compile.test src="${dir.common.test}" dest="${target.common}"
+                             classpathref="classpath.common" />
+    </target>
+
+    <target name="compile.performance.test" if="run.common.test" depends="-run-test?, ivy.performance.test">
+        <cruise.compile.test src="${dir.performance.test}" dest="${target.performance}"
+                             classpathref="classpath.performance" />
+    </target>
+
+    <target name="compile.agent.src" if="run.agent" depends="-run?, dist.common, ivy.agent.release">
+        <cruise.compile.src src="${dir.agent.src}" dest="${target.agent}"
+                            classpathref="classpath.agent" />
+
+        <copy todir="${target.agent}">
+            <fileset dir="${dir.agent}/properties" includes="*.properties"/>
+        </copy>
+    </target>
+
+    <target name="compile.agent.test" if="run.agent.test" depends="-run-test?, dist.agent.zip, ivy.agent.test">
+        <cruise.compile.test src="${dir.agent.test.unit}" dest="${target.agent}"
+                             classpathref="classpath.agent" testtype="unit"/>
+        <cruise.compile.test src="${dir.agent.test.functional}" dest="${target.agent}"
+                             classpathref="classpath.agent" testtype="functional"/>
+    </target>
+
+    <target name="compile.agent-bootstrapper.src" if="run.agent" depends="-run?, ivy.agent-bootstrapper.compile">
+        <cruise.compile.src src="${dir.agent-bootstrapper.src}" dest="${target.agent-bootstrapper}"
+                            classpathref="classpath.agent-bootstrapper" />
+    </target>
+
+    <target name="compile.agent-bootstrapper.test" if="run.agent.test" depends="-run-test?, ivy.agent-bootstrapper.test">
+        <cruise.compile.test src="${dir.agent-bootstrapper.test}" dest="${target.agent-bootstrapper}"
+                             classpathref="classpath.agent-bootstrapper"/>
+    </target>
+
+    <target name="compile.server.src" if="run.server"
+            depends="-run?, dist.common, -preparing.compile.server, ivy.server.compile">
+        <cruise.compile.src src="${dir.server.src}" dest="${target.server}"
+                            classpathref="classpath.server.jetty6"/>
+        <copy todir="${target.server.war.classes}">
+            <fileset dir="${target.server}/compile/product" />
+        </copy>
+        <copy todir="${target.server.war.classes}">
+            <fileset dir="server/templates" />
+        </copy>
+
+        <copy todir="${target.common.war.classes}">
+            <fileset dir="${target.common}/compile/product" />
+        </copy>
+    </target>
+
+    <target name="compile.server.test" if="run.server.test"
+            depends="-run-test?, compile.server.src, ivy.server.test, -compile.server.test.common,
+                -compile.server.test.agent, -compile.server.test.unit, -compile.server.test.performance"/><!--,
+                -compile.server.test.functional, -compile.server.test.qa"/>-->
+
+    <target name="-compile.server.test.agent" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.agent}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="agent"/>
+    </target>
+
+    <target name="-compile.server.test.unit" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.unit}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="unit"/>
+        <cruise.compile.test src="${dir.server.test.integration}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="unit"/>
+    </target>
+
+    <target name="-compile.server.test.performance" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.performance}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="performance"/>
+    </target>
+
+    <!--<target name="-compile.server.test.functional" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.functional}" dest="${target.server}"
+                             classpathref="classpath.server.jetty5" testtype="functional"/>
+    </target>
+
+
+
+
+    <target name="-compile.server.test.qa" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.qa}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="functional"/>
+    </target>
+-->
+    <target name="-compile.server.test.common" if="run.server.test" depends="-run-test?">
+        <cruise.compile.test src="${dir.server.test.common}" dest="${target.server}"
+                             classpathref="classpath.server.jetty6" testtype="common"/>
+    </target>
+
+    <target name="-preparing.compile.server"
+            depends="-preparing.compile.server.concat_js" />
+
+    <target name="-preparing.compile.server.concat_js" if="run.server" depends="-run?">
+        <concat destfile="${dir.server.war}/compressed/all.js">
+            <fileset file="${dir.server.war}/javascripts/prototype.js" />
+            <fileset file="${dir.server.war}/javascripts/scriptaculous.js" />
+            <fileset file="${dir.server.war}/javascripts/build_base_observer.js" />
+            <fileset file="${dir.server.war}/javascripts/effects.js" />
+            <fileset file="${dir.server.war}/javascripts/json_to_css.js" />
+            <fileset dir="${dir.server.war}/javascripts" includes="*.js" excludes="prototype.js,scriptaculous.js,build_base_executer.js,effects.js,json_to_css.js,inplace-editor.js,Tooltip.js,Tooltip_ext.js" />
+            <fileset file="${dir.server.war}/javascripts/inplace-editor.js" />
+        </concat>
+    </target>
+
+    <target name="-preparing.compile.server.js.minify">
+        <apply executable="java" parallel="false">
+            <fileset dir="${dir.server.war}/compressed/" includes="all-nc.js"/>
+            <arg line="-jar"/>
+            <arg path="localivy/yuicompressor/yuicompressor.jar"/>
+            <srcfile/>
+            <arg line="-o"/>
+            <mapper type="glob" from="all-nc.js" to="${dir.server.war}/compressed/all.js"/>
+            <targetfile/>
+        </apply>
+    </target>
+
+    <!-- Public references to the classes we create -->
+    <property name="target.common.classes.product" value="${target.common}/compile/product" />
+    <property name="target.common.classes.test" value="${target.common}/compile/test" />
+
+    <property name="target.performance.classes.test" value="${target.performance}/compile/test" />
+
+    <property name="target.util.classes.product" value="${target.util}/compile/product" />
+    <property name="target.util.classes.test" value="${target.util}/compile/test" />
+
+    <property name="target.tfs-impl.classes.product" value="${target.tfs-impl}/compile/product" />
+    <property name="target.tfs-impl.classes.test" value="${target.tfs-impl}/compile/test" />
+
+    <property name="target.test-utils.classes.product" value="${target.test-utils}/compile/product" />
+    <property name="target.test-utils.classes.test" value="${target.test-utils}/compile/test" />
+
+
+    <path id="classpath.common">
+        <fileset refid="fileset.common.lib" />
+        <pathelement path="${target.common.classes.product}" />
+        <pathelement path="${target.common.classes.test}" />
+    </path>
+
+    <path id="classpath.performance">
+        <fileset refid="fileset.performance.lib" />
+        <pathelement path="${target.performance.classes.test}" />
+    </path>
+
+    <fileset id="classpath.filterfileset" dir="localivy" >
+        <include name="commons-logging/*.jar"/>
+        <include name="antlr/*.jar"/>
+    </fileset>
+
+    <path id="classpath.util">
+        <fileset refid="fileset.util.lib" />
+        <fileset refid="classpath.filterfileset" />
+        <pathelement path="${target.util.classes.product}" />
+        <pathelement path="${target.util.classes.test}" />
+    </path>
+
+    <path id="classpath.test-utils">
+        <fileset refid="fileset.test-utils.lib" />
+        <pathelement path="${target.test-utils.classes.product}" />
+        <pathelement path="${target.test-utils.classes.test}" />
+    </path>
+
+
+    <property name="target.agent.classes.product" value="${target.agent}/compile/product" />
+    <property name="target.agent.classes.test.unit" value="${target.agent}/compile/test/unit" />
+    <property name="target.agent.classes.test.functional" value="${target.agent}/compile/test/functional" />
+    <path id="classpath.agent">
+        <fileset refid="fileset.agent.lib" />
+        <pathelement path="${target.agent.classes.product}" />
+        <pathelement path="${target.agent.classes.test.unit}" />
+        <pathelement path="${target.agent.classes.test.functional}" />
+    </path>
+
+    <property name="target.agent-bootstrapper.classes.product" value="${target.agent-bootstrapper}/compile/product" />
+    <property name="target.agent-bootstrapper.classes.test" value="${target.agent-bootstrapper}/compile/test" />
+    <path id="classpath.agent-bootstrapper">
+        <fileset refid="fileset.agent-bootstrapper.lib" />
+        <pathelement path="${target.agent-bootstrapper.classes.product}" />
+        <pathelement path="${target.agent-bootstrapper.classes.test}" />
+    </path>
+
+    <property name="target.scn.classes" value="${target.scn}/compile/product" />
+    <property name="target.server.classes.test.common" value="${target.server}/compile/test/common" />
+
+    <property name="target.server.classes.test.agent" value="${target.server}/compile/test/agent" />
+    <property name="target.server.classes.test.unit" value="${target.server}/compile/test/unit" />
+    <property name="target.server.classes.test.functional" value="${target.server}/compile/test/functional" />
+    <property name="target.server.classes.test.performance" value="${target.server}/compile/test/performance" />
+    <property name="target.server.war" value="${target.server}/war" />
+    <property name="target.common.war" value="${target.common}/war" />
+    <property name="target.server.war.classes" value="${target.server.war}/WEB-INF/classes" />
+    <property name="target.common.war.classes" value="${target.common.war}/WEB-INF/classes" />
+    <property name="target.server.war.classes" value="${target.common.dist}/WEB-INF/classes" />
+    <path id="classpath.server.jetty6">
+        <fileset refid="fileset.server.lib.jetty6" />
+        <pathelement path="${target.server.classes.test.common}" />
+        <pathelement path="${target.server.classes.test.agent}" />
+        <pathelement path="${target.server.classes.test.unit}" />
+        <pathelement path="${target.server.classes.test.functional}" />
+        <pathelement path="${target.server.classes.test.performance}" />
+        <pathelement path="${target.server.war}" />
+        <pathelement path="${target.server.war.classes}" />
+    </path>
+
+
+    <path id="classpath.scn">
+         <pathelement path="${target.scn.classes}"/>
+        <fileset refid="fileset.scn.lib" />
+    </path>
+
+    <path id="classpath.server.jetty5">
+        <pathelement path="${target.server.classes.test.common}" />
+        <pathelement path="${target.server.classes.test.agent}" />
+        <pathelement path="${target.server.classes.test.unit}" />
+        <pathelement path="${target.server.classes.test.functional}" />
+        <pathelement path="${target.server.classes.test.performance}" />
+        <pathelement path="${target.server.war}" />
+        <pathelement path="${target.server.war.classes}" />
+        <fileset refid="fileset.server.lib.jetty5" />
+    </path>
+
+    <!-- The macros -->
+
+    <macrodef name="cruise.compile.src">
+        <attribute name="src" />
+        <attribute name="dest" />
+        <attribute name="classpathref" />
+        <sequential>
+            <cruise.compile src="@{src}" dest="@{dest}/compile/product" classpathref="@{classpathref}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="cruise.compile.test">
+        <attribute name="src" />
+        <attribute name="dest" />
+        <attribute name="classpathref" />
+        <attribute name="testtype" default="" />
+        <sequential>
+            <cruise.compile src="@{src}" dest="@{dest}/compile/test/@{testtype}" classpathref="@{classpathref}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="cruise.compile">
+        <attribute name="src" />
+        <attribute name="dest" />
+        <attribute name="classpathref" />
+
+        <sequential>
+            <mkdir dir="@{dest}" />
+            <javac srcdir="@{src}" destdir="@{dest}" source="1.6" target="1.6" debug="true" encoding="UTF-8">
+                <classpath refid="@{classpathref}"/>
+            </javac>
+            <copy todir="@{dest}">
+                <fileset dir="@{src}" excludes="**/*.java" />
+            </copy>
+        </sequential>
+    </macrodef>
+    
+</project>
+

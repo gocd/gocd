@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*shared_example_groups)
+is_singleton: false
+block_params: 
+name: it_should_behave_like
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Use this to pull in examples from shared example groups.
+full_name: Spec::Example::ExampleGroupMethods#it_should_behave_like
+visibility: public
+aliases: []
+

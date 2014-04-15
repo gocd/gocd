@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (pattern, *options) {|fn, count, line| ...}
+is_singleton: false
+block_params: fn, count, line
+name: egrep
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Grep each of the files in the filelist using the given pattern. If a block
+    is given, call the block on each matching line, passing the file name, line number,
+    and the matching line of text. If no block is given, a standard emac style file:linenumber:line
+    message will be printed to standard out.
+full_name: Rake::FileList#egrep
+visibility: public
+aliases: []
+

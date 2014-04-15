@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: output_to_tty?
+comment: 
+full_name: Spec::Runner::Formatter::BaseTextFormatter#output_to_tty?
+visibility: protected
+aliases: []
+

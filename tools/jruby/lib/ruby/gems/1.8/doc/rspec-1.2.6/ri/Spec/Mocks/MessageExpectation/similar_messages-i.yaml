@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: similar_messages
+comment: 
+full_name: Spec::Mocks::MessageExpectation#similar_messages
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (args_to_yield, arity)
+is_singleton: false
+block_params: 
+name: raise_wrong_arity_error
+comment: 
+full_name: Spec::Mocks::ErrorGenerator#raise_wrong_arity_error
+visibility: public
+aliases: []
+

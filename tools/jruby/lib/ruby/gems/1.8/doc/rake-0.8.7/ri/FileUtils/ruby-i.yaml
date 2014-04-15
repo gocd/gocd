@@ -1,0 +1,16 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args,&block)
+is_singleton: false
+block_params: 
+name: ruby
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Run a Ruby interpreter with the given arguments.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  ruby %{-pe '$_.upcase!' &lt;README}\n"
+full_name: FileUtils#ruby
+visibility: public
+aliases: []
+

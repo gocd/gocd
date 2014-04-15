@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (ext, loader)
+is_singleton: false
+block_params: 
+name: add_loader
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Add a loader to handle imported files ending in the extension <tt>ext</tt>.
+full_name: Rake::Application#add_loader
+visibility: public
+aliases: []
+

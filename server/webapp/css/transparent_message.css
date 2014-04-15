@@ -1,0 +1,51 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+
+/* Popup status messages */
+
+/* Basic transparent message definition - a DirectX filter will be used to add opacity effects in IE */
+
+/* Where vendor-specific prefixes are used (as in -moz-border-radius) for rules in forthcoming specifications, the non-prefixed rule should also be included in anticipation of other user-agents supporting the same rule */
+
+.transparent_message {
+    text-align: center;
+    font-size: 12px;
+}
+
+.r4, .r3, .r2, .r1 {
+    display: none;
+}
+
+
+.transparent_error {
+    background: #FFF; 
+    padding: 20px;
+    -moz-border-radius: 6px;
+    color: #990;
+}
+
+.transparent_notice {
+    background: #FFF; 
+    padding: 20px;
+    -moz-border-radius: 6px;
+    color: #000;
+}
+
+
+#trans_content {
+    text-align:center;
+}

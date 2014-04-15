@@ -1,0 +1,22 @@
+--- !ruby/object:RI::MethodDescription 
+params: (&block)
+is_singleton: false
+block_params: 
+name: subject
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Defines an explicit subject for an example group which can then be the implicit
+    receiver (through delegation) of calls to <tt>should</tt>.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe CheckingAccount, &quot;with $50&quot; do\n    subject { CheckingAccount.new(:amount \
+    =&gt; 50, :currency =&gt; :USD) }\n    it { should have_a_balance_of(50, :USD) \
+    }\n    it { should_not be_overdrawn }\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: See +ExampleMethods#should+ for more information about this approach.
+full_name: Spec::Example::Subject::ExampleGroupMethods#subject
+visibility: public
+aliases: []
+

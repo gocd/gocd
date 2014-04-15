@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="System requirements">
+   <section title="Introduction">
+	   <p>These requirements should meet the needs of most Go installations. You may need to allocate additonal CPUs and/or memory on the machine hosting the Go Server if you intend to use a very large set of pipelines and/or agents.</p>
+   </section>
+	
+    <section title="Client requirements">
+        <bullets title="Go works on the following browsers:">
+            <item>Firefox</item>
+            <item>Safari</item>
+            <item>Chrome</item>
+            <item>Internet Explorer 8, 9</item>
+        </bullets>
+    </section>
+
+    <section title="Go server requirements">
+        <subsection title="Windows" collapsed="true">
+            <p>Go server is supported on Windows XP SP2+, Windows Server 2003, Windows Server 2008 and Windows 7.</p>
+            <bullets>
+	        <item>Java Runtime Environment (JRE) version 6 or above</item>
+                <item>RAM: 1Gb minimum, 2Gb recommended</item>
+                <item>2 GHz (or higher)</item>
+            </bullets>
+           
+        </subsection>
+
+        <subsection title="Mac OSX" collapsed="true">
+            <bullets>
+                <item>Mac OSX Leopard (10.5) and above</item>
+                <item>Intel processor</item>
+                <item>Apple Java Runtime Environment (JRE) version 6</item>
+                <item>RAM: 1Gb minimum, 2Gb recommended</item>
+            </bullets>
+	    <note>Go has limited support for Mountain Lion (OSX 10.8) </note>
+        </subsection>
+
+        <subsection title="Linux" collapsed="true">
+            <p>We provide Debian packages which work on Ubuntu or Debian, and RPMs for RHEL, Fedora Core and CentOS. We support any OS based on Linux. ex: Ubuntu, Centos and RedHat Enterprise. </p>
+            <bullets>
+                <item>Java Runtime Environment (JRE) version 6 and above</item>
+                <item>RAM: 1Gb minimum, 2Gb recommended</item>
+                <item>2 GHz (or higher)</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Solaris" collapsed="true">
+            <p>We provide Solaris packages which have been tested with Solaris 10 U5. They should work with OpenSolaris as well.</p>
+            <bullets>
+                <item>Java Runtime Environment (JRE) version 6 and above</item>
+                <item>RAM: 1Gb minimum, 2Gb recommended</item>
+                <item>2 GHz (or higher)</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Extra requirements for Go server">
+            <p>
+                The host that runs your Go server should have a separate disk partition to store Go artifacts.
+                The artifact repository can fill up quickly (especially if you are storing large binaries).
+                If you don't create a separate partition for artifacts and your system disk fills up, Go and
+                other applications on your system will behave unexpectedly. You are also likely to end up with
+                corrupted data. Check the section on <cref topic="installing_go_server">installing Go server</cref>
+                for more information on configuring your artifact repository.
+            </p>
+            <p>
+                Client software for your source code control tool must be installed on both your Go server and
+                all Go build agents.
+            </p>
+        </subsection>
+	</section>
+
+    <section title="Go agent requirements">
+        <subsection title="Windows" collapsed="true">
+            <p>Go agent is supported on Windows XP SP2+, Windows Server 2003, Windows Server 2008 and Windows 7.</p>
+            <bullets>
+	        <item>Java Runtime Environment (JRE) version 6 and above</item>
+                <item>RAM: 128Mb minimum, 256Mb recommended</item>
+                <item>2 GHz (or higher)</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Mac OSX" collapsed="true">
+            <bullets>
+                <item>Mac OSX Leopard (10.5) or higher</item>
+                <item>Intel processor</item>
+                <item>Apple Java Development Kit (JDK) version 6</item>
+                <item>RAM: 128Mb minimum, 256Mb recommended</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Linux" collapsed="true">
+            <p>We provide Debian packages which work on Ubuntu or Debian, and RPMs for RHEL, Fedora Core and CentOS. We support Ubuntu 7.10, Ubuntu 8.04, Centos 5.1 and RedHat Enterprise 5.</p>
+            <bullets>
+                <item>Java Runtime Environment (JRE) version 6</item>
+                <item>RAM: 128Mb minimum, 256Mb recommended</item>
+                <item>2 GHz (or higher)</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Solaris" collapsed="true">
+            <p>We provide Solaris packages which have been tested with Solaris 10 U5. They should work with OpenSolaris as well.</p>
+            <bullets>
+                <item>Java Runtime Environment (JRE) version 6</item>
+                <item>RAM: 512Mb minimum, 1Gb recommended</item>
+            </bullets>
+        </subsection>
+
+        <subsection title="Extra requirements for Go agent">
+            <p>Go agent on its own does not require much memory or CPU. However, you need to ensure computers deployed as build agents have adequate resources to build your projects -- including sufficient disk space to check source code out of source control.</p>
+            <p>Client software for  your source code control tool needs to be installed on all build agents. As well as, any other software required to build your application (if not accessed directly from the project source checked out from source control).</p>
+        </subsection>
+    </section>
+
+</topic>

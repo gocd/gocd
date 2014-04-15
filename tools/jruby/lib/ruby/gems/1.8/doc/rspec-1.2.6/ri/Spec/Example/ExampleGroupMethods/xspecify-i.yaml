@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (description=nil, opts={}, &block)
+is_singleton: false
+block_params: 
+name: xspecify
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #xexample'
+full_name: Spec::Example::ExampleGroupMethods#xspecify
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (actual, *_expected_)
+is_singleton: false
+block_params: 
+name: helper
+comment: 
+full_name: Spec::Matchers#helper
+visibility: public
+aliases: []
+

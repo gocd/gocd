@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (regexp)
+is_singleton: false
+block_params: 
+name: filtered_description
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Deprecated - just use gsub on the description instead.
+full_name: Spec::Example::ExampleGroupProxy#filtered_description
+visibility: public
+aliases: []
+

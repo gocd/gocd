@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>example_pending (Spec::Runner::Formatter::HtmlFormatter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/formatter/html_formatter.rb, line 86</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">example_pending</span>(<span class="ruby-identifier">example</span>, <span class="ruby-identifier">message</span>, <span class="ruby-identifier">deprecated_pending_location</span>=<span class="ruby-keyword kw">nil</span>)
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;    &lt;script type=\&quot;text/javascript\&quot;&gt;makeYellow('rspec-header');&lt;/script&gt;&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@header_red</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;    &lt;script type=\&quot;text/javascript\&quot;&gt;makeYellow('example_group_#{example_group_number}');&lt;/script&gt;&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-ivar">@example_group_red</span>
+          <span class="ruby-identifier">move_progress</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;    &lt;dd class=\&quot;spec not_implemented\&quot;&gt;&lt;span class=\&quot;not_implemented_spec_name\&quot;&gt;#{h(example.description)} (PENDING: #{h(message)})&lt;/span&gt;&lt;/dd&gt;&quot;</span>
+          <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">flush</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

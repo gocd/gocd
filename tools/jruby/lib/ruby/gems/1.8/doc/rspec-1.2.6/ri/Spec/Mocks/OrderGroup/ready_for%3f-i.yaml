@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expectation)
+is_singleton: false
+block_params: 
+name: ready_for?
+comment: 
+full_name: Spec::Mocks::OrderGroup#ready_for?
+visibility: public
+aliases: []
+

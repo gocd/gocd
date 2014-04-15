@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Managing environments">
+	<p>Go is configured using an XML configuration file. This file can be edited through the Go server dashboard. Go allows you to edit sections of the configuration independently and will check the syntax of the configuration before it saves it again. You can also edit the full XML file if you wish, by clicking on the Config XML section of the Administration tab.</p>
+        <section title="Creating a new environment" id="create">
+          <p>
+            An Environment is a grouping of pipelines and agents. By assigning an agent to an environment, it will be used to run only those jobs that belong to the pipelines of that environment. An agent can belong to more than one environment. This means, for instance, the same agent can be used to deploy something into an UAT or a Performance testing environment. A pipeline can, however, only be assigned to a single environment. Generally, these pipelines represent the tasks that need to happen in a given environment. For example deploying a 3-tier application into an UAT environment with 6 machines and running smoke tests on the setup.
+          </p>
+          <p>
+            However, once an agent is associated with one or more environments, it is no longer capable of picking up jobs on pipelines that do not belong to environments. Pipelines outside of environments will only be assigned to agents in the default pool (not associated with any environment).
+          </p>
+        <p>You can create an environment in the admin UI through the following steps. This example creates a production environment, adding the deployment pipeline and the agent installed on the production server.</p>
+      <bullets>
+		<item>Click on the Environments tab</item>
+        <img src="resources/images/cruise/topnav_environments.png" />
+		<item>Click on the "Add a new environment"</item>
+        <img src="resources/images/cruise/env_click_new.png" />
+		<item>Provide a name for the environment</item>
+	    <img src="resources/images/cruise/env_name.png" />
+		<item>Add one or more pipelines that need to run on the environment</item>
+	    <img src="resources/images/cruise/env_pipelines.png" />
+		<item>Add one or more agents associated with the environment</item>
+	    <img src="resources/images/cruise/env_agents.png" />
+		<item>Add one or more environment variables that need to be passed.</item>
+	    <img src="resources/images/cruise/env_env_variables.png" />
+	    <item>Click on finish</item>
+      </bullets>
+          <p>Setting up an environment through the xml can be found in the <cref topic="configuration_reference" anchor="environments">configuration reference</cref></p>
+        </section>
+        <section title="Add a new agent to an existing environment" id="agents">
+          <p>
+            You can do this very easily in the Agents tab. Just select the agents you want to add to your environment and click on the Environments button.
+
+            All existing environments will appear in alphabetical order. Select one of three states for all environments you want to add and then click the “Apply” button.
+          </p>
+          <bullets>
+            <item>An environment <strong>with a check</strong> will add the environment to all selected agents.</item>
+            <item>An environment <strong>with a forward slash</strong> means some of your selected agents are associated to it. No change will occur after clicking “Apply”.</item>
+            <item>An environment <strong>without a check</strong> will remove the environment from all selected agents.</item>
+          </bullets>
+          <img src="resources/images/cruise/associate_agent_environment.png"/>
+        </section>
+</chapter>
+

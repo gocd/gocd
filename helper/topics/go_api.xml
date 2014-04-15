@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "mingle_help.dtd">
+<chapter title="Go API">
+	<section title="Introduction">
+		
+		<p>RESTful APIs offer a convenient way to integrate networked systems. Go provides a RESTful API through which you can access and manipulate various kinds of resources. Artifacts, Properties and configurations are the kinds of resources that are available in this version of the API. The following sections will walk you through the various resources and the operations that are supported on each of them.</p>
+		<subsection title="Go API features">
+			The Go API provides access to various kinds of resources in Go over HTTP. The standard HTTP operation of GET, POST and PUT and DELETE are used to support read, create and upload operations on them. All Go APIs use HTTP basic authentication. Hence performing a GET operation for Artifacts would be the equivalent of getting that resource, performing a PUT would be the equivalent of updating that artifact; and so on.
+		</subsection>
+	    <subsection title="Main APIs">
+			<note>The Go API documented here is a work in progress. Future versions may change this API.</note>
+			<p>Go's main APIs are listed below:
+            </p>
+			<bullets>
+				<item><cref topic="Artifacts_API">Artifacts API</cref></item>
+				<item><cref topic="Properties_API">Properties API</cref></item>
+				<item><cref topic="Configuration_API">Configuration API</cref></item>
+				<item><cref topic="Pipeline_API">Pipeline API</cref></item>
+                <item><cref topic="Stages_API">Stages API</cref></item>
+                <item><cref topic="command_repo_api">Command Repo API</cref></item>
+				<item><cref topic="Agent_API">Agent API</cref></item>
+				<item><cref topic="Backup_API">Backup API</cref></item>
+				<item><cref topic="users_api">Users API</cref></item>
+			</bullets>
+		</subsection>
+	</section>
+</chapter>

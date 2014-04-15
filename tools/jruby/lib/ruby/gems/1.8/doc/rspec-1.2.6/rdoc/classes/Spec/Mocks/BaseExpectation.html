@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Mocks::BaseExpectation</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Mocks::BaseExpectation</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib/spec/mocks/message_expectation_rb.html">
+                lib/spec/mocks/message_expectation.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000237">and_raise</a>&nbsp;&nbsp;
+      <a href="#M000236">and_return</a>&nbsp;&nbsp;
+      <a href="#M000238">and_throw</a>&nbsp;&nbsp;
+      <a href="#M000239">and_yield</a>&nbsp;&nbsp;
+      <a href="#M000234">build_child</a>&nbsp;&nbsp;
+      <a href="#M000242">called_max_times?</a>&nbsp;&nbsp;
+      <a href="#M000247">clone_args_to_yield</a>&nbsp;&nbsp;
+      <a href="#M000235">expected_args</a>&nbsp;&nbsp;
+      <a href="#M000248">failed_fast?</a>&nbsp;&nbsp;
+      <a href="#M000241">invoke</a>&nbsp;&nbsp;
+      <a href="#M000245">invoke_consecutive_return_block</a>&nbsp;&nbsp;
+      <a href="#M000243">invoke_method_block</a>&nbsp;&nbsp;
+      <a href="#M000246">invoke_return_block</a>&nbsp;&nbsp;
+      <a href="#M000244">invoke_with_yield</a>&nbsp;&nbsp;
+      <a href="#M000240">matches</a>&nbsp;&nbsp;
+      <a href="#M000233">new</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">error_generator</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">expected_from</td>
+          <td class="context-item-value">&nbsp;[W]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">expected_received_count</td>
+          <td class="context-item-value">&nbsp;[W]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">method_block</td>
+          <td class="context-item-value">&nbsp;[W]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">sym</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000233" class="method-detail">
+        <a name="M000233"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000233.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000233.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(error_generator, expectation_ordering, expected_from, sym, method_block, expected_received_count=1, opts={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000237" class="method-detail">
+        <a name="M000237"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000237.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000237.html');return false;">
+          <span class="method-name">and_raise()<br />
+and_raise(Exception) #any exception class<br />
+and_raise(exception) #any exception object<br />
+</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <h2>Warning</h2>
+<p>
+When you pass an exception class, the <a
+href="MessageExpectation.html">MessageExpectation</a> will raise an
+instance of it, creating it with <tt><a
+href="BaseExpectation.html#M000233">new</a></tt>. If the exception class
+initializer requires any parameters, you must pass in an instance and not
+the class.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000236" class="method-detail">
+        <a name="M000236"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000236.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000236.html');return false;">
+          <span class="method-name">and_return</span><span class="method-args">(*values, &amp;return_block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000238" class="method-detail">
+        <a name="M000238"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000238.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000238.html');return false;">
+          <span class="method-name">and_throw</span><span class="method-args">(symbol)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000239" class="method-detail">
+        <a name="M000239"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000239.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000239.html');return false;">
+          <span class="method-name">and_yield</span><span class="method-args">(*args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000234" class="method-detail">
+        <a name="M000234"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000234.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000234.html');return false;">
+          <span class="method-name">build_child</span><span class="method-args">(expected_from, method_block, expected_received_count, opts={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000242" class="method-detail">
+        <a name="M000242"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000242.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000242.html');return false;">
+          <span class="method-name">called_max_times?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000235" class="method-detail">
+        <a name="M000235"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000235.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000235.html');return false;">
+          <span class="method-name">expected_args</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000241" class="method-detail">
+        <a name="M000241"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000241.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000241.html');return false;">
+          <span class="method-name">invoke</span><span class="method-args">(args, block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000240" class="method-detail">
+        <a name="M000240"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000240.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000240.html');return false;">
+          <span class="method-name">matches</span><span class="method-args">(sym, args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000247" class="method-detail">
+        <a name="M000247"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000247.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000247.html');return false;">
+          <span class="method-name">clone_args_to_yield</span><span class="method-args">(args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000248" class="method-detail">
+        <a name="M000248"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000248.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000248.html');return false;">
+          <span class="method-name">failed_fast?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000245" class="method-detail">
+        <a name="M000245"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000245.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000245.html');return false;">
+          <span class="method-name">invoke_consecutive_return_block</span><span class="method-args">(args, block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000243" class="method-detail">
+        <a name="M000243"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000243.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000243.html');return false;">
+          <span class="method-name">invoke_method_block</span><span class="method-args">(args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000246" class="method-detail">
+        <a name="M000246"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000246.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000246.html');return false;">
+          <span class="method-name">invoke_return_block</span><span class="method-args">(args, block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000244" class="method-detail">
+        <a name="M000244"></a>
+
+        <div class="method-heading">
+          <a href="BaseExpectation.src/M000244.html" target="Code" class="method-signature"
+            onclick="popupCode('BaseExpectation.src/M000244.html');return false;">
+          <span class="method-name">invoke_with_yield</span><span class="method-args">(block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

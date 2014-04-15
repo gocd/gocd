@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: FileCreationTask
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: A FileCreationTask is a file task that when used as a dependency will be needed
+    if and only if the file has not been created. Once created, it is not re-triggered
+    if any of its dependencies are newer, nor does trigger any rebuilds of tasks that
+    depend on it whenever it is updated.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: needed?
+- !ruby/object:RI::MethodSummary 
+  name: timestamp
+full_name: Rake::FileCreationTask
+superclass: FileTask
+class_methods: []
+

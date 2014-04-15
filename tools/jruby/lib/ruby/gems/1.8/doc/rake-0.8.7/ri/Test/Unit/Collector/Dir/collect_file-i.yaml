@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, suites, already_gathered)
+is_singleton: false
+block_params: 
+name: collect_file
+comment: 
+full_name: Test::Unit::Collector::Dir#collect_file
+visibility: public
+aliases: []
+

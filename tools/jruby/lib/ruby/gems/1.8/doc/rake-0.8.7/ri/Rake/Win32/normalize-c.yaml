@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (path)
+is_singleton: true
+block_params: 
+name: normalize
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Normalize a win32 path so that the slashes are all forward slashes.
+full_name: Rake::Win32::normalize
+visibility: public
+aliases: []
+

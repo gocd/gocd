@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NoisyBacktraceTweaker
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: tweak_backtrace
+full_name: Spec::Runner::NoisyBacktraceTweaker
+superclass: BacktraceTweaker
+class_methods: []
+

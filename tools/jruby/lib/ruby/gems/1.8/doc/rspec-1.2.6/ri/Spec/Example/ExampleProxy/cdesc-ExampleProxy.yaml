@@ -1,0 +1,38 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleProxy
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lightweight proxy for an example. This is the object that is passed to example-related
+    methods in Spec::Runner::Formatter::BaseFormatter
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: description
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: This is the docstring passed to the <tt>it()</tt> method or any of its aliases
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: location
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: The file and line number at which the represented example was declared.
+      This is extracted from <tt>caller</tt>, and is therefore formatted as an individual
+      line in a backtrace.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: options
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Optional hash passed to the example declaration
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: backtrace
+full_name: Spec::Example::ExampleProxy
+superclass: Object
+class_methods: []
+

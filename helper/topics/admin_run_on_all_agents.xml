@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Run a Job on a group of Agents">
+    <p>Sometimes there is a particular job that you may wish to run on all agents in an environment, or in all agents
+        that
+        match a certain resource tag. For example you may want to run a system update on all linux agents, or install a
+        new piece of software.
+    </p>
+    
+    <p>Go will run the Job on all agents that match the environment and resources specified in the job.</p>
+    <p>If an agent is missing or lost contact, a job will be scheduled. When the agent comes back on line, the job will
+        be re-scheduled.
+    </p>
+    <p>Jobs are given a unique name based on the name of the job in the configuration file and the UUID of the agent
+        on which it runs. So for example, if the job is called 'run-upgrades' and you have two agents, you would see
+        jobs
+        like 'run-upgrades-81b23d04-9970-44f5-8973-c70bfd7c9e67' and
+        'run-upgrades-9356e9d4-3a90-447d-bb74-2045aa355ef4'.
+    </p>
+    <section title="Configure through the Admin UI" collapsed="fasle">
+	<p>To enable run on all agents for a job, navigate to the Job settings page in the job configuration</p>
+	<img src="resources/images/cruise/admin/runonall_job.png" />
+	</section>
+    <section title="Configure through the Config XML" collapsed="false">
+        <p>To specify that a job should run on all agents, add the attribute
+            <code>runOnAllAgents="true"</code>
+            to the job's definition (see configuration reference for <cref topic="configuration_reference" anchor="job">&lt;job&gt;</cref>
+        </p>
+
+        <code>
+<![CDATA[
+<job name="run-upgrades" runOnAllAgents="true">
+    ...
+</job>
+]]>
+        </code>
+
+    </section>
+    <section title="Also See...">
+        <bullets>
+            <item><cref topic="job_rerun">Re-running job(s)</cref></item>
+        </bullets>
+    </section>
+</chapter>
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_proxy, &implementation)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Example::ExampleMethods::new
+visibility: public
+aliases: []
+

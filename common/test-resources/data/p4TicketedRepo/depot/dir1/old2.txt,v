@@ -1,0 +1,22 @@
+head     1.4;
+access   ;
+symbols  ;
+locks    ;comment  @@;
+
+
+1.4
+date     2008.09.01.18.01.41;  author p4;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+1.4
+log
+@@
+text
+@I am old2
+@

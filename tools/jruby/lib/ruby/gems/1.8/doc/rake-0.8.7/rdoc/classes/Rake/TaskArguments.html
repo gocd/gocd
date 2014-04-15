@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Rake::TaskArguments</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Rake::TaskArguments</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake_rb.html">
+                lib/rake.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+TaskAguments manage the arguments passed to a task.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000615">[]</a>&nbsp;&nbsp;
+      <a href="#M000617">each</a>&nbsp;&nbsp;
+      <a href="#M000621">inspect</a>&nbsp;&nbsp;
+      <a href="#M000622">lookup</a>&nbsp;&nbsp;
+      <a href="#M000618">method_missing</a>&nbsp;&nbsp;
+      <a href="#M000613">new</a>&nbsp;&nbsp;
+      <a href="#M000614">new_scope</a>&nbsp;&nbsp;
+      <a href="#M000619">to_hash</a>&nbsp;&nbsp;
+      <a href="#M000620">to_s</a>&nbsp;&nbsp;
+      <a href="#M000616">with_defaults</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+    <div id="includes">
+      <h3 class="section-bar">Included Modules</h3>
+
+      <div id="includes-list">
+        <span class="include-name">Enumerable</span>
+      </div>
+    </div>
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">names</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000613" class="method-detail">
+        <a name="M000613"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000613.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000613.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(names, values, parent=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a TaskArgument object with a list of named arguments (given by
+:names) and a set of associated values (given by :values). :parent is the
+parent argument object.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000615" class="method-detail">
+        <a name="M000615"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000615.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000615.html');return false;">
+          <span class="method-name">[]</span><span class="method-args">(index)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Find an argument value by name or index.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000617" class="method-detail">
+        <a name="M000617"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000617.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000617.html');return false;">
+          <span class="method-name">each</span><span class="method-args">(&amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000621" class="method-detail">
+        <a name="M000621"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000621.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000621.html');return false;">
+          <span class="method-name">inspect</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000618" class="method-detail">
+        <a name="M000618"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000618.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000618.html');return false;">
+          <span class="method-name">method_missing</span><span class="method-args">(sym, *args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000614" class="method-detail">
+        <a name="M000614"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000614.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000614.html');return false;">
+          <span class="method-name">new_scope</span><span class="method-args">(names)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a <a href="TaskArguments.html#M000613">new</a> argument scope using
+the prerequisite argument names.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000619" class="method-detail">
+        <a name="M000619"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000619.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000619.html');return false;">
+          <span class="method-name">to_hash</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000620" class="method-detail">
+        <a name="M000620"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000620.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000620.html');return false;">
+          <span class="method-name">to_s</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000616" class="method-detail">
+        <a name="M000616"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000616.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000616.html');return false;">
+          <span class="method-name">with_defaults</span><span class="method-args">(defaults)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Specify a hash of default values for task arguments. Use the defaults only
+if there is no specific value for the given argument.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000622" class="method-detail">
+        <a name="M000622"></a>
+
+        <div class="method-heading">
+          <a href="TaskArguments.src/M000622.html" target="Code" class="method-signature"
+            onclick="popupCode('TaskArguments.src/M000622.html');return false;">
+          <span class="method-name">lookup</span><span class="method-args">(name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

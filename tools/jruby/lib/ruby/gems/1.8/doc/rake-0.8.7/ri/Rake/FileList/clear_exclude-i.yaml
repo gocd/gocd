@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: clear_exclude
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Clear all the exclude patterns so that we exclude nothing.
+full_name: Rake::FileList#clear_exclude
+visibility: public
+aliases: []
+

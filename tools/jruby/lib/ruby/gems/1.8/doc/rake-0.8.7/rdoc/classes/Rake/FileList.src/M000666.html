@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>clear_exclude (Rake::FileList)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1361</span>
+1361:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clear_exclude</span>
+1362:       <span class="ruby-ivar">@exclude_patterns</span> = []
+1363:       <span class="ruby-ivar">@exclude_procs</span> = []
+1364:       <span class="ruby-identifier">calculate_exclude_regexp</span> <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-ivar">@pending</span>
+1365:       <span class="ruby-keyword kw">self</span>
+1366:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

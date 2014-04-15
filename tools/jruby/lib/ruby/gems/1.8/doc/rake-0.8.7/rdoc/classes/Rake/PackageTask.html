@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Rake::PackageTask</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Rake::PackageTask</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake/packagetask_rb.html">
+                lib/rake/packagetask.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="TaskLib.html">
+                TaskLib
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Create a packaging task that will package the project into distributable
+files (e.g zip archive or tar files).
+</p>
+<p>
+The <a href="PackageTask.html">PackageTask</a> will create the following
+targets:
+</p>
+<dl>
+<dt><b>:package</b></dt><dd>Create all the requested package files.
+
+</dd>
+<dt><b>:clobber_package</b></dt><dd>Delete all the package files. This target is automatically added to the
+main clobber target.
+
+</dd>
+<dt><b>:repackage</b></dt><dd>Rebuild the package files from scratch, even if they are not out of date.
+
+</dd>
+<dt><b>&quot;<em>package_dir</em>/<em>name</em>-<em>version</em>.tgz&quot;</b></dt><dd>Create a gzipped tar package (if <em>need_tar</em> is true).
+
+</dd>
+<dt><b>&quot;<em>package_dir</em>/<em>name</em>-<em>version</em>.tar.gz&quot;</b></dt><dd>Create a gzipped tar package (if <em>need_tar_gz</em> is true).
+
+</dd>
+<dt><b>&quot;<em>package_dir</em>/<em>name</em>-<em>version</em>.tar.bz2&quot;</b></dt><dd>Create a bzip2&#8216;d tar package (if <em>need_tar_bz2</em> is true).
+
+</dd>
+<dt><b>&quot;<em>package_dir</em>/<em>name</em>-<em>version</em>.zip&quot;</b></dt><dd>Create a zip package archive (if <em>need_zip</em> is true).
+
+</dd>
+</dl>
+<p>
+Example:
+</p>
+<pre>
+  Rake::PackageTask.new(&quot;rake&quot;, &quot;1.2.3&quot;) do |p|
+    p.need_tar = true
+    p.package_files.include(&quot;lib/**/*.rb&quot;)
+  end
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000589">define</a>&nbsp;&nbsp;
+      <a href="#M000588">init</a>&nbsp;&nbsp;
+      <a href="#M000587">new</a>&nbsp;&nbsp;
+      <a href="#M000591">package_dir_path</a>&nbsp;&nbsp;
+      <a href="#M000590">package_name</a>&nbsp;&nbsp;
+      <a href="#M000594">tar_bz2_file</a>&nbsp;&nbsp;
+      <a href="#M000593">tar_gz_file</a>&nbsp;&nbsp;
+      <a href="#M000592">tgz_file</a>&nbsp;&nbsp;
+      <a href="#M000595">zip_file</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">name</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Name of the package (from the GEM Spec).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">need_tar</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+True if a gzipped tar file (tgz) should be produced (default is false).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">need_tar_bz2</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+True if a bzip2&#8216;d tar file (tar.bz2) should be produced (default is
+false).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">need_tar_gz</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+True if a gzipped tar file (tar.gz) should be produced (default is false).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">need_zip</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+True if a zip file should be produced (default is false)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">package_dir</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Directory used to store the package files (default is &#8216;pkg&#8217;).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">package_files</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+List of files to be included in the package.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">tar_command</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Tar command for gzipped or bzip2ed archives. The default is
+&#8216;tar&#8217;.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">version</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Version of the package (e.g. &#8216;1.3.2&#8217;).
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">zip_command</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Zip command for zipped archives. The default is &#8216;zip&#8217;.
+
+</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000587" class="method-detail">
+        <a name="M000587"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000587.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000587.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(name=nil, version=nil) {|self if block_given?| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a Package <a href="Task.html">Task</a> with the given name and
+version.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000589" class="method-detail">
+        <a name="M000589"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000589.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000589.html');return false;">
+          <span class="method-name">define</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create the tasks defined by this task library.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000588" class="method-detail">
+        <a name="M000588"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000588.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000588.html');return false;">
+          <span class="method-name">init</span><span class="method-args">(name, version)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Initialization that bypasses the &quot;yield self&quot; and &quot;<a
+href="PackageTask.html#M000589">define</a>&quot; step.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000591" class="method-detail">
+        <a name="M000591"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000591.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000591.html');return false;">
+          <span class="method-name">package_dir_path</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000590" class="method-detail">
+        <a name="M000590"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000590.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000590.html');return false;">
+          <span class="method-name">package_name</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000594" class="method-detail">
+        <a name="M000594"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000594.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000594.html');return false;">
+          <span class="method-name">tar_bz2_file</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000593" class="method-detail">
+        <a name="M000593"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000593.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000593.html');return false;">
+          <span class="method-name">tar_gz_file</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000592" class="method-detail">
+        <a name="M000592"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000592.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000592.html');return false;">
+          <span class="method-name">tgz_file</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000595" class="method-detail">
+        <a name="M000595"></a>
+
+        <div class="method-heading">
+          <a href="PackageTask.src/M000595.html" target="Code" class="method-signature"
+            onclick="popupCode('PackageTask.src/M000595.html');return false;">
+          <span class="method-name">zip_file</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

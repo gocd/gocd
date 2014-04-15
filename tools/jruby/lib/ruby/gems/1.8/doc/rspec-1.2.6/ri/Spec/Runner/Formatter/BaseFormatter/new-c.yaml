@@ -1,0 +1,37 @@
+--- !ruby/object:RI::MethodDescription 
+params: (options, output)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Formatters are initialized with <tt>options</tt> and <tt>output</tt> arguments.
+    RSpec's built-in formatters already expect this, and any custom formatters should
+    as well.
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'options:'
+    body: A struct containing boolean values for colour, autospec, and dry_run
+  - !ruby/struct:SM::Flow::LI 
+    label: 'output:'
+    body: Used by RSpec's built-in formatters to determine where to write the output.
+      Default is <tt>STDOUT</tt>, otherwise a filename is expected.
+- !ruby/struct:SM::Flow::H 
+  level: 3
+  text: Example
+- !ruby/struct:SM::Flow::P 
+  body: 'If you invoke the <tt>spec</tt> command with:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  --format progress:progress_report.txt\n"
+- !ruby/struct:SM::Flow::P 
+  body: ... the value of <tt>output</tt> will be progress_report.txt. If you don't
+    identify an output destination, the default is STDOUT.
+full_name: Spec::Runner::Formatter::BaseFormatter::new
+visibility: public
+aliases: []
+

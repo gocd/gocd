@@ -1,0 +1,10 @@
+This directory contains submodule references to all plugins created by ThoughtWorks Go.
+The directory structure should be:
+
+tw-go-plugins:
+  qa-plugins:
+    All testing related plugins
+  plugin-1:
+    ...
+  plugin-2:
+    ...

@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope = :each, &block)
+is_singleton: false
+block_params: 
+name: prepend_before
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Registers a block to be executed before each example. This method prepends
+    <tt>block</tt> to existing before blocks.
+- !ruby/struct:SM::Flow::P 
+  body: See <tt>append_before</tt> for scoping semantics.
+full_name: Spec::Example::BeforeAndAfterHooks#prepend_before
+visibility: public
+aliases: []
+

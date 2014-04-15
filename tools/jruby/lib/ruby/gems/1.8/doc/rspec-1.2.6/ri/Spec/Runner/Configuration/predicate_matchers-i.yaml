@@ -1,0 +1,20 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: predicate_matchers
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: DEPRECATED - use Spec::Matchers::DSL instead
+- !ruby/struct:SM::Flow::P 
+  body: 'Defines global predicate matchers. Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  config.predicate_matchers[:swim] = :can_swim?\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'This makes it possible to say:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  person.should swim # passes if person.can_swim? returns true\n"
+full_name: Spec::Runner::Configuration#predicate_matchers
+visibility: public
+aliases: []
+

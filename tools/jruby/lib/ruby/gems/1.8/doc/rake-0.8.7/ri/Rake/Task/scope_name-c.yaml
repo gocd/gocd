@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope, task_name)
+is_singleton: true
+block_params: 
+name: scope_name
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Apply the scope to the task name according to the rules for this kind of task.
+    Generic tasks will accept the scope as part of the name.
+full_name: Rake::Task::scope_name
+visibility: public
+aliases: []
+

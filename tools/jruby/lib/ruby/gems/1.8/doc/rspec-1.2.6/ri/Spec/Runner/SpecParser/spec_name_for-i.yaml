@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (file, line_number)
+is_singleton: false
+block_params: 
+name: spec_name_for
+comment: 
+full_name: Spec::Runner::SpecParser#spec_name_for
+visibility: public
+aliases: []
+

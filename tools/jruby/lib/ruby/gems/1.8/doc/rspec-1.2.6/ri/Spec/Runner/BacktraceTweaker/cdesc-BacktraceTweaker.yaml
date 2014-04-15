@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: BacktraceTweaker
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: clean_up_double_slashes
+full_name: Spec::Runner::BacktraceTweaker
+superclass: Object
+class_methods: []
+

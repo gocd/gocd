@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: false
+block_params: 
+name: shared_examples_for
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #share_examples_for'
+full_name: Spec::DSL::Main#shared_examples_for
+visibility: public
+aliases: []
+

@@ -1,0 +1,24 @@
+--- !ruby/object:RI::MethodDescription 
+params: (key, example_group_class)
+is_singleton: false
+block_params: 
+name: register
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Registers an example group class <tt>klass</tt> with the symbol <tt>type</tt>.
+    For example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Spec::Example::ExampleGroupFactory.register(:farm, FarmExampleGroup)\n"
+- !ruby/struct:SM::Flow::P 
+  body: With that you can append a hash with :type =&gt; :farm to the describe method
+    and it will load an instance of FarmExampleGroup.
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe Pig, :type =&gt; :farm do\n    ...\n"
+- !ruby/struct:SM::Flow::P 
+  body: If you don't use the hash explicitly, <tt>describe</tt> will implicitly use
+    an instance of FarmExampleGroup for any file loaded from the <tt>./spec/farm</tt>
+    directory.
+full_name: Spec::Example::ExampleGroupFactory::ClassMethods#register
+visibility: public
+aliases: []
+

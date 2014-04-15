@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Spec::Rake::SpecTask)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/rake/spectask.rb, line 123</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">name</span>=<span class="ruby-identifier">:spec</span>)
+        <span class="ruby-ivar">@name</span> = <span class="ruby-identifier">name</span>
+        <span class="ruby-ivar">@libs</span> = [<span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-keyword kw">__FILE__</span>) <span class="ruby-operator">+</span> <span class="ruby-value str">'/../../../lib'</span>)]
+        <span class="ruby-ivar">@pattern</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@spec_files</span> = <span class="ruby-keyword kw">nil</span>
+        <span class="ruby-ivar">@spec_opts</span> = []
+        <span class="ruby-ivar">@warning</span> = <span class="ruby-keyword kw">false</span>
+        <span class="ruby-ivar">@ruby_opts</span> = []
+        <span class="ruby-ivar">@fail_on_error</span> = <span class="ruby-keyword kw">true</span>
+        <span class="ruby-ivar">@rcov</span> = <span class="ruby-keyword kw">false</span>
+        <span class="ruby-ivar">@rcov_opts</span> = [<span class="ruby-value str">'--exclude'</span>, <span class="ruby-value str">'lib\/spec,bin\/spec,config\/boot.rb'</span>]
+        <span class="ruby-ivar">@rcov_dir</span> = <span class="ruby-value str">&quot;coverage&quot;</span>
+
+        <span class="ruby-keyword kw">yield</span> <span class="ruby-keyword kw">self</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">block_given?</span>
+        <span class="ruby-ivar">@pattern</span> = <span class="ruby-value str">'spec/**/*_spec.rb'</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">pattern</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">spec_files</span>.<span class="ruby-identifier">nil?</span>
+        <span class="ruby-identifier">define</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

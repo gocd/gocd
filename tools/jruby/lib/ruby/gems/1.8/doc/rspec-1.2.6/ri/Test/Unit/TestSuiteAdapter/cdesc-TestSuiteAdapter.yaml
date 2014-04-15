@@ -1,0 +1,32 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: TestSuiteAdapter
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: example_group
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: examples
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: delete
+- !ruby/object:RI::MethodSummary 
+  name: empty?
+- !ruby/object:RI::MethodSummary 
+  name: name
+- !ruby/object:RI::MethodSummary 
+  name: run
+- !ruby/object:RI::MethodSummary 
+  name: size
+full_name: Test::Unit::TestSuiteAdapter
+superclass: TestSuite
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

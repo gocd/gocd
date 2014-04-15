@@ -1,0 +1,48 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: FtpFile
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: <b>Note:</b> <em> Not released for general use.</em>
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: group
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: name
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: owner
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: size
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: time
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: directory?
+- !ruby/object:RI::MethodSummary 
+  name: mode
+- !ruby/object:RI::MethodSummary 
+  name: path
+- !ruby/object:RI::MethodSummary 
+  name: symlink?
+full_name: Rake::FtpFile
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: date
+- !ruby/object:RI::MethodSummary 
+  name: new
+- !ruby/object:RI::MethodSummary 
+  name: time

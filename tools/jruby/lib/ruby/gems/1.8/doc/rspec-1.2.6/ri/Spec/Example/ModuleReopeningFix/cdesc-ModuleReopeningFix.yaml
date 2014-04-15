@@ -1,0 +1,32 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ModuleReopeningFix
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: When you reopen a module that is included in another module that is included
+    in a class, the new material you define does not make it to the class. This fixes
+    that.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Example
+- !ruby/struct:SM::Flow::VERB 
+  body: "  module M1; end\n\n  module M2\n    def foo; &quot;FOO&quot;; end\n  end\n\
+    \n  class C\n    include M1\n  end\n\n  module M1\n    include M2\n  end\n\n  \
+    c = C.new\n  c.foo\n  NoMethodError: undefined method `foo' for #&lt;C:0x5e89a4&gt;\n\
+    \    from (irb):12\n"
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: child_modules
+- !ruby/object:RI::MethodSummary 
+  name: include
+- !ruby/object:RI::MethodSummary 
+  name: included
+full_name: Spec::Example::ModuleReopeningFix
+superclass: 
+class_methods: []
+

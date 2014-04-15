@@ -1,0 +1,20 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  object.should_receive(:message).with(duck_type(:hello))
+  object.should_receive(:message).with(duck_type(:hello, :goodbye))
+is_singleton: false
+block_params: 
+name: duck_type
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if the argument responds to the specified messages.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  array = []\n  display = mock('display')\n  display.should_receive(:present_names).with(duck_type(:length, \
+    :each))\n  =&gt; passes\n"
+full_name: Spec::Mocks::ArgumentMatchers#duck_type
+visibility: public
+aliases: []
+

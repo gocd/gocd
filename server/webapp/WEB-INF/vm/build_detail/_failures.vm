@@ -1,0 +1,70 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+<div id="tab-content-of-failures" class="widget"  $errors_extra_attrs>
+<div>
+    #if (!$presenter.hasBuildError() && !$presenter.hasFailedTests() && !$presenter.hasStacktrace() && !$presenter.hasServerFailure())
+        #if ($presenter.isFailed())
+            #parse("build_detail/_buildoutput.vm")
+        #else
+            #if ($presenter.hasTests())
+                No failures
+            #else
+                #parse("build_detail/_test_output_config.vm")
+            #end
+        #end
+    #end
+
+    #if ($presenter.hasBuildError())
+        <h2 class="subtitle collapsible_title title_message_expanded">Error message</h2>
+        <div class="collapsible_content">
+            $esc.html($presenter.buildError)
+        </div>
+        <br/>
+    #end
+
+    #if ($presenter.hasFailedTests())
+        <h2 class="subtitle collapsible_title title_message_expanded">Failed tests</h2>
+        <div class="collapsible_content">
+            <iframe src="$req.getContextPath()/${presenter.indexPageURL}" width="95%" height="200" frameborder="0"></iframe>
+        </div>
+        <br/>
+    #end
+
+    #if($presenter.hasStacktrace())
+        <h2 class="subtitle collapsible_title title_message_expanded">Stacktrace</h2>
+        <div class="collapsible_content">
+            <pre>$esc.html($presenter.stacktrace)</pre>
+        </div>
+    #end
+
+    #if($presenter.hasServerFailure())
+        <h2 class="subtitle collapsible_title title_message_expanded">Server failure</h2>
+        <div class="collapsible_content">
+            <iframe src="$req.getContextPath()/${presenter.serverFailurePageURL}" width="95%" height="200" frameborder="0"></iframe>
+        </div>
+        <br/>
+    #end
+
+    <script type="text/javascript">
+        Event.observe(window, 'load', function(){
+            $$('.collapsible_title').each(function(link){
+                $(link).observe('click', BuildDetail.toggleDetailContent);
+            })
+        });
+    </script>
+</div>
+</div>

@@ -1,0 +1,23 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should equal(expected)
+  should_not equal(expected)
+is_singleton: false
+block_params: 
+name: equal
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if actual and expected are the same object (object identity).
+- !ruby/struct:SM::Flow::P 
+  body: See http://www.ruby-doc.org/core/classes/Object.html#M001057 for more information
+    about equality in Ruby.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  5.should equal(5) #Fixnums are equal\n  &quot;5&quot;.should_not equal(&quot;5&quot;) \
+    #Strings that look the same are not the same object\n"
+full_name: Spec::Matchers#equal
+visibility: public
+aliases: []
+

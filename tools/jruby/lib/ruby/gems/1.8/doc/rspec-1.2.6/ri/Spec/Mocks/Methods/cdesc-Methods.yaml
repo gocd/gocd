@@ -1,0 +1,28 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Methods
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: as_null_object
+- !ruby/object:RI::MethodSummary 
+  name: null_object?
+- !ruby/object:RI::MethodSummary 
+  name: should_not_receive
+- !ruby/object:RI::MethodSummary 
+  name: should_receive
+- !ruby/object:RI::MethodSummary 
+  name: stub
+- !ruby/object:RI::MethodSummary 
+  name: stub!
+- !ruby/object:RI::MethodSummary 
+  name: stub_chain
+full_name: Spec::Mocks::Methods
+superclass: 
+class_methods: []
+

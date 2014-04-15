@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (scope = :each, &block)
+is_singleton: false
+block_params: 
+name: after
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #prepend_after'
+full_name: Spec::Example::BeforeAndAfterHooks#after
+visibility: public
+aliases: []
+

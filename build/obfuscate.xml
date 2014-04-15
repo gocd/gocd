@@ -1,0 +1,68 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project basedir="..">
+    <import file="common_properties.xml"/>
+    <import file="filesets.xml"/>
+    <import file="dist.xml"/>
+
+    <target name="obfuscate">
+        <taskdef name="yguard" classname="com.yworks.yguard.YGuardTask">
+            <classpath>
+                <fileset dir="${ivy}/yguard/lib" includes="*.jar"/>
+            </classpath>
+        </taskdef>
+
+        <yguard>
+            <inoutpair in="${target.common.dist}/common.jar" out="${target.common.dist}/uncommon.jar"/>
+
+            <externalclasses>
+                <path id="all.lib.dir">
+                    <fileset dir="${ivy}">
+                        <include name="**/*.jar"/>
+                    </fileset>
+                </path>
+            </externalclasses>
+
+            <rename logfile="${basedir}/obfuscation.log" replaceClassNameStrings="true">
+                <property name="error-checking" value="pedantic"/>
+
+                <keep>
+                  <class>
+                      <!-- Doesn't work: method and field names still funktified -->
+                    <patternset>
+                        <include name="com.thoughtworks.go.**.*"/>
+                        <exclude name="com.thoughtworks.studios.licensing.*"/>
+                    </patternset>
+                  </class>
+                </keep>
+
+
+                <!-- Adjust all occurences of now obfuscated names in plain-text -->
+                <!-- files, too. -->
+                <!-- For example, the names of property resource bundle files for -->
+                <!-- yFiles classes must be adjusted to reflect the yFiles class's -->
+                <!-- obfuscated name. -->
+                <!--adjust replaceName="true">
+                    <include name="y/**/*.properties"/>
+                    <include name="y/view/**/resource/*"/>
+                </adjust-->
+
+            </rename>
+        </yguard>
+    </target>
+
+</project>

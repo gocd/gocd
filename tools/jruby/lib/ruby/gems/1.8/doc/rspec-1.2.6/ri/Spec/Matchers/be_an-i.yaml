@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: be_an
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Alias for #be_a'
+full_name: Spec::Matchers#be_an
+visibility: public
+aliases: []
+

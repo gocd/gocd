@@ -1,0 +1,30 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ArgumentExpectation
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: args
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: args_match?
+- !ruby/object:RI::MethodSummary 
+  name: is_matcher?
+- !ruby/object:RI::MethodSummary 
+  name: match_any_args?
+- !ruby/object:RI::MethodSummary 
+  name: matcher_for
+- !ruby/object:RI::MethodSummary 
+  name: matchers_block_matches?
+- !ruby/object:RI::MethodSummary 
+  name: matchers_match?
+full_name: Spec::Mocks::ArgumentExpectation
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

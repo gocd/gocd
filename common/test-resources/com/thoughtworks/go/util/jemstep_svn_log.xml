@@ -1,0 +1,887 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<log>
+<logentry
+   revision="7844">
+<author>jonathan</author>
+<date>2011-03-22T12:02:29.857217Z</date>
+<paths>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/abstractSwitcher/AbstractSwitcher.java</path>
+<path
+   kind="dir"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/abstractSwitcher</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalSwitcher.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/MutualFundDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/security/RecoverPasswordContent.ui.xml</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7843">
+<author>matthew</author>
+<date>2011-03-22T11:55:31.458606Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/goal/FilterBuilderProcessor.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added goal preferences rankings page filters</msg>
+</logentry>
+<logentry
+   revision="7842">
+<author>matthew</author>
+<date>2011-03-22T11:53:14.955020Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FundTypeGenericPanel.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added goal preferences rankings page filters</msg>
+</logentry>
+<logentry
+   revision="7841">
+<author>matthew</author>
+<date>2011-03-22T11:52:47.312445Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FilterQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FormTable.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FundTypeGenericPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/GroupModePanel.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added goal preferences rankings page filters</msg>
+</logentry>
+<logentry
+   revision="7838">
+<author>jonathan</author>
+<date>2011-03-22T09:59:27.632594Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/FundDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/ETFDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/ViewDetails.groovy</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7837">
+<author>matthew</author>
+<date>2011-03-22T09:16:22.995039Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/goal/FilterFactory.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsPageController.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesWidget.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesDropDown.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added goal preferences rankings page filters</msg>
+</logentry>
+<logentry
+   revision="7836">
+<author>jonathan</author>
+<date>2011-03-22T08:55:00.970960Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/security/RegistrationContent.ui.xml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/fund_details.css</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/fund_details_price_arrow_red.png</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/fund_details_price_arrow_green.png</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7835">
+<author>jonathan</author>
+<date>2011-03-22T08:25:46.693194Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/FundDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/portfolio.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/ETFDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/fund_details.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/MutualFundDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/ViewDetails.groovy</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7833">
+<author>matthew</author>
+<date>2011-03-21T15:03:39.757101Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsPageController.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesWidget.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilterBox.ui.xml"
+   copyfrom-rev="7824"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesDropDown.ui.xml</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesDropDownItem.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalPreferencesDropDown.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added goal preferences rankings page filters</msg>
+</logentry>
+<logentry
+   revision="7832">
+<author>matthew</author>
+<date>2011-03-21T13:44:07.064733Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added rank on filter change</msg>
+</logentry>
+<logentry
+   revision="7831">
+<author>matthew</author>
+<date>2011-03-21T13:22:36.014845Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/manager/GoalManager.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/manager/FilterFactManager.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsPageController.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/goal/GoalSwitcher.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/manager/GoalFilterFact.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FilterPreferencesContent.java</path>
+</paths>
+<msg>ARTEMIS-282 - Rankings page filters
+*added rank on filter change</msg>
+</logentry>
+<logentry
+   revision="7830">
+<author>jonathan</author>
+<date>2011-03-21T12:48:02.529826Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/FundDetails.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/details/MutualFundDetails.groovy</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7828">
+<author>matthew</author>
+<date>2011-03-21T11:41:14.537345Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FilterPreferencesModal.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FilterPreferencesContent.java</path>
+</paths>
+<msg>ARTEMIS-369 - Apply conflict styling via GWT to the results page when a conflict is detected
+*show filter group mode when click quick filter on results page</msg>
+</logentry>
+<logentry
+   revision="7827">
+<author>matthew</author>
+<date>2011-03-21T11:33:20.305081Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsPageController.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilterBox.java</path>
+</paths>
+<msg>ARTEMIS-369 - Apply conflict styling via GWT to the results page when a conflict is detected
+*started render filters on results page</msg>
+</logentry>
+<logentry
+   revision="7826">
+<author>matthew</author>
+<date>2011-03-21T11:26:31.306488Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+</paths>
+<msg>ARTEMIS-369 - Apply conflict styling via GWT to the results page when a conflict is detected
+*started render filters on results page</msg>
+</logentry>
+<logentry
+   revision="7825">
+<author>matthew</author>
+<date>2011-03-21T11:04:33.420554Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilterBox.java</path>
+</paths>
+<msg>ARTEMIS-369 - Apply conflict styling via GWT to the results page when a conflict is detected
+*started render filters on results page</msg>
+</logentry>
+<logentry
+   revision="7824">
+<author>matthew</author>
+<date>2011-03-21T10:38:09.108844Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/groovy/com/jemstep/web/rank/RankResults.groovy</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsPageController.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/goal/GoalSelector.ui.xml"
+   copyfrom-rev="7823"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilterBox.ui.xml</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFiltersWidget.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilterBox.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/product/ProductFilter.ui.xml</path>
+</paths>
+<msg>ARTEMIS-369 - Apply conflict styling via GWT to the results page when a conflict is detected
+*started render filters on results page</msg>
+</logentry>
+<logentry
+   revision="7823">
+<author>matthew</author>
+<date>2011-03-20T15:19:34.108027Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/tooltips/TooltipFactory.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*implemented tooltips</msg>
+</logentry>
+<logentry
+   revision="7822">
+<author>matthew</author>
+<date>2011-03-20T15:19:06.767211Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/test/java/com/jemstep/test/suite/CommitStageComponentTestSuite.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*implemented tooltips</msg>
+</logentry>
+<logentry
+   revision="7821">
+<author>matthew</author>
+<date>2011-03-20T15:18:52.756232Z</date>
+<paths>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/messages/MessagesFactory.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/tooltips/TooltipFactory.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/cache/MessagesCacheProvider.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/cache/TooltipsCacheProvider.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-server/src/test/java/com/jemstep/component/web/MessagesTestCase.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/test/java/com/jemstep/component/web/TooltipTestCase.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/model/TooltipBundle.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FormTable.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/etc/hazelcast-default.xml</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/model/i18n/Resource.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/model/Tooltip.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/resources/META-INF/persistence.xml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/cache/CacheProviderFactory.java</path>
+<path
+   kind="dir"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/web/tooltips</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/impl/UtilityServiceBean.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*implemented tooltips</msg>
+</logentry>
+<logentry
+   revision="7820">
+<author>Craig</author>
+<date>2011-03-20T14:32:25.844634Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/transact_landing_bg.jpg</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/why_use_jemstep_bg.png</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/main.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/ranking_landing_bg.jpg</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/portfolio_landing_bg.jpg</path>
+</paths>
+<msg>ARTEMIS-283</msg>
+</logentry>
+<logentry
+   revision="7819">
+<author>matthew</author>
+<date>2011-03-20T14:30:48.308073Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/util/TooltipPopup.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/impl/UtilityServiceBean.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*started tooltips</msg>
+</logentry>
+<logentry
+   revision="7818">
+<author>matthew</author>
+<date>2011-03-20T14:24:52.649315Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/rpc/GoalServiceAsync.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/rpc/UtilityServiceAsync.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-api/src/main/java/com/jemstep/api/GoalService.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java"
+   copyfrom-rev="7808"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartHelpMeContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-api/src/main/java/com/jemstep/api/UtilityService.java</path>
+<path
+   kind="file"
+   action="D">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBlankPanel.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCModal.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartHelpMeModal.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/util/TooltipPopup.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/manager/QuickstartManager.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBlankPanel.java"
+   copyfrom-rev="7805"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartEmptyPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/impl/GoalServiceBean.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/impl/UtilityServiceBean.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*updated redirect on Quickstart B/C success</msg>
+</logentry>
+<logentry
+   revision="7817">
+<author>Craig</author>
+<date>2011-03-20T13:48:19.019505Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/main.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/why-use-jemstep.xhtml</path>
+</paths>
+<msg>ARTEMIS-283</msg>
+</logentry>
+<logentry
+   revision="7816">
+<author>matthew</author>
+<date>2011-03-20T13:39:21.220003Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ArtemisBootstrap.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/whyjemstep/WhyJemstepController.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/why-use-jemstep.xhtml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/home/HomeController.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*updated drop up box on why-use-jemstep</msg>
+</logentry>
+<logentry
+   revision="7815">
+<author>Craig</author>
+<date>2011-03-20T13:32:50.844327Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/ie7.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/main.css</path>
+</paths>
+</logentry>
+<logentry
+   revision="7814">
+<author>jonathan</author>
+<date>2011-03-20T13:32:27.141383Z</date>
+<paths>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/image/fund_details_price_arrow.png</path>
+</paths>
+<msg>ARTEMIS-246</msg>
+</logentry>
+<logentry
+   revision="7813">
+<author>matthew</author>
+<date>2011-03-20T13:32:07.629951Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/home/HomeController.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*updated login validation message and drop up box</msg>
+</logentry>
+<logentry
+   revision="7812">
+<author>matthew</author>
+<date>2011-03-20T13:31:46.953376Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/rankings/results.xhtml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ArtemisBootstrap.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/security/LoginContent.ui.xml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/home/HomeController.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/controller/rankings/RankingsEntryPoint.java</path>
+</paths>
+<msg>ARTEMIS-396 - Create Help me Decide modal with questions
+*updated login validation message and drop up box</msg>
+</logentry>
+<logentry
+   revision="7811">
+<author>Craig</author>
+<date>2011-03-20T13:20:01.026224Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/ie7.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/main.css</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/ie8.css</path>
+</paths>
+<msg>ARTEMIS-283</msg>
+</logentry>
+<logentry
+   revision="7810">
+<author>matthew</author>
+<date>2011-03-20T12:30:50.794688Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/manager/QuickstartManager.java</path>
+</paths>
+<msg>ARTEMIS-338 - Derive filters from home page
+*added help me decide entry point</msg>
+</logentry>
+<logentry
+   revision="7809">
+<author>matthew</author>
+<date>2011-03-20T12:18:03.231329Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/jemstep-commons/jemstep-model/src/main/java/com/jemstep/fact/FilterBuilder.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/java/com/jemstep/impl/GoalServiceBean.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+*completed API</msg>
+</logentry>
+<logentry
+   revision="7808">
+<author>matthew</author>
+<date>2011-03-20T12:06:01.222798Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartAContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/AbstractQuickstartContent.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+*quickstart question numbers</msg>
+</logentry>
+<logentry
+   revision="7807">
+<author>matthew</author>
+<date>2011-03-20T11:49:25.134747Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/jemstep-commons/jemstep-model/src/main/resources/com/jemstep/model/fact/fact.proto</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/validation/GenericRequiredValidation.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/radio/RadioGroupHorizontal.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FilterQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/AbstractQuickstartContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/FilterPreferencesContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FundAssetClassPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FundRiskandReturnBeginnerPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/check/CheckGroupVertical.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/radio/RadioGroupVertical.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/form/preferences/FundTypeGenericPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/check/CheckGroup.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/check/CheckGroupColumnar.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/question/radio/RadioGroup.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+*validations on quickstarts</msg>
+</logentry>
+<logentry
+   revision="7806">
+<author>Craig</author>
+<date>2011-03-20T11:40:21.025420Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/resources/static/style/main.css</path>
+</paths>
+<msg>ARTEMIS-283</msg>
+</logentry>
+<logentry
+   revision="7805">
+<author>matthew</author>
+<date>2011-03-20T08:19:23.253392Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/IncomeGoalWrapper.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBlankPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+</paths>
+<msg>ARTEMIS-241 - Derived filters from one or more products
+*refactored quickstart B/C</msg>
+</logentry>
+<logentry
+   revision="7804">
+<author>matthew</author>
+<date>2011-03-19T14:59:54.852993Z</date>
+<paths>
+<path
+   kind="file"
+   action="D">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBasicPanel.java</path>
+<path
+   kind="file"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartQuestionWidgetBuilder.java</path>
+<path
+   kind="file"
+   copyfrom-path="/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBasicPanel.java"
+   copyfrom-rev="7802"
+   action="A">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBlankPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/AbstractQuickstartContent.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCModal.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+</msg>
+</logentry>
+<logentry
+   revision="7803">
+<author>matthew</author>
+<date>2011-03-19T14:13:07.185614Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+</msg>
+</logentry>
+<logentry
+   revision="7802">
+<author>matthew</author>
+<date>2011-03-19T14:12:42.118962Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartBasicPanel.java</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/container/quickstart/QuickstartCContent.java</path>
+</paths>
+<msg>ARTEMIS-395 - API to accept selection and derive a filter object and place into session
+</msg>
+</logentry>
+<logentry
+   revision="7801">
+<author>matthew</author>
+<date>2011-03-19T13:30:11.982466Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+</paths>
+<msg>ARTEMIS-639</msg>
+</logentry>
+<logentry
+   revision="7800">
+<author>matthew</author>
+<date>2011-03-19T13:26:58.964975Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+</paths>
+<msg>ARTEMIS-639</msg>
+</logentry>
+<logentry
+   revision="7799">
+<author>Craig</author>
+<date>2011-03-19T12:33:31.052434Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-server/src/main/webapp/goals/content/no-goals.groovy</path>
+</paths>
+<msg>ARTEMIS-283</msg>
+</logentry>
+<logentry
+   revision="7796">
+<author>matthew</author>
+<date>2011-03-18T14:50:41.161576Z</date>
+<paths>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.ui.xml</path>
+<path
+   kind="file"
+   action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
+</paths>
+<msg>ARTEMIS-639 - Filter modal 
+*updated deriving filters and filter modal</msg>
+</logentry>
+</log>

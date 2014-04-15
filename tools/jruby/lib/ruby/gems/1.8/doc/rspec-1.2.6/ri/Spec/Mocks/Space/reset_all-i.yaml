@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: reset_all
+comment: 
+full_name: Spec::Mocks::Space#reset_all
+visibility: public
+aliases: []
+

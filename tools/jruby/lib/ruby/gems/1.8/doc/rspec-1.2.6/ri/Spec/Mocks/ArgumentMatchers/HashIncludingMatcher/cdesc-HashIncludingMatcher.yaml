@@ -1,0 +1,19 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: HashIncludingMatcher
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: ==
+- !ruby/object:RI::MethodSummary 
+  name: description
+full_name: Spec::Mocks::ArgumentMatchers::HashIncludingMatcher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: registry
+comment: 
+full_name: Spec::Matchers::OperatorMatcher::registry
+visibility: public
+aliases: []
+

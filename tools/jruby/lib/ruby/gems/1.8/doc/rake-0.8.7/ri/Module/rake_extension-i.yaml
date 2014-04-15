@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (method) {|| ...}
+is_singleton: false
+block_params: ""
+name: rake_extension
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Check for an existing method in the current class before extending. IF the
+    method already exists, then a warning is printed and the extension is not added.
+    Otherwise the block is yielded and any definitions in the block will take effect.
+- !ruby/struct:SM::Flow::P 
+  body: 'Usage:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  class String\n    rake_extension(&quot;xyz&quot;) do\n      def xyz\n  \
+    \      ...\n      end\n    end\n  end\n"
+full_name: Module#rake_extension
+visibility: public
+aliases: []
+

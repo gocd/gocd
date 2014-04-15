@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (data_new, data_old)
+is_singleton: false
+block_params: 
+name: diff_as_string
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This is snagged from diff/lcs/ldiff.rb (which is a commandline tool)
+full_name: Spec::Expectations::Differs::Default#diff_as_string
+visibility: public
+aliases: []
+

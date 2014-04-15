@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>find_rakefile_location (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2354</span>
+2354:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">find_rakefile_location</span>
+2355:       <span class="ruby-identifier">here</span> = <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">pwd</span>
+2356:       <span class="ruby-keyword kw">while</span> <span class="ruby-operator">!</span> (<span class="ruby-identifier">fn</span> = <span class="ruby-identifier">have_rakefile</span>)
+2357:         <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">chdir</span>(<span class="ruby-value str">&quot;..&quot;</span>)
+2358:         <span class="ruby-keyword kw">if</span> <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">pwd</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">here</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">nosearch</span>
+2359:           <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">nil</span>
+2360:         <span class="ruby-keyword kw">end</span>
+2361:         <span class="ruby-identifier">here</span> = <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">pwd</span>
+2362:       <span class="ruby-keyword kw">end</span>
+2363:       [<span class="ruby-identifier">fn</span>, <span class="ruby-identifier">here</span>]
+2364:     <span class="ruby-keyword kw">ensure</span>
+2365:       <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">chdir</span>(<span class="ruby-constant">Rake</span>.<span class="ruby-identifier">original_dir</span>)
+2366:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

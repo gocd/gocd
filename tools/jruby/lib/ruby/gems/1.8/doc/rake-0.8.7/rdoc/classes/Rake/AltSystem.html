@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Rake::AltSystem</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Rake::AltSystem</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake/alt_system_rb.html">
+                lib/rake/alt_system.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+Alternate implementations of <a href="AltSystem.html#M000540">system</a>()
+and <a href="AltSystem.html#M000541">backticks</a> `` on Windows for
+ruby-1.8 and earlier.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000541">backticks</a>&nbsp;&nbsp;
+      <a href="#M000537">define_module_function</a>&nbsp;&nbsp;
+      <a href="#M000539">find_runnable</a>&nbsp;&nbsp;
+      <a href="#M000538">repair_command</a>&nbsp;&nbsp;
+      <a href="#M000540">system</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">WINDOWS</td>
+          <td>=</td>
+          <td class="context-item-value">Config::CONFIG[&quot;host_os&quot;] =~ %r!(msdos|mswin|djgpp|mingw)!</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">RUNNABLE_EXTS</td>
+          <td>=</td>
+          <td class="context-item-value">%w[com exe bat cmd]</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">RUNNABLE_PATTERN</td>
+          <td>=</td>
+          <td class="context-item-value">%r!\.(#{RUNNABLE_EXTS.join('|')})\Z!i</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000537" class="method-detail">
+        <a name="M000537"></a>
+
+        <div class="method-heading">
+          <a href="AltSystem.src/M000537.html" target="Code" class="method-signature"
+            onclick="popupCode('AltSystem.src/M000537.html');return false;">
+          <span class="method-name">define_module_function</span><span class="method-args">(name, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000541" class="method-detail">
+        <a name="M000541"></a>
+
+        <div class="method-heading">
+          <a href="AltSystem.src/M000541.html" target="Code" class="method-signature"
+            onclick="popupCode('AltSystem.src/M000541.html');return false;">
+          <span class="method-name">backticks</span><span class="method-args">(cmd)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000539" class="method-detail">
+        <a name="M000539"></a>
+
+        <div class="method-heading">
+          <a href="AltSystem.src/M000539.html" target="Code" class="method-signature"
+            onclick="popupCode('AltSystem.src/M000539.html');return false;">
+          <span class="method-name">find_runnable</span><span class="method-args">(file)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000538" class="method-detail">
+        <a name="M000538"></a>
+
+        <div class="method-heading">
+          <a href="AltSystem.src/M000538.html" target="Code" class="method-signature"
+            onclick="popupCode('AltSystem.src/M000538.html');return false;">
+          <span class="method-name">repair_command</span><span class="method-args">(cmd)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000540" class="method-detail">
+        <a name="M000540"></a>
+
+        <div class="method-heading">
+          <a href="AltSystem.src/M000540.html" target="Code" class="method-signature"
+            onclick="popupCode('AltSystem.src/M000540.html');return false;">
+          <span class="method-name">system</span><span class="method-args">(cmd, *args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

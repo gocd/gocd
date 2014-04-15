@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym)
+is_singleton: false
+block_params: 
+name: has_negative_expectation?
+comment: 
+full_name: Spec::Mocks::Proxy#has_negative_expectation?
+visibility: public
+aliases: []
+

@@ -1,0 +1,31 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/pipelines">$l.localize("PIPELINES_POPUP_TITLE")</a>
+</li>
+#if($userHasTemplateAdministratorRights)
+    #parse("shared/_dropdown_template_admin.vm")
+#end
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/pipelines/snippet">$l.localize("PIPELINES_SNIPPET")</a>
+</li>
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/plugins">$l.localize("PLUGINS_TAB")</a>
+</li>
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/package_repositories/new">$l.localize("PACKAGE_REPOSITORY_TAB")</a>
+</li>

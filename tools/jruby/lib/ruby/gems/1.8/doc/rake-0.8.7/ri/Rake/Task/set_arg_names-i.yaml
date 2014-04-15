@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (args)
+is_singleton: false
+block_params: 
+name: set_arg_names
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Set the names of the arguments for this task. <tt>args</tt> should be an array
+    of symbols, one for each argument name.
+full_name: Rake::Task#set_arg_names
+visibility: public
+aliases: []
+

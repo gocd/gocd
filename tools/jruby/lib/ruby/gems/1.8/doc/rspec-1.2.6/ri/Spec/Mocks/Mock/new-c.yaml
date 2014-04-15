@@ -1,0 +1,20 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name='mock', stubs_and_options={})
+is_singleton: true
+block_params: 
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'Creates a new mock with a <tt>name</tt> (that will be used in error messages
+    only) == Options:'
+- !ruby/object:SM::Flow::LIST 
+  type: :BULLET
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: '*'
+    body: <tt>:null_object</tt> - if true, the mock object acts as a forgiving null
+      object allowing any message to be sent to it.
+full_name: Spec::Mocks::Mock::new
+visibility: public
+aliases: []
+

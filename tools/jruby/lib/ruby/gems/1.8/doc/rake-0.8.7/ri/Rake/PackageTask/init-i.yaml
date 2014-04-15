@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, version)
+is_singleton: false
+block_params: 
+name: init
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Initialization that bypasses the &quot;yield self&quot; and &quot;define&quot;
+    step.
+full_name: Rake::PackageTask#init
+visibility: public
+aliases: []
+

@@ -1,0 +1,47 @@
+---
+layout: default
+title: Welcome
+---
+
+h2(#what_is_apache_buildr).  What is Apache Buildr?
+
+Apache Buildr is a build system for Java-based applications, including support for Scala, Groovy and a growing number of JVM languages and tools.  We wanted something that's simple and intuitive to use, so we only need to tell it what to do, and it takes care of the rest.  But also something we can easily extend for those one-off tasks, with a language that's a joy to use.  And of course, we wanted it to be fast, reliable and have outstanding dependency management.
+
+Here's what we got:
+
+* A simple way to specify projects, and build large projects out of smaller sub-projects.
+* Pre-canned tasks that require the least amount of configuration, keeping the build script DRY and simple.
+* Compiling, copying and filtering resources, JUnit/TestNG test cases, APT source code generation, Javadoc and more.
+* A dependency mechanism that only builds what has changed since the last release.
+* A drop-in replacement for Maven 2.0, Buildr uses the same file layout, artifact specifications, local and remote repositories.
+* All your Ant tasks are belong to us! Anything you can do with Ant, you can do with Buildr.
+* No overhead for building "plugins" or configuration. Just write new tasks or functions.
+* Buildr is Ruby all the way down.  No one-off task is too demanding when you write code using variables, functions and objects.
+* Simple way to upgrade to new versions.
+* Did we mention fast?
+
+So let's get started.  You can "read the documentation online":getting_started.html, or "download the PDF":buildr.pdf.
+
+
+h2(#news).  Project News
+
+New in Buildr 1.3.4:
+
+* We graduated from the Apache Incubator!  This is our first release as a top-level Apache project: http://buildr.apache.org.  New site, new mailing lists, SVN, Git, etc.
+* Support for Git version control system
+* Improved all-around Scala support, including joint Java-Scala compilation and upgraded to Scala 2.7.3 dependencies: ScalaSpecs 1.4.3, ScalaCheck 1.5 and ScalaTest 0.9.5
+* New 'artifacts:sources' task to download source code for artifact jars
+* Source code attachments for external dependencies in Eclipse and IDEA projects
+* Dependency upgrades such as Rake 0.8.4, Net-SSH 2.0.11, RSpec 1.2.2, JRuby 1.1.6.
+* Documentation now uses "Jekyll":http://github.com/mojombo/jekyll/ to generate web site and PDF document.  This replaces Docter so less code to
+maintain and the same Textile/Liquid mechanism as when using Github pages.
+* And 20 or so bug fixes.
+
+See the "CHANGELOG":CHANGELOG for full details.
+
+
+h2(#legal).  Legal Notices
+
+The Apache Software Foundation is a non-profit organization, consider "sponsoring":http://www.apache.org/foundation/sponsorship.html and check the "thanks":http://www.apache.org/foundation/thanks.html page.
+
+"ColorCons":http://www.mouserunner.com/Spheres_ColoCons1_Free_Icons.html, copyright of Ken Saunders.  "DejaVu fonts":http://dejavu.sourceforge.net, copyright of Bitstream, Inc.

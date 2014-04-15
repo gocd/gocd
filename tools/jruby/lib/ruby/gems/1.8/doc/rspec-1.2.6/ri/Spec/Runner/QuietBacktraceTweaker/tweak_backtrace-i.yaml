@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (error)
+is_singleton: false
+block_params: 
+name: tweak_backtrace
+comment: 
+full_name: Spec::Runner::QuietBacktraceTweaker#tweak_backtrace
+visibility: public
+aliases: []
+

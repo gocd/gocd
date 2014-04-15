@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="BuildInstance">
+
+    <!-- The select-build-map needs to be merged with join-build-map -->
+    <resultMap id="select-build-map" class="com.thoughtworks.go.domain.JobInstance">
+        <result property="id" column="buildId"/>
+        <result property="stageId" column="stageId"/>
+        <result property="name" column="name"/>
+        <result property="scheduledDate" column="scheduledDate" javaType="date" jdbcType="TIMESTAMP"/>
+        <result property="state" column="state"/>
+        <result property="result" column="result"/>
+        <result property="agentUuid" column="agentUuid"/>
+        <result property="ignored" column="ignored"/>
+        <result property="runOnAllAgents" column="runOnAllAgents"/>
+        <result property="originalJobId" column="originalJobId"/>
+        <result property="rerun" column="rerun"/>
+    </resultMap>
+
+    <resultMap id="select-build-with-identifier"
+               class="com.thoughtworks.go.domain.JobInstance"
+               extends="select-build-map">
+        <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>        
+    </resultMap>
+
+    <resultMap id="select-build-with-identifier-transitions"
+            class="com.thoughtworks.go.domain.JobInstance"
+            extends="select-build-with-identifier"
+            groupBy="id" >
+        <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
+    </resultMap>
+
+    <resultMap id="jobIdentifier" class="com.thoughtworks.go.domain.JobIdentifier">
+        <result property="pipelineName" column="pipelineName"/>
+        <result property="pipelineCounter" column="pipelineCounter"/>
+        <result property="pipelineLabel" column="pipelineLabel"/>
+        <result property="stageName" column="stageName"/>
+        <result property="stageCounter" column="stageCounter"/>
+        <result property="buildName" column="name"/>
+        <result property="buildId" column="buildId"/>
+        <result property="rerunOfCounter" column="rerunOfCounter"/>
+    </resultMap>
+
+    <resultMap id="build-with-transitions-map" class="com.thoughtworks.go.domain.JobInstance" groupBy="id" extends="select-build-map">
+        <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
+    </resultMap>
+
+    <resultMap id="join-build-map" class="com.thoughtworks.go.domain.JobInstance" groupBy="id" extends="select-build-map">
+        <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
+    </resultMap>
+
+    <resultMap id="join-build-map-with-identifier"
+               class="com.thoughtworks.go.domain.JobInstance"
+               groupBy="id"
+               extends="select-build-with-identifier">
+        <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
+    </resultMap>
+
+    <resultMap id="select-resources" class="com.thoughtworks.go.config.Resource">
+        <result property="name" column="resourceName"/>
+    </resultMap>
+
+    <parameterMap id="insert-build-param" class="com.thoughtworks.go.domain.JobInstance">
+        <parameter property="name"/>
+        <parameter property="scheduledDate" javaType="date" jdbcType="TIMESTAMP"/>
+        <parameter property="state"/>
+        <parameter property="result"/>
+        <parameter property="agentUuid"/>
+        <parameter property="stageId"/>
+        <parameter property="runOnAllAgents"/>
+        <parameter property="originalJobId"/>
+        <parameter property="rerun"/>
+    </parameterMap>
+
+    <cacheModel id="latest-completed-job-instances" type="MEMORY" readOnly="true">
+        <flushInterval seconds="300"/>
+        <flushOnExecute statement="insertBuild"/>
+        <flushOnExecute statement="ignoreBuildById"/>
+        <flushOnExecute statement="updateResult"/>
+        <flushOnExecute statement="updateStatus"/>
+        <property name="cache-size" value="100" />
+    </cacheModel>
+
+    <select id="latestCompletedJobs" resultMap="select-build-with-identifier" cacheModel="latest-completed-job-instances">
+        SELECT *, id AS buildId
+        FROM _builds
+        WHERE state = 'Completed'
+            AND name = #jobConfigName#
+            AND pipelineName = #pipelineName#
+            AND stageName = #stageName#
+            AND originalJobId IS NULL
+        ORDER BY id DESC
+        LIMIT #count#
+    </select>
+
+    <sql id="select-job-id">
+        FROM _builds
+        WHERE name = #jobName# AND ignored != true
+            AND stageName = #stageName# AND stageCounter = #stageCounter#
+            AND pipelineName = #pipelineName# AND pipelineLabel = #pipelineLabel#
+            <isNotNull property="pipelineCounter" prepend="AND">
+                pipelineCounter = #pipelineCounter#
+            </isNotNull>
+    </sql>
+
+    <select id="findJobId" resultMap="jobIdentifier">
+        SELECT pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, name, id AS buildId, rerunOfCounter
+        FROM _builds WHERE id IN (
+            (SELECT id FROM (SELECT id <include refid="select-job-id"/> AND originaljobid IS NULL) AS inner1)
+            UNION
+            (SELECT originalJobId AS id FROM (SELECT originalJobId <include refid="select-job-id"/> AND originaljobid IS NOT NULL) AS inner2)
+        )
+        ORDER BY scheduledDate DESC
+        LIMIT 1
+    </select>
+
+    <cacheModel id="find-job-id-by-label" type="MEMORY" readOnly="true">
+        <flushInterval seconds="300"/>
+        <flushOnExecute statement="insertBuild"/>
+        <flushOnExecute statement="ignoreBuildById"/>
+        <flushOnExecute statement="updateResult"/>
+        <flushOnExecute statement="updateStatus"/>
+        <property name="cache-size" value="200" />
+    </cacheModel>
+
+    <resultMap id="select-job-plan" class="com.thoughtworks.go.domain.DefaultJobPlan" groupBy="jobId">
+        <result property="jobId" column="buildId" nullValue="0"/>
+        <result property="agentUuid" column="agentUuid"/>
+        <result property="fetchMaterials" column="fetchMaterials"/>
+        <result property="cleanWorkingDir" column="cleanWorkingDir"/>
+        <result property="plans" column="buildId" select="select-artifacts"/>
+        <result property="generators" column="buildId" select="select-generators"/>
+        <result property="resources" column="buildId" select="getResourcesByBuildInstanceId"/>
+        <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>
+        <result property="pipelineId" column="pipelineId"/>
+    </resultMap>
+
+    <select id="select-job-plan" resultMap="select-job-plan">
+        SELECT b.*, b.id as buildId,
+            a.id as artifactId, a.src as artifactSrc, a.dest as artifactDest, a.artifactType
+        FROM _builds b
+        LEFT JOIN artifactPlans a ON b.id = a.buildId
+        WHERE b.id = #jobId#
+        ORDER BY b.scheduledDate ASC
+    </select>
+
+    <select id="scheduledPlan" resultMap="select-job-plan">
+        SELECT builds.*, builds.id as buildId,
+            builds.agentuuid as agentUuid,
+            artifactPlans.id as artifactId, artifactPlans.src as artifactSrc, artifactPlans.dest as artifactDest,
+            artifactPlans.artifactType as artifactType,
+            stages.name as stageName,
+            stages.counter as stageCounter,
+            stages.fetchMaterials as fetchMaterials,
+            stages.cleanWorkingDir as cleanWorkingDir,
+            stages.rerunOfCounter as rerunOfCounter,
+            pipelines.name as pipelineName,
+            pipelines.counter as pipelineCounter,
+            pipelines.label as pipelineLabel,
+            pipelines.id as pipelineId
+        FROM builds
+        LEFT JOIN artifactPlans ON builds.id = artifactPlans.buildId
+        INNER JOIN stages ON stages.id = builds.stageId
+        INNER JOIN pipelines ON pipelines.id = stages.pipelineId
+        WHERE builds.state = 'Scheduled'
+            AND builds.id = #id#
+        ORDER BY builds.scheduledDate ASC
+    </select>
+
+    <select id="scheduledPlanIds" resultClass="long">
+        SELECT builds.id as buildId
+        FROM builds
+        WHERE builds.state = 'Scheduled'
+        ORDER BY builds.scheduledDate ASC,buildId
+    </select>
+
+    <select id="currentJobState" resultClass="string">
+        SELECT builds.state
+        FROM builds
+        WHERE builds.id = #value#
+    </select>
+
+    <select id="buildByIdWithTransitions" resultMap="select-build-with-identifier-transitions">
+       SELECT builds.*, builds.id as buildId,
+       buildstatetransitions.currentState, buildstatetransitions.statechangetime, buildstatetransitions.id as stateId,
+        stages.name as stageName,
+        stages.counter as stageCounter,
+        pipelines.name as pipelineName,
+        pipelines.counter as pipelineCounter,
+        pipelines.label as pipelineLabel,
+        stages.rerunOfCounter as rerunOfCounter
+       FROM builds
+       LEFT JOIN buildstatetransitions ON builds.id = buildstatetransitions.buildId
+        INNER JOIN stages ON stages.id = builds.stageId
+        INNER JOIN pipelines ON stages.pipelineId = pipelines.id
+       WHERE builds.id = #value#
+       ORDER BY buildstatetransitions.id ASC 
+    </select>
+
+    <select id="buildById" resultMap="select-build-with-identifier">
+       SELECT *, id as buildId
+       FROM _builds
+       WHERE id = #value#
+    </select>
+
+    <select id="getLastSuccessfulBuildIdOnAgent" resultClass="long">
+        SELECT id
+        FROM _builds
+        WHERE name = #buildName#
+            AND agentUuid = #agentUuid#
+            AND state = 'Completed'
+            AND result = 'Passed'
+            AND stageName = #stageName#
+            AND pipelineName = #pipelineName#
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <sql id="select-builds-with-identifier">
+        SELECT
+            *, id AS buildId
+        FROM _builds
+    </sql>
+    
+    <select id="getLatestInProgressBuildOnAgent" resultMap="select-build-with-identifier">
+        <include refid="select-builds-with-identifier"/>
+        WHERE agentUuid = #agentId#
+        AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
+    </select>
+
+    <!--no union reduces the execution time from 5ms to 1ms -->
+    <select id="getHungJobs" resultMap="select-build-with-identifier">
+        <include refid="select-builds-with-identifier"/>
+        WHERE agentUuid NOT IN ($liveAgentIdList$) AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
+        <!--SELECT *, id AS buildId-->
+            <!--FROM TABLE(X VARCHAR=#liveAgentIdList#) T-->
+            <!--INNER JOIN _builds AS b ON b.agentUuid != T.X-->
+            <!--WHERE state IN ('Assigned', 'Preparing', 'Building', 'Completing');-->
+    </select>
+
+    <select id="buildInstanceExists" resultClass="java.lang.Boolean">
+        SELECT count(*) = 1 FROM builds WHERE id = #value#
+    </select>
+
+    <select id="isValid" resultClass="java.lang.Boolean">
+        SELECT count(*) > 0 FROM builds
+        INNER JOIN stages ON stages.id = builds.stageId
+        INNER JOIN pipelines ON pipelines.id = stages.pipelineId
+        WHERE stages.name = #stageName#
+            AND builds.name = #buildName#
+            AND pipelines.name = #pipelineName#
+    </select>
+
+    <update id="updateAssignedInfo" parameterClass="com.thoughtworks.go.domain.JobInstance">
+        UPDATE builds SET state=#state#, agentUuid=#agentUuid# WHERE id = #id#
+    </update>
+
+    <update id="updateStatus">
+        UPDATE builds SET state=#state# WHERE id = #id#
+    </update>
+
+    <update id="updateResult" parameterClass="com.thoughtworks.go.domain.JobInstance">
+        UPDATE builds SET result=#result# WHERE id = #id#
+    </update>
+
+    <insert id="insertBuild" parameterMap="insert-build-param">
+        INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, originalJobId, rerun)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        <selectKey resultClass="long" keyProperty="id" type="post">
+            CALL IDENTITY();
+        </selectKey>
+    </insert>
+
+    <update id="ignoreBuildById" parameterClass="java.lang.Long">
+        UPDATE builds SET ignored=true WHERE id = #id#
+    </update>
+
+    <resultMap id="active-jobs"
+               class="com.thoughtworks.go.server.dao.ActiveJob">
+        <result property="id"  column="jobId"/>
+        <result property="buildName" column="buildName"/>
+        <result property="pipelineName" column="pipelineName"/>
+        <result property="pipelineCounter" column="pipelineCounter"/>
+        <result property="pipelineLabel" column="pipelineLabel"/>
+        <result property="stageName"  column="stageName"/>
+    </resultMap>
+
+    <select id="getActiveJobById" resultMap="active-jobs">
+        SELECT id as jobId, name as buildName, stageName, pipelineName, pipelineCounter, pipelineLabel
+        FROM _builds
+        WHERE ignored != true
+        AND id = #id#
+        AND state IN ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
+    </select>
+
+    <select id="getBuildingJobIdentifier" resultMap="jobIdentifier">
+        SELECT pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, name, id AS buildId, rerunOfCounter
+        FROM _builds
+        WHERE ignored != true
+        AND id = #id#
+        AND state IN ('Preparing', 'Building', 'Completing')
+    </select>
+
+    <select id="getActiveJobIds" resultClass="long">
+        SELECT builds.id
+        FROM builds
+        WHERE ignored != true
+        AND builds.state in ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
+    </select>
+
+    <select id="completedJobsOnAgent" resultMap="select-build-with-identifier-transitions">
+        SELECT
+        joined.id,
+        joined.name,
+        joined.state,
+        joined.result,
+        joined.agentUuid,
+        joined.scheduledDate,
+        joined.stageId,
+        joined.ignored,
+        joined.runOnAllAgents,
+        joined.originalJobId,
+        joined.rerun,
+        joined.pipelineName,
+        joined.pipelineLabel,
+        joined.stageName,
+        joined.pipelineCounter,
+        joined.stageCounter,
+        joined.rerunOfCounter,
+
+        buildstatetransitions.id AS stateId,
+        buildstatetransitions.buildid AS buildid,
+        buildstatetransitions.stageid AS stageid,
+        buildstatetransitions.currentstate as currentstate,
+        buildstatetransitions.stateChangeTime as stateChangeTime
+        FROM
+        (
+            SELECT
+            builds.*,
+            bst.stateChangeTime as lastTransitionTime,
+            pipelines.name AS pipelineName,
+            pipelines.label AS pipelineLabel,
+            stages.name AS stageName,
+            pipelines.counter AS pipelineCounter,
+            stages.counter AS stageCounter,
+            stages.rerunOfCounter AS rerunOfCounter
+            FROM builds
+            INNER JOIN stages on builds.stageid = stages.id
+            INNER JOIN pipelines on stages.pipelineid = pipelines.id
+            LEFT OUTER JOIN buildstatetransitions bst ON bst.buildid = builds.id AND bst.currentState = 'Completed'
+            WHERE
+                (builds.state = 'Completed' OR ignored = true)
+                AND builds.agentUuid = #uuid#
+            ORDER BY $column$ $order$
+            LIMIT #limit#
+            OFFSET #offset#
+        ) AS joined
+        INNER JOIN buildstatetransitions on buildstatetransitions.buildid = joined.id
+        ORDER BY
+
+        joined.$column$ $order$
+        <isEqual property="order" compareValue="ASC">
+            NULLS FIRST
+        </isEqual>
+        <isEqual property="order" compareValue="DESC">
+            NULLS LAST
+        </isEqual>,
+        joined.id
+    </select>
+
+    <select id="totalCompletedJobsOnAgent" resultClass="java.lang.Integer">
+        SELECT count(*)
+        FROM builds
+        WHERE (ignored = true
+        OR builds.state = 'Completed')
+        AND builds.agentUuid = #uuid#
+    </select>
+</sqlMap>

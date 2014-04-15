@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: sorter
+comment: 
+full_name: Spec::Runner::Options#sorter
+visibility: protected
+aliases: []
+

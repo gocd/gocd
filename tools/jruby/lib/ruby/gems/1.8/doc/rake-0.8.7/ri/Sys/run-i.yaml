@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (cmd)
+is_singleton: false
+block_params: 
+name: run
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Run the system command <tt>cmd</tt>.
+full_name: Sys#run
+visibility: public
+aliases: []
+

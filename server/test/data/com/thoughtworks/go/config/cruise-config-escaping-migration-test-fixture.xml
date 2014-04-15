@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?><cruise schemaVersion="21">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+    <server artifactsdir="artifacts"/>
+    <pipelines>
+        <authorization>
+            <view>
+                <user>do_not_sub_#{loser}_do_not_sub_#foo</user>
+                <role>do_not_sub_#{losers}_do_not_sub_#foos</role>
+            </view>
+            <operate>
+                <user>do_not_sub_#{loser}_do_not_sub_#foo</user>
+                <role>do_not_sub_#{losers}_do_not_sub_#foo</role>
+            </operate>
+        </authorization>
+        <pipeline name="dev" labeltemplate="${COUNT}-label">
+            <trackingtool link="#tt_#{link}-${ID}" regex="#tt_#{regex}"/>
+            <timer>#time_#{timer}</timer>
+            <environmentvariables>
+                <variable name="ev_pipeline">#ev_#{pipeline_value}</variable>
+            </environmentvariables>
+            <materials>
+                <svn url="s##foo#{hi}vn#{url#" dest="dir_#{svn}" username="#svn_#{loser}" password="#svn_#{badger}">
+                    <filter>
+                        <ignore pattern="#ign_#{svn}"/>
+                    </filter>
+                </svn>
+                <p4 dest="dir_#{p4}" port="#p4_#{host}:20" username="#p4_#{loser}" password="#p4_#{badger}">
+                    <view>#p4_#{view}</view>
+                    <filter>
+                        <ignore pattern="#ign_#{p4}"/>
+                    </filter>
+                </p4>
+                <git url="git://#{foo}" dest="dir_#{git}" branch="#git_#{branch}">
+                    <filter>
+                        <ignore pattern="##_bye_#{bar}"/>
+                    </filter>
+                </git>
+                <hg url="hg://#{bar}/##" dest="dir_#{foo}_name_#bar">
+                    <filter>
+                        <ignore pattern="##_hi_#{foo}"/>
+                    </filter>
+                </hg>
+                <pipeline pipelineName="#pipeline_#{crazy}" stageName="#stage_#{train}"/>
+            </materials>
+            <stage name="stageab">
+                <approval type="manual">
+                    <authorization>
+                        <user>#u_#{loser}</user>
+                        <role>#r_#{losers}</role>
+                    </authorization>
+                </approval>
+                <environmentvariables>
+                    <variable name="ev_stage">#ev_#{stage_value}</variable>
+                </environmentvariables>
+                <jobs>
+                    <job name="job1">
+                        <environmentvariables>
+                            <variable name="ev_job">#ev_#{job_value}</variable>
+                        </environmentvariables>
+                        <tasks>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </ant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </nant>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </rake>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </fetchartifact>
+                        </tasks>
+                        <artifacts>
+                            <test src="#test_art_#{test_art}" dest="#test_dest_#{test_dest}"/>
+                            <artifact src="#art_#{art}" dest="#dest_#{dest}"/>
+                            <log src="#log_art_#{log_art}" dest="#log_dest_#{log_dest}"/>
+                        </artifacts>
+                        <resources>
+                            <resource>#res_#{res}</resource>
+                        </resources>
+                        <tabs>
+                            <tab name="foo_bar" path="#path_#{path}"/>
+                        </tabs>
+                        <properties>
+                            <property name="prop_name" src="#src_#{src}" xpath="#xpath_#{xpath}"/>
+                        </properties>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+    </pipelines>
+    <templates>
+        <pipeline name="abc">
+            <stage name="stageab">
+                <approval type="manual">
+                    <authorization>
+                        <user>#{loser}_#foo</user>
+                        <role>#{losers}_#foos</role>
+                    </authorization>
+                </approval>
+                <environmentvariables>
+                    <variable name="ev_stage">#{stage_value}_#stage</variable>
+                </environmentvariables>
+                <jobs>
+                    <job name="job1">
+                        <environmentvariables>
+                            <variable name="ev_job">#{job_value}_#job</variable>
+                        </environmentvariables>
+                        <tasks>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </ant>
+                            <ant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </ant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </nant>
+                            <nant target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </nant>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#buildfile_#{buildfile}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                                <arg value="#arg_#{arg}"/>
+                            </exec>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </rake>
+                            <rake target="#ant_#{ant}" workingdir="#dir_#{dir}" buildfile="#file_#{file}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </rake>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <ant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <exec command="#exec_#{exec}" args="#args_#{args}" workingdir="#dir_#{dir}">
+                                        <arg value="#arg_#{arg}"/>
+                                    </exec>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <nant target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}" nantpath="#npath_#{npath}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <rake target="#cancel_#{cancel}" workingdir="#dir_#{dir}" buildfile="#file_#{file}"/>
+                                </oncancel>
+                            </fetchartifact>
+                            <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}">
+                                <oncancel>
+                                    <fetchartifact pipeline="#pipeline_#{pipeline}" stage="#stage_#{stage}" job="#job_#{job}" srcfile="#srcfile_#{srcfile}" srcdir="#srcdir_#{srcdir}" dest="#dir_#{dir}"/>
+                                </oncancel>
+                            </fetchartifact>
+                        </tasks>
+                        <artifacts>
+                            <test src="#test_art_#{test_art}" dest="#test_dest_#{test_dest}"/>
+                            <artifact src="#art_#{art}" dest="#dest_#{dest}"/>
+                            <log src="#log_art_#{log_art}" dest="#log_dest_#{log_dest}"/> 
+                        </artifacts>
+                        <resources>
+                            <resource>#res_#{res}</resource>
+                        </resources>
+                        <tabs>
+                            <tab name="foo_bar" path="#path_#{path}"/>
+                        </tabs>
+                        <properties>
+                           <property name="prop_name" src="#src_#{src}" xpath="#xpath_#{xpath}"/>
+                        </properties>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+    </templates>
+    <environments>
+        <environment name="some_env_name">
+            <environmentvariables>
+                <variable name="ev_env">do_not_sub_#ev_do_not_sub_#{env_value}</variable>
+            </environmentvariables>
+        </environment>
+    </environments>
+</cruise>

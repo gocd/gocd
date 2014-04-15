@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (run_options)
+is_singleton: false
+block_params: 
+name: run
+comment: 
+full_name: Spec::Example::ExampleGroupMethods#run
+visibility: public
+aliases: []
+

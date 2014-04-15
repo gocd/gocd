@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Dir
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: collect_file
+full_name: Test::Unit::Collector::Dir
+superclass: Object
+class_methods: []
+

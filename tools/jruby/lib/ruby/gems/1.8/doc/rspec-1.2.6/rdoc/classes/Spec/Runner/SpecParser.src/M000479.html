@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>is_best_match? (Spec::Runner::SpecParser)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/spec_parser.rb, line 55</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">is_best_match?</span>(<span class="ruby-identifier">file</span>, <span class="ruby-identifier">line_number</span>, <span class="ruby-identifier">example_file</span>, <span class="ruby-identifier">example_line</span>)
+        <span class="ruby-identifier">file</span> <span class="ruby-operator">==</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">example_file</span>) <span class="ruby-operator">&amp;&amp;</span>
+                <span class="ruby-identifier">example_line</span> <span class="ruby-operator">&lt;=</span> <span class="ruby-identifier">line_number</span> <span class="ruby-operator">&amp;&amp;</span>
+                <span class="ruby-identifier">example_line</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">best_match</span>[<span class="ruby-identifier">:line</span>].<span class="ruby-identifier">to_i</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

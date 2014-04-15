@@ -1,0 +1,22 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name, &block)
+is_singleton: false
+block_params: 
+name: share_as
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Creates a Shared Example Group and assigns it to a constant
+- !ruby/struct:SM::Flow::VERB 
+  body: " share_as :AllEditions do\n   it &quot;should do all editions stuff&quot; \
+    ...\n end\n\n describe SmallEdition do\n   it_should_behave_like AllEditions\n\
+    \n   it &quot;should do small edition stuff&quot; do\n     ...\n   end\n end\n"
+- !ruby/struct:SM::Flow::P 
+  body: And, for those of you who prefer to use something more like Ruby, you can
+    just include the module directly
+- !ruby/struct:SM::Flow::VERB 
+  body: " describe SmallEdition do\n   include AllEditions\n\n   it &quot;should do \
+    small edition stuff&quot; do\n     ...\n   end\n end\n"
+full_name: Spec::DSL::Main#share_as
+visibility: public
+aliases: []
+

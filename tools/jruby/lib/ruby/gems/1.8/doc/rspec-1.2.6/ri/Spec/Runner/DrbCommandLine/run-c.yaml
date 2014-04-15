@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (options)
+is_singleton: true
+block_params: 
+name: run
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Runs specs on a DRB server. Note that this API is similar to that of CommandLine
+    - making it possible for clients to use both interchangeably.
+full_name: Spec::Runner::DrbCommandLine::run
+visibility: public
+aliases: []
+

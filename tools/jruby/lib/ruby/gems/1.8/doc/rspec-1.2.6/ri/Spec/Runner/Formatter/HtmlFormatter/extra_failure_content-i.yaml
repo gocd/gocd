@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (failure)
+is_singleton: false
+block_params: 
+name: extra_failure_content
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Override this method if you wish to output extra HTML for a failed spec. For
+    example, you could output links to images or other files produced during the specs.
+full_name: Spec::Runner::Formatter::HtmlFormatter#extra_failure_content
+visibility: public
+aliases: []
+

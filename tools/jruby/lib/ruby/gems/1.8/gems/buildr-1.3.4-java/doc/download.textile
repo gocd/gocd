@@ -1,0 +1,68 @@
+---
+layout: default
+title: Download
+---
+
+
+h2(#install).  Installing Buildr
+
+*The easy way:*  The "Getting Started guide":getting_started.html will show you how to install Buildr in a matter of minutes.
+
+
+h2(#dists).  Official & Unofficial Distributions
+
+The official Apache distribution consists of the digitally signed binaries (gems) and source packages "available below":#dist.  To install these binaries, you must first download them to disk and then install them using the @gem install@ command (or @rake install@ for a source distribution).
+
+In addition, contributors to this project maintain a separate distribution over on "RubyForge":http://rubyforge.org/projects/buildr.  Using this distribution, you're able to install Buildr directly from the remote gem repository and to automatically upgrade when a new release comes out.  The RubyForge distribution is *not* an official Apache distribution.
+
+The source code is included in both source and binary distribution, the Gem distribution expands the source code into your local Gem repository. That's in addition to getting the source code directly from "SVN":http://svn.apache.org/repos/asf/buildr or "GitHub":http://github.com/buildr/buildr/tree/master. Learn more about working with source code and "living on the edge":contributing.html#edge.
+
+
+h2(#dist).  Binaries and Source Code
+
+h3. buildr 1.3.3-incubating (2008-10-08)
+
+|_. Package |_. MD5 Checksum |_. PGP |
+| "buildr-1.3.3-incubating.gem":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.gem | "7192dad45441630cbf07b85af5f9069a":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.gem.asc |
+| "buildr-1.3.3-java-incubating.gem":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-java-incubating.gem | "71ad4f0f8bfa951fa129db67a06b608a":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-java-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-java-incubating.gem.asc |
+| "buildr-1.3.3-incubating.tgz":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.tgz | "e5ee6fe5b86386520c91a9633d02814b":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.tgz.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.tgz.asc |
+| "buildr-1.3.3-incubating.zip":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.zip | "baab601fd46a877ee8e408891d68c842":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.zip.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.3-incubating/buildr-1.3.3-incubating.zip.asc |
+
+p>. ("Release signing keys":http://www.apache.org/dist/buildr/1.3.3-incubating/KEYS)
+
+
+h3. buildr 1.3.2-incubating (2008-07-18)
+
+|_. Package |_. MD5 Checksum |_. PGP |
+| "buildr-1.3.2-incubating.gem":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.gem | "225504bc195334c4eb9d6dec814d9db1":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.gem.asc |
+| "buildr-1.3.2-java-incubating.gem":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-java-incubating.gem | "d7d8394c7aed887987be0e813e1e4cee":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-java-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-java-incubating.gem.asc |
+| "buildr-1.3.2-incubating.tgz":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.tgz | "611e97df1bc76382ecbe6b60e9340f2b":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.tgz.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.tgz.asc |
+| "buildr-1.3.2-incubating.zip":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.zip | "d65d20005f603338c0aedd4f17d0bc90":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.zip.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.2-incubating/buildr-1.3.2-incubating.zip.asc |
+
+p>. ("Release signing keys":http://www.apache.org/dist/buildr/1.3.2-incubating/KEYS)
+
+
+
+h3. buildr 1.3.1-incubating (2008-05-19)
+
+|_. Package |_. MD5 Checksum |_. PGP |
+| "buildr-1.3.1-incubating.gem":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.gem | "476436429b9a6c4ed178009ba17dd724":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.gem.asc |
+| "buildr-1.3.1-java-incubating.gem":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-java-incubating.gem | "7af37acc10621b18d4b870119c36d998":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-java-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-java-incubating.gem.asc |
+| "buildr-1.3.1-incubating.tgz":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.tgz | "ad6694416fc2e6eb22ab1042dcc41411":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.tgz.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.tgz.asc |
+| "buildr-1.3.1-incubating.zip":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.zip | "0470349978b93e645ca2e9607e304ed1":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.zip.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.1-incubating/buildr-1.3.1-incubating.zip.asc |
+
+p>. ("Release signing keys":http://www.apache.org/dist/buildr/1.3.1-incubating/KEYS)
+
+
+h3. buildr 1.3.0-incubating (2008-05-01)
+
+|_. Package |_. MD5 Checksum |_. PGP |
+| "buildr-1.3.0-incubating.gem":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.gem | "37758d0a8dabc570799b0a58d23d19f0":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.gem.asc |
+| "buildr-1.3.0-java-incubating.gem":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-java-incubating.gem | "6a3a86740077f739c111514e0e2b9e06":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-java-incubating.gem.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-java-incubating.gem.asc |
+| "buildr-1.3.0-incubating.tgz":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.tgz | "acd84ad8c5031962e65b0036f3bc2e76":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.tgz.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.tgz.asc |
+| "buildr-1.3.0-incubating.zip":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.zip | "d85945f05efd0e512e6d769e3dd1cc98":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.zip.md5 | "Sig":http://www.apache.org/dist/buildr/1.3.0-incubating/buildr-1.3.0-incubating.zip.asc |
+
+p>. ("Release signing keys":http://www.apache.org/dist/buildr/1.3.0-incubating/KEYS)
+
+
+p(note). When downloading from files please check the "md5sum":http://www.apache.org/dev/release-signing#md5 and verify the "OpenPGP":http://www.apache.org/dev/release-signing#openpgp compatible signature from the main Apache site. This "KEYS":http://www.apache.org/dist/buildr/KEYS file contains the public keys used for signing releases. It is recommended that (when possible) a web of trust is used to confirm the identity of these keys. For more information, please see the "Apache Release FAQ":http://www.apache.org/dev/release.html.

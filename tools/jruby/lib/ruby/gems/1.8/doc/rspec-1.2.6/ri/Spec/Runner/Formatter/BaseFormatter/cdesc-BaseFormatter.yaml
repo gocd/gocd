@@ -1,0 +1,42 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: BaseFormatter
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Formatter base-class, which implements all required methods as no-ops, with
+    the exception
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add_example_group
+- !ruby/object:RI::MethodSummary 
+  name: close
+- !ruby/object:RI::MethodSummary 
+  name: dump_failure
+- !ruby/object:RI::MethodSummary 
+  name: dump_pending
+- !ruby/object:RI::MethodSummary 
+  name: dump_summary
+- !ruby/object:RI::MethodSummary 
+  name: example_failed
+- !ruby/object:RI::MethodSummary 
+  name: example_group_started
+- !ruby/object:RI::MethodSummary 
+  name: example_passed
+- !ruby/object:RI::MethodSummary 
+  name: example_pending
+- !ruby/object:RI::MethodSummary 
+  name: example_started
+- !ruby/object:RI::MethodSummary 
+  name: start
+- !ruby/object:RI::MethodSummary 
+  name: start_dump
+full_name: Spec::Runner::Formatter::BaseFormatter
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

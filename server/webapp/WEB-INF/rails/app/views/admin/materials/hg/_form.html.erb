@@ -1,0 +1,37 @@
+<%= render(:partial => "shared/flash_message") %>
+<%= render :partial => "shared/config_save_actions", :locals => { :scope => {}}-%>
+<% form_for(:material, scope[:material],
+            :url => scope[:url],
+            :html => {:method => scope[:method],
+                      :onsubmit => "return AjaxForm.jquery_ajax_submit(this);",
+                      :class => "popup_form"}) do |f| %>
+
+    <%= md5_field %>
+    <%= current_tab_field("materials") -%>
+    <%= hidden_field_tag :material_type, scope[:material].getType() %>
+    <div class="form_content change_materials">
+        <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+        <div class="fieldset">
+            <%= render :partial => 'admin/materials/shared/material_name', :locals => {:scope => {:form => f}} %>
+            <div class="form_item">
+                <div class="form_item_block required">
+                    <%= required_label(f, com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL, l.string('URL'))-%>
+                    <%= f.text_field com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL, {:class => "form_input url", :omit_id_generation => true} -%>
+                    <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL, :css_class => "form_error") %>
+                </div>
+
+                <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => f}} %>
+
+                <%= render :partial => 'admin/materials/shared/dest_folder', :locals => {:scope => {:form => f}} %>
+                <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".url", :type => "hg"}} %>
+                <div class="clear"></div>
+            </div>
+            <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+        </div>
+        <%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => f}} %>
+
+    </div>
+
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => scope[:submit_label]}} %>
+    <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
+<% end %>

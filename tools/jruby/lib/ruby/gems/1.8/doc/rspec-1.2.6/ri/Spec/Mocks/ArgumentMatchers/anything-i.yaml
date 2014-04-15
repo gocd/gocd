@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  object.should_receive(:message).with(anything())
+is_singleton: false
+block_params: 
+name: anything
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes as long as there is an argument.
+full_name: Spec::Mocks::ArgumentMatchers#anything
+visibility: public
+aliases: []
+

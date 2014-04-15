@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link href="../../webapp/css/pipeline-tab.css" rel="stylesheet" type="text/css"/>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+<script type="text/javascript" src="../app/after_load_enhancements.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+    var statisticsObserver;
+    var contextPath = "/go";
+    var pipelinePage = new PipelinePage();
+    var pipelineActions = new PipelineActions();
+    var build1 = { "agent" : "Not yet assigned", "current_status" : "failed", "result" : "Failed", "name" : "functional", "build_completed_date" : "Mon Apr 21 16:36:16 CST 2008", "id" : "8", "is_completed" : "true" };
+    var build2 = { "agent" : "Not yet assigned", "current_status" : "failed", "result" : "Failed", "name" : "functional", "build_completed_date" : "Mon Apr 21 16:36:16 CST 2008", "id" : "9", "is_completed" : "true" };
+
+    var pipeline1stageJson = {
+        "buildCause": "",
+        "buildCauseSummaries": [],
+        "builds": [build1],
+        "uniqueStageId" : "studios-mingle-100",
+        "id" : "100",
+        "stageName" : "mingle",
+        "stage_completed_date" : "about 1 hour ago",
+        "current_status" : "failed"
+        }
+    var pipeline2stageJson = {
+        "buildCause": "",
+        "buildCauseSummaries": [],
+        "builds": [build2],
+        "uniqueStageId" : "connectfour-StageName-200",
+        "id" : "200",
+        "stageName" : "StageName",
+        "stage_completed_date" : "about 1 hour ago",
+        "current_status" : "failed"
+        }
+
+    var pipeline1Json = { name: 'studios', id: '3' , stages: [pipeline1stageJson]}
+    var pipeline2Json = { name: 'connectfour', id: '4' , stages: [pipeline2stageJson]}
+    var pipelinesJson = { "pipelines" : [pipeline1Json, pipeline2Json] }
+
+    var uniqueId = pipeline1stageJson.uniqueStageId;
+    var id = "pipeline-" + uniqueId;
+    var pipeline1StageCssSelector = "#" + id + " .stage-build-plan-container";
+
+    function render_the_page_again_immediately() {
+        $('build-pipelines').innerHTML = $('new-pipeline-list-template').value.process({data: window.last_transfered_json });
+    }
+
+    function setUp() {
+        window.last_transfered_json = pipelinesJson;
+        window.pipelineObserver = new PipelineObserver();
+        pipelinePage.initializeCollapsedStageArrayWhenNeeded([pipeline1stageJson.uniqueStageId]);
+        render_the_page_again_immediately();
+        new PeriodicalExecuter(function(pe) {
+            render_the_page_again_immediately();
+        }, 1);
+    }
+
+    function test_should_toggle_content_of_pipeline_when_click_collapse(){
+        //assume it's already collapsed
+        assertTrue($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+
+        //now expand it
+        pipelinePage.toggleStagePanel(uniqueId);
+        assertFalse($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+
+        //now collapse it
+        pipelinePage.toggleStagePanel(uniqueId);
+        assertTrue($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+    }
+
+    function test_isPipelineScheduleButtonEnabled_returns_false_when_forcedBuild(){
+        var pipelineName = pipeline1Json.name;
+        pipeline1Json.forcedBuild = 'true';
+        assertFalse(pipelinePage.isPipelineScheduleButtonEnabled(pipeline1Json));
+    }
+
+    function test_should_keep_current_status_of_collapse_after_render(){
+        assertTrue($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+        render_the_page_again_immediately();
+        assertTrue($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+        pipelinePage.toggleStagePanel(uniqueId);
+        assertFalse($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+        render_the_page_again_immediately();
+        assertFalse($$(pipeline1StageCssSelector).first().match('.closed .stage-build-plan-container'));
+    }
+
+    function test_should_collapse_all_pipelines_when_click_collapse_all_button(){
+        $('collapse-all').onclick();
+        assertTrue($$('.stage-build-plan-container').all(function(container){
+            return $(container).match('.closed .stage-build-plan-container');
+        }));
+        render_the_page_again_immediately();
+        assertTrue($$('.stage-build-plan-container').all(function(container){
+            return $(container).match('.closed .stage-build-plan-container');
+        }));
+    }
+
+    function test_should_expand_all_pipelines_when_click_expand_all_button(){
+        $('collapse-all').onclick();
+        assertTrue($$('.stage-build-plan-container').all(function(container){
+            return $(container).match('.closed .stage-build-plan-container');
+        }));
+        $('expand-all').onclick();
+        assertFalse($$('.stage-build-plan-container').any(function(container){
+            return $(container).match('.closed .stage-build-plan-container');
+        }));
+        render_the_page_again_immediately();
+        assertFalse($$('.stage-build-plan-container').any(function(container){
+            return $(container).match('.closed .stage-build-plan-container');
+        }));
+    }
+</script>
+</head>
+<body>
+
+<textarea id="new-pipeline-list-template" style="display: none;" rows="0" cols="0">
+{eval}
+    pipelinePage.fixIEZIndexBugs(300);
+{/eval}
+{if data.pipelines && data.pipelines.length > 0}
+{for pipeline in data.pipelines}
+{if !pipeline.hide_in_ui}
+<div class="pipeline-container rounded-corner-for-pipeline" style="${%pipelinePage.fixIEZIndexBugs()%}">
+    <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+    {if pipelinePage.isPipelinePaused(pipeline)}
+    <h1 class="paused-build">
+    {else}
+    <h1>
+    {/if}
+        <span class="pipeline-buttons">
+        {if pipelinePage.isPipelineScheduleButtonEnabled(pipeline)}
+            <a href="javascript:void(0)" id="reschedule-${%pipeline.name%}" onclick="pipelineActions.schedulePipeline('${%pipeline.name%}', this);" class="icon-link {if pipelineActions.shouldShowPipelineScheduleButtonAsSpinner(pipeline)} submiting-link{else} schedule-build-link-enabled{/if}" title="Schedule pipeline"></a>
+        {else}
+            <a href="javascript:void(0)" id="reschedule-${%pipeline.name%}" class="icon-link {if pipelineActions.shouldShowPipelineScheduleButtonAsSpinner(pipeline)} submiting-link{else} schedule-build-link-disabled{/if}" title="Schedule pipeline"></a>
+        {/if}
+        {if pipelinePage.isPipelinePaused(pipeline)}
+            <a href="javascript:void(0)" onclick="pipelineActions.unpausePipeline('${%pipeline.name%}', this);" class="icon-link unpause-build-link" title="Resume scheduling"></a>
+        {else}
+            <a href="javascript:void(0)" onclick="pipelineActions.pausePipeline('${%pipeline.name%}', this);" class="icon-link pause-build-link" title="Stop scheduling"></a>
+        {/if}
+        </span>
+        <a href="$req.getContextPath()/tab/pipeline/history/${% pipeline.name %}" title="View pipeline history" id="${% pipeline.name %}-history">
+            ${% pipeline.name %}<span class="pipeline-nav">[pipeline activity]</span></a>
+        <span class="paused-status">${%pipelinePage.pauseStatusText(pipeline)%}</span>
+        <div class="clear"></div>
+    </h1>
+    <div class="pipeline-stages">
+    {if pipeline.stages && pipeline.stages.length > 0}
+    {for stage in pipeline.stages}
+        <div class="stage-container pipeline-${% stage.current_status %} {if pipelinePage.isStageCollapsed(stage.uniqueStageId)} closed{/if}" id="pipeline-${% stage.uniqueStageId %}" style="${%pipelinePage.fixIEZIndexBugs()%}">
+            <h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th  class="stage-name" onclick="pipelinePage.toggleStagePanel('${% stage.uniqueStageId %}')" title="collapse or expand this pipeline">
+                                <button id="${% stage.uniqueStageId %}-collapse-link" class="collapse-or-expand-button {if pipelinePage.isStageCollapsed(stage.uniqueStageId)} collapsed{else} expanded{/if}">Collapse/Expand</button>
+                                ${% stage.stageName %}
+                                <a href="$req.getContextPath()/tab/pipeline/${% pipeline.name %}/${% stage.stageName %}" title="View stage activity" class="pipeline-nav">[stage activity]</a>
+                            </th>
+                            <th>
+                                <span class="stage-buttons">
+                                  {if pipelinePage.isCancelButtonEnabled(stage.current_status)}
+                                      <a href="javascript:void(0)" onclick="pipelineActions.cancelPipeline(${%stage.id%}, this);" class="icon-link cancel-build-link" title="Cancel this stage"></a>
+                                  {else}
+                                      <a href="javascript:void(0)" class="icon-link cancel-build-link-disabled" title="Cancel this stage"></a>
+                                  {/if}
+                                </span>
+
+                                <span class="current-revision-status">
+                                {if stage.id > 0}
+                                    <a href="$req.getContextPath()/pipelines/${% stage.id %}{if 'failed' == stage.current_status}#tab-failures{/if}{if 'passed' == stage.current_status}#tab-artifacts{/if}" class="building-detail-link" title="View stage details">
+                                {/if}
+                                {if stage.id > 0}Label ${% stage.current_label %}{/if}
+                                    ${% stage.current_status %}
+                                {if stage.stage_completed_date}
+                                    ${% stage.stage_completed_date %}
+                                {/if}
+                                {if stage.id > 0}
+                                    <span class="pipeline-nav">[stage details]</span>
+                                    </a>
+                                {/if}
+                                </span>
+
+                                <span class="divider">|</span>
+
+                                <span id="stage-${% stage.id %}-buildCause" class="popup-${% pipelinePage.buildCauseActor.getBuildCauseClass(stage.id) %}">
+                                    {if stage.buildCause ==  'No modifications'}
+                                        ${% stage.buildCause %}
+                                    {else}
+                                        <a href="javascript:void(0)" onclick="pipelinePage.buildCauseActor.hideOrShowBuildCause('${%stage.id%}')" title="See what caused this build">${% stage.buildCause %}</a>
+                                        <div id="stage-${%stage.id%}-buildCauseSummary" class="popup">
+                                            <div class="popup-arrow"></div>
+                                            <button class="close-popup" onclick="pipelinePage.buildCauseActor.hideOrShowBuildCause('${%stage.id%}')"></button>
+                                            <div class="build-cause-summary-container">
+                                                {if stage.buildCauseSummaries.length > 0}
+                                                <table>
+                                                    <tr>
+                                                        <th>Modifier</th>
+                                                        <th>Comments</th>
+                                                        <th class="last">Revision</th>
+                                                    </tr>
+                                                    {for buildCauseSummary in stage.buildCauseSummaries}
+                                                    <tr>
+                                                        <td>${% buildCauseSummary.username %}</td>
+                                                        <td>${% buildCauseSummary.comment %}</td>
+                                                        <td class="last">${% buildCauseSummary.revision %}</td>
+                                                    </tr>
+                                                    {/for}
+                                                </table>
+                                                {else}
+                                                    No modifications
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </span>
+
+                                <span class="divider">|</span>
+
+                                <span class="last-success-revision">
+                                    {if !stage.last_successful_label}
+                                        no successful stage
+                                    {else}
+                                        <a href="$req.getContextPath()/pipelines/${%stage.last_successful_stage_id%}#tab-artifacts" title="View stage details for ${%stage.last_successful_label%}">
+                                            last successful: ${%stage.last_successful_label%}</a>
+                                    {/if}
+                                </span>
+                                <div style="clear:both"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </h2>
+
+            <div class="stage-build-plan-container">
+                {for build in stage.builds}
+                <div class="stage-build-plan-status ${%build.current_status%}">
+                    <div class="stage-build-plan-content">
+                        <h3>
+                            {if isEstimatable(build.current_status) }
+                              <div class="progress-info">
+                                {if build.last_build_duration && build.last_build_duration != '' && (parseInt(build.current_build_duration) <= parseInt(build.last_build_duration))}
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: {if parseInt(build.current_build_duration) > parseInt(build.last_build_duration)}100{else}${ 100 * parseInt(build.current_build_duration) / parseInt(build.last_build_duration) }{/if}%;">
+                                        </div>
+                                    </div>
+                                {/if}
+                                {if build.last_build_duration && build.last_build_duration != ''}
+                                    {if parseInt(build.current_build_duration) > parseInt(build.last_build_duration)}
+                                        Longer by: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration) - parseInt(build.last_build_duration))%}
+                                    {else}
+                                        Elapsed: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration))%}, ETA: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.last_build_duration) - parseInt(build.current_build_duration))%}
+                                    {/if}
+                                {else}
+                                    Elapsed: ${%cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration))%}
+                                {/if}
+                              </div>
+                            {/if}
+
+                            {if build.id > 0}
+                                <a id="${% build.name %}_link"
+                                   class="buildplan-name"
+                                   href="$req.getContextPath()/tab/build/detail/${%pipeline.name%}/${%stage.stageName%}/${%build.name%}{if 'failed' == build.current_status}#tab-failures{/if}{if 'passed' == build.current_status}#tab-artifacts{/if}"
+                                   title="Job Detail of ${% build.name %}">${% build.name %}</a>
+                                <a class="buildplan-name" href="$req.getContextPath()/tab/build/detail/${%pipeline.name%}/${%stage.stageName%}/${%build.name%}{if 'failed' == build.current_status}#tab-failures{/if}{if 'passed' == build.current_status}#tab-artifacts{/if}" title="Job Detail of ${% build.name %}">
+                                    <span class="status-message">
+                                        {if pipelinePage.ifShowAgentInBuildStatusMessage(build.current_status)}
+                                            ${%build.current_status %}{if build.current_build_event} (${% build.current_build_event %}){/if} on ${% build.agent %}
+                                        {else}
+                                            ${% build.current_status %}{if build.current_build_event} (${% build.current_build_event %}){/if}
+                                        {/if}
+                                    </span>
+                                    <span class="pipeline-nav">[view details]</span>
+                                </a>
+                            {else}
+                                <span class="buildplan-name">${% build.name %}</span>
+                            {/if}
+                            <div class="clear"></div>
+                        </h3>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                {/for}
+            </div>
+        </div><!--stage container end -->
+        {/for}
+        {/if}
+    </div>
+</div><!--pipeline container end -->
+{/if}
+{/for}
+{/if}
+</textarea>
+
+<div id="build-status-actions" class="bd-container">
+    <div class="ab-bg">
+        <span class="ab-corner lvl1"></span> <span class="ab-corner lvl2"></span> <span
+            class="ab-corner lvl3"></span> <span class="ab-corner lvl4"></span></div>
+    <div class="bd-c-wrapper">
+        <div class="actions-bar">
+            <a id="expand-all" href="javascript:void(0)" title="Expand all pipelines panel"
+                                    onclick="pipelinePage.expandAllStagePanels()"> Expand All </a>
+            <a id="collapse-all" href="javascript:void(0)" title="Collapse all pipelines panel"
+                onclick="pipelinePage.collapseAllStagePanels()"> Collapse All </a></div>
+        <div class="clear"></div>
+    </div>
+    <div class="ab-bg"><span class="ab-corner lvl4"></span> <span class="ab-corner lvl3"></span> <span
+            class="ab-corner lvl2"></span> <span class="ab-corner lvl1"></span></div>
+</div>
+
+
+<!-- pipeline start -->
+<div id="build-pipelines">
+<!-- pipeline end -->
+</div>
+
+<script type="text/javascript">
+    setUp();
+</script>
+</body>
+</html>

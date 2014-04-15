@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (newext='')
+is_singleton: false
+block_params: 
+name: ext
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Return a new FileList with <tt>String#ext</tt> method applied to each member
+    of the array.
+- !ruby/struct:SM::Flow::P 
+  body: 'This method is a shortcut for:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "   array.collect { |item| item.ext(newext) }\n"
+- !ruby/struct:SM::Flow::P 
+  body: <tt>ext</tt> is a user added method for the Array class.
+full_name: Rake::FileList#ext
+visibility: public
+aliases: []
+

@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Rake::Task</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Rake::Task</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/rake_rb.html">
+                lib/rake.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+A <a href="Task.html">Task</a> is the basic unit of work in a Rakefile.
+Tasks have associated actions (possibly more than one) and a list of
+prerequisites. When invoked, a task will first ensure that all of its
+prerequisites have an opportunity to run and then it will <a
+href="Task.html#M000644">execute</a> its own actions.
+</p>
+<p>
+Tasks are not usually created directly using the <a
+href="Task.html#M000635">new</a> method, but rather use the <tt>file</tt>
+and <tt>task</tt> convenience methods.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000653">[]</a>&nbsp;&nbsp;
+      <a href="#M000647">add_description</a>&nbsp;&nbsp;
+      <a href="#M000638">arg_names</a>&nbsp;&nbsp;
+      <a href="#M000651">clear</a>&nbsp;&nbsp;
+      <a href="#M000640">clear</a>&nbsp;&nbsp;
+      <a href="#M000642">clear_actions</a>&nbsp;&nbsp;
+      <a href="#M000641">clear_prerequisites</a>&nbsp;&nbsp;
+      <a href="#M000648">comment=</a>&nbsp;&nbsp;
+      <a href="#M000656">create_rule</a>&nbsp;&nbsp;
+      <a href="#M000655">define_task</a>&nbsp;&nbsp;
+      <a href="#M000636">enhance</a>&nbsp;&nbsp;
+      <a href="#M000644">execute</a>&nbsp;&nbsp;
+      <a href="#M000632">inspect</a>&nbsp;&nbsp;
+      <a href="#M000650">investigation</a>&nbsp;&nbsp;
+      <a href="#M000643">invoke</a>&nbsp;&nbsp;
+      <a href="#M000637">name</a>&nbsp;&nbsp;
+      <a href="#M000645">needed?</a>&nbsp;&nbsp;
+      <a href="#M000635">new</a>&nbsp;&nbsp;
+      <a href="#M000639">reenable</a>&nbsp;&nbsp;
+      <a href="#M000657">scope_name</a>&nbsp;&nbsp;
+      <a href="#M000649">set_arg_names</a>&nbsp;&nbsp;
+      <a href="#M000634">source</a>&nbsp;&nbsp;
+      <a href="#M000633">sources</a>&nbsp;&nbsp;
+      <a href="#M000654">task_defined?</a>&nbsp;&nbsp;
+      <a href="#M000652">tasks</a>&nbsp;&nbsp;
+      <a href="#M000646">timestamp</a>&nbsp;&nbsp;
+      <a href="#M000631">to_s</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">actions</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc">
+List of actions attached to a task.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">application</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+<a href="Application.html">Application</a> owning this task.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">comment</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc">
+Comment for this task. Restricted to a single line of no more than 50
+characters.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">full_comment</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc">
+Full text of the (possibly multi-line) comment.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">prerequisites</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc">
+List of prerequisites for a task.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">scope</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc">
+Array of nested namespaces names used for task lookup by this task.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">sources</td>
+          <td class="context-item-value">&nbsp;[W]&nbsp;</td>
+          <td class="context-item-desc">
+List of <a href="Task.html#M000633">sources</a> for task.
+
+</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000653" class="method-detail">
+        <a name="M000653"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000653.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000653.html');return false;">
+          <span class="method-name">[]</span><span class="method-args">(task_name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return a task with the given <a href="Task.html#M000637">name</a>. If the
+task is not currently known, try to synthesize one from the defined rules.
+If no rules are found, but an existing file matches the task <a
+href="Task.html#M000637">name</a>, assume it is a file task with no
+dependencies or actions.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000651" class="method-detail">
+        <a name="M000651"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000651.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000651.html');return false;">
+          <span class="method-name">clear</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clear the task list. This cause rake to immediately forget all the <a
+href="Task.html#M000652">tasks</a> that have been assigned. (Normally used
+in the unit tests.)
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000656" class="method-detail">
+        <a name="M000656"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000656.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000656.html');return false;">
+          <span class="method-name">create_rule</span><span class="method-args">(*args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Define a rule for synthesizing <a href="Task.html#M000652">tasks</a>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000655" class="method-detail">
+        <a name="M000655"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000655.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000655.html');return false;">
+          <span class="method-name">define_task</span><span class="method-args">(*args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Define a task given <tt>args</tt> and an option block. If a rule with the
+given <a href="Task.html#M000637">name</a> already exists, the
+prerequisites and actions are added to the existing task. Returns the
+defined task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000635" class="method-detail">
+        <a name="M000635"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000635.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000635.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(task_name, app)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Create a task named <tt>task_name</tt> with no actions or prerequisites.
+Use <tt><a href="Task.html#M000636">enhance</a></tt> to add actions and
+prerequisites.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000657" class="method-detail">
+        <a name="M000657"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000657.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000657.html');return false;">
+          <span class="method-name">scope_name</span><span class="method-args">(scope, task_name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Apply the scope to the task <a href="Task.html#M000637">name</a> according
+to the rules for this kind of task. Generic <a
+href="Task.html#M000652">tasks</a> will accept the scope as part of the <a
+href="Task.html#M000637">name</a>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000654" class="method-detail">
+        <a name="M000654"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000654.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000654.html');return false;">
+          <span class="method-name">task_defined?</span><span class="method-args">(task_name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+TRUE if the task <a href="Task.html#M000637">name</a> is already defined.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000652" class="method-detail">
+        <a name="M000652"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000652.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000652.html');return false;">
+          <span class="method-name">tasks</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+List of all defined <a href="Task.html#M000652">tasks</a>.
+</p>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000647" class="method-detail">
+        <a name="M000647"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000647.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000647.html');return false;">
+          <span class="method-name">add_description</span><span class="method-args">(description)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Add a description to the task. The description can consist of an option
+argument list (enclosed brackets) and an optional comment.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000638" class="method-detail">
+        <a name="M000638"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000638.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000638.html');return false;">
+          <span class="method-name">arg_names</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Name of arguments for this task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000640" class="method-detail">
+        <a name="M000640"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000640.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000640.html');return false;">
+          <span class="method-name">clear</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clear the existing prerequisites and actions of a rake task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000642" class="method-detail">
+        <a name="M000642"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000642.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000642.html');return false;">
+          <span class="method-name">clear_actions</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clear the existing actions on a rake task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000641" class="method-detail">
+        <a name="M000641"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000641.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000641.html');return false;">
+          <span class="method-name">clear_prerequisites</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Clear the existing prerequisites of a rake task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000648" class="method-detail">
+        <a name="M000648"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000648.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000648.html');return false;">
+          <span class="method-name">comment=</span><span class="method-args">(description)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Writing to the comment attribute is the same as adding a description.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000636" class="method-detail">
+        <a name="M000636"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000636.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000636.html');return false;">
+          <span class="method-name">enhance</span><span class="method-args">(deps=nil, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Enhance a task with prerequisites or actions. Returns self.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000644" class="method-detail">
+        <a name="M000644"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000644.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000644.html');return false;">
+          <span class="method-name">execute</span><span class="method-args">(args=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Execute the actions associated with this task.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000632" class="method-detail">
+        <a name="M000632"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000632.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000632.html');return false;">
+          <span class="method-name">inspect</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000650" class="method-detail">
+        <a name="M000650"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000650.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000650.html');return false;">
+          <span class="method-name">investigation</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return a string describing the internal state of a task. Useful for
+debugging.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000643" class="method-detail">
+        <a name="M000643"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000643.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000643.html');return false;">
+          <span class="method-name">invoke</span><span class="method-args">(*args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Invoke the task if it is needed. Prerequites are invoked first.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000637" class="method-detail">
+        <a name="M000637"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000637.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000637.html');return false;">
+          <span class="method-name">name</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Name of the task, including any namespace qualifiers.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000645" class="method-detail">
+        <a name="M000645"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000645.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000645.html');return false;">
+          <span class="method-name">needed?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Is this task <a href="Task.html#M000645">needed?</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000639" class="method-detail">
+        <a name="M000639"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000639.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000639.html');return false;">
+          <span class="method-name">reenable</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Reenable the task, allowing its <a href="Task.html#M000652">tasks</a> to be
+executed if the task is invoked again.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000649" class="method-detail">
+        <a name="M000649"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000649.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000649.html');return false;">
+          <span class="method-name">set_arg_names</span><span class="method-args">(args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Set the names of the arguments for this task. <tt>args</tt> should be an
+array of symbols, one for each argument <a
+href="Task.html#M000637">name</a>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000634" class="method-detail">
+        <a name="M000634"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000634.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000634.html');return false;">
+          <span class="method-name">source</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+First <a href="Task.html#M000634">source</a> from a rule (nil if no <a
+href="Task.html#M000633">sources</a>)
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000633" class="method-detail">
+        <a name="M000633"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000633.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000633.html');return false;">
+          <span class="method-name">sources</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000646" class="method-detail">
+        <a name="M000646"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000646.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000646.html');return false;">
+          <span class="method-name">timestamp</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Timestamp for this task. Basic <a href="Task.html#M000652">tasks</a> return
+the current time for their time stamp. Other <a
+href="Task.html#M000652">tasks</a> can be more sophisticated.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000631" class="method-detail">
+        <a name="M000631"></a>
+
+        <div class="method-heading">
+          <a href="Task.src/M000631.html" target="Code" class="method-signature"
+            onclick="popupCode('Task.src/M000631.html');return false;">
+          <span class="method-name">to_s</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Return task <a href="Task.html#M000637">name</a>
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

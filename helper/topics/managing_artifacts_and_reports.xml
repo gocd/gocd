@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Managing artifacts and reports">
+	<p>Because all your work is done on remote agents, Go provides a mechanism for files to be automatically uploaded to Go server following the completion of every job. These files can then be accessed via the Go server dashboard, or via the RESTful API.</p>
+	
+	<section title="Publishing artifacts">
+		<p>
+            The first step in using the artifact repository is to tell Go which files you want to publish. To do
+            this just specify the path to the file or directory relative to the root of the source control checkout.
+            You also need to specify where Go will publish the artifact. You can add as many files and directories
+            as you like.
+        </p>
+        <p>
+            To configure an artifact:
+        </p>
+        <bullets>
+            <item>Navigate to <strong>Admin &rarr; Pipelines</strong></item>
+            <item>Edit the pipeline you want to configure artifacts for</item>
+            <item>Expand the left tree navigator and click on your job</item>
+            <item>Click on the <strong>Artifacts</strong> tab</item>
+            <item>Enter the source (where the artifact will be found) and destination (where the artifact should be saved on the Go server)</item>
+        </bullets>
+        <screenshot src="resources/images/cruise/job_artifacts.png"/>
+        <p>For power users, here's how you would configure this via Config XML:</p>
+<code>
+<cref topic="configuration_reference" anchor="artifacts">&lt;artifacts&gt;</cref> &nbsp;
+  <cref topic="configuration_reference" anchor="artifact">&lt;artifact</cref> src="target/commonlib.dll" dest="pkg" /&gt; &nbsp;
+&lt;/artifacts&gt;
+</code>
+	</section>
+	<section title="Using tabs">
+	<p>Once your artifacts are safely in Go server's artifact repository, you can have the dashboard display them in tabs.</p>
+	<p>Go can display images, text files, or anything else that a browser will normally render in an IFrame. If you display an html page which references other resources (such as images, Flash files or whatever), so long as the resources are referenced with relative paths, they will display correctly.</p>
+	<p>This mechanism is a simple way to include reports (for example code coverage) in Go.</p>
+	<subsection title="Example">
+	<p>The console tab shows output information from all the phases of the job. This also includes information from the version control system and details regarding the artifacts created and published during the job.</p>
+		<img src="resources/images/cruise/console_out.png"/>
+	<p>If you produce an html page with an embedded Flash file into your artifact repository:</p>
+		<img src="resources/images/cruise/select_artifact.png"/>
+	<p>You can use the following configuration to display it in a tab:</p>
+	<code>
+<cref topic="configuration_reference" anchor="tabs">&lt;tabs&gt;</cref> &nbsp;
+  <cref topic="configuration_reference" anchor="tab">&lt;tab</cref> name="Recording" path="deployment/drop/smoke/smoke-recording.html" /&gt; &nbsp;
+&lt;/tabs&gt;
+</code>
+<p>Go will create a tab called "Recording" and display the contents of the file in the tab when you click on it:</p>
+		<img src="resources/images/cruise/recording.png"/>
+	</subsection>
+	</section>
+
+	<section title="Publishing tests">
+		<p>Go has support for publishing tests from JUnit or NUnit test reports.</p>
+        <p>
+            To configure a test artifact:
+        </p>
+        <bullets>
+            <item>Navigate to <strong>Admin &rarr; Pipelines</strong></item>
+            <item>Edit the pipeline you want to configure artifacts for</item>
+            <item>Expand the left tree navigator and click on your job</item>
+            <item>Click on the <strong>Artifacts</strong> tab</item>
+            <item>Enter the source (where the artifact will be found) and destination (where the artifact should be saved on the Go server)</item>
+            <item>From the <strong>Type</strong> dropdown, select <strong>Test Artifact</strong></item>
+        </bullets>
+        <screenshot src="resources/images/cruise/job_test_artifacts.png"/>
+		<p>For power users, here's how you would configure this via Config XML:</p>
+		<code>
+<cref topic="configuration_reference" anchor="artifacts">&lt;artifacts&gt;</cref> &nbsp;
+  <cref topic="configuration_reference" anchor="test">&lt;test</cref> src="xstream/target/test-reports" /&gt; &nbsp;
+&lt;/artifacts&gt;
+		</code>
+		<p>
+		Go will:
+		<bullets>
+			<item>add a tab called Tests that lists the tests in the project</item>
+			<item>add a list of the failed tests to the Failures tab</item>
+			<item>set the properties associated with tests on the job. These include failed-test-count, ignored-test-count, test-time and total-test-count</item>
+			<item>copy the artifacts into the repository. In this case the test reports will be copied into a new directory test-reports in the artifact repository</item>
+		</bullets>
+		</p>
+	</section>
+
+	<section title="RESTful API">
+		<p>Go publishes all of its information as resources that can be queried through http in the form of RESTful API. See the <cref topic="go_integration">Go integration</cref> page for more information.</p>
+	</section>
+	
+</chapter>

@@ -1,0 +1,29 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleMatcher
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: example_group_regex
+- !ruby/object:RI::MethodSummary 
+  name: example_group_regex_not_considering_modules
+- !ruby/object:RI::MethodSummary 
+  name: example_group_with_before_all_regexp
+- !ruby/object:RI::MethodSummary 
+  name: example_regexp
+- !ruby/object:RI::MethodSummary 
+  name: matches?
+- !ruby/object:RI::MethodSummary 
+  name: matches_example_not_considering_modules?
+- !ruby/object:RI::MethodSummary 
+  name: matches_literal_example?
+full_name: Spec::Example::ExampleMatcher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

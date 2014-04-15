@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: called_max_times?
+comment: 
+full_name: Spec::Mocks::BaseExpectation#called_max_times?
+visibility: public
+aliases: []
+

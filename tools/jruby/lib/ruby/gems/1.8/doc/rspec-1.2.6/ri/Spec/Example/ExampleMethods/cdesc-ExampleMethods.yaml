@@ -1,0 +1,30 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::Subject::ExampleMethods
+- !ruby/object:RI::IncludedModule 
+  name: Matchers
+- !ruby/object:RI::IncludedModule 
+  name: Pending
+name: ExampleMethods
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: description
+- !ruby/object:RI::MethodSummary 
+  name: expect
+- !ruby/object:RI::MethodSummary 
+  name: run_after_each
+- !ruby/object:RI::MethodSummary 
+  name: run_before_each
+- !ruby/object:RI::MethodSummary 
+  name: violated
+full_name: Spec::Example::ExampleMethods
+superclass: 
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: is_a?
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lie about our class.
+full_name: Rake::FileList#is_a?
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: kind_of?

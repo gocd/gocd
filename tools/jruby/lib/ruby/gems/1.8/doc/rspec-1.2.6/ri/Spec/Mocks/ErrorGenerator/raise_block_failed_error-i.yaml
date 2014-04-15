@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym, detail)
+is_singleton: false
+block_params: 
+name: raise_block_failed_error
+comment: 
+full_name: Spec::Mocks::ErrorGenerator#raise_block_failed_error
+visibility: public
+aliases: []
+

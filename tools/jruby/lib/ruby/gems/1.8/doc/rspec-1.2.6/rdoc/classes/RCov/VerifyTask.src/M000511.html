@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>define (RCov::VerifyTask)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/rake/verify_rcov.rb, line 35</span>
+    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">define</span>
+      <span class="ruby-identifier">desc</span> <span class="ruby-node">&quot;Verify that rcov coverage is at least #{threshold}%&quot;</span>
+      <span class="ruby-identifier">task</span> <span class="ruby-ivar">@name</span> <span class="ruby-keyword kw">do</span>
+        <span class="ruby-identifier">total_coverage</span> = <span class="ruby-value">0</span>
+
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">index_html</span>).<span class="ruby-identifier">each_line</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">line</span><span class="ruby-operator">|</span>
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">line</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/&lt;tt class='coverage_total'&gt;\s*(\d+\.\d+)%\s*&lt;\/tt&gt;/</span>
+            <span class="ruby-identifier">total_coverage</span> = <span class="ruby-identifier">$1</span>.<span class="ruby-identifier">to_f</span>
+            <span class="ruby-keyword kw">break</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Coverage: #{total_coverage}% (threshold: #{threshold}%)&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">verbose</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;Coverage must be at least #{threshold}% but was #{total_coverage}%&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">total_coverage</span> <span class="ruby-operator">&lt;</span> <span class="ruby-identifier">threshold</span>
+        <span class="ruby-identifier">raise</span> <span class="ruby-node">&quot;Coverage has increased above the threshold of #{threshold}% to #{total_coverage}%. You should update your threshold value.&quot;</span> <span class="ruby-keyword kw">if</span> (<span class="ruby-identifier">total_coverage</span> <span class="ruby-operator">&gt;</span> <span class="ruby-identifier">threshold</span>) <span class="ruby-keyword kw">and</span> <span class="ruby-identifier">require_exact_threshold</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

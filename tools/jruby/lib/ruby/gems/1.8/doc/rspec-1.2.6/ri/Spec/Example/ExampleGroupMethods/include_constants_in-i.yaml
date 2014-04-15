@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (mod)
+is_singleton: false
+block_params: 
+name: include_constants_in
+comment: 
+full_name: Spec::Example::ExampleGroupMethods#include_constants_in
+visibility: public
+aliases: []
+

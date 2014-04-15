@@ -1,0 +1,28 @@
+<li role="presentation">
+    <%= link_to l.string("PIPELINES_POPUP_TITLE"), pipeline_groups_path -%>
+</li>
+<%= render :partial => 'shared/dropdown_template_admin.html' -%>
+<li role="presentation">
+    <%= link_to l.string("PIPELINES_SNIPPET"), config_view_path -%>
+</li>
+<li role="presentation">
+    <%= link_to l.string("SERVER_CONFIGURATION"), edit_server_config_path -%>
+</li>
+<li role="presentation">
+    <%= link_to "User Summary", user_listing_path -%>
+</li>
+<li role="presentation">
+    <%= link_to "OAuth Clients", oauth_clients_path -%>
+</li>
+<li role="presentation">
+    <%= link_to "OAuth Enabled Gadget Providers", gadgets_oauth_clients_path -%>
+</li>
+<li role="presentation">
+    <%= link_to "Backup", backup_server_path -%>
+</li>
+<li role="presentation">
+    <%= link_to l.string("PLUGINS_TAB"), plugins_listing_path -%>
+</li>
+<li role="presentation">
+    <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), package_repositories_new_path -%>
+</li>

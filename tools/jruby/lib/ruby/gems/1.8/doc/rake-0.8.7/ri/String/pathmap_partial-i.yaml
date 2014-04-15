@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: (n)
+is_singleton: false
+block_params: 
+name: pathmap_partial
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Extract a partial path from the path. Include <tt>n</tt> directories from
+    the front end (left hand side) if <tt>n</tt> is positive. Include |<tt>n</tt>|
+    directories from the back end (right hand side) if <tt>n</tt> is negative.
+full_name: String#pathmap_partial
+visibility: public
+aliases: []
+

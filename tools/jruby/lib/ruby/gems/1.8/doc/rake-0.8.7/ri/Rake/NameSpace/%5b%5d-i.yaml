@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name)
+is_singleton: false
+block_params: 
+name: '[]'
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lookup a task named <tt>name</tt> in the namespace.
+full_name: Rake::NameSpace#[]
+visibility: public
+aliases: []
+

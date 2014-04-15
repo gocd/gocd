@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (files)
+is_singleton: false
+block_params: 
+name: load_files
+comment: 
+full_name: Spec::Runner::ExampleGroupRunner#load_files
+visibility: public
+aliases: []
+

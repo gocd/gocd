@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>tasks_in_scope (Rake::TaskManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1825</span>
+1825:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">tasks_in_scope</span>(<span class="ruby-identifier">scope</span>)
+1826:       <span class="ruby-identifier">prefix</span> = <span class="ruby-identifier">scope</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;:&quot;</span>)
+1827:       <span class="ruby-identifier">tasks</span>.<span class="ruby-identifier">select</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">t</span><span class="ruby-operator">|</span>
+1828:         <span class="ruby-node">/^#{prefix}:/</span> <span class="ruby-operator">=~</span> <span class="ruby-identifier">t</span>.<span class="ruby-identifier">name</span>
+1829:       }
+1830:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

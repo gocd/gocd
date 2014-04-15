@@ -1,0 +1,67 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::BeforeAndAfterHooks
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::Subject::ExampleGroupMethods
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::PredicateMatchers
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::ArgsAndOptions
+name: ExampleGroupMethods
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: location
+  comment: 
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: matcher_class
+  comment: 
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: context
+- !ruby/object:RI::MethodSummary 
+  name: describe
+- !ruby/object:RI::MethodSummary 
+  name: described_class
+- !ruby/object:RI::MethodSummary 
+  name: described_type
+- !ruby/object:RI::MethodSummary 
+  name: description
+- !ruby/object:RI::MethodSummary 
+  name: description_args
+- !ruby/object:RI::MethodSummary 
+  name: example
+- !ruby/object:RI::MethodSummary 
+  name: example_group_hierarchy
+- !ruby/object:RI::MethodSummary 
+  name: include_constants_in
+- !ruby/object:RI::MethodSummary 
+  name: it
+- !ruby/object:RI::MethodSummary 
+  name: it_should_behave_like
+- !ruby/object:RI::MethodSummary 
+  name: nested_descriptions
+- !ruby/object:RI::MethodSummary 
+  name: pending_implementation
+- !ruby/object:RI::MethodSummary 
+  name: run
+- !ruby/object:RI::MethodSummary 
+  name: set_description
+- !ruby/object:RI::MethodSummary 
+  name: specify
+- !ruby/object:RI::MethodSummary 
+  name: xexample
+- !ruby/object:RI::MethodSummary 
+  name: xit
+- !ruby/object:RI::MethodSummary 
+  name: xspecify
+full_name: Spec::Example::ExampleGroupMethods
+superclass: 
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: build_description_from

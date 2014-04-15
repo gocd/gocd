@@ -1,0 +1,34 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ErrorGenerator
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: opts
+  comment: 
+  rw: W
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: opts
+- !ruby/object:RI::MethodSummary 
+  name: raise_block_failed_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_expectation_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_missing_block_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_out_of_order_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_unexpected_message_args_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_unexpected_message_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_wrong_arity_error
+full_name: Spec::Mocks::ErrorGenerator
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

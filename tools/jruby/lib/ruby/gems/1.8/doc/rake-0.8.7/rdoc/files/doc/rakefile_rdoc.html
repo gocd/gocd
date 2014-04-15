@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rakefile.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rakefile.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/rakefile.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rakefile Format (as of version 0.8.3)</h1>
+<p>
+First of all, there is no special format for a Rakefile. A Rakefile
+contains executable Ruby code. Anything legal in a ruby script is allowed
+in a Rakefile.
+</p>
+<p>
+Now that we understand there is no special syntax in a Rakefile, there are
+some conventions that are used in a Rakefile that are a little unusual in a
+typical Ruby program. Since a Rakefile is tailored to specifying tasks and
+actions, the idioms used in a Rakefile are designed to support that.
+</p>
+<p>
+So, what goes into a Rakefile?
+</p>
+<h2>Tasks</h2>
+<p>
+Tasks are the main unit of work in a Rakefile. Tasks have a name (usually
+given as a symbol or a string), a list of prerequisites (more symbols or
+strings) and a list of actions (given as a block).
+</p>
+<h3>Simple Tasks</h3>
+<p>
+A task is declared by using the <tt>task</tt> method. <tt>task</tt> takes a
+single parameter that is the name of the task.
+</p>
+<pre>
+  task :name
+</pre>
+<h3>Tasks with Prerequisites</h3>
+<p>
+Any prerequisites are given as a list (inclosed in square brackets)
+following the name and an arrow (=&gt;).
+</p>
+<pre>
+  task :name =&gt; [:prereq1, :prereq2]
+</pre>
+<p>
+<b>NOTE:</b> Although this syntax looks a little funky, it is legal Ruby.
+We are constructing a hash where the key is :name and the value for that
+key is the list of prerequisites. It is equivalent to the following &#8230;
+</p>
+<pre>
+  hash = Hash.new
+  hash[:name] = [:prereq1, :prereq2]
+  task(hash)
+</pre>
+<h3>Tasks with Actions</h3>
+<p>
+Actions are defined by passing a block to the <tt>task</tt> method. Any
+Ruby code can be placed in the block. The block may reference the task
+object via the block paramter..
+</p>
+<pre>
+  task :name =&gt; [:prereq1, :prereq2] do |t|
+    # actions (may reference t)
+  end
+</pre>
+<h3>Multiple Definitions</h3>
+<p>
+A task may be specified more than once. Each specification adds its
+prerequisites and actions to the existing definition. This allows one part
+of a rakefile to specify the actions and a different rakefile (perhaps
+separately generated) to specify the dependencies.
+</p>
+<p>
+For example, the following is equivalent to the single task specification
+given above.
+</p>
+<pre>
+  task :name
+  task :name =&gt; [:prereq1]
+  task :name =&gt; [:prereq2]
+  task :name do |t|
+    # actions
+  end
+</pre>
+<h2>File Tasks</h2>
+<p>
+Some tasks are designed to create a file from one or more other files.
+Tasks that generate these files may be skipped if the file already exists.
+File tasks are used to specify file creation tasks.
+</p>
+<p>
+File tasks are declared using the <tt>file</tt> method (instead of the
+<tt>task</tt> method). In addition, file tasks are usually named with a
+string rather than a symbol.
+</p>
+<p>
+The following file task creates a executable program (named <tt>prog</tt>)
+given two object files name <tt>a.o</tt> and <tt>b.o</tt>. The tasks for
+creating <tt>a.o</tt> and <tt>b.o</tt> are not shown.
+</p>
+<pre>
+  file &quot;prog&quot; =&gt; [&quot;a.o&quot;, &quot;b.o&quot;] do |t|
+    sh &quot;cc -o #{t.name} #{t.prerequisites.join(' ')}&quot;
+  end
+</pre>
+<h2>Directory Tasks</h2>
+<p>
+It is common to need to create directories upon demand. The
+<tt>directory</tt> convenience method is a short-hand for creating a
+FileTask that creates the directory. For example, the following declaration
+&#8230;
+</p>
+<pre>
+  directory &quot;testdata/examples/doc&quot;
+</pre>
+<p>
+is equivalent to &#8230;
+</p>
+<pre>
+  file &quot;testdata&quot;              do |t| mkdir t.name end
+  file &quot;testdata/examples&quot;     do |t| mkdir t.name end
+  file &quot;testdata/examples/doc&quot; do |t| mkdir t.name end
+</pre>
+<p>
+The <tt>directory</tt> method does not accept prerequisites or actions, but
+both prerequisites and actions can be added later. For example &#8230;
+</p>
+<pre>
+  directory &quot;testdata&quot;
+  file &quot;testdata&quot; =&gt; [&quot;otherdata&quot;]
+  file &quot;testdata&quot; do
+    cp Dir[&quot;standard_data/*.data&quot;], &quot;testdata&quot;
+  end
+</pre>
+<h2>Tasks with Parallel Prerequisites</h2>
+<p>
+Rake allows parallel execution of prerequisites using the following syntax:
+</p>
+<pre>
+  multitask :copy_files =&gt; [:copy_src, :copy_doc, :copy_bin] do
+    puts &quot;All Copies Complete&quot;
+  end
+</pre>
+<p>
+In this example, <tt>copy_files</tt> is a normal rake task. Its actions are
+executed whereever all of its prerequisites are done. The big difference is
+that the prerequisites (<tt>copy_src</tt>, <tt>copy_bin</tt> and
+<tt>copy_doc</tt>) are executed in parallel. Each of the prerequisites are
+run in their own Ruby thread, possibly allowing faster overall runtime.
+</p>
+<h3>Secondary Prerequisites</h3>
+<p>
+If any of the primary prerequites of a multitask have common secondary
+prerequisites, all of the primary/parallel prerequisites will wait until
+the common prerequisites have been run.
+</p>
+<p>
+For example, if the <tt>copy_<em>xxx</em></tt> tasks have the following
+prerequisites:
+</p>
+<pre>
+  task :copy_src =&gt; [:prep_for_copy]
+  task :copy_bin =&gt; [:prep_for_copy]
+  task :copy_doc =&gt; [:prep_for_copy]
+</pre>
+<p>
+Then the <tt>prep_for_copy</tt> task is run before starting all the copies
+in parallel. Once <tt>prep_for_copy</tt> is complete, <tt>copy_src</tt>,
+<tt>copy_bin</tt>, and <tt>copy_doc</tt> are all run in parallel. Note that
+<tt>prep_for_copy</tt> is run only once, even though it is referenced in
+multiple threads.
+</p>
+<h3>Thread Safety</h3>
+<p>
+The Rake internal data structures are thread-safe with respect to the
+multitask parallel execution, so there is no need for the user to do extra
+synchronization for Rake&#8216;s benefit. However, if there are user data
+structures shared between the parallel prerequisites, the user must do
+whatever is necessary to prevent race conditions.
+</p>
+<h2>Tasks with Arguments</h2>
+<p>
+Prior to version 0.8.0, rake was only able to handle command line arguments
+of the form NAME=VALUE that were passed into Rake via the ENV hash. Many
+folks had asked for some kind of simple command line arguments, perhaps
+using &quot;&#8212;&quot; to separate regular task names from argument
+values on the command line. The problem is that there was no easy way to
+associate positional arguments on the command line with different tasks.
+Suppose both tasks :a and :b expect a command line argument: does the first
+value go with :a? What if :b is run first? Should it then get the first
+command line argument.
+</p>
+<p>
+Rake 0.8.0 solves this problem by explicitly passing values directly to the
+tasks that need them. For example, if I had a release task that required a
+version number, I could say:
+</p>
+<pre>
+   rake release[0.8.2]
+</pre>
+<p>
+And the string &quot;0.8.2&quot; will be passed to the :release task.
+Multiple arguments can be passed by separating them with a comma, for
+example:
+</p>
+<pre>
+   rake name[john,doe]
+</pre>
+<p>
+Just a few words of caution. The rake task name and its arguments need to
+be a single command line argument to rake. This generally means no spaces.
+If spaces are needed, then the entire rake + argument string should be
+quoted. Something like this:
+</p>
+<pre>
+   rake &quot;name[billy bob, smith]&quot;
+</pre>
+<p>
+(Quoting rules vary between operating systems and shells, so make sure you
+consult the proper docs for your OS/shell).
+</p>
+<h3>Tasks that Expect Parameters</h3>
+<p>
+Parameters are only given to tasks that are setup to expect them. In order
+to handle named parameters, the task declaration syntax for tasks has been
+extended slightly.
+</p>
+<p>
+For example, a task that needs a first name and last name might be declared
+as:
+</p>
+<pre>
+   task :name, [:first_name, :last_name]
+</pre>
+<p>
+The first argument is still the name of the task (:name in this case). The
+next to argumements are the names of the parameters expected by :name in an
+array (:first_name and :last_name in the example).
+</p>
+<p>
+To access the values of the paramters, the block defining the task
+behaviour can now accept a second parameter:
+</p>
+<pre>
+   task :name, [:first_name, :last_name] do |t, args|
+     puts &quot;First name is #{args.first_name}&quot;
+     puts &quot;Last  name is #{args.last_name}&quot;
+   end
+</pre>
+<p>
+The first argument of the block &quot;t&quot; is always bound to the
+current task object. The second argument &quot;args&quot; is an open-struct
+like object that allows access to the task arguments. Extra command line
+arguments to a task are ignored. Missing command line arguments are given
+the nil value.
+</p>
+<p>
+If you wish to specify default values for the arguments, you can use the
+with_defaults method in the task body. Here is the above example where we
+specify default values for the first and last names:
+</p>
+<pre>
+   task :name, [:first_name, :last_name] do |t, args|
+     args.with_defaults(:first_name =&gt; &quot;John&quot;, :last_name =&gt; &quot;Dough&quot;)
+     puts &quot;First name is #{args.first_name}&quot;
+     puts &quot;Last  name is #{args.last_name}&quot;
+   end
+</pre>
+<h3>Tasks that Expect Parameters and Have Prerequisites</h3>
+<p>
+Tasks that use parameters have a slightly different format for
+prerequisites. Use the arrow notation to indicate the prerequisites for
+tasks with arguments. For example:
+</p>
+<pre>
+   task :name, [:first_name, :last_name] =&gt; [:pre_name] do |t, args|
+     args.with_defaults(:first_name =&gt; &quot;John&quot;, :last_name =&gt; &quot;Dough&quot;)
+     puts &quot;First name is #{args.first_name}&quot;
+     puts &quot;Last  name is #{args.last_name}&quot;
+   end
+</pre>
+<h3>Deprecated Task Parameters Format</h3>
+<p>
+There is an older format for declaring task parameters that omitted the
+task argument array and used the :needs keyword to introduce the
+dependencies. That format is still supported for compatibility, but is not
+recommended for use.
+</p>
+<h2>Accessing Task Programatically</h2>
+<p>
+Sometimes it is useful to manipulate tasks programatically in a Rakefile.
+To find a task object, use the <tt>:[]</tt> operator on the <tt><a
+href="../../classes/Rake/Task.html">Rake::Task</a></tt>.
+</p>
+<h3>Programmatic Task Example</h3>
+<p>
+For example, the following Rakefile defines two tasks. The :doit task
+simply prints a simple &quot;DONE&quot; message. The :dont class will
+lookup the doit class and remove (clear) all of its prerequisites and
+actions.
+</p>
+<pre>
+   task :doit do
+     puts &quot;DONE&quot;
+   end
+
+   task :dont do
+     Rake::Task[:doit].clear
+   end
+</pre>
+<p>
+Running this example:
+</p>
+<pre>
+  $ rake doit
+  (in /Users/jim/working/git/rake/x)
+  DONE
+  $ rake dont doit
+  (in /Users/jim/working/git/rake/x)
+  $
+</pre>
+<p>
+The ability to programmatically manipulate tasks gives rake very powerful
+meta-programming capabilities w.r.t. task execution, but should be used
+with cation.
+</p>
+<h2>Rules</h2>
+<p>
+When a file is named as a prerequisite, but does not have a file task
+defined for it, Rake will attempt to synthesize a task by looking at a list
+of rules supplied in the Rakefile.
+</p>
+<p>
+Suppose we were trying to invoke task &quot;mycode.o&quot;, but no task is
+defined for it. But the rakefile has a rule that look like this &#8230;
+</p>
+<pre>
+  rule '.o' =&gt; ['.c'] do |t|
+    sh &quot;cc #{t.source} -c -o #{t.name}&quot;
+  end
+</pre>
+<p>
+This rule will synthesize any task that ends in &quot;.o&quot;. It has a
+prerequisite a source file with an extension of &quot;.c&quot; must exist.
+If Rake is able to find a file named &quot;mycode.c&quot;, it will
+automatically create a task that builds &quot;mycode.o&quot; from
+&quot;mycode.c&quot;.
+</p>
+<p>
+If the file &quot;mycode.c&quot; does not exist, rake will attempt to
+recursively synthesize a rule for it.
+</p>
+<p>
+When a task is synthesized from a rule, the <tt>source</tt> attribute of
+the task is set to the matching source file. This allows us to write rules
+with actions that reference the source file.
+</p>
+<h3>Advanced Rules</h3>
+<p>
+Any regular expression may be used as the rule pattern. Additionally, a
+proc may be used to calculate the name of the source file. This allows for
+complex patterns and sources.
+</p>
+<p>
+The following rule is equivalent to the example above.
+</p>
+<pre>
+  rule( /\.o$/ =&gt; [
+    proc {|task_name| task_name.sub(/\.[^.]+$/, '.c') }
+  ]) do |t|
+    sh &quot;cc #{t.source} -c -o #{t.name}&quot;
+  end
+</pre>
+<p>
+<b>NOTE:</b> Because of a <em>quirk</em> in Ruby syntax, parenthesis are
+required on <b>rule</b> when the first argument is a regular expression.
+</p>
+<p>
+The following rule might be used for Java files &#8230;
+</p>
+<pre>
+  rule '.java' =&gt; [
+    proc { |tn| tn.sub(/\.class$/, '.java').sub(/^classes\//, 'src/') }
+  ] do |t|
+    java_compile(t.source, t.name)
+  end
+</pre>
+<p>
+<b>NOTE:</b> <tt>java_compile</tt> is a hypothetical method that invokes
+the java compiler.
+</p>
+<h2>Importing Dependencies</h2>
+<p>
+Any ruby file (including other rakefiles) can be included with a standard
+Ruby <tt>require</tt> command. The rules and declarations in the required
+file are just added to the definitions already accumulated.
+</p>
+<p>
+Because the files are loaded <em>before</em> the rake targets are
+evaluated, the loaded files must be &quot;ready to go&quot; when the rake
+command is invoked. This make generated dependency files difficult to use.
+By the time rake gets around to updating the dependencies file, it is too
+late to load it.
+</p>
+<p>
+The <tt>import</tt> command addresses this by specifying a file to be
+loaded <em>after</em> the main rakefile is loaded, but <em>before</em> any
+targets on the command line are specified. In addition, if the file name
+matches an explicit task, that task is invoked before loading the file.
+This allows dependency files to be generated and used in a single rake
+command invocation.
+</p>
+<h3>Example:</h3>
+<pre>
+  require 'rake/loaders/makefile'
+
+  file &quot;.depends.mf&quot; =&gt; [SRC_LIST] do |t|
+    sh &quot;makedepend -f- -- #{CFLAGS} -- #{t.prerequisites} &gt; #{t.name}&quot;
+  end
+
+  import &quot;.depends.mf&quot;
+</pre>
+<p>
+If &quot;.depends&quot; does not exist, or is out of date w.r.t. the source
+files, a new &quot;.depends&quot; file is generated using
+<tt>makedepend</tt> before loading.
+</p>
+<h2>Comments</h2>
+<p>
+Standard Ruby comments (beginning with &quot;#&quot;) can be used anywhere
+it is legal in Ruby source code, including comments for tasks and rules.
+However, if you wish a task to be described using the &quot;-T&quot;
+switch, then you need to use the <tt>desc</tt> command to describe the
+task.
+</p>
+<h3>Example:</h3>
+<pre>
+  desc &quot;Create a distribution package&quot;
+  task :package =&gt; [ ... ] do ... end
+</pre>
+<p>
+The &quot;-T&quot; switch (or &quot;&#8212;tasks&quot; if you like to spell
+things out) will display a list of tasks that have a defined comment. If
+you use <tt>desc</tt> to describe your major tasks, you have a
+semi-automatic way of generating a summary of your Rake file.
+</p>
+<pre>
+  traken$ rake -T
+  (in /home/.../rake)
+  rake clean            # Remove any temporary products.
+  rake clobber          # Remove any generated file.
+  rake clobber_rdoc     # Remove rdoc products
+  rake contrib_test     # Run tests for contrib_test
+  rake default          # Default Task
+  rake install          # Install the application
+  rake lines            # Count lines in the main rake file
+  rake rdoc             # Build the rdoc HTML Files
+  rake rerdoc           # Force a rebuild of the RDOC files
+  rake test             # Run tests
+  rake testall          # Run all test targets
+</pre>
+<p>
+Only tasks with descriptions will be displayed with the &quot;-T&quot;
+switch. Use &quot;-P&quot; (or &quot;&#8212;prereqs&quot;) to get a list of
+all tasks and their prerequisites.
+</p>
+<h2>Namespaces</h2>
+<p>
+As projects grow (and along with it, the number of tasks), it is common for
+task names to begin to clash. For example, if you might have a main program
+and a set of sample programs built by a single Rakefile. By placing the
+tasks related to the main program in one namespace, and the tasks for
+building the sample programs in a different namespace, the task names will
+not will not interfer with each other.
+</p>
+<p>
+For example:
+</p>
+<pre>
+  namespace &quot;main&quot;
+    task :build do
+      # Build the main program
+    end
+  end
+
+  namespace &quot;samples&quot; do
+    task :build do
+      # Build the sample programs
+    end
+  end
+
+  task :build =&gt; [&quot;main:build&quot;, &quot;samples:build&quot;]
+</pre>
+<p>
+Referencing a task in a separate namespace can be achieved by prefixing the
+task name with the namespace and a colon (e.g. &quot;main:build&quot;
+refers to the :build task in the <tt>main</tt> namespace). Nested
+namespaces are supported, so
+</p>
+<p>
+Note that the name given in the <tt>task</tt> command is always the
+unadorned task name without any namespace prefixes. The <tt>task</tt>
+command always defines a task in the current namespace.
+</p>
+<h3>FileTasks</h3>
+<p>
+File task names are not scoped by the namespace command. Since the name of
+a file task is the name of an actual file in the file system, it makes
+little sense to include file task names in name space. Directory tasks
+(created by the <tt>directory</tt> command) are a type of file task and are
+also not affected by namespaces.
+</p>
+<h3>Name Resolution</h3>
+<p>
+When looking up a task name, rake will start with the current namespace and
+attempt to find the name there. If it fails to find a name in the current
+namespace, it will search the parent namespaces until a match is found (or
+an error occurs if there is no match).
+</p>
+<p>
+The &quot;rake&quot; namespace is a special implicit namespace that refers
+to the toplevel names.
+</p>
+<p>
+If a task name begins with a &quot;^&quot; character, the name resolution
+will start in the parent namespace. Multiple &quot;^&quot; characters are
+allowed.
+</p>
+<p>
+Here is an example file with multiple :run tasks and how various names
+resolve in different locations.
+</p>
+<pre>
+  task :run
+
+  namespace &quot;one&quot; do
+    task :run
+
+    namespace &quot;two&quot; do
+      task :run
+
+      # :run            =&gt; &quot;one:two:run&quot;
+      # &quot;two:run&quot;       =&gt; &quot;one:two:run&quot;
+      # &quot;one:two:run&quot;   =&gt; &quot;one:two:run&quot;
+      # &quot;one:run&quot;       =&gt; &quot;one:run&quot;
+      # &quot;^run&quot;          =&gt; &quot;one:run&quot;
+      # &quot;^^run&quot;         =&gt; &quot;rake:run&quot; (the top level task)
+      # &quot;rake:run&quot;      =&gt; &quot;rake:run&quot; (the top level task)
+    end
+
+    # :run       =&gt; &quot;one:run&quot;
+    # &quot;two:run&quot;  =&gt; &quot;one:two:run&quot;
+    # &quot;^run&quot;     =&gt; &quot;rake:run&quot;
+  end
+
+  # :run           =&gt; &quot;rake:run&quot;
+  # &quot;one:run&quot;      =&gt; &quot;one:run&quot;
+  # &quot;one:two:run&quot;  =&gt; &quot;one:two:run&quot;
+</pre>
+<h2>FileLists</h2>
+<p>
+FileLists are the way Rake manages lists of files. You can treat a FileList
+as an array of strings for the most part, but FileLists support some
+additional operations.
+</p>
+<h3>Creating a FileList</h3>
+<p>
+Creating a file list is easy. Just give it the list of file names:
+</p>
+<pre>
+   fl = FileList['file1.rb', file2.rb']
+</pre>
+<p>
+Or give it a glob pattern:
+</p>
+<pre>
+   fl = FileList['*.rb']
+</pre>
+<h2>Odds and Ends</h2>
+<h3>do/end verses { }</h3>
+<p>
+Blocks may be specified with either a <tt>do</tt>/<tt>end</tt> pair, or
+with curly braces in Ruby. We <em>strongly</em> recommend using
+<tt>do</tt>/<tt>end</tt> to specify the actions for tasks and rules.
+Because the rakefile idiom tends to leave off parenthesis on the
+task/file/rule methods, unusual ambiguities can arise when using curly
+braces.
+</p>
+<p>
+For example, suppose that the method <tt>object_files</tt> returns a list
+of object files in a project. Now we use <tt>object_files</tt> as the
+prerequistes in a rule specified with actions in curly braces.
+</p>
+<pre>
+  # DON'T DO THIS!
+  file &quot;prog&quot; =&gt; object_files {
+    # Actions are expected here (but it doesn't work)!
+  }
+</pre>
+<p>
+Because curly braces have a higher precedence than
+<tt>do</tt>/<tt>end</tt>, the block is associated with the
+<tt>object_files</tt> method rather than the <tt>file</tt> method.
+</p>
+<p>
+This is the proper way to specify the task &#8230;
+</p>
+<pre>
+  # THIS IS FINE
+  file &quot;prog&quot; =&gt; object_files do
+    # Actions go here
+  end
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

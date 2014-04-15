@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Dependency Management">
+  <p>When you have non-trivial dependency pipeline chains, you may have concerns about how dependent pipelines and materials interact. For example, code and tests are checked in as part of the same commit. But code is built and tested in sequence, so the same material version has to be used for pipelines that build and test your code. 
+	This section covers some Dependency Management concepts and how Go handles certain complex scenarios.</p>
+  <section title="Propagate material revision throughout the dependency chain">
+    <p>If you have frequent material updates coupled with long running dependent pipelines sharing that same material, you may encounter situations where the revision that triggered the dependency chain is no longer the latest revision. Go keeps track of what revision triggered a dependency chain and ensures that the same version propagates throughout all members of that chain. This helps ensure that all artifacts generated as part of that build share a common revision.</p>
+    <subsection title="Example">
+      <p>Consider the following dependency chain:</p>
+      <img src="resources/images/cruise/tester/dependency_management/revision_propagation.png" />
+      <subsection title="Legend" collapsed="true">
+        <bullets>
+          <item><strong>SCM</strong>: Repository</item>
+          <item><strong>rev1, rev2</strong>: Check-ins to the repository</item>
+          <item><strong>A</strong>: Pipeline for development build</item>
+          <item>dependent<strong>B</strong>: Pipeline for acceptance tests</item>
+        </bullets>
+      </subsection>
+      <subsection title="How it works">
+        <bullets>
+          <item>Code is checked in to SCM (rev1)</item>
+          <item>Development build (A) is triggered by the check-in</item>
+          <item>There is another check-in to SCM (rev2)</item>
+          <item>Development build completes (with rev1) and triggers acceptance tests (B)</item>
+          <item>Here's where dependency management comes in. Go is smart enough detect that rev1 originally triggered the build and ensures that the acceptance tests check-out that revision (rev1) and not the latest revision (rev2). In this situation, Go ensures that the appropriate version of acceptance tests are run against the appropriate version of the development build.</item>
+        </bullets>
+      </subsection>
+    </subsection>
+  </section>
+</chapter>

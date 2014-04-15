@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (&block)
+is_singleton: false
+block_params: 
+name: before_running_rdoc
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: The block passed to this method will be called just before running the RDoc
+    generator. It is allowed to modify RDocTask attributes inside the block.
+full_name: Rake::RDocTask#before_running_rdoc
+visibility: public
+aliases: []
+

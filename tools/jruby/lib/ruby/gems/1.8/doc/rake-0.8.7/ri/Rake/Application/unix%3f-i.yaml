@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: unix?
+comment: 
+full_name: Rake::Application#unix?
+visibility: public
+aliases: []
+

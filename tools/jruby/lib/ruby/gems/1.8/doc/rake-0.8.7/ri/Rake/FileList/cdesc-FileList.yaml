@@ -1,0 +1,116 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Cloneable
+name: FileList
+constants: 
+- !ruby/object:RI::Constant 
+  name: ARRAY_METHODS
+  value: (Array.instance_methods - Object.instance_methods).map { |n| n.to_s }
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of array methods (that are not in <tt>Object</tt>) that need to be
+      delegated.
+- !ruby/object:RI::Constant 
+  name: MUST_DEFINE
+  value: '%w[to_a inspect]'
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of additional methods that must be delegated.
+- !ruby/object:RI::Constant 
+  name: MUST_NOT_DEFINE
+  value: '%w[to_a to_ary partition *]'
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of methods that should not be delegated here (we define special versions
+      of them explicitly below).
+- !ruby/object:RI::Constant 
+  name: SPECIAL_RETURN
+  value: '%w[       map collect sort sort_by select find_all reject grep       compact
+    flatten uniq values_at       + - & |     ]'
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of delegated methods that return new array values which need wrapping.
+- !ruby/object:RI::Constant 
+  name: DELEGATING_METHODS
+  value: (ARRAY_METHODS + MUST_DEFINE - MUST_NOT_DEFINE).collect{ |s| s.to_s }.sort.uniq
+  comment: 
+- !ruby/object:RI::Constant 
+  name: DEFAULT_IGNORE_PATTERNS
+  value: '[       /(^|[\/\\])CVS([\/\\]|$)/,       /(^|[\/\\])\.svn([\/\\]|$)/,       /\.bak$/,       /~$/'
+  comment: 
+- !ruby/object:RI::Constant 
+  name: DEFAULT_IGNORE_PROCS
+  value: '[       proc { |fn| fn =~ /(^|[\/\\])core$/ && ! File.directory?(fn) }'
+  comment: 
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: A FileList is essentially an array with a few helper methods defined to make
+    file manipulation a bit easier.
+- !ruby/struct:SM::Flow::P 
+  body: FileLists are lazy. When given a list of glob patterns for possible files
+    to be included in the file list, instead of searching the file structures to find
+    the files, a FileList holds the pattern for latter use.
+- !ruby/struct:SM::Flow::P 
+  body: This allows us to define a number of FileList to match any number of files,
+    but only search out the actual files when then FileList itself is actually used.
+    The key is that the first time an element of the FileList/Array is requested,
+    the pending patterns are resolved into a real list of file names.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '*'
+- !ruby/object:RI::MethodSummary 
+  name: ==
+- !ruby/object:RI::MethodSummary 
+  name: add
+- !ruby/object:RI::MethodSummary 
+  name: calculate_exclude_regexp
+- !ruby/object:RI::MethodSummary 
+  name: clear_exclude
+- !ruby/object:RI::MethodSummary 
+  name: egrep
+- !ruby/object:RI::MethodSummary 
+  name: exclude
+- !ruby/object:RI::MethodSummary 
+  name: exclude?
+- !ruby/object:RI::MethodSummary 
+  name: existing
+- !ruby/object:RI::MethodSummary 
+  name: existing!
+- !ruby/object:RI::MethodSummary 
+  name: ext
+- !ruby/object:RI::MethodSummary 
+  name: gsub
+- !ruby/object:RI::MethodSummary 
+  name: gsub!
+- !ruby/object:RI::MethodSummary 
+  name: import
+- !ruby/object:RI::MethodSummary 
+  name: include
+- !ruby/object:RI::MethodSummary 
+  name: is_a?
+- !ruby/object:RI::MethodSummary 
+  name: kind_of?
+- !ruby/object:RI::MethodSummary 
+  name: pathmap
+- !ruby/object:RI::MethodSummary 
+  name: resolve
+- !ruby/object:RI::MethodSummary 
+  name: sub
+- !ruby/object:RI::MethodSummary 
+  name: sub!
+- !ruby/object:RI::MethodSummary 
+  name: to_a
+- !ruby/object:RI::MethodSummary 
+  name: to_ary
+- !ruby/object:RI::MethodSummary 
+  name: to_s
+full_name: Rake::FileList
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '[]'
+- !ruby/object:RI::MethodSummary 
+  name: new

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rake-0.8.4.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rake-0.8.4.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/release_notes/rake-0.8.4.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rake 0.8.4 Released</h1>
+<p>
+Rake version 0.8.4 is a bug-fix release of rake.
+</p>
+<p>
+NOTE: The version of Rake that comes with Ruby 1.9 has diverged
+</p>
+<pre>
+      slightly from the core Rake code base.  Rake 0.8.4 will work
+      with Ruby 1.9, but is not a strict upgrade for the Rake that
+      comes with Ruby 1.9.  A (near) future release of Rake will unify
+      those two codebases.
+</pre>
+<h2>Letter Writing Campaign</h2>
+<p>
+Thanks to Aaron Patterson (@tenderlove) and Eric Hodel (@drbrain) for their
+encouraging support in organizing a letter writing campaign to lobby for
+the &quot;Warning Free&quot; release of rake 0.8.4. A special callout goes
+to Jonathan D. Lord, Sr (Dr. Wingnut) whose postcard was the first to
+actually reach me. (see <a
+href="http://tenderlovemaking.com/2009/02/26/we-need-a-new-version-of-rake">tenderlovemaking.com/2009/02/26/we-need-a-new-version-of-rake</a>/
+for details)
+</p>
+<h2>Changes</h2>
+<h3>New Features / Enhancements in Version 0.8.4</h3>
+<ul>
+<li>Case is preserved on rakefile names. (patch from James
+
+<ol>
+<li type="A">Lawrence/quix)
+
+</li>
+</ol>
+</li>
+<li>Improved Rakefile case insensitivity testing (patch from Luis Lavena).
+
+</li>
+<li>Windows system dir search order is now: HOME, HOMEDRIVE + HOMEPATH,
+APPDATA, USERPROFILE (patch from Luis Lavena)
+
+</li>
+<li>MingGW is now recognized as a windows platform. (patch from Luis Lavena)
+
+</li>
+</ul>
+<h3>Bug Fixes in Version 0.8.4</h3>
+<ul>
+<li>Removed reference to manage_gem to fix the warning produced by the gem
+package task.
+
+</li>
+<li>Fixed stray ARGV option problem that was interfering with
+Test::Unit::Runner. (patch from Pivotal Labs)
+
+</li>
+</ul>
+<h3>Infrastructure Improvements in Version 0.8.4</h3>
+<ul>
+<li>Numerous fixes to the windows test suite (patch from Luis Lavena).
+
+</li>
+<li>Improved Rakefile case insensitivity testing (patch from Luis Lavena).
+
+</li>
+<li>Better support for windows paths in the test task (patch from Simon
+Chiang/bahuvrihi)
+
+</li>
+</ul>
+<h2>What is Rake</h2>
+<p>
+Rake is a build tool similar to the make program in many ways. But instead
+of cryptic make recipes, Rake uses standard Ruby code to declare tasks and
+dependencies. You have the full power of a modern scripting language built
+right into your build tool.
+</p>
+<h2>Availability</h2>
+<p>
+The easiest way to get and install rake is via RubyGems &#8230;
+</p>
+<pre>
+  gem install rake    (you may need root/admin privileges)
+</pre>
+<p>
+Otherwise, you can get it from the more traditional places:
+</p>
+<table>
+<tr><td valign="top">Home Page:</td><td><a href="http://rake.rubyforge.org">rake.rubyforge.org</a>/
+
+</td></tr>
+<tr><td valign="top">Download:</td><td><a
+href="http://rubyforge.org/project/showfiles.php?group_id=50">rubyforge.org/project/showfiles.php?group_id=50</a>
+
+</td></tr>
+<tr><td valign="top">GitHub:</td><td>git://github.com/jimweirich/rake.git
+
+</td></tr>
+</table>
+<h2>Task Argument Examples</h2>
+<p>
+Prior to version 0.8.0, rake was only able to handle command line arguments
+of the form NAME=VALUE that were passed into Rake via the ENV hash. Many
+folks had asked for some kind of simple command line arguments, perhaps
+using &quot;&#8212;&quot; to separate regular task names from argument
+values on the command line. The problem is that there was no easy way to
+associate positional arguments on the command line with different tasks.
+Suppose both tasks :a and :b expect a command line argument: does the first
+value go with :a? What if :b is run first? Should it then get the first
+command line argument.
+</p>
+<p>
+Rake 0.8.0 solves this problem by explicitly passing values directly to the
+tasks that need them. For example, if I had a release task that required a
+version number, I could say:
+</p>
+<pre>
+   rake release[0.8.4]
+</pre>
+<p>
+And the string &quot;0.8.4&quot; will be passed to the :release task.
+Multiple arguments can be passed by separating them with a comma, for
+example:
+</p>
+<pre>
+   rake name[john,doe]
+</pre>
+<p>
+Just a few words of caution. The rake task name and its arguments need to
+be a single command line argument to rake. This generally means no spaces.
+If spaces are needed, then the entire rake + argument string should be
+quoted. Something like this:
+</p>
+<pre>
+   rake &quot;name[billy bob, smith]&quot;
+</pre>
+<p>
+(Quoting rules vary between operating systems and shells, so make sure you
+consult the proper docs for your OS/shell).
+</p>
+<h3>Tasks that Expect Parameters</h3>
+<p>
+Parameters are only given to tasks that are setup to expect them. In order
+to handle named parameters, the task declaration syntax for tasks has been
+extended slightly.
+</p>
+<p>
+For example, a task that needs a first name and last name might be declared
+as:
+</p>
+<pre>
+   task :name, :first_name, :last_name
+</pre>
+<p>
+The first argument is still the name of the task (:name in this case). The
+next to argumements are the names of the parameters expected by :name
+(:first_name and :last_name in the example).
+</p>
+<p>
+To access the values of the paramters, the block defining the task
+behaviour can now accept a second parameter:
+</p>
+<pre>
+   task :name, :first_name, :last_name do |t, args|
+     puts &quot;First name is #{args.first_name}&quot;
+     puts &quot;Last  name is #{args.last_name}&quot;
+   end
+</pre>
+<p>
+The first argument of the block &quot;t&quot; is always bound to the
+current task object. The second argument &quot;args&quot; is an open-struct
+like object that allows access to the task arguments. Extra command line
+arguments to a task are ignored. Missing command line arguments are given
+the nil value.
+</p>
+<h2>Thanks</h2>
+<p>
+As usual, it was input from users that drove a alot of these changes. The
+following people either contributed patches, made suggestions or made
+otherwise helpful comments. Thanks to &#8230;
+</p>
+<ul>
+<li>James M. Lawrence/quix
+
+</li>
+<li>Luis Lavena
+
+</li>
+<li>Pivotal Labs
+
+</li>
+<li>Simon Chiang/bahuvrihi
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

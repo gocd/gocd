@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>define (Rake::PackageTask)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>     <span class="ruby-comment cmt"># File lib/rake/packagetask.rb, line 99</span>
+ 99:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">define</span>
+100:       <span class="ruby-identifier">fail</span> <span class="ruby-value str">&quot;Version required (or :noversion)&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@version</span>.<span class="ruby-identifier">nil?</span>
+101:       <span class="ruby-ivar">@version</span> = <span class="ruby-keyword kw">nil</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">:noversion</span> <span class="ruby-operator">==</span> <span class="ruby-ivar">@version</span>
+102: 
+103:       <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Build all the packages&quot;</span>
+104:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">:package</span>
+105:       
+106:       <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Force a rebuild of the package files&quot;</span>
+107:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">:repackage</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">:clobber_package</span>, <span class="ruby-identifier">:package</span>]
+108:       
+109:       <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Remove package products&quot;</span> 
+110:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">:clobber_package</span> <span class="ruby-keyword kw">do</span>
+111:         <span class="ruby-identifier">rm_r</span> <span class="ruby-identifier">package_dir</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-keyword kw">nil</span>
+112:       <span class="ruby-keyword kw">end</span>
+113: 
+114:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">:clobber</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">:clobber_package</span>]
+115: 
+116:       [
+117:         [<span class="ruby-identifier">need_tar</span>, <span class="ruby-identifier">tgz_file</span>, <span class="ruby-value str">&quot;z&quot;</span>],
+118:         [<span class="ruby-identifier">need_tar_gz</span>, <span class="ruby-identifier">tar_gz_file</span>, <span class="ruby-value str">&quot;z&quot;</span>],
+119:         [<span class="ruby-identifier">need_tar_bz2</span>, <span class="ruby-identifier">tar_bz2_file</span>, <span class="ruby-value str">&quot;j&quot;</span>]
+120:       ].<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span>(<span class="ruby-identifier">need</span>, <span class="ruby-identifier">file</span>, <span class="ruby-identifier">flag</span>)<span class="ruby-operator">|</span>
+121:         <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">need</span>
+122:           <span class="ruby-identifier">task</span> <span class="ruby-identifier">:package</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-node">&quot;#{package_dir}/#{file}&quot;</span>]
+123:           <span class="ruby-identifier">file</span> <span class="ruby-node">&quot;#{package_dir}/#{file}&quot;</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">package_dir_path</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">package_files</span> <span class="ruby-keyword kw">do</span>
+124:             <span class="ruby-identifier">chdir</span>(<span class="ruby-identifier">package_dir</span>) <span class="ruby-keyword kw">do</span>
+125:               <span class="ruby-identifier">sh</span> <span class="ruby-node">%{#{@tar_command} #{flag}cvf #{file} #{package_name}}</span>
+126:             <span class="ruby-keyword kw">end</span>
+127:           <span class="ruby-keyword kw">end</span>
+128:         <span class="ruby-keyword kw">end</span>
+129:       <span class="ruby-keyword kw">end</span>
+130:       
+131:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">need_zip</span>
+132:         <span class="ruby-identifier">task</span> <span class="ruby-identifier">:package</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-node">&quot;#{package_dir}/#{zip_file}&quot;</span>]
+133:         <span class="ruby-identifier">file</span> <span class="ruby-node">&quot;#{package_dir}/#{zip_file}&quot;</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">package_dir_path</span>] <span class="ruby-operator">+</span> <span class="ruby-identifier">package_files</span> <span class="ruby-keyword kw">do</span>
+134:           <span class="ruby-identifier">chdir</span>(<span class="ruby-identifier">package_dir</span>) <span class="ruby-keyword kw">do</span>
+135:             <span class="ruby-identifier">sh</span> <span class="ruby-node">%{#{@zip_command} -r #{zip_file} #{package_name}}</span>
+136:           <span class="ruby-keyword kw">end</span>
+137:         <span class="ruby-keyword kw">end</span>
+138:       <span class="ruby-keyword kw">end</span>
+139: 
+140:       <span class="ruby-identifier">directory</span> <span class="ruby-identifier">package_dir</span>
+141: 
+142:       <span class="ruby-identifier">file</span> <span class="ruby-identifier">package_dir_path</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@package_files</span> <span class="ruby-keyword kw">do</span>
+143:         <span class="ruby-identifier">mkdir_p</span> <span class="ruby-identifier">package_dir</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-keyword kw">nil</span>
+144:         <span class="ruby-ivar">@package_files</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">fn</span><span class="ruby-operator">|</span>
+145:           <span class="ruby-identifier">f</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">package_dir_path</span>, <span class="ruby-identifier">fn</span>)
+146:           <span class="ruby-identifier">fdir</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-identifier">f</span>)
+147:           <span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">fdir</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">fdir</span>)
+148:           <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">fn</span>)
+149:             <span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">f</span>)
+150:           <span class="ruby-keyword kw">else</span>
+151:             <span class="ruby-identifier">rm_f</span> <span class="ruby-identifier">f</span>
+152:             <span class="ruby-identifier">safe_ln</span>(<span class="ruby-identifier">fn</span>, <span class="ruby-identifier">f</span>)
+153:           <span class="ruby-keyword kw">end</span>
+154:         <span class="ruby-keyword kw">end</span>
+155:       <span class="ruby-keyword kw">end</span>
+156:       <span class="ruby-keyword kw">self</span>
+157:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

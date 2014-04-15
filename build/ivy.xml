@@ -1,0 +1,137 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project basedir=".." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <import file="should_run.xml"/>
+    <import file="filesets.xml"/>
+
+    <target name="ivy.common.release" if="run.common" depends="-run?">
+        <retrieve.dependencies module="common" conf="release" ivy.lib.dir="${dir.common.ivy}"/>
+    </target>
+
+    <target name="ivy.common.test" if="run.common" depends="-run?">
+        <retrieve.dependencies module="common" conf="testing" ivy.lib.dir="${dir.common.ivy}"/>
+    </target>
+
+    <target name="ivy.performance.test" if="run.common" depends="-run?">
+        <retrieve.dependencies module="performance" conf="testing" ivy.lib.dir="${dir.performance.ivy}"/>
+    </target>
+
+    <target name="ivy.util.release" if="run.util" depends="-run?">
+        <retrieve.dependencies module="util" conf="release" ivy.lib.dir="${dir.util.ivy}"/>
+    </target>
+
+    <target name="ivy.tfs-impl.release" if="run.tfs-impl" depends="-run?">
+        <retrieve.dependencies module="tfs-impl" conf="release" ivy.lib.dir="${dir.tfs-impl.ivy}"/>
+    </target>
+
+    <target name="ivy.test-utils.release" if="run.test-utils" depends="-run?">
+        <retrieve.dependencies module="test-utils" conf="testing" ivy.lib.dir="${dir.test-utils.ivy}"/>
+    </target>
+
+    <target name="ivy.scn.test">
+        <retrieve.dependencies module="scenarios" conf="testing" ivy.lib.dir="${dir.scn.ivy}"/>
+    </target>
+
+    <target name="ivy.util.test" if="run.util" depends="-run?">
+        <retrieve.dependencies module="util" conf="testing" ivy.lib.dir="${dir.util.ivy}"/>
+    </target>
+
+    <target name="ivy.tfs-impl.test" if="run.tfs-impl" depends="-run?">
+        <retrieve.dependencies module="tfs-impl" conf="testing" ivy.lib.dir="${dir.tfs-impl.ivy}"/>
+    </target>
+
+    <target name="ivy.test-utils.test" if="run.test-utils" depends="-run?">
+            <retrieve.dependencies module="test-utils" conf="testing" ivy.lib.dir="${dir.test-utils.ivy}"/>
+        </target>
+
+
+    <target name="ivy.agent.release" if="run.agent" depends="-run?">
+        <retrieve.dependencies module="agent" conf="release" ivy.lib.dir="${dir.agent.ivy}"/>
+    </target>
+
+    <target name="ivy.agent.test" if="run.agent" depends="-run?">
+        <retrieve.dependencies module="agent" conf="testing" ivy.lib.dir="${dir.agent.ivy}"/>
+    </target>
+
+    <target name="ivy.agent-bootstrapper.release" if="run.agent" depends="-run?">
+        <retrieve.dependencies module="agent-bootstrapper" conf="release" ivy.lib.dir="${dir.agent-bootstrapper.ivy}"/>
+    </target>
+
+    <target name="ivy.agent-bootstrapper.test" if="run.agent" depends="-run?">
+        <retrieve.dependencies module="agent-bootstrapper" conf="testing" ivy.lib.dir="${dir.agent-bootstrapper.ivy}"/>
+    </target>
+
+    <target name="ivy.agent-bootstrapper.compile" if="run.agent" depends="-run?">
+        <retrieve.dependencies module="agent-bootstrapper" conf="compile" ivy.lib.dir="${dir.agent-bootstrapper.ivy}"/>
+    </target>
+
+    <target name="ivy.server.release" if="run.server" depends="-run?">
+        <retrieve.dependencies module="server" conf="release" ivy.lib.dir="${dir.server.ivy}"/>
+    </target>
+
+    <target name="ivy.server.compile" if="run.server" depends="-run?">
+        <retrieve.dependencies module="server" conf="compile" ivy.lib.dir="${dir.server.ivy}"/>
+    </target>
+
+    <target name="ivy.server.test" if="run.server" depends="-run?">
+        <retrieve.dependencies module="server" conf="testing" ivy.lib.dir="${dir.server.ivy}"/>
+    </target>
+
+    <!--
+
+        <target name="" if="run.server" depends="-run?">
+        </target>
+    -->
+
+    <property name="ivy.local.default.root" location="${ivy}"/>
+
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant">
+        <classpath>
+            <pathelement location="${ivy}/_ivy.repository.setting/ivy-2.0.0-beta1.jar"/>
+        </classpath>
+    </taskdef>
+    <ivy:settings id="ivy.instance"
+                  file="${ivy}/_ivy.repository.setting/ivy.repository.settings.xml"/>
+
+    <macrodef name="retrieve.dependencies">
+        <attribute name="module"/>
+        <attribute name="conf"/>
+        <attribute name="ivy.lib.dir"/>
+        <sequential>
+            <!--  <ivy:cleancache />       <delete dir="${ivy.cache.dir}" quiet="true" />  -->
+            <delete quiet="true">
+                <fileset dir="@{ivy.lib.dir}" includes="*.jar"/>
+            </delete>
+            <ivy:resolve file="@{module}/@{module}-dependencies.xml" conf="@{conf}"/>
+            <ivy:retrieve conf="@{conf}" useorigin="true" pattern="@{ivy.lib.dir}/[artifact].[ext]"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="ivy-publish">
+        <attribute name="module"/>
+        <attribute name="jars"/>
+        <sequential>
+            <ivy:resolve file="@{module}/@{module}-dependencies.xml" conf="*"/>
+            <ivy:publish resolver="local" pubrevision="1.0" overwrite="true" forcedeliver="true">
+                <artifacts pattern="@{jars}/[artifact].[ext]"/>
+                <artifacts pattern="@{module}/@{module}-dependencies.xml"/>
+            </ivy:publish>
+        </sequential>
+    </macrodef>
+</project>
+

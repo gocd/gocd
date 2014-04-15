@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: register_example_group
+comment: 
+full_name: Spec::Runner::ExampleGroupCreationListener#register_example_group
+visibility: public
+aliases: []
+

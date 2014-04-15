@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Mingle Integration">
+  
+  <p>Go integrates with <exref url="http://www.thoughtworks.com/products/mingle-agile-project-management/">Mingle, the Agile Project Management tool</exref> from ThoughtWorks Studios. This allows the users of Go and Mingle to surround their data with additional context, increasing the value of the information.</p>
+  
+  <p>Go's <cref topic="mingle_card_activity_gadget">Mingle card activity gadget</cref> allows users to see, in the context of Go, the new activity in a pipeline in terms of the Mingle cards that were worked on in that period.  This card activity can reflect information about your project, such as which features were just deployed to production or which features require testing.  To enable this integration, please follow the instructions for <cref topic="mingle_in_go">configuring the display of Mingle gadgets within Go.</cref></p>
+  
+  <section title="Supported versions" collapsed="false">
+    <p>To display a Go pipeline status gadget in Mingle, Mingle must be version 3.3 or greater and Go must be version 2.1 or greater.</p>
+    <p>To display a Mingle card activity gadget in Go, Mingle must be version 3.3 or greater and Go must be version 2.2 or greater.</p>
+  </section>
+  
+  <section title="Integration technologies" collapsed="false">
+    <subsection file="what_is_opensocial" collapsed="false" />
+    <subsection file="what_is_oauth" collapsed="false" />
+  </section>
+  
+  <section title="Also see" file="mingle_integration_related_topics" collapsed="false"/>
+  
+</chapter>

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: option_string
+comment: 
+full_name: Rake::RDocTask#option_string
+visibility: public
+aliases: []
+

@@ -1,0 +1,32 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*patterns, &block)
+is_singleton: false
+block_params: 
+name: exclude
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Register a list of file name patterns that should be excluded from the list.
+    Patterns may be regular expressions, glob patterns or regular strings. In addition,
+    a block given to exclude will remove entries that return true when given to the
+    block.
+- !ruby/struct:SM::Flow::P 
+  body: Note that glob patterns are expanded against the file system. If a file is
+    explicitly added to a file list, but does not exist in the file system, then an
+    glob pattern in the exclude list will not exclude the file.
+- !ruby/struct:SM::Flow::P 
+  body: 'Examples:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  FileList['a.c', 'b.c'].exclude(&quot;a.c&quot;) =&gt; ['b.c']\n  FileList['a.c', \
+    'b.c'].exclude(/^a/)  =&gt; ['b.c']\n"
+- !ruby/struct:SM::Flow::P 
+  body: If &quot;a.c&quot; is a file, then ...
+- !ruby/struct:SM::Flow::VERB 
+  body: "  FileList['a.c', 'b.c'].exclude(&quot;a.*&quot;) =&gt; ['b.c']\n"
+- !ruby/struct:SM::Flow::P 
+  body: If &quot;a.c&quot; is not a file, then ...
+- !ruby/struct:SM::Flow::VERB 
+  body: "  FileList['a.c', 'b.c'].exclude(&quot;a.*&quot;) =&gt; ['a.c', 'b.c']\n"
+full_name: Rake::FileList#exclude
+visibility: public
+aliases: []
+

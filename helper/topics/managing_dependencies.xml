@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Managing dependencies">
+	<p>
+        Sometimes you need more complex triggers than a simple pipeline of stages and jobs. In particular,
+        you may want a pipeline to trigger based on the result of a stage in another pipeline. This is
+        possible by adding pipelines as materials.
+    </p>
+	<section title="Creating a dependency">
+        <p>
+            Say we have two pipelines - <strong>upstream_pipeline</strong> and <strong>downstream_pipeline</strong>. We want
+            downstream_pipeline to automatically trigger following the successful completion of the stage AutoStage1
+            in pipeline upstream_pipeline. Here's how we'd achieve this:
+        </p>
+        <bullets>
+            <item>Navigate to the <strong>Admin</strong> section.</item>
+            <item>On the Pipelines screen, locate the <strong>downstream_pipeline</strong> pipeline and <strong>Edit</strong> it.</item>
+            <item>Click on the <strong>Materials</strong> tab.</item>
+            <item>Add a new pipeline dependency material by clicking <strong>Add Material</strong> and then selecting <strong>Pipeline</strong>.</item>
+            <item>You'll be presented with an <strong>Add Material</strong> popup (see screenshot)</item>
+            <item>Enter <strong>upstream_pipeline [AutoStage1]</strong> in the <strong>Pipeline [stage]</strong> field (it can also auto-complete)</item>
+        </bullets>
+        <img src="resources/images/cruise/admin/pipeline/pipeline_add_material.png" />
+        <p>
+            Power users can also configure this via the <strong>Config XML</strong> tab on the Admin section:
+        </p>
+	    <code>
+<cref topic="configuration_reference" anchor="pipeline">&lt;pipeline</cref> name="downstream_pipeline"&gt; &nbsp;
+  <cref topic="configuration_reference" anchor="materials">&lt;materials&gt;</cref> &nbsp;
+    <cref topic="configuration_reference" anchor="pipeline-dependency">&lt;pipeline</cref> pipelineName="upstream_pipeline" stageName="AutoStage1"/&gt; &nbsp;
+  &lt;/materials&gt;
+  ...
+&lt;/pipeline&gt;
+	    </code>
+        <p>
+            Now, when the stage "AutoStage1" of "upstream_pipeline" completes, the pipeline
+            "downstream_pipeline" will start building. The Pipeline Dependency visualization shows you
+            all the downstream instances that were triggered off the upstream instance (label 14) currently
+            being viewed.
+        </p>
+        <img src="resources/images/cruise/dependent_build.png"/>
+        <p>
+            If you want to view the materials that are associated with "downstream_pipeline", the pipeline
+            details page for that specific instance of the downstream pipeline will show you all this information.
+        </p>
+        <img src="resources/images/cruise/downstream_pipeline.png" />
+        </section>
+
+        <section title="Fetching artifacts from an upstream pipeline" id="fetch_artifact_section">
+            <p>
+                Go can automatically fetch artifacts from a previous stage of the current pipeline or from
+                any ancestor pipeline it depends on. This is useful when a pipeline depends on binaries that are
+                produced earlier in the pipeline.
+            </p>
+            <p>
+                Note that you can not specify two (or more) dependencies for the same upstream pipeline.
+            </p>
+            <p>
+                For example, in the following configuration, when the stage "AutoStage1" of pipeline
+                "upstream_pipeline" passes, the pipeline "downstream_pipeline" starts, and the artifacts
+                are fetched from the upstream pipeline in the stage 'Stage' of "downstream_pipeline". You
+                can see the exact pipeline and stage that triggered this in the sub-tab 'Materials' on the stage details page.
+            </p>
+            <p>
+                You can do this via the admin screens for the respective pipelines. You'll need to first
+                define the artifact in the "upstream_pipeline" at the job level:
+            </p>
+            <img src="resources/images/cruise/admin/pipeline/job_artifacts.png"/>
+            <p>
+                Then, you'll want to retrieve (fetch) that artifact from within the "downstream_pipeline."
+                You can do this by creating a "Fetch Artifact" task within a job in that pipeline. Since you
+                have already defined "upstream_pipeline" as a dependency material, artifacts from that pipeline
+                are accessible in this pipeline.
+            </p>
+            <img src="resources/images/cruise/admin/pipeline/task_fetch_artifact.png"/>
+            <p>
+                A fetch task can also be instructed to retrieve (fetch) an artifact from an ancestor pipeline.
+                For example, lets assume that the "upstream_pipeline" used in this example, depends on another pipeline "topmost_pipeline".
+		Then you can define a a "Fetch Artifact" task to fetch artifacts from "topmost_pipeline" by defining the hierarchy of these pipelines as follows. You have to specify the hierarchy by separting the pipelines with a /. For example: topmost_pipeline/upstream_pipeline.
+            </p>
+            <img src="resources/images/cruise/admin/pipeline/task_fetch_artifact_ancestor.png"/>
+
+            <p>For power users, here's how you can configure this via Config XML:</p>
+            <code>
+
+<cref topic="configuration_reference" anchor="pipeline">&lt;pipeline</cref> name="topmost_pipeline"&gt; &nbsp;
+  <cref topic="configuration_reference" anchor="materials">&lt;materials&gt;</cref> &nbsp;
+    <cref topic="configuration_reference" anchor="svn">&lt;svn</cref> url="...."/&gt; &nbsp;
+  &lt;/materials&gt;
+  ...
+  <cref topic="configuration_reference" anchor="stage">&lt;stage</cref> name="TopStage1"&gt; &nbsp;
+    &lt;jobs&gt;
+    <cref topic="configuration_reference" anchor="job">&lt;job</cref> name="topJob"&gt; &nbsp;
+      <cref topic="configuration_reference" anchor="tasks">&lt;tasks&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="nant">&lt;nant /&gt;</cref> &nbsp;
+      &lt;/tasks&gt;
+      <cref topic="configuration_reference" anchor="artifacts">&lt;artifacts&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="artifact">&lt;artifact</cref> src="target/mylib.dll" dest="lib"/&gt; &nbsp;
+      &lt;/artifacts&gt;
+    &lt;/job&gt;
+   &lt;/jobs&gt;
+  &lt;/stage&gt;
+&lt;/pipeline&gt;
+<cref topic="configuration_reference" anchor="pipeline">&lt;pipeline</cref> name="upstream_pipeline"&gt; &nbsp;
+  <cref topic="configuration_reference" anchor="materials">&lt;materials&gt;</cref> &nbsp;
+    <cref topic="configuration_reference" anchor="svn">&lt;svn</cref> url="...."/&gt; &nbsp;
+    <cref topic="configuration_reference" anchor="pipeline-dependency">&lt;pipeline</cref> pipelineName="topmost_pipeline" stageName="TopStage1"/&gt; &nbsp;
+  &lt;/materials&gt;
+  ...
+  <cref topic="configuration_reference" anchor="stage">&lt;stage</cref> name="AutoStage1"&gt; &nbsp;
+    &lt;jobs&gt;
+    <cref topic="configuration_reference" anchor="job">&lt;job</cref> name="firstJob"&gt; &nbsp;
+      <cref topic="configuration_reference" anchor="tasks">&lt;tasks&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="nant">&lt;nant /&gt;</cref> &nbsp;
+      &lt;/tasks&gt;
+      <cref topic="configuration_reference" anchor="artifacts">&lt;artifacts&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="artifact">&lt;artifact</cref> src="target/commonlib.dll" dest="pkg"/&gt; &nbsp;
+      &lt;/artifacts&gt;
+    &lt;/job&gt;
+   &lt;/jobs&gt;
+  &lt;/stage&gt;
+&lt;/pipeline&gt;
+<cref topic="configuration_reference" anchor="pipeline">&lt;pipeline</cref> name="downstream_pipeline"&gt; &nbsp;
+  <cref topic="configuration_reference" anchor="materials">&lt;materials&gt;</cref> &nbsp;
+    <cref topic="configuration_reference" anchor="pipeline-dependency">&lt;pipeline</cref> pipelineName="upstream_pipeline" stageName="AutoStage1"/&gt; &nbsp;
+  &lt;/materials&gt;
+  <cref topic="configuration_reference" anchor="stage">&lt;stage</cref> name="Stage"&gt; &nbsp;
+    &lt;jobs&gt;
+    <cref topic="configuration_reference" anchor="job">&lt;job</cref> name="fetchFromParentJob"&gt; &nbsp;
+      <cref topic="configuration_reference" anchor="tasks">&lt;tasks&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="fetchartifact">&lt;fetchartifact</cref> pipeline="upstream_pipeline" stage="AutoStage1" job="firstJob" srcfile="pkg/commonlib.dll" dest="libs"/&gt; &nbsp;
+      &lt;/tasks&gt;
+    &lt;/job&gt;
+    <cref topic="configuration_reference" anchor="job">&lt;job</cref> name="fetchFromAncestorJob"&gt; &nbsp;
+      <cref topic="configuration_reference" anchor="tasks">&lt;tasks&gt;</cref> &nbsp;
+        <cref topic="configuration_reference" anchor="fetchartifact">&lt;fetchartifact</cref> pipeline="topmost_pipeline/upstream_pipeline" stage="TopStage1" job="topJob" srcfile="lib/mylib.dll" dest="libs"/&gt; &nbsp;
+      &lt;/tasks&gt;
+    &lt;/job&gt;
+   &lt;jobs&gt;
+  &lt;/stage&gt;
+  ...
+&lt;/pipeline&gt;
+	</code>
+	</section>
+</chapter>

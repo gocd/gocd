@@ -1,0 +1,103 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: TestTask
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a task that runs a set of tests.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  Rake::TestTask.new do |t|\n    t.libs &lt;&lt; &quot;test&quot;\n    t.test_files \
+    = FileList['test/test*.rb']\n    t.verbose = true\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: If rake is invoked with a &quot;TEST=filename&quot; command line option, then
+    the list of test files will be overridden to include only the filename specified
+    on the command line. This provides an easy way to run just one test.
+- !ruby/struct:SM::Flow::P 
+  body: If rake is invoked with a &quot;TESTOPTS=options&quot; command line option,
+    then the given options are passed to the test process after a '--'. This allows
+    Test::Unit options to be passed to the test suite.
+- !ruby/struct:SM::Flow::P 
+  body: 'Examples:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  rake test                           # run tests normally\n  rake test TEST=just_one_file.rb \
+    \    # run just one test file.\n  rake test TESTOPTS=&quot;-v&quot;            \
+    \ # run in verbose mode\n  rake test TESTOPTS=&quot;--runner=fox&quot;   # use \
+    the fox test runner\n"
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: libs
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of directories to added to $LOAD_PATH before running the tests. (default
+      is 'lib')
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: loader
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: 'Style of test loader to use. Options are:'
+  - !ruby/object:SM::Flow::LIST 
+    type: :BULLET
+    contents: 
+    - !ruby/struct:SM::Flow::LI 
+      label: '*'
+      body: ":rake -- Rake provided test loading script (default)."
+    - !ruby/struct:SM::Flow::LI 
+      label: '*'
+      body: ":testrb -- Ruby provided test loading script."
+    - !ruby/struct:SM::Flow::LI 
+      label: '*'
+      body: ":direct -- Load tests using command line loader."
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: name
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Name of test task. (default is :test)
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: options
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Test options passed to the test suite. An explicit TESTOPTS=opts on the
+      command line will override this. (default is NONE)
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: pattern
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Glob pattern to match test files. (default is 'test/test*.rb')
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: ruby_opts
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of commandline options to pass to ruby when running test loader.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: verbose
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: True if verbose test output desired. (default is false)
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: warning
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Request that the tests be run with the warning flag set. E.g. warning=true
+      implies &quot;ruby -w&quot; used to run the tests.
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: define
+- !ruby/object:RI::MethodSummary 
+  name: test_files=
+full_name: Rake::TestTask
+superclass: TaskLib
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

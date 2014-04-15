@@ -1,0 +1,268 @@
+#*************************GO-LICENSE-START********************************
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or a-qgreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#*************************GO-LICENSE-END**********************************
+
+username = "cruise"
+perf_server = ENV['box_ip'] || "10.4.4.77"
+#username = "cruise_builder"
+#perf_server = "go03.thoughtworks.com"
+
+down_ips = []
+
+gobooks = (221..241).inject([]) do |ips, last_oct|
+  ips + ["10.4.10.#{last_oct}"]
+end - down_ips
+
+set :ssh_options, {:user => username}
+
+YOURKIT = "#{Dir["/home/cruise/tools/yjp*"].first}/bin/yjp.sh"
+SERVER_DIR = "go-server-2.4.0"
+GIT_DIR = `git rev-parse --git-dir`
+CRUISE_ROOT = `dirname #{GIT_DIR}`.chomp
+
+def path_to_cruise_zip
+  pattern = "#{CRUISE_ROOT}/target/server/dist/go-server-*.zip"
+  path = Dir[pattern].first
+  path || raise("go-server zip not found: #{pattern}")
+end
+
+CRUISE_ZIP = path_to_cruise_zip
+SERVER_ENVIRONMENT_VARS = <<-END
+    export DAEMON=Y;
+    export SHINE_USERNAME=both;
+    export SHINE_PASSWORD=badger;
+    export CRUISE_SERVER_SYSTEM_PROPERTIES="-Djruby.jit.logging=true -Dcruise.material.update.interval=5000";
+    export JVM_DEBUG=Y;
+    export SERVER_MEM=2048M;
+    export SERVER_MAX_MEM=2048M;
+    export SERVER_MIN_PERM_GEN=256M;
+    export SERVER_MAX_PERM_GEN=400M;
+    export YOURKIT_DO_NOT_disablej2ee=no;
+    export YOURKIT_DO_NOT_disableexceptiontelemetry=no;
+END
+
+URL = ENV["URL"] || "/go/pipelines"
+CRUISE_PORT = ENV["PORT"] || "8153"
+LOAD_CONNS = ENV["LOAD_CONNS"] || 100
+LOAD_RATE = ENV["LOAD_RATE"] || 10
+HTTPERF_ARGS = ENV["HTTPERF_ARGS"] || ""
+CONFIGURATION = ENV["CONFIGURATION"] || "merged"
+CPU_PROFILING_MODE = ENV["CPU_PROFILING_MODE"] || "sampling"
+
+SCHEME = ENV["SCHEME"] || "http"
+
+AB_AUTH = ENV["USE_AUTH"] ? "-A admin:badger" : ""
+
+FULL_URL = ENV["FULL_URL"] || "#{SCHEME}://#{perf_server}:#{CRUISE_PORT}#{URL}"
+
+task :warm_up, :hosts => perf_server do
+  2.times { system "ab #{AB_AUTH}-n 70 -c 1 #{FULL_URL}" }
+  #  system "httperf --add-header 'Authorization: Basic Ym90aDpiYWRnZXI=\\n' --hog --server 10.4.3.42 --port #{CRUISE_PORT} --uri=/cruise/pipelines --num-conns=10 --rate=1"
+  #  system "httperf --add-header 'Authorization: Basic Ym90aDpiYWRnZXI=\\n' --hog --server 10.4.3.42 --port #{CRUISE_PORT} --uri=/cruise/pipelines --wsess=1,10,1 --rate=1 --session-cookie"
+end
+
+task :generate_load, :hosts => perf_server do
+  # connection based load
+  system "httperf --hog --server #{perf_server} --port #{CRUISE_PORT} --uri=#{URL} --num-conns=#{LOAD_CONNS} --rate=#{LOAD_RATE} #{SCHEME == "https" ? '--ssl' : ''} #{HTTPERF_ARGS}"
+  # system "httperf --add-header 'Authorization: Basic Ym90aDpiYWRnZXI=\\n' --hog --server 10.4.3.42 --port #{CRUISE_PORT} --uri=#{URL} --num-conns=#{LOAD_CONNS} --rate=#{LOAD_RATE} #{HTTPERF_ARGS}"
+  # system "ab -A both:badger -n #{LOAD_CONNS} -c #{LOAD_RATE} http://10.4.3.42:#{CRUISE_PORT}#{URL}"
+
+  # session-based load
+  # system "httperf --add-header 'Authorization: Basic Ym90aDpiYWRnZXI=\\n' --hog --server 10.4.3.42 --port #{CRUISE_PORT} --uri=/cruise/pipelines --wsess=10,10,1 --rate=10 --session-cookie"
+end
+
+task :generate_load_ab, :hosts => perf_server do
+  system "ab #{AB_AUTH} -n #{LOAD_CONNS} -c #{LOAD_RATE} #{FULL_URL}"
+end
+
+namespace :gobook do
+  task :stop, :hosts => gobooks do
+    run "(cd go-agents && ./stop_agents.sh)"
+  end
+
+  task :repoint, :hosts => gobooks do
+    run "echo '#{perf_server}' > go-agents/go-server-host"
+  end
+
+  task :start, :hosts => gobooks do
+    run "(cd go-agents && ./start_agents.sh)"
+  end
+
+  task :jps, :hosts => gobooks do
+    run "jps"
+  end
+
+  task :which_server, :hosts => gobooks do
+    run "cat go-agents/go-server-host"
+  end
+
+end
+
+task :generate_load_continuously, :hosts => perf_server do
+  while (true)
+    generate_load
+  end
+end
+
+task :exp, :hosts => perf_server do
+  capture_snapshot
+end
+
+task :perf_no_profiling, :hosts => perf_server do
+  reset_server
+  copy_zip
+  configure_server
+  start_server
+  wait_for_server_to_start
+  warm_up
+  generate_load
+end
+
+task :perf_existing, :hosts => perf_server do
+  wait_for_server_to_start
+  warm_up
+  start_profiling
+  generate_load
+  capture_snapshot
+  stop_profiling
+end
+
+task :perf, :hosts => perf_server do
+  reset_server
+  copy_zip
+  configure_server
+  start_server
+  wait_for_server_to_start
+  warm_up
+  start_profiling
+  generate_load
+  capture_snapshot
+  stop_profiling
+end
+
+task :prepare, :hosts => perf_server do
+  reset_server
+  copy_zip
+  configure_server
+  start_server
+  wait_for_server_to_start
+  warm_up
+  warm_up
+  warm_up
+  start_profiling
+end
+
+task :capture_snapshot, :hosts => perf_server do
+  response = capture("java -jar yjp-controller-api-redist.jar localhost 6133 capture-performance-snapshot").grep(/Snapshot/).first.chomp
+  puts response
+  snapshot = $1 if response =~ /Snapshot captured: (.*)$/
+  puts snapshot
+  if snapshot =~ /.*\(\d+\).*/
+    snapshot = snapshot.gsub("(", "\\(").gsub(")", "\\)")
+  end
+  download snapshot, "/home/cruise/Snapshots/#{File.basename(snapshot)}", :via => :scp
+  system "#{YOURKIT} -open #{snapshot} &"
+end
+
+task :capture_memory_snapshot, :hosts => perf_server do
+  response = capture("java -jar yjp-controller-api-redist.jar localhost 6133 capture-memory-snapshot").grep(/Snapshot/).first.chomp
+  puts response
+  snapshot = $1 if response =~ /Snapshot captured: (.*)$/
+  puts snapshot
+  if snapshot =~ /.*\(\d+\).*/
+    snapshot = snapshot.gsub("(", "\\(").gsub(")", "\\)")
+  end
+  download snapshot, "/home/cruise/Snapshots/#{File.basename(snapshot)}", :via => :scp
+  system "#{YOURKIT} -open #{snapshot} &"
+end
+
+task :start_profiling, :hosts => perf_server do
+  run <<-END
+    java -jar yjp-controller-api-redist.jar localhost 6133 start-cpu-#{CPU_PROFILING_MODE};
+    java -jar yjp-controller-api-redist.jar localhost 6133 start-monitor-profiling;
+  END
+end
+
+task :stop_profiling, :hosts => perf_server do
+  run <<-END
+    java -jar yjp-controller-api-redist.jar localhost 6133 stop-cpu-profiling;
+    java -jar yjp-controller-api-redist.jar localhost 6133 stop-monitor-profiling;
+  END
+end
+
+task :reset_server, :hosts => perf_server do
+  stop_server
+  delete_server
+end
+
+task :stop_server, :hosts => perf_server do
+  run <<-END
+    if [ -e #{SERVER_DIR}/go-server.pid ]; then
+      cd #{SERVER_DIR};
+      sh stop-server.sh;
+    fi;
+    ps waux | grep java | grep -v grep | cut -b 10-16 | xargs --no-run-if-empty kill;
+  END
+end
+
+task :delete_server, :hosts => perf_server do
+  run <<-END
+    rm -rf ~/go-server-2*;
+  END
+end
+
+task :copy_zip, :hosts => perf_server do
+  upload CRUISE_ZIP, File.basename(CRUISE_ZIP), :via => :scp
+  run <<-END
+    unzip go-server-*.zip;
+  END
+end
+
+task :start_server, :hosts => perf_server do
+  run <<-END
+    #{SERVER_ENVIRONMENT_VARS}
+    cd #{SERVER_DIR};
+    chmod +x ./server.sh;
+    ./server.sh
+  END
+end
+
+task :wait_for_server_to_start, :hosts => perf_server do
+  wait_for = 10
+  while `curl -k -I #{SCHEME}://#{perf_server}:#{CRUISE_PORT}/go/auth/login`.grep(/Jetty/).empty?
+    puts "retrying in #{wait_for} seconds"
+    sleep wait_for
+  end
+end
+
+task :pause do
+  begin
+    sleep(1000 * 60 * 60)
+  rescue
+  end
+end
+
+# setup cruise-config.xml, repoint db, repoint pipelines (to get flyweight folders)
+task :configure_server, :hosts => perf_server do
+  run <<-END
+    mkdir -p #{SERVER_DIR}/config;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/cipher #{SERVER_DIR}/config/cipher;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/cruise-config.xml #{SERVER_DIR}/config/cruise-config.xml;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/db #{SERVER_DIR}/db;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/pipelines #{SERVER_DIR}/pipelines;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/logs #{SERVER_DIR}/logs;
+    ln -sf /home/cruise/perf-test-config/#{CONFIGURATION}/artifacts #{SERVER_DIR}/artifacts;
+  END
+end

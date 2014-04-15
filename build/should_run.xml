@@ -1,0 +1,130 @@
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project basedir="..">
+    <property name="run" value="fast" />
+
+    <!--
+        This lets you limit your build based on which projects you want to build.
+
+        Just set
+            run={fast|all|agent|server|ccmain|common}.
+
+        The default is
+            run=fast
+        ('fast' will run common, server, and agent)
+
+        Tests can be skipped with
+            test.skip=true
+
+    Just add the following to any project specific target.
+
+        <target name="" if="run.ccmain" depends="-run?">
+        </target>
+
+        <target name="" if="run.common" depends="-run?">
+        </target>
+
+        <target name="" if="run.agent" depends="-run?">
+        </target>
+
+        <target name="" if="run.server" depends="-run?">
+        </target>
+
+    Tests should use:
+
+        <target name="" if="run.ccmain.test" depends="-run-test?">
+        </target>
+
+        <target name="" if="run.common.test" depends="-run-test?">
+        </target>
+
+        <target name="" if="run.agent.test" depends="-run-test?">
+        </target>
+
+        <target name="" if="run.server.test" depends="-run-test?">
+        </target>
+
+ -->
+
+
+    <target name="-run?">
+        <condition property="run.tfs-impl">
+            <or>
+                <contains string="${run}" substring="tfs-impl" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+        <condition property="run.util">
+            <or>
+                <contains string="${run}" substring="util" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+        <condition property="run.test-utils">
+            <or>
+                <contains string="${run}" substring="run.test-utils" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+        <condition property="run.common">
+            <or>
+                <contains string="${run}" substring="common" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+        <condition property="run.agent">
+            <or>
+                <contains string="${run}" substring="agent" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+        <condition property="run.server">
+            <or>
+                <contains string="${run}" substring="server" />
+                <equals arg1="${run}" arg2="all" />
+                <equals arg1="${run}" arg2="fast" />
+            </or>
+        </condition>
+    </target>
+
+    <target name="-run-test?" depends="-run?" unless="test.skip">
+        <condition property="run.tfs-impl.test">
+            <isset property="run.tfs-impl" />
+        </condition>
+        <condition property="run.util.test">
+            <isset property="run.util" />
+        </condition>
+        <condition property="run.test-utils.test">
+            <isset property="run.test-utils" />
+        </condition>
+        <condition property="run.common.test">
+            <isset property="run.common" />
+        </condition>
+        <condition property="run.agent.test">
+            <isset property="run.agent" />
+        </condition>
+        <condition property="run.server.test">
+            <isset property="run.server" />
+        </condition>
+    </target>
+
+</project>

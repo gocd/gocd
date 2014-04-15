@@ -1,0 +1,183 @@
+#*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************#
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+    <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
+    <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
+    <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
+    <script src="$req.getContextPath()/compressed/all.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            background: #000;
+        }
+        #bd {
+            background: #000;
+            border: none;
+        }
+        h1, h2, h3, h4 {
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+            font-weight: 500;
+        }
+        a:link.help, a:visited.help {
+            float: right;
+            text-decoration: underline;
+
+            padding-top: 0.2em;
+        }
+        a{
+            cursor: pointer;
+            color: #FFF;
+            text-decoration: none;
+        }
+        a:hover{
+            color: #FFF;
+        }
+        #footer {
+            background: none repeat scroll 0 0 #333333;
+            clear: both;
+            font-size: 11px;
+            padding: 15px;
+            width: auto;
+        }
+        #footer a {
+            color: #FFFFFF;
+        }
+        #footer ul li {
+            border-right: 1px dotted #CCCCCC;
+            color: #BBBBBB !important;
+            display: inline;
+            padding: 0 0.5em;
+        }
+        #footer ul li.last {
+            border: 0 none !important;
+        }
+        #footer ul li, #footer ul li a, #footer ul li span {
+            font-size: 11px !important;
+        }
+        #footer .copyright {
+            float: left;
+        }
+        #footer ul.links {
+            float: right;
+        }
+        #footer #copyright {
+            clear: both;
+            color: #1F2314;
+            float: left;
+            font-size: 0.9em;
+            padding-left: 2em;
+            width: 20em;
+        }
+        #footer #copyright a, #footer #copyright a:visited {
+            color: #1F2314;
+        }
+
+    </style>
+    <title>Go - Login</title>
+</head>
+<body id="login-page">
+<div id="doc3" class="yui-t7">
+    <div id="bd">
+        <div id="yui-main">
+            <div id="main" class="yui-b">
+                #if ($login_error && $SPRING_SECURITY_LAST_EXCEPTION)
+                <div id="error-container" style="">
+                    <div class="ab-bg">
+                        <span class="ab-corner lvl1"></span>
+                        <span class="ab-corner lvl2"></span>
+                        <span class="ab-corner lvl3"></span>
+                        <span class="ab-corner lvl4"></span>
+                    </div>
+                    <div id="error-box">
+                        $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
+                        <a target="_blank" href="$req.getContextPath()/help/dev_authentication.html#common_errors">Help Topic: Authentication</a>
+                    </div>
+                    <div class="ab-bg">
+                        <span class="ab-corner lvl4"></span>
+                        <span class="ab-corner lvl3"></span>
+                        <span class="ab-corner lvl2"></span>
+                        <span class="ab-corner lvl1"></span>
+                    </div>
+                </div>
+                #end
+                <div class='clear-both'><!-- Clear floats --></div>
+                <div id="graphic-dialog-container">
+                    <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
+                        <div id="logo-login"><h2>&nbsp;</h2></div>
+                        <div id="graphic-dialog-input">
+                            <!-- <h3>$l.localize("PLEASE_SIGN_IN")</h3> -->
+                            <form action="security_check" id="login_form" method="post">
+                                <p>
+                                    <label for="user_login">$l.localize("USERNAME")</label>
+                                    <input class="" id="user_login" name="j_username" onfocus="true"
+                                           type="text"/>
+                                </p>
+
+                                <p>
+                                    <label for="user_password">$l.localize("PASSWORD")</label>
+                                    <input class="" type="password" name="j_password" id="user_password"
+                                           value=""/>
+                                </p>
+
+                                <p id="login-actions">
+                                    <a target="_blank" href="$req.getContextPath()/help/index.html"
+                                       title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
+##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
+
+                                    <button class="submit_hover submit primary" type="submit" id="signin2" value="Sign in &#187;">
+                                        <span>$l.localize("SIGN_IN")</span>
+                                    </button>
+
+                                </p>
+
+                                <div class='clear-both'><!-- Clear floats --></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+               <div id="footer">
+                <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
+                    <li>Copyright &copy; 2014 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
+                        Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">$l.localize("APACHE_LICENSE_2_0")</a>.
+                        Go includes <a href="$req.getContextPath()/help/resources/NOTICE/cruise_notice_file.pdf" target="_blank">$l.localize("THIRD_PARTY_SOFTWARE")</a>.</li>
+                    <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>
+                </ul>
+                <ul class="links">
+                    <li><a target="_blank" href="http://www.go.cd/community">$l.localize("COMMUNITY")</a></li>
+                    <li class="last"><a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a></li>
+                </ul>
+                <div class="clear"></div>
+                <script type="text/javascript">
+                    var url = "security_check" + self.document.location.hash;
+                    document.getElementById('login_form').action = url;
+                    document.getElementById('user_login').focus();
+                </script>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

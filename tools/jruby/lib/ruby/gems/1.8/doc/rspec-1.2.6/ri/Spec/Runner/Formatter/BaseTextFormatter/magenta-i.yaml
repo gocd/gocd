@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (text)
+is_singleton: false
+block_params: 
+name: magenta
+comment: 
+full_name: Spec::Runner::Formatter::BaseTextFormatter#magenta
+visibility: protected
+aliases: []
+

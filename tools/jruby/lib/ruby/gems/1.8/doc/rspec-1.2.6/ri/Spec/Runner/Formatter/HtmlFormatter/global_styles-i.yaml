@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: global_styles
+comment: 
+full_name: Spec::Runner::Formatter::HtmlFormatter#global_styles
+visibility: public
+aliases: []
+

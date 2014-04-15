@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: zip_file
+comment: 
+full_name: Rake::PackageTask#zip_file
+visibility: public
+aliases: []
+

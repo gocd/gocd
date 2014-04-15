@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym, *args, &block)
+is_singleton: false
+block_params: 
+name: method_missing
+comment: 
+full_name: Rake::TaskArguments#method_missing
+visibility: public
+aliases: []
+

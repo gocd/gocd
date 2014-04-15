@@ -1,0 +1,17 @@
+--- !ruby/object:RI::MethodDescription 
+params: (pat, rep)
+is_singleton: false
+block_params: 
+name: sub
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Return a new FileList with the results of running <tt>sub</tt> against each
+    element of the oringal list.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  FileList['a.c', 'b.c'].sub(/\\.c$/, '.o')  =&gt; ['a.o', 'b.o']\n"
+full_name: Rake::FileList#sub
+visibility: public
+aliases: []
+

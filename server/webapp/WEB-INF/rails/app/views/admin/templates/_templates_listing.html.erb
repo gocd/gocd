@@ -1,0 +1,78 @@
+<% scope[:template_to_pipelines].each do |template, pipelines| %>
+    <% is_pipeline_empty = pipelines.isEmpty() -%>
+    <div class="template" id="template_container_<%= template %>">
+
+        <div class="template_group">
+            <h2 class="group_name entity_title">
+                <%= word_breaker(template, 75) %>
+            </h2>
+
+            <div class="title_action_wrapper">
+                <ul>
+                    <li>
+                        <%= action_icon({:type => "edit", :text => l.string("EDIT"), :href => template_edit_path(:stage_parent => "templates", :pipeline_name => template, :current_tab => "general")}) %>
+                    </li>
+                    <li>
+                        <%- if is_user_a_template_admin? && !is_user_an_admin? -%>
+                            <%= action_icon({:type => "lock", :text => l.string("PERMISSIONS"), :title => l.string("UNAUTHORIZED_TO_EDIT_PERMISSIONS_FOR_TEMPLATE"), :disabled => true}) %>
+                        <%- else -%>
+                            <%= action_icon({:type => "lock", :text => l.string("PERMISSIONS"), :href => edit_template_permissions_path(:template_name => template)}) %>
+                        <%- end -%>
+                    </li>
+                    <li>
+                        <%- if is_user_a_template_admin? && !is_user_an_admin? -%>
+                            <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("UNAUTHORIZED_TO_DELETE_TEMPLATE"), :disabled => true}) %>
+                        <%- elsif !is_pipeline_empty -%>
+                            <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("CANNOT_DELETE_TEMPLATE"), :disabled => true}) %>
+                        <%- else -%>
+                            <%= form_tag(delete_template_path(:pipeline_name => template), :method => :delete, :id => "delete_template_#{template}") %>
+                            <%= md5_field %>
+                            <span class="delete_icon action_icon delete_parent" id="trigger_delete_<%= template %>" title="<%= l.string("DELETE_TEMPLATE") -%>">
+                                <%= l.string("DELETE") -%>
+                                <%= render :partial => 'admin/shared/submit_with_prompt.html', :locals => {:scope => {:button_id => "trigger_delete_#{template}", :message => "Are you sure you want to delete the template '#{template}' ? ", :on_confirmation_js => "$('#{"delete_template_#{template}"}').submit()"}} %>
+                            </span>
+                            <%= end_form_tag %>
+                        <%- end -%>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="grouping_content_wrapper">
+
+            <% if pipelines.isEmpty() %>
+                <div class="information"><%= l.string("NO_PIPELINE_IN_TEMPLATE") %></div>
+            <% else %>
+                <table class="list_table">
+                    <thead>
+                    <tr class="pipeline">
+                        <th class="name"><%= l.string("PIPELINE") %></th>
+                        <th class="name"><%= l.string("ACTIONS") %></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <%- if is_user_a_template_admin? && !is_user_an_admin? -%>
+                            <tr>
+                                <td colspan="2">
+                                    <span>
+                                        <%= "This template is used in #{pipelines.length} #{pipelines.length > 1 ? "pipelines" : "pipeline"}." -%>
+                                    </span>
+                                </td>
+                            </tr>
+                        <%- else %>
+                            <% pipelines.each do |pipeline| %>
+                                <tr class="pipeline">
+                                    <td class="name">
+                                        <%= link_to pipeline, pipeline_edit_path(:pipeline_name => pipeline, :current_tab => "general") %>
+                                    </td>
+                                    <td>
+                                        <%= action_icon({:type => "edit", :text => l.string("EDIT"), :href => pipeline_edit_path(:pipeline_name => pipeline, :current_tab => "general")}) %>
+                                    </td>
+                                </tr>
+                            <% end %>
+                        <% end %>
+                    </tbody>
+                </table>
+            <% end %>
+        </div>
+    </div>
+<% end %>

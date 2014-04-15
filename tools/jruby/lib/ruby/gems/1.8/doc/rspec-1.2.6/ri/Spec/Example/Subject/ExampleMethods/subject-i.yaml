@@ -1,0 +1,28 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: subject
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Returns the subject defined in ExampleGroupMethods#subject. The subject block
+    is only executed once per example, the result of which is cached and returned
+    by any subsequent calls to <tt>subject</tt>.
+- !ruby/struct:SM::Flow::P 
+  body: If a class is passed to <tt>describe</tt> and no subject is explicitly declared
+    in the example group, then <tt>subject</tt> will return a new instance of that
+    class.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  # explicit subject defined by the subject method\n  describe Person do\n\
+    \    subject { Person.new(:birthdate =&gt; 19.years.ago) }\n    it &quot;should \
+    be eligible to vote&quot; do\n      subject.should be_eligible_to_vote\n    end\n\
+    \  end\n\n  # implicit subject =&gt; { Person.new }\n  describe Person do\n    \
+    it &quot;should be eligible to vote&quot; do\n      subject.should be_eligible_to_vote\n\
+    \    end\n  end\n"
+full_name: Spec::Example::Subject::ExampleMethods#subject
+visibility: public
+aliases: []
+

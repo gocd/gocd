@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>parse_diff (Spec::Runner::Options)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/options.rb, line 167</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">parse_diff</span>(<span class="ruby-identifier">format</span>)
+        <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">format</span>
+        <span class="ruby-keyword kw">when</span> <span class="ruby-identifier">:context</span>, <span class="ruby-value str">'context'</span>, <span class="ruby-value str">'c'</span>
+          <span class="ruby-ivar">@diff_format</span>  = <span class="ruby-identifier">:context</span>
+          <span class="ruby-identifier">default_differ</span>
+        <span class="ruby-keyword kw">when</span> <span class="ruby-identifier">:unified</span>, <span class="ruby-value str">'unified'</span>, <span class="ruby-value str">'u'</span>, <span class="ruby-value str">''</span>, <span class="ruby-keyword kw">nil</span>
+          <span class="ruby-ivar">@diff_format</span>  = <span class="ruby-identifier">:unified</span>
+          <span class="ruby-identifier">default_differ</span>
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-ivar">@diff_format</span>  = <span class="ruby-identifier">:custom</span>
+          <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">differ_class</span> = <span class="ruby-identifier">load_class</span>(<span class="ruby-identifier">format</span>, <span class="ruby-value str">'differ'</span>, <span class="ruby-value str">'--diff'</span>)
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

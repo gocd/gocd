@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: formatter_options
+comment: 
+full_name: Spec::Runner::Options#formatter_options
+visibility: public
+aliases: []
+

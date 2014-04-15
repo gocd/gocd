@@ -1,0 +1,304 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+package com.thoughtworks.go.config;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
+
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class EnvironmentVariableConfigTest {
+
+    private GoCipher goCipher;
+
+    @Before
+    public void setUp() {
+        goCipher = mock(GoCipher.class);
+    }
+
+    @Test
+    public void shouldEncryptValueWhenConstructedAsSecure() throws InvalidCipherTextException {
+        GoCipher goCipher = mock(GoCipher.class);
+        String encryptedText = "encrypted";
+        when(goCipher.encrypt("password")).thenReturn(encryptedText);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher);
+        HashMap attrs = getAttributeMap("password", "true", "true");
+
+        environmentVariableConfig.setConfigAttributes(attrs);
+
+        assertThat(environmentVariableConfig.getEncryptedValue(), is(encryptedText));
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+        assertThat(environmentVariableConfig.isSecure(), is(true));
+    }
+
+    @Test
+    public void shouldAssignNameAndValueForAVanillaEnvironmentVariable() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
+        HashMap attrs = new HashMap();
+        attrs.put(EnvironmentVariableConfig.NAME, "foo");
+        attrs.put(EnvironmentVariableConfig.VALUE, "password");
+
+        environmentVariableConfig.setConfigAttributes(attrs);
+
+        assertThat(environmentVariableConfig.getValue(), is("password"));
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+        assertThat(environmentVariableConfig.isSecure(), is(false));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowUpWhenTheAttributeMapHasBothNameAndValueAreEmpty() throws InvalidCipherTextException {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig((GoCipher) null);
+        HashMap attrs = new HashMap();
+        attrs.put(EnvironmentVariableConfig.VALUE, "");
+        environmentVariableConfig.setConfigAttributes(attrs);
+    }
+
+    @Test
+    public void shouldGetPlainTextValueFromAnEncryptedValue() throws InvalidCipherTextException {
+        GoCipher mockGoCipher = mock(GoCipher.class);
+        String plainText = "password";
+        String cipherText = "encrypted";
+        when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
+        HashMap attrs = getAttributeMap(plainText, "true", "true");
+
+        environmentVariableConfig.setConfigAttributes(attrs);
+
+        assertThat(environmentVariableConfig.getValue(), is(plainText));
+
+        verify(mockGoCipher).decrypt(cipherText);
+    }
+
+    @Test
+    public void shouldGetPlainTextValue() throws InvalidCipherTextException {
+        GoCipher mockGoCipher = mock(GoCipher.class);
+        String plainText = "password";
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
+        HashMap attrs = getAttributeMap(plainText, "false", "1");
+
+        environmentVariableConfig.setConfigAttributes(attrs);
+
+        assertThat(environmentVariableConfig.getValue(), is(plainText));
+
+        verify(mockGoCipher, never()).decrypt(anyString());
+        verify(mockGoCipher, never()).encrypt(anyString());
+    }
+
+    @Test
+    public void shouldReturnEncryptedValueForSecureVariables() throws InvalidCipherTextException {
+        when(goCipher.encrypt("bar")).thenReturn("encrypted");
+        when(goCipher.decrypt("encrypted")).thenReturn("bar");
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "foo", "bar", true);
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+        assertThat(environmentVariableConfig.getValue(), is("bar"));
+        assertThat(environmentVariableConfig.getValueForDisplay(), is(environmentVariableConfig.getEncryptedValue()));
+    }
+
+    @Test
+    public void shouldReturnValueForInSecureVariables() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "foo", "bar", false);
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+        assertThat(environmentVariableConfig.getValue(), is("bar"));
+        assertThat(environmentVariableConfig.getValueForDisplay(), is("bar"));
+    }
+
+    @Test
+    public void shouldEncryptValueWhenChanged() throws InvalidCipherTextException {
+        GoCipher mockGoCipher = mock(GoCipher.class);
+        String plainText = "password";
+        String cipherText = "encrypted";
+        when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
+        HashMap firstSubmit = getAttributeMap(plainText, "true", "true");
+        environmentVariableConfig.setConfigAttributes(firstSubmit);
+
+        assertThat(environmentVariableConfig.getEncryptedValue(), is(cipherText));
+    }
+
+    @Test
+    public void shouldRetainEncryptedVariableWhenNotEdited() throws InvalidCipherTextException {
+        GoCipher mockGoCipher = mock(GoCipher.class);
+        String plainText = "password";
+        String cipherText = "encrypted";
+        when(mockGoCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(mockGoCipher.decrypt(cipherText)).thenReturn(plainText);
+        when(mockGoCipher.encrypt(cipherText)).thenReturn("SHOULD NOT DO THIS");
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(mockGoCipher);
+        HashMap firstSubmit = getAttributeMap(plainText, "true", "true");
+        environmentVariableConfig.setConfigAttributes(firstSubmit);
+
+        HashMap secondSubmit = getAttributeMap(cipherText, "true", "false");
+        environmentVariableConfig.setConfigAttributes(secondSubmit);
+
+        assertThat(environmentVariableConfig.getEncryptedValue(), is(cipherText));
+        assertThat(environmentVariableConfig.getName(), is("foo"));
+        assertThat(environmentVariableConfig.isSecure(), is(true));
+
+        verify(mockGoCipher, never()).encrypt(cipherText);
+    }
+
+    @Test
+    public void shouldGetSqlCriteriaForPlainTextEnvironmentVariable() throws InvalidCipherTextException {
+        String plainText = "value";
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, false);
+
+        Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
+        assertThat((String) sqlCriteria.get("variableName"), is("key"));
+        assertThat((String) sqlCriteria.get("variableValue"), is(plainText));
+        assertThat((Boolean) sqlCriteria.get("isSecure"), is(false));
+
+        verify(goCipher, never()).encrypt(plainText);
+    }
+
+    @Test
+    public void shouldGetSqlCriteriaForSecureEnvironmentVariable() throws InvalidCipherTextException {
+        String encryptedText = "encrypted";
+        String plainText = "plainText";
+        when(goCipher.encrypt(plainText)).thenReturn(encryptedText);
+        when(goCipher.decrypt(encryptedText)).thenReturn(plainText);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, true);
+
+        Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
+        assertThat((String) sqlCriteria.get("variableName"), is("key"));
+        assertThat((String) sqlCriteria.get("variableValue"), is(plainText));
+        assertThat((Boolean) sqlCriteria.get("isSecure"), is(true));
+
+        verify(goCipher).encrypt(plainText);
+        verify(goCipher).decrypt(encryptedText);
+    }
+
+    @Test
+    public void shouldAddPlainTextEnvironmentVariableToContext() {
+        String key = "key";
+        String plainText = "plainText";
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, key, plainText, false);
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        environmentVariableConfig.addTo(context);
+
+        assertThat(context.getProperty(key), is(plainText));
+        assertThat(context.getPropertyForDisplay(key), is(plainText));
+    }
+
+    @Test
+    public void shouldAddSecureEnvironmentVariableToContext() throws InvalidCipherTextException {
+        String key = "key";
+        String plainText = "plainText";
+        String cipherText = "encrypted";
+        when(goCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(goCipher.decrypt(cipherText)).thenReturn(plainText);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, key, plainText, true);
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        environmentVariableConfig.addTo(context);
+
+        assertThat(context.getProperty(key), is(plainText));
+        assertThat(context.getPropertyForDisplay(key), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+    }
+
+    @Test
+    public void shouldAnnotateEnsureEncryptedMethodWithPostConstruct() throws NoSuchMethodException {
+        Class<EnvironmentVariableConfig> klass = EnvironmentVariableConfig.class;
+        Method declaredMethods = klass.getDeclaredMethod("ensureEncrypted");
+        assertThat(declaredMethods.getAnnotation(PostConstruct.class), is(not(nullValue())));
+    }
+
+    @Test
+    public void shouldErrorOutOnValidateWhenEncryptedValueIsForceChanged() throws InvalidCipherTextException {
+        String plainText = "secure_value";
+        String cipherText = "cipherText";
+        when(goCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(goCipher.decrypt(cipherText)).thenThrow(new DataLengthException("last block incomplete in decryption"));
+
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "secure_key", plainText, true);
+        environmentVariableConfig.validate(null);
+        ConfigErrors error = environmentVariableConfig.errors();
+        assertThat(error.isEmpty(), is(false));
+        assertThat(error.on(EnvironmentVariableConfig.VALUE),
+                is("Encrypted value for variable named 'secure_key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+    }
+
+    @Test
+    public void shouldNotErrorOutWhenValidationIsSuccessfulForSecureVariables() throws InvalidCipherTextException {
+        String plainText = "secure_value";
+        String cipherText = "cipherText";
+        when(goCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(goCipher.decrypt(cipherText)).thenReturn(plainText);
+
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "secure_key", plainText, true);
+        environmentVariableConfig.validate(null);
+        assertThat(environmentVariableConfig.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotErrorOutWhenValidationIsSuccessfulForPlainTextVariables() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "plain_value", false);
+        environmentVariableConfig.validate(null);
+        assertThat(environmentVariableConfig.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldMaskValueIfSecure() {
+        EnvironmentVariableConfig secureEnvironmentVariable = new EnvironmentVariableConfig(goCipher, "plain_key", "plain_value", true);
+        Assert.assertThat(secureEnvironmentVariable.getDisplayValue(), is("****"));
+    }
+
+    @Test
+    public void shouldNotMaskValueIfNotSecure() {
+        EnvironmentVariableConfig secureEnvironmentVariable = new EnvironmentVariableConfig(goCipher, "plain_key", "plain_value", false);
+        Assert.assertThat(secureEnvironmentVariable.getDisplayValue(), is("plain_value"));
+    }
+
+    @Test
+    public void shouldCopyEnvironmentVariableConfig(){
+        EnvironmentVariableConfig secureEnvironmentVariable = new EnvironmentVariableConfig(goCipher, "plain_key", "plain_value", true);
+        EnvironmentVariableConfig copy = new EnvironmentVariableConfig(secureEnvironmentVariable);
+        assertThat(copy.getName(), is(secureEnvironmentVariable.getName()));
+        assertThat(copy.getValue(), is(secureEnvironmentVariable.getValue()));
+        assertThat(copy.getEncryptedValue(), is(secureEnvironmentVariable.getEncryptedValue()));
+        assertThat(copy.isSecure(), is(secureEnvironmentVariable.isSecure()));
+    }
+    
+    private HashMap getAttributeMap(String value, final String secure, String isChanged) {
+        HashMap attrs;
+        attrs = new HashMap();
+        attrs.put(EnvironmentVariableConfig.NAME, "foo");
+        attrs.put(EnvironmentVariableConfig.VALUE, value);
+        attrs.put(EnvironmentVariableConfig.SECURE, secure);
+        attrs.put(EnvironmentVariableConfig.ISCHANGED, isChanged);
+        return attrs;
+    }
+}

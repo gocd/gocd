@@ -1,0 +1,34 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: TestRunner
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: finished
+- !ruby/object:RI::MethodSummary 
+  name: finished_with_rspec
+- !ruby/object:RI::MethodSummary 
+  name: setup_mediator
+- !ruby/object:RI::MethodSummary 
+  name: setup_mediator_with_rspec
+- !ruby/object:RI::MethodSummary 
+  name: started
+- !ruby/object:RI::MethodSummary 
+  name: started_with_rspec
+- !ruby/object:RI::MethodSummary 
+  name: test_finished
+- !ruby/object:RI::MethodSummary 
+  name: test_finished_with_rspec
+- !ruby/object:RI::MethodSummary 
+  name: test_started
+- !ruby/object:RI::MethodSummary 
+  name: test_started_with_rspec
+full_name: Test::Unit::UI::Console::TestRunner
+superclass: Object
+class_methods: []
+

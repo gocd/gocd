@@ -1,0 +1,24 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should include(expected)
+  should_not include(expected)
+is_singleton: false
+block_params: 
+name: include
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if actual includes expected. This works for collections and Strings.
+    You can also pass in multiple args and it will only pass if all args are found
+    in collection.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  [1,2,3].should include(3)\n  [1,2,3].should include(2,3) #would pass\n\
+    \  [1,2,3].should include(2,3,4) #would fail\n  [1,2,3].should_not include(4)\n\
+    \  &quot;spread&quot;.should include(&quot;read&quot;)\n  &quot;spread&quot;.should_not \
+    include(&quot;red&quot;)\n"
+full_name: Spec::Matchers#include
+visibility: public
+aliases: []
+

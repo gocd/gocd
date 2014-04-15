@@ -1,0 +1,22 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Methods
+name: Mock
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: ==
+- !ruby/object:RI::MethodSummary 
+  name: inspect
+- !ruby/object:RI::MethodSummary 
+  name: to_s
+full_name: Spec::Mocks::Mock
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

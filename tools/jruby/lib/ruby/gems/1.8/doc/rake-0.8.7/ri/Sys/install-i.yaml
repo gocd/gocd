@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (wildcard, dest_dir, mode)
+is_singleton: false
+block_params: 
+name: install
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Install all the files matching <tt>wildcard</tt> into the <tt>dest_dir</tt>
+    directory. The permission mode is set to <tt>mode</tt>.
+full_name: Sys#install
+visibility: public
+aliases: []
+

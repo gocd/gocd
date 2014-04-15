@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rake-0.6.0.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rake-0.6.0.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/release_notes/rake-0.6.0.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rake 0.6.0 Released</h1>
+<p>
+Its time for some long requested enhancements and lots of bug fixes &#8230;
+And a whole new web page.
+</p>
+<h2>New Web Page</h2>
+<p>
+The primary documentation for rake has moved from the RubyForge based wiki
+to its own Hieraki based web site. Constant spam on the wiki made it a
+difficult to keep clean. The new site will be easier to update and
+organize.
+</p>
+<p>
+Check out the new documentation at: <a
+href="http://docs.rubyrake.org">docs.rubyrake.org</a>
+</p>
+<p>
+We will be adding new documentation to the site as time goes on.
+</p>
+<p>
+In addition to the new docs page, make sure you check out Martin Fowlers
+article on rake at <a
+href="http://martinfowler.com/articles/rake.html">martinfowler.com/articles/rake.html</a>
+</p>
+<h2>Changes</h2>
+<h3>New Features</h3>
+<ul>
+<li>Multiple prerequisites on Rake rules now allowed. However, keep the
+following in mind:
+
+<ol>
+<li>All the prerequisites of a rule must be available before a rule is
+triggered, where &quot;enabled&quot; means (a) an existing file, (b) a
+defined rule, or (c) another rule which also must be trigger-able.
+
+</li>
+<li>Rules are checked in order of definition, so it is important to order your
+rules properly. If a file can be created by two different rules, put the
+more specific rule first (otherwise the more general rule will trigger
+first and the specific one will never be triggered).
+
+</li>
+<li>The <tt>source</tt> method now returns the name of the first prerequisite
+listed in the rule. <tt>sources</tt> returns the names of all the rule
+prerequisites, ordered as they are defined in the rule. If the task has
+other prerequisites not defined in the rule (but defined in an explicit
+task definition), then they will <em>not</em> be included in the sources
+list.
+
+</li>
+</ol>
+</li>
+<li>FileLists may now use the egrep command. This popular enhancement is now a
+core part of the FileList object. If you want to get a list of all your
+to-dos, fixmes and TBD comments, add the following to your Rakefile.
+
+<pre>
+  desc &quot;Look for TODO and FIXME tags in the code&quot;
+  task :todo do
+    FileList['**/*.rb'].egrep /#.*(FIXME|TODO|TBD)/
+  end
+</pre>
+</li>
+<li>The <tt>investigation</tt> method was added to task object to dump out some
+important values. This makes it a bit easier to debug Rake tasks.
+
+<p>
+For example, if you are having problems with a particular task, just print
+it out:
+</p>
+<pre>
+  task :huh do
+    puts Rake::Task['huh'].investigation
+  end
+</pre>
+</li>
+<li>The <a href="../../../classes/Rake/TestTask.html">Rake::TestTask</a> class
+now supports a &quot;ruby_opts&quot; option to pass arbitrary ruby options
+to a test subprocess.
+
+</li>
+</ul>
+<h3>Some Incompatibilities</h3>
+<ul>
+<li>When using the <tt>ruby</tt> command to start a Ruby subprocess, the Ruby
+interpreter that is currently running rake is used by default. This makes
+it easier to use rake in an environment with multiple ruby installation.
+(Previously, the first ruby command found in the PATH was used).
+
+<p>
+If you wish to chose a different Ruby interpreter, you can explicitly
+choose the interpreter via the <tt>sh</tt> command.
+</p>
+</li>
+<li>The major rake classes (Task, FileTask, FileCreationTask, RakeApp) have
+been moved out of the toplevel scope and are now accessible as <a
+href="../../../classes/Rake/Task.html">Rake::Task</a>, <a
+href="../../../classes/Rake/FileTask.html">Rake::FileTask</a>, <a
+href="../../../classes/Rake/FileCreationTask.html">Rake::FileCreationTask</a>
+and <a href="../../../classes/Rake/Application.html">Rake::Application</a>.
+If your Rakefile directly references any one of these tasks, you may:
+
+<ol>
+<li>Update your Rakefile to use the new classnames
+
+</li>
+<li>Use the &#8212;classic-namespace option on the rake command to get the old
+behavior,
+
+</li>
+<li>Add <tt>require &#8216;rake/classic_namespace&#8216;</tt> to the Rakefile
+to get the old behavior.
+
+</li>
+</ol>
+<p>
+<tt>rake</tt> will print a rather annoying warning whenever a deprecated
+class name is referenced without enabling classic namespace.
+</p>
+</li>
+</ul>
+<h3>Bug Fixes</h3>
+<ul>
+<li>Several unit tests and functional tests were fixed to run better under
+windows.
+
+</li>
+<li>Directory tasks are now a specialized version of a File task. A directory
+task will only be triggered if it doesn&#8216;t exist. It will not be
+triggered if it is out of date w.r.t. any of its prerequisites.
+
+</li>
+<li>Fixed a bug in the <a
+href="../../../classes/Rake/GemPackageTask.html">Rake::GemPackageTask</a>
+class so that the gem now properly contains the platform name.
+
+</li>
+<li>Fixed a bug where a prerequisite on a <tt>file</tt> task would cause an
+exception if the prerequisite did not exist.
+
+</li>
+</ul>
+<h2>What is Rake</h2>
+<p>
+Rake is a build tool similar to the make program in many ways. But instead
+of cryptic make recipes, Rake uses standard Ruby code to declare tasks and
+dependencies. You have the full power of a modern scripting language built
+right into your build tool.
+</p>
+<h2>Availability</h2>
+<p>
+The easiest way to get and install rake is via RubyGems &#8230;
+</p>
+<pre>
+  gem install rake    (you may need root/admin privileges)
+</pre>
+<p>
+Otherwise, you can get it from the more traditional places:
+</p>
+<table>
+<tr><td valign="top">Home Page:</td><td><a href="http://rake.rubyforge.org">rake.rubyforge.org</a>/
+
+</td></tr>
+<tr><td valign="top">Download:</td><td><a
+href="http://rubyforge.org/project/showfiles.php?group_id=50">rubyforge.org/project/showfiles.php?group_id=50</a>
+
+</td></tr>
+</table>
+<h2>Thanks</h2>
+<p>
+As usual, it was input from users that drove a alot of these changes. The
+following people either contributed patches, made suggestions or made
+otherwise helpful comments. Thanks to &#8230;
+</p>
+<ul>
+<li>Greg Fast (better ruby_opt test options)
+
+</li>
+<li>Kelly Felkins (requested by better namespace support)
+
+</li>
+<li>Martin Fowler (suggested Task.investigation)
+
+</li>
+<li>Stuart Jansen (send initial patch for multiple prerequisites).
+
+</li>
+<li>Masao Mutch (better support for non-ruby Gem platforms)
+
+</li>
+<li>Philipp Neubeck (patch for file task exception fix)
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

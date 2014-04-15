@@ -1,0 +1,35 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  include(Some::Helpers)
+  include(Some::Helpers, More::Helpers)
+  include(My::Helpers, :type => :key)
+is_singleton: false
+block_params: 
+name: include
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Declares modules to be included in multiple example groups (<tt>describe</tt>
+    blocks). With no <tt>:type</tt>, the modules listed will be included in all example
+    groups.
+- !ruby/struct:SM::Flow::P 
+  body: Use <tt>:type</tt> to restrict the inclusion to a subset of example groups.
+    The value assigned to <tt>:type</tt> should be a key that maps to a class that
+    is either a subclass of Spec::Example::ExampleGroup or extends Spec::Example::ExampleGroupMethods
+    and includes Spec::Example::ExampleMethods.
+- !ruby/struct:SM::Flow::P 
+  body: 'For example, the rspec-rails gem/plugin extends Test::Unit::TestCase with
+    Spec::Example::ExampleGroupMethods and includes Spec::Example::ExampleMethods
+    in it. So if you have a module of helper methods for controller examples, you
+    could do this:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  config.include(ControllerExampleHelpers, :type =&gt; :controller)\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'Only example groups that have that type will get the modules included:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe Account, :type =&gt; :model do\n    # Will <b>not</b> include \
+    ControllerExampleHelpers\n  end\n\n  describe AccountsController, :type =&gt; \
+    :controller do\n    # <b>Will</b> include ControllerExampleHelpers\n  end\n"
+full_name: Spec::Runner::Configuration#include
+visibility: public
+aliases: []
+

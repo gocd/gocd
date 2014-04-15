@@ -1,0 +1,28 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: HeckleRunner
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Dummy implementation for Windows that just fails (Heckle is not supported
+    on Windows)
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: heckle_class_or_module
+- !ruby/object:RI::MethodSummary 
+  name: heckle_method
+- !ruby/object:RI::MethodSummary 
+  name: heckle_with
+- !ruby/object:RI::MethodSummary 
+  name: verify_constant
+full_name: Spec::Runner::HeckleRunner
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new
+- !ruby/object:RI::MethodSummary 
+  name: new

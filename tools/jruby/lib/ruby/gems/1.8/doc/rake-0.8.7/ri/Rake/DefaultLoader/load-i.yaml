@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (fn)
+is_singleton: false
+block_params: 
+name: load
+comment: 
+full_name: Rake::DefaultLoader#load
+visibility: public
+aliases: []
+

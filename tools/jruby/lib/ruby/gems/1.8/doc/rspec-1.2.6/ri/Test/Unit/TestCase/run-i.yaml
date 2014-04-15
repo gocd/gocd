@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (ignore_this_argument=nil)
+is_singleton: false
+block_params: 
+name: run
+comment: 
+full_name: Test::Unit::TestCase#run
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (message="")
+is_singleton: false
+block_params: 
+name: violated
+comment: 
+full_name: Spec::Example::ExampleMethods#violated
+visibility: public
+aliases: []
+

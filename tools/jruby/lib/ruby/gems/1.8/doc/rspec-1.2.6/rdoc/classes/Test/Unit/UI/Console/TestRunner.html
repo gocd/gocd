@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Test::Unit::UI::Console::TestRunner</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Test::Unit::UI::Console::TestRunner</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../../../files/lib/spec/interop/test/unit/ui/console/testrunner_rb.html">
+                lib/spec/interop/test/unit/ui/console/testrunner.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000494">finished</a>&nbsp;&nbsp;
+      <a href="#M000493">finished_with_rspec</a>&nbsp;&nbsp;
+      <a href="#M000496">setup_mediator</a>&nbsp;&nbsp;
+      <a href="#M000495">setup_mediator_with_rspec</a>&nbsp;&nbsp;
+      <a href="#M000488">started</a>&nbsp;&nbsp;
+      <a href="#M000487">started_with_rspec</a>&nbsp;&nbsp;
+      <a href="#M000492">test_finished</a>&nbsp;&nbsp;
+      <a href="#M000491">test_finished_with_rspec</a>&nbsp;&nbsp;
+      <a href="#M000490">test_started</a>&nbsp;&nbsp;
+      <a href="#M000489">test_started_with_rspec</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+    <div id="aliases-list">
+      <h3 class="section-bar">External Aliases</h3>
+
+      <div class="name-list">
+                        <table summary="aliases">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">started</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">started_without_rspec</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">test_started</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">test_started_without_rspec</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">test_finished</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">test_finished_without_rspec</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">finished</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">finished_without_rspec</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">setup_mediator</td>
+          <td>-&gt;</td>
+          <td class="context-item-value">setup_mediator_without_rspec</td>
+        </tr>
+                        </table>
+      </div>
+    </div>
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000494" class="method-detail">
+        <a name="M000494"></a>
+
+        <div class="method-heading">
+          <span class="method-name">finished</span><span class="method-args">(elapsed_time)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="TestRunner.html#M000493">finished_with_rspec</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000493" class="method-detail">
+        <a name="M000493"></a>
+
+        <div class="method-heading">
+          <a href="TestRunner.src/M000493.html" target="Code" class="method-signature"
+            onclick="popupCode('TestRunner.src/M000493.html');return false;">
+          <span class="method-name">finished_with_rspec</span><span class="method-args">(elapsed_time)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000496" class="method-detail">
+        <a name="M000496"></a>
+
+        <div class="method-heading">
+          <span class="method-name">setup_mediator</span><span class="method-args">()</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="TestRunner.html#M000495">setup_mediator_with_rspec</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000495" class="method-detail">
+        <a name="M000495"></a>
+
+        <div class="method-heading">
+          <a href="TestRunner.src/M000495.html" target="Code" class="method-signature"
+            onclick="popupCode('TestRunner.src/M000495.html');return false;">
+          <span class="method-name">setup_mediator_with_rspec</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000488" class="method-detail">
+        <a name="M000488"></a>
+
+        <div class="method-heading">
+          <span class="method-name">started</span><span class="method-args">(result)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="TestRunner.html#M000487">started_with_rspec</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000487" class="method-detail">
+        <a name="M000487"></a>
+
+        <div class="method-heading">
+          <a href="TestRunner.src/M000487.html" target="Code" class="method-signature"
+            onclick="popupCode('TestRunner.src/M000487.html');return false;">
+          <span class="method-name">started_with_rspec</span><span class="method-args">(result)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000492" class="method-detail">
+        <a name="M000492"></a>
+
+        <div class="method-heading">
+          <span class="method-name">test_finished</span><span class="method-args">(name)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="TestRunner.html#M000491">test_finished_with_rspec</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000491" class="method-detail">
+        <a name="M000491"></a>
+
+        <div class="method-heading">
+          <a href="TestRunner.src/M000491.html" target="Code" class="method-signature"
+            onclick="popupCode('TestRunner.src/M000491.html');return false;">
+          <span class="method-name">test_finished_with_rspec</span><span class="method-args">(name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000490" class="method-detail">
+        <a name="M000490"></a>
+
+        <div class="method-heading">
+          <span class="method-name">test_started</span><span class="method-args">(name)</span>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Alias for <a href="TestRunner.html#M000489">test_started_with_rspec</a>
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000489" class="method-detail">
+        <a name="M000489"></a>
+
+        <div class="method-heading">
+          <a href="TestRunner.src/M000489.html" target="Code" class="method-signature"
+            onclick="popupCode('TestRunner.src/M000489.html');return false;">
+          <span class="method-name">test_started_with_rspec</span><span class="method-args">(name)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

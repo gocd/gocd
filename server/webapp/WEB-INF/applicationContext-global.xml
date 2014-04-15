@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+
+<!--suppress AutowiredDependenciesInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" default-init-method="init">
+
+    <context:annotation-config/>
+
+    <context:component-scan base-package="com.thoughtworks.go.util"/>
+    <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>
+    <context:component-scan base-package="com.thoughtworks.go.domain"/>
+    <context:component-scan base-package="com.thoughtworks.go.service"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.extensions"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.sweepers"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.service"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.perf"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>
+    <context:component-scan base-package="com.thoughtworks.go.plugins"/>
+    <context:component-scan base-package="com.thoughtworks.go.config.registry"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.search"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.messaging"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.util"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.scheduling"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.cronjob"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.materials"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
+    <context:component-scan base-package="com.thoughtworks.studios.shine"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.oauth"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.web"/>
+    <context:component-scan base-package="com.thoughtworks.go.config"/>
+    <context:component-scan base-package="com.thoughtworks.go.presentation"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.initializers"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
+    <context:component-scan base-package="com.thoughtworks.go.metrics.service"/>
+    <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
+
+    <import resource="velocity-config.xml"/>
+    <import resource="applicationContext-shine-server.xml"/>
+    <import resource="applicationContext-remote-server.xml"/>
+    <import resource="classpath:applicationContext-plugin-infra.xml"/>
+
+    <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->
+    <aop:aspectj-autoproxy>
+    </aop:aspectj-autoproxy>
+
+    <!--OVERIDE THE SPRING ADAPTERS STARTS-->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>message</value>
+                <value>localize</value>
+            </list>
+        </property>
+        <property name="cacheSeconds">
+            <value>-1</value>
+        </property>
+    </bean>
+
+    <bean id="messageSouceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
+        <constructor-arg ref="messageSource"/>
+    </bean>
+
+    <bean id="currentLocale" class="com.thoughtworks.go.i18n.CurrentLocale"/>
+
+    <bean id="localizer" class="com.thoughtworks.go.i18n.Localizer">
+        <constructor-arg index="0" ref="messageSouceAccessor"/>
+        <constructor-arg index="1" ref="currentLocale"/>
+    </bean>
+
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="supportedMethods">
+            <list>
+                <value>POST</value>
+                <value>GET</value>
+                <value>PUT</value>
+                <value>HEAD</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+    <bean class="com.thoughtworks.go.server.web.AnnotatedExceptionResolver"/>
+    <!--END OVERIDE THE SPRING ADAPTERS-->
+
+    <bean id="rubyRuntimeFinder" class="com.thoughtworks.go.server.web.RubyRuntimeFinder"/>
+
+    <bean id="logParser" class="com.thoughtworks.go.legacywrapper.LogParser"/>
+
+    <bean id="configRepositoryValidatorService" class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect" lazy-init="false" />
+
+    <bean class="org.quartz.impl.StdSchedulerFactory" name="schedulerFactory"/>
+    <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true" autowire="autodetect"/>
+    <bean class="com.thoughtworks.go.util.ZipUtil"/>
+</beans>

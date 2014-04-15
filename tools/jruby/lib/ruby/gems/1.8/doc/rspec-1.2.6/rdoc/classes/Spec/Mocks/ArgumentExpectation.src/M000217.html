@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>new (Spec::Mocks::ArgumentExpectation)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/argument_expectation.rb, line 7</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">args</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+        <span class="ruby-ivar">@args</span> = <span class="ruby-identifier">args</span>
+        <span class="ruby-ivar">@matchers_block</span> = <span class="ruby-identifier">block</span>
+        <span class="ruby-ivar">@match_any_args</span> = <span class="ruby-keyword kw">false</span>
+        <span class="ruby-ivar">@matchers</span> = <span class="ruby-keyword kw">nil</span>
+        
+        <span class="ruby-keyword kw">if</span> <span class="ruby-constant">ArgumentMatchers</span><span class="ruby-operator">::</span><span class="ruby-constant">AnyArgsMatcher</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">args</span>.<span class="ruby-identifier">first</span>
+          <span class="ruby-ivar">@match_any_args</span> = <span class="ruby-keyword kw">true</span>
+        <span class="ruby-keyword kw">elsif</span> <span class="ruby-constant">ArgumentMatchers</span><span class="ruby-operator">::</span><span class="ruby-constant">NoArgsMatcher</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">args</span>.<span class="ruby-identifier">first</span>
+          <span class="ruby-ivar">@matchers</span> = []
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-ivar">@matchers</span> = <span class="ruby-identifier">args</span>.<span class="ruby-identifier">collect</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">arg</span><span class="ruby-operator">|</span> <span class="ruby-identifier">matcher_for</span>(<span class="ruby-identifier">arg</span>)}
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

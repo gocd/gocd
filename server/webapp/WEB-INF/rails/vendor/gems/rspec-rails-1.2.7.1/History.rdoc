@@ -1,0 +1,258 @@
+=== Version 1.2.7 / 2009-06-22
+
+* enhancements
+  * alias :stub!, :stub so rspec-rails extensions of rspec stubs can use the
+    same syntax as rspec (core)
+  * integration specs (Ben Mabey and David Chelimsky)
+  * added support for references and belongs_to generated model specs (José
+    Valim). Closes #792.
+  * add discovery for autotest-rails to keep compatible with ZenTest-4.0.0
+    (Ryan Davis). Closes #838.
+  * controller specs in isolation mode don't care whether the file exists
+    anymore!
+
+* bug fixes
+  * allow rspec-rails to work without ActiveRecord. Closes #810.
+  * fix bug with have() matcher failure message (Dave Giunta). Closes #818.
+  * fix bug where render_template('new') would pass if 'newer' was rendered
+    (or anything that started with 'new')
+  
+* deprecations
+  * spec_server is now deprecated - use spork instead (gem install spork).
+    Closes #827.
+
+=== Version 1.2.6 / 2009-04-30
+
+* bug fixes
+  * restored rake tasks for rspec[-rails] as plugins
+
+=== Version 1.2.5 / 2009-04-29
+
+* enhancements
+  * support :xml and :strict config options for have_tag matcher (patch from
+    Peer Allan and Max Murphy). Closes #783.
+
+* bug fixes
+  * Fixed a small typo that makes rake stats fail (José Valim). Closes #802.
+  * link_to and friends are available to ViewExampleGroup again
+    (J.B. Rainsberger). Closes #787.
+  * spec_server works correctly with rails 2.3 again (Neil Buckley). Closes
+    #759.
+
+=== Version 1.2.4 / 2009-03-13
+
+No changes in this release, but aligns with the rspec-1.2.4 release. Someday
+soon, this binding of rspec/rspec-rails versions needs to end!
+
+=== Version 1.2.3 / 2009-03-13
+
+No changes in this release, but aligns with the rspec-1.2.3 release.
+
+=== Version 1.2.2 / 2009-03-22
+
+No changes in this release, but aligns with the rspec-1.2.2 release.
+
+=== Version 1.2.1 / 2009-03-22
+
+This is a bug-fix release, recommended for anybody who has already upgraded to
+rspec-rails-1.2.0 or is upgrading to rails-2.3.2
+
+See Upgrade.rdoc for information about upgrading to rspec-rails-1.2.1
+
+* enhancements
+
+  * more cleanup of internals (reducing dependency on rspec-core)
+  * don't require config/environments more than once
+  * autotest includes spec/routing directory (Matt Peterson). Closes #739.
+  * display helpful messages when installing rspec-rails running
+    script/generate rspec
+    * thanks for Dr Nic for the pointers
+  * restored require 'rubygems' where needed
+    * export NO_RUBYGEMS=true if you don't use rubygems
+    
+* bug fixes
+
+  * fix scoping issues in rspec-rails' own suite for ruby 1.9.1 (Matthias
+    Hennemeyer). Closes #717.
+  * rake stats no longer hides test directories. Closes #748.
+  * fixed regression that was introduced in 1.2 in which controller_name
+    failed to override the controller class passed to describe() (patches from
+    Aaron Gibralter and Zach Dennis). Closes #732.
+
+=== Version 1.2.0 / 2009-03-15
+
+IMPORTANT: See Upgrade.rdoc for information about upgrading to rspec-rails-1.2.0
+
+IMPORTANT: This release includes the following backwards-compatibility-breaking changes.
+
+* rspec-rails supports rails 2.0.2, 2.1.2, 2.2.2 and 2.3.2
+  
+  * We are no longer supporting 1.x versions of rails.
+
+* expect_render and stub_render have been removed.
+
+  * Both of these methods were deprecated in rspec-rails-1.1.5, released in Sept, 2008.
+  
+* { route_for(args).should == "/path" } now delegates to assert_generates (in rails)
+
+  * see Upgrade.txt for more information
+  
+* deprecations
+
+  * controller.use_rails_error_handling! is deprecated
+    * use rescue_action_in_public! (from rails) instead
+  
+* enhancements
+
+  * Adding status codes to redirect_to matcher (Damian Janowski). Closes #570.
+  * Initialize current URL before executing any examples in a ViewExampleGroup (Wilson Bilkovich). Closes #654.
+  * Support query strings in params_from (Wilson Bilkovich). Closes #652.
+  * delegate route_for to assert_recognizes (less brittle)
+  * it { should be_valid } (Kakutani). Closes #665.
+  * controller is implicit subject in controller specs (Joe Ferris). #686.
+  * template is implicit subject in view specs (Joe Ferris). #686.
+  * redirect_to and render_template matchers can accept controller or response (Joe Ferris). Closes #686. 
+  * generated specs use declarative docstrings
+  * rspec_scaffold generator generates layout and stylesheet (per Rails-2.3)
+  * add bypass_rescue for controller specs
+  * infer template path from the first arg passed to describe in view specs
+  * separate routing specs (in spec/routing)
+  
+* bug fixes
+
+  * you no longer *have* to load ActionMailer to get specs to run. Closes #650.
+  * query_params are now parsed by Rack::Utils.parse_query in redirect_to matcher. Closes #684.
+  * cleaned up spec_server (there was a bunch of pre-rails 2.0 material). Closes #685.
+  * rspec's rake tasks are not loaded when running "rake gems" or any of its subtasks
+  * only warn when rspec is not installed when trying to invoke an rspec rake task
+  * support 2 arg version of ActionController::Base#render (reported by Nathan Wilmes)
+  * rake spec:server:start doesn't choke if there is no tmp directory
+  * force cache_classes = false when running with spec_server. Closes #287.
+  * keep spec_server working against edge rails (Jonathan Tron). Closes #685.
+  * create lib/tasks if not present when running script/generate rspec. Closes #687.
+  * fixed regression (and added spec so it won't regress again) where
+    render => :inline didn't render unless integrate_views was set
+  * fixed nil.with_output_buffer bug in helper specs. Closes #719.
+
+=== Version 1.1.12 / 2009-01-11
+
+* 2 deprecations
+
+  * TestResponse#[] is deprecated if you're using Rails <= 2.2.x and removed if you're using Rails 2.3
+  * add_stubs(model, {:method => value}) is deprecated. Use model.stub!(:method => value) instead.
+
+* 2 major enhancements
+
+  * support controller and action path params in view specs (Mike Vincent).
+  * use ActiveSupport::TestCase when available, else Test::Unit::TestCase - supports Rails 1.2.6 (Brandon Keepers). Closes #620.
+  * support form tag helpers in helpers (Ivo Dancet). Closes #641.
+
+* 3 minor enhancements
+
+  * improve rdoc for render_template (Patch from Andrew Premdas). Fixes #571.
+  * use more liberal globs to allow for specs in symlinked dirs (Martin Luder). Closes #361.
+  * Enable loading fixtures from arbitrary locations (Jacek Becela). Closes #464.
+  
+* 7 bug fixes
+
+  * Attempt to load application_controller before falling back to application (Geoff Garside). Closes #626.
+  * Include _id and reduce quoting of default values in view specs (Steen Lehmann). Closes #598.
+  * Record calls to render and check rendered[:template] and rendered[:partial] for edge rails (> v2.2.2). Closes #633.
+  * config.gem 'rspec' can't be unpacked. Closes #629.
+  * spec_server not working with Rails 2.2.2 (Andreas Wolff). Closes #631.
+  * redirect_to doesn't work with http method constrained urls (Maxim Kulkin). Closes #648.
+  * rescue_with declarations are no longer by-passed (Brandon Keepers). #85
+
+=== Version 1.1.11 / 2008-10-24
+
+* No changes to rspec-rails - release to align with bug-fix release in rspec ... again :(
+
+=== Version 1.1.10 / 2008-10-24
+
+* No changes to rspec-rails - release to align with bug-fix release in rspec
+
+=== Version 1.1.9 / 2008-10-20
+
+* 4 bug fixes
+
+  * require 'rubygems' in script/spec
+  * fix failure message for error_on and errors_on (Patch from Mike Vincent). Fixes #566.
+  * fix issues that arise in view spec if passing actual template name to render (Patch from Mike Vincent). Fixes #551.
+  * fixed bug accessing assigns from helper examples
+
+=== Version 1.1.8 / 2008-10-03
+
+* 2 bug fixes
+
+  * correctly handle assigns that are false. Fixes #552.
+  * ensure that NotYetImplemented examples report as pending (fixed in rspec, not rspec-rails). Fixes #553.
+  
+=== Version 1.1.7 / 2008-10-02
+
+* 1 bug fix
+
+  * depend on the correct version of rspec
+
+=== Version 1.1.6 / 2008-10-02
+
+* 1 bug fix
+
+  * fixed regression where values assigned to the assigns hash were not accessible from the example (#549)
+
+=== Version 1.1.5 / 2008-09-28
+
+IMPORTANT: use 'script/autospec' (or just 'autospec' if you have the rspec gem
+installed) instead of 'autotest'. We changed the way autotest discovers rspec
+so the autotest executable won't automatically load rspec anymore. This allows
+rspec to live side by side other spec frameworks without always co-opting
+autotest through autotest's discovery mechanism.
+
+ALSO IMPORTANT: Rails v2.1.1 changed assert_select_rjs such that it doesn't
+always fail when it should. Please see
+http://rails.lighthouseapp.com/projects/8994/tickets/982.
+
+* Generated route specs have shorter names, making it less painful to modify their implementation
+* Add conditional so Rails 2.1.0 doesn't warn about cache_template_extensions (patch from James Herdman)
+* Fixed stub_model examples to work with Rails 2.1.0 (the code was fine, just the examples needed patching)
+* use hoe for build/release
+* reworked generated examples for rspec_scaffold - thanks to Mikel Lindsaar and Dan Manges for their feedback
+* bye, bye translator
+* Added proxy to cookies so you can set them in examples the same way you set them in controllers
+* Added script/autospec so you can run autospec without installing the gem
+* Support --skip-fixture in the rspec_model generator (patches from Alex Tomlins and Niels Ganser)
+* Add mock_model#as_new_record (patch from Zach Dennis)
+* mock(:null_object=>true) plays nice with HTML (patch from Gerrit Kaiser)
+* Suppress a deprecation notice in Rails 2.1 (James Herdman)
+* quiet deprecation warning on inflector (RSL)
+* rspec-rails gem (Ben Mabey)
+* updated generated code examples
+* Make rspec_model generator honour --skip-fixtures tag (Niels Ganser, Alex Tomlins)
+* Fix to create new models with attributes in command line (Nicolas)
+* fix to_param in mock_model with stubbed id incorrectly returning autogenerated id (Adam Meehan)
+* Call Rail's TestCase setup/teardown callbacks (Jonathan del Strother)
+* Only run TestUnitTesting once (Jonathan del Strother)
+* use require_dependency instead of require (Brandon Keepers)
+* Fixed a problem caused by controller action names getting out of sync between rspec-dev and rspec-rails for speccing (Matt Patterson)
+* don't mutate hash passed to mock_model (Reg Vos)
+
+=== Version 1.1.4
+
+Maintenance release.
+
+* Moved mock_model and stub_model to their own module: Spec::Rails::Mocks
+* Setting mock_model object id with stubs hash - patch from Adam Meehan
+* Added as_new_record to stub_model e.g. stub_model(Foo).as_new_record
+* Improved stub_model such that new_record? does "the right thing"
+* Patch from Pat Maddox to get integrate_views to work in nested example groups.
+* Patch from Pat Maddox to get controller_name to work in nested example groups.
+* Patch from Corey Haines to add include_text matcher
+* Added stub_model method which creates a real model instance with :id stubbed and data access prohibited.
+* Applied patch from Pat Maddox to handle redirect_to w/ SSL. Closes #320.
+* Added #helper and #assigns to helper specs.
+* Applied patch from Bryan Helmkamp to tweak format of generated spec.opts to be more obvious. Closes #162.
+* Tweaked list of exceptions (ignores) for autotest
+* Applied patch from Rick Olson to get rspec_on_rails working with rails edge (>= 8862)
+* Applied patch from Wincent Colaiuta to invert sense of "spec --diff". Closes #281.
+* Allow any type of render in view specs. Closes #57.
+* Applied patch from Ian White to get rspec working with edge rails (8804). Closes #271.
+* Applied patch from Jon Strother to have spec_server reload fixtures. Closes #344.

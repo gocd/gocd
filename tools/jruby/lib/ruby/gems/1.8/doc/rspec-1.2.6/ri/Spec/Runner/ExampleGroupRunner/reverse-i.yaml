@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: reverse
+comment: 
+full_name: Spec::Runner::ExampleGroupRunner#reverse
+visibility: protected
+aliases: []
+

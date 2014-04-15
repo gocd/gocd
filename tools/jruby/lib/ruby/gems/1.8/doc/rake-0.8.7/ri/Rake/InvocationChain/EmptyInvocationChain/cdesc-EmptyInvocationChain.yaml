@@ -1,0 +1,20 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: EmptyInvocationChain
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: append
+- !ruby/object:RI::MethodSummary 
+  name: member?
+- !ruby/object:RI::MethodSummary 
+  name: to_s
+full_name: Rake::InvocationChain::EmptyInvocationChain
+superclass: Object
+class_methods: []
+

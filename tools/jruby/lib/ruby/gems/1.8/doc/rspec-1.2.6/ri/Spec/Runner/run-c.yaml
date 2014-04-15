@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: run
+comment: 
+full_name: Spec::Runner::run
+visibility: public
+aliases: []
+

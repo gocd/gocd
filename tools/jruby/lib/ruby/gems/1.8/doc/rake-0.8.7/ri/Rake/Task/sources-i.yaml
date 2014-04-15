@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: sources
+comment: 
+full_name: Rake::Task#sources
+visibility: public
+aliases: []
+

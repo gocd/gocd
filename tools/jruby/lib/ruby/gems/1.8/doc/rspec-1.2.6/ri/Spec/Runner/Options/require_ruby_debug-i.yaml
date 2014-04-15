@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: require_ruby_debug
+comment: 
+full_name: Spec::Runner::Options#require_ruby_debug
+visibility: public
+aliases: []
+

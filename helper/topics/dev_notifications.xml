@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Notifications">
+  <p>It is often useful to receive an email when certain status changes occur in a stage. For example, a developer might want to know when their own check-in has broken the build. Alternatively, a manager might want an email whenever a project is deployed into production. Both of these scenarios can be covered by Notification Filters</p>
+  <note>Notifications will only work if <cref topic="dev_authentication">Security</cref> is enabled and <cref topic="admin_mailhost_info">mailhost information</cref> is correct.</note>
+  <section title="Example usage">
+    <p>Usage: As a developer, I want to be notified when I break the build.</p>
+    <bullets>
+      <item>Click on the <strong>Preferences</strong> tab</item>
+      <img src="resources/images/cruise/topnav_preferences.png" />
+      <item>Click "Edit" and enter my email address, and make sure "Enable email notification" is checked</item>
+      <item>When I check in, my source control log in will be either "ChrisT" or "CT", so enter both of those into the "My check-in aliases" box</item>
+      <img src="resources/images/cruise/dev/notifications/3_email_and_matcher.png" />
+      <item>Click "Save" to store these values</item>
+      <item>Add a filter for the first "dev" stage to notify me when a check-in of mine breaks the build</item>
+      <img src="resources/images/cruise/dev/notifications/4_add_filter.png" />
+      <subsection title="Events">
+          <p>You can set up notifications for different events</p>
+          <bullets>
+              <item>All - all the runs for the stage </item>
+              <item>Passes - the passed runs for the stage</item>
+              <item>Fails - the stage runs that failed </item>
+              <item>Breaks - the stage run that broke the build</item>
+              <item>Fixed - the stage run that fixed the previous failure</item>
+              <item>Cancelled - the stage run that was cancelled </item>
+          </bullets>
+	  <p>Illustration</p>
+	  <bullets>
+	      <item>Previous build Pass, current build Fail: Event: Break</item>
+	      <item>Previous build Fail, current build Fail: Event: Fail</item>
+	      <item>Previous build Fail, current build Pass: Event: Fixed</item>
+	      <item>Previous build Pass, current build Pass: Event: Pass</item>
+	  </bullets>
+      </subsection>
+      <img src="resources/images/cruise/dev/notifications/5_added_filter.png" />
+      <item>I'll be emailed whenever the "twist" stage of "acceptance" pipeline  breaks due to my check-in</item>
+      <item>I'll be emailed whenever the "auto-upgrade" stage of "auto-deploy-testing-ubuntu9.10" pipeline  fails due to my check-in</item>
+      <item>I'll be emailed for all events for the "dev" stage of cruise pipeline</item>
+    </bullets>
+  </section>
+</chapter>

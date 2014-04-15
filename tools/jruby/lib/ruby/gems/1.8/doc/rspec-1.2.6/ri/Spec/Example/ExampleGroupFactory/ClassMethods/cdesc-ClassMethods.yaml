@@ -1,0 +1,31 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::ArgsAndOptions
+name: ClassMethods
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '[]'
+- !ruby/object:RI::MethodSummary 
+  name: create_example_group
+- !ruby/object:RI::MethodSummary 
+  name: default
+- !ruby/object:RI::MethodSummary 
+  name: determine_superclass
+- !ruby/object:RI::MethodSummary 
+  name: example_group_creation_listeners
+- !ruby/object:RI::MethodSummary 
+  name: register
+- !ruby/object:RI::MethodSummary 
+  name: register_example_group
+- !ruby/object:RI::MethodSummary 
+  name: reset
+full_name: Spec::Example::ExampleGroupFactory::ClassMethods
+superclass: 
+class_methods: []
+

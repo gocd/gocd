@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="14">
+  <server artifactsdir="logs">
+    <license user="Cruise UAT ThoughtWorks Beijing">O5jEQXU0iS9kBdn+l2rSO+uEXvik+G8uNRiaUr1qxOKKLa+EBKMmSFIpDrYw&#xD;
+dwDsd+MtfgiuAk5MDFImDhOT7R9HuKV7qqGI/a5ktRcBsuPGbYcxwJwbN5pv&#xD;
+OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH&#xD;
+bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh&#xD;
+hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5&#xD;
+BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>
+    <mailhost hostname="10.18.3.171" port="25" username="cruise2" password="password123" tls="false" from="cruise2@cruise.com" admin="ccedev@thoughtworks.com" />
+  </server>
+  <pipelines group="group1">
+    <pipeline name="studios">
+    <trackingtool link="https://some-tracking-tool/projects/cruise/cards/${ID}" regex="#(\d+)" />
+      <materials>
+        <svn url="http://10.18.3.171:8080/svn/connect4/trunk" />            
+      </materials>
+      <stage name="mingle">
+        <jobs>
+          <job name="functional" />
+          <job name="unit" />
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+</cruise>
+

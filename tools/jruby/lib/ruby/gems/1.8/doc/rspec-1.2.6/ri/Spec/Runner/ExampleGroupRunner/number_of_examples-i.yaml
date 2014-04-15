@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: number_of_examples
+comment: 
+full_name: Spec::Runner::ExampleGroupRunner#number_of_examples
+visibility: protected
+aliases: []
+

@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (file_name, dest_file)
+is_singleton: false
+block_params: 
+name: symlink
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Symlink <tt>file_name</tt> to <tt>dest_file</tt>.
+full_name: Sys#symlink
+visibility: public
+aliases: []
+

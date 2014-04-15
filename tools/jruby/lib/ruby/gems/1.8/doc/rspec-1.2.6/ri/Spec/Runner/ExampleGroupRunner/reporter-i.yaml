@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: reporter
+comment: 
+full_name: Spec::Runner::ExampleGroupRunner#reporter
+visibility: protected
+aliases: []
+

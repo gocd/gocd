@@ -1,0 +1,93 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership.  The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+
+@page { 
+  margin: 1in 0.75in 1in 0.75in;
+  @top-left, @top-right {
+    font-family: "Gill Sans";
+    font-weight: normal;
+  }
+}
+@page:left {
+  @top-left { content: counter(page); }
+  @top-right { content: string(pagetitle); }
+}
+@page:right {
+  @top-left { content: string(pagetitle); }
+  @top-right { content: counter(page); }
+}
+@page:first {
+  @top-left { content: normal }
+  @top-right { content: normal }
+}
+
+@media print {
+  title { string-set: doctitle content(); }
+
+  body {
+    font-family: "Helvetica Neue", "DejaVu Sans", "Verdana";
+    margin: 0;
+    color: black;
+    background: white;
+  }
+
+  h1 {
+    string-set: pagetitle content();
+    page-break-before: always;
+  }
+  h1:first-child { page-break-before: avoid; }
+  h1, h2, h3 {
+    font-family: "Gill Sans";
+  }
+  pre, p, blockquote { page-break-inside: avoid; }
+  pre, code {
+    font-family: "Monaco", "DejaVu Sans Mono", "Courier New", "Courier";
+    font-size: 10pt;
+  }
+  a:link, a:visited {
+    background: transparent;
+    text-decoration: none;
+  }
+
+  #header, #pages, #footer { display: none }
+  #wrap, #content {
+    float: none !important;
+    color: black;
+    background: transparent;
+    width: auto !important;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ol.toc a:link, ol.toc a:visited { text-decoration: none; }
+  ol.toc a:after { content: leader('.') target-counter(attr(href), page); }
+
+  .title {
+    page-break-before: always;
+    border: none;
+  }
+  .title img {
+    width: 20em;
+    margin: 2em auto 2em auto;
+  }
+  p.preface {
+    page-break-before: always;
+    padding-top: 2.5in;
+  }
+
+}

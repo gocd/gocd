@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<project name="cruise" basedir="." default="run">
+    <target name="clean">
+        <delete dir="classes"/>
+        <delete file="go-patch-cve-156.jar"/>
+        <delete file="go-patch-cve-333.jar"/>
+    </target>
+
+
+    <target name="compile" depends="clean">
+        <mkdir dir="classes"/>
+        <javac srcdir="src"
+               destdir="classes"
+               classpath="lib/commons-io-1.4.jar" includeantruntime="false"
+               target="1.6" debug="on"/>
+        <copy file="src/cve_2013_0156.rb" todir="classes"/>
+        <copy file="src/decoding.rb" todir="classes"/>
+        <copy file="src/okjson.rb" todir="classes"/>
+        <copy file="src/yaml.rb" todir="classes"/>
+        <copy file="src/cve_2013_1856.rb" todir="classes"/>
+        <copy file="src/sanitizer.rb" todir="classes"/>
+    </target>
+
+    <target name="zip" depends="compile">
+        <jar destfile="go-patch-cve-19mar2013.jar" basedir="classes">
+            <zipgroupfileset dir="lib" includes="*.jar"/>
+            <manifest>
+                <attribute name="Main-Class"
+                           value="UpdateGoJar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="zip">
+        <exec command="java -jar go-patch-cve-19mar2013.jar temp/go.jar"/>
+    </target>
+</project>
+

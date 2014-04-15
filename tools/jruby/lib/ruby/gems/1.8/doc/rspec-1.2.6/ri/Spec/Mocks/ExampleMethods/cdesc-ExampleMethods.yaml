@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Mocks::ArgumentMatchers
+name: ExampleMethods
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: allow_message_expectations_on_nil
+- !ruby/object:RI::MethodSummary 
+  name: mock
+- !ruby/object:RI::MethodSummary 
+  name: stub
+- !ruby/object:RI::MethodSummary 
+  name: stub_everything
+full_name: Spec::Mocks::ExampleMethods
+superclass: 
+class_methods: []
+

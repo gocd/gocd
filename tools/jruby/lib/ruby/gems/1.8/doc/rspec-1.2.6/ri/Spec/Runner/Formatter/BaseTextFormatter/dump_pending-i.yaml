@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: dump_pending
+comment: 
+full_name: Spec::Runner::Formatter::BaseTextFormatter#dump_pending
+visibility: public
+aliases: []
+

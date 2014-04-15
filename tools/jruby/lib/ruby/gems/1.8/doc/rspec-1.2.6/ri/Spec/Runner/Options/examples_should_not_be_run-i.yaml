@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: examples_should_not_be_run
+comment: 
+full_name: Spec::Runner::Options#examples_should_not_be_run
+visibility: public
+aliases: []
+

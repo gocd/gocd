@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>rake_require (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2340</span>
+2340:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">rake_require</span>(<span class="ruby-identifier">file_name</span>, <span class="ruby-identifier">paths</span>=<span class="ruby-identifier">$LOAD_PATH</span>, <span class="ruby-identifier">loaded</span>=<span class="ruby-identifier">$&quot;</span>)
+2341:       <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">false</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">loaded</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">file_name</span>)
+2342:       <span class="ruby-identifier">paths</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">path</span><span class="ruby-operator">|</span>
+2343:         <span class="ruby-identifier">fn</span> = <span class="ruby-identifier">file_name</span> <span class="ruby-operator">+</span> <span class="ruby-value str">&quot;.rake&quot;</span>
+2344:         <span class="ruby-identifier">full_path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">fn</span>)
+2345:         <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">full_path</span>)
+2346:           <span class="ruby-identifier">load</span> <span class="ruby-identifier">full_path</span>
+2347:           <span class="ruby-identifier">loaded</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">fn</span>
+2348:           <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">true</span>
+2349:         <span class="ruby-keyword kw">end</span>
+2350:       <span class="ruby-keyword kw">end</span>
+2351:       <span class="ruby-identifier">fail</span> <span class="ruby-constant">LoadError</span>, <span class="ruby-node">&quot;Can't find #{file_name}&quot;</span>
+2352:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

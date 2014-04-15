@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Rake
+constants: []
+
+comment: []
+
+attributes: []
+
+instance_methods: []
+
+full_name: Rake
+superclass: 
+class_methods: []
+

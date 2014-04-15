@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: VERSION
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::VERSION
+superclass: 
+class_methods: []
+

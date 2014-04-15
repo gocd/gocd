@@ -1,0 +1,25 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should satisfy {}
+  should_not satisfy {}
+is_singleton: false
+block_params: 
+name: satisfy
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if the submitted block returns true. Yields target to the block.
+- !ruby/struct:SM::Flow::P 
+  body: Generally speaking, this should be thought of as a last resort when you can't
+    find any other way to specify the behaviour you wish to specify.
+- !ruby/struct:SM::Flow::P 
+  body: If you do find yourself in such a situation, you could always write a custom
+    matcher, which would likely make your specs more expressive.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  5.should satisfy { |n|\n    n &gt; 3\n  }\n"
+full_name: Spec::Matchers#satisfy
+visibility: public
+aliases: []
+

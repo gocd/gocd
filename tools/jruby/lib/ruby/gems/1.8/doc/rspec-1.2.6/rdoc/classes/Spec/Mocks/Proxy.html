@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Mocks::Proxy</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Mocks::Proxy</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib/spec/mocks/proxy_rb.html">
+                lib/spec/mocks/proxy.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000287">add_message_expectation</a>&nbsp;&nbsp;
+      <a href="#M000288">add_negative_message_expectation</a>&nbsp;&nbsp;
+      <a href="#M000289">add_stub</a>&nbsp;&nbsp;
+      <a href="#M000283">allow_message_expectations_on_nil</a>&nbsp;&nbsp;
+      <a href="#M000286">as_null_object</a>&nbsp;&nbsp;
+      <a href="#M000292">has_negative_expectation?</a>&nbsp;&nbsp;
+      <a href="#M000294">message_received</a>&nbsp;&nbsp;
+      <a href="#M000284">new</a>&nbsp;&nbsp;
+      <a href="#M000285">null_object?</a>&nbsp;&nbsp;
+      <a href="#M000295">raise_unexpected_message_args_error</a>&nbsp;&nbsp;
+      <a href="#M000296">raise_unexpected_message_error</a>&nbsp;&nbsp;
+      <a href="#M000291">received_message?</a>&nbsp;&nbsp;
+      <a href="#M000293">record_message_received</a>&nbsp;&nbsp;
+      <a href="#M000290">reset</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">DEFAULT_OPTIONS</td>
+          <td>=</td>
+          <td class="context-item-value">{         :null_object =&gt; false,       }</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000283" class="method-detail">
+        <a name="M000283"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000283.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000283.html');return false;">
+          <span class="method-name">allow_message_expectations_on_nil</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000284" class="method-detail">
+        <a name="M000284"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000284.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000284.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(target, name=nil, options={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000287" class="method-detail">
+        <a name="M000287"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000287.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000287.html');return false;">
+          <span class="method-name">add_message_expectation</span><span class="method-args">(expected_from, sym, opts={}, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000288" class="method-detail">
+        <a name="M000288"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000288.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000288.html');return false;">
+          <span class="method-name">add_negative_message_expectation</span><span class="method-args">(expected_from, sym, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000289" class="method-detail">
+        <a name="M000289"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000289.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000289.html');return false;">
+          <span class="method-name">add_stub</span><span class="method-args">(expected_from, sym, opts={})</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000286" class="method-detail">
+        <a name="M000286"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000286.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000286.html');return false;">
+          <span class="method-name">as_null_object</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000292" class="method-detail">
+        <a name="M000292"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000292.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000292.html');return false;">
+          <span class="method-name">has_negative_expectation?</span><span class="method-args">(sym)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000294" class="method-detail">
+        <a name="M000294"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000294.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000294.html');return false;">
+          <span class="method-name">message_received</span><span class="method-args">(sym, *args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000285" class="method-detail">
+        <a name="M000285"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000285.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000285.html');return false;">
+          <span class="method-name">null_object?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000295" class="method-detail">
+        <a name="M000295"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000295.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000295.html');return false;">
+          <span class="method-name">raise_unexpected_message_args_error</span><span class="method-args">(expectation, *args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000296" class="method-detail">
+        <a name="M000296"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000296.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000296.html');return false;">
+          <span class="method-name">raise_unexpected_message_error</span><span class="method-args">(sym, *args)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000291" class="method-detail">
+        <a name="M000291"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000291.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000291.html');return false;">
+          <span class="method-name">received_message?</span><span class="method-args">(sym, *args, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000293" class="method-detail">
+        <a name="M000293"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000293.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000293.html');return false;">
+          <span class="method-name">record_message_received</span><span class="method-args">(sym, args, block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000290" class="method-detail">
+        <a name="M000290"></a>
+
+        <div class="method-heading">
+          <a href="Proxy.src/M000290.html" target="Code" class="method-signature"
+            onclick="popupCode('Proxy.src/M000290.html');return false;">
+          <span class="method-name">reset</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

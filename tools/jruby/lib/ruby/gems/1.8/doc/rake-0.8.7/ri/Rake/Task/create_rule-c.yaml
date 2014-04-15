@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args, &block)
+is_singleton: true
+block_params: 
+name: create_rule
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Define a rule for synthesizing tasks.
+full_name: Rake::Task::create_rule
+visibility: public
+aliases: []
+

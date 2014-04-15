@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: generated_description
+comment: 
+full_name: Spec::Matchers::generated_description
+visibility: public
+aliases: []
+

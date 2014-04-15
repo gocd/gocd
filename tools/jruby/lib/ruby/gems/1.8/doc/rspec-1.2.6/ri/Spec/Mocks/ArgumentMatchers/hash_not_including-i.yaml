@@ -1,0 +1,16 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  object.should_receive(:message).with(hash_not_including(:key => val))
+  object.should_receive(:message).with(hash_not_including(:key))
+  object.should_receive(:message).with(hash_not_including(:key, :key2 => :val2))
+is_singleton: false
+block_params: 
+name: hash_not_including
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if the argument is a hash that doesn't include the specified key(s)
+    or key/value
+full_name: Spec::Mocks::ArgumentMatchers#hash_not_including
+visibility: public
+aliases: []
+

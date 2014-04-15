@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (dir) {|| ...}
+is_singleton: false
+block_params: ""
+name: indir
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Make <tt>dir</tt> the current working directory for the duration of executing
+    the given block.
+full_name: Sys#indir
+visibility: public
+aliases: []
+

@@ -1,0 +1,95 @@
+#!/bin/bash
+#*************************GO-LICENSE-START********************************
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#*************************GO-LICENSE-END**********************************
+
+. /lib/svc/share/smf_include.sh
+
+log_success_msg() {
+    echo $1 2>&1 | smf_console
+}
+
+
+getproparg() { 
+    val=`svcprop -c -p $1 $SMF_FMRI` 
+    [ -n "$val" ] && echo $val 
+} 
+
+if [ -z "$SMF_FMRI" ]; then 
+    echo "SMF framework variables are not initialized." 
+    exit $SMF_EXIT_ERR 
+fi
+
+
+function set_java_home {
+    if [ -z "$JAVA_HOME" ]; then
+        path_to_java="`which java`"
+        if [ $? -eq 0 ]; then
+            JAVA_HOME=`readlink -f "$path_to_java" | sed "s/\/bin\/java//"`
+            echo "Found Java $JAVA_HOME in PATH, using it."
+        else
+            echo "Path to java not found in JAVA_HOME or PATH."
+        fi
+    fi
+    if [ -n "$JAVA_HOME" ]; then
+        export JAVA_HOME
+        echo "Found Java $JAVA_HOME in environment variable JAVA_HOME, using it."
+    fi
+}
+
+# Export these so our agent.sh script gets them
+set_java_home
+DAEMON="Y"
+export DAEMON
+AGENT_WORK_DIR="/var/lib/go-agent"
+export AGENT_WORK_DIR
+
+GO_SERVER=`getproparg go-agent/server`
+export GO_SERVER
+
+export HOME="/var/go"
+
+PATH=$PATH:/usr/local/bin:/usr/sfw/bin
+export PATH
+
+start_go_agent() {
+    cd $AGENT_WORK_DIR
+    /usr/share/go-agent/agent.sh
+
+    if [ $? -eq 0 ]; then
+        log_success_msg "Started Go Agent for server ${GO_SERVER}"
+    else
+        log_failure_msg "Error starting Go Agent."
+        exit $SMF_EXIT_ERR_FATAL
+    fi
+}
+
+stop_go_agent() {
+    echo "Not implemented, not needed..."
+}
+
+case "$1" in
+    start)
+        start_go_agent
+        ;;
+    stop)
+        stop_go_agent
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+esac
+
+exit $SMF_EXIT_OK

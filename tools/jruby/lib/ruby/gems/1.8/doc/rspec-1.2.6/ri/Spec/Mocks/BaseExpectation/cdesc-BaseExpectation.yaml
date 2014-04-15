@@ -1,0 +1,64 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: BaseExpectation
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: error_generator
+  comment: 
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: expected_from
+  comment: 
+  rw: W
+- !ruby/object:RI::Attribute 
+  name: expected_received_count
+  comment: 
+  rw: W
+- !ruby/object:RI::Attribute 
+  name: method_block
+  comment: 
+  rw: W
+- !ruby/object:RI::Attribute 
+  name: sym
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: and_raise
+- !ruby/object:RI::MethodSummary 
+  name: and_return
+- !ruby/object:RI::MethodSummary 
+  name: and_throw
+- !ruby/object:RI::MethodSummary 
+  name: and_yield
+- !ruby/object:RI::MethodSummary 
+  name: build_child
+- !ruby/object:RI::MethodSummary 
+  name: called_max_times?
+- !ruby/object:RI::MethodSummary 
+  name: clone_args_to_yield
+- !ruby/object:RI::MethodSummary 
+  name: expected_args
+- !ruby/object:RI::MethodSummary 
+  name: failed_fast?
+- !ruby/object:RI::MethodSummary 
+  name: invoke
+- !ruby/object:RI::MethodSummary 
+  name: invoke_consecutive_return_block
+- !ruby/object:RI::MethodSummary 
+  name: invoke_method_block
+- !ruby/object:RI::MethodSummary 
+  name: invoke_return_block
+- !ruby/object:RI::MethodSummary 
+  name: invoke_with_yield
+- !ruby/object:RI::MethodSummary 
+  name: matches
+full_name: Spec::Mocks::BaseExpectation
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

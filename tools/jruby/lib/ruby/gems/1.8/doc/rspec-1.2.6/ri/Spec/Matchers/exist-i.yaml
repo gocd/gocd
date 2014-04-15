@@ -1,0 +1,14 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should exist
+  should_not exist
+is_singleton: false
+block_params: 
+name: exist
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if actual.exist?
+full_name: Spec::Matchers#exist
+visibility: public
+aliases: []
+

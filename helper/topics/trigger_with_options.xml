@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Trigger with a different revision of material">
+	<p>Go supports a Trigger with option that allows you to run the pipeline with a specific revision of the material(s).</p>
+	<section title="Trigger with options">
+	<screenshot alttext="Trigger with options" src="resources/images/cruise/trigger_with_options.png"/>
+	</section>
+	<section title="Information">
+	<p>The following information are displayed for the last 5 revisions. For an SCM materal, the following information is shown</p>
+		<bullets>
+			<item>Revision hash or pipeline label</item>
+			<item>Committer</item>
+			<item>Check-in comment for the revision</item>
+			<item>Check-in time of the revision</item>
+		</bullets>
+	<p>For a pipeline materal, the pipeline label and the corresponding run time is shown</p>
+	</section>
+	<section title="Choosing the revision">
+    <p>You can choose one of the revisions and then click on Trigger Pipeline button.</p>
+    <p>If you want to trigger with a revision other than the 5 that is displayed, you can specify information related to this in the text box provided. You can search for all or part of </p>
+    <bullets>
+    <item>revision hash/pipeline label</item>
+    <item>committer name </item>
+    <item>check-in comment</item>
+    </bullets>
+    <p>Go will find matches and display the same. One of the matches can be chosen and the build triggered. </p>
+   
+   <screenshot alttext="Trigger with options search" src="resources/images/cruise/trigger_with_options_search.png"/>
+
+   </section>
+
+   <section title="Environment and secure variables">
+      <p>If the pipeline has environment and/or secure variables configured, additional tabs will be displayed to allow you to override these values.</p>
+      <screenshot alttext="Trigger with options and environment variables" src="resources/images/cruise/trigger_with_options_environment.png"/>
+   </section>
+
+   <bullets title="Also see...">
+       <item><cref topic="deploy_a_specific_build_to_an_environment">Deploy a specific build to an environment</cref></item>
+       <item><cref topic="Pipelines_Dashboard_page">Pipeline dashboard</cref></item>
+       <item><cref topic="ordering_of_pipelines">Ordering of pipelines</cref></item>
+   </bullets>
+
+</topic>

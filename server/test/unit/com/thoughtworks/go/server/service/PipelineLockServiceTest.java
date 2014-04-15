@@ -1,0 +1,156 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+package com.thoughtworks.go.server.service;
+
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import org.junit.Before;
+import org.junit.Test;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class PipelineLockServiceTest {
+    private PipelineLockService pipelineLockService;
+    private PipelineSqlMapDao pipelineDao;
+    private GoConfigService goConfigService;
+
+    @Before public void setup() throws Exception {
+        pipelineDao = mock(PipelineSqlMapDao.class);
+        goConfigService = mock(GoConfigService.class);
+        pipelineLockService = new PipelineLockService(goConfigService, pipelineDao);
+        pipelineLockService.initialize();
+    }
+
+    @Test
+    public void shouldLockPipeline() throws Exception {
+        when(goConfigService.isLockable("mingle")).thenReturn(true);
+
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        pipelineLockService.lockIfNeeded(pipeline);
+        verify(pipelineDao).lockPipeline(pipeline);
+    }
+
+    @Test
+    public void shouldNotLockPipelineWhenNotLockable() throws Exception {
+        when(goConfigService.isLockable("mingle")).thenReturn(false);
+
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        pipelineLockService.lockIfNeeded(pipeline);
+        verify(pipelineDao, never()).lockPipeline(pipeline);
+    }
+
+    @Test public void shouldKnowIfPipelineIsLocked() throws Exception {
+        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier("mingle", 1, "1", "stage", "1"));
+
+        assertThat(pipelineLockService.isLocked("mingle"), is(true));
+        assertThat(pipelineLockService.isLocked("twist"), is(false));
+    }
+
+    @Test public void shouldUnlockPipelineIrrespectiveOfItBeingLockable() throws Exception {
+        pipelineLockService.unlock("mingle");
+        verify(pipelineDao).unlockPipeline("mingle");
+    }
+
+    @Test public void shouldAllowStageFromCurrentPipelineToBeScheduled() throws Exception {
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+
+        when(pipelineDao.lockedPipeline("mingle")).thenReturn(pipeline.getStages().get(0).getIdentifier());
+        when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
+
+        pipelineLockService.lockIfNeeded(pipeline);
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+    }
+
+    @Test public void shouldNotAllowStageFromLockedPipelineToBeScheduled() throws Exception {
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+
+        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier(pipeline.getName(), 9999, "1.2.9999",  "stage", "1"));
+        when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
+
+        pipelineLockService.lockIfNeeded(pipeline);
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(false));
+    }
+
+    @Test public void shouldAllowStageFromAnotherPipelineIfThePipelineIsNotLockabler() throws Exception {
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+
+
+        when(pipelineDao.lockedPipeline("mingle")).thenReturn(new StageIdentifier(pipeline.getName(), 9999, "1.2.9999",  "stage", "1"));
+        when(goConfigService.isLockable(pipeline.getName())).thenReturn(false);
+
+        pipelineLockService.lockIfNeeded(pipeline);
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+    }
+
+    @Test public void shouldAllowStageFromAnotherPipelineIfThePipelineIsLockable() throws Exception {
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+
+        when(pipelineDao.lockedPipeline("another-pipeline")).thenReturn(null);
+        when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
+
+        pipelineLockService.lockIfNeeded(pipeline);
+        assertThat(pipelineLockService.canScheduleStageInPipeline(pipeline.getIdentifier()), is(true));
+    }
+
+    @Test public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(true);
+        when(cruiseConfig.isPipelineLocked("mingle")).thenReturn(true);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
+        when(cruiseConfig.isPipelineLocked("twist")).thenReturn(false);
+
+        pipelineLockService.onConfigChange(cruiseConfig);
+
+        verify(pipelineDao, never()).unlockPipeline("mingle");
+        verify(pipelineDao).unlockPipeline("twist");
+    }
+
+    @Test public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() throws Exception {
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+
+        when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
+        when(cruiseConfig.isPipelineLocked("mingle")).thenThrow(new PipelineNotFoundException("mingle not there"));
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
+        when(cruiseConfig.isPipelineLocked("twist")).thenReturn(false);
+
+        pipelineLockService.onConfigChange(cruiseConfig);
+
+        verify(pipelineDao).unlockPipeline("mingle");
+        verify(pipelineDao).unlockPipeline("twist");
+    }
+
+    @Test public void shouldRegisterItselfAsAConfigChangeListener() throws Exception {
+        GoConfigService mockGoConfigService = mock(GoConfigService.class);
+        PipelineLockService service = new PipelineLockService(mockGoConfigService, pipelineDao);
+        service.initialize();
+        verify(mockGoConfigService).register(service);
+    }
+}

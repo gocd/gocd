@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: to_s
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Return task name
+full_name: Rake::Task#to_s
+visibility: public
+aliases: []
+

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: glossary.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>glossary.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/glossary.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Glossary</h1>
+<dl>
+<dt><b>action</b></dt><dd>Code to be executed in order to perform a task. Actions in a rakefile are
+specified in a code block (usually delimited by <tt>do</tt>/<tt>end</tt>
+pairs.
+
+</dd>
+<dt><b>execute</b></dt><dd>When a task is executed, all of its actions are performed, in the order
+they were defined. Note that unlike <tt>invoke</tt>, <tt>execute</tt>
+always executes the actions (without invoking or executing the
+prerequisites).
+
+</dd>
+<dt><b>file task</b> (FileTask)</dt><dd>A file task is a task whose purpose is to create a file (which has the same
+name as the task). When invoked, a file task will only execute if one or
+more of the following conditions are true.
+
+<ol>
+<li>The associated file does not exist.
+
+</li>
+<li>A prerequisite has a later time stamp than the existing file.
+
+</li>
+</ol>
+<p>
+Because normal Tasks always have the current time as timestamp, a FileTask
+that has a normal Task prerequisite will always execute.
+</p>
+</dd>
+<dt><b>invoke</b></dt><dd>When a task is invoked, first we check to see if it has been invoked
+before. if it has been, then nothing else is done. If this is the first
+time its been invoked, then we invoke each of its prerequisites. Finally,
+we check to see if we need to execute the actions of this task by calling
+<tt>needed?</tt>. Finally, if the task is needed, we execute its actions.
+
+<p>
+NOTE: Currently prerequisites are invoked even if the task is not needed.
+This may change in the future.
+</p>
+</dd>
+<dt><b>prerequisites</b></dt><dd>Every task has a set (possiblity empty) of prerequisites. A prerequisite P
+to Task T is itself a task that must be invoked before Task T.
+
+</dd>
+<dt><b>rule</b></dt><dd>A rule is a recipe for synthesizing a task when no task is explicitly
+defined. Rules generally synthesize file tasks.
+
+</dd>
+<dt><b>task</b> (Task)</dt><dd>Basic unit of work in a rakefile. A task has a name, a set of prerequisites
+and a list of actions to be performed.
+
+</dd>
+</dl>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

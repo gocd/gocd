@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (requires)
+is_singleton: false
+block_params: 
+name: invoke_requires
+comment: 
+full_name: Spec::Runner::OptionParser#invoke_requires
+visibility: protected
+aliases: []
+

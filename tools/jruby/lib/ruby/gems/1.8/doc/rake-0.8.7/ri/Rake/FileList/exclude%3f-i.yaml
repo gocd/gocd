@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (fn)
+is_singleton: false
+block_params: 
+name: exclude?
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Should the given file name be excluded?
+full_name: Rake::FileList#exclude?
+visibility: public
+aliases: []
+

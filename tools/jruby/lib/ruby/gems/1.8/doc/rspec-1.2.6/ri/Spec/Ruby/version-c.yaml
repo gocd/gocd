@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: version
+comment: 
+full_name: Spec::Ruby::version
+visibility: public
+aliases: []
+

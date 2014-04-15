@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (task_name, initial_scope=nil)
+is_singleton: false
+block_params: 
+name: lookup
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Lookup a task, using scope and the scope hints in the task name. This method
+    performs straight lookups without trying to synthesize file tasks or rules. Special
+    scope names (e.g. '^') are recognized. If no scope argument is supplied, use the
+    current scope. Return nil if the task cannot be found.
+full_name: Rake::TaskManager#lookup
+visibility: public
+aliases: []
+

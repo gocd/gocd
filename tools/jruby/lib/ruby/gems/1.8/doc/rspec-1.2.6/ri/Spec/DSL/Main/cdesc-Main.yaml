@@ -1,0 +1,25 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::ArgsAndOptions
+name: Main
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: context
+- !ruby/object:RI::MethodSummary 
+  name: describe
+- !ruby/object:RI::MethodSummary 
+  name: share_as
+- !ruby/object:RI::MethodSummary 
+  name: share_examples_for
+- !ruby/object:RI::MethodSummary 
+  name: shared_examples_for
+full_name: Spec::DSL::Main
+superclass: 
+class_methods: []
+

@@ -1,0 +1,22 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_group_proxy)
+is_singleton: false
+block_params: 
+name: example_group_started
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: 'This method is invoked at the beginning of the execution of each example_group.
+    The next method to be invoked after this is #example_started'
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'example_group_proxy:'
+    body: instance of Spec::Example::ExampleGroupProxy
+full_name: Spec::Runner::Formatter::BaseFormatter#example_group_started
+visibility: public
+aliases: []
+

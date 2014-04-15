@@ -1,0 +1,116 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Task
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: A Task is the basic unit of work in a Rakefile. Tasks have associated actions
+    (possibly more than one) and a list of prerequisites. When invoked, a task will
+    first ensure that all of its prerequisites have an opportunity to run and then
+    it will execute its own actions.
+- !ruby/struct:SM::Flow::P 
+  body: Tasks are not usually created directly using the new method, but rather use
+    the <tt>file</tt> and <tt>task</tt> convenience methods.
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: actions
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of actions attached to a task.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: application
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Application owning this task.
+  rw: RW
+- !ruby/object:RI::Attribute 
+  name: comment
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Comment for this task. Restricted to a single line of no more than 50 characters.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: full_comment
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Full text of the (possibly multi-line) comment.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: prerequisites
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of prerequisites for a task.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: scope
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Array of nested namespaces names used for task lookup by this task.
+  rw: R
+- !ruby/object:RI::Attribute 
+  name: sources
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: List of sources for task.
+  rw: W
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add_description
+- !ruby/object:RI::MethodSummary 
+  name: arg_names
+- !ruby/object:RI::MethodSummary 
+  name: clear
+- !ruby/object:RI::MethodSummary 
+  name: clear_actions
+- !ruby/object:RI::MethodSummary 
+  name: clear_prerequisites
+- !ruby/object:RI::MethodSummary 
+  name: comment=
+- !ruby/object:RI::MethodSummary 
+  name: enhance
+- !ruby/object:RI::MethodSummary 
+  name: execute
+- !ruby/object:RI::MethodSummary 
+  name: inspect
+- !ruby/object:RI::MethodSummary 
+  name: investigation
+- !ruby/object:RI::MethodSummary 
+  name: invoke
+- !ruby/object:RI::MethodSummary 
+  name: name
+- !ruby/object:RI::MethodSummary 
+  name: needed?
+- !ruby/object:RI::MethodSummary 
+  name: reenable
+- !ruby/object:RI::MethodSummary 
+  name: set_arg_names
+- !ruby/object:RI::MethodSummary 
+  name: source
+- !ruby/object:RI::MethodSummary 
+  name: sources
+- !ruby/object:RI::MethodSummary 
+  name: timestamp
+- !ruby/object:RI::MethodSummary 
+  name: to_s
+full_name: Rake::Task
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '[]'
+- !ruby/object:RI::MethodSummary 
+  name: clear
+- !ruby/object:RI::MethodSummary 
+  name: create_rule
+- !ruby/object:RI::MethodSummary 
+  name: define_task
+- !ruby/object:RI::MethodSummary 
+  name: new
+- !ruby/object:RI::MethodSummary 
+  name: scope_name
+- !ruby/object:RI::MethodSummary 
+  name: task_defined?
+- !ruby/object:RI::MethodSummary 
+  name: tasks

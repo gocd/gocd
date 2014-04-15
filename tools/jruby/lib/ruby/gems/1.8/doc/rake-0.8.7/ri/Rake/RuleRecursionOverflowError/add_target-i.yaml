@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (target)
+is_singleton: false
+block_params: 
+name: add_target
+comment: 
+full_name: Rake::RuleRecursionOverflowError#add_target
+visibility: public
+aliases: []
+

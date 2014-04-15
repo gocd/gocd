@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: String</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">String</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../files/lib/rake_rb.html">
+                lib/rake.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                Object
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+User defined methods to be added to <a href="String.html">String</a>.
+</p>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000531">ext</a>&nbsp;&nbsp;
+      <a href="#M000535">pathmap</a>&nbsp;&nbsp;
+      <a href="#M000532">pathmap_explode</a>&nbsp;&nbsp;
+      <a href="#M000533">pathmap_partial</a>&nbsp;&nbsp;
+      <a href="#M000534">pathmap_replace</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000531" class="method-detail">
+        <a name="M000531"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000531.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000531.html');return false;">
+          <span class="method-name">ext</span><span class="method-args">(newext='')</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Replace the file extension with <tt>newext</tt>. If there is no extension
+on the string, append the new extension to the end. If the new extension is
+not given, or is the empty string, remove any existing extension.
+</p>
+<p>
+<tt><a href="String.html#M000531">ext</a></tt> is a user added method for
+the <a href="String.html">String</a> class.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000535" class="method-detail">
+        <a name="M000535"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000535.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000535.html');return false;">
+          <span class="method-name">pathmap</span><span class="method-args">(spec=nil, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Map the path according to the given specification. The specification
+controls the details of the mapping. The following special patterns are
+recognized:
+</p>
+<ul>
+<li><b>%p</b> &#8212; The complete path.
+
+</li>
+<li><b>%f</b> &#8212; The base file name of the path, with its file extension,
+but without any directories.
+
+</li>
+<li><b>%n</b> &#8212; The file name of the path without its file extension.
+
+</li>
+<li><b>%d</b> &#8212; The directory list of the path.
+
+</li>
+<li><b>%x</b> &#8212; The file extension of the path. An empty string if there
+is no extension.
+
+</li>
+<li><b>%X</b> &#8212; Everything <b>but</b> the file extension.
+
+</li>
+<li><b>%s</b> &#8212; The alternate file separater if defined, otherwise use
+the standard file separator.
+
+</li>
+<li><b>%%</b> &#8212; A percent sign.
+
+</li>
+</ul>
+<p>
+The %d specifier can also have a numeric prefix (e.g. &#8217;%2d&#8217;).
+If the number is positive, only return (up to) <tt>n</tt> directories in
+the path, starting from the left hand side. If <tt>n</tt> is negative,
+return (up to) |<tt>n</tt>| directories from the right hand side of the
+path.
+</p>
+<p>
+Examples:
+</p>
+<pre>
+  'a/b/c/d/file.txt'.pathmap(&quot;%2d&quot;)   =&gt; 'a/b'
+  'a/b/c/d/file.txt'.pathmap(&quot;%-2d&quot;)  =&gt; 'c/d'
+</pre>
+<p>
+Also the %d, %p, %f, %n, %x, and %X operators can take a
+pattern/replacement argument to perform simple string substititions on a
+particular part of the path. The pattern and replacement are speparated by
+a comma and are enclosed by curly braces. The replacement spec comes after
+the % character but before the operator letter. (e.g.
+&quot;%{old,new}d&quot;). Muliple replacement specs should be separated by
+semi-colons (e.g. &quot;%{old,new;src,bin}d&quot;).
+</p>
+<p>
+Regular expressions may be used for the pattern, and back refs may be used
+in the replacement text. Curly braces, commas and semi-colons are excluded
+from both the pattern and replacement text (let&#8216;s keep parsing
+reasonable).
+</p>
+<p>
+For example:
+</p>
+<pre>
+   &quot;src/org/onestepback/proj/A.java&quot;.pathmap(&quot;%{^src,bin}X.class&quot;)
+</pre>
+<p>
+returns:
+</p>
+<pre>
+   &quot;bin/org/onestepback/proj/A.class&quot;
+</pre>
+<p>
+If the replacement text is &#8217;*&#8217;, then a block may be provided to
+perform some arbitrary calculation for the replacement.
+</p>
+<p>
+For example:
+</p>
+<pre>
+  &quot;/path/to/file.TXT&quot;.pathmap(&quot;%X%{.*,*}x&quot;) { |ext|
+     ext.downcase
+  }
+</pre>
+<p>
+Returns:
+</p>
+<pre>
+ &quot;/path/to/file.txt&quot;
+</pre>
+        </div>
+      </div>
+
+      <div id="method-M000532" class="method-detail">
+        <a name="M000532"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000532.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000532.html');return false;">
+          <span class="method-name">pathmap_explode</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Explode a path into individual components. Used by <tt><a
+href="String.html#M000535">pathmap</a></tt>.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000533" class="method-detail">
+        <a name="M000533"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000533.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000533.html');return false;">
+          <span class="method-name">pathmap_partial</span><span class="method-args">(n)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Extract a partial path from the path. Include <tt>n</tt> directories from
+the front end (left hand side) if <tt>n</tt> is positive. Include
+|<tt>n</tt>| directories from the back end (right hand side) if <tt>n</tt>
+is negative.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000534" class="method-detail">
+        <a name="M000534"></a>
+
+        <div class="method-heading">
+          <a href="String.src/M000534.html" target="Code" class="method-signature"
+            onclick="popupCode('String.src/M000534.html');return false;">
+          <span class="method-name">pathmap_replace</span><span class="method-args">(patterns, &amp;block)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Preform the <a href="String.html#M000535">pathmap</a> replacement
+operations on the given path. The patterns take the form
+&#8216;pat1,rep1;pat2,rep2&#8230;&#8217;.
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "mingle_help.dtd">
+<chapter title="Installing Go server">
+	<p>Before you install the Go server or agent, please take a look at <cref topic="system_requirements">System Requirements</cref>.</p>
+
+	<section title="Installation">
+	<subsection title="How to install Go server for Windows" id="windows_install_server">
+		<note>You must be logged in as a user with Administrator privileges to install the Go server on Windows.</note>
+		<steps>
+			<item>Double-click the go-server-${version}.exe installer file and follow the prompts to install Go.</item>
+			<item>During installation you will be asked to select a directory that will serve as the root path for your Go server installation. Go server will store all of its associated data in this directory by default.</item>
+			<item>You will next be prompted to choose the bundled Oracle 7 JRE or specify the location of JRE (or JDK) installed on your system</item>
+                        <item>At the end of the installation, Go server will register itself as a windows service owned by 'Local System' and start running automatically.</item>
+            <item>Shortcuts to Go will be placed on your Desktop and in your Start Menu for convenience - double-click the shortcut to go to the Go dashboard.</item>
+		</steps>
+        <subsection title="Override default startup arguments">
+            <img src="resources/images/cruise/windows-server-startup-config-cascade.png" />
+            <bullets>
+                <item>Create a file named <i>wrapper-properties.conf</i> inside the <i>config</i> directory</item>
+                <item>With reference to the representation above, if you wish to increase the maximum java heap size from default <i>1024m</i> to <i>2048m</i>,
+                    <steps>
+                        <item>Copy the property <i>wrapper.java.additional.2=-Xmx1024m</i> from <i>wrapper-server.conf</i> to <i>wrapper-properties.conf</i></item>
+                        <item>Change the value associated to <i>wrapper.java.additional.2</i> to the desired value <i>2048m</i> as shown in the above representation</item>
+                    </steps>
+                </item>
+                <item>Adding a new property entails:
+                    <steps>
+                        <item>Increment the <strong>x</strong> by 1 in <i>wrapper.java.additional.x</i> where <strong>x</strong> is the highest number in <i>wrapper-server.conf</i> and <i>wrapper-properties.conf</i> combined</item>
+                        <item>Add this newly created property to the <i>wrapper-properties.conf</i></item>
+                    </steps>
+                </item>
+            </bullets>
+        </subsection>
+    </subsection>
+
+	<subsection title="How to install Go server for Mac OSX" collapsed="true">
+		<steps>
+			<item>Double-click the downloaded file to unzip the contents.</item>
+			<item>Drag the Go server Application to the Applications folder.</item>
+			<item>Go server will store its data in Library/Application Support/Go Server subfolder of the user's home folder</item>
+			<item>Double-click on the Go Server.app icon to open the launcher.</item>
+			<item><p>While the Go server is starting up, you'll see a progress bar in the top left of your screen.</p>
+			<screenshot alttext="Go server OSX startup" src="resources/images/cruise/cruise_server_osx_startup.png" />
+
+            </item>
+            <item>Once the Go server has started, it will open your default browser to the Go dashboard page.</item>
+            <item>To get back to the Go dashboard page when the server is running, click on the link in the About box of the Go server</item>
+		</steps>
+		<note>
+		    <items>
+		        <item>Prior to 12.3.1, Go server stored its data in /Library/Application Support/Go Server.  From 12.3.1, it will be in &lt;user-home&gt;/Library/Application Support/Go Server.
+			</item>
+			<item>If you upgrade your Mac OS to Lion/Mountain Lion, Go installations prior to 12.3.1 will not continue to work.  You will need to manually upgrade to 12.3.1 and copy the existing configuration from <strong>/Library/Application Support</strong> to <strong>&lt;user-home&gt;/Library/Application Support</strong></item>
+		    </items>
+		</note>
+		<note>
+		    On OSX 10.8.x (Mountain Lion), you may get the following error. <strong>"Go Server" is damaged and can't be opened.  You should move it to the Trash.</strong>
+		    This is due to enanced security protections. To allow the install to proceed
+		    <items>
+		    <item>Go to System Preferences->Personal->Security &amp; Privacy. </item> <item>Launch the Security and Privacy applet. </item>
+		    <item>Click on the General tab to highlight it. </item>
+		    <item>Click ont he lock icon to allow changes. </item>
+		    <item>Under the heading "Allow applications downloaded from:" click on the <strong>Anywhere</strong> radio button. </item>
+		    <item>The installation will proceed as normal.</item>
+		    <item>When it is finished, you can change the Security &amp; Privacy setting back to the previous setting.
+		    </item>
+		    </items>
+		</note>
+
+	</subsection>
+
+	<subsection title="How to install Go server for Linux" id="install-linux" collapsed="true">
+        <note>You must be logged in as root, or use <i>sudo</i>, to install Go on Linux. Go server also requires that Oracle or Open JRE or JDK - version 6 or above - is installed.</note>
+        <note>The Linux installer will create a user called <i>go</i> if one does not exist on the machine. The home directory will be set to <i>/var/go</i>. If you want to create your own <i>go</i> user, make sure you do it before you install the Go server</note>
+
+        <subsection title="RPM based distributions (i.e. RedHat)">
+		    <note>The Go server RPM installer has been tested on RedHat Enterprise Linux and CentOS.  It should work on linux distributions which use rpms </note>
+		    <steps>
+			    <item>Run <i>rpm -i go-server-${version}.noarch.rpm</i> to install Go server.</item>
+		    </steps>
+	    </subsection>
+
+	    <subsection title="Debian based distributions (i.e. Ubuntu)">
+		    <note>The Go server deb installer has been tested on Ubuntu.  It should work on linux distributions which use debs</note>
+		    <steps>
+			    <item>Run <i>dpkg -i go-server-${version}.deb</i> to install Go server.</item>
+		    </steps>
+        <p> The following command could be used after installation:</p>
+          <bullets>
+            <item>Check Go server status with command <i>sudo /etc/init.d/go-server status</i></item>
+            <item>Start Go server with command <i>sudo /etc/init.d/go-server start</i></item>
+            <item>Stop Go server with command <i>sudo /etc/init.d/go-server stop</i></item>
+          </bullets>
+
+	    </subsection>
+        <p>Once the installation is complete the Go server will be started and it will print out the URL for the Dashboard page. This will be http://&lt;server host name&gt;:8153/go</p>
+	</subsection>
+
+    <subsection title="How to install Go server for Solaris" id="install-solaris" collapsed="true">
+      <note>
+        <p>The Go server installer has been tested on OpenIndiana</p>
+        <p>You must be logged in as root, or use <i>sudo</i> or <i>pfexec</i>, to install Go under Solaris. Go server also requires that Oracle or Open JRE or JDK - version 6 or above - is installed.</p>
+        <p>The installer will create a user called <i>go</i> if one does not exist on the machine. The home directory will be set to <i>/var/go</i>. If you want to create your own <i>go</i> user, make sure you do it before you install the Go server.</p>
+      </note>
+	<steps>
+            <item>Uncompress the package with the command <i>gzip -d go-server-${version}-solaris.gz</i></item>
+            <item>Install the package with the command <i>pkgadd -d go-server-${version}-solaris</i></item>
+        </steps>
+        <p> The following command could be used after installation:</p>
+          <bullets>
+            <item>Check Go server status with command <i>svcs go/server</i></item>
+            <item>Start Go server with command <i>svcadm enable -s go/server</i></item>
+            <item>Stop Go server with command <i>svcadm disable -s go/server</i></item>
+          </bullets>
+
+    </subsection>
+
+    <subsection title="Copying existing config to a new Go-Server instance" id="copy-existing-config" collapsed="true">
+        <p>You can replicate a go-server with all the pipeline, stage, job, tasks &amp; materials definitions/configuration intact.</p>
+        <p>To do this Administrator should copy cruise-config.xml to the new server and clear 'serverId' attribute of server tag along with the license.</p>
+    </subsection>
+
+	</section>
+    <section title="Location of files after installation of Go server" id="location_of_files" collapsed="true">
+        <subsection title="Windows">
+        <p>All the files for the Go server are under the root installation path on Windows. The default location is C:\Program Files\Go Server.</p>
+        </subsection>
+        <subsection title="Linux">
+				<code>
+                <![CDATA[
+/var/lib/go-server       #contains the binaries and database
+/etc/go                  #contains the pipeline configuration files
+/var/log/go-server       #contains the server logs
+/usr/share/go-server     #contains the start script
+/etc/default/go-server   #contains all the environment variables with default values. These variable values can be changed as per requirement.]]>
+                </code>
+        </subsection>
+        <subsection title="Mac OSX">
+				<code>
+                <![CDATA[
+<user-home>/Library/Application Support/Go Server
+]]>
+                </code>
+                <note>Some logging information is also written to <i>/var/log/system.log</i></note>
+        </subsection>
+        <subsection title="Solaris">
+				<code>
+                <![CDATA[
+/var/lib/go-server   #contains the binaries and database
+/etc/go              #contains the configuration files
+/var/log/go-server   #contains the server logs
+/usr/share/go-server #contains the start script]]>
+                </code>
+        </subsection>
+    </section>
+	<section title="Also see...">
+	    <bullets>
+		<item><cref topic="installing_go_agent">Installing Go agents</cref></item>
+		<item><cref topic="configuring_server_details">Configuring server details</cref></item>
+                <item><cref topic="configure_proxy">Configure Go to work with a proxy</cref></item>
+	    </bullets>
+	</section>
+</chapter>

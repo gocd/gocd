@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (args=nil)
+is_singleton: false
+block_params: 
+name: execute
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Execute the actions associated with this task.
+full_name: Rake::Task#execute
+visibility: public
+aliases: []
+

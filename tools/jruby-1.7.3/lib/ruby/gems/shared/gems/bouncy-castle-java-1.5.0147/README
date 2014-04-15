@@ -1,0 +1,13 @@
+'bouncy-castle-java' is a gem redistribution of "Legion of the Bouncy Castle Java cryptography APIs" at http://www.bouncycastle.org/java.html
+
+Redistributed by Hiroshi Nakamura <nahi@ruby-lang.org>.
+
+This package is redistributed under the same terms of Bouncy Castle's license; see LICENSE.html for more details.
+
+Object code and source location:
+  lib/bouncy-castle-java.rb: http://github.com/nahi/bouncy-castle-java/
+  lib/bcmail-jdk15-146.jar:  http://www.bouncycastle.org/download/bcmail-jdk15-146.tar.gz
+  lib/bcprov-jdk15-146.jar:  http://www.bouncycastle.org/download/bcprov-jdk15-146.tar.gz
+
+For export classification in the United States of America, see;
+  http://www.bouncycastle.org/wiki/display/JA1/Frequently+Asked+Questions

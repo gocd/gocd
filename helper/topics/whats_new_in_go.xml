@@ -1,0 +1,1083 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="What's new in Go">
+
+    <note>Go has changed it's release naming convention from the previous practice of major.minor.bugfix nomenclature. The major version will now be the year of release (YY). The minor version n will
+        indicate the nth release for the year. For ex: 13.2 will be the second release in 2013.
+    </note>
+    <section file="whats_new_in_13_4_1"/>
+    <section file="whats_new_in_13_4"/>
+    <section file="whats_new_in_13_3"/>
+    <section file="whats_new_in_13_2_2"/>
+    <topic title="Go 13.2.1" >
+        <section title="Enhancements">
+            <bullets>
+                <item id="7480"><cref topic="pipeline_templates" anchor="view_template">Template View:</cref> All Pipeline Group Admins and Go Administrators can now view templates while creating or editing pipelines.</item>
+                <item id="7478"><cref topic="users_api">User Delete API:</cref> A new API using which you can delete a disabled user.</item>
+                <item id="7479">Check-in comments in <cref topic="value_stream_map">Value Stream Map:</cref> Showing more details, like the check-in comment, date and author for every Source Control Material in the Value Stream Map.</item>
+                <item id="7490"><cref topic="performance_tuning" anchor="server_startup_time">Improving Server Startup Time:</cref> The database queries that run when the server starts, have been optimized. Also, additional JVM properties have been provided to delay material polling and pipeline scheduling, thereby, improving start up time.</item>
+            </bullets>
+        </section>
+        <section title="Bug fixes">
+            <bullets>
+                <item id="7481">Perforce material polling when a changeset with no commit message is submitted.</item>
+                <item id="7482">The 'DO NOT SHOW ME AGAIN' button functionality in the License Expiry Warning popup.</item>
+                <item id="7483">Showing timestamp tooltip in a friendly format on the Environments page.</item>
+                <item id="7484">Removing duplicate links in pipeline stages atom feed.</item>
+                <item id="7485">Showing appropriate agents as disabled when adding agents to an environment.</item>
+                <item id="7486">Supporting java7-runtime-headless for Go debian installer.</item>
+                <item id="7487">Sending email only once when notifications are configured on a stage for multiple events.</item>
+                <item id="7488">Removing deprecated environment variables set for a job like CRUISE_PIPELINE_NAME, CRUISE_PIPELINE_COUNTER etc.</item>
+                <item id="7489">Removing 'Add New Property' feature from job details page.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 13.2" >
+        <section title="New features">
+	    <bullets>
+                <item id="5506"><cref topic="value_stream_map"><strong>Value Stream Map</strong></cref>: Visualize end-to-end pipeline dependency. See what revisions triggered a pipeline and which dependent pipelines were triggered by it. Track changes from check-in to deploy.
+                </item>
+                <item><cref topic="concurrent_config_modifications"><strong>Better support for concurrent edits to configuration</strong></cref>
+                <bullets>
+                    <item id="7077">Config Merge : Multiple users' changes to configuration are now merged by Go.</item>
+                    <item id="7270">Split Pane : A user-friendly interface appears in the config xml tab in case of a merge conflict. It displays the latest config as well as the user's changes, so that a Go administrator can edit config without losing any changes!</item>
+                </bullets>
+                </item>
+                <item id="7089"><cref topic="configuration_reference" anchor="hg">Support for named branches in Mercurial</cref></item>
+                <item id="6715"><cref topic="stage_old_config"><strong>Config Diff</strong></cref>: Go administrator can now view configuration changes between two stage runs.</item>
+                <item id="6945"><cref topic="managing_a_build_cloud" anchor="delete_agents">Delete disabled agents from agents tab.</cref></item>
+	    </bullets>
+	</section>
+	<section title="Enhancements">
+	    <bullets>
+            <item id="7187"><cref topic="admin_timer">Go now allows a timer triggered pipeline only when there are new changes.</cref></item>
+            <item>Better usability in stage and job history widgets. Information about config change on stage detail page.</item>
+		    <item id="6707"><cref topic="configuration_reference" anchor="p4">Clobber option is now used in perforce during checkout.</cref></item>
+		    <item id="7078">Ability to specify if a pipeline is manual or automatic from pipeline options page.</item>
+            <item id="7199">A file called wrapper-properties.conf can now be created in windows installations to hold custom properties. This can be done on both <cref topic="installing_go_server" anchor="windows_install_server">server</cref> and <cref topic="installing_go_agent" anchor="windows_install_agent">agent</cref> to avoid overwriting custom properties during upgrade.</item>
+	    </bullets>
+	</section>
+	<section title="Bug fixes">
+	    <bullets>
+            <item id="7320">Case sensitivity issue with pipeline name in pipeline material.</item>
+            <item id="7352">Temporary agent launcher files do not get deleted when Windows machine is shutdown.</item>
+	    </bullets>
+	</section>
+    </topic>
+    <section file="whats_new_in_13_1"/>
+    <topic title="Go 12.4" >
+        <section title="New features">
+	    <bullets>
+                <item id="6350"><strong>Support for OpenJDK</strong>: Oracle JDK (formerly Sun JDK) is no longer a mandatory requirement for Go server and agent.  Go now needs a Java Runtime Environment (JRE) with version 6 or above - either Oracle or Open JRE.
+		</item>
+                <item id="6433"><strong><cref topic="materials_api">Post-commit hook for Subversion</cref></strong>: In organizations with a large number of subversion repositories, regular polling can lead to huge network traffic.  The generic post-commit hook avoids the need for regular polling. It enables appropriate Go pipelines to be triggered based on the commit to the corresponding SVN repository.
+		</item>
+	    </bullets>
+	</section>
+        <section title="Performance Improvements">
+            <bullets>
+                <item id="6612">
+                    <strong>Go configuration saves are faster</strong>: Enterprise installations have large configurations, which also undergo a lot of changes.  Optimizations have been done to reduce the time taken in this area.
+		 </item>
+                <item id="6570">
+		    Better handling of cctray requests while server is starting to improve dashboard accessibilty.
+		 </item>
+	     </bullets>
+        </section>
+	<section title="Enhancements">
+	    <bullets>
+                <item id="6431"><strong>Line breaks displayed in commit messages</strong>:This improves the readability of commit messages.
+		</item>
+                <item id="5675">Go now deletes the associated cache as part of <cref topic="delete_artifacts">auto deletion of artifacts</cref>.
+		</item>
+		<item id="6395">The username of the user who triggered a build is now available as a <cref topic="dev_use_current_revision_in_build" anchor="standard">job environment variable</cref>.
+		</item>
+		<item id="6609">On Windows, Go service no longer needs Admin privileges.  It runs with Local System Account </item>
+		   <item id="6427">Official support for Google Chrome browser.
+		</item>
+
+                <item id="6433">Better error message when licensing limitation is reached
+		</item>
+	    </bullets>
+	</section>
+	<section title="Bug fixes">
+	    <bullets>
+                <item id="6603">Minor UI issues
+		</item>
+                <item id="6600">Stage feed for pipeline fails when all the materials of the pipeline triggered with lower revision compared to the previous trigger
+		</item>
+                <item id="6614">Case sensitivity issue with pipeline name in path and config
+		</item>
+                <item id="6615">Unable to delete a user role if it contains dots
+		</item>
+                <item id="6660">Tests tab under jobs shows no results if the results were in subfolders of the test reports folder.
+		</item>
+                <item id="6652">Memory leak due to open password file
+		</item>
+                <item id="6630">Custom tabs with external contents renders incorrectly
+		</item>
+	    </bullets>
+	</section>
+    </topic>
+    <topic title="Go 12.3.2" >
+        <section title="Bug fixes">
+            <bullets>
+                <item id="6519">
+                    <i>Fan-In</i> feature corner cases.
+		        </item>
+                <item id="6483">
+                    Failure when a Stage feed contains historical dependent pipelines that were deleted from the configuration.
+		        </item>
+                <item id="6411">
+                    <exref url="http://support.thoughtworks.com/entries/21955113-scroll-bar-does-not-show-up-for-console-output-until-it-is-complete">Missing horizontal scroll on Job console page</exref>.
+		        </item>
+	        </bullets>
+	    </section>
+        <section title="Performance Improvements">
+            <bullets>
+                <item id="6530">
+                    Upgraded JGit library. <exref url="http://wiki.eclipse.org/JGit/New_and_Noteworthy/2.0">Details</exref>.
+		        </item>
+	        </bullets>
+        </section>
+    </topic>
+    <topic title="Go 12.3.1" >
+        <section title="Enhancements">
+            <bullets>
+	        <item id="6121">
+		    <strong>Go server for Mac OSX - Lion and Mountain Lion</strong>: Are you a Lion/Mountain Lion user and could not try out Go?  Go Server app now works on the new Mac versions.  Do remember that Mac Go server is primarily for evaluation.
+		</item>
+	        <item id="6441">
+		    <strong>Logging LDAP login failures</strong>: Enterprise customers can troubleshoot LDAP errors or login failures faster, thanks to improved logging support.
+		</item>
+		<item id="5896">
+		    <strong>UI improvements</strong>: Console and custom tabs now extend to the height of the browser window.  And we have a "Top" icon to quickly get you upto the top of the page.
+		</item>
+                <item id="6150">
+		    <strong><cref topic="agents_page" anchor="exact_search">Filter agents by exact search</cref></strong>: Now you can specify the values in quotes to do an exact search. The result - you get exactly what you want and nothing more.
+		</item>
+	    </bullets>
+	</section>
+        <section title="Bug fixes">
+            <bullets>
+                <item id="6206">
+		    Fixed an error triggering a pipeline on the environments page
+		</item>
+	    </bullets>
+	</section>
+    </topic>
+    <topic title="Go 12.3" >
+        <section title="New Features">
+            <bullets>
+                <item id="5817">
+                    <strong><cref topic="fan_in">Go's new "Fan-in" feature allows you to model your workflow to fail fast</cref>:</strong>Continuous Delivery is about failing fast to learn fast.  Early failure is cheap and easy to fix.  So it really comes down to getting short feedback loops across your build-test-release workflow.  What can you do with "fan-out" and "fan-in"?
+		    <bullets>
+		        <item>package the right versions of your components - eliminate spurious builds</item>
+			<item>parallelize testing activities in different environments to find issues as quickly as possible</item>
+		    </bullets>
+                </item>
+
+                <item id="5105">
+                    <strong><cref topic="pipeline_templates">Are you happy with a pipeline and are ready to create a template? Extract a template!</cref>:</strong>This makes scaling easier and promotes consistency in your build-test-release workflow.  A common use case is when you want to start using your deployment mechanism across multiple environments.
+                </item>
+
+                <item id="5149">
+                    <strong><cref topic="pipeline_group_admin_config">Pipeline Group administrators can now view and edit the underlying XML configuration</cref>.</strong>Some administrative tasks are easier done using XML (and believe it or not some users prefer XML!).  We took this away in a previous release and are bringing it back in a better form.
+                </item>
+	    </bullets>
+	</section>
+
+        <section title="Enhancements">
+            <bullets>
+
+                <item id="5907">
+                    <strong><cref topic="installing_go_agent">Silent (Unattended) Windows Installer</cref>.</strong> You no longer need to stick (and click) around when you install a Windows agent.  Thank you for your patience!
+                </item>
+
+                <item id="6096">
+                    <strong>Your <cref topic="go_integration" anchor="cctray">CCtray client</cref></strong> now shows you who broke the build
+                </item>
+
+                <item id="5849">
+                    <strong><cref topic="Stages_API">API to cancel a stage</cref></strong>
+                </item>
+	    </bullets>
+	</section>
+
+        <section title="Go Community Edition">
+            <bullets>
+                <item id="6316">Go Community now has access to all features</item>
+		<item>Teams of up to 10 users can now have access to a fully featured Continous Delivery tool for free</item>
+		<item>This includes <cref topic="pipeline_templates">templates</cref>, <cref topic="managing_environments"> Go Environments</cref>, pipeline groups and pipeline group security
+                </item>
+
+            </bullets>
+	</section>
+
+        <section title="Bugs Fixed">
+            <bullets>
+                <item id="5789">
+                    The <strong><cref topic="compare_pipelines">Pipeline Compare</cref></strong> now uses <i>push date</i> and not <i>author commit date</i>.
+                </item>
+                <item id="6118">
+                    Check connection issue with Perforce
+                </item>
+            </bullets>
+        </section>
+    </topic>
+
+    <topic title="Go 12.2.2" >
+        <section title="New Features">
+            <bullets>
+                <item id="12.2.2.1">
+                    <strong>TFS SDK Support:</strong>
+                    Go Server uses<exref url="http://www.microsoft.com/en-us/download/details.aspx?id=22616">TFS Java SDK v10</exref>,
+                    as the default,to support TFS materials from this release. Usage of SDK makes the TFS implementation scale better.
+                    The requirement of having TFS Command line utility as a pre-requisite fro TFS support is no longer necessary.
+                </item>
+                <item id="12.2.2.2">
+                    <strong>Go Server ID:</strong>
+                    New
+                    <cref topic="configuration_reference" anchor="server">serverID</cref>
+                    attribute has been added to server tag in the config XML to assist Go Server identification in deployment environments
+                    involving multiple Go servers.
+                </item>
+            </bullets>
+        </section>
+        <section title="Performance Enhancements">
+            <bullets>
+                <item id="12.2.2.3">
+                    Memory usage during the process of test artifact analysis has been optimized.
+                    This will result in reduced memory footprint of the Go server.
+                </item>
+                <item id="12.2.2.4">
+                    TFS CLC command and TFS Visual Studio Command implementations for modification check on the server has been optimized.
+                    No workspace and work folder mapping is being done on the server side to determine modifications in TFS repository.
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 12.2.1" >
+        Performance fixes encompassing - memory usage optimization and concurrency.
+    </topic>
+
+    <topic title="Go 12.2" >
+        <section title="New Features">
+            <bullets>
+                <item id="5668">
+                    <strong><cref topic="deploy_a_specific_build_to_an_environment" anchor="secure_variables_section">Use Environment Variables for passwords</cref>:
+                    </strong>
+                    Go's environment variables now have an encryption option so that you can comfortably and safely store and use passwords in Go. You and your auditors will be happy.
+
+                </item>
+                <item id="5783">
+                    <strong><cref topic="managing_dependencies" anchor="fetch_artifact_section">Store each artifact in one place and then fetch it whenever and wherever</cref>:
+                    </strong>
+                    You can now fetch artifacts from any ancestor pipeline. For example, this comes in handy when you want to deploy the same binaries using the same deployment process to various
+                    environments. This ensures you test your deployment process many times all the way out to production.
+                </item>
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="5561">
+                    <strong><cref topic="dev_use_current_revision_in_build">New environment variables for material revisions</cref>:
+                    </strong>
+                    Two additional environment variables GO_FROM_REVISION and GO_TO_REVISION have been introduced during the run of every task. This is useful when a pipeline instance picks up mutiple
+                    changesets from your SCM material and you have tasks that need information on which files have changed in this instance.
+                </item>
+            </bullets>
+        </section>
+        <section title="Bugs fixed">
+            <bullets>
+                <item id="5808">
+                    Fetch Artifact task can be used to fetch artifacts from a particular stage in an
+                    <cref topic="managing_dependencies" anchor="fetch_artifact_section">upstream pipeline</cref>
+                    or stages before it. Stages after the upstream stage
+                    <strong>can not</strong>
+                    be fetched from, because they may not be complete when the fetch task executes. Prior to 12.2 Go would allow fetching artifacts from stages after the upstream stage in the
+                    pipeline.
+                    <br/>
+                    For example: Let pipeline 'build' have 3 stages named 'compile', 'package' and 'test'. Let a downstream pipeline 'deploy' have a dependency on the 'package' stage of 'build'. With
+                    this dependency you can fetch artifacts from 'package' or any stage before that i.e 'compile'. From Go 12.2, you cannot fetch artifacts from the 'test' stage with this dependency.
+                    To fix this, you will have to change the dependency to the 'test' stage of 'build'. With this dependency you can fetch artifacts from any stage of the pipeline i.e 'test' or any
+                    stage before that.
+                    <note>This fix is not backward compatible. Hence, configurations violating this rule need to be fixed manually before upgrading to this version.</note>
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 12.1" >
+        <section title="New Features">
+            <bullets>
+                <item id="5682">
+                    <strong><cref topic="tfs_config">Support for TFS SCM</cref>:
+                    </strong>
+                    Use TFS as a material for your pipeline.
+                </item>
+                <item id="5455">
+                    <strong><cref topic="one_click_backup">One-click backup</cref>:
+                    </strong>
+                    Use the administration interface to backup Go.
+                </item>
+
+
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="2531">
+                    <strong>Permanently pause pipelines:</strong>
+                    The state of a paused pipeline and comment is maintained across server restarts. Hence, you can now permanently disable pipelines without losing historical data for a pipeline.
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 2.4" >
+        <section title="Performance Enhancements">
+            <bullets>
+                <item id="5470">
+                    <strong><cref topic="performance_tuning">Tune Go for Better Performance</cref>:
+                    </strong>
+                    Go has been tested with a large number of pipelines, agents and load. Performance will vary based on your server configuration and usage patterns. Use this guide to optimize
+                    performance.
+                </item>
+                <item id="5447">
+                    <strong>Faster Dashboard:
+                    </strong>
+                    The
+                    <cref topic="Pipelines_Dashboard_page">Pipelines Dashboard</cref>
+                    renders much faster even with a large number of pipelines.
+                </item>
+                <item id="5494">
+                    <strong>Faster Artifact Transfers:
+                    </strong>
+                    We reduced artifact upload and download times.
+                </item>
+                <item id="5471">
+                    <strong>Other:
+                    </strong>
+                    We improved how Go manages memory.
+                </item>
+            </bullets>
+        </section>
+        <section title="New Features">
+            <bullets>
+                <item id="5455">
+                    <strong><cref topic="agents_page">Filter on Agents page</cref>:
+                    </strong>
+                    Use tag:value style syntax to easily find the agents you want to manage.
+                </item>
+                <item id="5115">
+                    <strong><cref topic="agent_auto_register">Auto registration of remote agents</cref>:
+                    </strong>
+                    You can now auto approve remote agents without having to enable them through the agents dashboard.
+                </item>
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="5164">
+                    <strong>Personalize the Pipelines Dashboard:</strong>This is now a user preference in Go.
+                </item>
+                <item id="5089">The online
+                    <exref url="http://www.thoughtworks.com/products/docs/go/current/help/">documentation</exref>
+                    now has search so you can quickly get help.
+                </item>
+                <item id="5122">Get the list of
+                    <cref topic="Pipeline_API">scheduled jobs</cref>
+                    using API.
+                </item>
+                <item id="4697">Configure site urls using the server configuration UI.</item>
+                <item id="5057">Users will get a warning if the Go license is about to expire</item>
+            </bullets>
+        </section>
+        <section title="Bugs fixed">
+            <bullets>
+                <item id="5089">GO_P4_CLIENT environment variable had different behaviour when destination directory is set for perforce materials.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 2.3" >
+        <section title="New Features">
+            <bullets>
+                <item id="5259">
+                    <strong><cref topic="stage_duration_chart">Visualize build duration over time</cref>:
+                    </strong>
+                    Visualize trends
+                    in your build's duration with a brand new graphical chart
+                </item>
+                <item id="5164">
+                    <strong><cref topic="admin_clone_pipeline">Clone a pipeline</cref>:
+                    </strong>
+                    Use the admin UI to clone an existing pipeline.
+                </item>
+                <item id="5041">
+                    <strong><cref topic="quick_pipeline_setup">3 Step Pipeline Wizard</cref>:
+                    </strong>
+                    Use the new pipeline wizard to create a pipeline is 3 easy steps.
+                </item>
+                <item id="2090">
+                    <strong><cref topic="agent_details">Job history on an agent</cref>:
+                    </strong>
+                    You can view the history of all the work done by an agent. Analyze problems in your execution environment to identify flaky
+                    jobs on particular agents.
+                </item>
+                <item id="4489">
+                    <strong><cref topic="stage_old_config">Trace a pipeline instance back to its configuration</cref>:
+                    </strong>
+                    Go now maintains a history of all changes made to its configuration allowing you to audit
+                    all configuration changes. You can view the Go configuration for each run in the Config tab for a stage.
+                </item>
+                <item id="4584">
+                    <strong><cref topic="job_timeout">Job Timeout</cref>:
+                    </strong>
+                    Non-responsive jobs are now detected by Go and can be configured to automatically cancel after a timeout period.
+                </item>
+                <item id="1920">
+                    <strong><cref topic="delete_artifacts">Auto purge old artifacts</cref>:
+                    </strong>
+                    Configure Go to manage server disk space by automatically purging old artifacts.
+                </item>
+                <item id="2408">
+                    <strong><cref topic="artifact_integrity">Artifact integrity verification</cref>:
+                    </strong>
+                    Go verifies every file retrieved from its repository to ensure it hasn't been tampered with.
+                </item>
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="4617">Perforce users can now make use of the GO_P4_CLIENT environment variable which indicates the perforce client name.</item>
+                <item id="4996">Configure and manage custom tabs for your jobs using the admin UI.</item>
+                <item id="4568">You can now browse the history to select a pipeline on the<cref topic="compare_pipelines">Pipeline Compare screen</cref>.
+                </item>
+                <item id="4567">The Stages XML feed now includes additional details on the material check-in that triggered the pipeline and information on related mingle cards.</item>
+                <item id="5144">Usernames and roles are case insensitive. Existing roles or usernames which have multiple entries that differ only in case will be replaced by a single instance.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 2.2" >
+        <section title="New Features">
+            <bullets>
+                <item>
+                    <strong><cref topic="compare_pipelines">Pipeline Compare</cref>:
+                    </strong>
+                    Go now gives you the
+                    ability to select any two pipeline instances and see exactly what changed between the two builds.
+                    The comparison will display a list of checkins grouped by material. If you use Mingle 3.3 (or
+                    greater) to manage your project, you can
+                    <cref topic="mingle_card_activity_gadget">associate a
+                        Mingle project
+                    </cref>
+                    to a pipeline to see a list of cards that were worked on in the compare
+                    range.
+                </item>
+                <item>
+                    <strong><cref topic="managing_pipelines">Pipeline Administration</cref>:
+                    </strong>
+                    A brand new UI for administering pipelines which eliminates the need to configure via XML.
+                </item>
+                <item>
+                    <strong>Password Encryption:</strong>
+                    All passwords stored in Go's configuration file are now encrypted for increased security. In
+                    prior versions, although passwords were only accessible by system administrators, they were
+                    visible in plain text. This is no longer the case.
+                </item>
+                <item>
+                    <strong>Version Controlled Configuration:</strong>
+                    Go now maintains a history of all changes made to its configuration allowing you to audit
+                    all configuration changes.
+                </item>
+                <item>
+                    <strong><cref topic="job_rerun">Job Re-runs</cref>:
+                    </strong>
+                    Go now allows you to re-run specific jobs like it was possible to re-run stages. This helps in cases
+                    like environment problems where you had to rerun an entire stage. Job re-run gets you to
+                    the same state with lower agent utilization and potentially sooner.
+                </item>
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="4830">Go Community no longer requires a license key.</item>
+                <item id="4404">Grant and remove administrative privilege for users from the "User Summary" screen.</item>
+                <item id="4426">The "Trigger with Options" popup now lets you search by a material pipeline's label.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 2.1" >
+        <section title="New Features">
+            <bullets>
+                <item id="4138">The ability to authorize people to<cref topic="delegating_group_administration">administer the configuration of pipeline groups</cref>. This is especially useful if
+                    multiple projects/teams share a single Go server - it means boxes can be centrally managed, but teams are in control of their build configuration.
+                </item>
+                <item id="4249">Go Pipeline Gadget with OAuth 2.0 so that you can embed a view of a pipeline in any compliant OpenSocial container.</item>
+                <item id="4150">Pipeline level Atom feeds</item>
+                <item id="4189">A GUI for creating and configuring environments</item>
+                <item id="4171">A GUI for server and user management</item>
+                <item id="3237">Manage Go users from the administration UI</item>
+                <item id="4207">The ability to
+                    <cref topic="admin_use_parameters_in_configuration">parameterize</cref>
+                    templates.
+                </item>
+                <item id="4199">An option to force agents to perform a clean build, and to bypass version control operations.</item>
+            </bullets>
+        </section>
+        <section title="Enhancements">
+            <bullets>
+                <item id="3742">Ensuring that when check-ins affect multiple pipelines, changes propagate through the pipeline dependency graph correctly.</item>
+                <item id="4133">
+                    <cref topic="dev_authorization" anchor="approvals">Authorization to trigger, cancel and re-run automatically triggered stages</cref>
+                </item>
+                <item id="4331">Pipeline locking is no longer turned on by default within environments.</item>
+                <item id="3088">Better handling of
+                    <cref topic="agent_guid_issue">cloned agent</cref>
+                    conflicts
+                </item>
+                <item id="4233">Go now displays when a stage was triggered on the
+                    <cref topic="stage_details_page">stage details page</cref>
+                </item>
+                <item id="4230">Test failure information is now included in notification emails.</item>
+                <item id="3786">Access to build cause information from within the
+                    <cref topic="stage_details_page" anchor="failed_build_history">Failed Test History</cref>
+                    report.
+                </item>
+                <item id="3812">Access to failure message and stack trace for a failing test from within the
+                    <cref topic="stage_details_page" anchor="failed_build_history">Failed Build History</cref>
+                    report.
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Go 2.0" >
+        <section title="New features">
+            <subsection title="Environments">
+                <bullets>
+                    <item id="3093,3216">
+                        <cref topic="managing_environments" anchor="create">Create, manage, and use an environment</cref>
+                    </item>
+                    <item id="3093,3216">
+                        <cref topic="managing_environments" anchor="agents">Associate agents with an environment</cref>
+                    </item>
+                </bullets>
+            </subsection>
+            <subsection title="Other Features">
+                <bullets>
+                    <item id="3431">
+                        <cref topic="admin_lock_pipelines">Ensure only one instance of a pipeline can run at the same time</cref>
+                    </item>
+                    <item id="3314">
+                        <cref topic="dev_use_current_revision_in_build" anchor="environment">Set variables on an environment</cref>
+                    </item>
+                    <item id="3344">
+                        <cref topic="dev_use_current_revision_in_build" anchor="job">Set variables on a Job</cref>
+                    </item>
+                    <item id="3102">
+                        <cref topic="admin_run_on_all_agents">Run a job on all agents that match environment and resources</cref>
+                    </item>
+                    <item id="2272">
+                        <cref topic="admin_timer">Schedule pipelines based on a timer (e.g. for nightly builds).</cref>
+                    </item>
+                    <item id="3544">
+                        <cref topic="dev_clean_up_when_cancel">Default to kill any running tasks when a stage is canceled</cref>
+                    </item>
+                    <item id="3613">
+                        <cref topic="pipeline_templates">Pipeline templates help to remove duplication in the config file</cref>
+                    </item>
+                    <item>
+                        <cref topic="deploy_a_specific_build_to_an_environment">Deploy specific revisions of materials to an environment</cref>
+                    </item>
+                </bullets>
+            </subsection>
+            <subsection title="API">
+                <bullets>
+                    <item id="1621">
+                        <cref topic="Agent_API">Agent API - Enable and disable an agent</cref>
+                    </item>
+                    <item id="3287,3086">
+                        <cref topic="Pipeline_API" anchor="scheduling">Scheduling a pipeline with specific material revisions</cref>
+                    </item>
+                    <item id="3249">
+                        <cref topic="Pipeline_API" anchor="releasing">Releasing a pipeline lock</cref>
+                    </item>
+                </bullets>
+            </subsection>
+        </section>
+        <section title="Changes">
+            <subsection title="Agents">
+                <bullets>
+                    <item id="3469,3483">
+                        <cref topic="managing_a_build_cloud" anchor="jobstoagents">Bulk edit of agent resources</cref>
+                    </item>
+                    <item id="3469,3483">
+                        <cref topic="managing_a_build_cloud" anchor="jobstoagents">Bulk enable and disable agents</cref>
+                    </item>
+                </bullets>
+            </subsection>
+            <subsection title="Scheduling">
+                <bullets>
+                    <item id="3089">Go now recognizes when you use the same source control repository in multiple pipelines, and only polls it once per minute,
+                        regardless of how many times it's referenced.
+                    </item>
+                    <item id="3513">In previous versions Go would not poll repositories in a manual pipeline. Go will now poll all repositories by default.
+                        You can prevent automatic updating of a material by setting autoUpdate="false" on the material.
+                    </item>
+                </bullets>
+            </subsection>
+            <subsection title="Environment variables">
+                <bullets>
+                    <item id="3910">CRUISE_XXX variables are deprecated since Go 2.0. Please use GO_XXX instead of CRUISE_XXX (For example: GO_SERVER_URL instead of CRUISE_SERVER_URL).</item>
+                </bullets>
+            </subsection>
+        </section>
+    </topic>
+    <topic title="Cruise 1.3.2" >
+        <section title="New features">
+            <bullets>
+                <item id="2999">
+                    <cref topic="admin_out_of_disk_space">Go watches the disk space available for database and shows a warning message when it becomes low.</cref>
+                </item>
+                <item id="3054">
+                    <cref topic="agents_page">Go shows the disk space available for pipelines folder under agent installation root.</cref>
+                </item>
+                <item id="2632,2273">
+                    <cref topic="build_labelling">Pipeline label can now be customized by material revisions number.</cref>
+                </item>
+                <item id="3101">
+                    <cref topic="pipeline_activity_page">Link directly from pipeline history page to the different stage histories.</cref>
+                </item>
+            </bullets>
+        </section>
+        <section title="Changes">
+            <bullets>
+                <item id="2632">Go uses pipeline counter instead of label in
+                    <cref topic="Artifacts_API">artifacts</cref>
+                    and
+                    <cref topic="Properties_API">properties</cref>
+                    Restful urls.
+                </item>
+                <item id="3012">Mercurial material no longer updates the working copy on the server when checking for modifications.</item>
+                <item id="2735">Go now schedules pipelines concurrently.</item>
+                <item id="3035">Go will use the first changed material as build cause.</item>
+            </bullets>
+        </section>
+        <section title="Fixed">
+            <bullets>
+                <item>Go no longer always executes 'hg clone' when the url ends with /.</item>
+            </bullets>
+        </section>
+        <section title="Known issues">
+            <bullets>
+                <item>Pipelines with Mercurial or Git materials may initially take a long time to schedule. This is due to the command 'clone' running with high CPU usage.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Cruise 1.3.1" >
+        <section title="Changes">
+            <bullets>
+                <item id="3037">Upgraded jetty to 6.1.18 and turned off jetty web log as default.</item>
+                <item id="3002">Upgraded H2DB to 1.1.115.</item>
+                <item id="3041, 3043">Improved performance and configurability Agent/Server communication. Go now supports >100 agents.</item>
+                <item id="3042, 3097">Improved performance for configurations with a large number of pipelines and materials defined.</item>
+                <item id="3001">Go will always use the latest revision for filtered materials once scheduled.</item>
+            </bullets>
+        </section>
+        <section title="Fixed">
+            <bullets>
+                <item id="2913">Fixed the concurrency issue with a large number of pipelines on Current Activity Page.</item>
+                <item id="3023">Fixed installers on Mac in terms of upgraded package of Mac in June.</item>
+                <item id="3052">Fixed that Go did not pick up username and password for Subversion repository in some cases.</item>
+                <item id="3053">Fixed invalid CRC error which might fail artifact uploading.</item>
+                <item id="3018">Fixed issue that pipeline with multiple materials might not be able to schedule build.</item>
+                <item id="3082">Fixed issue where agent console logger threads are not always stopped.</item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Cruise 1.3" >
+        <section title="New features">
+            <bullets>
+                <item>Go watch artifacts disk space and show warning message when it becomes low.</item>
+                <item>
+                    <cref topic="dev_notifications">User tab to manage email notifications, with the ability to match check-ins to users</cref>
+                </item>
+                <item>
+                    <cref topic="admin_install_multiple_agents">Run multiple Go agents on one machine</cref>
+                </item>
+                <item>
+                    <cref topic="dev_clean_up_when_cancel">Cancelling a stage can run a process to clean up on the agent</cref>
+                </item>
+                <item>
+                    <cref topic="dev_conditional_task_execution">Conditional task execution for jobs</cref>
+                </item>
+                <item>Support for
+                    <cref topic="configuration_reference" anchor="git">Git branches and submodules</cref>
+                </item>
+                <item>Go server warns you when its disk space is running low</item>
+                <item>
+                    <cref topic="dev_use_current_revision_in_build">Set environment variables containing the source control revision id when running a task</cref>
+                </item>
+                <item>We now support SUSE [<cref topic="installing_go_server" anchor="install-linux">server</cref>|<cref topic="installing_go_agent" anchor="install-linux">agent</cref>] (tested on
+                    Linux Enterprise Server 10 SP2).
+                </item>
+                <item>We now support Solaris [<cref topic="installing_go_server" anchor="install-solaris">server</cref>|<cref topic="installing_go_agent" anchor="install-solaris">agent</cref>] (tested
+                    on SunOS Solaris10 5.10).
+                </item>
+            </bullets>
+            <p>In the professional edition:</p>
+            <bullets>
+                <item>
+                    <cref topic="dev_authorization" anchor="pipeline-groups">Ability to group (and secure) similar pipelines</cref>
+                </item>
+                <item>
+                    <cref topic="managing_dependencies">Pipeline dependencies</cref>
+                </item>
+                <item>
+                    <cref topic="dev_authorization">Lock down who can view and operate pipelines</cref>
+                </item>
+                <item>More than one material per pipeline</item>
+            </bullets>
+        </section>
+        <section title="Changes">
+            <bullets>
+                <item>Changes with multiple materials highlights what has actually changed since the previous revision.
+                    If you used multiple materials (e.g. more than one source control) in the same pipeline,
+                    Go shows the latest revision for each of the materials, even if that is the same as the previous
+                    pipeline instance. Go now highlights the changes since the previous pipeline instance.
+                </item>
+                <item>You can now define groups of pipelines. This makes it easier to configure and define security on
+                    pipelines based on logical grouping for your organization.
+                    See
+                    <cref topic="dev_authorization">change permissions for different actions</cref>
+                    for more information.
+                </item>
+                <item>Go server can now be downloaded as a single jar. For more information see
+                    <cref topic="run_go_without_install">running Go without an install</cref>.
+                </item>
+                <item>The "Pipelines" tab has been removed. The Pipeline Activity page provides a much better visualizatiion.</item>
+                <item>Manual pipelines no longer poll source control. A pipeline with a manual first stage will not check source
+                    control until it is manually triggered. This helps reduce the number of requests to source control systems.
+                </item>
+                <item>Artifacts to be uploaded can now be specified with wildcards. For more information see
+                    <cref topic="dev_upload_test_report">uploading test reports</cref>.
+                </item>
+                <item>Artifacts are now stored on the server in directories named for the pipelines. The directory for a
+                    pipeline is "pipelineName/pipelineLabel/stageName/stageCounter/jobName". Artifacts already created will
+                    still be accessible in the existing directories, but new pipelines will use the new directory layout, This
+                    was done since some operating systems restrict the number of directory entries which can cause errors when
+                    building many pipelines.
+                </item>
+                <item>Go will now obscure show source control passwords. Go will show passwords as "******" in the UI
+                    and in logs. Note that only the logs created by Go itself are obscured. If a tool or script prints out
+                    a password then it may appear in the logs.
+                </item>
+                <item>Forcing a pipeline will create a new pipeline instance even if there are no changes in the materials.
+                    In Cruise 1.2 forcing a pipeline would re-run the existing pipeline if there were no changes in the materials.
+                    After feedback from our users we have removed this change. If you do want to re-run an existing pipeline
+                    instance you can still do so, by clicking the re-run button on the first stage of that pipeline.
+                </item>
+                <item>Upgraded jetty to 6.1.18 with better performance.</item>
+                <item>Use the nio selector from jetty to improve SSL performance.</item>
+                <item>Licensing has been changed. You will need a new license if you have a paid version. Please go
+                    <exref url="http://www.thoughtworks.com/products/go-continuous-delivery/compare">here</exref>
+                    to see details.
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Cruise 1.2.1" >
+        <section title="Changes">
+            <bullets>
+                <item>Fixed the issue of full-checkout on agent side for Perforce.</item>
+                <item>Fixed the issue of full-checkout on agent side for when the option of 'checkexternals' is on.</item>
+                <item>Manually triggering a pipeline will generate a new pipeline instance even though there is no modification detected. Also it will update to most recent revision, including
+                    filtered files.
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Cruise 1.2" >
+        <section title="New features">
+            <p>Cruise 1.2 offers many new features and enhancements in terms of usability and performance.</p>
+            <subsection title="Support tracking tools to integrate with other management tools.">
+                <p>Go now supports linking to a story / bug tracking tool like Mingle from commit messages in Go. Use the folloing syntax:</p>
+                <code>
+                    <![CDATA[
+<pipeline name="cruise">
+    <trackingtool link="http://mingle/projects/cruise/cards/${ID}" regex="#(\d+)"/>
+    ...
+</pipeline>
+]]>
+                </code>
+                <p><strong>Description:</strong>Using the regular expression above, if your commit messages contain messages of the form '#2350', you could see the link wherever you can see the commit
+                    message.
+                </p>
+                <img src="resources/images/cruise/pipeline_activity_tracking_tool.png"/>
+            </subsection>
+            <subsection title="Set properties from artifact using XPath automatically.">
+                <p>After a job has finished on an agent, Go can parse any XML files on the agent and set properties on the server. You can use this to harvest metrics like code coverage or cyclomatic
+                    complexity from your reports into Go, and then export the complete history of your properties from the job detail page to a spreadsheet for custom reporting and analysis. Use the
+                    following syntax to tell Go the XML files to parse, the XPath to get the property value, and the property name. The following example extracts useful coverage metrics from EMMA
+                    reports..
+                </p>
+                <code>
+                    <![CDATA[
+<job name="test_analysis">
+    <properties>
+	<property name="coverage.class" src="target/emma/coverage.xml" xpath="substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')" />
+	<property name="coverage.method" src="target/emma/coverage.xml" xpath="substring-before(//report/data/all/coverage[starts-with(@type,'method')]/@value, '%')" />
+	<property name="coverage.block" src="target/emma/coverage.xml" xpath="substring-before(//report/data/all/coverage[starts-with(@type,'block')]/@value, '%')" />
+	<property name="coverage.line" src="target/emma/coverage.xml" xpath="substring-before(//report/data/all/coverage[starts-with(@type,'line')]/@value, '%')" />
+	</properties>
+	...
+</job>
+]]>
+                </code>
+                <p>
+                    <strong>Description:</strong>
+                    When you specify this configuration, you can see the properties in the sub-tab 'properties' on job
+                    detail page, and export their history to a spreadsheet.
+                </p>
+                <img src="resources/images/cruise/xpath_properties.png"/>
+            </subsection>
+            <subsection title="Improved CCTray feed">
+                <p>
+                    <bullets>
+                        <item>The performance of CCtray feed is much better than before.</item>
+                        <item>When the stages or jobs are building, Go now supports showing the results of the last
+                            build.
+                        </item>
+                        <item>The CCTray feed now supports basic authorization. Specify your username and pssword in the
+                            url of cctray feed like this:
+                            <strong>http://[your-username]:[your-password]@yourgoserver:8153/cruise/cctray.xml
+                            </strong>
+                        </item>
+                    </bullets>
+                </p>
+                <p>
+                    <strong>Notes:</strong>
+                    some special characters do not work, e.g. '/'.
+                </p>
+            </subsection>
+            <subsection title="Support to access re-run stages.">
+                <p>Although Go has always stored results of re-run stages, you can now access previous runs of a stage
+                    easily. We've introduced a 'stage counter' which indexes the runs of the stage.
+                </p>
+                <bullets>
+                    <item>The stage history is ordered by time rather than pipeline label in the Stage Detail Page.
+                    </item>
+                    <item>Access any stage details page by the Go API
+                        http://[your_cruise_server]:8153/cruise/pipelines/[pipeline_name]/[pipeline_label]/[stage_name]/[stage_counter]
+                    </item>
+                </bullets>
+                <img src="resources/images/cruise/stage_counter.png"/>
+            </subsection>
+            <subsection title="Support multiple repositories for Subversion">
+                <p>Go lets you define multiple repositories in cruise-config.xml if you are using Subversion as you VCS.
+                    This means you can easily create pipelines for applications that rely on
+                    multiple repositories.
+                </p>
+                <code>
+                    <![CDATA[
+<pipeline name="main">
+    <materials>
+	<svn url="http://xxx.xxx.xxx/trunk" username="yyyy" password="xxx" dest="client">
+	<svn url="http://zzz.zzz.zzz/trunk" username="yyyy" password="xxx" dest="server">
+    </materials>
+</pipeline>
+]]>
+                </code>
+                <p>You can see material revisions for each pipeline in the sub-tab 'materials' on the job detail page
+                    and stage details page, and the tooltips as well. Note that this version of Go
+                    also treats upstream pipelines as materials, just like source control, which means you can see
+                    exactly which version of your upstream pipeline triggered this one (see the
+                    screenshot below). Use
+                    <cref topic="configuration_reference" anchor="pipeline-dependency">this syntax</cref>
+                    to define dependencies between pipelines.
+                </p>
+                <img src="resources/images/cruise/multiple_materials.png"/>
+            </subsection>
+            <subsection title="Ability to filter materials">
+                <p>Go allows you to specify files in your version control repository that shouldn't trigger a new build
+                    when they change (for example requirements documents). You can specify multiple
+                    "ignore" blocks with patterns to match, using ant-like syntax.
+                </p>
+                <notes>The pattern takes the root directory of the SCM repository as the root directory, not the sandbox
+                    in the agent side or the materials URL.
+                </notes>
+                <p>For example, the structrure of a subversion repository is following:</p>
+                <img src="resources/images/cruise/repo-structure.png"/>
+                <p>The material and changes look like</p>
+                <img src="resources/images/cruise/ignore-example.png"/>
+                <p>If we want to ignore files under /trunk/lib/tmp, the configuration is:</p>
+                <code>
+                    <![CDATA[
+    <svn url="http://10.18.3.171:8080/svn/connect4/trunk/lib" username="cce" password="password" dest="lib">
+      <filter>
+        <ignore pattern="trunk/lib/tmp/**/*.*" />
+      </filter>
+    </svn>
+    ]]>
+                </code>
+
+            </subsection>
+            <subsection title="Fetching artifacts">
+                <p>Go supports fetching artifacts from previous stage or upstream pipeline in a job by defination of
+                    &lt;fetchartifact&gt; in cruise-config.xml. Using this feature it's easy to have
+                    one job store artifacts like binaries, jars or installers, and then re-use them in a later stage.
+                    This supports best practices like only compiling your application once.<cref
+                            topic="configuration_reference" anchor="fetchartifact">Here is an example</cref>.
+                </p>
+            </subsection>
+        </section>
+        <section title="Changes">
+            <bullets>
+                <item>Refactored Go API and remove some calls. See the
+                    <cref topic="go_api">Go API topic</cref>
+                    for more details.
+                </item>
+                <item>Treate the dependency of pipelines as the materials of the pipelines. This means you can see which
+                    version of your upstream pipeline triggered the current pipeline anywhere on
+                    the UI you see modifications. Your configuration will be upgraded automatically.
+                </item>
+                <item>Limit the number of materials of pipelines. Go Free Edition supports only one material, and
+                    Enterprise Edition support unlimited materials. The other versions support three
+                    materials.
+                </item>
+                <item>Go agent no longer bundles Ant as of version 1.2.</item>
+                <item>Clean the folders which is not under any 'dest' folders of all mateirial on agents.</item>
+            </bullets>
+        </section>
+        <section title="References">
+            <bullets>
+                <item>
+                    <cref topic="installing_go_server">Installing Go server</cref>
+                </item>
+                <item>
+                    <cref topic="installing_go_agent">Installing Go agent</cref>
+                </item>
+                <item>
+                    <cref topic="upgrading_go">Upgrading Go</cref>
+                </item>
+            </bullets>
+        </section>
+    </topic>
+    <topic title="Cruise 1.1" >
+        <section title="New features">
+            <p>Cruise 1.1 offers many new features and enhancements in terms of usability and performance.</p>
+            <subsection title="Support for Perforce">
+                <p>Go now supports Perforce. In particular, we support ticket-based authentication.</p>
+            </subsection>
+            <subsection title="Support for Git">
+                <p>The support for Git on Go is similar to the Mercurial support. Git must be installed on both the
+                    server and agents.
+                </p>
+            </subsection>
+            <subsection title="Role-based security">
+                <p>
+                    <bullets>
+                        <item>Go now allows definition of roles composed of multiple users. You can use these roles
+                            anywhere you would restrict access by user (to control administrator access, and to
+                            control who can authorize approvals).
+                        </item>
+                        <item>As with 1.0, if security is switched off, Go allows all users anonymous read access to Go,
+                            so that anybody with access to the Go server can see the state of builds.
+                        </item>
+                    </bullets>
+                </p>
+            </subsection>
+            <subsection title="Authorization for approvals">
+                <p>Go now allows role-based authorization for approving a stage manually. This effectively means you can
+                    make pipelines 'read-only'. You can specify individually for every stage which
+                    group of users or roles are allowed to press the approval button. Specifying roles on the first
+                    stage, if it is a manual approval, restricts who can press the "trigger pipeline"
+                    button.
+                </p>
+            </subsection>
+            <subsection title="Re-run a stage">
+                <p>Go lets you re-run individual stages. Triggering this operation will run the stage with the same
+                    source control revisions that it was originally run with. Go automatically updates
+                    to the original revision it was run with. This is useful if you have a stage that deploys to a
+                    testing environment, and you want to re-deploy a historical build to that
+                    environment. Hover over a stage on the Pipeline Activity page or click on the re-run button on the
+                    Current Activity page. If you re-run a stage that failed and the stage passes
+                    then the rest of the pipeline will run through as normal.
+                </p>
+            </subsection>
+            <subsection title="UI improvements for pipeline activity">
+                <p>The Pipeline Activity tab has an improved user interface.</p>
+                <screenshot alttext="Pipeline Activity Page" src="resources/images/cruise/NewPipelineActivity.png"/>
+            </subsection>
+            <subsection title="Solaris support">
+                <p>With Cruise 1.1 both the server and agents are supported on Solaris.</p>
+            </subsection>
+            <subsection title="Better server error reporting">
+                <p>Go will display errors on its dashboard if the server has an invalid configuration file, if it cannot
+                    contact your revision control repository, or if the revision control client
+                    software is not installed on the server. The errors will go away automatically once the cause is
+                    resolved.
+                </p>
+            </subsection>
+            <subsection title="Better console out information">
+                <p>Go now reports agent actions (such as checking out, or uploading artifacts) in the Go log that can be
+                    viewed through the web page. This makes it much easier to debug issues with
+                    source control systems and other Go agent actions.
+                </p>
+                <img src="resources/images/cruise/console_out.png"/>
+            </subsection>
+            <subsection title="De-authorize agents through UI">
+                <p>The agents can be disabled from the server through the user interface which means that the agent will
+                    no longer process any work. Click the Enable button to start builds on the
+                    agent again.
+                </p>
+                <screenshot alttext="Agents Page" src="resources/images/cruise/NewAgents.png"/>
+            </subsection>
+            <subsection title="Improved performance">
+                <p>Go now uses less memory and the web pages are significantly more responsive for very large
+                    installations with a lot of history.
+                </p>
+            </subsection>
+        </section>
+        <section title="Changes">
+            <bullets>
+                <item>Go no longer bundles SVN - the server and all agents need to have Subversion installed and
+                    available in the system path
+                </item>
+                <item>Approvals are now at the start of a stage not the end of the stage. This means that it is possible
+                    to add a pipeline that will only be run if you manually trigger it (in other
+                    words, revision control changes will not automatically trigger it). To do this, add a manual
+                    approval to the start of the first stage.
+                </item>
+            </bullets>
+        </section>
+        <section title="References">
+            <bullets>
+                <item>
+                    <cref topic="installing_go_server">Installing Go server</cref>
+                </item>
+                <item>
+                    <cref topic="installing_go_agent">Installing Go agent</cref>
+                </item>
+                <item>
+                    <cref topic="upgrading_go">Upgrading Go</cref>
+                </item>
+            </bullets>
+        </section>
+    </topic>
+</chapter>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>const_warning (Rake::Application)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 2458</span>
+2458:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">const_warning</span>(<span class="ruby-identifier">const_name</span>)
+2459:       <span class="ruby-ivar">@const_warning</span> <span class="ruby-operator">||=</span> <span class="ruby-keyword kw">false</span>
+2460:       <span class="ruby-keyword kw">if</span> <span class="ruby-operator">!</span> <span class="ruby-ivar">@const_warning</span>
+2461:         <span class="ruby-identifier">$stderr</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">%{WARNING: Deprecated reference to top-level constant '#{const_name}' }</span> <span class="ruby-operator">+</span>
+2462:           <span class="ruby-node">%{found at: #{rakefile_location}}</span> <span class="ruby-comment cmt"># '</span>
+2463:         <span class="ruby-identifier">$stderr</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">%{    Use --classic-namespace on rake command}</span>
+2464:         <span class="ruby-identifier">$stderr</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">%{    or 'require &quot;rake/classic_namespace&quot;' in Rakefile}</span>
+2465:       <span class="ruby-keyword kw">end</span>
+2466:       <span class="ruby-ivar">@const_warning</span> = <span class="ruby-keyword kw">true</span>
+2467:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

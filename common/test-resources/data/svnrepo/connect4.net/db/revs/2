@@ -1,0 +1,68 @@
+PLAIN
+END
+ENDREP
+id: 3.0.r2/17
+type: dir
+pred: 3.0.r1/72634
+count: 1
+text: 2 0 4 4 2d2977d1c96f487abe4a1e202dd03b4e
+cpath: /result
+copyroot: 0 /
+
+id: 4.1.r2/146
+type: file
+pred: 4.0.r1/72424
+count: 1
+text: 1 352 71477 794511 688ed2355e0e8630b8322a4302d855ad
+cpath: /test-results/TestReport-Unit.xml
+copyfrom: 1 /result/TestReport-Unit.xml
+
+PLAIN
+K 19
+TestReport-Unit.xml
+V 15
+file 4.1.r2/146
+END
+ENDREP
+id: 5.0.r2/403
+type: dir
+count: 0
+text: 2 340 50 50 ecdad9e7fcae2895ffb4f4c5a31db0f3
+cpath: /test-results
+copyroot: 0 /
+
+PLAIN
+K 9
+build.xml
+V 17
+file 1.0.r1/72246
+K 13
+default.build
+V 17
+file 2.0.r1/72078
+K 6
+result
+V 13
+dir 3.0.r2/17
+K 12
+test-results
+V 14
+dir 5.0.r2/403
+END
+ENDREP
+id: 0.0.r2/688
+type: dir
+pred: 0.0.r1/72882
+count: 2
+text: 2 524 151 151 842261282ef4169d158d3b863c5c80ef
+cpath: /
+copyroot: 0 /
+
+4.0.r1/72424 delete false false /result/TestReport-Unit.xml
+
+4._0.t1-1 add false false /test-results/TestReport-Unit.xml
+1 /result/TestReport-Unit.xml
+_0.0.t1-1 add false false /test-results
+
+
+688 818

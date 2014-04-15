@@ -1,0 +1,26 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_count)
+is_singleton: false
+block_params: 
+name: start
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This method is invoked before any examples are run, right after they have
+    all been collected. This can be useful for special formatters that need to provide
+    progress on feedback (graphical ones)
+- !ruby/struct:SM::Flow::P 
+  body: 'This method will only be invoked once, and the next one to be invoked is
+    #example_group_started'
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'example_count:'
+    body: the total number of examples to be run
+full_name: Spec::Runner::Formatter::BaseFormatter#start
+visibility: public
+aliases: []
+

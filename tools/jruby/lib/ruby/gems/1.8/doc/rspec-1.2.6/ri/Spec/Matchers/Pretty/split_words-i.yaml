@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym)
+is_singleton: false
+block_params: 
+name: split_words
+comment: 
+full_name: Spec::Matchers::Pretty#split_words
+visibility: public
+aliases: []
+

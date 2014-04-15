@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (patterns, &block)
+is_singleton: false
+block_params: 
+name: pathmap_replace
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Preform the pathmap replacement operations on the given path. The patterns
+    take the form 'pat1,rep1;pat2,rep2...'.
+full_name: String#pathmap_replace
+visibility: public
+aliases: []
+

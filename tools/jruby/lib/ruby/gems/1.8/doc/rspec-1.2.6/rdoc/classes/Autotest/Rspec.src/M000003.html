@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>consolidate_failures (Autotest::Rspec)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/autotest/rspec.rb, line 28</span>
+  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">consolidate_failures</span>(<span class="ruby-identifier">failed</span>)
+    <span class="ruby-identifier">filters</span> = <span class="ruby-identifier">new_hash_of_arrays</span>
+    <span class="ruby-identifier">failed</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">spec</span>, <span class="ruby-identifier">trace</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">trace</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/\n(\.\/)?(.*spec\.rb):[\d]+:/</span>
+        <span class="ruby-identifier">filters</span>[<span class="ruby-identifier">$2</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">spec</span>
+      <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">end</span>
+    <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">filters</span>
+  <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

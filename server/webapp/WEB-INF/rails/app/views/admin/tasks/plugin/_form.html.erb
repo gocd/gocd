@@ -1,0 +1,31 @@
+<%= render(:partial => "shared/flash_message") %>
+<%= render :partial => "shared/config_save_actions" -%>
+<% form_for(:task, scope[:task], :url => scope[:url], :html => {"novalidate"=> "novalidate", :id=> "task_form", :name=> "task_form", :method => scope[:method], :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
+    <%= md5_field %>
+    <div class="form_content exec_task_editor">
+        <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+        <h3><%= l.string("BASIC_SETTINGS") %></h3>
+        <div id="task">
+            <div class="task fieldset">
+                <%= render_pluggable_form_template(scope[:tvm], form_name_provider(f), { :scope => {:task => scope[:task], :form => f}}) -%>
+                <% unless scope[:hide_runif] %>
+                    <div class="form_item required">
+                        <%= render :partial => "admin/tasks/runif.html", :locals => {:scope => {:form => f, :on_cancel => false, :run_if => true, :runif_container => random_dom_id('run_if_options_')}} %>
+                    </div>
+                <% end %>
+                <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+            </div>
+            <h3><%= l.string("TASK_ADVANCED_OPTIONS") %></h3>
+            <%= render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => f}} %>
+        </div>
+    </div>
+    <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => l.string("SAVE")}} %>
+    <%= render :partial => 'shared/convert_tool_tips.html' %>
+<% end %>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        new TaskPluginView().bootstrapAngular();
+    });
+</script>
+

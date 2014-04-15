@@ -1,0 +1,28 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_proxy, counter, failure)
+is_singleton: false
+block_params: 
+name: example_failed
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This method is invoked when an <tt>example</tt> fails, i.e. an exception occurred
+    inside it (such as a failed should or other exception).
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'example_proxy:'
+    body: The same instance of Spec::Example::ExampleProxy that was passed to <tt>example_started</tt>
+  - !ruby/struct:SM::Flow::LI 
+    label: 'counter:'
+    body: the sequential number of this failure
+  - !ruby/struct:SM::Flow::LI 
+    label: 'failure:'
+    body: instance of Spec::Runner::Reporter::Failure
+full_name: Spec::Runner::Formatter::BaseFormatter#example_failed
+visibility: public
+aliases: []
+

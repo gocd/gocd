@@ -1,0 +1,3 @@
+Class-Path: lib/ant-launcher.jar config/
+Go-Version: @CRUISE_VERSION@
+

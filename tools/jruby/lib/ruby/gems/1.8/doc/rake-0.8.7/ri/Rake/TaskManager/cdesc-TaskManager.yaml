@@ -1,0 +1,48 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: TaskManager
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: The TaskManager module is a mixin for managing tasks.
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: last_description
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: Track the last comment made in the Rakefile.
+  rw: RW
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '[]'
+- !ruby/object:RI::MethodSummary 
+  name: clear
+- !ruby/object:RI::MethodSummary 
+  name: create_rule
+- !ruby/object:RI::MethodSummary 
+  name: current_scope
+- !ruby/object:RI::MethodSummary 
+  name: define_task
+- !ruby/object:RI::MethodSummary 
+  name: enhance_with_matching_rule
+- !ruby/object:RI::MethodSummary 
+  name: in_namespace
+- !ruby/object:RI::MethodSummary 
+  name: intern
+- !ruby/object:RI::MethodSummary 
+  name: lookup
+- !ruby/object:RI::MethodSummary 
+  name: resolve_args
+- !ruby/object:RI::MethodSummary 
+  name: synthesize_file_task
+- !ruby/object:RI::MethodSummary 
+  name: tasks
+- !ruby/object:RI::MethodSummary 
+  name: tasks_in_scope
+full_name: Rake::TaskManager
+superclass: 
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

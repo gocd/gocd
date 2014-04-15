@@ -1,0 +1,36 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should be_true
+  should be_false
+  should be_nil
+  should be_[arbitrary_predicate](*args)
+  should_not be_nil
+  should_not be_[arbitrary_predicate](*args)
+is_singleton: false
+block_params: 
+name: be
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Given true, false, or nil, will pass if actual value is true, false or nil
+    (respectively). Given no args means the caller should satisfy an if condition
+    (to be or not to be).
+- !ruby/struct:SM::Flow::P 
+  body: Predicates are any Ruby method that ends in a &quot;?&quot; and returns true
+    or false. Given be_ followed by arbitrary_predicate (without the &quot;?&quot;),
+    RSpec will match convert that into a query against the target object.
+- !ruby/struct:SM::Flow::P 
+  body: The arbitrary_predicate feature will handle any predicate prefixed with &quot;be_an_&quot;
+    (e.g. be_an_instance_of), &quot;be_a_&quot; (e.g. be_a_kind_of) or &quot;be_&quot;
+    (e.g. be_empty), letting you choose the prefix that best suits the predicate.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  target.should be_true\n  target.should be_false\n  target.should be_nil\n\
+    \  target.should_not be_nil\n\n  collection.should be_empty #passes if target.empty?\n\
+    \  target.should_not be_empty #passes unless target.empty?\n  target.should_not \
+    be_old_enough(16) #passes unless target.old_enough?(16)\n"
+full_name: Spec::Matchers#be
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (kind, location)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Example::NoDescriptionError::new
+visibility: public
+aliases: []
+

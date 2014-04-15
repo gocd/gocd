@@ -1,0 +1,11 @@
+--- !ruby/object:RI::MethodDescription 
+params: (sym_or_hash, opts={})
+is_singleton: false
+block_params: 
+name: stub!
+comment: 
+full_name: Spec::Mocks::Methods#stub!
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: stub

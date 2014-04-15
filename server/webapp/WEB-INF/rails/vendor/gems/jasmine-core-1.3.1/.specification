@@ -1,0 +1,396 @@
+--- !ruby/object:Gem::Specification 
+name: jasmine-core
+version: !ruby/object:Gem::Version 
+  hash: 25
+  prerelease: 
+  segments: 
+  - 1
+  - 3
+  - 1
+  version: 1.3.1
+platform: ruby
+authors: 
+- Rajan Agaskar
+- Davis W. Frank
+- Christian Williams
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2012-12-03 00:00:00 Z
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: json_pure
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 1
+        segments: 
+        - 1
+        - 4
+        - 3
+        version: 1.4.3
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 1
+        segments: 
+        - 1
+        - 4
+        - 3
+        version: 1.4.3
+- !ruby/object:Gem::Dependency 
+  name: tilt
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: sass
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: compass
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: ragaskar-jsdoc_helper
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: rspec
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: fuubar
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: awesome_print
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: thor
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: nokogiri
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: redcarpet
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - "="
+      - !ruby/object:Gem::Version 
+        hash: 1
+        segments: 
+        - 1
+        - 7
+        version: "1.7"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - "="
+      - !ruby/object:Gem::Version 
+        hash: 1
+        segments: 
+        - 1
+        - 7
+        version: "1.7"
+- !ruby/object:Gem::Dependency 
+  name: rocco
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+- !ruby/object:Gem::Dependency 
+  name: rdiscount
+  prerelease: false
+  requirement: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+  type: :development
+  version_requirements: !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        hash: 3
+        segments: 
+        - 0
+        version: "0"
+description: Test your JavaScript without any framework dependencies, in any environment, and with a nice descriptive syntax.
+email: jasmine-js@googlegroups.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- ./lib/jasmine-core/example/spec/PlayerSpec.js
+- ./lib/jasmine-core/example/spec/SpecHelper.js
+- ./lib/jasmine-core/example/SpecRunner.html
+- ./lib/jasmine-core/example/src/Player.js
+- ./lib/jasmine-core/example/src/Song.js
+- ./lib/jasmine-core/jasmine-html.js
+- ./lib/jasmine-core/jasmine.css
+- ./lib/jasmine-core/jasmine.js
+- ./lib/jasmine-core/json2.js
+- ./lib/jasmine-core/version.rb
+- ./lib/jasmine-core.rb
+- ./lib/jasmine-core/spec/console/ConsoleReporterSpec.js
+- ./lib/jasmine-core/spec/core/BaseSpec.js
+- ./lib/jasmine-core/spec/core/CustomMatchersSpec.js
+- ./lib/jasmine-core/spec/core/EnvSpec.js
+- ./lib/jasmine-core/spec/core/ExceptionsSpec.js
+- ./lib/jasmine-core/spec/core/JsApiReporterSpec.js
+- ./lib/jasmine-core/spec/core/MatchersSpec.js
+- ./lib/jasmine-core/spec/core/MockClockSpec.js
+- ./lib/jasmine-core/spec/core/MultiReporterSpec.js
+- ./lib/jasmine-core/spec/core/NestedResultsSpec.js
+- ./lib/jasmine-core/spec/core/PrettyPrintSpec.js
+- ./lib/jasmine-core/spec/core/QueueSpec.js
+- ./lib/jasmine-core/spec/core/ReporterSpec.js
+- ./lib/jasmine-core/spec/core/RunnerSpec.js
+- ./lib/jasmine-core/spec/core/SpecRunningSpec.js
+- ./lib/jasmine-core/spec/core/SpecSpec.js
+- ./lib/jasmine-core/spec/core/SpySpec.js
+- ./lib/jasmine-core/spec/core/SuiteSpec.js
+- ./lib/jasmine-core/spec/core/UtilSpec.js
+- ./lib/jasmine-core/spec/core/WaitsForBlockSpec.js
+- ./lib/jasmine-core/spec/html/HTMLReporterSpec.js
+- ./lib/jasmine-core/spec/html/MatchersHtmlSpec.js
+- ./lib/jasmine-core/spec/html/PrettyPrintHtmlSpec.js
+- ./lib/jasmine-core/spec/html/TrivialReporterSpec.js
+- ./lib/jasmine-core/spec/node_suite.js
+has_rdoc: 
+homepage: http://pivotal.github.com/jasmine
+licenses: 
+- MIT
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      hash: -2880110052648878798
+      segments: 
+      - 0
+      version: "0"
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      hash: -2880110052648878798
+      segments: 
+      - 0
+      version: "0"
+requirements: []
+
+rubyforge_project: jasmine-core
+rubygems_version: 1.3.7
+signing_key: 
+specification_version: 3
+summary: JavaScript BDD framework
+test_files: []
+
+

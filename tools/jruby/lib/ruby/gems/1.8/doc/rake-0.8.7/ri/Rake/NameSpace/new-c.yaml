@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (task_manager, scope_list)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a namespace lookup object using the given task manager and the list
+    of scopes.
+full_name: Rake::NameSpace::new
+visibility: public
+aliases: []
+

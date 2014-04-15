@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (spec=nil)
+is_singleton: false
+block_params: 
+name: pathmap
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Apply the pathmap spec to each of the included file names, returning a new
+    file list with the modified paths. (See String#pathmap for details.)
+full_name: Rake::FileList#pathmap
+visibility: public
+aliases: []
+

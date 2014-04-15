@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Graphs">
+    <section title="Stage Duration Chart">
+        <p>Go provides a chart on the stage details page which can be used for trend analysis of the stage's periodic runs. This graph shows two line graphs, one each for passed and failed stage instances
+            which are plotted using the total duration of the last 300 stage instances.
+        </p>
+        <p>
+            <strong>To navigate to the Graphs:</strong>
+            <steps>
+                <item>Click on the stage bar of the relevant stage on the pipelines dashboard.</item>
+                <item>Click on the tab 'Graphs'.</item>
+            </steps>
+        </p>
+
+        <subsection title="Features of the Graph">
+            <p>The following is a snapshot of a stage duration chart</p>
+
+            <img src="resources/images/cruise/stage_duration_graph.png"/>
+
+            <p> Selecting a part of the graph zooms into the selected area. Once zoomed, a link called 'Reset Zoom' Appears on the chart which resets the graph.</p>
+            
+            <p>
+                <strong>Key:</strong>
+                <steps>
+                    <item>The title shows the start and end dates of the range of the chart.</item>
+                    <item>A tooltip giving the details of the stage run appears on hover over the points of the line graph.</item>
+                    <item>Navigates to the Chart of older 300 runs.</item>
+                    <item>Navigates to the Chart of newer 300 runs.</item>
+                    <item>Toggles the line graph of the failed runs.</item>
+                    <item>Toggles the line graph of the passed runs.</item>
+                </steps>
+            </p>
+
+
+        </subsection>
+
+    </section>
+
+</chapter>

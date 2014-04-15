@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (option_name, action)
+is_singleton: false
+block_params: 
+name: parse_file_options
+comment: 
+full_name: Spec::Runner::OptionParser#parse_file_options
+visibility: protected
+aliases: []
+

@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NullConverter
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: convert
+full_name: Spec::Runner::Formatter::SnippetExtractor::NullConverter
+superclass: Object
+class_methods: []
+

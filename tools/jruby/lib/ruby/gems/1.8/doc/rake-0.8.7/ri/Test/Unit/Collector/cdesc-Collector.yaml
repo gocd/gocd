@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Collector
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Test::Unit::Collector
+superclass: 
+class_methods: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (format_arg)
+is_singleton: false
+block_params: 
+name: parse_format
+comment: 
+full_name: Spec::Runner::Options#parse_format
+visibility: public
+aliases: []
+

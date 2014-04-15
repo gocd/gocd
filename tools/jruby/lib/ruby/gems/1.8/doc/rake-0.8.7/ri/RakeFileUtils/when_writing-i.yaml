@@ -1,0 +1,24 @@
+--- !ruby/object:RI::MethodDescription 
+params: (msg=nil) {|| ...}
+is_singleton: false
+block_params: ""
+name: when_writing
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Use this function to prevent protentially destructive ruby code from running
+    when the :nowrite flag is set.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  when_writing(&quot;Building Project&quot;) do\n    project.build\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: 'The following code will build the project under normal conditions. If the
+    nowrite(true) flag is set, then the example will print:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "     DRYRUN: Building Project\n"
+- !ruby/struct:SM::Flow::P 
+  body: instead of actually building the project.
+full_name: RakeFileUtils#when_writing
+visibility: public
+aliases: []
+

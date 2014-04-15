@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (app_name='rake')
+is_singleton: false
+block_params: 
+name: init
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Initialize the command line parameters and app name.
+full_name: Rake::Application#init
+visibility: public
+aliases: []
+

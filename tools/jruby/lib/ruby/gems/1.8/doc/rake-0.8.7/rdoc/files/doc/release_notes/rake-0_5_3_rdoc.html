@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rake-0.5.3.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rake-0.5.3.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/release_notes/rake-0.5.3.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rake 0.5.0 Released</h1>
+<p>
+Although it has only been two weeks since the last release, we have enough
+updates to the Rake program to make it time for another release.
+</p>
+<h2>Changes</h2>
+<p>
+Here are the changes for version 0.5.3 &#8230;
+</p>
+<ul>
+<li>FileLists have been extensively changed so that they mimic the behavior of
+real arrays even more closely. In particular, operations on FileLists that
+return a new collection (e.g. collect, reject) will now return a FileList
+rather than an array. In addition, several places where FileLists were not
+properly expanded before use have been fixed.
+
+</li>
+<li>A method (<tt>ext</tt>) to simplify the handling of file extensions was
+added to <a href="../../../classes/String.html">String</a> and to Array.
+
+</li>
+<li>The &#8216;testrb&#8217; script in test/unit tends to silently swallow
+syntax errors in test suites. Because of that, the default test loader is
+now a rake-provided script. You can still use &#8216;testrb&#8217; by
+setting the loader flag in the test task to :testrb. (See the API documents
+for TestTask for all the loader flag values).
+
+</li>
+<li>FileUtil methods (e.g. cp, mv, install) are now declared to be private.
+This will cut down on the interference with user defined methods of the
+same name.
+
+</li>
+<li>Fixed the verbose flag in the TestTask so that the test code is controlled
+by the flag. Also shortened up some failure messages. (Thanks to Tobias
+Luetke for the suggestion).
+
+</li>
+<li>Rules will now properly detect a task that can generate a source file.
+Previously rules would only consider source files that were already
+present.
+
+</li>
+<li>Added an <tt>import</tt> command that allows Rake to dynamically import
+dependendencies into a running Rake session. The <tt>import</tt> command
+can run tasks to update the dependency file before loading them. Dependency
+files can be in rake or make format, allowing rake to work with tools
+designed to generate dependencies for make.
+
+</li>
+</ul>
+<h2>What is Rake</h2>
+<p>
+Rake is a build tool similar to the make program in many ways. But instead
+of cryptic make recipes, Rake uses standard Ruby code to declare tasks and
+dependencies. You have the full power of a modern scripting language built
+right into your build tool.
+</p>
+<h2>Availability</h2>
+<p>
+The easiest way to get and install rake is via RubyGems &#8230;
+</p>
+<pre>
+  gem install rake    (you may need root/admin privileges)
+</pre>
+<p>
+Otherwise, you can get it from the more traditional places:
+</p>
+<table>
+<tr><td valign="top">Home Page:</td><td><a href="http://rake.rubyforge.org">rake.rubyforge.org</a>/
+
+</td></tr>
+<tr><td valign="top">Download:</td><td><a
+href="http://rubyforge.org/project/showfiles.php?group_id=50">rubyforge.org/project/showfiles.php?group_id=50</a>
+
+</td></tr>
+</table>
+<h2>Thanks</h2>
+<p>
+As usual, it was input from users that drove a alot of these changes.
+Thanks to &#8230;
+</p>
+<ul>
+<li>Brian Gernhardt for the rules fix (especially for the patience to explain
+the problem to me until I got what he was talking about).
+
+</li>
+<li>Stefan Lang for pointing out problems in the dark corners of the FileList
+implementation.
+
+</li>
+<li>Alexey Verkhovsky pointing out the silently swallows syntax errors in
+tests.
+
+</li>
+<li>Tobias Luetke for beautifying the test task output.
+
+</li>
+<li>Sam Roberts for some of the ideas behind dependency loading.
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

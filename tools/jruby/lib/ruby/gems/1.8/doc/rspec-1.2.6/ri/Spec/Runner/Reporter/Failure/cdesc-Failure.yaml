@@ -1,0 +1,21 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Failure
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: exception
+  comment: 
+  - !ruby/struct:SM::Flow::P 
+    body: The Exception object raised
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: header
+full_name: Spec::Runner::Reporter::Failure
+superclass: Object
+class_methods: []
+

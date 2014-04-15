@@ -1,0 +1,36 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: SimpleMatcher
+constants: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: description
+  comment: 
+  rw: W
+- !ruby/object:RI::Attribute 
+  name: failure_message
+  comment: 
+  rw: W
+- !ruby/object:RI::Attribute 
+  name: negative_failure_message
+  comment: 
+  rw: W
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: description
+- !ruby/object:RI::MethodSummary 
+  name: explanation
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should
+- !ruby/object:RI::MethodSummary 
+  name: failure_message_for_should_not
+- !ruby/object:RI::MethodSummary 
+  name: matches?
+full_name: Spec::Matchers::SimpleMatcher
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

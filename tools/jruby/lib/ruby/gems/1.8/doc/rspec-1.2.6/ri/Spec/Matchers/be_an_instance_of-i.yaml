@@ -1,0 +1,23 @@
+--- !ruby/object:RI::MethodDescription 
+params: |
+  should be_instance_of(expected)
+  should be_an_instance_of(expected)
+  should_not be_instance_of(expected)
+  should_not be_an_instance_of(expected)
+is_singleton: false
+block_params: 
+name: be_an_instance_of
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if actual.instance_of?(expected)
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  5.should be_instance_of(Fixnum)\n  5.should_not be_instance_of(Numeric)\n\
+    \  5.should_not be_instance_of(Float)\n"
+full_name: Spec::Matchers#be_an_instance_of
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: be_instance_of

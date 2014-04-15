@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (other)
+is_singleton: false
+block_params: 
+name: <=>
+comment: 
+full_name: Time#<=>
+visibility: public
+aliases: []
+

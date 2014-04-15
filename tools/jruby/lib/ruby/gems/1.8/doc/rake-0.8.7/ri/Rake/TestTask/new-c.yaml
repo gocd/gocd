@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name=:test) {|self if block_given?| ...}
+is_singleton: true
+block_params: self if block_given?
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a testing task.
+full_name: Rake::TestTask::new
+visibility: public
+aliases: []
+

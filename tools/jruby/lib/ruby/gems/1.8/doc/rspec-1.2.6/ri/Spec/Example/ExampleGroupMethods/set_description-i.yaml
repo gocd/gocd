@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*args)
+is_singleton: false
+block_params: 
+name: set_description
+comment: 
+full_name: Spec::Example::ExampleGroupMethods#set_description
+visibility: public
+aliases: []
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_group)
+is_singleton: false
+block_params: 
+name: remove_example_group
+comment: 
+full_name: Spec::Runner::Options#remove_example_group
+visibility: public
+aliases: []
+

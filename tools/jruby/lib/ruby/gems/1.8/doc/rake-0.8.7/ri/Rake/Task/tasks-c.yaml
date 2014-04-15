@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: true
+block_params: 
+name: tasks
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: List of all defined tasks.
+full_name: Rake::Task::tasks
+visibility: public
+aliases: []
+

@@ -1,0 +1,4102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd">
+  <server artifactsdir="/var/artifacts/newlogs">
+    <license user="internal_test_enterprise">VHB81o9G3vlF78TypSbiNioqOIoUIviTIeoo8LPIfaGY8s+kmmuSJrSMGaoL
+/MEbFlYbH88gc39787Eqtd3SgpNcFTpyGoYGId2opA==</license>
+    <security>
+      <ldap uri="ldap://localhost:12339" managerDn="cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com" managerPassword="some-password" searchBase="ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com" searchFilter="(sAMAccountName={0})" />
+      <passwordFile path="/etc/cruise/password.properties" />
+      <admins>
+        <user>jhumble</user>
+        <user>djrice</user>
+      </admins>
+    </security>
+  </server>
+  <pipelines>
+    <pipeline name="Studios_License_Application">
+      <materials>
+        <svn url="https://something.somewhere.com/studios/license_management/trunk" username="studios_builder" password="oT_UJanG" />
+      </materials>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units">
+            <resources>
+              <resource>license_application</resource>
+            </resources>
+            <artifacts>
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise config/database.yml" />
+              <exec command="./script/jrake" args="db:migrate test:units RAILS_ENV=test" />
+            </tasks>
+          </job>
+          <job name="Functionals">
+            <resources>
+              <resource>license_application</resource>
+            </resources>
+            <artifacts>
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise config/database.yml" />
+              <exec command="./script/jrake" args="db:migrate test:functionals RAILS_ENV=test" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="Deploy_To_Staging">
+        <jobs>
+          <job name="Deploy_To_Staging">
+            <resources>
+              <resource>license_application</resource>
+            </resources>
+            <tasks>
+              <exec command="/home/cruise/Studios_License_Application/script/staging.sh" args="stop" />
+              <exec command="/bin/rm" args=" -rf /home/cruise/Studios_License_Application" />
+              <exec command="/usr/bin/rsync" args=" /var/lib/cruise-agent/pipelines/Studios_License_Application /home/cruise --exclude=.svn -a -u" />
+              <exec command="/bin/cp" args=" -f /home/cruise/Studios_License_Application/config/database.yml.cruise-staging-deployment /home/cruise/Studios_License_Application/config/database.yml" />
+              <exec command="/bin/cp" args=" -f /home/cruise/Studios_License_Application/config/ldap_config.yml.cruise-staging-deployment /home/cruise/Studios_License_Application/config/ldap_config.yml" />
+              <exec command="/bin/chmod" args=" 755 /home/cruise/Studios_License_Application/script/staging.sh" />
+              <exec command="/bin/chmod" args=" 755 /home/cruise/Studios_License_Application/script/start_server.sh" />
+              <exec command="/home/cruise/Studios_License_Application/script/staging.sh" args="start" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="EventManagement">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/trunk/src" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="dev">
+        <jobs>
+          <job name="test_IE6">
+            <resources>
+              <resource>EM</resource>
+              <resource>IE6</resource>
+            </resources>
+            <artifacts>
+              <artifact src="EventManagement/cruise-output" dest="reports" />
+              <artifact src="EventManagement/EventManagementSetup/Release/EventManagementSetup.msi" />
+            </artifacts>
+            <tasks>
+              <nant workingdir="EventManagement" buildfile="eventmanagement.build" target="test" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="reports/cruise-output/unit_test_coverage.html" />
+            </tabs>
+          </job>
+          <job name="test_IE7">
+            <resources>
+              <resource>EM</resource>
+              <resource>IE7</resource>
+            </resources>
+            <artifacts>
+              <artifact src="EventManagement/cruise-output" dest="reports" />
+              <artifact src="EventManagement/EventManagementSetup/Release/EventManagementSetup.msi" />
+            </artifacts>
+            <tasks>
+              <nant workingdir="EventManagement" buildfile="eventmanagement.build" target="test" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="reports/cruise-output/unit_test_coverage.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="evolve-3A">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/trunk/src" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="default">
+        <jobs>
+          <job name="functional-test">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>smoke</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/publish/drop/smoke" />
+              <test src="build-output/publish/drop/smoke" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="3A.build" target="functional" />
+            </tasks>
+            <tabs>
+              <tab name="Recording" path="deployment/drop/smoke/smoke-recording.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="evolve-branch-3.0">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/branch/release3.0" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="dev">
+        <jobs>
+          <job name="evolve">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/drop/tests" />
+              <test src="build-output/publish/drop/tests" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="connect-dev" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="deployment/drop/coverage/coverage.html" />
+            </tabs>
+          </job>
+          <job name="evolve_smoke">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>smoke</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/publish/drop/smoke" />
+              <test src="build-output/publish/drop/smoke" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="dev-smoke-test" />
+            </tasks>
+            <tabs>
+              <tab name="Recording" path="deployment/drop/smoke/smoke-recording.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish">
+        <jobs>
+          <job name="publish">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-all" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="db">
+        <jobs>
+          <job name="evolve_db_sync">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="rebuildDB" />
+              <nant buildfile="evolve.build" target="testSynchronisationPackages" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeUATDB" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade_command">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeCmdDB" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="install">
+        <jobs>
+          <job name="client">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="localclient">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="server">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-server" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="restore-for-smoke">
+        <jobs>
+          <job name="restore">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="restore-uat-for-smoke" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="performance">
+        <jobs>
+          <job name="remote-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+          <job name="local-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish-result">
+        <jobs>
+          <job name="publish-local-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-remote-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-server-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-server-result" />
+            </tasks>
+          </job>
+          <job name="publish-sqlserver-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-sqlserver-result" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="evolve-branch-2.5">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/branch/release2b_2.5" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="dev">
+        <jobs>
+          <job name="evolve">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/drop/tests" />
+              <test src="build-output/publish/drop/tests" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="connect-dev" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="deployment/drop/coverage/coverage.html" />
+            </tabs>
+          </job>
+          <job name="evolve_smoke">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>smoke</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/publish/drop/smoke" />
+              <test src="build-output/publish/drop/smoke" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="dev-smoke-test" />
+            </tasks>
+            <tabs>
+              <tab name="Recording" path="deployment/drop/smoke/smoke-recording.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish">
+        <jobs>
+          <job name="publish">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-all" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="db">
+        <jobs>
+          <job name="evolve_db_sync">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="rebuildDB" />
+              <nant buildfile="evolve.build" target="testSynchronisationPackages" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeUATDB" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade_command">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeCmdDB" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="install">
+        <jobs>
+          <job name="client">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="localclient">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="server">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-server" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="restore-for-smoke">
+        <jobs>
+          <job name="restore">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="restore-uat-for-smoke" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="performance">
+        <jobs>
+          <job name="remote-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+          <job name="local-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish-result">
+        <jobs>
+          <job name="publish-local-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-remote-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-server-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-server-result" />
+            </tasks>
+          </job>
+          <job name="publish-sqlserver-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-sqlserver-result" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_trunk-unstable-installers">
+      <materials>
+        <svn url="https://something.somewhere.com/studios/mingle/trunk" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="Traffic_light">
+        <jobs>
+          <job name="Empty_Job">
+            <resources>
+              <resource>ubuntu-704-i386-installer</resource>
+            </resources>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="Unstable_Installers">
+        <jobs>
+          <job name="Unstable_Installers">
+            <resources>
+              <resource>ubuntu-704-i386-installer</resource>
+            </resources>
+            <artifacts>
+              <artifact src="tmp/installers_link.html" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/mkdir" args="-p /var/lib/cruise-agent/installers/unstable_2_1" />
+              <exec command="/bin/cp" args="./build.properties.cruise ./build.properties" />
+              <exec command="./script/jrake" args="cruise:publish_installers INSTALLER_VERSION='unstable_2_1' INSTALLER_PATH='/var/lib/cruise-agent/installers' INSTALLER_DOWNLOAD_SERVER='https://beijing-mingle-installer.somewhere.com'" />
+              <exec command="/bin/rm" args="-f build.properties" />
+            </tasks>
+            <tabs>
+              <tab name="Installers" path="installers_link.html" />
+            </tabs>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="evolve">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/trunk/src" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="dev">
+        <jobs>
+          <job name="evolve">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/drop/tests" />
+              <test src="build-output/publish/drop/tests" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="connect-dev" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="deployment/drop/coverage/coverage.html" />
+            </tabs>
+          </job>
+          <job name="evolve_smoke">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>smoke</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/publish/drop/smoke" />
+              <test src="build-output/publish/drop/smoke" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="dev-smoke-test" />
+            </tasks>
+            <tabs>
+              <tab name="Recording" path="deployment/drop/smoke/smoke-recording.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish">
+        <jobs>
+          <job name="publish">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-all" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="db">
+        <jobs>
+          <job name="evolve_db_sync">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="rebuildDB" />
+              <nant buildfile="evolve.build" target="testSynchronisationPackages" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeUATDB" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade_command">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeCmdDB" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="install">
+        <jobs>
+          <job name="client">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="localclient">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="server">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-server" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="restore-for-smoke">
+        <jobs>
+          <job name="restore">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="restore-uat-for-smoke" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="performance">
+        <jobs>
+          <job name="remote-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+          <job name="local-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish-result">
+        <jobs>
+          <job name="publish-local-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-remote-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-server-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-server-result" />
+            </tasks>
+          </job>
+          <job name="publish-sqlserver-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-sqlserver-result" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="evolve-branch-2.2.1">
+      <materials>
+        <svn url="https://evolve-dev.tw-china.net/svn/branch/release2b_2.2.1" username="xqzhou" password="TWer2007" />
+      </materials>
+      <stage name="dev">
+        <jobs>
+          <job name="evolve">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>low memory</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/drop/tests" />
+              <test src="build-output/publish/drop/tests" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish" />
+            </tasks>
+            <tabs>
+              <tab name="Coverage" path="deployment/drop/coverage/coverage.html" />
+            </tabs>
+          </job>
+          <job name="evolve_smoke">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>smoke</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish/drop" dest="deployment" />
+              <test src="deployment/publish/drop/smoke" />
+              <test src="build-output/publish/drop/smoke" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="dev-smoke-test" />
+            </tasks>
+            <tabs>
+              <tab name="Recording" path="deployment/drop/smoke/smoke-recording.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="db">
+        <jobs>
+          <job name="evolve_db_sync">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="rebuildDB" />
+              <nant buildfile="evolve.build" target="testSynchronisationPackages" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeUATDBR2AtoR2B" />
+            </tasks>
+          </job>
+          <job name="evolve_db_upgrade_command">
+            <resources>
+              <resource>vs.net</resource>
+              <resource>nant</resource>
+              <resource>db</resource>
+              <resource>low diskspace</resource>
+            </resources>
+            <artifacts>
+              <test src="reports" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="testUpgradeCmdDBR2AtoR2B" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="install">
+        <jobs>
+          <job name="client">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="localclient">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-client" />
+            </tasks>
+          </job>
+          <job name="server">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="install-server" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="restore-for-smoke">
+        <jobs>
+          <job name="restore">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <tasks>
+              <nant buildfile="evolve.build" target="restore-uat-for-smoke" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="performance">
+        <jobs>
+          <job name="remote-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+          <job name="local-performance">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output" dest="reports" />
+              <test src="build-output" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="run-performance" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="publish-result">
+        <jobs>
+          <job name="publish-local-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>localclient</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-remote-client-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>client</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-client-result" />
+            </tasks>
+          </job>
+          <job name="publish-server-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>appserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-server-result" />
+            </tasks>
+          </job>
+          <job name="publish-sqlserver-result">
+            <resources>
+              <resource>perf</resource>
+              <resource>sqlserver</resource>
+            </resources>
+            <artifacts>
+              <artifact src="build-output/publish" dest="publish" />
+            </artifacts>
+            <tasks>
+              <nant buildfile="evolve.build" target="publish-sqlserver-result" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_trunk--Ubuntu_704_i386--PostgreSQL_8.3.1-1_x86_64">
+      <materials>
+        <svn url="https://something.somewhere.com/studios/mingle/trunk" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CodeWellBeing">
+        <jobs>
+          <job name="CopyAndPasteDectection">
+            <resources>
+              <resource>postgresql83-db_dump</resource>
+            </resources>
+            <artifacts>
+              <log src="cpd.txt" />
+            </artifacts>
+            <tasks>
+              <ant buildfile="build.xml" target="cpd" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>postgresql83-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump something.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_d bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_e bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_f bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_g bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Javascripts">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <tasks>
+              <exec command="./script/jrake" args="test:javascripts" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_Api">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_api bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:messaging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Template">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_template bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Wiki">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_wiki bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Svn">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_svn bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Search">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_search bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Dateproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_dateproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Enumproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_enumproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Freetextproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_freetextproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Gridview">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_gridview bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_History">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_history bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Import_Export">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_import_export bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Navigation">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_navigation bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Other">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_other bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Project">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_project bjstdmngdb03.somewhere.com  mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Properties">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_properties bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_CardList">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardlist bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Tagging">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_tagging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cards">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cards bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cardtype">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardtype bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Upgrade_Export">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/upgrade_export_test.rb" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:upgrade_export bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="Installers">
+        <jobs>
+          <job name="Installers">
+            <resources>
+              <resource>ubuntu-704-i386-installer</resource>
+            </resources>
+            <artifacts>
+              <artifact src="tmp/installers_link.html" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/mkdir" args="-p /var/lib/cruise-agent/installers/2_1" />
+              <exec command="/bin/cp" args="./build.properties.cruise ./build.properties" />
+              <exec command="./script/jrake" args="cruise:publish_installers INSTALLER_VERSION='2_1' INSTALLER_PATH='/var/lib/cruise-agent/installers' INSTALLER_DOWNLOAD_SERVER='https://beijing-mingle-installer.somewhere.com'" />
+              <exec command="/bin/rm" args="-f build.properties" />
+            </tasks>
+            <tabs>
+              <tab name="Installers" path="installers_link.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_trunk--Windows_2003_SP2_ie7_i386--MySQL_5.0.45-6_x86_64">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/trunk" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>mysql50-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-mysql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_d bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_e bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_f bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_g bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_api">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_api bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:messaging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardlist">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardlist bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cards">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cards bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardtype">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardtype bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_dateproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_dateproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_enumproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_enumproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_freetextproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_freetextproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_gridview">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_gridview bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_history">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_history bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_import_export">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_import_export bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_navigation">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_navigation bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_other">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_other bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_project">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_project bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_properties">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_properties bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_search">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_search bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_svn">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_svn bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_tagging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_tagging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_template">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_template bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_wiki">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_wiki bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Upgrade_Export">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/upgrade_export_test.rb" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:upgrade_export bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_branches_2_1--Ubuntu_704_i386--PostgreSQL_8.3.1-1_i386">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/branches/2_1" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>postgresql83-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_d bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_e bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_f bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_g bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Javascripts">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <tasks>
+              <exec command="./script/jrake" args="test:javascripts" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_Api">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_api bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:messaging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Template">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_template bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Wiki">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_wiki bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Svn">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_svn bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Search">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_search bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Dateproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_dateproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Enumproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_enumproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Freetextproperty">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_freetextproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Gridview">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_gridview bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_History">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_history bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Import_Export">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_import_export bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Navigation">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_navigation bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Other">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_other bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Project">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_project bjstdmngdb03.somewhere.com  mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Properties">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_properties bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_CardList">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardlist bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Tagging">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_tagging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cards">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cards bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cardtype">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardtype bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Upgrade_Export">
+            <resources>
+              <resource>ubuntu-704-i386</resource>
+            </resources>
+            <artifacts>
+              <test src="test/upgrade_export_test.rb" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:upgrade_export bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+      <stage name="Installers">
+        <jobs>
+          <job name="Installers">
+            <resources>
+              <resource>ubuntu-704-i386-installer</resource>
+            </resources>
+            <artifacts>
+              <artifact src="tmp/installers_link.html" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/mkdir" args="-p /var/lib/cruise-agent/installers/branch_2_1" />
+              <exec command="/bin/cp" args="./build.properties.cruise ./build.properties" />
+              <exec command="./script/jrake" args="cruise:publish_installers INSTALLER_VERSION='branch_2_1' INSTALLER_PATH='/var/lib/cruise-agent/installers' INSTALLER_DOWNLOAD_SERVER='https://beijing-mingle-installer.somewhere.com'" />
+              <exec command="/bin/rm" args="-f build.properties" />
+            </tasks>
+            <tabs>
+              <tab name="Installers" path="installers_link.html" />
+            </tabs>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_branches_2_1--Windows_2003_SP2_ie7_i386--MySQL_5.0.45-6_i386">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/branches/2_1" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>mysql50-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-mysql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_d bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_e bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_f bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_g bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_api">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_api bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:messaging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardlist">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardlist bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cards">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cards bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardtype">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardtype bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_dateproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_dateproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_enumproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_enumproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_freetextproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_freetextproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_gridview">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_gridview bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_history">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_history bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_import_export">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_import_export bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_navigation">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_navigation bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_other">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_other bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_project">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_project bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_properties">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_properties bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_search">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_search bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_svn">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_svn bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_tagging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_tagging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_template">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_template bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Acceptance_wiki">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_wiki bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+          <job name="Upgrade_Export">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7</resource>
+            </resources>
+            <artifacts>
+              <test src="test/upgrade_export_test.rb" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:upgrade_export bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/2_1 cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_branches_spikes_rails21--Ubuntu_704_i386--PostgreSQL_8.3.1-1_i386">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/branches/spikes/rails21" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>postgresql83-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_d bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_e bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_f bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:units_g bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_a bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_b bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:functionals_c bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_Api">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_api bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:messaging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Template">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_template bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Wiki">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_wiki bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Svn">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_svn bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Search">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_search bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Dateproperty">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_dateproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Enumproperty">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_enumproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Freetextproperty">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_freetextproperty bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Gridview">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_gridview bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_History">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_history bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Import_Export">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_import_export bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Navigation">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_navigation bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Other">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_other bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Project">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_project bjstdmngdb03.somewhere.com  mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Properties">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_properties bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_CardList">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardlist bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Tagging">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_tagging bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cards">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cards bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Cardtype">
+            <resources>
+              <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-pgsql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:acceptance_cardtype bjstdmngdb03.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_branches_spikes_rails21--Windows_2003_SP2_ie7_i386--MySQL_5.0.45-6_i386">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/branches/spikes/rails21" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="CreateTestDabaseDumpAndPublish">
+        <jobs>
+          <job name="CreateTestDabaseDumpAndPublish">
+            <resources>
+              <resource>mysql50-db_dump</resource>
+            </resources>
+            <tasks>
+              <exec command="/bin/cp" args="config/database.yml.cruise-mysql config/database.yml" />
+              <exec command="./script/cruise" args="cruise:create_local_test_db_dump bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="UnitsAndFunctionals">
+        <jobs>
+          <job name="Units_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_D">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_d bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_E">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_e bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_F">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_f bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Units_G">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:units_g bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_A">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_a bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_B">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_b bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Functionals_C">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:functionals_c bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="Acceptances">
+        <jobs>
+          <job name="Acceptance_api">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_api bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_Messaging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:messaging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardlist">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardlist bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cards">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cards bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_cardtype">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardtype bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_dateproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_dateproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_enumproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_enumproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_freetextproperty">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_freetextproperty bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_gridview">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_gridview bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_history">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_history bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_import_export">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_import_export bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_navigation">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_navigation bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_other">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_other bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_project">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_project bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_properties">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_properties bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_search">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_search bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_svn">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_svn bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_tagging">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_tagging bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_template">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_template bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+          <job name="Acceptance_wiki">
+            <resources>
+              <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_wiki bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/branches/spikes/rails21 cruise worker" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle-Performance-Test_trunk--Ubuntu_704_i386--PostgreSQL_8.3.3_i386">
+      <materials>
+        <svn url="https://chistdsvn01.somewhere.com/studios/mingle/trunk" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="Performance_Test">
+        <jobs>
+          <job name="Performance_Test">
+            <resources>
+              <resource>ubuntu-704-i386-performance-test</resource>
+            </resources>
+            <tasks>
+              <exec command="svn" args="up /var/lib/cruise-agent/mingle-performance-httperf" />
+              <exec command="/bin/cp" args="test/performance/httperf/database.yml config/database.yml" />
+              <exec command="/bin/cp" args="test/performance/httperf/auth_config.yml config/auth_config.yml" />
+              <exec command="/bin/cp" args="test/performance/httperf/web.xml config/web.xml" />
+              <exec command="./script/jrake" args="performance:test" />
+              <exec command="svn" args="revert config/auth_config.yml" />
+              <exec command="svn" args="revert config/web.xml" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle-Performance-Test-Installer-Multiple-Sessions">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/mingle-installer-performance-test/mingle-installer-performance-test" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="Performance_Test">
+        <jobs>
+          <job name="Performance_Test">
+            <resources>
+              <resource>mingle-performance-test-multiple-sessions</resource>
+            </resources>
+            <tasks>
+              <exec command="/usr/bin/svn" args="up /Users/tworker/studios/performance-test/mingle-trunk" />
+              <exec command="/usr/bin/svn" args="up /Users/tworker/studios/performance-test/performance-httperf" />
+              <exec command="/Users/tworker/studios/performance-test/performance-httperf/scripts/performance-test.rb" workingdir="scripts" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+    <pipeline name="Mingle_selenium_test">
+      <materials>
+        <svn url="https://bjstdmngsvn01.somewhere.com/studios/mingle/trunk" username="mingle_builder" password="5MJC%3nvLC" />
+      </materials>
+      <stage name="Traffic_light">
+        <jobs>
+          <job name="Test-selenium-proxy">
+            <resources>
+              <resource>windows-test-selenium-proxy</resource>
+            </resources>
+            <artifacts>
+              <test src="test/reports" />
+              <log src="log/test.log" />
+            </artifacts>
+            <tasks>
+              <exec command="copy" args="/y config\database.yml.cruise-mysql config\database.yml" />
+              <exec command=".\script\cruise.bat" args="cruise:acceptance_cardtype bjstdmngdb04.somewhere.com mingle mingle /var/lib/cruise-agent/dbdump/trunk cruise worker" timeout="7200000" />
+            </tasks>
+          </job>
+        </jobs>
+        <approval />
+      </stage>
+    </pipeline>
+  </pipelines>
+  <agents>
+    <agent hostname="EVOLVECRUISEDB" ipaddress="10.18.2.104" uuid="mHABtNy9/yV9gyOIg8ylLw==">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>db</resource>
+        <resource>low diskspace</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr02.somewhere.com" ipaddress="10.18.7.131" uuid="gFMHREh2tylKI44yzICjvw==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="perf-remoteclient" ipaddress="192.168.0.21" uuid="tzfEGdnCg5vIOEBneA8jgA==">
+      <resources>
+        <resource>perf</resource>
+        <resource>client</resource>
+      </resources>
+    </agent>
+    <agent hostname="perf-appserver" ipaddress="192.168.0.12" uuid="YqMljSciljlyNJpgqnTI1g==">
+      <resources>
+        <resource>perf</resource>
+        <resource>appserver</resource>
+      </resources>
+    </agent>
+    <agent hostname="perf-sqlserver" ipaddress="192.168.0.11" uuid="WfahJIm6zuz6eB4CJ4nEEg==">
+      <resources>
+        <resource>perf</resource>
+        <resource>sqlserver</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve01clone" ipaddress="10.18.3.199" uuid="rGs6dyrVM4soZIHpsZTu6g==">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>low memory</resource>
+        <resource>smoke</resource>
+      </resources>
+    </agent>
+    <agent hostname="perf-localclient" ipaddress="192.168.0.20" uuid="2hfG1UUgq71jqXNuQo+1+A==">
+      <resources>
+        <resource>perf</resource>
+        <resource>localclient</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr03.somewhere.com" ipaddress="10.18.7.132" uuid="RiYi4+jCrUbTizF+ZbYQIw==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr04.somewhere.com" ipaddress="10.18.7.133" uuid="92IkJLQI1buk2o4Cgk1yug==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr05.somewhere.com" ipaddress="10.18.7.134" uuid="8T7IDKS5Qg06lt9k2shlgw==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr06.somewhere.com" ipaddress="10.18.7.135" uuid="QKdcDJ6a5v/qEi8Uob6YaQ==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolvedatabase" ipaddress="10.18.3.158" uuid="9R8+RGESBUFwys+FCsyDmQ==" />
+    <agent hostname="bjstdmngbgr07.somewhere.com" ipaddress="10.18.7.136" uuid="7xPWUsJ7YVS22Sat+O49og==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr08.somewhere.com" ipaddress="10.18.7.137" uuid="rZlCF2oDAvKrYr8M39IQNA==">
+      <resources>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+        <resource>ubuntu-704-i386</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr23.somewhere.com" ipaddress="10.18.7.156" uuid="nDzq1dAiWCTh9kdWcnAd8g==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr24.somewhere.com" ipaddress="10.18.7.157" uuid="zKbio8HrPaCw2ecZvfPm/g==">
+      <resources>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr25.somewhere.com" ipaddress="10.18.7.158" uuid="PNODr60val8e3FDfzYFOfA==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr26.somewhere.com" ipaddress="10.18.7.159" uuid="tOIGAZPrQZGhgBSYKhM4VA==">
+      <resources>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+        <resource>ubuntu-704-i386</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr27.somewhere.com" ipaddress="10.18.7.160" uuid="MjvbyeYjQgsqtWsKTPloPg==" />
+    <agent hostname="bjstdmngbgr29.somewhere.com" ipaddress="10.18.7.162" uuid="4859aIbb1RYUR4Hf9VVb5A==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr28.somewhere.com" ipaddress="10.18.7.161" uuid="RJftAAWMhPWULOpXGHY1Ng==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolvecruise02" ipaddress="10.18.2.192" uuid="ccH9yWqjQO1QF6akZinxKg==">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>smoke</resource>
+        <resource>low memory</resource>
+      </resources>
+    </agent>
+    <agent hostname="thoughtw-d6300731" ipaddress="192.168.127.1" uuid="uQcsu6ieCxtvNUSrDrFYGA==">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>db</resource>
+        <resource>diskspace</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr31.somewhere.com" ipaddress="10.18.7.164" uuid="5F40Ex8UjVbnEa/SYwAfbQ==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr30.somewhere.com" ipaddress="10.18.7.163" uuid="o6lUxjq8xcjdnfJ041YeUw==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngdb03.somewhere.com" ipaddress="10.18.7.226" uuid="MKpwjHh1oOfSrBrhKlnM6w==">
+      <resources>
+        <resource>postgresql83-db_dump</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngdb04.somewhere.com" ipaddress="10.18.7.140" uuid="sJ3MxeBMIfFsjdMoU5NyIw==">
+      <resources>
+        <resource>mysql50-db_dump</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr32.somewhere.com" ipaddress="10.18.7.166" uuid="VZJSqybfiDbBqKBJreIerQ==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr33.somewhere.com" ipaddress="10.18.7.167" uuid="9utF9xbAqMV1TBKnRFg8aQ==">
+      <resources>
+        <resource>ubuntu-704-i386</resource>
+        <resource>ubuntu-704-i386-branches-colombo_pre_kojak</resource>
+        <resource>ubuntu-704-i386-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr34.somewhere.com" ipaddress="10.18.7.168" uuid="gj0U+ImpgdJnfophE56+1w==">
+      <resources>
+        <resource>ubuntu-704-i386-installer</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm-vm1" ipaddress="10.18.7.18" uuid="14fa8d8a-dd8b-4cb9-a65b-ad6f4d58835f">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>low memory</resource>
+        <resource>nant</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm-vm2" ipaddress="10.18.7.19" uuid="5e55e767-be99-4043-9ae0-25083e088f45">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>smoke</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm-vm4" ipaddress="10.18.7.21" uuid="f3f2cdff-3b00-407a-aa6d-243f6ce87e94">
+      <resources>
+        <resource>EM</resource>
+        <resource>IE6</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr108" ipaddress="10.18.7.174" uuid="07c8efea-83d5-4b47-98ea-6b20e5821056">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr112" ipaddress="10.18.7.179" uuid="d4ce8591-9851-4f3b-a8dc-0afaa8a1593d">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr109" ipaddress="10.18.7.175" uuid="169ccf04-ae84-4ef0-9e08-a3860e958967">
+      <resources>
+        <resource>windows-test-selenium-proxy</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr114" ipaddress="10.18.7.178" uuid="db2bce0c-1300-42cc-bb5f-366a29318966">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr115" ipaddress="10.18.7.180" uuid="ef8c3a3e-2f34-4216-97ec-b2eaaa52cf6a">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr111" ipaddress="10.18.7.177" uuid="4121016a-0df2-4902-88a8-f021d2069cf3">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr110" ipaddress="10.18.7.176" uuid="fd56e567-26e4-4fc0-be94-3029a0c243f2">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr113" ipaddress="10.18.7.181" uuid="6fb4c470-15e8-4f28-8b19-ff819fd7b43b">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr102" ipaddress="10.18.7.139" uuid="6cc9de04-f80d-4e17-895b-a280ae5c6844">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr101" ipaddress="10.18.7.138" uuid="ca41366c-2fc1-4779-915d-2721517a8e51">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr104" ipaddress="10.18.7.142" uuid="e69fd85e-b3fd-4a4f-9428-e3886b73983b">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr103" ipaddress="10.18.7.141" uuid="0e7d9573-cfc5-4c0b-8997-8b00b2d40bb3">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr106" ipaddress="10.18.7.144" uuid="49bea57c-01fb-4ab4-83d3-1b118bca6fea">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr107" ipaddress="10.18.7.145" uuid="8727549e-bcd2-43b6-9c8b-a70f79935bfe">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr105" ipaddress="10.18.7.143" uuid="4d094918-9fae-4080-89ae-ee0b2157984b">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr116" ipaddress="10.18.7.146" uuid="20ee6048-22eb-4ca0-b81f-2f8a95c5d1d3">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr117" ipaddress="10.18.7.147" uuid="6c70db22-d5e1-467d-a98a-51332b8a4c33">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr118" ipaddress="10.18.7.148" uuid="bd498c38-ce4c-453d-8dfd-b83c45ba29a0">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="bjstdmngbgr119" ipaddress="10.18.7.149" uuid="a116a4a4-2a63-4d83-ab29-488d4b92d298">
+      <resources>
+        <resource>windows-2003-sp2-i386-ie7</resource>
+        <resource>windows-2003-sp2-i386-ie7-branches-spikes-rails21</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm-vm6" ipaddress="10.18.7.23" uuid="42a55a07-f7a6-4efa-b716-e9e90c760cf3">
+      <resources>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>smoke</resource>
+        <resource>low memory</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm" ipaddress="10.18.7.17" uuid="9b9c0b7e-61eb-4d9c-a80b-2d7a80d336ca">
+      <resources>
+        <resource>evolve</resource>
+        <resource>cruise</resource>
+        <resource>trunk</resource>
+      </resources>
+    </agent>
+    <agent hostname="sfstdmngbgr03" ipaddress="10.2.1.192" uuid="fd6b799b-7ab6-49a1-8c20-41512b433271">
+      <resources>
+        <resource>ubuntu-704-i386-performance-test</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-pair-8" ipaddress="192.168.67.1" uuid="b07ec63a-069f-42c2-8b3e-069ee96db28c">
+      <resources>
+        <resource>low memory</resource>
+        <resource>vs.net</resource>
+        <resource>nant</resource>
+        <resource>smoke</resource>
+      </resources>
+    </agent>
+    <agent hostname="evolve-kvm-vm7" ipaddress="10.18.7.24" uuid="ff3084f4-b4fe-44e4-b7dd-6e3050a391b1">
+      <resources>
+        <resource>EM</resource>
+        <resource>IE7</resource>
+      </resources>
+    </agent>
+    <agent hostname="chistdtest04.somewhere.com" ipaddress="10.1.1.87" uuid="2c5e8987-5b6c-4701-80e7-19846dcd89b7">
+      <resources>
+        <resource>license_application</resource>
+      </resources>
+    </agent>
+    <agent hostname="sfstdmngperf04.somewhere.com" ipaddress="10.2.1.166" uuid="8f15ed99-99e9-4654-b7e0-af0b9032f5be">
+      <resources>
+        <resource>mingle-performance-test-multiple-sessions</resource>
+      </resources>
+    </agent>
+  </agents>
+</cruise>
+

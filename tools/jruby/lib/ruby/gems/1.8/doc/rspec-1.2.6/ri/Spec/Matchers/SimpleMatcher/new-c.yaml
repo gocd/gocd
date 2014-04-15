@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (description, &match_block)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Matchers::SimpleMatcher::new
+visibility: public
+aliases: []
+

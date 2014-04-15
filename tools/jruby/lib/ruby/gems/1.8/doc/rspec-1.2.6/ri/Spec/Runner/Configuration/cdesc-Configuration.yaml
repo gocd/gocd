@@ -1,0 +1,35 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::ArgsAndOptions
+name: Configuration
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: after
+- !ruby/object:RI::MethodSummary 
+  name: append_after
+- !ruby/object:RI::MethodSummary 
+  name: append_before
+- !ruby/object:RI::MethodSummary 
+  name: before
+- !ruby/object:RI::MethodSummary 
+  name: extend
+- !ruby/object:RI::MethodSummary 
+  name: include
+- !ruby/object:RI::MethodSummary 
+  name: mock_with
+- !ruby/object:RI::MethodSummary 
+  name: predicate_matchers
+- !ruby/object:RI::MethodSummary 
+  name: prepend_after
+- !ruby/object:RI::MethodSummary 
+  name: prepend_before
+full_name: Spec::Runner::Configuration
+superclass: Object
+class_methods: []
+

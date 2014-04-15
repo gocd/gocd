@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name = 'stub')
+is_singleton: false
+block_params: 
+name: stub_everything
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: DEPRECATED - use mock('name').as_null_object instead
+- !ruby/struct:SM::Flow::P 
+  body: Shortcut for creating a mock object that will return itself in response to
+    any message it receives that it hasn't been explicitly instructed to respond to.
+full_name: Spec::Mocks::ExampleMethods#stub_everything
+visibility: public
+aliases: []
+

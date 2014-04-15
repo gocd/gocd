@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: rake-0.8.2.rdoc</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>rake-0.8.2.rdoc</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>doc/release_notes/rake-0.8.2.rdoc
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Mon Jun 15 12:13:22 -0500 2009</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>Rake 0.8.2 Released</h1>
+<p>
+Rake version 0.8.2 is a new release of rake that includes a number of new
+features and numerous bug fixes.
+</p>
+<h2>Changes</h2>
+<h3>New Features in Version 0.8.2</h3>
+<ul>
+<li>Switched from getoptlong to optparse (patches supplied by Edwin Pratomo).
+
+</li>
+<li>The -T option will now attempt to dynamically sense the size of the
+terminal. The -T output will only self-truncate if the output is a tty.
+However, if RAKE_COLUMNS is explicitly set, it will be honored in any case.
+(Patch provided by Gavin Stark).
+
+</li>
+<li>The following public methods have been added to rake task objects:
+
+<ul>
+<li>task.clear &#8212; Clear both the prerequisites and actions of the target
+rake task.
+
+</li>
+<li>task.clear_prerequisites &#8212; Clear all the existing prerequisites from
+the target rake task.
+
+</li>
+<li>task.clear_actions &#8212; Clear all the existing actions from the target
+rake task.
+
+</li>
+<li>task.reenable &#8212; Re-enable a task, allowing its actions to be executed
+again if the task is invoked.
+
+</li>
+</ul>
+</li>
+<li>Changed RDoc test task to have no default template. This makes it easier
+for the tempate to pick up the template from the environment.
+
+</li>
+<li>Default values for task arguments can easily be specified with the
+:with_defaults method. (Idea for default argument merging supplied by (Adam
+Q. Salter)
+
+</li>
+</ul>
+<h3>Bug Fixes in Version 0.8.2</h3>
+<ul>
+<li>Fixed bug in package task so that it will include the subdir directory in
+the package for testing. (Bug found by Adam Majer)
+
+</li>
+<li>Fixed filename dependency order bug in test_inspect_pending and
+test_to_s_pending. (Bug found by Adam Majer)
+
+</li>
+<li>Fixed check for file utils options to make them immune to the symbol/string
+differences. (Patch supplied by Edwin Pratomo)
+
+</li>
+<li>Fixed bug with rules involving multiple source, where only the first
+dependency of a rule has any effect (Patch supplied by Emanuel Indermühle)
+
+</li>
+<li>FileList#clone and FileList#dup have better sematics w.r.t. taint and
+freeze.
+
+</li>
+<li>Changed from using Mutex to Monitor. Evidently Mutex causes thread join
+errors when Ruby is compiled with -disable-pthreads. (Patch supplied by
+Ittay Dror)
+
+</li>
+<li>Fixed bug in makefile parser that had problems with extra spaces in file
+task names. (Patch supplied by Ittay Dror)
+
+</li>
+</ul>
+<h2>Other changes in Version 0.8.2</h2>
+<ul>
+<li>Added ENV var to rake&#8216;s own Rakefile to prevent OS X from including
+extended attribute junk in the rake package tar file. (Bug found by Adam
+Majer)
+
+</li>
+<li>Added a performance patch for reading large makefile dependency files.
+(Patch supplied by Ittay Dror)
+
+</li>
+</ul>
+<h2>What is Rake</h2>
+<p>
+Rake is a build tool similar to the make program in many ways. But instead
+of cryptic make recipes, Rake uses standard Ruby code to declare tasks and
+dependencies. You have the full power of a modern scripting language built
+right into your build tool.
+</p>
+<h2>Availability</h2>
+<p>
+The easiest way to get and install rake is via RubyGems &#8230;
+</p>
+<pre>
+  gem install rake    (you may need root/admin privileges)
+</pre>
+<p>
+Otherwise, you can get it from the more traditional places:
+</p>
+<table>
+<tr><td valign="top">Home Page:</td><td><a href="http://rake.rubyforge.org">rake.rubyforge.org</a>/
+
+</td></tr>
+<tr><td valign="top">Download:</td><td><a
+href="http://rubyforge.org/project/showfiles.php?group_id=50">rubyforge.org/project/showfiles.php?group_id=50</a>
+
+</td></tr>
+</table>
+<h2>Task Argument Examples</h2>
+<p>
+Prior to version 0.8.0, rake was only able to handle command line arguments
+of the form NAME=VALUE that were passed into Rake via the ENV hash. Many
+folks had asked for some kind of simple command line arguments, perhaps
+using &quot;&#8212;&quot; to separate regular task names from argument
+values on the command line. The problem is that there was no easy way to
+associate positional arguments on the command line with different tasks.
+Suppose both tasks :a and :b expect a command line argument: does the first
+value go with :a? What if :b is run first? Should it then get the first
+command line argument.
+</p>
+<p>
+Rake 0.8.0 solves this problem by explicitly passing values directly to the
+tasks that need them. For example, if I had a release task that required a
+version number, I could say:
+</p>
+<pre>
+   rake release[0.8.2]
+</pre>
+<p>
+And the string &quot;0.8.2&quot; will be passed to the :release task.
+Multiple arguments can be passed by separating them with a comma, for
+example:
+</p>
+<pre>
+   rake name[john,doe]
+</pre>
+<p>
+Just a few words of caution. The rake task name and its arguments need to
+be a single command line argument to rake. This generally means no spaces.
+If spaces are needed, then the entire rake + argument string should be
+quoted. Something like this:
+</p>
+<pre>
+   rake &quot;name[billy bob, smith]&quot;
+</pre>
+<p>
+(Quoting rules vary between operating systems and shells, so make sure you
+consult the proper docs for your OS/shell).
+</p>
+<h3>Tasks that Expect Parameters</h3>
+<p>
+Parameters are only given to tasks that are setup to expect them. In order
+to handle named parameters, the task declaration syntax for tasks has been
+extended slightly.
+</p>
+<p>
+For example, a task that needs a first name and last name might be declared
+as:
+</p>
+<pre>
+   task :name, :first_name, :last_name
+</pre>
+<p>
+The first argument is still the name of the task (:name in this case). The
+next to argumements are the names of the parameters expected by :name
+(:first_name and :last_name in the example).
+</p>
+<p>
+To access the values of the paramters, the block defining the task
+behaviour can now accept a second parameter:
+</p>
+<pre>
+   task :name, :first_name, :last_name do |t, args|
+     puts &quot;First name is #{args.first_name}&quot;
+     puts &quot;Last  name is #{args.last_name}&quot;
+   end
+</pre>
+<p>
+The first argument of the block &quot;t&quot; is always bound to the
+current task object. The second argument &quot;args&quot; is an open-struct
+like object that allows access to the task arguments. Extra command line
+arguments to a task are ignored. Missing command line arguments are given
+the nil value.
+</p>
+<h2>Thanks</h2>
+<p>
+As usual, it was input from users that drove a alot of these changes. The
+following people either contributed patches, made suggestions or made
+otherwise helpful comments. Thanks to &#8230;
+</p>
+<ul>
+<li>Edwin Pratomo
+
+</li>
+<li>Gavin Stark
+
+</li>
+<li>Adam Q. Salter
+
+</li>
+<li>Adam Majer
+
+</li>
+<li>Emanuel Indermühle
+
+</li>
+<li>Ittay Dror
+
+</li>
+<li>Bheeshmar Redheendran (for spending an afternoon with me debugging windows
+issues)
+
+</li>
+</ul>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Runner::Reporter</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Runner::Reporter</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib/spec/runner/reporter_rb.html">
+                lib/spec/runner/reporter.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                <a href="../../Object.html">
+                Object
+               </a>
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000473">dump</a>&nbsp;&nbsp;
+      <a href="#M000472">end</a>&nbsp;&nbsp;
+      <a href="#M000470">example_failed</a>&nbsp;&nbsp;
+      <a href="#M000469">example_finished</a>&nbsp;&nbsp;
+      <a href="#M000467">example_group_started</a>&nbsp;&nbsp;
+      <a href="#M000468">example_started</a>&nbsp;&nbsp;
+      <a href="#M000466">new</a>&nbsp;&nbsp;
+      <a href="#M000471">start</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Class <a href="Reporter/Failure.html" class="link">Spec::Runner::Reporter::Failure</a><br />
+
+    </div>
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">EXAMPLE_PENDING_DEPRECATION_WARNING</td>
+          <td>=</td>
+          <td class="context-item-value">&lt;&lt;-WARNING  ********************************************************************* DEPRECATION WARNING: RSpec's formatters have changed example_pending to accept two arguments instead of three. Please see the rdoc for Spec::Runner::Formatter::BaseFormatter#example_pending for more information.    Please update any custom formatters to accept only two arguments to example_pending. Support for example_pending with two arguments and this warning message will be removed after the RSpec 2.0 release. *********************************************************************       WARNING</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">options</td>
+          <td class="context-item-value">&nbsp;[R]&nbsp;</td>
+          <td class="context-item-desc"></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000466" class="method-detail">
+        <a name="M000466"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000466.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000466.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(options)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000473" class="method-detail">
+        <a name="M000473"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000473.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000473.html');return false;">
+          <span class="method-name">dump</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Dumps the summary and returns the total number of failures
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000472" class="method-detail">
+        <a name="M000472"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000472.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000472.html');return false;">
+          <span class="method-name">end</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000470" class="method-detail">
+        <a name="M000470"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000470.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000470.html');return false;">
+          <span class="method-name">example_failed</span><span class="method-args">(example, error)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000469" class="method-detail">
+        <a name="M000469"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000469.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000469.html');return false;">
+          <span class="method-name">example_finished</span><span class="method-args">(example, error=nil)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000467" class="method-detail">
+        <a name="M000467"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000467.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000467.html');return false;">
+          <span class="method-name">example_group_started</span><span class="method-args">(example_group)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000468" class="method-detail">
+        <a name="M000468"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000468.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000468.html');return false;">
+          <span class="method-name">example_started</span><span class="method-args">(example)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000471" class="method-detail">
+        <a name="M000471"></a>
+
+        <div class="method-heading">
+          <a href="Reporter.src/M000471.html" target="Code" class="method-signature"
+            onclick="popupCode('Reporter.src/M000471.html');return false;">
+          <span class="method-name">start</span><span class="method-args">(number_of_examples)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

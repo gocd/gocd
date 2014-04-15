@@ -1,0 +1,28 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: PseudoStatus
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Exit status class for times the system just gives us a nil.
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: exitstatus
+  comment: 
+  rw: R
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: '>>'
+- !ruby/object:RI::MethodSummary 
+  name: exited?
+- !ruby/object:RI::MethodSummary 
+  name: stopped?
+- !ruby/object:RI::MethodSummary 
+  name: to_i
+full_name: Rake::PseudoStatus
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

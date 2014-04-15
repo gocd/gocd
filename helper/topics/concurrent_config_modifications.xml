@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Concurrent Modifications to Go's Configuration">
+    <p>Go handles concurrent modifications to its configuration. Multiple modifications are merged and saved successfully. Modifications to the same area of configuration would result in a conflict.
+    </p> 
+    <note>Note: Configuration file is maintained in
+        <a href="http://git-scm.com/" target="_blank">git</a>
+        version control system. Go leverages git’s merge feature to merge changes from multiple users.
+        As expected, concurrent changes to the same section by users would result in a conflict.
+    </note>
+    <section title="Successful Merge">
+
+        <p>In case of a successful merge, user would see a success message as below:
+        </p>
+        <img src="resources/images/cruise/admin/successful_config_merge.png"/>
+    </section>
+    <section title="Merge Conflicts">
+
+        <section title="Handling conflict while using Config XML tab (Go Administrator)">
+            <p>In case of a conflict, Go provides an interface with the latest version of config along with the changes made by the user. As an example, if the same job was re-named by two users
+                concurrently, the changes from first user would be successfully saved while the second user would see a page similar to the one displayed in the image below.
+            </p>
+            <p>User needs to re-apply their changes displayed on the left-hand pane, to the editable version on the right and save again.</p>
+
+            <img src="resources/images/cruise/admin/config_xml_merge_conflict.png"/>
+
+        </section>
+        <section title="Handling conflict while using Config XML tab (Pipeline group administrator)">
+            <img src="resources/images/cruise/admin/group_admin_merge_conflict.png"/>
+        </section>
+        <section title="Handling conflict while updating configuration via other Admin tabs">
+            <p>If two users make similar changes to a pipeline using the ‘Edit Pipeline’ UI, the second user would see the error as displayed below.</p>
+            <p>User should backup the required changes from the page. Clicking on ‘RELOAD’ button, would discard user’s changes and reload the page with latest version of the pipeline configuration.
+                User should re-apply his/her changes from backup and save again.
+            </p>
+            <img src="resources/images/cruise/admin/clicky_admin_merge_conflict.png"/>
+        </section>
+    </section>
+
+
+</chapter>
+

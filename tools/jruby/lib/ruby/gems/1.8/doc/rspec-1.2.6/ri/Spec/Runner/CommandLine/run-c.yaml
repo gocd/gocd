@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (tmp_options=Spec::Runner.options)
+is_singleton: true
+block_params: 
+name: run
+comment: 
+full_name: Spec::Runner::CommandLine::run
+visibility: public
+aliases: []
+

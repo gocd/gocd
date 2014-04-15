@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Go 13.3">
+	<section title="Features">
+	    <bullets>
+            <item id="7381">
+                <cref topic="package_material" anchor="package_material">External Package Repositories:</cref>
+                Go supports external packages repositories as materials, and changes to packages in these repositories can trigger Go pipelines.
+            </item>
+	    </bullets>
+	</section>
+	<section title="Enhancements">
+	    <bullets>
+            <item id="7697">
+                RPM installer can optionally defer starting of the Go Server upon upgrade. Setting the environment variable DO_NOT_START_SERVICE=Y will defer starting Go Server upon installation/upgrade.
+            </item>
+            <item id="7541">
+                Post 13.2.1, further performance improvements have been incorporated with regards to Go Server startup time.
+            </item>
+            <item id="6768">
+                UI changes to move user related actions under a menu item which will appear when a user clicks on his/her username on the header.
+            </item>
+	    </bullets>
+	</section>
+    <section title="Others">
+        <bullets>
+            <item id="7394">
+                As per our earlier <exref url="http://support.thoughtworks.com/entries/23397228-Go-s-support-for-non-SDK-TFS-polling-deprecated-as-of-13-1">deprecation notice</exref>, Go has removed support for TF CLC and Visual Studio clients when using TFS.
+            </item>
+        </bullets>
+    </section>
+</chapter>

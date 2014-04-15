@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<?xml-stylesheet href="coverage.xsl" type="text/xsl"?>
+<!-- saved from url=(0022)http://www.ncover.org/ -->
+<coverage profilerVersion="1.5.8 Beta" driverVersion="1.5.8.0" startTime="2008-12-09T19:35:45.7507236+00:00" measureTime="2008-12-09T19:37:11.8724164+00:00">
+  <module moduleId="181" name="C:\WINDOWS\TEMP\nunit20\ShadowCopyCache\2596_633644481488756036\Tests\assembly\dl3\69155347\10b15d50_355ac901\CustomerService.DLL" assembly="CustomerService" assemblyIdentity="CustomerService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null, processorArchitecture=MSIL">
+    <method name="Application_Start" excluded="false" instrumented="true" class="TTL.CustomerService.Global">
+      <seqpnt visitcount="1" line="18" column="13" endline="18" endcolumn="81" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="19" column="13" endline="19" endcolumn="69" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="20" column="13" endline="20" endcolumn="75" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="21" column="9" endline="21" endcolumn="10" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+    </method>
+    <method name="setAbsolutePathForSystemFunctionConfigNHibernateConfigurationFile" excluded="false" instrumented="true" class="TTL.CustomerService.Global">
+      <seqpnt visitcount="1" line="26" column="13" endline="26" endcolumn="45" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="27" column="13" endline="28" endcolumn="143" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="29" column="9" endline="29" endcolumn="10" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+    </method>
+    <method name="GetAbsolutePath" excluded="false" instrumented="true" class="TTL.CustomerService.Global">
+      <seqpnt visitcount="1" line="34" column="13" endline="34" endcolumn="112" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+      <seqpnt visitcount="1" line="35" column="9" endline="35" endcolumn="10" excluded="false" document="C:\cruise\pipelines\CustomerService\Services\CustomerService\CustomerService\Global.asax.cs" />
+    </method>
+  </module>
+</coverage>

@@ -1,0 +1,58 @@
+require 'rake'
+require 'rake/testtask'
+load File.dirname(__FILE__) + "/lib/shared/jopenssl/version.rb"
+
+BC_JARS       = FileList["../../build_lib/bc*.jar"]
+JOPENSSL_JAR  = 'lib/shared/jopenssl.jar'
+GEM_FILE      = "pkg/jruby-openssl-#{Jopenssl::Version::VERSION}.gem"
+GEM_SPEC_FILE = 'jruby-openssl.gemspec'
+
+task :default => [:java_compile, :test]
+
+def java_classpath_arg # myriad of ways to discover JRuby classpath
+  begin
+    cpath  = Java::java.lang.System.getProperty('java.class.path').split(File::PATH_SEPARATOR)
+    cpath += Java::java.lang.System.getProperty('sun.boot.class.path').split(File::PATH_SEPARATOR)
+    jruby_cpath = cpath.compact.join(File::PATH_SEPARATOR)
+  rescue => e
+  end
+  unless jruby_cpath
+    jruby_cpath = ENV['JRUBY_PARENT_CLASSPATH'] || ENV['JRUBY_HOME'] &&
+      FileList["#{ENV['JRUBY_HOME']}/lib/*.jar"].join(File::PATH_SEPARATOR)
+  end
+  bc_jars = BC_JARS.join(File::PATH_SEPARATOR)
+  jruby_cpath ? "-cp \"#{jruby_cpath.gsub('\\', '/')}#{File::PATH_SEPARATOR}#{bc_jars}\"" : "-cp \"#{bc_jars}\""
+end
+
+desc "Compile the native Java code and create the jopenssl jar file."
+task file JOPENSSL_JAR do
+  mkdir_p "pkg/classes"
+
+  File.open("pkg/compile_options", "w") do |f|
+    f << "-g -target 1.5 -source 1.5 -Xlint:unchecked -Xlint:deprecation -d pkg/classes"
+  end
+
+  File.open("pkg/compile_classpath", "w") do |f|
+    f << java_classpath_arg
+  end
+
+  File.open("pkg/compile_sourcefiles", "w") do |f|
+    f << FileList['../../src/org/jruby/ext/openssl/**/*.java'].join(' ')
+  end
+
+  sh "javac @pkg/compile_options @pkg/compile_classpath @pkg/compile_sourcefiles"
+  sh "jar cf #{JOPENSSL_JAR} -C pkg/classes/ ."
+  FileUtils.cp JOPENSSL_JAR, '../../lib/ruby/shared/jopenssl.jar'
+end
+
+task :more_clean do
+  rm_f FileList[JOPENSSL_JAR]
+end
+task :clean => :more_clean
+
+file GEM_FILE => [GEM_SPEC_FILE, JOPENSSL_JAR] do
+  puts "Generating #{GEM_FILE}"
+  `gem build #{GEM_SPEC_FILE}`
+  FileUtils.mv "jruby-openssl-#{Jopenssl::Version::VERSION}.gem", GEM_FILE
+end
+task :package => GEM_FILE

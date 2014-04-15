@@ -1,0 +1,28 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_proxy, message, deprecated_pending_location=nil)
+is_singleton: false
+block_params: 
+name: example_pending
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: This method is invoked when an example is not yet implemented (i.e. has not
+    been provided a block), or when an ExamplePendingError is raised. <tt>message</tt>
+    is the message from the ExamplePendingError, if it exists, or the default value
+    of &quot;Not Yet Implemented&quot;. <tt>deprecated_pending_location</tt> is deprecated
+    - use example_proxy.location instead
+- !ruby/struct:SM::Flow::H 
+  level: 4
+  text: Parameters
+- !ruby/object:SM::Flow::LIST 
+  type: :NOTE
+  contents: 
+  - !ruby/struct:SM::Flow::LI 
+    label: 'example_proxy:'
+    body: instance of Spec::Example::ExampleProxy
+  - !ruby/struct:SM::Flow::LI 
+    label: 'message:'
+    body: the message passed to the pending message, or an internal default
+full_name: Spec::Runner::Formatter::BaseFormatter#example_pending
+visibility: public
+aliases: []
+

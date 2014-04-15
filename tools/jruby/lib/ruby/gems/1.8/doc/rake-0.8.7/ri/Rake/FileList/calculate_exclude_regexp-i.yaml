@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: calculate_exclude_regexp
+comment: 
+full_name: Rake::FileList#calculate_exclude_regexp
+visibility: public
+aliases: []
+

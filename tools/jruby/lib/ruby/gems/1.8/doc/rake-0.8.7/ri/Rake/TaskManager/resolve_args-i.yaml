@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (args)
+is_singleton: false
+block_params: 
+name: resolve_args
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Resolve the arguments for a task/rule. Returns a triplet of [task_name, arg_name_list,
+    prerequisites].
+full_name: Rake::TaskManager#resolve_args
+visibility: public
+aliases: []
+

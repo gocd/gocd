@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>parse_options_file (Spec::Runner::OptionParser)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/option_parser.rb, line 153</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">parse_options_file</span>(<span class="ruby-identifier">options_file</span>)
+        <span class="ruby-identifier">option_file_args</span> = <span class="ruby-constant">IO</span>.<span class="ruby-identifier">readlines</span>(<span class="ruby-identifier">options_file</span>).<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">l</span><span class="ruby-operator">|</span> <span class="ruby-identifier">l</span>.<span class="ruby-identifier">chomp</span>.<span class="ruby-identifier">split</span> <span class="ruby-value str">&quot; &quot;</span>}.<span class="ruby-identifier">flatten</span>
+        <span class="ruby-ivar">@argv</span>.<span class="ruby-identifier">push</span>(<span class="ruby-operator">*</span><span class="ruby-identifier">option_file_args</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

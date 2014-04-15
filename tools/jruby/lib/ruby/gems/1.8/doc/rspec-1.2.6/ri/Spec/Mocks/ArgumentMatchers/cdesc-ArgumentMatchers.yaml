@@ -1,0 +1,42 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ArgumentMatchers
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: ArgumentMatchers are messages that you can include in message expectations
+    to match arguments against a broader check than simple equality.
+- !ruby/struct:SM::Flow::P 
+  body: With the exception of any_args() and no_args(), the matchers are all positional
+    - they match against the arg in the given position.
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: a_kind_of
+- !ruby/object:RI::MethodSummary 
+  name: an_instance_of
+- !ruby/object:RI::MethodSummary 
+  name: any_args
+- !ruby/object:RI::MethodSummary 
+  name: anything
+- !ruby/object:RI::MethodSummary 
+  name: boolean
+- !ruby/object:RI::MethodSummary 
+  name: duck_type
+- !ruby/object:RI::MethodSummary 
+  name: hash_including
+- !ruby/object:RI::MethodSummary 
+  name: hash_not_including
+- !ruby/object:RI::MethodSummary 
+  name: instance_of
+- !ruby/object:RI::MethodSummary 
+  name: kind_of
+- !ruby/object:RI::MethodSummary 
+  name: no_args
+full_name: Spec::Mocks::ArgumentMatchers
+superclass: 
+class_methods: []
+

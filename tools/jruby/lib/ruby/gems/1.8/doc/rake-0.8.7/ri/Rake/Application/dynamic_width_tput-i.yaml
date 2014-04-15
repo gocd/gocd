@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: dynamic_width_tput
+comment: 
+full_name: Rake::Application#dynamic_width_tput
+visibility: public
+aliases: []
+

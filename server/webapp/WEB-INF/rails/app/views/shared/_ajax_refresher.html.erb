@@ -1,0 +1,7 @@
+<% if auto_refresh? %>
+    <script type="text/javascript">
+        Util.on_load(function() {
+            AjaxRefreshers.addRefresher(new AjaxRefresher('<%= scope[:url] %>', <%= url_for_login %>));
+        });
+    </script>
+<% end %>

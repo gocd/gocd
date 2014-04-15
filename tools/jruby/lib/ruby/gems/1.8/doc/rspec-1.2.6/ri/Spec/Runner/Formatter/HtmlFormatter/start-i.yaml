@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (example_count)
+is_singleton: false
+block_params: 
+name: start
+comment: 
+full_name: Spec::Runner::Formatter::HtmlFormatter#start
+visibility: public
+aliases: []
+

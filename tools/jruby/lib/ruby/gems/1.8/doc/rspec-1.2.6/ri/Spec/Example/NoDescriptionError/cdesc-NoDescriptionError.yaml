@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: NoDescriptionError
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Example::NoDescriptionError
+superclass: ArgumentError
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

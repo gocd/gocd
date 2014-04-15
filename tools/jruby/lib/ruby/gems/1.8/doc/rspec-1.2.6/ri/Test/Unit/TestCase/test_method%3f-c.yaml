@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (method_name)
+is_singleton: true
+block_params: 
+name: test_method?
+comment: 
+full_name: Test::Unit::TestCase::test_method?
+visibility: public
+aliases: []
+

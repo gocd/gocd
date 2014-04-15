@@ -1,0 +1,20 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Kernel
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: debugger
+- !ruby/object:RI::MethodSummary 
+  name: should
+- !ruby/object:RI::MethodSummary 
+  name: should_not
+full_name: Kernel
+superclass: 
+class_methods: []
+

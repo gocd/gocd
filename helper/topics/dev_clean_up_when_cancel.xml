@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Clean up after canceling a task">
+  <p>When you have jobs that take a long time to run, it is very useful to have the capability to cancel it when you already know it will fail.</p>
+  <p>By default, Go will <strong>kill any currently running tasks</strong>. There are two other alternatives to this behaviour</p>
+  <bullets>
+    <item>Specify a task to clean up your environment. This could kill the processes and cleanup any existing state.</item>
+    <item>Indicate to Go you do not want anything done. This will allow the task to finish executing so the agent does not get into an inconsistent state.</item>
+  </bullets>
+  <section title="Using web interface">
+  <p>To perform a custom cleanup through the web interface, edit the desired <strong>task configuration</strong> and check the <strong>On Cancel Task</strong> checkbox in <strong>Advanced Options</strong></p>
+  <img src="resources/images/cruise/admin/clean_up_after_cancel.png"/>
+  </section>
+  <section title="Using XML configuration">
+  <subsection title="Example: Override task to perform custom cleanup">
+    <p>Usage: As a developer, I want to stop running my <exref url="">Twist</exref> tests and clean up the environment on each job when I cancel the stage.</p>
+    <bullets>
+      <item>On the <cref topic="administration_page">Administration Tab</cref>, edit the jobs that should handle canceling correctly</item>
+      <item>Ensure the following "task" block is in the job configuration</item>
+      <code>
+<cref topic="configuration_reference" anchor="ant">&lt;ant</cref> target="twist"&gt;
+  <cref topic="configuration_reference" anchor="oncancel">&lt;oncancel</cref>&gt;
+    <cref topic="configuration_reference" anchor="ant">&lt;ant</cref> target="kill_twist" /&gt;
+  &lt;/oncancel&gt;
+&lt;/ant&gt;</code>
+      <item>Now, whenever you cancel the stage while the jobs are running the ant "twist" target, the target "kill_twist" will execute</item>
+    </bullets>
+  </subsection>
+  <subsection title="Example: Override task to disable all cleanup">
+    <p>Usage: As a developer, I want to allow my database tests to not be halted when I cancel the stage.</p>
+    <bullets>
+      <item>On the <cref topic="administration_page">Administration Tab</cref>, edit the jobs that should handle canceling correctly</item>
+      <item>Ensure the following "task" block is in the job configuration</item>
+      <code>
+<cref topic="configuration_reference" anchor="rake">&lt;rake</cref> target="db-test"&gt;
+  <cref topic="configuration_reference" anchor="oncancel">&lt;oncancel /&gt;</cref>
+&lt;/rake&gt;</code>
+      <item>Now, whenever you cancel the stage while the jobs are running the rake "db-test" target, the agent will finish the task before picking up new work</item>
+    </bullets>
+  </subsection>
+  </section>
+</chapter>

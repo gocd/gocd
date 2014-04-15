@@ -1,0 +1,13 @@
+--- !ruby/object:RI::MethodDescription 
+params: (klass)
+is_singleton: false
+block_params: 
+name: instance_of
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Passes if arg.instance_of?(klass)
+full_name: Spec::Mocks::ArgumentMatchers#instance_of
+visibility: public
+aliases: 
+- !ruby/object:RI::AliasName 
+  name: an_instance_of

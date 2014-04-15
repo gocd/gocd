@@ -1,0 +1,15 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: AmbiguousReturnError
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Mocks::AmbiguousReturnError
+superclass: StandardError
+class_methods: []
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>define (Rake::RDocTask)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>     <span class="ruby-comment cmt"># File lib/rake/rdoctask.rb, line 111</span>
+111:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">define</span>
+112:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">rdoc_task_name</span> <span class="ruby-operator">!=</span> <span class="ruby-value str">&quot;rdoc&quot;</span>
+113:         <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Build the RDOC HTML Files&quot;</span>
+114:       <span class="ruby-keyword kw">else</span>
+115:         <span class="ruby-identifier">desc</span> <span class="ruby-node">&quot;Build the #{rdoc_task_name} HTML Files&quot;</span>
+116:       <span class="ruby-keyword kw">end</span>
+117:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">rdoc_task_name</span>
+118:       
+119:       <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Force a rebuild of the RDOC files&quot;</span>
+120:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">rerdoc_task_name</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">clobber_task_name</span>, <span class="ruby-identifier">rdoc_task_name</span>]
+121:       
+122:       <span class="ruby-identifier">desc</span> <span class="ruby-value str">&quot;Remove rdoc products&quot;</span> 
+123:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">clobber_task_name</span> <span class="ruby-keyword kw">do</span>
+124:         <span class="ruby-identifier">rm_r</span> <span class="ruby-identifier">rdoc_dir</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-keyword kw">nil</span>
+125:       <span class="ruby-keyword kw">end</span>
+126:       
+127:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">:clobber</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">clobber_task_name</span>]
+128:       
+129:       <span class="ruby-identifier">directory</span> <span class="ruby-ivar">@rdoc_dir</span>
+130:       <span class="ruby-identifier">task</span> <span class="ruby-identifier">rdoc_task_name</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">rdoc_target</span>]
+131:       <span class="ruby-identifier">file</span> <span class="ruby-identifier">rdoc_target</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-ivar">@rdoc_files</span> <span class="ruby-operator">+</span> [<span class="ruby-constant">Rake</span>.<span class="ruby-identifier">application</span>.<span class="ruby-identifier">rakefile</span>] <span class="ruby-keyword kw">do</span>
+132:         <span class="ruby-identifier">rm_r</span> <span class="ruby-ivar">@rdoc_dir</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-keyword kw">nil</span>
+133:         <span class="ruby-ivar">@before_running_rdoc</span>.<span class="ruby-identifier">call</span> <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@before_running_rdoc</span>
+134:         <span class="ruby-identifier">args</span> = <span class="ruby-identifier">option_list</span> <span class="ruby-operator">+</span> <span class="ruby-ivar">@rdoc_files</span>
+135:         <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@external</span>
+136:           <span class="ruby-identifier">argstring</span> = <span class="ruby-identifier">args</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">' '</span>)
+137:           <span class="ruby-identifier">sh</span> <span class="ruby-node">%{ruby -Ivendor vendor/rd #{argstring}}</span>
+138:         <span class="ruby-keyword kw">else</span>
+139:           <span class="ruby-identifier">require</span> <span class="ruby-value str">'rdoc/rdoc'</span>
+140:           <span class="ruby-constant">RDoc</span><span class="ruby-operator">::</span><span class="ruby-constant">RDoc</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">document</span>(<span class="ruby-identifier">args</span>)
+141:         <span class="ruby-keyword kw">end</span>
+142:       <span class="ruby-keyword kw">end</span>
+143:       <span class="ruby-keyword kw">self</span>
+144:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

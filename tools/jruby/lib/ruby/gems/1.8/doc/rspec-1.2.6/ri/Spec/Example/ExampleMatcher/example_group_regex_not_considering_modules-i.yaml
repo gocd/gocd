@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: example_group_regex_not_considering_modules
+comment: 
+full_name: Spec::Example::ExampleMatcher#example_group_regex_not_considering_modules
+visibility: protected
+aliases: []
+

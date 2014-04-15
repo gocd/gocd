@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Runner</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Runner</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/spec/runner/backtrace_tweaker_rb.html">
+                lib/spec/runner/backtrace_tweaker.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/class_and_arguments_parser_rb.html">
+                lib/spec/runner/class_and_arguments_parser.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/command_line_rb.html">
+                lib/spec/runner/command_line.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/configuration_rb.html">
+                lib/spec/runner/configuration.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/drb_command_line_rb.html">
+                lib/spec/runner/drb_command_line.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/example_group_runner_rb.html">
+                lib/spec/runner/example_group_runner.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/base_formatter_rb.html">
+                lib/spec/runner/formatter/base_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/base_text_formatter_rb.html">
+                lib/spec/runner/formatter/base_text_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/failing_example_groups_formatter_rb.html">
+                lib/spec/runner/formatter/failing_example_groups_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/failing_examples_formatter_rb.html">
+                lib/spec/runner/formatter/failing_examples_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/html_formatter_rb.html">
+                lib/spec/runner/formatter/html_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/nested_text_formatter_rb.html">
+                lib/spec/runner/formatter/nested_text_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/no_op_method_missing_rb.html">
+                lib/spec/runner/formatter/no_op_method_missing.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/profile_formatter_rb.html">
+                lib/spec/runner/formatter/profile_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/progress_bar_formatter_rb.html">
+                lib/spec/runner/formatter/progress_bar_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/silent_formatter_rb.html">
+                lib/spec/runner/formatter/silent_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/snippet_extractor_rb.html">
+                lib/spec/runner/formatter/snippet_extractor.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/specdoc_formatter_rb.html">
+                lib/spec/runner/formatter/specdoc_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/formatter/text_mate_formatter_rb.html">
+                lib/spec/runner/formatter/text_mate_formatter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/heckle_runner_rb.html">
+                lib/spec/runner/heckle_runner.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/heckle_runner_unsupported_rb.html">
+                lib/spec/runner/heckle_runner_unsupported.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/option_parser_rb.html">
+                lib/spec/runner/option_parser.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/options_rb.html">
+                lib/spec/runner/options.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/reporter_rb.html">
+                lib/spec/runner/reporter.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner/spec_parser_rb.html">
+                lib/spec/runner/spec_parser.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/runner_rb.html">
+                lib/spec/runner.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000303">configure</a>&nbsp;&nbsp;
+      <a href="#M000305">run</a>&nbsp;&nbsp;
+      <a href="#M000304">use</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Runner/Formatter.html" class="link">Spec::Runner::Formatter</a><br />
+Class <a href="Runner/BacktraceTweaker.html" class="link">Spec::Runner::BacktraceTweaker</a><br />
+Class <a href="Runner/ClassAndArgumentsParser.html" class="link">Spec::Runner::ClassAndArgumentsParser</a><br />
+Class <a href="Runner/CommandLine.html" class="link">Spec::Runner::CommandLine</a><br />
+Class <a href="Runner/Configuration.html" class="link">Spec::Runner::Configuration</a><br />
+Class <a href="Runner/DrbCommandLine.html" class="link">Spec::Runner::DrbCommandLine</a><br />
+Class <a href="Runner/ExampleGroupCreationListener.html" class="link">Spec::Runner::ExampleGroupCreationListener</a><br />
+Class <a href="Runner/ExampleGroupRunner.html" class="link">Spec::Runner::ExampleGroupRunner</a><br />
+Class <a href="Runner/HeckleRunner.html" class="link">Spec::Runner::HeckleRunner</a><br />
+Class <a href="Runner/Heckler.html" class="link">Spec::Runner::Heckler</a><br />
+Class <a href="Runner/NoisyBacktraceTweaker.html" class="link">Spec::Runner::NoisyBacktraceTweaker</a><br />
+Class <a href="Runner/OptionParser.html" class="link">Spec::Runner::OptionParser</a><br />
+Class <a href="Runner/Options.html" class="link">Spec::Runner::Options</a><br />
+Class <a href="Runner/QuietBacktraceTweaker.html" class="link">Spec::Runner::QuietBacktraceTweaker</a><br />
+Class <a href="Runner/Reporter.html" class="link">Spec::Runner::Reporter</a><br />
+Class <a href="Runner/SpecParser.html" class="link">Spec::Runner::SpecParser</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000303" class="method-detail">
+        <a name="M000303"></a>
+
+        <div class="method-heading">
+          <a href="Runner.src/M000303.html" target="Code" class="method-signature"
+            onclick="popupCode('Runner.src/M000303.html');return false;">
+          <span class="method-name">configure</span><span class="method-args">() {|configuration| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Use this to <a href="Runner.html#M000303">configure</a> various
+configurable aspects of RSpec:
+</p>
+<pre>
+  Spec::Runner.configure do |configuration|
+    # Configure RSpec here
+  end
+</pre>
+<p>
+The yielded <tt>configuration</tt> object is a <a
+href="Runner/Configuration.html">Spec::Runner::Configuration</a> instance.
+See its RDoc for details about what you can do with it.
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000305" class="method-detail">
+        <a name="M000305"></a>
+
+        <div class="method-heading">
+          <a href="Runner.src/M000305.html" target="Code" class="method-signature"
+            onclick="popupCode('Runner.src/M000305.html');return false;">
+          <span class="method-name">run</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000304" class="method-detail">
+        <a name="M000304"></a>
+
+        <div class="method-heading">
+          <a href="Runner.src/M000304.html" target="Code" class="method-signature"
+            onclick="popupCode('Runner.src/M000304.html');return false;">
+          <span class="method-name">use</span><span class="method-args">(options)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (duration, example_count, failure_count, pending_count)
+is_singleton: false
+block_params: 
+name: dump_summary
+comment: 
+full_name: Spec::Runner::Formatter::BaseTextFormatter#dump_summary
+visibility: public
+aliases: []
+

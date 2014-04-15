@@ -1,0 +1,240 @@
+Java Email Server - Eric Daugherty
+java@ericdaugherty.com
+http://www.ericdaugherty.com/java/mailserver
+--------------------------------------------
+
+Revision History
+----------------
+
+1.6.1 - Release TBD
+
+Updated mail.conf to remove extra trailing semicolin from "smtpdelivery.threshold=10" Thanks to Siegfried Goeschl 
+(siegfried.goeschl@it20one.at).
+
+Updated mail.sh to accept a configuration directory as a command line parameter.  Thanks to Siegfried Goeschl 
+(siegfried.goeschl@it20one.at).
+
+Updated bulid.xml to build with JDK version 1.4 (minimun needed for codebase).  Thanks to Siegfried Goeschl 
+(siegfried.goeschl@it20one.at).
+
+Fixed error in SMTPRemoteSender introduced in release 1.5.  Server would fail to look up MX entries when
+not using a default SMTP server.  Thanks to Philipp Hagemeister for tracking this issue down.
+
+1.6 - Release 11/18/2007
+
+Server adds FROM address if message is received without one (unknown@example.com).  Server would
+accept the messages but throw errors when it tried to deliver them: "Unable to parse the address from the stored file."
+Thanks to Matthew Lohbihler of Serotonin Software (serotoninsoftware.com) for providing this fix.
+
+Added socket timeout to SMTP processor sockets.  This may address issues with threads getting hung in socket.read calls.
+Thanks to Matthew Lohbihler of Serotonin Software (serotoninsoftware.com) for providing this fix.
+
+1.5 - Release 08/05/2007
+
+New Features:
+
+Added the ability to use a default SMTP server that requires authentication.  This
+can be useful if your ISP prohibits outbound connections on port 25 and forces you 
+to authenticate with their default SMTP server.  Thanks to Matthew Lohbihler of 
+Serotonin Software (serotoninsoftware.com) for adding this feature.
+
+1.4 - Release 07/13/2004
+
+New Features:
+
+Added the option to limit the maximum size for incoming messages.  The
+configuration parameter is in megabytes (2^10) and defaults to 5.
+
+Added the ability to specify a port number for the outgoing SMPT servers.
+Thanks to Philippe Reverdy (http://preverdy.free.fr/preverdy/utilities.html)
+
+Added new configuration option to allow relaying based on 'from' email
+address.  This can be used to easily allow relaying for users
+based their address or an entire domain.  However, this can be risky
+and should be used with cation as there is no protection from others
+'spoofing' the from address to send spam.
+Thanks to Philippe Reverdy (http://preverdy.free.fr/preverdy/utilities.html)
+
+1.3.4 - Release 02/12/2004
+
+New Features:
+
+Added a maximum delivery attempts configuration property before a message fails.
+Message re-delivery attempt intervals are exponentially increased, up to a maximum
+interval of 17 hours (1024 minutes).  Thanks to Andrei Makalski and
+Al Lieb (ootletemp-jes@yahoo.com) for their contributions.
+
+Bug Fixes:
+
+Miscellaneous code cleanup:
+Cleaned up SMTPSender try/catch block.
+Added logic to handle null result of DNS Lookup.
+Fixed issue with MX entry sorting.
+Thanks to Al Lieb (ootletemp-jes@yahoo.com) for the patches.
+
+1.3.3 - Release 11/24/2003
+
+New Features:
+
+Addes a new header "X-DeliveredTo: admin@mydomain.com" to locally delivered email.
+This allows users who use multiple local addresses that are delivered to a single
+mail box to track which user the message was addressed to.  Thanks to Shmuel Siegel
+for the suggestion.
+
+Bug Fixes:
+
+Fixed error with delivery address resolution. SourceForge Bug #848417.  The resolution
+of the local address was also incorrect and has been fixed.
+Thanks to Shmuel Siegel for the bug report.
+
+Fixed handling of blank listenAddress.  Previous version default to the localhost name,
+while the new version uses the simpler ServerSocket constructor.
+Thanks to Shmuel Siegel for the bug report.
+
+1.3.2 - Release 11/18/2003
+
+New Features:
+
+Added test DNS lookup utility and additional site documentation,
+thanks to Martin Cordova <mcordova@megasoft.com.ve>
+
+Added ability to bind JES to a single IP address.
+
+Bug Fixes:
+
+Resolved an issue with the loading of forward addresses from the 
+user.conf file.
+
+Forward Addresses are now resolved when the message is received.
+Previously, message delivery to forwarded addresses could be
+unpredictable of one of the multiple forward addresses failed.
+
+Added better logging to SMTPSender class.
+
+1.3.1 - Release 10/16/2003
+
+Bug Fixes:
+
+Setting the defaultsmtpserver property was causing an error on startup.
+
+Fixed handling of username case.
+
+1.3 - Release 10/16/2003
+
+This release contains major feature enhancements and code
+rework.
+
+New Features:
+
+Utilize Jakarta commons-logging to remove required dependency 
+of Log4j.  Default Logger just writes to the console and also
+can write to a file.  Log4j is still used by default.  Log4j
+configuration can now be controlled using log.conf, and updated
+while the server is running.
+
+Support for NT Service!  A batch file has been included in the bin
+directory to install JES as a NT Service.  Paul Thordarson
+<ptt@tgbsoftware.com> helped with the script.
+
+Reworked configuration.  Configuration is now split into three
+files: mail.conf, user.conf, log.conf.  mail.conf and user.conf
+files will be reloaded automatically after a change while the server
+is running.  The user.conf file can be edited with plaintext passwords,
+and they will be hashed and resaved by the server automatically.  This removes
+the need for the GUI configuration tool, which is now gone.
+
+Added support for multiple SMTP Relay rules.  Can now enable POP Before SMTP
+and IP based relaying individually or together.  IP Based relaying now also
+supports wildcards.  These settings can be changed without restarting the server.
+
+Bug Fixes:
+
+The SMTP Server would accept the data command even if the
+client had not specified any valid recipients.  This has been fixed.
+Thanks to Shmuel Siegel for the bug report.
+
+1.2.4 - Release 9/2/2003
+
+Bug Fixes:
+
+Added entry: Delivery.smtprelaytype=NONE to the default configuration
+file.  This addresses bug: 768385 submitted by: mariusz_grey
+
+Upgraded DNSJava library to 1.3.3.
+
+Enhanced DNS lookups to order MX Entries.
+
+Added Socket Timeout for SMTP Delivery.  This addresses bug: 783119
+
+1.2.3 - Release 7/1/2003
+
+New Features:
+
+Added address based SMTP forwarding (Added by Scott Schrecken).
+
+Bug Fixes:
+
+Fixed JavaDoc tags and included JavaDoc comments in release.
+
+Updated UNIX/Linux shell scripts.
+
+1.2.2 - Release 2/7/2003
+
+Bug Fixes:
+
+Resolved Linux compatability issue.  Incorrect line termination
+was being used by the println method.  Fix provided by: 
+B0NFiRE (www.fdns.net)
+
+1.2.1 - Release 12/30/2002
+
+New Features:
+
+Integrated newest release of DaughertyLib (2.0) to enable JDK 1.4 Support.
+
+Improved implementation of the shutdown() method.  Update written by:
+Siegfried Goeschl (siegfried.goeschl@it20one.at)
+
+Added runtime hook to call the shutdown method when the VM is shutdown 
+(CRTL-C from the command line).  Update written by: Siegfried Goeschl 
+(siegfried.goeschl@it20one.at).
+---
+
+
+Version 1.2 - Release 5/20/2002
+
+Bug Fixes:
+
+Resolved NullPointerException in DNSService that occured when no MX Entries 
+were found. 
+Now allow empty MAIL FROM:<> command. 
+Resolved case sensitivity in email addresses. 
+
+New Features:
+
+Added hook to shutdown server gracefully. Static shutdown() method added 
+to Mail class.   However, this feature is not currently exposed. Users may 
+wrap the Mail class to provide their own shutdown triggers. 
+---
+
+
+Version 1.1 - Released 10/29/2001
+
+Changes:
+
+Config Tool: Default User Combo Box did not refresh when a new user is added.  Fixed.
+SMTP Sender was unable to handle servers with multi-line responses.  Fixed.
+POP Server did not respond to RSET command.  Fixed.
+Added implementation of optional UIDL and TOP commands in the POP server.
+---
+
+
+Version 1.0 - Released 7/16/2001
+
+
+Future Enhancements
+-------------------
+Planned future enhancments include:
+
+No major enhancements are planed for the 1.x version.  Development has started
+on a new branch that will become the 2.0 release.

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>set_spec_from_line_number (Spec::Runner::Options)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/options.rb, line 336</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">set_spec_from_line_number</span>
+        <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">examples</span>.<span class="ruby-identifier">empty?</span>
+          <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">files</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span>
+            <span class="ruby-keyword kw">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">files</span>[<span class="ruby-value">0</span>])
+              <span class="ruby-identifier">error_stream</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;You must specify one file, not a directory when providing a line number&quot;</span>
+              <span class="ruby-identifier">exit</span>(<span class="ruby-value">1</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">stderr?</span>
+            <span class="ruby-keyword kw">else</span>
+              <span class="ruby-identifier">example</span> = <span class="ruby-constant">SpecParser</span>.<span class="ruby-identifier">new</span>(<span class="ruby-keyword kw">self</span>).<span class="ruby-identifier">spec_name_for</span>(<span class="ruby-identifier">files</span>[<span class="ruby-value">0</span>], <span class="ruby-identifier">line_number</span>)
+              <span class="ruby-ivar">@examples</span> = [<span class="ruby-identifier">example</span>]
+            <span class="ruby-keyword kw">end</span>
+          <span class="ruby-keyword kw">else</span>
+            <span class="ruby-identifier">error_stream</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Only one file can be specified when providing a line number: #{files.inspect}&quot;</span>
+            <span class="ruby-identifier">exit</span>(<span class="ruby-value">3</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">stderr?</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">else</span>
+          <span class="ruby-identifier">error_stream</span>.<span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;You cannot use --example and specify a line number&quot;</span>
+          <span class="ruby-identifier">exit</span>(<span class="ruby-value">4</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">stderr?</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

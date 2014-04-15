@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "mingle_help.dtd">
+<chapter title="Auto delete artifacts">
+	<section title="Introduction">
+		<p>Go can be configured to automatically delete artifacts if the available disk space on the server is low. Go will purge artifacts when available disk space is lower than the given value. Artifacts will be purged upto the point when available disk space is greater than a defined value.</p>
+	</section>
+	<section title="Configuration">
+	<subsection title="Specify artifact purge start and end limits">
+		<note>You must be logged in as an admin user to configure this step.</note>
+		<steps>
+			<item>Navigate to the Admin section on the Go dashboard.</item>
+			<item>Navigate to the Pipeline Management sub-section</item>
+			<item>Specify when Go should begin to purge artifacts in the first edit box.</item>
+			<item>Specify when Go should stop purging artifacts in the second edit box. </item>
+		        <screenshot alttext="Configure artifacts cleanup" src="resources/images/cruise/admin/pipeline_management.png" />
+		</steps>
+	</subsection>
+	<subsection title="Never delete artifacts for a stage" collapsed="true">
+		<note>You must be logged in as an admin user to configure this step.</note>
+<p>You can disallow deletion of artifacts from a particular stage so that those artifacts are excluded during deletion. This option can be set in the stage editor for a pipeline. This option can be set for stages that are important so that artifacts for the stage are preserved. </p>
+		<steps>
+			<item>Navigate to the admin section on the Go dashboard.</item>
+			<item>Navigate to the pipelines section and choose a pipeline to edit</item>
+                        <item>Navigate to the stage settings for the stage</item>
+			<screenshot alttext="Disable artifact cleanup" src="resources/images/cruise/admin/artifact_disable_stage.png" />
+			<item>Check the box 'Never Cleanup Aartifacts'</item>
+		</steps>
+	</subsection>
+        </section>
+
+	<section title="Also see...">
+		<bullets>
+			<item><cref topic="managing_artifacts_and_reports">Managing artifacts and reports</cref></item>
+			<item><cref topic="dev_clean_up_when_cancel">Clean up after cancelling a task</cref></item>
+		</bullets>
+	</section>
+</chapter>

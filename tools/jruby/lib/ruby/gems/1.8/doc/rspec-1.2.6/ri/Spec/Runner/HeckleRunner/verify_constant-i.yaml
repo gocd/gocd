@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (name)
+is_singleton: false
+block_params: 
+name: verify_constant
+comment: 
+full_name: Spec::Runner::HeckleRunner#verify_constant
+visibility: public
+aliases: []
+

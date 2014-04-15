@@ -1,0 +1,468 @@
+##########################GO-LICENSE-START################################
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################GO-LICENSE-END##################################
+
+require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'java'
+describe ApplicationController do
+
+  before do
+    draw_test_controller_route
+    stub_server_health_messages
+    UserHelper.stub(:getUserId).and_return(1)
+  end
+
+  describe "error_handling" do
+    before do
+      class << @controller
+        include ActionRescue
+        RAILS_DEFAULT_LOGGER = 'logger'
+      end
+    end
+    it "should handle InvalidAuthenticityToken by redirecting to root_url" do
+      exception = ActionController::InvalidAuthenticityToken.new
+      exception.should_receive(:backtrace).and_return([])
+      nil.bomb rescue exception
+      RAILS_DEFAULT_LOGGER.should_receive(:error).with(anything)
+      @controller.should_receive(:redirect_to).with(root_url)
+      @controller.rescue_action(exception)
+    end
+  end
+
+  it "should check for licensed agent validity" do
+    Spring.should_receive(:bean).with('licensedAgentCountValidator').and_return(licensed_agent_count_validator = mock())
+
+    state = ServerHealthState::warning("Number of approved agents exceeds licensed number", "Your license allows you to use 2 remote agents, but you are trying to use 3. " + "Please disable agents to comply with your license, or <a href='http://www.thoughtworks.com/products/go-continuous-delivery/compare'>contact our sales team</a> to buy more agents.",
+                                       HealthStateType::exceedsAgentLimit(HealthStateScope::GLOBAL))
+
+    licensed_agent_count_validator.should_receive(:updateServerHealth)
+    controller.licensed_agent_limit
+  end
+
+
+  describe "with license agent validity stubbed" do
+    before(:each) do
+      controller.stub(:licensed_agent_limit)
+    end
+
+    it "should set the current user as @user on set_current_user" do
+      username = Username.new(CaseInsensitiveString.new("bob"), "bobby")
+      UserHelper.should_receive(:getUserName).and_return(username)
+      get :test_action
+      assigns[:user].should == username
+    end
+
+    it "should set the current user entity id as @user_id on set_current_user" do
+      UserHelper.stub(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId()] = 123
+      get :test_action
+      assigns[:user_id].should == 123
+    end
+
+    it "should set the current user entity id as nil on set_current_user when authentication is turned off" do
+      UserHelper.stub(:getUserName).and_return(Username.new(CaseInsensitiveString.new("bob"), "bobby"))
+      session[com.thoughtworks.go.server.util.UserHelper.getSessionKeyForUserId()] = nil
+      get :test_action
+      assigns[:user_id].should == nil
+    end
+
+    it "should get @user for current_user" do
+      controller.instance_variable_set('@user', "foo")
+      controller.current_user.should == "foo"
+    end
+
+
+    it "should load go config service" do
+      Spring.should_receive(:bean).with('goConfigService').and_return(mock_go_config_service = Object.new)
+      controller.go_config_service.should == mock_go_config_service
+    end
+
+    it "should load pipeline stages feed service" do
+      Spring.should_receive(:bean).with('pipelineStagesFeedService').and_return(mock_feed_service = Object.new)
+      controller.pipeline_stages_feed_service.should == mock_feed_service
+    end
+
+    it "should load material service" do
+      Spring.should_receive(:bean).with('materialService').and_return(mock_material_service = Object.new)
+      controller.material_service.should == mock_material_service
+    end
+
+    it "should load pipeline_history_service" do
+      Spring.should_receive(:bean).with('pipelineHistoryService').and_return(mock_phs = Object.new)
+      controller.pipeline_history_service.should == mock_phs
+    end
+
+    it "should load agent_service" do
+      Spring.should_receive(:bean).with('agentService').and_return(agent_service = Object.new)
+      controller.agent_service.should == agent_service
+    end
+
+    it "should load shine_dao" do
+      Spring.should_receive(:bean).with('shineDao').and_return(shine_dao = Object.new)
+      controller.shine_dao.should == shine_dao
+    end
+
+    it "should load xml_api_service" do
+      Spring.should_receive(:bean).with('xmlApiService').and_return(xml_api_service = Object.new)
+      controller.xml_api_service.should == xml_api_service
+    end
+
+    it "should load dependency_material_service" do
+      Spring.should_receive(:bean).with('dependencyMaterialService').and_return(dependency_material_service = Object.new)
+      controller.dependency_material_service.should == dependency_material_service
+    end
+
+    it "should load failure_service" do
+      Spring.should_receive(:bean).with('failureService').and_return(service = Object.new)
+      controller.failure_service.should == service
+    end
+
+    it "should load pipeline_lock_service" do
+      Spring.should_receive(:bean).with('pipelineUnlockApiService').and_return(service = Object.new)
+      controller.pipeline_unlock_api_service.should == service
+    end
+
+    it "should load schedule_service" do
+      Spring.should_receive(:bean).with('scheduleService').and_return(service = Object.new)
+      controller.schedule_service.should == service
+    end
+
+    it "should load user_service" do
+      Spring.should_receive(:bean).with('userService').and_return(service = Object.new)
+      controller.user_service.should == service
+    end
+
+    it "should load flash_message_service" do
+      controller.flash_message_service.should be_a(com.thoughtworks.go.server.web.FlashMessageService)
+    end
+
+    it "should load user_search_service" do
+      Spring.should_receive(:bean).with('userSearchService').and_return(service = Object.new)
+      controller.user_search_service.should == service
+    end
+
+    it "should load go_license_service" do
+      Spring.should_receive(:bean).with('goLicenseService').and_return(service = Object.new)
+      controller.go_license_service.should == service
+    end
+
+    it "should load viewRenderingService" do
+      Spring.should_receive(:bean).with('viewRenderingService').and_return(service = Object.new)
+      controller.view_rendering_service.should == service
+    end
+
+    it "should have task_view_service method available" do
+      Spring.should_receive(:bean).with('taskViewService').and_return(service = Object.new)
+      controller.task_view_service.should == service
+    end
+
+    it "should load mingle_config_service" do
+      Spring.should_receive(:bean).with('mingleConfigService').and_return(service = Object.new)
+      controller.mingle_config_service.should == service
+    end
+
+    it "should render_operation_result_if_failure" do
+      result = HttpOperationResult.new
+      result.unauthorized("Unauthorized", "the real cause", nil)
+      controller.should_receive(:render_if_error).with("Unauthorized { the real cause }\n", 401).and_return(true)
+      controller.render_operation_result_if_failure(result)
+    end
+
+    it "should not render_operation_result when result hasn't failed" do
+      result = stub('result', :httpCode => 302)
+      controller.should_receive(:render).never
+      controller.render_operation_result_if_failure(result)
+    end
+
+
+    describe "requiring full path" do
+      before(:each) do
+        setup_base_urls
+      end
+
+      class TestObject
+        def id
+        end
+      end
+
+      it "should return only the path to a given resource and not the whole url" do
+        controller.url_for(:controller => "java", :action => "null", :foo => "junk").should == "/?foo=junk"
+      end
+
+      it "should cache the url if options is an active-record object" do
+        obj = TestObject.new
+        controller.should_receive(:test_object_url).with(obj).and_return("some-url")
+        controller.url_for(obj).should == "some-url"
+      end
+
+      it "should return full path when requested explicitly" do
+        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/?foo=junk"
+      end
+
+      it "should use ssl base url from server config when requested" do
+        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'https').should == "https://ssl.host:443/?foo=junk"
+        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'http').should == "http://test.host/?foo=junk"
+        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/?foo=junk"
+      end
+    end
+
+
+    describe "url cache" do
+      before do
+        ActionController::Base.class_eval do
+          @@url_cache_miss_count = 0
+          alias_method :url_for_original, :url_for
+
+          def url_for options
+            @@url_cache_miss_count += 1
+            s = string_for(params) + " - "
+            s += string_for(options)
+            "#{@@url_cache_miss_count} - #{s} - #{request.protocol} - #{request.host_with_port}"
+          end
+
+          def string_for map
+            str = []
+            map.keys.sort { |val, other| val.to_s <=> other.to_s }.each do |key|
+              str << "#{key}=#{map[key]}"
+            end
+            str.join("|")
+          end
+        end
+        stub_service(:server_config_service).stub!(:siteUrlFor) do |url, force_ssl|
+          url
+        end
+      end
+
+      after do
+        ActionController::Base.class_eval do
+          remove_method :url_for
+          alias_method :url_for, :url_for_original
+          remove_method :url_for_original
+        end
+        controller.go_cache.clear
+      end
+
+      it "should cache the url based on options" do
+        params.clear
+        controller.url_for('foo' => 'foo', 'bar' => 'bar').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
+        controller.url_for('bar' => 'bar', 'foo' => 'foo').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
+      end
+
+      it "should cache the url based on params" do
+        controller.stub!(:params).and_return({:foo => "foo", :bar => "bar"})
+        controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
+        controller.stub!(:params).and_return({:bar => "bar", :foo => "foo"})
+        controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
+      end
+
+      it "should cache the url based on params and options" do
+        controller.stub!(:params).and_return({:bar => "bar", :baz => "baz"})
+        controller.url_for(:foo => "foo", :quux => "quux").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+
+        controller.stub!(:params).and_return({:baz => "baz", :bar => "bar"})
+        controller.url_for(:quux => "quux", :foo => "foo").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+
+        controller.url_for(:foo => "foo").should == "2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host"
+
+        controller.stub!(:params).and_return({:bar => "bar"})
+        controller.url_for(:foo => "foo").should == "3 - bar=bar - foo=foo|only_path=true - http:// - test.host"
+      end
+
+      it "should cache the url based on values" do
+        controller.url_for(:foo => "foo", :quux => "foo").should == "1 -  - foo=foo|only_path=true|quux=foo - http:// - test.host"
+        controller.url_for(:foo => "foo", :quux => "quux").should == "2 -  - foo=foo|only_path=true|quux=quux - http:// - test.host"
+      end
+
+      it "should cache the url based on keys" do
+        controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - test.host"
+        controller.url_for(:foo1 => "foo").should == "2 -  - foo1=foo|only_path=true - http:// - test.host"
+      end
+
+      it "should cache the url based on host_and_port request reached on" do
+        controller.request.stub!(:host_with_port).and_return("local-host:8153")
+        controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - local-host:8153"
+        controller.request.stub!(:host_with_port).and_return("local-ghost:8154")
+        controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - http:// - local-ghost:8154"
+        controller.request.stub!(:host_with_port).and_return("local-ghost:8153")
+        controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - http:// - local-ghost:8153"
+      end
+
+      it "should cache the url based on protocol request reached on" do
+        controller.request.stub!(:host_with_port).and_return("host")
+        controller.request.stub!(:protocol).and_return("http://")
+        controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - host"
+        controller.request.stub!(:protocol).and_return("https://")
+        controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - https:// - host"
+        controller.request.stub!(:protocol).and_return("spdy://")
+        controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - spdy:// - host"
+      end
+
+      it "should not mistake pipeline_counter and stage_counter for caching" do
+        controller.stub!(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
+        controller.url_for(:format => "json").should == "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host"
+        controller.stub!(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
+        controller.url_for(:format => "json").should == "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host"
+      end
+
+      it "should sort symbols after string" do
+        h = HashMapKey
+        [h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort.should == [h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)]
+      end
+
+      it "should contain flash message in the session upon redirect and forwards the params" do
+        guid = nil
+        controller.should_receive(:redirect_to).with(options) do |options|
+          options[:class].should == nil
+          options[:action].should == :index
+          options[:params].should has_subset({:column => "a", :sort => "b"})
+          guid = options[:params][:fm]
+        end
+        controller.redirect_with_flash("Flash message", :action => :index, :params => {:column => "a", :sort => "b"}, :class => "warning")
+        flash = controller.flash_message_service.get(guid)
+        flash.to_s.should == "Flash message"
+        flash.flashClass().should == "warning"
+      end
+
+      it "should contain flash message in the session upon redirect with empty params" do
+        guid = nil
+        controller.should_receive(:redirect_to).with(options) do |options|
+          options[:action].should == :index
+          guid = options[:params][:fm]
+        end
+        controller.redirect_with_flash("Flash message", :action => :index)
+        flash = controller.flash_message_service.get(guid)
+        flash.to_s.should == "Flash message"
+        flash.flashClass().should == nil
+      end
+    end
+
+    describe :java_routes do
+      it "should generate run stage url" do
+        run_stage_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10).should == "/run/pipeline_name/10/stage_name"
+      end
+
+      it "should generate cancel stage url" do
+        cancel_stage_path(:id => 10).should == "/api/stages/10/cancel"
+      end
+    end
+
+    describe "local request recognition" do
+      before :all do
+        import java.net.InetAddress unless defined? InetAddress
+      end
+
+      it "should recognize local request" do
+        @controller.request.env["SERVER_NAME"] = "server_name"
+        @controller.request.env["REMOTE_ADDR"] = "client_ip"
+        localhost = InetAddress.getLocalHost()
+        @controller.request.env["SERVER_NAME"] = localhost.getHostName()
+        @controller.request.env["REMOTE_ADDR"] = localhost.getHostAddress()
+        @controller.send(:request_from_localhost?).should be_true
+
+        @controller.request.env["SERVER_NAME"] = localhost.getHostName()
+        @controller.request.env["REMOTE_ADDR"] = "8.8.8.8"
+        @controller.send(:request_from_localhost?).should be_false
+      end
+    end
+  end
+
+  describe :default_as_empty_list do
+    it "should default given params as empty list only if not given" do
+      @controller.params = HashWithIndifferentAccess.new
+      @controller.params[:default_as_empty_list] = ["foo", "bar>baz", "quux>bang>boom", "user>name", "hello"]
+      @controller.params[:hi] = "bye"
+      @controller.params[:hello] = "world"
+      @controller.params[:user] = {:name => "foo"}
+      @controller.send(:default_as_empty_list).should == true
+      @controller.params.should == HashWithIndifferentAccess.new({:hi => "bye", :hello => "world", :user => {:name => "foo"}, :foo => [], :bar => {:baz => []}, :quux => {:bang => {:boom => []}}})
+    end
+
+    it "should always return true, because it needs to be used as a filter" do
+      @controller.send(:default_as_empty_list).should == true
+      @controller.params[:default_as_empty_list] = ["foo", "bar>baz"]
+      @controller.params[:hello] = "world"
+      @controller.send(:default_as_empty_list).should == true
+    end
+
+    it "should mark defaultable field by adding a hidden input" do
+      @controller.send(:register_defaultable_list, "foo>bar>baz").should == '<input type="hidden" name="default_as_empty_list[]" value="foo>bar>baz"/>'
+    end
+  end
+
+  it "should understand loaded config-file md5" do
+    @controller.instance_variable_set('@cruise_config_md5', "md5_value")
+    @controller.send(:cruise_config_md5).should == "md5_value"
+  end
+
+  it "should understand loaded config-file md5" do
+    lambda {
+      @controller.send(:cruise_config_md5)
+    }.should raise_error("md5 for config file has not been loaded yet")
+  end
+
+  it "should populate the config file validity for every request" do
+    @controller.stub(:populate_health_messages)
+    @controller.stub(:go_config_service).and_return(go_config_service = Object.new)
+    go_config_service.should_receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+    get :index
+
+    assigns[:config_valid].should == true
+  end
+
+  it "should populate server-health-messages for every request" do
+    health_service = stub_service(:server_health_service)
+    config_service = stub_service(:go_config_service)
+    config_service.should_receive(:getCurrentConfig).and_return(new_config = CruiseConfig.new)
+    config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+    health_service.should_receive(:getAllValidLogs).with(new_config).and_return(:all_health_messages)
+
+    get :index
+
+    assigns[:current_server_health_states].should == :all_health_messages
+  end
+
+  it "should set the siteUrl and secureSiteUrl on the thread" do
+    get :index
+    #This is being set in the spec_helper's setup_base_urls method
+    Thread.current[:ssl_base_url].should == "https://ssl.host:443"
+    Thread.current[:base_url].should == "http://test.host"
+  end
+
+  describe "current_user_id for gadget rendering server" do
+    it "should return nil if current user is 'anonymous'" do
+      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("anonymous")))
+      @controller.current_user_id.should == nil
+    end
+
+    it "should return the current user if not 'anonymous'" do
+      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("admin")))
+      @controller.current_user_id.should == "admin"
+    end
+  end
+
+  describe "current_user_id_for_oauth for gadget rendering server" do
+    it "should always return the current user even if it's anonymous" do
+      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("anonymous")))
+      @controller.current_user_id_for_oauth.should == "anonymous"
+    end
+  end
+
+  it "should get servlet request" do
+    controller.should_receive(:request).and_return(req = mock('request'))
+    req.should_receive(:env).and_return(env = {})
+    env['java.servlet_request'] = :holy_cow
+    controller.send(:servlet_request).should == :holy_cow
+  end
+end

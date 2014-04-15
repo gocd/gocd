@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "mingle_help.dtd">
+<chapter title="Pipeline Labelling">
+	<p>Go maintains an internal counter to identify a pipeline. This number increases by 1 for each build. By default, Go will use this counter as the pipeline label. This label is also passed to your build as an environment variable: <strong>GO_PIPELINE_COUNTER</strong>. The pipeline counter increases even if a build fails.</p>
+    <note>The concept of pipeline counters was introduced in release 1.3.2. In order to maintain backward compatibility with historical data Go now uses negative values as counter for pipelines created by older releases of Go. Hence it is perfectly normal for a historical pipeline to have a negative counter with positive label.</note>
+	<section title="Customising the pipeline label">
+        <p>You can create a custom label by setting the <strong>Label Template</strong> field on your pipeline. This will change the value that Go shows on its webpages. It will also change the value of the <strong>GO_PIPELINE_LABEL</strong> property that is passed to your build. You can refer to ${COUNT} or material names which are defined in the configuration of <cref topic="configuration_reference" anchor="svn">materials</cref>.</p>
+        <img src="resources/images/cruise/admin/pipeline_labelling.png"/>
+        <p>Power users can still edit the config xml to achieve the same. The xml snippet to configure <strong>labelTempalte</strong> is below.</p>
+        <code><![CDATA[
+    <pipeline name="my-pipeline" labeltemplate="1.2.${COUNT}">
+        ...
+    </pipeline>
+        ]]></code>
+
+        <p>Using a <strong>pipeline</strong> in the labeltemplate:</p>
+
+        <code><![CDATA[
+    <pipeline name="my-dependent-pipeline" labeltemplate="${MY_PIPELINE}">
+        <materials>
+            <pipeline pipelineName="my-pipeline" stageName="my-stage"/>
+        </materials>
+        ...
+    </pipeline>
+        ]]></code>
+
+        <p>Using a <strong>VCS material</strong> in the labeltemplate. In this example, the Subversion revision number will be used as the labeltemplate:</p>
+
+        <code><![CDATA[
+    <pipeline name="my-material-pipeline" labeltemplate="1.2.${SVN_MATERIAL}">
+        <materials>
+            <svn url="http://svn.example.com/" dest="svn" materialName="SVN_MATERIAL" />
+        </materials>
+        ...
+    </pipeline>
+        ]]></code>
+    </section>
+</chapter>

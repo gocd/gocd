@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: package_dir_path
+comment: 
+full_name: Rake::PackageTask#package_dir_path
+visibility: public
+aliases: []
+

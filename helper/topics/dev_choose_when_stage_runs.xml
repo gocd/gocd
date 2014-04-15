@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Choose when a stage runs">
+  <p>Often there are steps in your <cref topic="concepts_in_go">pipeline</cref> that you do not want to happen automatically. For example, you might want to keep binaries from being created for every pipeline (to prevent <cref topic="admin_out_of_disk_space">running out of disk space</cref>) or want to choose when your code is <cref topic="rm_deploy_to_environment">deployed to production</cref>. Stages in Go can be marked as 'manual' just for this purpose.</p>
+  <hint>You can create a manual pipeline by setting the first stage to manual.</hint>
+  <section title="Example usage">
+    <p>Usage: We need a manual 'dist' stage that will create the binaries used by later stages.</p>
+    <bullets>
+      <item><cref topic="admin_add_stage">Add a new stage</cref> named 'dist' after a build stage</item>
+      <item>Set the Stage type to manual</item>
+      <img src="resources/images/cruise/dev/choose_when_stage_runs/1_add_approval_tag.png" />
+      <item>Now, when the build stage 'build' is completed, you can manually cause Go to create the binary from the <cref topic="pipeline_activity_page">Pipeline activity</cref> page</item>
+      <img src="resources/images/cruise/dev/choose_when_stage_runs/2_click_manual.png" />
+    </bullets>
+  </section>
+</chapter>

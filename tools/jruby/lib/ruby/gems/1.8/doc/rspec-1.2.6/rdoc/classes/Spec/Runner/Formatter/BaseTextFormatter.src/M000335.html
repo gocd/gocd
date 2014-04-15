@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>output_to_tty? (Spec::Runner::Formatter::BaseTextFormatter)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/formatter/base_text_formatter.rb, line 117</span>
+        <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">output_to_tty?</span>
+          <span class="ruby-keyword kw">begin</span>
+            <span class="ruby-ivar">@output</span>.<span class="ruby-identifier">tty?</span> <span class="ruby-operator">||</span> <span class="ruby-constant">ENV</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-value str">&quot;AUTOTEST&quot;</span>)
+          <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">NoMethodError</span>
+            <span class="ruby-keyword kw">false</span>
+          <span class="ruby-keyword kw">end</span>
+        <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

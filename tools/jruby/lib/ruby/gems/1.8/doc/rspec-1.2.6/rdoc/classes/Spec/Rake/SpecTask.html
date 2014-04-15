@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: Spec::Rake::SpecTask</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Class</strong></td>
+          <td class="class-name-in-header">Spec::Rake::SpecTask</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../../files/lib/spec/rake/spectask_rb.html">
+                lib/spec/rake/spectask.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        <tr class="top-aligned-row">
+            <td><strong>Parent:</strong></td>
+            <td>
+                ::Rake::TaskLib
+            </td>
+        </tr>
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+A <a href="../Rake.html">Rake</a> task that runs a set of specs.
+</p>
+<p>
+<a href="../Example.html">Example</a>:
+</p>
+<pre>
+  Spec::Rake::SpecTask.new do |t|
+    t.warning = true
+    t.rcov = true
+  end
+</pre>
+<p>
+This will create a task that can be run with:
+</p>
+<pre>
+  rake spec
+</pre>
+<p>
+If rake is invoked with a &quot;SPEC=filename&quot; command line option,
+then the list of spec files will be overridden to include only the filename
+specified on the command line. This provides an easy way to run just one
+spec.
+</p>
+<p>
+If rake is invoked with a &quot;SPEC_OPTS=options&quot; command line
+option, then the given options will override the value of the
+<tt>spec_opts</tt> attribute.
+</p>
+<p>
+If rake is invoked with a &quot;RCOV_OPTS=options&quot; command line
+option, then the given options will override the value of the
+<tt>rcov_opts</tt> attribute.
+</p>
+<p>
+Examples:
+</p>
+<pre>
+  rake spec                                      # run specs normally
+  rake spec SPEC=just_one_file.rb                # run just one spec file.
+  rake spec SPEC_OPTS=&quot;--diff&quot;                   # enable diffing
+  rake spec RCOV_OPTS=&quot;--aggregate myfile.txt&quot;   # see rcov --help for details
+</pre>
+<p>
+Each attribute of this task may be a proc. This allows for lazy evaluation,
+which is sometimes handy if you want to defer the evaluation of an
+attribute value until the task is run (as opposed to when it is defined).
+</p>
+<p>
+This task can also be used to run existing <a
+href="../Test/Unit.html">Test::Unit</a> tests and get RSpec output, for
+example like this:
+</p>
+<pre>
+  require 'spec/rake/spectask'
+  Spec::Rake::SpecTask.new do |t|
+    t.ruby_opts = ['-rtest/unit']
+    t.spec_files = FileList['test/**/*_test.rb']
+  end
+</pre>
+
+    </div>
+
+
+   </div>
+
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000300">attr_accessor</a>&nbsp;&nbsp;
+      <a href="#M000301">new</a>&nbsp;&nbsp;
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+    <div id="attribute-list">
+      <h3 class="section-bar">Attributes</h3>
+
+      <div class="name-list">
+        <table>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">fail_on_error</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Whether or not to fail <a href="../Rake.html">Rake</a> when an error occurs
+(typically when specs fail). Defaults to true.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">failure_message</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+A message to print to stderr when there are failures.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">libs</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Array of directories to be added to $LOAD_PATH before running the specs.
+Defaults to [&#8217;&lt;the absolute path to RSpec&#8216;s lib
+directory&gt;&#8217;]
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">name</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Name of spec task. (default is :spec)
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">out</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Where RSpec&#8216;s output is written. Defaults to $stdout. DEPRECATED. Use
+&#8212;format FORMAT:WHERE in spec_opts.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">pattern</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Glob pattern to match spec files. (default is
+&#8216;spec/**/*_spec.rb&#8217;) Setting the SPEC environment variable
+overrides this.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">rcov</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Whether or not to use <a href="../../RCov.html">RCov</a> (default is false)
+See <a
+href="http://eigenclass.org/hiki.rb?rcov">eigenclass.org/hiki.rb?rcov</a>
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">rcov_dir</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Directory where the <a href="../../RCov.html">RCov</a> report is written.
+Defaults to &quot;coverage&quot; Ignored if rcov=false
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">rcov_opts</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Array of commandline options to pass to <a href="../../RCov.html">RCov</a>.
+Defaults to [&#8217;&#8212;exclude&#8217;,
+&#8216;lib\/spec,bin\/spec&#8217;]. Ignored if rcov=false Setting the
+RCOV_OPTS environment variable overrides this.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">ruby_opts</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Array of commandline options to pass to ruby. Defaults to [].
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">spec_files</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Explicitly define the list of spec files to be included in a spec.
+<tt>spec_files</tt> is expected to be an array of file names (a FileList is
+acceptable). If both <tt>pattern</tt> and <tt>spec_files</tt> are used,
+then the list of spec files is the union of the two. Setting the SPEC
+environment variable overrides this.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">spec_opts</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Array of commandline options to pass to RSpec. Defaults to []. Setting the
+SPEC_OPTS environment variable overrides this.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">verbose</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+Use verbose output. If this is set to true, the task will print the
+executed spec command to stdout. Defaults to false.
+
+</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">warning</td>
+          <td class="context-item-value">&nbsp;[RW]&nbsp;</td>
+          <td class="context-item-desc">
+If true, requests that the specs be run with the warning flag set. E.g.
+warning=true implies &quot;ruby -w&quot; used to run the specs. Defaults to
+false.
+
+</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+      
+
+
+    <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Class methods</h3>
+
+      <div id="method-M000300" class="method-detail">
+        <a name="M000300"></a>
+
+        <div class="method-heading">
+          <a href="SpecTask.src/M000300.html" target="Code" class="method-signature"
+            onclick="popupCode('SpecTask.src/M000300.html');return false;">
+          <span class="method-name">attr_accessor</span><span class="method-args">(*names)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+        </div>
+      </div>
+
+      <div id="method-M000301" class="method-detail">
+        <a name="M000301"></a>
+
+        <div class="method-heading">
+          <a href="SpecTask.src/M000301.html" target="Code" class="method-signature"
+            onclick="popupCode('SpecTask.src/M000301.html');return false;">
+          <span class="method-name">new</span><span class="method-args">(name=:spec) {|self if block_given?| ...}</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Defines a <a href="SpecTask.html#M000301">new</a> task, using the name
+<tt>name</tt>.
+</p>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

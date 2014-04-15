@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: start_dump
+comment: 
+full_name: Spec::Runner::Formatter::ProfileFormatter#start_dump
+visibility: public
+aliases: []
+

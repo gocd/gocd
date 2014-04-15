@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Why is the build broken?">
+  <p>Knowing the build is broken is only the first step. Now we need to understand what caused it to break.</p>
+  <section title="Example usage">
+    <p>Usage: As a developer, I want to understand why the build is broken.</p>
+    <p>Let's assume that in this case, we are on a java project using JUnit as our testing library.</p>
+    <bullets>
+      <item>If we're not already, we need to configure Go to <cref topic="dev_upload_test_report">upload JUnit xml reports</cref></item>
+      <item>Click on the <strong>Pipelines</strong> tab</item>
+      <img src="resources/images/cruise/topnav_pipelines.png" />
+      <item>Click on the failed stage you want to investigate</item>
+      <img src="resources/images/cruise/dev/why_build_broke/click_on_stage.png"/>
+      <item>Click on the failed job</item>
+      <img src="resources/images/cruise/dev/why_build_broke/7_click_failed_job.png" />
+      <item>The "Failures" sub-tab should help you diagnose what is wrong with your build</item>
+      <img src="resources/images/cruise/dev/why_build_broke/8_failures_tab.png" />
+      <item>If you need more information, the "Console" sub-tab contains everything that was written out to the console (including extra information from Go)</item>
+      <img src="resources/images/cruise/dev/why_build_broke/9_console_tab.png" />
+    </bullets>
+  </section>
+</chapter>

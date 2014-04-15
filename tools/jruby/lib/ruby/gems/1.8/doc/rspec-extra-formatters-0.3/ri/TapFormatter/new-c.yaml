@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+visibility: public
+block_params: 
+comment: 
+full_name: TapFormatter::new
+params: (output)
+name: new
+is_singleton: true
+aliases: []
+

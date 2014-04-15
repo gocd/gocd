@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>lookup (Rake::TaskManager)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>      <span class="ruby-comment cmt"># File lib/rake.rb, line 1843</span>
+1843:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">lookup</span>(<span class="ruby-identifier">task_name</span>, <span class="ruby-identifier">initial_scope</span>=<span class="ruby-keyword kw">nil</span>)
+1844:       <span class="ruby-identifier">initial_scope</span> <span class="ruby-operator">||=</span> <span class="ruby-ivar">@scope</span>
+1845:       <span class="ruby-identifier">task_name</span> = <span class="ruby-identifier">task_name</span>.<span class="ruby-identifier">to_s</span>
+1846:       <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">task_name</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^rake:/</span>
+1847:         <span class="ruby-identifier">scopes</span> = []
+1848:         <span class="ruby-identifier">task_name</span> = <span class="ruby-identifier">task_name</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-regexp re">/^rake:/</span>, <span class="ruby-value str">''</span>)
+1849:       <span class="ruby-keyword kw">elsif</span> <span class="ruby-identifier">task_name</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp re">/^(\^+)/</span>
+1850:         <span class="ruby-identifier">scopes</span> = <span class="ruby-identifier">initial_scope</span>[<span class="ruby-value">0</span>, <span class="ruby-identifier">initial_scope</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">$1</span>.<span class="ruby-identifier">size</span>]
+1851:         <span class="ruby-identifier">task_name</span> = <span class="ruby-identifier">task_name</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-regexp re">/^(\^+)/</span>, <span class="ruby-value str">''</span>)
+1852:       <span class="ruby-keyword kw">else</span>
+1853:         <span class="ruby-identifier">scopes</span> = <span class="ruby-identifier">initial_scope</span>
+1854:       <span class="ruby-keyword kw">end</span>
+1855:       <span class="ruby-identifier">lookup_in_scope</span>(<span class="ruby-identifier">task_name</span>, <span class="ruby-identifier">scopes</span>)
+1856:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

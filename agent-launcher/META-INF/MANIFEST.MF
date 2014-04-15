@@ -1,0 +1,11 @@
+Build-By: Go
+Build-Jdk: 1.6.0_35
+Implementation-Title: Go - ThoughtWorks Studios
+Implementation-Version: 
+Go-Version: 14.1.0
+Go-Agent-Launcher-Class: com.thoughtworks.cruise.agent.launcher.AgentLa
+ uncherImpl
+Go-Agent-Launcher-Lib-Dir: libs
+Manifest-Version: 1.0
+Created-By: Buildr
+

@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (opts)
+is_singleton: false
+block_params: 
+name: determine_superclass
+comment: 
+full_name: Spec::Example::ExampleGroupFactory::ClassMethods#determine_superclass
+visibility: protected
+aliases: []
+

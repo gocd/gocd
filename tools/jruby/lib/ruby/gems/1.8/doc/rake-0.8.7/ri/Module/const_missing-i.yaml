@@ -1,0 +1,15 @@
+--- !ruby/object:RI::MethodDescription 
+params: (const_name)
+is_singleton: false
+block_params: 
+name: const_missing
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Check for deprecated uses of top level (i.e. in Object) uses of Rake class
+    names. If someone tries to reference the constant name, display a warning and
+    return the proper object. Using the --classic-namespace command line option will
+    define these constants in Object and avoid this handler.
+full_name: Module#const_missing
+visibility: public
+aliases: []
+

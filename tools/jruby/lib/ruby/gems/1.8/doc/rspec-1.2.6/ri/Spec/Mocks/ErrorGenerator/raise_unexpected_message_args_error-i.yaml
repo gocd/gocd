@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (expectation, *args)
+is_singleton: false
+block_params: 
+name: raise_unexpected_message_args_error
+comment: 
+full_name: Spec::Mocks::ErrorGenerator#raise_unexpected_message_args_error
+visibility: public
+aliases: []
+

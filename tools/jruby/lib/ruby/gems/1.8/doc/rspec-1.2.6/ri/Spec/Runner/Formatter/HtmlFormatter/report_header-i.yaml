@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: report_header
+comment: 
+full_name: Spec::Runner::Formatter::HtmlFormatter#report_header
+visibility: public
+aliases: []
+

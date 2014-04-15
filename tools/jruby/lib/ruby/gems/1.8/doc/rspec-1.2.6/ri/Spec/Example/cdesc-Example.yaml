@@ -1,0 +1,96 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Example
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Example Groups and Code Examples
+- !ruby/struct:SM::Flow::P 
+  body: A Code Example is an executable example of how a bit of code is expected to
+    behave.
+- !ruby/struct:SM::Flow::P 
+  body: An Example Group is a group of code examples.
+- !ruby/struct:SM::Flow::P 
+  body: RSpec exposes a DSL to describe groups of examples.
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe Account do\n    it &quot;should have a balance of $0&quot; do\n\
+    \      account = Account.new\n      account.balance.should == Money.new(0, :dollars)\n\
+    \    end\n  end\n"
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Before and After
+- !ruby/struct:SM::Flow::P 
+  body: You can use the <tt>before()</tt> and <tt>after()</tt> methods to extract
+    common code within an Example Group. Both methods take an optional scope argument
+    so you can run the block before :each example or before :all examples
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe &quot;...&quot; do\n    before :all do\n      ...\n    end\n\n\
+    \    before :each do\n      ...\n    end\n\n    it &quot;should do something&quot; \
+    do\n      ...\n    end\n\n    it &quot;should do something else&quot; do\n    \
+    \  ...\n    end\n\n    after :each do\n      ...\n    end\n\n    after :all do\n\
+    \      ...\n    end\n\n  end\n"
+- !ruby/struct:SM::Flow::P 
+  body: The <tt>before :each</tt> block will run before each of the examples, once
+    for each example. Likewise, the <tt>after :each</tt> block will run after each
+    of the examples.
+- !ruby/struct:SM::Flow::P 
+  body: It is also possible to specify a <tt>before :all</tt> and <tt>after :all</tt>
+    block that will run only once for each example group, before the first <tt>before
+    :each</tt> and after the last <tt>after :each</tt> respectively. The use of these
+    is generally discouraged, because it introduces dependencies between the examples.
+    Still, it might prove useful for very expensive operations if you know what you
+    are doing.
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Local helper methods
+- !ruby/struct:SM::Flow::P 
+  body: 'You can include local helper methods by simply expressing them within an
+    example group:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  describe &quot;...&quot; do\n\n    it &quot;...&quot; do\n      helper_method\n\
+    \    end\n\n    def helper_method\n      ...\n    end\n\n  end\n"
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Included helper methods
+- !ruby/struct:SM::Flow::P 
+  body: 'You can include helper methods in multiple example groups by expressing them
+    within a module, and then including that module in your example groups:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  module AccountExampleHelperMethods\n    def helper_method\n      ...\n\
+    \    end\n  end\n\n  describe &quot;A new account&quot; do\n    include AccountExampleHelperMethods\n\
+    \    before do\n      @account = Account.new\n    end\n\n    it &quot;should have \
+    a balance of $0&quot; do\n      helper_method\n      @account.balance.should eql(Money.new(0, \
+    :dollars))\n    end\n  end\n"
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: Shared Example Groups
+- !ruby/struct:SM::Flow::P 
+  body: You can define a shared example group, that may be used on other groups
+- !ruby/struct:SM::Flow::VERB 
+  body: " share_examples_for &quot;All Editions&quot; do\n   it &quot;all editions \
+    behaviour&quot; ...\n end\n\n describe SmallEdition do\n   it_should_behave_like \
+    &quot;All Editions&quot;\n\n   it &quot;should do small edition stuff&quot; do\n\
+    \     ...\n   end\n end\n"
+- !ruby/struct:SM::Flow::P 
+  body: You can also assign the shared group to a module and include that
+- !ruby/struct:SM::Flow::VERB 
+  body: " share_as :AllEditions do\n   it &quot;should do all editions stuff&quot; \
+    ...\n end\n\n describe SmallEdition do\n   it_should_behave_like AllEditions\n\
+    \n   it &quot;should do small edition stuff&quot; do\n     ...\n   end\n end\n"
+- !ruby/struct:SM::Flow::P 
+  body: And, for those of you who prefer to use something more like Ruby, you can
+    just include the module directly
+- !ruby/struct:SM::Flow::VERB 
+  body: " describe SmallEdition do\n   include AllEditions\n\n   it &quot;should do \
+    small edition stuff&quot; do\n     ...\n   end\n end\n"
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Example
+superclass: 
+class_methods: []
+

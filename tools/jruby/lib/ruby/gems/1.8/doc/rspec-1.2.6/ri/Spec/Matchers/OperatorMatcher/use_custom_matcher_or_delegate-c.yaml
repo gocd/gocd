@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (operator)
+is_singleton: true
+block_params: 
+name: use_custom_matcher_or_delegate
+comment: 
+full_name: Spec::Matchers::OperatorMatcher::use_custom_matcher_or_delegate
+visibility: public
+aliases: []
+

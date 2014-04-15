@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>write_generated_options (Spec::Runner::OptionParser)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/option_parser.rb, line 178</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">write_generated_options</span>(<span class="ruby-identifier">options_file</span>)
+        <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">options_file</span>, <span class="ruby-value str">'w'</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">io</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">io</span>.<span class="ruby-identifier">puts</span> <span class="ruby-ivar">@argv</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;\n&quot;</span>)
+        <span class="ruby-keyword kw">end</span>
+        <span class="ruby-ivar">@out_stream</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;\nOptions written to #{options_file}. You can now use these options with:&quot;</span>
+        <span class="ruby-ivar">@out_stream</span>.<span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;spec --options #{options_file}&quot;</span>
+        <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">examples_should_not_be_run</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: clear
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Clear all tasks in this application.
+full_name: Rake::TaskManager#clear
+visibility: public
+aliases: []
+

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>upload (Rake::SshFreshDirPublisher)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>    <span class="ruby-comment cmt"># File lib/rake/contrib/sshpublisher.rb, line 23</span>
+23:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">upload</span>
+24:       <span class="ruby-identifier">sh</span> <span class="ruby-node">%{ssh #{@host} rm -rf #{@remote_dir}}</span> <span class="ruby-keyword kw">rescue</span> <span class="ruby-keyword kw">nil</span>
+25:       <span class="ruby-identifier">sh</span> <span class="ruby-node">%{ssh #{@host} mkdir #{@remote_dir}}</span>
+26:       <span class="ruby-keyword kw">super</span>
+27:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

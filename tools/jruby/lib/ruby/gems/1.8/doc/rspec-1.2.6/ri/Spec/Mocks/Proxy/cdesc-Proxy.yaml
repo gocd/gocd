@@ -1,0 +1,44 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Proxy
+constants: 
+- !ruby/object:RI::Constant 
+  name: DEFAULT_OPTIONS
+  value: '{         :null_object => false,       }'
+  comment: 
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: add_message_expectation
+- !ruby/object:RI::MethodSummary 
+  name: add_negative_message_expectation
+- !ruby/object:RI::MethodSummary 
+  name: add_stub
+- !ruby/object:RI::MethodSummary 
+  name: as_null_object
+- !ruby/object:RI::MethodSummary 
+  name: has_negative_expectation?
+- !ruby/object:RI::MethodSummary 
+  name: message_received
+- !ruby/object:RI::MethodSummary 
+  name: null_object?
+- !ruby/object:RI::MethodSummary 
+  name: raise_unexpected_message_args_error
+- !ruby/object:RI::MethodSummary 
+  name: raise_unexpected_message_error
+- !ruby/object:RI::MethodSummary 
+  name: received_message?
+- !ruby/object:RI::MethodSummary 
+  name: record_message_received
+- !ruby/object:RI::MethodSummary 
+  name: reset
+full_name: Spec::Mocks::Proxy
+superclass: Object
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: allow_message_expectations_on_nil
+- !ruby/object:RI::MethodSummary 
+  name: new

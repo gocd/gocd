@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (message, expectation_ordering, expected_from, sym, method_block)
+is_singleton: true
+block_params: 
+name: new
+comment: 
+full_name: Spec::Mocks::NegativeMessageExpectation::new
+visibility: public
+aliases: []
+

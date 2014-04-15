@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Compare Builds">
+    <p>
+        Go allows you to compare any two builds of a pipeline and see exactly what changes happened between those
+        two instances. The information in this view will include:
+    </p>
+    <bullets>
+        <item>Code checkins</item>
+        <item>Upstream pipelines</item>
+        <item>Story/defect numbers (when linked to a tracking tool)</item>
+    </bullets>
+
+    <section title="Accessing Pipeline Compare">
+        <p>
+            There are several locations from where the Pipeline Compare feature can be invoked. These include:
+        </p>
+        <bullets>
+            <item>Pipelines Dashboard page (the "Compare" link in each pipeline)</item>
+            <item>Environments page</item>
+            <item>Stage Details page</item>
+            <item>Stage History widget within the Stage Details page</item>
+        </bullets>
+    </section>
+
+    <section title="Understanding the Pipeline Compare Screen">
+        <p>
+            The Pipeline Compare screen lets you compare any two instances of a pipeline. Every pipeline instance
+            is associated with a set of changes; be it a source control modification or an upstream pipeline.
+            Performing a compare lets you easily identify exactly what these changes were.
+        </p>
+        <screenshot alttext="Pipeline Compare - Changes" src="resources/images/cruise/compare_changes.png"/>
+        <steps>
+            <item>
+                <strong>To/from search box:</strong>
+                You can search for the appropriate pipeline instance using any of the following - pipeline label,
+                check-in comment, person who checked in, upstream pipeline label and revision.
+            </item>
+            <item>
+                <strong>Upstream dependency changes:</strong>
+                All the changes to upstream pipelines within the search range.
+            </item>
+            <item>
+                <strong>Changes to version control systems:</strong>
+                All check-ins that went into dependent VCS materials within the search range.
+            </item>
+            <item>
+                <strong>Tracking tool integration:</strong>
+                If you've configured a <cref topic="go_integration" anchor="tracking_tool">tracking tool
+                integration</cref> for this pipeline or any upstream pipelines, check-in comments containing
+                story/defect/ticket numbers would be hyperlinked to the appropriate tracking tool.
+            </item>
+        </steps>
+    </section>
+    <section title="Using Pipeline History">
+        <p>
+            You can also select a pipeline by browsing the pipeline history.
+        </p>
+	<screenshot alttext="Pipeline Compare - Timeline" src="resources/images/cruise/compare_timeline.png"/>
+	<p> Steps to select a particular instance from the history:</p>
+        <steps>
+            <item>
+                Click on the search box
+            </item>
+	    <item>
+  	        Click on "Browse the timeline"
+	</item>
+            <item>
+		Browse the history and select a pipeline
+	    </item>
+	</steps>
+     </section>
+    <section title="See Also">
+        <bullets>
+            <item><cref topic="mingle_card_activity_gadget">Mingle card activity gadget</cref></item>
+        </bullets>
+    </section>
+</chapter>

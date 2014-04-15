@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: ()
+is_singleton: false
+block_params: 
+name: mode
+comment: 
+full_name: Rake::FtpFile#mode
+visibility: public
+aliases: []
+

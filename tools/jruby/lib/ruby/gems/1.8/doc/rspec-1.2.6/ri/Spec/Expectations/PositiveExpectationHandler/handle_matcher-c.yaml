@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (actual, matcher, &block)
+is_singleton: true
+block_params: 
+name: handle_matcher
+comment: 
+full_name: Spec::Expectations::PositiveExpectationHandler::handle_matcher
+visibility: public
+aliases: []
+

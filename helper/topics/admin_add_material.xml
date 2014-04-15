@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE chapter SYSTEM "cruise_help.dtd">
+<chapter title="Add a new material to an existing pipeline">
+    <p>Now that you have a pipeline, lets add another material to it.</p>
+    <bullets>
+        <item>Navigate to the new pipeline you created by clicking on the
+            <strong>Edit</strong>
+            link under the Actions against it. You can also click on the name of the pipeline.
+        </item>
+        <img src="resources/images/cruise/admin/add_stage/edit_pipeline_link.png"/>
+        <item>Click on the Materials tab.</item>
+        <img src="resources/images/cruise/admin/pipeline_general_options.png"/>
+        <item>You will notice an existing material . Click on the "Add new material" link.</item>
+        <img src="resources/images/cruise/add_new_material.png"/>
+	<item>You will get the following message</item>
+        <img src="resources/images/cruise/define_destination_folder.png"/>
+	<item>Edit the existing material and specify the destination directory</item>
+        <img src="resources/images/cruise/edit_material.png"/>
+        <item>Click "Save".</item>
+    </bullets>
+        <section title="Blacklist">
+        <p>Often you do want to specify a set of files that Go should ignore when it checks for changes.  Repository changesets which contain only these files will not automatically trigger a pipeline.  These are detailed in the <cref topic="configuration_reference" anchor="ignore">ignore</cref> section of the <cref topic="configuration_reference">configuration reference.</cref> </p>
+        <bullets>
+	    <item>Enter the items to blacklist using ant-style syntax below</item>
+	    <img src="resources/images/cruise/edit_material_blacklist.png"/>
+            <item>Click "Save".</item>
+	</bullets>
+	</section>
+</chapter>

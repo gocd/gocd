@@ -1,0 +1,35 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ExampleGroupHierarchy
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: after_all_parts
+- !ruby/object:RI::MethodSummary 
+  name: after_each_parts
+- !ruby/object:RI::MethodSummary 
+  name: before_all_parts
+- !ruby/object:RI::MethodSummary 
+  name: before_each_parts
+- !ruby/object:RI::MethodSummary 
+  name: nested_description_from
+- !ruby/object:RI::MethodSummary 
+  name: nested_descriptions
+- !ruby/object:RI::MethodSummary 
+  name: run_after_all
+- !ruby/object:RI::MethodSummary 
+  name: run_after_each
+- !ruby/object:RI::MethodSummary 
+  name: run_before_all
+- !ruby/object:RI::MethodSummary 
+  name: run_before_each
+full_name: Spec::Example::ExampleGroupHierarchy
+superclass: Array
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

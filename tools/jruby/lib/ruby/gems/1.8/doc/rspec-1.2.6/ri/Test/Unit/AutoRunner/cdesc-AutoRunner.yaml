@@ -1,0 +1,16 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: AutoRunner
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: process_args
+full_name: Test::Unit::AutoRunner
+superclass: Object
+class_methods: []
+

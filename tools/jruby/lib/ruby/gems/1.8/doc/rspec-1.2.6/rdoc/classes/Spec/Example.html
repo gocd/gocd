@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Spec::Example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Spec::Example</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../../files/lib/spec/example/args_and_options_rb.html">
+                lib/spec/example/args_and_options.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/before_and_after_hooks_rb.html">
+                lib/spec/example/before_and_after_hooks.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/errors_rb.html">
+                lib/spec/example/errors.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_group_rb.html">
+                lib/spec/example/example_group.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_group_factory_rb.html">
+                lib/spec/example/example_group_factory.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_group_hierarchy_rb.html">
+                lib/spec/example/example_group_hierarchy.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_group_methods_rb.html">
+                lib/spec/example/example_group_methods.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_group_proxy_rb.html">
+                lib/spec/example/example_group_proxy.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_matcher_rb.html">
+                lib/spec/example/example_matcher.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_methods_rb.html">
+                lib/spec/example/example_methods.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/example_proxy_rb.html">
+                lib/spec/example/example_proxy.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/module_reopening_fix_rb.html">
+                lib/spec/example/module_reopening_fix.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/pending_rb.html">
+                lib/spec/example/pending.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/predicate_matchers_rb.html">
+                lib/spec/example/predicate_matchers.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/shared_example_group_rb.html">
+                lib/spec/example/shared_example_group.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example/subject_rb.html">
+                lib/spec/example/subject.rb
+                </a>
+        <br />
+                <a href="../../files/lib/spec/example_rb.html">
+                lib/spec/example.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2><a href="Example.html">Example</a> Groups and Code Examples</h2>
+<p>
+A Code <a href="Example.html">Example</a> is an executable example of how a
+bit of code is expected to behave.
+</p>
+<p>
+An <a href="Example.html">Example</a> Group is a group of code examples.
+</p>
+<p>
+RSpec exposes a <a href="DSL.html">DSL</a> to describe groups of examples.
+</p>
+<pre>
+  describe Account do
+    it &quot;should have a balance of $0&quot; do
+      account = Account.new
+      account.balance.should == Money.new(0, :dollars)
+    end
+  end
+</pre>
+<h2>Before and After</h2>
+<p>
+You can use the <tt>before()</tt> and <tt>after()</tt> methods to extract
+common code within an <a href="Example.html">Example</a> Group. Both
+methods take an optional scope argument so you can run the block before
+:each example or before :all examples
+</p>
+<pre>
+  describe &quot;...&quot; do
+    before :all do
+      ...
+    end
+
+    before :each do
+      ...
+    end
+
+    it &quot;should do something&quot; do
+      ...
+    end
+
+    it &quot;should do something else&quot; do
+      ...
+    end
+
+    after :each do
+      ...
+    end
+
+    after :all do
+      ...
+    end
+
+  end
+</pre>
+<p>
+The <tt>before :each</tt> block will run before each of the examples, once
+for each example. Likewise, the <tt>after :each</tt> block will run after
+each of the examples.
+</p>
+<p>
+It is also possible to specify a <tt>before :all</tt> and <tt>after
+:all</tt> block that will run only once for each example group, before the
+first <tt>before :each</tt> and after the last <tt>after :each</tt>
+respectively. The use of these is generally discouraged, because it
+introduces dependencies between the examples. Still, it might prove useful
+for very expensive operations if you know what you are doing.
+</p>
+<h2>Local helper methods</h2>
+<p>
+You can include local helper methods by simply expressing them within an
+example group:
+</p>
+<pre>
+  describe &quot;...&quot; do
+
+    it &quot;...&quot; do
+      helper_method
+    end
+
+    def helper_method
+      ...
+    end
+
+  end
+</pre>
+<h2>Included helper methods</h2>
+<p>
+You can include helper methods in multiple example groups by expressing
+them within a module, and then including that module in your example
+groups:
+</p>
+<pre>
+  module AccountExampleHelperMethods
+    def helper_method
+      ...
+    end
+  end
+
+  describe &quot;A new account&quot; do
+    include AccountExampleHelperMethods
+    before do
+      @account = Account.new
+    end
+
+    it &quot;should have a balance of $0&quot; do
+      helper_method
+      @account.balance.should eql(Money.new(0, :dollars))
+    end
+  end
+</pre>
+<h2>Shared <a href="Example.html">Example</a> Groups</h2>
+<p>
+You can define a shared example group, that may be used on other groups
+</p>
+<pre>
+ share_examples_for &quot;All Editions&quot; do
+   it &quot;all editions behaviour&quot; ...
+ end
+
+ describe SmallEdition do
+   it_should_behave_like &quot;All Editions&quot;
+
+   it &quot;should do small edition stuff&quot; do
+     ...
+   end
+ end
+</pre>
+<p>
+You can also assign the shared group to a module and include that
+</p>
+<pre>
+ share_as :AllEditions do
+   it &quot;should do all editions stuff&quot; ...
+ end
+
+ describe SmallEdition do
+   it_should_behave_like AllEditions
+
+   it &quot;should do small edition stuff&quot; do
+     ...
+   end
+ end
+</pre>
+<p>
+And, for those of you who prefer to use something more like <a
+href="Ruby.html">Ruby</a>, you can just include the module directly
+</p>
+<pre>
+ describe SmallEdition do
+   include AllEditions
+
+   it &quot;should do small edition stuff&quot; do
+     ...
+   end
+ end
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Example/ArgsAndOptions.html" class="link">Spec::Example::ArgsAndOptions</a><br />
+Module <a href="Example/BeforeAndAfterHooks.html" class="link">Spec::Example::BeforeAndAfterHooks</a><br />
+Module <a href="Example/ExampleGroupMethods.html" class="link">Spec::Example::ExampleGroupMethods</a><br />
+Module <a href="Example/ExampleMethods.html" class="link">Spec::Example::ExampleMethods</a><br />
+Module <a href="Example/ModuleReopeningFix.html" class="link">Spec::Example::ModuleReopeningFix</a><br />
+Module <a href="Example/Pending.html" class="link">Spec::Example::Pending</a><br />
+Module <a href="Example/PredicateMatchers.html" class="link">Spec::Example::PredicateMatchers</a><br />
+Module <a href="Example/Subject.html" class="link">Spec::Example::Subject</a><br />
+Class <a href="Example/ExampleGroup.html" class="link">Spec::Example::ExampleGroup</a><br />
+Class <a href="Example/ExampleGroupFactory.html" class="link">Spec::Example::ExampleGroupFactory</a><br />
+Class <a href="Example/ExampleGroupHierarchy.html" class="link">Spec::Example::ExampleGroupHierarchy</a><br />
+Class <a href="Example/ExampleGroupProxy.html" class="link">Spec::Example::ExampleGroupProxy</a><br />
+Class <a href="Example/ExampleMatcher.html" class="link">Spec::Example::ExampleMatcher</a><br />
+Class <a href="Example/ExamplePendingError.html" class="link">Spec::Example::ExamplePendingError</a><br />
+Class <a href="Example/ExampleProxy.html" class="link">Spec::Example::ExampleProxy</a><br />
+Class <a href="Example/NoDescriptionError.html" class="link">Spec::Example::NoDescriptionError</a><br />
+Class <a href="Example/NotYetImplementedError.html" class="link">Spec::Example::NotYetImplementedError</a><br />
+Class <a href="Example/PendingExampleFixedError.html" class="link">Spec::Example::PendingExampleFixedError</a><br />
+Class <a href="Example/SharedExampleGroup.html" class="link">Spec::Example::SharedExampleGroup</a><br />
+
+    </div>
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE topic SYSTEM "mingle_help.dtd">
+<topic title="Artifacts API">
+	<note>The Go API documented here is a work in progress. Future versions may change this API.</note>
+	<p>The Artifacts API is not as much an API as a way to list, download and upload artifacts through command-line.</p>
+	<subsection title="Key">
+	<table caption="Parameters">
+		<header-row>
+			<col-header>Method</col-header>
+			<col-header>URL format</col-header>
+            <col-header>HTTPVerb</col-header>
+            <col-header>Explanation</col-header>
+		</header-row>
+		<row>
+			<label>list</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]</col>
+			<col>GET</col>
+			<col>List all files for the particular pipeline/stage/job in html format</col>
+		</row>
+		<row>
+			<label>list</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job].html</col>
+			<col>GET</col>
+			<col>List all files for the particular pipeline/stage/job in html format</col>
+		</row>
+		<row>
+			<label>list</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job].json</col>
+			<col>GET</col>
+			<col>List all files for the particular pipeline/stage/job in json format</col>
+		</row>
+		<row>
+			<label>show</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]/[filename]</col>
+			<col>GET</col>
+			<col>Get the file called [filename] in default artifact folder of the pipeline/stage/job with particular label.</col>
+		</row>
+		<row>
+			<label>show</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]/[pathname]/[filename]</col>
+			<col>GET</col>
+			<col>Get the file called [filename] in the sub-folder [pathname] of default artifact folder of the pipeline/stage/job with particular pipeline counter.</col>
+		</row>
+		<row>
+			<label>show</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]/[pathname.zip]</col>
+			<col>GET</col>
+			<col>Get a zipped output of all the files in the [pathname] of default artifact folder of the pipeline/stage/job with particular pipeline counter.</col>
+		</row>
+		<row>
+			<label>create</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]/[filename]</col>
+			<col>POST</col>
+			<col>upload a file named [filename] to the default artifact folder of the particular pipeline/stage/job</col>
+		</row>
+		<row>
+			<label>append</label>
+			<col>http://[server]/go/files/[pipeline]/[pipelinecounter]/[stage]/[stagecounter]/[job]/[filename]</col>
+			<col>PUT</col>
+			<col>appending a string to a file named 'filename' in the default artifact folder of the pipeline/stage/job with particular pipeline counter</col>
+		</row>
+	</table>
+	<bullets>
+		<item>You can use key word 'latest' as a pipeline counter or a stage counter.</item>
+		<item><strong>pipelinecounter</strong> is a number which indicates how many times the pipeline has been triggerd.</item>
+		<item><strong>stagecounter</strong> is a number which indicates how many times the stage has been re-run in the pipeline with the same pipeline counter.</item>
+    	<item>The name in the RESTful url is case-sensitive. </item>
+	</bullets>
+		<note>Go no longer supports 'last good' option for RESTful URLs as of R1.2.</note>
+	</subsection>	 
+	<subsection title="Examples">
+	    <bullets>
+			<item>We use curl, a command line tool for transferring files with URL syntax, in the following examples. Of course, you can use any HTTP client library.</item>
+		<item>We assume that the url of the Go server is <strong>http://goserver.com:8153/</strong>.</item>
+		   <item>We assume security has been switched on, and that there is a user named <strong>jez</strong> with the password <strong>badger</strong>.</item>
+		</bullets>
+		<p>And the pipeline configuration looks like:</p>
+		<code>
+        <![CDATA[
+			<pipeline name="foo" labeltemplate="foo-1.0-${COUNT}">
+			   <materials>
+	           	<svn url="...."/>
+			   </materials>
+			   <stage name="DEV">
+			    <jobs>
+			     <job name="UnitTest">
+				   <tasks>
+				      <ant target="ut"/>
+				   </tasks>
+	               <artifacts>
+	                  <artifact  src="coverage" dest="coveragereport.html"/>			   
+				   </artifacts>
+				 </job>
+				</jobs>
+			   </stage>
+			   <stage name="UATest">
+			    <jobs>
+			     <job name="UAT">
+				   <tasks>
+				      <ant target="all-UAT"/>
+				   </tasks>
+	               <artifacts>
+	                  <artifact  src="report" dest="UAreport.html"/>
+	                  <artifact  src="target" dest="pkg/foo.war"/>
+				   </artifacts>
+				 </job>
+				</jobs>
+			   </stage>
+			</pipeline>
+        ]]>
+		</code>
+		<p>If you want to get the list of files in json for the latest completed job UnitTest, the command is</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/files/foo/latest/DEV/1/UnitTest.json</code>			 
+		<p>If you want to get the list of files in json for the job UnitTest with the pipeline counter 1243 and stage counter '1', the command is</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/files/foo/1243/DEV/1/UnitTest.json</code>
+		<p>If you want to get the file 'foo.war' under the folder 'pkg' for the job UAT with the pipeline counter 1243, the command is</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/pkg/foo.war</code>
+		<p>If you want to get a zip file of the contents of 'binaries' under the folder 'pkg' for the job UAT with the pipeline counter 1243, the command is</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/pkg/binaries.zip</code>
+		<note>The above command will return immediately with an HTTP status code of 202 to indicate that the request was accepted.  The same command needs to be retried after a few seconds to actually retrieve the zip contents</note>
+		<p>If you want to get the list in the folder "pkg" in json format for the job UAT with the pipeline counter 1243 with stage counter '1', the command is</p>
+		    <code>curl -u jez:badger http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/pkg.json</code>
+		<p>If you want to upload a file abc.txt to the job UAT with the pipeline counter 1243 and stage counter '1',and the target name is def.txt, the command is</p>
+		    <code>curl -u jez:badger -F file=@abc.txt http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/def.txt</code>	
+		<p>If you want to upload a zip file abc.zip to the job UAT with the pipeline counter 1243 with stage counter '1', and the target name is def.zip, the command is</p>
+		    <code>curl -u jez:badger -F file=@abc.zip http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/def.zip</code>	
+        <p><strong>Notes:</strong> </p>
+		<p>In order to upload a folder, first zip it up. Next, assuming you want it to be associated with the job UAT, pipeline counter 1243, stage counter '1', and the folder name 'def', the command is</p>
+		    <code>curl -u jez:badger -F zipfile=@abc.zip http://goserver.com:8153/go/files/foo/1243/UATest/1/UAT/def</code>
+		<p>If you want to append the content of a file, say abc.txt, to the end of a file 'def.txt' to the job UnitTest with the pipeline counter 1243 and stage counter '1', the command is </p>
+		    <code>curl -u jez:badger -T abc.txt http://goserver.com:8153/go/files/foo/1243/DEV/1/UnitTest/def.txt</code>
+        </subsection>	 
+</topic>

@@ -1,0 +1,19 @@
+--- !ruby/object:RI::MethodDescription 
+params: (*patterns) {|self if block_given?| ...}
+is_singleton: true
+block_params: self if block_given?
+name: new
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Create a file list from the globbable patterns given. If you wish to perform
+    multiple includes or excludes at object build time, use the &quot;yield self&quot;
+    pattern.
+- !ruby/struct:SM::Flow::P 
+  body: 'Example:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  file_list = FileList.new('lib/**/*.rb', 'test/test*.rb')\n\n  pkg_files \
+    = FileList.new('lib/**/*') do |fl|\n    fl.exclude(/\\bCVS\\b/)\n  end\n"
+full_name: Rake::FileList::new
+visibility: public
+aliases: []
+

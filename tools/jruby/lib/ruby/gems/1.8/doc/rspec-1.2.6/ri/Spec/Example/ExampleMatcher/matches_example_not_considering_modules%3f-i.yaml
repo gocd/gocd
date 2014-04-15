@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (specified_example)
+is_singleton: false
+block_params: 
+name: matches_example_not_considering_modules?
+comment: 
+full_name: Spec::Example::ExampleMatcher#matches_example_not_considering_modules?
+visibility: protected
+aliases: []
+

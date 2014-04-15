@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (pat, rep)
+is_singleton: false
+block_params: 
+name: sub!
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Same as <tt>sub</tt> except that the oringal file list is modified.
+full_name: Rake::FileList#sub!
+visibility: public
+aliases: []
+

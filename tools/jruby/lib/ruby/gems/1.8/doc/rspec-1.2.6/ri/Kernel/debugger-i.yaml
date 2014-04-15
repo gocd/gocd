@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (steps=1)
+is_singleton: false
+block_params: 
+name: debugger
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Start a debugging session if ruby-debug is loaded with the -u/--debugger option
+full_name: Kernel#debugger
+visibility: public
+aliases: []
+

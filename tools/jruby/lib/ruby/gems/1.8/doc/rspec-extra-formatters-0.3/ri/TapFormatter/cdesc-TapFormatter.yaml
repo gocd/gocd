@@ -1,0 +1,26 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+comment: 
+attributes: 
+- !ruby/object:RI::Attribute 
+  comment: 
+  rw: R
+  name: total
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: dump_summary
+- !ruby/object:RI::MethodSummary 
+  name: example_failed
+- !ruby/object:RI::MethodSummary 
+  name: example_passed
+- !ruby/object:RI::MethodSummary 
+  name: example_pending
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new
+full_name: TapFormatter
+constants: []
+
+superclass: RSpec::Core::Formatters::BaseFormatter
+name: TapFormatter

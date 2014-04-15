@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>load_files (Spec::Runner::ExampleGroupRunner)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/runner/example_group_runner.rb, line 8</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load_files</span>(<span class="ruby-identifier">files</span>)
+        <span class="ruby-identifier">$KCODE</span> = <span class="ruby-value str">'u'</span> <span class="ruby-keyword kw">if</span> <span class="ruby-constant">RUBY_VERSION</span>.<span class="ruby-identifier">to_f</span> <span class="ruby-operator">&lt;</span> <span class="ruby-value">1.9</span>
+        <span class="ruby-comment cmt"># It's important that loading files (or choosing not to) stays the</span>
+        <span class="ruby-comment cmt"># responsibility of the ExampleGroupRunner. Some implementations (like)</span>
+        <span class="ruby-comment cmt"># the one using DRb may choose *not* to load files, but instead tell</span>
+        <span class="ruby-comment cmt"># someone else to do it over the wire.</span>
+        <span class="ruby-identifier">files</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">load</span> <span class="ruby-identifier">file</span>
+        <span class="ruby-keyword kw">end</span>
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

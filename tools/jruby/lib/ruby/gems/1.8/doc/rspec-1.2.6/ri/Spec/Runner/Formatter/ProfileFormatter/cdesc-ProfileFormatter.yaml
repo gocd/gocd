@@ -1,0 +1,23 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: ProfileFormatter
+constants: []
+
+comment: 
+attributes: []
+
+instance_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: example_passed
+- !ruby/object:RI::MethodSummary 
+  name: example_started
+- !ruby/object:RI::MethodSummary 
+  name: start
+- !ruby/object:RI::MethodSummary 
+  name: start_dump
+full_name: Spec::Runner::Formatter::ProfileFormatter
+superclass: ProgressBarFormatter
+class_methods: 
+- !ruby/object:RI::MethodSummary 
+  name: new

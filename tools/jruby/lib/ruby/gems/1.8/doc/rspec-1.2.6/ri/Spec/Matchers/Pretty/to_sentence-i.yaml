@@ -1,0 +1,10 @@
+--- !ruby/object:RI::MethodDescription 
+params: (words)
+is_singleton: false
+block_params: 
+name: to_sentence
+comment: 
+full_name: Spec::Matchers::Pretty#to_sentence
+visibility: public
+aliases: []
+

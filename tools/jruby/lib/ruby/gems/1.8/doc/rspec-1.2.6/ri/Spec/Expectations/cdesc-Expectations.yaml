@@ -1,0 +1,42 @@
+--- !ruby/object:RI::ClassDescription 
+includes: []
+
+name: Expectations
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Spec::Expectations lets you set expectations on your objects.
+- !ruby/struct:SM::Flow::VERB 
+  body: "  result.should == 37\n  team.should have(11).players_on_the_field\n"
+- !ruby/struct:SM::Flow::H 
+  level: 2
+  text: How Expectations work.
+- !ruby/struct:SM::Flow::P 
+  body: 'Spec::Expectations adds two methods to Object:'
+- !ruby/struct:SM::Flow::VERB 
+  body: "  should(matcher=nil)\n  should_not(matcher=nil)\n"
+- !ruby/struct:SM::Flow::P 
+  body: Both methods take an optional Expression Matcher (See Spec::Matchers).
+- !ruby/struct:SM::Flow::P 
+  body: When <tt>should</tt> receives an Expression Matcher, it calls <tt>matches?(self)</tt>.
+    If it returns <tt>true</tt>, the spec passes and execution continues. If it returns
+    <tt>false</tt>, then the spec fails with the message returned by <tt>matcher.failure_message</tt>.
+- !ruby/struct:SM::Flow::P 
+  body: Similarly, when <tt>should_not</tt> receives a matcher, it calls <tt>matches?(self)</tt>.
+    If it returns <tt>false</tt>, the spec passes and execution continues. If it returns
+    <tt>true</tt>, then the spec fails with the message returned by <tt>matcher.negative_failure_message</tt>.
+- !ruby/struct:SM::Flow::P 
+  body: RSpec ships with a standard set of useful matchers, and writing your own matchers
+    is quite simple. See Spec::Matchers for details.
+attributes: 
+- !ruby/object:RI::Attribute 
+  name: differ
+  comment: 
+  rw: RW
+instance_methods: []
+
+full_name: Spec::Expectations
+superclass: 
+class_methods: []
+

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- *************************GO-LICENSE-START*****************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+            Plugin Descriptor schema for Go. Copyright (c) 2013 ThoughtWorks, Inc.
+            www.thoughtworks.com. All rights reserved.
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element name="go-plugin">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="about" maxOccurs="1" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:pattern value="[a-zA-Z0-9\-_.]+"/>
+                        <xsd:maxLength value="200"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+
+            <xsd:attribute name="version" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="about">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="version" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="target-go-version" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="description" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" ref="vendor"/>
+                <xsd:element minOccurs="0" maxOccurs="1" ref="target-os"/>
+            </xsd:all>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="vendor">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="url" type="xsd:string"/>
+            </xsd:all>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="target-os">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element minOccurs="1" maxOccurs="unbounded" name="value" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

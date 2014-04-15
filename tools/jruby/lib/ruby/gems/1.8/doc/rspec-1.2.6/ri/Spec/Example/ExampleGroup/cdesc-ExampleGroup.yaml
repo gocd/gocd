@@ -1,0 +1,19 @@
+--- !ruby/object:RI::ClassDescription 
+includes: 
+- !ruby/object:RI::IncludedModule 
+  name: Spec::Example::ExampleMethods
+name: ExampleGroup
+constants: []
+
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Base class for customized example groups. Use this if you want to make a custom
+    example group.
+attributes: []
+
+instance_methods: []
+
+full_name: Spec::Example::ExampleGroup
+superclass: Object
+class_methods: []
+

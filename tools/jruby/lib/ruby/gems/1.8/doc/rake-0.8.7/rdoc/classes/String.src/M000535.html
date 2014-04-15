@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>pathmap (String)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre>     <span class="ruby-comment cmt"># File lib/rake.rb, line 200</span>
+200:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">pathmap</span>(<span class="ruby-identifier">spec</span>=<span class="ruby-keyword kw">nil</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+201:       <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">self</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">nil?</span>
+202:       <span class="ruby-identifier">result</span> = <span class="ruby-value str">''</span>
+203:       <span class="ruby-identifier">spec</span>.<span class="ruby-identifier">scan</span>(<span class="ruby-regexp re">/%\{[^}]*\}-?\d*[sdpfnxX%]|%-?\d+d|%.|[^%]+/</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">frag</span><span class="ruby-operator">|</span>
+204:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">frag</span>
+205:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%f'</span>
+206:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-keyword kw">self</span>)
+207:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%n'</span>
+208:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-keyword kw">self</span>).<span class="ruby-identifier">ext</span>
+209:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%d'</span>
+210:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-keyword kw">self</span>)
+211:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%x'</span>
+212:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">extname</span>(<span class="ruby-keyword kw">self</span>)
+213:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%X'</span>
+214:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">ext</span>
+215:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%p'</span>
+216:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-keyword kw">self</span>
+217:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%s'</span>
+218:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> (<span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">ALT_SEPARATOR</span> <span class="ruby-operator">||</span> <span class="ruby-constant">File</span><span class="ruby-operator">::</span><span class="ruby-constant">SEPARATOR</span>)
+219:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%-'</span>
+220:           <span class="ruby-comment cmt"># do nothing</span>
+221:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'%%'</span>
+222:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-value str">&quot;%&quot;</span>
+223:         <span class="ruby-keyword kw">when</span> <span class="ruby-regexp re">/%(-?\d+)d/</span>
+224:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">pathmap_partial</span>(<span class="ruby-identifier">$1</span>.<span class="ruby-identifier">to_i</span>)
+225:         <span class="ruby-keyword kw">when</span> <span class="ruby-regexp re">/^%\{([^}]*)\}(\d*[dpfnxX])/</span>
+226:           <span class="ruby-identifier">patterns</span>, <span class="ruby-identifier">operator</span> = <span class="ruby-identifier">$1</span>, <span class="ruby-identifier">$2</span>
+227:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">pathmap</span>(<span class="ruby-value str">'%'</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">operator</span>).<span class="ruby-identifier">pathmap_replace</span>(<span class="ruby-identifier">patterns</span>, <span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+228:         <span class="ruby-keyword kw">when</span> <span class="ruby-regexp re">/^%/</span>
+229:           <span class="ruby-identifier">fail</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;Unknown pathmap specifier #{frag} in '#{spec}'&quot;</span>
+230:         <span class="ruby-keyword kw">else</span>
+231:           <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">frag</span>
+232:         <span class="ruby-keyword kw">end</span>
+233:       <span class="ruby-keyword kw">end</span>
+234:       <span class="ruby-identifier">result</span>
+235:     <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

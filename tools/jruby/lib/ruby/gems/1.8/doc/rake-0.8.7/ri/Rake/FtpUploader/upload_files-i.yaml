@@ -1,0 +1,12 @@
+--- !ruby/object:RI::MethodDescription 
+params: (wildcard)
+is_singleton: false
+block_params: 
+name: upload_files
+comment: 
+- !ruby/struct:SM::Flow::P 
+  body: Upload all files matching <tt>wildcard</tt> to the uploader's root path.
+full_name: Rake::FtpUploader#upload_files
+visibility: public
+aliases: []
+

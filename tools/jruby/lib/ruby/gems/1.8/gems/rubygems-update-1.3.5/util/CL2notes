@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+$:.unshift 'lib'
+
+require 'rubygems'
+
+def format_text(text, wrap, indent=0)
+  result = []
+  work = text.dup
+
+  while work.length > wrap
+    if work =~ /^(.{0,#{wrap}})[ \n]/o then
+      result << $1
+      work.slice!(0, $&.length)
+    else
+      result << work.slice!(0, wrap)
+    end
+  end
+
+  result << work if work.length.nonzero?
+  result.join("\n").gsub(/^/, " " * indent)
+end
+
+version = ARGV.shift || Gem::RubyGemsVersion
+
+entries = Hash.new { |h,file| h[file] = [] }
+entry = []
+file = nil
+
+IO.foreach 'ChangeLog' do |line|
+  case line
+  when /^\s*$/,
+       /^#/,
+       /^\d{4}-\d{2}-\d{2}/ then
+    next
+  when /^\s+\*\s+([^:]+?):\s+#{version}/ then
+    entries[file] << entry.join(' ') unless entry.empty?
+    break
+  when /^\s+\*\s+([^:]+?):\s+/ then
+    entries[file] << entry.join(' ') unless entry.empty?
+    file = $1
+    entry = [$'.strip]
+  when /^\s+/ then
+    entry << $'.strip
+  end
+end
+
+entries.sort_by { |file, | file }.each do |file, file_entries|
+  puts "* #{file}"
+  file_entries.each do |file_entry|
+    file_entry = format_text file_entry, 74, 4
+    file_entry.sub! '    ', '  * '
+    puts file_entry
+  end
+end
+

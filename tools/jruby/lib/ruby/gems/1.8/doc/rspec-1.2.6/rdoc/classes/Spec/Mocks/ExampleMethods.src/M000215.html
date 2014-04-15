@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+  <title>stub_everything (Spec::Mocks::ExampleMethods)</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" href="../../../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body class="standalone-code">
+  <pre><span class="ruby-comment cmt"># File lib/spec/mocks/spec_methods.rb, line 34</span>
+      <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">stub_everything</span>(<span class="ruby-identifier">name</span> = <span class="ruby-value str">'stub'</span>)
+        <span class="ruby-constant">Spec</span>.<span class="ruby-identifier">warn</span>(<span class="ruby-value str">&quot;\nDEPRECATION: stub_everything('\#{name}') is deprecated and will be removed\nfrom a future version of rspec. Please use mock('\#{name}').as_null_object\nor stub('\#{name}').as_null_object instead.\n\n&quot;</span>)
+        <span class="ruby-identifier">mock</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">:null_object</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword kw">true</span>)
+      <span class="ruby-keyword kw">end</span></pre>
+</body>
+</html>

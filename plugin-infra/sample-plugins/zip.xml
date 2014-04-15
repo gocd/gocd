@@ -13,6 +13,8 @@
                 <include>README*</include>
                 <include>**/*.xml</include>
                 <include>**/*.java</include>
+                <include>*/resources/**/*</include>
+                <include>*/src/**/*</include>
             </includes>
             <excludes>
                 <exclude>curl-plugin/target/**/*</exclude>

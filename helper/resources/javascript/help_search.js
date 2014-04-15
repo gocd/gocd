@@ -86,7 +86,7 @@ GoHelpSearch = Class.create({
       this.resultsElement = $(resultsDomId);
       var options = new google.search.DrawOptions();
       options.setSearchFormRoot(formDomId);
-      var searcher = new google.search.CustomSearchControl('013109281384884948049:-rbkkqblqqw');
+      var searcher = new google.search.CustomSearchControl('013109281384884948049:gcpiyhasjsk');
       searcher.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
       searcher.setNoResultsString('Your search did not match any help pages.');
       searcher.setSearchCompleteCallback(this, this.onSearchComplete.bind(this));

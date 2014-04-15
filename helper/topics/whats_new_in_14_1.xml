@@ -19,7 +19,7 @@
 <chapter title="Go 14.1" id="has_github_links">
 	<section title="Features">
 	    <bullets>
-            <item id="8027">Added capability to create a Task plugin. As a reference implementation, a <cref topic="writing_go_task_plugins">sample task plugin (curl)</cref> is bundled.</item>
+            <item id="8027">Added capability to create a <cref topic="writing_go_task_plugins">Task plugin</cref>.</item>
 	    </bullets>
 	</section>
     <section title="Bug fixes">

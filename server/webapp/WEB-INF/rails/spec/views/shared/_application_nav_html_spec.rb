@@ -28,6 +28,28 @@ describe "/shared/_application_nav.html.erb" do
     template.stub!(:is_user_an_admin?).and_return(true)
   end
 
+  describe :header do
+    before :each do
+      template.stub!(:url_for_path).and_return('url_for_path')
+      template.stub!(:url_for).and_return('url_for')
+      template.stub!(:can_view_admin_page?).and_return(true)
+    end
+
+    it 'should have the header links' do
+      render :partial => "shared/application_nav.html.erb"
+
+      assert_header_values = {'recent-activity' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'admin' => 'ADMIN'}
+
+      response.body.should have_tag("ul.tabs") do
+        assert_header_values.each do |key, value|
+          with_tag("li#cruise-header-tab-#{key}") do
+            with_tag("a", value)
+          end
+        end
+      end
+    end
+  end
+
   describe "user name and logout" do
     it "should display username and logout botton if a user is logged in" do
       assigns[:user] = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("maulik suchak"))

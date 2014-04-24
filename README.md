@@ -1,8 +1,18 @@
-GoCD
-====
+# gocd 
+======
 
-Main repository for Go Continuous Delivery. The current development team is preparing the source code for release. It will be made available in this repository as soon as possible. 
+This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
+All information to help you get started Go can be found on <a href="http://www.go.cd/">go.cd</a> website.
 
-####Contributing
+## Contributing
 
-For information on contributing to this project please see http://www.go.cd/contribute/
+We encourage you to contribute to Go. For information on contributing to this project, please see our <a href="http://www.go.cd/contribute/">contributor's guide</a>.
+A lot of useful information like links to user documentation, design documentation, mailing lists etc can be found in the <a href="http://www.go.cd/community/resources.html">resources</a> section.
+
+## License
+
+Go is an open source project, sponsored by <a href="http://www.thoughtworks.com/">ThoughtWorks Inc.</a> under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+
+~                                                                                                                             
+~                                                                                                                             
+~                                                                             

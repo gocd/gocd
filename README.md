@@ -1,7 +1,7 @@
 # gocd 
 
 This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
-All information to help you get started Go can be found on <a href="http://www.go.cd/">go.cd</a> website.
+All information to help you get started with Go can be found on the <a href="http://www.go.cd/">go.cd</a> website.
 
 ## Contributing
 

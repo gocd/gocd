@@ -23,5 +23,5 @@ fi
 export TF_CLC_HOME=$project_root/tfs-tool
 unset GEM_HOME
 unset GEM_PATH
-$(dirname $0)/tools/jruby-1.7.3/bin/jruby -J-Xmx2048m -S buildr $*
+$(dirname $0)/tools/jruby/bin/jruby -J-Xmx2048m -S buildr $*
 

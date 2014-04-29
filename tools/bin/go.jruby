@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #*************************GO-LICENSE-START********************************
 # Copyright 2014 ThoughtWorks, Inc.
 #
@@ -8,13 +8,14 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+# Unless required by applicable law or a-qgreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #*************************GO-LICENSE-END**********************************
 
-
-tools/jruby-1.7.11/bin/jruby -S buildr cruise:misc:prepare_jsunit_file_structure
-/usr/bin/firefox $1
+JRUBY_BASE="$(dirname $0)/../jruby-1.7.11"
+export GEM_HOME="$JRUBY_BASE"
+export GEM_PATH="$JRUBY_BASE/lib/ruby/gems/shared/"
+exec $JRUBY_BASE/bin/jruby "$@"

@@ -99,7 +99,7 @@ task :generate_help_documents do
   api_doc_files << File.join(plugin_api_target_dir, "classes/plugin-descriptor.xsd")
   api_doc_files << File.join("..", "plugin-infra", "sample-plugins", "target", "go-sample-plugins.zip")
 
-  ruby = File.expand_path('../../tools/jruby/bin', __FILE__) + (Gem.win_platform? ? '/jruby.bat' : '/jruby')
+  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
   sh "cd #{File.join("../helper/")} && #{ruby} -S rake site build_sitemap"
 
   require 'fileutils'
@@ -189,7 +189,10 @@ end
 task :pull_latest_sass do
   # Clear css_sass folder before regenerating new css files
   FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
-  sh "cd target/webapp/sass && sass --update .:../stylesheets/css_sass"
+
+  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+  sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
+
   FileUtils.remove_dir("target/webapp/sass", true)
 end
 

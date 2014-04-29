@@ -410,10 +410,10 @@
     </target>
 
     <target name="dist.buildr" depends="-preparing.dist.current_revision_number">
-        <condition property="jruby.path" value="tools/jruby/bin/jruby.bat">
+        <condition property="jruby.path" value="tools/bin/go.jruby.bat">
             <os family="windows"/>
         </condition>
-        <condition property="jruby.path" value="tools/jruby/bin/jruby">
+        <condition property="jruby.path" value="tools/bin/go.jruby">
             <not><os family="windows"/></not>
         </condition>
 

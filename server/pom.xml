@@ -859,14 +859,14 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <exec executable="${main.dir}\tools\jruby-1.7.3\bin\jruby.bat" failonerror="true" osfamily="windows">
+                                <exec executable="${main.dir}\tools\bin\go.jruby.bat" failonerror="true" osfamily="windows">
                                     <arg value="-S"></arg>
                                     <arg value="rake"></arg>
                                     <arg value="--rakefile"></arg>
                                     <arg value="prepare_go_server_webapp.rake"></arg>
                                     <arg value="prepare_webapp"></arg>
                                 </exec>
-                                <exec executable="${main.dir}/tools/jruby-1.7.3/bin/jruby" failonerror="true" osfamily="unix">
+                                <exec executable="${main.dir}/tools/bin/go.jruby" failonerror="true" osfamily="unix">
                                     <arg value="-S"></arg>
                                     <arg value="rake"></arg>
                                     <arg value="--rakefile"></arg>

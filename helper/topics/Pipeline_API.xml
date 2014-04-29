@@ -160,23 +160,23 @@
             <code>curl -u jez:badger -d "" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <p>If you want to trigger a new instance of the pipeline 'foo' with revision '3456' of your svn repository and instance 'upstream_foo/1/dist/2' of the upstream pipeline</p>
-            <code>curl -u jez:badger -d "materials[svn_material]=3456&materials[upstream_foo]=upstream_foo/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
+            <code>curl -u jez:badger -d "materials[svn_material]=3456&amp;materials[upstream_foo]=upstream_foo/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <p>If you want to trigger a new instance of the pipeline 'foo' with revision '3456' of your svn repository and instance 'upstream_bar/1/Installers/2' of the upstream pipeline</p>
-            <code>curl -u jez:badger -d "materials[svn_material]=3456&materials[my-upstream-pipeline-name]=upstream_bar/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
+            <code>curl -u jez:badger -d "materials[svn_material]=3456&amp;materials[my-upstream-pipeline-name]=upstream_bar/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <p>You can also use the following form, passing the materials as part of the URL</p>
-            <code>curl -u jez:badger -d "materials[svn_material]=3456&materials[upstream_foo]=upstream_foo/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
+            <code>curl -u jez:badger -d "materials[svn_material]=3456&amp;materials[upstream_foo]=upstream_foo/1/dist/2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <p>If you want to trigger a new instance of the pipeline 'foo' with revision '3456' of your svn repository and parametrize the environment variable MACHINE_IP with new value '10.21.2.2'
                 for this specific run
             </p>
-            <code>curl -u jez:badger -d "materials[svn_material]=3456&variables[MACHINE_IP]=10.21.2.2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
+            <code>curl -u jez:badger -d "materials[svn_material]=3456&amp;variables[MACHINE_IP]=10.21.2.2" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <p>If you want to trigger a new instance of the pipeline with the latest of all materials and parametrize the environment variable MACHINE_IP with new value '10.21.2.2' for this specific
                 run
             </p>
-            <code>curl -u jez:badger -d "variables[MACHINE_IP]=10.21.2.2&variables[TLB_TMP_DIR]=C:\tlb_tmp_dir" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
+            <code>curl -u jez:badger -d "variables[MACHINE_IP]=10.21.2.2&amp;variables[TLB_TMP_DIR]=C:\tlb_tmp_dir" http://goserver.com:8153/go/api/pipelines/foo/schedule</code>
 
             <bullets>
                 <item>Similar to overriding variables, you can override secure variables while triggering a new instance of the pipeline</item>

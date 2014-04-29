@@ -55,23 +55,6 @@ class TopicMaker
 			      end
                 end
 
-         @html.element('div', {'class' => 'block-content'}) do
-          @html.text(%{
-            <script type="text/javascript">
-               if (typeof(Zenbox) !== "undefined") {
-                  Zenbox.init({
-                    dropboxID:   "20094116",
-                    url:         "http://twstudios.zendesk.com",
-                    tabID:       "Help",
-                    tabColor:    "black",
-                    tabPosition: "Right"
-                  });
-             }
-            </script>
-          })
-        end
-
-                
           # @html.element('div', {'id' => 'bd'}) do
                 @html.element('div', {'id' => 'main-container'}) do
                   @html.element('div', {'id' => 'search_results_container'}) do
@@ -138,13 +121,10 @@ class TopicMaker
         @html.element('meta', 'name' => 'google-site-verification', 'content' => "#{id}") {}
         @html.element('title') { @html.text title }
         @html.element('link', 'href' => 'resources/stylesheets/help.css', 'media' => 'screen', 'rel' => 'Stylesheet', 'type' => 'text/css') {}
-      @html.element('link', 'href' => '//assets.zendesk.com/external/zenbox/v2.5/zenbox.css','media' => 'screen, projection',
-      'rel' => 'Stylesheet', 'type' => 'text/css'){}
         @html.element('link', 'href' => 'resources/stylesheets/help_search.css', 'media' => 'screen', 'rel' => 'Stylesheet', 'type' => 'text/css') {}
         @html.element('script', 'src' => '//www.google.com/jsapi', 'type' => 'text/javascript') {}
             @html.element('link', 'href' => '/go/images/cruise.ico', 'rel' => 'shortcut icon') {}
         @html.element('script', 'src' => 'resources/javascript/prototype.js', 'type' => 'text/javascript') {}
-        @html.element('script', 'src' => '//assets.zendesk.com/external/zenbox/v2.5/zenbox.js', 'type' => 'text/javascript'){}
         @html.element('script', 'src' => 'resources/javascript/help.js', 'type' => 'text/javascript') {}
         @html.element('script', 'src' => 'resources/javascript/help_search.js', 'type' => 'text/javascript') {}
       end

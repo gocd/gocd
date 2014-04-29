@@ -93,7 +93,7 @@
 			<col>(required) The type of response. Should always be 'code' in this case</col>
 		</row>
 	    </table>
-		<p> <strong> Example Request: </strong><code> https://www.your-go-server.com:8154/oauth/authorize?redirect_uri=http://www.my_redirect_uri.com&client_id=ac212ddea07c6ac009d26de8090f5918f73ae648dc3676b1f00aeeae4fca67e1&response_type=code</code></p>
+		<p> <strong> Example Request: </strong><code> https://www.your-go-server.com:8154/oauth/authorize?redirect_uri=http://www.my_redirect_uri.com&amp;client_id=ac212ddea07c6ac009d26de8090f5918f73ae648dc3676b1f00aeeae4fca67e1&amp;response_type=code</code></p>
 			
 		<p> If you type the above request on a browser, you should see a form asking you to authorize the client to access the host application on your behalf. Check the check box and submit. </p>
 		<p>Your browser is redirected to your redirect URI and you should now see your authorization code as the “code” parameter. Save this code, you will need it for the next step.</p> 
@@ -129,7 +129,7 @@
 				<col>(required) URL where the user should be redirected to after access to the service is granted. This uri can also include url-encoded query parameters</col>
 		      </row>
 	    </table>
-	<p> <strong>Example Request (in curl)</strong>: <code>curl  https://www.your-go-server:8154/go/oauth/token -d  "code=26a7dea5e7e121be5ad5832a4a5b09d505c234c7625de3f375971264688bdb51&grant_type=authorization-code&client_id=ac212ddea07c6ac009d26de8090f5918f73ae648dc3676b1f00aeeae4fca67e1&client_secret=d1b54df502f162108a6136ec584dc637a7ad5578832a5db364e0d7b47657c718&redirect_uri=www.my_redirect_uri.com" -v </code></p>
+	<p> <strong>Example Request (in curl)</strong>: <code>curl  https://www.your-go-server:8154/go/oauth/token -d  "code=26a7dea5e7e121be5ad5832a4a5b09d505c234c7625de3f375971264688bdb51&amp;grant_type=authorization-code&amp;client_id=ac212ddea07c6ac009d26de8090f5918f73ae648dc3676b1f00aeeae4fca67e1&amp;client_secret=d1b54df502f162108a6136ec584dc637a7ad5578832a5db364e0d7b47657c718&amp;redirect_uri=www.my_redirect_uri.com" -v </code></p>
 </p>
 	<p>The response to the above POST request will be a JSON containing your access token, and its expiration time in seconds</p>
 	<p> <strong>Example Response:</strong> <code>{:access_token => f180f7bb68d38531aac2f49e5b0cac0c5ed5ced9b72842a429e783747e819664, :expires_in => 3529, :refresh_token => e1n54df802f162108a6336ec584dc637a7ad5578832a5db364e0d7b47657c875}

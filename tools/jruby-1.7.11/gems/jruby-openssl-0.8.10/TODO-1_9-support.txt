@@ -1,0 +1,23 @@
+TODO for 1.9 support
+
+* Implement some mehotds properly
+  * ASN1 (fix lots of failing tests)
+  * OpenSSL::ASN1::ObjectId.new for SHA-2 ids such as SHA224
+  * X509Name#cmp
+  * ASN.1 handling
+
+* Implement some methods
+  * PKey.read
+  * PKey::DH#public_key
+  * SSLSocket#sysread_nonblock
+  * SSLSocket#syswrite_nonblock
+  * OCSP
+  * config file
+  * SSLSocket#client_ca - can we get CertificateRequest* in ServerHello?
+  * SSL::Session - can we?
+  * @crlDisPts of tX509Extension
+
+* Fixes needed for JRuby
+  * Implement BasicSocket#connect_address for test_pair.rb
+  * Stop Socket#accept by Socket#shutdown, not by Socket#close
+  * busy loop for SSLSocket#read_nonblock (and revert net/protocol.rb)

@@ -1,0 +1,9 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/rubyforge
+lib/rubyforge.rb
+lib/rubyforge/client.rb
+test/test_rubyforge.rb
+test/test_rubyforge_client.rb

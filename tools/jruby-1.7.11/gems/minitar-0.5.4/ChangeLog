@@ -1,0 +1,17 @@
+Revision history for Ruby library Archive::Tar::Minitar. Unless explicitly
+noted otherwise, all changes are produced by Austin Ziegler
+<austin@rubyforge.org>.
+
+== 0.5.3
+* Fix for long names (http://rubyforge.org/tracker/index.php?func=detail&aid=22628&group_id=84&atid=407)
+
+== 0.5.2
+* Fixed a Ruby 1.9 compatibility error.
+
+== 0.5.1
+* Fixed a variable name error.
+
+== Archive::Tar::Minitar 0.5.0
+* Initial release. Does files and directories. Command does create, extract,
+* and list.
+

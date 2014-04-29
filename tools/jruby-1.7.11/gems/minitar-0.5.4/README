@@ -1,0 +1,68 @@
+Archive::Tar::Minitar README
+============================
+Archive::Tar::Minitar is a pure-Ruby library and command-line utility that
+provides the ability to deal with POSIX tar(1) archive files. The
+implementation is based heavily on Mauricio Ferna'ndez's implementation in
+rpa-base, but has been reorganised to promote reuse in other projects.
+Antoine Toulme forked the original project on rubyforge to place it on github, under
+http://www.github.com/atoulme/minitar
+
+This release is version 0.5.2, offering a Ruby 1.9 compatibility bugfix over
+version 0.5.1. The library can only handle files and directories at this
+point. A future version will be expanded to handle symbolic links and hard
+links in a portable manner. The command line utility, minitar, can only create
+archives, extract from archives, and list archive contents.
+
+Using this library is easy. The simplest case is:
+
+  require 'zlib'
+  require 'archive/tar/minitar'
+  include Archive::Tar
+
+    # Packs everything that matches Find.find('tests')
+  File.open('test.tar', 'wb') { |tar| Minitar.pack('tests', tar) }
+    # Unpacks 'test.tar' to 'x', creating 'x' if necessary.
+  Minitar.unpack('test.tar', 'x')
+
+A gzipped tar can be written with:
+
+    tgz = Zlib::GzipWriter.new(File.open('test.tgz', 'wb'))
+      # Warning: tgz will be closed!
+    Minitar.pack('tests', tgz)
+
+    tgz = Zlib::GzipReader.new(File.open('test.tgz', 'rb'))
+      # Warning: tgz will be closed!
+    Minitar.unpack(tgz, 'x')
+
+As the case above shows, one need not write to a file. However, it will
+sometimes require that one dive a little deeper into the API, as in the case
+of StringIO objects. Note that I'm not providing a block with Minitar::Output,
+as Minitar::Output#close automatically closes both the Output object and the
+wrapped data stream object.
+
+  begin
+    sgz = Zlib::GzipWriter.new(StringIO.new(""))
+    tar = Output.new(sgz)
+    Find.find('tests') do |entry|
+      Minitar.pack_file(entry, tar)
+    end
+  ensure
+      # Closes both tar and sgz.
+    tar.close
+  end
+
+Copyright
+=========
+# Copyright 2004 Mauricio Julio Ferna'ndez Pradier and Austin Ziegler
+#
+# This program is based on and incorporates parts of RPA::Package from
+# rpa-base (lib/rpa/package.rb and lib/rpa/util.rb) by Mauricio and has been
+# adapted to be more generic by Austin.
+#
+# 'minitar' contains an adaptation of Ruby/ProgressBar by Satoru
+# Takabayashi <satoru@namazu.org>, copyright 2001 - 2004.
+#
+# This program is free software. It may be redistributed and/or modified
+# under the terms of the GPL version 2 (or later) or Ruby's licence.
+# 
+# $Id$

@@ -1,0 +1,8 @@
+Host test
+  HostName %h.sufix
+
+Host 1234
+  HostName prefix.%h.sufix
+
+Host *
+  HostName %h

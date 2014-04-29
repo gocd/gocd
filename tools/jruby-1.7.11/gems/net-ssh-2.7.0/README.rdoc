@@ -1,0 +1,219 @@
+= Net::SSH 2.x
+
+<em><b>Please note: this project is in maintenance mode. It is not under active development but pull requests are very much welcome. Just be sure to include tests! -- delano</b></em>
+
+
+* Docs: http://net-ssh.github.com/net-ssh
+* Issues: https://github.com/net-ssh/net-ssh/issues
+* Codes: https://github.com/net-ssh/net-ssh
+* Email: net-ssh@solutious.com
+
+
+<em>As of v2.6.4, all gem releases are signed. See INSTALL.</em>
+
+
+== DESCRIPTION:
+
+Net::SSH is a pure-Ruby implementation of the SSH2 client protocol. It allows you to write programs that invoke and interact with processes on remote servers, via SSH2.
+
+== FEATURES:
+
+* Execute processes on remote servers and capture their output
+* Run multiple processes in parallel over a single SSH connection
+* Support for SSH subsystems
+* Forward local and remote ports via an SSH connection
+
+== SYNOPSIS:
+
+In a nutshell:
+
+  require 'net/ssh'
+
+  Net::SSH.start('host', 'user', :password => "password") do |ssh|
+    # capture all stderr and stdout output from a remote process
+    output = ssh.exec!("hostname")
+
+    # capture only stdout matching a particular pattern
+    stdout = ""
+    ssh.exec!("ls -l /home/jamis") do |channel, stream, data|
+      stdout << data if stream == :stdout
+    end
+    puts stdout
+
+    # run multiple processes in parallel to completion
+    ssh.exec "sed ..."
+    ssh.exec "awk ..."
+    ssh.exec "rm -rf ..."
+    ssh.loop
+
+    # open a new channel and configure a minimal set of callbacks, then run
+    # the event loop until the channel finishes (closes)
+    channel = ssh.open_channel do |ch|
+      ch.exec "/usr/local/bin/ruby /path/to/file.rb" do |ch, success|
+        raise "could not execute command" unless success
+
+        # "on_data" is called when the process writes something to stdout
+        ch.on_data do |c, data|
+          $stdout.print data
+        end
+
+        # "on_extended_data" is called when the process writes something to stderr
+        ch.on_extended_data do |c, type, data|
+          $stderr.print data
+        end
+
+        ch.on_close { puts "done!" }
+      end
+    end
+
+    channel.wait
+
+    # forward connections on local port 1234 to port 80 of www.capify.org
+    ssh.forward.local(1234, "www.capify.org", 80)
+    ssh.loop { true }
+  end
+
+See Net::SSH for more documentation, and links to further information.
+
+== REQUIREMENTS:
+
+The only requirement you might be missing is the OpenSSL bindings for Ruby. These are built by default on most platforms, but you can verify that they're built and installed on your system by running the following command line:
+
+  ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'
+
+If that spits out something like "OpenSSL 0.9.8g 19 Oct 2007", then you're set. If you get an error, then you'll need to see about rebuilding ruby with OpenSSL support, or (if your platform supports it) installing the OpenSSL bindings separately.
+
+Additionally: if you are going to be having Net::SSH prompt you for things like passwords or certificate passphrases, you'll want to have either the Highline (recommended) or Termios (unix systems only) gem installed, so that the passwords don't echo in clear text.
+
+Lastly, if you want to run the tests or use any of the Rake tasks, you'll need:
+
+* Echoe (for the Rakefile)
+* Mocha (for the tests)
+
+
+== INSTALL:
+
+* gem install net-ssh (might need sudo privileges)
+
+NOTE: If you are running on jruby you need to install jruby-pageant manually (gemspec doesn't allow for platform specific dependencies).
+
+However, in order to be sure the code you're installing hasn't been tampered with, it's recommended that you verify the signature[http://docs.rubygems.org/read/chapter/21]. To do this, you need to add my public key as a trusted certificate (you only need to do this once):
+
+    # Add the public key as a trusted certificate
+    # (You only need to do this once)
+    $ curl -O https://raw.github.com/net-ssh/net-ssh/master/gem-public_cert.pem
+    $ gem cert --add gem-public_cert.pem
+
+Then, when install the gem, do so with high security:
+
+    $ gem install net-ssh -P HighSecurity
+
+If you don't add the public key, you'll see an error like "Couldn't verify data signature". If you're still having trouble let me know and I'll give you a hand.
+
+== RUBY 1.8 SUPPORT
+
+net-ssh supports Ruby 1.8.x up until the 2.5.1 release. Later releases will work but the test suite is no longer guaranteed to pass all tests.
+
+== JRUBY 1.6
+
+There is an issue with jruby-openssl that produces the following error in jruby 1.6:
+
+    <ArgumentError> wrong number of arguments (2 for 1)
+    /home/offers/tracking/shared/bundle/jruby/1.8/gems/net-ssh-2.6.0/lib/net/ssh/key_factory.rb:77:in `load_data_private_key'
+
+You can downgrade jruby-openssl to version 0.7.4 (before they added the PKey.read method) to resolve it or upgrade jruby to 1.7. See issue #61 for more info: https://github.com/net-ssh/net-ssh/issues/61.
+
+
+== ARCFOUR SUPPORT:
+
+from Karl Varga:
+
+Ruby's OpenSSL bindings always return a key length of 16 for RC4 ciphers, which means that when we try to use ARCFOUR256 or higher, Net::SSH generates keys which are consistently too short - 16 bytes as opposed to 32 bytes - resulting in the following error:
+
+    OpenSSL::CipherError: key length too short
+
+My patch simply instructs Net::SSH to build keys of the the proper length, regardless of the required key length reported by OpenSSL.
+
+You should also be aware that your OpenSSL C libraries may also contain this bug.  I've updated to 0.9.8k, but according to this thread[https://bugzilla.mindrot.org/show_bug.cgi?id=1291], the bug existed as recently as 0.9.8e!  I've manually taken a look at my header files and they look ok, which is what makes me think it's a bug in the Ruby implementation.
+
+To see your OpenSSL version:
+
+    $ openssl version
+    OpenSSL 0.9.8k 25 Mar 2009
+
+After installing this gem, verify that Net::SSH is generating keys of the correct length by running the script <tt>support/arcfour_check.rb</tt>:
+
+    $ ruby arcfour_support.rb
+
+which should produce the following:
+
+    arcfour128: [16, 8] OpenSSL::Cipher::Cipher
+    arcfour256: [32, 8] OpenSSL::Cipher::Cipher
+    arcfour512: [64, 8] OpenSSL::Cipher::Cipher
+
+
+== RUNNING TESTS
+
+Run the test suite from the net-ssh directory with the following command:
+
+     bash -c 'unset HOME && ruby -Ilib -Itest -rrubygems test/test_all.rb'
+
+Run a single test file like this:
+
+     ruby -Ilib -Itest -rrubygems test/transport/test_server_version.rb
+
+
+=== EXPECTED RESULTS
+
+* Ruby 1.8: all tests pass
+
+* Ruby 1.9: all tests pass
+
+* JRuby 1.5: 99% tests pass (448 tests, 1846 assertions, 1 failures)
+
+
+=== PORT FORWARDING TESTS
+
+     ruby -Ilib -Itest -rrubygems test/manual/test_forward.rb
+
+test_forward.rb must be run separately from the test suite because
+it requires authorizing your public SSH keys on you localhost.
+
+If you already have keys you can do this:
+
+     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+If you don't have keys see:
+
+     http://kimmo.suominen.com/docs/ssh/#ssh-keygen
+
+You should now be able to login to your localhost with out
+bring prompted for a password:
+
+     ssh localhost
+
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008 Jamis Buck
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

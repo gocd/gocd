@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+#--
+# Archive::Tar::Minitar 0.5.2
+#   Copyright 2004 Mauricio Julio Ferna'ndez Pradier and Austin Ziegler
+#
+# This program is based on and incorporates parts of RPA::Package from
+# rpa-base (lib/rpa/package.rb and lib/rpa/util.rb) by Mauricio and has been
+# adapted to be more generic by Austin.
+#
+# It is licensed under the GNU General Public Licence or Ruby's licence.
+#
+# $Id$
+#++
+
+  # 1) Try to load Archive::Tar::Minitar from the gem.
+  # 2) Try to load Archive::Tar::Minitar from $LOAD_PATH.
+begin
+  require 'rubygems'
+  require_gem 'archive-tar-minitar', '= 0.5.2'
+rescue LoadError
+  nil
+end
+
+require 'archive/tar/minitar'
+require 'archive/tar/minitar/command'
+
+exit Archive::Tar::Minitar::Command.run(ARGV)

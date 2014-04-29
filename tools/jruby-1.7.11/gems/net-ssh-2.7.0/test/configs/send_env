@@ -1,0 +1,2 @@
+Host 1234
+	SendEnv GIT_* LANG LC_*

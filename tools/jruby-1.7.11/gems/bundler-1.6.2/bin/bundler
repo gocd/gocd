@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'bundler'
+require 'bundler/cli'
+
+ui = Bundler::UI::Shell.new
+ui.error "It's recommended to use Bundler through 'bundle' binary instead of 'bundler'"
+
+bin = "#{File.dirname(__FILE__)}/bundle #{ARGV.join(" ")}"
+exec bin

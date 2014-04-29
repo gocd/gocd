@@ -1,0 +1,101 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership.  The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+
+@media print {
+  @page { size: letter; }
+  @page:first {
+    @top-left  { content: normal }
+    @top-right { content: normal }
+  }
+  @page:right {
+    margin: 1.25in 1in 1.5in 1.5in;
+    font: normal 10pt "Gill Sans" !important;
+    @top-left  { content: string(pagetitle); }
+    @top-right { content: counter(page); }
+  }
+  @page:left {
+    margin: 1.25in 1.5in 1.5in 1in;
+    font: normal 10pt "Gill Sans" !important;
+    @top-left  { content: counter(page); }
+    @top-right { content: string(pagetitle); }
+  }
+
+  title { string-set: doctitle content(); }
+
+  body {
+    font-family: "Palatino";
+    margin: 0;
+    color: black;
+    background: white;
+    font-size: 11pt;
+  }
+
+  h1 {
+    string-set: pagetitle content();
+    page-break-before: always;
+  }
+  h1:first-child { page-break-before: avoid; }
+  h1, h2, h3 {
+    font-family: "Gill Sans";
+  }
+  pre, p, blockquote { page-break-inside: avoid; }
+  pre, code {
+    font-family: "Monaco", "DejaVu Sans Mono", "Courier New", "Courier";
+    font-size: 9pt;
+  }
+  pre br {
+    display: none;
+  }
+  a:link, a:visited {
+    background: transparent;
+    text-decoration: none;
+  }
+  
+
+  #header, #pages, #footer { display: none }
+  #wrap, #content {
+    float: none !important;
+    color: black;
+    background: transparent;
+    width: auto !important;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ol.toc a:link, ol.toc a:visited { text-decoration: none; }
+  ol.toc a:after { content: leader('.') target-counter(attr(href), page); }
+
+  .title {
+    page-break-before: always;
+    border: none;
+  }
+  .title img {
+    display: block;
+    width: 80%;
+    margin: 2em auto 4em auto;
+  }
+  p.preface {
+    page-break-before: always;
+    padding-top: 1.5in;
+  }
+  div.preface.quotes {
+    page-break-before: always;
+    padding-top: 1in;
+  }
+
+}

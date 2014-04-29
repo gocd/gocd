@@ -1,0 +1,113 @@
+---
+layout: default
+title: Apache Buildr
+---
+
+Apache Buildr is a build system for Java-based applications, including support for Scala, Groovy and a growing number of JVM languages and tools.  We wanted something that's simple and intuitive to use, so we only need to tell it what to do, and it takes care of the rest.  But also something we can easily extend for those one-off tasks, with a language that's a joy to use.  And of course, we wanted it to be fast, reliable and have outstanding dependency management.
+
+
+h2(#why).  Why Buildr Rocks
+
+"Daniel Spiewak":http://www.codecommit.com/blog:
+
+bq. If you think about it, the question isn’t “Why use Buildr?”, it’s really “Why use anything else?” The advantages afforded by Buildr are so substantial, I really can’t see myself going with any other tool, at least not when I have a choice.
+
+"Tristan Juricek":http://tristanhunt.com/:
+
+bq. That’s still the strongest sell: it builds everything I need, and as I’ve needed more, I just got things working without a lot of fuss.
+
+"Matthieu Riou":http://offthelip.org/:
+
+bq. We used to rely on Ant, with a fairly extensive set of scripts. It worked but was expensive to maintain. The biggest mistake afterward was to migrate to Maven2. I could write pages of rants explaining all the problems we ran into and we still ended up with thousands of lines of XML.
+
+"Martin Grotzke":http://www.javakaffee.de/blog/:
+
+bq. The positive side effect for me as a java user is that I learn a little ruby, and that’s easy but lots of fun… :-)
+
+"Ijonas Kisselbach":http://twitter.com/ijonas/statuses/4134103928:
+
+bq. I've cleaned up & migrated the Vamosa build process from 768 lines of Ant build.xml to 28 lines of Buildr.
+
+h2(#what).  What You Get
+
+* A simple way to specify projects, and build large projects out of smaller sub-projects.
+* Pre-canned tasks that require the least amount of configuration, keeping the build script DRY and simple.
+* Compiling, copying and filtering resources, JUnit/TestNG test cases, APT source code generation, Javadoc and more.
+* A dependency mechanism that only builds what has changed since the last release.
+* A drop-in replacement for Maven 2.0, Buildr uses the same file layout, artifact specifications, local and remote repositories.
+* All your Ant tasks are belong to us! Anything you can do with Ant, you can do with Buildr.
+* No overhead for building "plugins" or configuration. Just write new tasks or functions.
+* Buildr is Ruby all the way down.  No one-off task is too demanding when you write code using variables, functions and objects.
+* Simple way to upgrade to new versions.
+* Did we mention fast?
+
+So let's get started.  You can "read the documentation online":quick_start.html, or "download the PDF":buildr.pdf.
+
+
+h2(#news).  What's New
+
+Highlights from Buildr 1.4.15 (2013-11-06)
+* Change: Updated the 'test_jar' package type to have a
+          classifier of 'tests' and thus match maven
+          conventions. Reported by Chris Bozic.
+* Fixed:  BUILDR-689 - Ensure that war file includes generated
+          assets rather than the "source" assets that may have
+          been filtered.
+* Fixed:  BUILDR-689 - Define assets task before the project is
+          defined to avoid "undefined method `project='" if the
+          project attempts to generate into the same directory.
+* Added:  BUILDR-679 - Support uploading to a snapshot repository
+          defined by repositories.snapshot_to if the artifact is
+          a snapshot. Submitted by Tammo van Lessen.
+* Change: Update the default output directory used in the jaxb_xjc
+          addon to use Maven conventions.
+* Fixed:  Bug in IdeaProject.partition_dependencies resulted in
+          projects being rebuilt if artifacts were added to the
+          project with dependencies on the current project.
+* Fixed:  BUILDR-605 - Ensure package task invokes included paths.
+* Fixed:  BUILDR-609 - compile.from should accept Task argument.
+
+Highlights from Buildr 1.4.14 (2013-10-11)
+* Fixed:  Fixed regression in gwt addon.
+* Fixed:  Fixed regression using transitive dependencies due to
+          presence of :scope option in Artifacts.to_hash.
+* Fixed:  BUILDR-681 - Stop empty projects creating target/webapp.
+* Fixed:  Fixed several regressions in in the Intellij IDE
+          project file generation.
+
+Highlights from Buildr 1.4.13 (2013-10-02)
+
+* Fixed:  Upgrade rjb dependency so that you can change JVMs by
+          modifying JAVA_HOME rather than recompiling rjb.
+* Change: Update to TestNG 6.8.5.
+* Fixed:  Several Ruby 2.0.0 failures have been addressed.
+* Fixed:  Make archive-related operations use a deterministic ordering.
+* Added:  Initial support for simple integration of an asset pipeline.
+          See "Compiling Assets" section in the manual.
+* Change: Improve the Intellij IDEA plugin substantially.
+* Change: Improve the gpg addon.
+* Fixed:  BUILDR-676 - Support the :dir option in Java::Command:java.
+          Reported by John Roth.
+* Fixed:  Improve downloading from Maven Central to avoid caching and
+          set the "User-Agent" http header.
+* Change: Change default scope of dependencies to 'compile'. Submitted
+          by Ingo Schmidt.
+* Fixed:  BUILDR-673 - Fix the option handling of the MultiTest test
+          framework to behave as documented. Submitted by John Roth.
+* Added:  BUILDR-672 - Allow the user to modify the properties field in
+          the checkstyle addon. Submitted by Wim C.
+
+This is a partial list -- see the "CHANGELOG":CHANGELOG for full details.
+
+h2(#notices).  Credits & Notices
+
+!http://www.apache.org/images/asf-logo.gif(A project of the Apache Software Foundation)!:http://www.apache.org
+
+The Apache Software Foundation is a non-profit organization, consider "sponsoring":http://www.apache.org/foundation/sponsorship.html and check the "thanks":http://www.apache.org/foundation/thanks.html page.
+
+"ColorCons":http://www.mouserunner.com/Spheres_ColoCons1_Free_Icons.html, copyright of Ken Saunders.  "DejaVu fonts":http://dejavu.sourceforge.net, copyright of Bitstream, Inc.
+
+Community member quotes from a thread on "Stack Overflow":http://stackoverflow.com/questions/1015525/why-use-buildr-instead-of-ant-or-maven/1055864.
+
+Developed with !http://www.jetbrains.com/ruby/features/ruby_banners/ruby1/ruby120x30_white.gif(Developed with RubyMine)!:http://www.jetbrains.com/ruby/features?utm_source=RubyMineUser&utm_medium=Banner&utm_campaign=RubyMine
+

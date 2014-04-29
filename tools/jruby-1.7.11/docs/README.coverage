@@ -1,0 +1,10 @@
+Running Emma
+============
+To run the emma coverage report:
+ant clean emma test
+
+A coverage report will be created  (build/test-results/html-coverage/coverage.html)
+
+To run the unit tests and without emma instrumentation or the emma coverage report just ommit 
+the "emma" target from the line above:
+ant clean test

@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-
-THIS_FILE = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
-require File.dirname(THIS_FILE) + '/../lib/sass'
-require 'sass/exec'
-
-opts = Sass::Exec::SassConvert.new(ARGV)
-opts.parse!

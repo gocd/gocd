@@ -29,6 +29,7 @@ public interface EnvironmentVariables {
 
     /**
      * Write the environment variables to a {@link com.thoughtworks.go.plugin.api.task.Console}.
+     * @param console to write
      */
     void writeTo(Console console);
 

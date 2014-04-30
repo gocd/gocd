@@ -23,17 +23,20 @@ package com.thoughtworks.go.plugin.api.task;
 public interface TaskExecutionContext {
     /**
      * The environment variables that this task should run with.
+     * @return the environment variables that this task should run with.
      */
     EnvironmentVariables environment();
 
     /**
      * This Console instance will be setup such that any messages written to it will show
      * up in the build log.
+     * @return the console instance that any messages will be written to
      */
     Console console();
 
     /**
      * Working directory to be used by the task.
+     * @return the working directory to be used by the task.
      */
     String workingDir();
 }

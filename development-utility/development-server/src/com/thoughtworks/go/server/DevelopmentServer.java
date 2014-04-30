@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.util.command.ProcessRunner;
@@ -62,10 +63,13 @@ public class DevelopmentServer {
         }
     }
 
-
     private static void copyScss() throws IOException, InterruptedException {
         FileUtils.deleteDirectory(new File("webapp/stylesheets/css_sass"));
-        new ProcessRunner().command("sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+        new ProcessRunner().command(jrubyPath(), "-S", "sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+    }
+
+    private static String jrubyPath() {
+        return OperatingSystem.WINDOWS.equals(OperatingSystem.fromProperty()) ? "../../../tools/bin/go.jruby.bat" : "../../../tools/bin/go.jruby";
     }
 
     private static void copyDbFiles() throws IOException {

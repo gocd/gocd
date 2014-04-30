@@ -106,8 +106,6 @@
     <bean class="com.thoughtworks.go.server.web.AnnotatedExceptionResolver"/>
     <!--END OVERIDE THE SPRING ADAPTERS-->
 
-    <bean id="rubyRuntimeFinder" class="com.thoughtworks.go.server.web.RubyRuntimeFinder"/>
-
     <bean id="logParser" class="com.thoughtworks.go.legacywrapper.LogParser"/>
 
     <bean id="configRepositoryValidatorService" class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect" lazy-init="false" />

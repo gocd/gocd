@@ -31,6 +31,7 @@ public final class GoLauncher {
             new GoServer().go();
         } catch (Exception e) {
             System.err.println("ERROR: Failed to start Go server. Please check the logs.");
+            e.printStackTrace();
             System.exit(1);
         }
     }

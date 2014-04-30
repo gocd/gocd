@@ -229,7 +229,7 @@ define "cruise:server", :layout => server_layout("server") do
 
   cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,
-                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'))
+                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'), _('jruby_jars'))
 
     onejar.path('defaultFiles/config/').include(
             _("..", "config", "config-server", "resources", "cruise-config.xsd"),

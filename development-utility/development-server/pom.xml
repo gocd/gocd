@@ -38,24 +38,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>util</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>base</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
 			<groupId>com.thoughtworks.go</groupId>
 			<artifactId>server</artifactId>
 			<version>1.0</version>
 			<classifier>classes</classifier>
 		</dependency>
 
+        <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
+        <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby-complete</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jruby.rack</groupId>
+            <artifactId>jruby-rack</artifactId>
+            <version>0.9.6-b6d3d45</version>
+        </dependency>
 
         <!-- jetty -->
         <dependency>

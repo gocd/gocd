@@ -16,32 +16,12 @@
 
 package com.thoughtworks.go.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import javax.management.MBeanServer;
-import javax.net.ssl.SSLSocketFactory;
-import javax.servlet.ServletException;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.server.util.GoCipherSuite;
+import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.validators.DatabaseValidator;
-import com.thoughtworks.go.util.validators.FileValidator;
-import com.thoughtworks.go.util.validators.JettyWorkDirValidator;
-import com.thoughtworks.go.util.validators.LoggingValidator;
-import com.thoughtworks.go.util.validators.ServerPortValidator;
-import com.thoughtworks.go.util.validators.Validation;
-import com.thoughtworks.go.util.validators.Validator;
+import com.thoughtworks.go.util.validators.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FalseFileFilter;
@@ -58,6 +38,21 @@ import org.mortbay.jetty.webapp.WebAppContext;
 import org.mortbay.management.MBeanContainer;
 import org.mortbay.xml.XmlConfiguration;
 import org.xml.sax.SAXException;
+
+import javax.management.MBeanServer;
+import javax.net.ssl.SSLSocketFactory;
+import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class GoServer {
 
@@ -171,12 +166,31 @@ public class GoServer {
         });
         wac.setContextPath(new SystemEnvironment().getWebappContextPath());
         wac.setWar(getWarFile());
-        setCookieExpireIn2Weeks(wac);
         wac.setParentLoaderPriority(new SystemEnvironment().getParentLoaderPriority());
-        wac.setExtraClasspath(getAddonJarFilesClasspath());
+        setCookieExpireIn2Weeks(wac);
+        addExtraJarsToClasspath(wac);
+        addJRubyContextInitParams(wac);
         addStopServlet(wac);
 
         return wac;
+    }
+
+    private void addJRubyContextInitParams(WebAppContext wac) {
+        Map existingParams = wac.getInitParams();
+        existingParams.put("rails.root", "/WEB-INF/rails");
+        if (systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)) {
+            existingParams.put("rails.root", "/WEB-INF/rails.new");
+        }
+        wac.setInitParams(existingParams);
+    }
+
+    private void addExtraJarsToClasspath(WebAppContext wac) {
+        ArrayList<File> extraClassPathFiles = new ArrayList<File>();
+        extraClassPathFiles.addAll(getAddonJarFiles());
+        extraClassPathFiles.addAll(getJRubyJars());
+        String extraClasspath = convertToClasspath(extraClassPathFiles);
+        LOG.info("Including addons: " + extraClasspath);
+        wac.setExtraClasspath(extraClasspath);
     }
 
     ContextHandler welcomeFileHandler() {
@@ -215,13 +229,16 @@ public class GoServer {
         return validation;
     }
 
-    private String getAddonJarFilesClasspath() {
+    private List<File> getAddonJarFiles() {
         File addonsPath = new File(systemEnvironment.get(SystemEnvironment.ADDONS_PATH));
         if (!addonsPath.exists() || !addonsPath.canRead()) {
-            return "";
+            return new ArrayList<File>();
         }
 
-        List<File> addonJars = new ArrayList<File>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
+        return new ArrayList<File>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
+    }
+
+    private String convertToClasspath(List<File> addonJars) {
         if (addonJars.size() == 0) {
             return "";
         }
@@ -230,8 +247,6 @@ public class GoServer {
         for (int i = 1; i < addonJars.size(); i++) {
             addonJarClassPath.append(",").append(addonJars.get(i));
         }
-
-        LOG.info("Including addons: " + addonJarClassPath);
         return addonJarClassPath.toString();
     }
 
@@ -245,6 +260,10 @@ public class GoServer {
         validators.add(FileValidator.defaultFile("agent-launcher.jar"));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.defaultFile("historical_jars/h2-1.2.127.jar"));
+        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.5.0/jruby-complete-1.5.0.jar"));
+        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.5.0/jruby-rack-0.9.6-b6d3d45.jar"));
+        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.7.11/jruby-complete-1.7.11.jar"));
+        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.7.11/jruby-rack-1.1.14.jar"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFile("config.properties", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
@@ -253,6 +272,25 @@ public class GoServer {
         validators.add(new DatabaseValidator());
         validators.add(new LoggingValidator(systemEnvironment));
         return validators;
+    }
+
+    public List<File> getJRubyJars() {
+        ArrayList<File> jRubyJars = new ArrayList<File>();
+
+        SystemEnvironment.GoSystemProperty<String> propertForJRubyJars = SystemEnvironment.JRUBY_OLD_PATH;
+        if (systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)) {
+            propertForJRubyJars = SystemEnvironment.JRUBY_NEW_PATH;
+        }
+
+        String[] jars = systemEnvironment.get(propertForJRubyJars).split(",");
+        for (String jar : jars) {
+            File jarFile = new File(jar);
+            if (!jarFile.exists()) {
+                throw new RuntimeException("Failed to find extra classpath JAR: " + jarFile.getAbsolutePath());
+            }
+            jRubyJars.add(jarFile);
+        }
+        return jRubyJars;
     }
 
     class LegacyUrlRequestHandler extends ContextHandler {

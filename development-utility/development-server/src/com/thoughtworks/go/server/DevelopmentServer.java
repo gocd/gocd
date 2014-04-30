@@ -36,17 +36,26 @@ import java.io.IOException;
 
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
+        startWith(false, "./jruby_jars/jruby-1.5.0/jruby-complete-1.5.0.jar,./jruby_jars/jruby-1.5.0/jruby-rack-0.9.6-b6d3d45.jar");
+    }
+
+    public static void startWith(boolean useNewRails, String jrubyPath) throws Exception {
         copyDbFiles();
         copyScss();
-        File webapp = new File("webapp");
-        if (!webapp.exists()) {
-            throw new RuntimeException("No webapp found in " + webapp.getAbsolutePath());
+        File webApp = new File("webapp");
+        if (!webApp.exists()) {
+            throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
         }
 
         copyActivatorJarToClassPath();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
-        systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webapp.getAbsolutePath());
+        systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webApp.getAbsolutePath());
+
+        /* Temporary: Feature toggle "use.new.rails" is related to this. */
+        systemEnvironment.set(SystemEnvironment.USE_NEW_RAILS, useNewRails);
+        systemEnvironment.set(useNewRails ? SystemEnvironment.JRUBY_NEW_PATH : SystemEnvironment.JRUBY_OLD_PATH, jrubyPath);
+
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         File pluginsDist = new File("../tw-go-plugins/dist/");

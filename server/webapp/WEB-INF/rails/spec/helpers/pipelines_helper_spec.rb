@@ -54,6 +54,14 @@ describe PipelinesHelper do
 
   describe :stage_status_for_ui do
 
+    before :each do
+      @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
+    end
+
+    after :each do
+      java.util.TimeZone.setDefault(@default_timezone)
+    end
+
     it "should display the trigger message with username and isodate in title" do
       triggered_date = java.util.Date.new
       pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()

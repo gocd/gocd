@@ -56,8 +56,20 @@ describe AgentAPIModel do
     it "should have all fields correctly" do
       agents_api_arr = Array.new
       agents_api_arr << AgentAPIModel.new(@agent_view_model)
-      agents_api_arr.to_json.should == "[{\"agent_name\":\"CCeDev01\",\"free_space\":\"0 bytes\",\"uuid\":\"uuid3\",\"sandbox\":\"/var/lib/go-server\","+
-        "\"status\":\"Idle\",\"environments\":[\"foo\"],\"os\":\"Linux\",\"resources\":[\"java\"],\"ip_address\":\"127.0.0.1\",\"build_locator\":\"/pipeline/1/stage/1/job\"}]"
+      ActiveSupport::JSON.decode(agents_api_arr.to_json).should == [
+        {
+          "agent_name" => "CCeDev01",
+          "free_space"=> "0 bytes",
+          "uuid" => "uuid3",
+          "sandbox" => "/var/lib/go-server",
+          "status" => "Idle",
+          "environments" => ["foo"],
+          "os" => "Linux",
+          "resources" => ["java"],
+          "ip_address" => "127.0.0.1",
+          "build_locator" => "/pipeline/1/stage/1/job"
+        }
+      ]
     end
   end
 end

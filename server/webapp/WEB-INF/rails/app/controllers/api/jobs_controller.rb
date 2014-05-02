@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-include_class 'org.springframework.dao.DataRetrievalFailureException'
+java_import 'org.springframework.dao.DataRetrievalFailureException'
 
 class Api::JobsController < Api::ApiController
   include ApplicationHelper

@@ -143,9 +143,10 @@ describe PipelinesController do
         include ActionRescue
       end
     end
+
     it "should handle exceptions and log errors" do
       nil.bomb rescue exception = $!
-      RAILS_DEFAULT_LOGGER.should_receive(:error).with(%r{You have a nil object when you didn't expect it!\nThe error occurred while evaluating nil.bomb.*pipelines_controller_spec.rb}m)
+      RAILS_DEFAULT_LOGGER.should_receive(:error).with(%r{#{exception.message}}m)
       @controller.should_receive(:render_error_template)
       @controller.rescue_action(exception)
     end

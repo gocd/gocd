@@ -463,6 +463,11 @@ describe StagesController do
 
     before :each do
       stub_current_config
+      @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
+    end
+
+    after :each do
+      java.util.TimeZone.setDefault(@default_timezone)
     end
 
     it "should load the duration of last 10 stages in seconds along with start-end dates and chart scale" do

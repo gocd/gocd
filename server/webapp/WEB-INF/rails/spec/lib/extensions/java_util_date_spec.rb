@@ -17,6 +17,13 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Java::JavaUtil::Date do
+  before :each do
+    @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
+  end
+
+  after :each do
+    java.util.TimeZone.setDefault(@default_timezone)
+  end
 
   it "should format date as '20 Aug, 2010 at 18:03:44 [+0530]'" do
      joda_date = org.joda.time.DateTime.new(2010,8,20,18,3,44,0,org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))

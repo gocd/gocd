@@ -381,7 +381,7 @@ module ApplicationHelper
   def render_pluggable_template(task_view_model, options = {})
     # The view is self here since this method will be called only from views.
     options.merge!(:view => self)
-    options.each { |key, val| options.merge!(key.to_s => val) }
+    options.reject{|key, val| key.is_a?(String)}.map{|key, val| options[key.to_s] = val}
     view_rendering_service.render(task_view_model, options)
   end
 

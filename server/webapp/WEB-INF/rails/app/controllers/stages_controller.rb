@@ -216,7 +216,7 @@ class StagesController < ApplicationController
     duration_array = []
     stage_summary_models.each do |stage_summary|
       pipeline_counter = stage_summary.getPipelineCounter()
-      pipeline_label = stage_summary.getStageCounter() > 1.to_s ? stage_summary.getPipelineLabel() + " (run #{stage_summary.getStageCounter()})" : stage_summary.getPipelineLabel()
+      pipeline_label = stage_summary.getStageCounter().to_i > 1 ? stage_summary.getPipelineLabel() + " (run #{stage_summary.getStageCounter()})" : stage_summary.getPipelineLabel()
 
       if block.call(stage_summary)
         duration = stage_summary.getActualDuration().getTotalSeconds()

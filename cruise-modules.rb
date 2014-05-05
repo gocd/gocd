@@ -382,6 +382,18 @@ define "cruise:rails", :layout => submodule_layout("rails") do
 
   RAILS_WORKING_DIR = File.join($PROJECT_BASE, 'server', 'webapp', 'WEB-INF', 'rails')
 
+  def execute_bundle command
+    sh "cd #{RAILS_WORKING_DIR} && #{JRUBY} -S bundle #{command}"
+  end
+
+  task :bundle_install do
+    execute_bundle "install --clean --path vendor/bundle"
+  end
+
+  task :bundle_update do
+    execute_bundle "update"
+  end
+
   def execute_under_rails command
     config_dir = _(:target, 'spec_server', 'config')
 

@@ -56,6 +56,8 @@ public class DevelopmentServer {
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {
             server.startServer();
+            System.out.println("GO server started.");
+            System.out.println("Go to http://localhost:8153 to access the Go dashboard. Default credentials are: \"admin\" / \"badger\"");
         } catch (Exception e) {
             System.err.println("Failed to start Go server. Exception:");
             e.printStackTrace();
@@ -65,7 +67,7 @@ public class DevelopmentServer {
 
     private static void copyScss() throws IOException, InterruptedException {
         FileUtils.deleteDirectory(new File("webapp/stylesheets/css_sass"));
-        new ProcessRunner().command("sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+        new ProcessRunner().command("../../../tools/bin/go.jruby", "-S", "sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
     }
 
     private static void copyDbFiles() throws IOException {

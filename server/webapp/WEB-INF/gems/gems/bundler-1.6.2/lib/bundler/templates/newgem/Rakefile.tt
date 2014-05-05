@@ -1,0 +1,24 @@
+require "bundler/gem_tasks"
+<% if config[:test] == 'minitest' -%>
+require "rake/testtask"
+
+Rake::TestTask.new(:test) do |t|
+  t.libs << "test"
+end
+
+task :default => :test
+<% elsif config[:test] == 'rspec' -%>
+require "rspec/core/rake_task"
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => :spec
+<% end -%>
+
+<% if config[:ext] -%>
+require "rake/extensiontask"
+
+Rake::ExtensionTask.new("<%=config[:underscored_name]%>") do |ext|
+  ext.lib_dir = "lib/<%=config[:namespaced_path]%>"
+end
+<% end -%>

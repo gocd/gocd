@@ -436,15 +436,16 @@ define "cruise:rails", :layout => submodule_layout("rails") do
   task "spec" => RAILS_DEPENDENCIES do
     running_tests!
     rm_rf _(:target, 'spec_server')
-    puts _(:reports, :spec)
+
     str = 'script/spec' +
-            ' --require rspec-extra-formatters' +
+            ' --require ' + File.join('.', 'spec', 'junit_formatter.rb') +
             ' --format specdoc' +
             ' --format specdoc:' + _(:reports, :specs) + '/spec_full_report.txt' +
             ' --format html:' + _(:reports, :specs) + '/spec_full_report.html' +
             ' --format JUnitFormatter:' + _(:reports, :specs) + '/spec_full_report.xml' +
             ' spec '
     str=str+ "--pattern "+ ENV['spec_module']+'/**/*_spec.rb' if ENV.has_key? 'spec_module'
+
     execute_under_rails(str)
   end
 

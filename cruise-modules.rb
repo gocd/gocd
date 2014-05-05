@@ -374,7 +374,13 @@ define "cruise:rails", :layout => submodule_layout("rails") do
     config_path && (sh "cp #{config_path} server/config/cruise-config.xml")
   end
 
-  RAILS_WORKING_DIR = File.join $PROJECT_BASE, 'server/webapp/WEB-INF/rails'
+  if Util.win_os?
+    JRUBY = _('..', 'tools', 'bin', 'go.jruby.bat') + ' --1.8'
+  else
+    JRUBY = _('..', 'tools', 'bin', 'go.jruby') + ' --1.8'
+  end
+
+  RAILS_WORKING_DIR = File.join($PROJECT_BASE, 'server', 'webapp', 'WEB-INF', 'rails')
 
   def execute_under_rails command
     config_dir = _(:target, 'spec_server', 'config')
@@ -383,46 +389,22 @@ define "cruise:rails", :layout => submodule_layout("rails") do
     h2db_dir = File.join(db_dir, 'h2db')
     deltas_dir = File.join(db_dir, 'h2deltas')
 
-    jruby = _('..', 'tools', 'jruby', 'bin', 'jruby')
-
     filter_files(server._('config'), config_dir)
     filter_files(server._('db/dbtemplate/h2db'), h2db_dir)
     filter_files(server._('db/migrate/h2deltas'), deltas_dir)
 
-    if Util.win_os?
-
-      #
-      # This is necessary since -J-cp does not work on Windows in bat files.
-      # It is allegedly fixed in 1.4.0
-      # See: http://jira.codehaus.org/browse/JRUBY-2937
-      #
-      cmd = "cd #{RAILS_WORKING_DIR} && " +
-              'set CP=' + [server_class_path, property_file_path].flatten.join(File::PATH_SEPARATOR) + " && " +
-              jruby + ' -J-XX:MaxPermSize=400m ' + '-J-Dlog4j.configuration=' + _('properties/test/log4j.properties') +
-              ' -J-Dalways.reload.config.file=true ' +
-              ' -J-Dcruise.i18n.cache.life=0 ' +
-              ' -J-Dcruise.config.dir=' + config_dir +
-              ' -J-Dcruise.database.dir=' + h2db_dir +
-              (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
-              ' -S ' + command
-
-      sh cmd
-
-    else
-      cmd = "cd #{RAILS_WORKING_DIR} &&" +
-              ' ' + jruby +
-              ' -J-Xmx1024m -J-XX:MaxPermSize=400m -J-Dlog4j.configuration=' +
-              _('properties/test/log4j.properties') +
-              ' -J-cp ' + [server_class_path, property_file_path].flatten.join(File::PATH_SEPARATOR) +
-              ' -J-Dalways.reload.config.file=true' +
-              ' -J-Dcruise.i18n.cache.life=0' +
-              ' -J-Dcruise.config.dir=' + config_dir +
-              ' -J-Dcruise.database.dir=' + h2db_dir +
-              (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
-              ' -S ' + command
-      sh cmd
-    end
-
+    cmd = "cd #{RAILS_WORKING_DIR} &&" +
+            ' ' + JRUBY +
+            ' -J-Xmx1024m -J-XX:MaxPermSize=400m -J-Dlog4j.configuration=' +
+            _('properties/test/log4j.properties') +
+            ' -J-cp ' + [server_class_path, property_file_path].flatten.join(File::PATH_SEPARATOR) +
+            ' -J-Dalways.reload.config.file=true' +
+            ' -J-Dcruise.i18n.cache.life=0' +
+            ' -J-Dcruise.config.dir=' + config_dir +
+            ' -J-Dcruise.database.dir=' + h2db_dir +
+            (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
+            ' -S ' + command
+    sh cmd
   end
 
   task 'copy_historical_jars' do

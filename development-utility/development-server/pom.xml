@@ -55,6 +55,11 @@
             <artifactId>jruby-rack</artifactId>
             <version>0.9.6-b6d3d45</version>
         </dependency>
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+            <version>140</version>
+        </dependency>
 
         <!-- jetty -->
         <dependency>

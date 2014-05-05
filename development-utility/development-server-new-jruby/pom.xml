@@ -50,6 +50,10 @@
                     <groupId>org.jruby.rack</groupId>
                     <artifactId>jruby-rack</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>bouncycastle</groupId>
+                    <artifactId>bcprov-jdk16</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -62,6 +66,12 @@
             <groupId>org.jruby.rack</groupId>
             <artifactId>jruby-rack</artifactId>
             <version>1.1.14</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.47</version>
         </dependency>
     </dependencies>
 

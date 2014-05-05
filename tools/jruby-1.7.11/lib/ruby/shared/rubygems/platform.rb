@@ -2,8 +2,6 @@ require "rubygems/deprecate"
 
 ##
 # Available list of platforms for targeting Gem installations.
-#
-# See `gem help platform` for information on platform matching.
 
 class Gem::Platform
 
@@ -23,8 +21,7 @@ class Gem::Platform
 
   def self.match(platform)
     Gem.platforms.any? do |local_platform|
-      platform.nil? or
-        local_platform == platform or
+      platform.nil? or local_platform == platform or
         (local_platform != Gem::Platform::RUBY and local_platform =~ platform)
     end
   end
@@ -68,29 +65,28 @@ class Gem::Platform
       @cpu, os = nil, cpu if os.nil? # legacy jruby
 
       @os, @version = case os
-                      when /aix(\d+)?/ then             [ 'aix',       $1  ]
-                      when /cygwin/ then                [ 'cygwin',    nil ]
-                      when /darwin(\d+)?/ then          [ 'darwin',    $1  ]
-                      when /^macruby$/ then             [ 'macruby',   nil ]
-                      when /freebsd(\d+)?/ then         [ 'freebsd',   $1  ]
-                      when /hpux(\d+)?/ then            [ 'hpux',      $1  ]
-                      when /^java$/, /^jruby$/ then     [ 'java',      nil ]
-                      when /^java([\d.]*)/ then         [ 'java',      $1  ]
-                      when /^dalvik(\d+)?$/ then        [ 'dalvik',    $1  ]
-                      when /^dotnet$/ then              [ 'dotnet',    nil ]
-                      when /^dotnet([\d.]*)/ then       [ 'dotnet',    $1  ]
-                      when /linux/ then                 [ 'linux',     $1  ]
-                      when /mingw32/ then               [ 'mingw32',   nil ]
+                      when /aix(\d+)/ then             [ 'aix',       $1  ]
+                      when /cygwin/ then               [ 'cygwin',    nil ]
+                      when /darwin(\d+)?/ then         [ 'darwin',    $1  ]
+                      when /^macruby$/ then            [ 'macruby',   nil ]
+                      when /freebsd(\d+)/ then         [ 'freebsd',   $1  ]
+                      when /hpux(\d+)/ then            [ 'hpux',      $1  ]
+                      when /^java$/, /^jruby$/ then    [ 'java',      nil ]
+                      when /^java([\d.]*)/ then        [ 'java',      $1  ]
+                      when /^dotnet$/ then             [ 'dotnet',    nil ]
+                      when /^dotnet([\d.]*)/ then      [ 'dotnet',    $1  ]
+                      when /linux/ then                [ 'linux',     $1  ]
+                      when /mingw32/ then              [ 'mingw32',   nil ]
                       when /(mswin\d+)(\_(\d+))?/ then
                         os, version = $1, $3
                         @cpu = 'x86' if @cpu.nil? and os =~ /32$/
                         [os, version]
-                      when /netbsdelf/ then             [ 'netbsdelf', nil ]
-                      when /openbsd(\d+\.\d+)?/ then    [ 'openbsd',   $1  ]
-                      when /solaris(\d+\.\d+)?/ then    [ 'solaris',   $1  ]
+                      when /netbsdelf/ then            [ 'netbsdelf', nil ]
+                      when /openbsd(\d+\.\d+)/ then    [ 'openbsd',   $1  ]
+                      when /solaris(\d+\.\d+)/ then    [ 'solaris',   $1  ]
                       # test
-                      when /^(\w+_platform)(\d+)?/ then [ $1,          $2  ]
-                      else                              [ 'unknown',   nil ]
+                      when /^(\w+_platform)(\d+)/ then [ $1,          $2  ]
+                      else                             [ 'unknown',   nil ]
                       end
     when Gem::Platform then
       @cpu = arch.cpu
@@ -113,6 +109,10 @@ class Gem::Platform
     to_a.compact.join '-'
   end
 
+  def empty?
+    to_s.empty?
+  end
+
   ##
   # Is +other+ equal to this platform?  Two platforms are equal if they have
   # the same CPU, OS and version.
@@ -131,16 +131,12 @@ class Gem::Platform
   # Does +other+ match this platform?  Two platforms match if they have the
   # same CPU, or either has a CPU of 'universal', they have the same OS, and
   # they have the same version, or either has no version.
-  #
-  # Additionally, the platform will match if the local CPU is 'arm' and the
-  # other CPU starts with "arm" (for generic ARM family support).
 
   def ===(other)
     return nil unless Gem::Platform === other
 
     # cpu
-    (@cpu == 'universal' or other.cpu == 'universal' or @cpu == other.cpu or
-     (@cpu == 'arm' and other.cpu =~ /\Aarm/)) and
+    (@cpu == 'universal' or other.cpu == 'universal' or @cpu == other.cpu) and
 
     # os
     @os == other.os and
@@ -162,7 +158,6 @@ class Gem::Platform
               when /^i686-darwin(\d)/     then ['x86',       'darwin',  $1    ]
               when /^i\d86-linux/         then ['x86',       'linux',   nil   ]
               when 'java', 'jruby'        then [nil,         'java',    nil   ]
-              when /^dalvik(\d+)?$/       then [nil,         'dalvik',  $1    ]
               when /dotnet(\-(\d+\.\d+))?/ then ['universal','dotnet',  $2    ]
               when /mswin32(\_(\d+))?/    then ['x86',       'mswin32', $2    ]
               when 'powerpc-darwin'       then ['powerpc',   'darwin',  nil   ]
@@ -181,15 +176,19 @@ class Gem::Platform
   end
 
   ##
-  # A pure-Ruby gem that may use Gem::Specification#extensions to build
+  # A pure-ruby gem that may use Gem::Specification#extensions to build
   # binary files.
 
   RUBY = 'ruby'
 
   ##
-  # A platform-specific gem that is built for the packaging Ruby's platform.
+  # A platform-specific gem that is built for the packaging ruby's platform.
   # This will be replaced with Gem::Platform::local.
 
   CURRENT = 'current'
+
+  extend Gem::Deprecate
+
+  deprecate :empty?, :none, 2011, 11
 end
 

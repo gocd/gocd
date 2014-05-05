@@ -1,7 +1,7 @@
+require "rubygems/requirement"
+
 ##
 # The Dependency class holds a Gem name and a Gem::Requirement.
-
-require "rubygems/requirement"
 
 class Gem::Dependency
 
@@ -10,14 +10,11 @@ class Gem::Dependency
   #--
   # When this list is updated, be sure to change
   # Gem::Specification::CURRENT_SPECIFICATION_VERSION as well.
-  #
-  # REFACTOR: This type of constant, TYPES, indicates we might want
-  # two classes, used via inheritance or duck typing.
 
   TYPES = [
-    :development,
-    :runtime,
-  ]
+           :development,
+           :runtime,
+          ]
 
   ##
   # Dependency name or regular expression.
@@ -35,23 +32,18 @@ class Gem::Dependency
   # <tt>:runtime</tt>.
 
   def initialize name, *requirements
-    case name
-    when String then # ok
-    when Regexp then
+    if Regexp === name then
       msg = ["NOTE: Dependency.new w/ a regexp is deprecated.",
              "Dependency.new called from #{Gem.location_of_caller.join(":")}"]
       warn msg.join("\n") unless Gem::Deprecate.skip
-    else
-      raise ArgumentError,
-            "dependency name must be a String, was #{name.inspect}"
     end
 
     type         = Symbol === requirements.last ? requirements.pop : :runtime
     requirements = requirements.first if 1 == requirements.length # unpack
 
     unless TYPES.include? type
-      raise ArgumentError, "Valid types are #{TYPES.inspect}, " +
-                           "not #{type.inspect}"
+      raise ArgumentError, "Valid types are #{TYPES.inspect}, "
+        + "not #{type.inspect}"
     end
 
     @name        = name
@@ -74,13 +66,8 @@ class Gem::Dependency
   end
 
   def inspect # :nodoc:
-    if @prerelease
-      "<%s type=%p name=%p requirements=%p prerelease=ok>" %
-        [self.class, self.type, self.name, requirement.to_s]
-    else
-      "<%s type=%p name=%p requirements=%p>" %
-        [self.class, self.type, self.name, requirement.to_s]
-    end
+    "<%s type=%p name=%p requirements=%p>" %
+      [self.class, self.type, self.name, requirement.to_s]
   end
 
   ##
@@ -88,14 +75,6 @@ class Gem::Dependency
 
   def prerelease?
     @prerelease || requirement.prerelease?
-  end
-
-  ##
-  # Is this dependency simply asking for the latest version
-  # of a gem?
-
-  def latest_version?
-    @requirement.none?
   end
 
   def pretty_print q # :nodoc:
@@ -134,8 +113,6 @@ class Gem::Dependency
     # Children, define explicit marshal and unmarshal behavior for
     # public classes. Marshal formats are part of your public API.
 
-    # REFACTOR: See above
-
     if defined?(@version_requirement) && @version_requirement
       version = @version_requirement.instance_variable_get :@version
       @version_requirement  = nil
@@ -145,7 +122,6 @@ class Gem::Dependency
     @requirement = @version_requirements if defined?(@version_requirements)
   end
 
-  # DOC: this method needs documentation or :nodoc''d
   def requirements_list
     requirement.as_list
   end
@@ -203,25 +179,12 @@ class Gem::Dependency
     requirement.satisfied_by? version
   end
 
-  alias === =~
-
-  # DOC: this method needs either documented or :nodoc'd
-
-  def match? obj, version=nil
-    if !version
-      name = obj.name
-      version = obj.version
-    else
-      name = obj
-    end
-
+  def match? name, version
     return false unless self.name === name
     return true if requirement.none?
 
     requirement.satisfied_by? Gem::Version.new(version)
   end
-
-  # DOC: this method needs either documented or :nodoc'd
 
   def matches_spec? spec
     return false unless name === spec.name
@@ -249,13 +212,11 @@ class Gem::Dependency
     self.class.new name, self_req.as_list.concat(other_req.as_list)
   end
 
-  # DOC: this method needs either documented or :nodoc'd
-
   def matching_specs platform_only = false
-    matches = Gem::Specification.stubs.find_all { |spec|
+    matches = Gem::Specification.find_all { |spec|
       self.name === spec.name and # TODO: == instead of ===
         requirement.satisfied_by? spec.version
-    }.map(&:to_spec)
+    }
 
     if platform_only
       matches.reject! { |spec|
@@ -273,26 +234,14 @@ class Gem::Dependency
     @requirement.specific?
   end
 
-  # DOC: this method needs either documented or :nodoc'd
-
   def to_specs
     matches = matching_specs true
 
     # TODO: check Gem.activated_spec[self.name] in case matches falls outside
 
     if matches.empty? then
-      specs = Gem::Specification.find_all { |s|
-                s.name == name
-              }.map { |x| x.full_name }
-
-      if specs.empty?
-        total = Gem::Specification.to_a.size
-        error = Gem::LoadError.new \
-          "Could not find '#{name}' (#{requirement}) among #{total} total gem(s)"
-      else
-        error = Gem::LoadError.new \
-          "Could not find '#{name}' (#{requirement}) - did find: [#{specs.join ','}]"
-      end
+      specs = Gem::Specification.all_names.join ", "
+      error = Gem::LoadError.new "Could not find #{name} (#{requirement}) amongst [#{specs}]"
       error.name        = self.name
       error.requirement = self.requirement
       raise error
@@ -302,8 +251,6 @@ class Gem::Dependency
 
     matches
   end
-
-  # DOC: this method needs either documented or :nodoc'd
 
   def to_spec
     matches = self.to_specs

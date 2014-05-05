@@ -46,8 +46,6 @@ module YAML
       end
     end
   end
-
-  SyntaxError = Error unless defined? SyntaxError
 end
 
 # Sometime in the 1.9 dev cycle, the Syck constant was moved from under YAML

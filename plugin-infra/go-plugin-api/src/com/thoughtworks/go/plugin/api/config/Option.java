@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.api.config;
 
 /**
  * Option could be used to specify metadata for a Property.
- * @param <T>
+ * @param <T> type for the option value
  */
 public class Option<T> {
     private String name;
@@ -55,6 +55,7 @@ public class Option<T> {
 
     /**
      * Checks if this option has same name as the provided option
+     * @param <T> type for the option value
      * @param option the option for which name equality has to be checked
      * @return true if name matches
      */

@@ -32,10 +32,10 @@ public interface Console {
 
     /**
      * Setup the console to read the input stream as standard error.
-     * <p/>
+     * <p></p>
      * This is used to connect the output of a process, to the build log. This is usually used as:
      * console.readErrorOf(process.getErrorStream());
-     * <p/>
+     * <p></p>
      * where the "process" object is of type {@link java.lang.Process}.
      *
      * @param in The input stream to read as standard error.
@@ -44,10 +44,10 @@ public interface Console {
 
     /**
      * Setup the console to read the input stream as standard output.
-     * <p/>
+     * <p></p>
      * This is used to connect the output of a process, to the build log. This is usually used as:
      * console.readOutputOf(process.getInputStream());
-     * <p/>
+     * <p></p>
      * where the "process" object is of type {@link java.lang.Process}.
      *
      * @param in The input stream to read as standard output.

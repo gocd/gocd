@@ -115,6 +115,7 @@ public class PackageRevision {
 
     /**
      * Gets additional data related to package revision for given key
+     * @param key for additional data
      * @return additional data related to package revision for given key
      */
     public String getDataFor(String key) {

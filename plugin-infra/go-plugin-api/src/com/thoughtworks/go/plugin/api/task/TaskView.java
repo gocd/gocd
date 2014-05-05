@@ -23,11 +23,15 @@ public interface TaskView {
     /**
      * Specifies the display value of this task plugin. This value is used in the job UI's task dropdown
      * as well as in the title of the task definition dialog box.
+     *
+     * @return display value for the task plugin
      */
     String displayValue();
 
     /**
      * The template for the task configuration, written using Angular.js templating language.
+     *
+     * @return Angular.js template for the task configuration
      */
     String template();
 }

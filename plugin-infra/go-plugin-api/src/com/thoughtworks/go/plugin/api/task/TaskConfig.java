@@ -40,7 +40,10 @@ public class TaskConfig extends Configuration {
     }
 
     /**
-     * The value of the specified property, or null if not found.
+     * Retrieves the value of a property.
+     * @param propertyName Name of the property (or key) in the configuration.
+     *
+     * @return the value of the specified property, or null if not found.
      */
     public String getValue(String propertyName) {
         Property property = super.get(propertyName);

@@ -122,7 +122,7 @@ class ServerConfigurationForm
   end
 
   def is_empty_mailhost
-    [hostName, from, adminMail].all? { |param| param.blank? } and (port.blank? || port == 0.to_s)
+    [hostName, from, adminMail].all? { |param| param.blank? } and (port.blank? || port == "0")
   end
 
   def validate(result)

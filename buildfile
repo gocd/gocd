@@ -31,7 +31,7 @@ def not_running_tests!
   ENV[RUNNING_TESTS] = 'false'
 end
 
-$LOAD_PATH << File.join($PROJECT_BASE, "server", "webapp", "WEB-INF", "rails", "vendor", "rails", "activesupport", "lib")
+require 'rubygems'
 require 'active_support'
 ActiveSupport.use_standard_json_time_format = true
 ActiveSupport.escape_html_entities_in_json = false

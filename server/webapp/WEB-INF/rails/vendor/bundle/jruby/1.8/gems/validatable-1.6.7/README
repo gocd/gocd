@@ -1,0 +1,118 @@
+= Validatable
+
+Validatable is a library for adding validations.
+
+by Jay[http://jayfields.blogspot.com] Fields[http://jayfields.blogspot.com]
+
+== Download and Installation
+
+You can download Validatable from here[http://rubyforge.org/projects/validatable] or install it with the following command.
+
+ $ gem install validatable
+
+== License
+ 	
+You may use, copy and redistribute this library under the same terms as Ruby itself (see http://www.ruby-lang.org/en/LICENSE.txt).
+
+== Examples
+
+Validation of an entire hierarchy of objects with errors aggregated at the root object.
+
+	class Person
+	  include Validatable
+	  validates_presence_of :name
+	  attr_accessor :name
+	end
+
+	class PersonPresenter
+	  include Validatable
+	  include_validations_for :person
+	  attr_accessor :person
+  
+	  def initialize(person)
+	    @person = person
+	  end
+	end
+
+	presenter = PersonPresenter.new(Person.new)
+	presenter.valid? #=> false
+	presenter.errors.on(:name) #=> "can't be blank"
+
+Validations that turn off after X times of failed attempts.
+
+	class Person
+	  include Validatable
+	  validates_presence_of :name, :times => 1
+	  attr_accessor :name
+	end
+
+	person = Person.new
+	person.valid? #=> false
+	person.valid? #=> true
+
+Validations can be given levels. If a validation fails on a level the validations for subsequent levels will not be executed.
+
+	class Person
+	  include Validatable
+	  validates_presence_of :name, :level => 1, :message => "name message"
+	  validates_presence_of :address, :level => 2
+	  attr_accessor :name, :address
+	end
+
+	person = Person.new
+	person.valid? #=> false
+	person.errors.on(:name) #=> "name message"
+	person.errors.on(:address) #=> nil
+
+Validations can also be given groups. Groups can be used to validate an object when it can be valid in various states.  For example a mortgage application may be valid for saving (saving a partial application), but that same mortgage application would not be valid for underwriting. In our example a application can be saved as long as a Social Security Number is present; however, an application can not be underwritten unless the name attribute contains a value.
+
+  class MortgageApplication
+    include Validatable
+    validates_presence_of :ssn, :groups => [:saving, :underwriting]
+    validates_presence_of :name, :groups => :underwriting
+    attr_accessor :name, :ssn
+  end
+  
+  application = MortgageApplication.new
+  application.ssn = 377990118
+  application.valid_for_saving? #=> true
+  application.valid_for_underwriting? #=> false
+  
+As you can see, you can use an array if the validation needs to be part of various groups.  However, if the validation only applies to one group you can simply use a symbol for the group name.
+
+Similar to Rails, Validatable also supports conditional validation.
+
+	class Person
+	  include Validatable
+	  attr_accessor :name
+	  validates_format_of :name, :with => /.+/, :if => Proc.new { !name.nil? }
+	end
+	Person.new.valid? #=> true
+		
+Validatable also exposes an after_validate hook method.
+
+	class Person
+	  include Validatable
+	  validates_presence_of :name
+	  attr_accessor :name
+	end
+	
+	class ValidatesPresenceOf
+	  after_validate do |result, instance, attribute|
+			instance.errors.add("#{attribute} can't be blank") unless result
+		end
+	end
+
+	person = Person.new
+	person.valid? #=> false
+	person.errors.on(:name) #=> "name can't be blank"
+	
+The after_validate hook yields the result of the validation being run, 
+the instance the validation was run on, and the attribute that was validated
+
+In the above example the attribute "name" is appended to the message.
+
+See the tests for more examples
+
+== Contributors
+Rick Bradley, Anonymous Z, Jason Miller, Ali Aghareza, Xavier Shay, Dan Manges, Karthik Krishnan and Venkat, Clint Bishop

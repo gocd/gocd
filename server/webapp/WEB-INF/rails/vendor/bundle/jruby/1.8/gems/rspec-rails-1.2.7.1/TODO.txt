@@ -1,0 +1,18 @@
+* delegate params_from to assert_recognizes
+* wiki
+  * need a matrix of which rspec-rails versions support which rails versions
+* CI
+  * need a robust CI setup that runs
+    * Multiple rubies
+      * MRI: 1.8.6
+      * MRI: 1.8.9
+      * MRI: 1.9.1
+      * JRuby
+      * IronRuby??? (perhaps using mono)
+    * Multiple rails-es
+      * 2.0.5
+      * 2.1.2
+      * 2.2.2
+      * 2.3.2
+      * 3.0 (once available)
+    * With and without ActiveRecord  

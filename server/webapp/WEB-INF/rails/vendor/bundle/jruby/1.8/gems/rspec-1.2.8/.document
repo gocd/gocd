@@ -1,0 +1,7 @@
+features/**/*.feature
+lib/**/*.rb
+History.rdoc
+License.txt
+README.rdoc
+Ruby1.9.rdoc
+Upgrade.rdoc

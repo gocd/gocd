@@ -75,12 +75,6 @@
 		<!-- jetty end -->
 
 		<dependency>
-			<groupId>bouncycastle</groupId>
-			<artifactId>bcprov-jdk16</artifactId>
-			<version>140</version>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.4</version>

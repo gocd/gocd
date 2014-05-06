@@ -16,15 +16,16 @@
 
 package com.thoughtworks.go.security;
 
+import org.bouncycastle.asn1.DERBMPString;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
+import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
+
+import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateParsingException;
-
-import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.DERBMPString;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
+import java.security.cert.X509Certificate;
 
 /**
  * Helper to set useful Bag Attributes
@@ -49,7 +50,7 @@ class PKCS12BagAttributeSetter {
         return this;
     }
 
-    public PKCS12BagAttributeSetter setLocalKeyId(PublicKey key) throws CertificateParsingException {
+    public PKCS12BagAttributeSetter setLocalKeyId(PublicKey key) throws CertificateParsingException, InvalidKeyException {
         carrier.setBagAttribute(PKCSObjectIdentifiers.pkcs_9_at_localKeyId, new SubjectKeyIdentifierStructure(key));
         return this;
     }

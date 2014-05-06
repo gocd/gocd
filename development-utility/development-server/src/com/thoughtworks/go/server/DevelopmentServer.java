@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.util.command.ProcessRunner;
@@ -35,17 +36,26 @@ import java.io.IOException;
 
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
+        startWith(false, "./jruby_jars/jruby-1.5.0/jruby-complete-1.5.0.jar,./jruby_jars/jruby-1.5.0/jruby-rack-0.9.6-b6d3d45.jar");
+    }
+
+    public static void startWith(boolean useNewRails, String jrubyPath) throws Exception {
         copyDbFiles();
         copyScss();
-        File webapp = new File("webapp");
-        if (!webapp.exists()) {
-            throw new RuntimeException("No webapp found in " + webapp.getAbsolutePath());
+        File webApp = new File("webapp");
+        if (!webApp.exists()) {
+            throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
         }
 
         copyActivatorJarToClassPath();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
-        systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webapp.getAbsolutePath());
+        systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webApp.getAbsolutePath());
+
+        /* Temporary: Feature toggle "use.new.rails" is related to this. */
+        systemEnvironment.set(SystemEnvironment.USE_NEW_RAILS, useNewRails);
+        systemEnvironment.set(useNewRails ? SystemEnvironment.JRUBY_NEW_PATH : SystemEnvironment.JRUBY_OLD_PATH, jrubyPath);
+
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         File pluginsDist = new File("../tw-go-plugins/dist/");
@@ -62,10 +72,13 @@ public class DevelopmentServer {
         }
     }
 
-
     private static void copyScss() throws IOException, InterruptedException {
         FileUtils.deleteDirectory(new File("webapp/stylesheets/css_sass"));
-        new ProcessRunner().command("sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+        new ProcessRunner().command(jrubyPath(), "-S", "sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
+    }
+
+    private static String jrubyPath() {
+        return OperatingSystem.WINDOWS.equals(OperatingSystem.fromProperty()) ? "../../../tools/bin/go.jruby.bat" : "../../../tools/bin/go.jruby";
     }
 
     private static void copyDbFiles() throws IOException {

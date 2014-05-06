@@ -61,11 +61,6 @@
     </context-param>
 
     <context-param>
-      <param-name>rails.root</param-name>
-      <param-value>/WEB-INF/rails</param-value>
-    </context-param>
-
-    <context-param>
       <param-name>public.root</param-name>
       <param-value>/</param-value>
     </context-param>

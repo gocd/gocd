@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.security;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.SecureRandom;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -28,6 +23,11 @@ import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.generators.DESKeyGenerator;
 import org.bouncycastle.crypto.params.DESParameters;
 import org.bouncycastle.util.encoders.Hex;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.SecureRandom;
 
 public class CipherProvider implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(CipherProvider.class);
@@ -72,7 +72,7 @@ public class CipherProvider implements Serializable {
     private byte[] generateKey() {
         SecureRandom random = new SecureRandom();
         random.setSeed("go-server".getBytes());
-        KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH);
+        KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH * 8);
         DESKeyGenerator generator = new DESKeyGenerator();
         generator.init(generationParameters);
         return Hex.encode(generator.generateKey());

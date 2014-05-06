@@ -16,26 +16,6 @@
 
 package com.thoughtworks.go.security;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import javax.security.auth.x500.X500Principal;
-
-import static com.thoughtworks.go.security.PKCS12BagAttributeSetter.usingBagAttributeCarrier;
-import static com.thoughtworks.go.security.X509PrincipalGenerator.*;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -48,6 +28,21 @@ import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
 import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
+
+import javax.security.auth.x500.X500Principal;
+import java.io.File;
+import java.io.FileInputStream;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
+import static com.thoughtworks.go.security.X509PrincipalGenerator.*;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
 public class X509CertificateGenerator {
@@ -277,7 +272,7 @@ public class X509CertificateGenerator {
             this.v3CertGen = gen;
         }
 
-        public void addSubjectKeyIdExtension(PublicKey key) throws CertificateParsingException {
+        public void addSubjectKeyIdExtension(PublicKey key) throws CertificateParsingException, InvalidKeyException {
             v3CertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
                     new SubjectKeyIdentifierStructure(key));
         }

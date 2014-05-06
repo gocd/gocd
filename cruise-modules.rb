@@ -18,7 +18,10 @@ require 'buildr/java/cobertura' unless ENV['INSTRUMENT_FOR_COVERAGE'].nil?
 require 'buildr/core/util'
 
 task :prepare do
-    system("mvn install -DskipTests") || raise("Failed to run: mvn install -DskipTests")
+    # Temporary: Feature toggle "use.new.rails" is related to this.
+    bcprov_dependency_params = ENV['USE_NEW_RAILS'] == "Y" ? "-Dbcprov.groupId=org.bouncycastle -Dbcprov.artifactId=bcprov-jdk15on -Dbcprov.version=1.47" : ""
+
+    system("mvn install -DskipTests #{bcprov_dependency_params}") || raise("Failed to run: mvn install -DskipTests")
     task("cruise:server:db:refresh").invoke
 end
 
@@ -229,7 +232,7 @@ define "cruise:server", :layout => server_layout("server") do
 
   cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,
-                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'))
+                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'), _('jruby_jars'))
 
     onejar.path('defaultFiles/config/').include(
             _("..", "config", "config-server", "resources", "cruise-config.xsd"),
@@ -238,7 +241,8 @@ define "cruise:server", :layout => server_layout("server") do
             _("properties/src/log4j.properties"),
             _("config/jetty.xml"))
 
-    onejar.path('lib/').include(server_launcher_dependencies).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
+    # Temporary: Feature toggle "use.new.rails" is related to this.
+    onejar.path('lib/').include(server_launcher_dependencies).include(bouncy_castle_jar).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")
     include_fileset_from_target(onejar, 'server', "**/Mac*")
     include_fileset_from_target(onejar, 'common', "log4j.upgrade.*.properties")

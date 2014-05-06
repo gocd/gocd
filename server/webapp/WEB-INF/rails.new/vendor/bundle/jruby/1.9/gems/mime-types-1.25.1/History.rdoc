@@ -1,0 +1,271 @@
+== 1.25.1 / 201-11-24
+
+* Bugs:
+  * Fix an issue with priority comparison in the 1.x release series. Found by
+    sdbondi. This issue does not exist in the 2.x release series.
+    https://github.com/halostatue/mime-types/issues/47
+
+== 1.25 / 2013-08-30
+
+* New Features:
+  * Adding lazy loading and caching functionality to the default data based on
+    work done by Greg Brockman (gdb).
+* Bugs:
+  * Force the default internal application encoding to be used when reading the
+    MIME types database. Based on a change by briangamble, found in the rapid7
+    fork.
+* New extensions:
+  * mjpeg (video/x-motion-jpeg) based on a change by punkrats, found in the
+    vidibus fork.
+* Modernized MiniTest configuration.
+
+== 1.24 / 2013-08-14
+
+* Code Climate:
+  * Working on improving the quality of the mime-types codebase through the use
+    of Code Climate. https://codeclimate.com/github/halostatue/mime-types
+  * Simplified MIME::Type.from_array to make more assumptions about assignment.
+* Documentation:
+  * LeoYoung <mrleoyoung@gmail.com> pointed out that the README.rdoc contained
+    examples that could never possibly work because MIME::Types#[] returns (for
+    all the versions I have handy) an array, not a single type. I have updated
+    README.rdoc to reflect this.
+* Removed Nokogiri as a declared development dependency. It is still required
+  if you're going to use the IANA parser functionality, but it is not necessary
+  for most development purposes. This has been removed to ensure that Travis CI
+  passes on Ruby 1.8.7.
+* New MIME Types:
+  * 7zip (application/x-7z-compressed). Fixes a request by kodram.
+    https://github.com/halostatue/mime-types/issues/32
+  * application/x-www-form-urlencoded. Fixes a request by alexkwolfe.
+    https://github.com/halostatue/mime-types/issues/39
+  * Various new MIME types from IANA:
+    * application/mbms-schedule\+xml from 3GPP and Turcotte.
+    * application/provenance\+xml from W3C and Herman.
+    * application/session-info from 3GPP and Firmin.
+    * application/urc-grpsheet\+xml, application/urc-targetdesc\+xml,
+      application/uisocketdesc\+xml from Zimmermann.
+    * application/api\+json from Klabnik.
+    * application/vnd.etsi.pstn\+xml from Han and Belling.
+    * application/vnd.fujixerox.docuworks.container from Tashiro.
+    * application/vnd.windows.devicepairing from Dandawate.
+    * video/vnd.radgamettools.bink and video/vnd.radgamettools.smacker from
+      Andersson.
+* Updated MIME Types:
+  * RFC 6960 was adopted (application/ocsp-request and application/ocsp-response).
+
+== 1.23 / 2013-04-20
+
+* New Feature:
+  * Arnaud Meuret (ameuret) suggested that it could be useful if the MIME type
+    collection was enumerable, so he implemented it in #30. Thanks for the
+    contribution! https://github.com/halostatue/mime-types/pull/30
+* Updated MIME Types:
+  * RFC6910 was adopted (application/call-completion).
+  * RFC6902 was adopted (application/json-patch\+json).
+  * RFC6917 was adopted (application/mrb-consumer\+xml,
+    application/mrb-publish\+xml).
+  * RFC6922 was adopted (application/sql).
+  * RFC2560 is being
+    {updated}[http://tools.ietf.org/html/draft-ietf-pkix-rfc2560bis].
+* Administrivia:
+  * The gemspec now includes information about the licenses under which the
+    mime-types gem is available.
+  * Using hoe-gemspec2 instead of hoe-gemspec.
+
+== 1.22 / 2013-03-30
+
+* New MIME Types:
+  * Added support for 3FR (Hasselblad raw images) files. MIME-Type was obtained
+    by looking at exif data with exiftool. Thanks to cgat for these changes.
+    https://github.com/halostatue/mime-types/pull/27
+* Updated MIME Types:
+    * Pulled the latest updates from the IANA MIME-Type registry.
+* Added support for Ruby 2.0 with Travis CI.
+
+== 1.21 / 2013-02-09
+
+* New MIME Types:
+  * Various new or updated MIME types by Garret Alfert:
+    application/vnd.ms-fontobject, .eot; application/x-chrome-extension, .crx;
+    application/x-web-app-manifest\+json, .webapp; application/x-xpinstall,
+    .xpi; image/svg\+xml, .svg, .svgz; image/webp, .webp; text/cache-manifest,
+    .appcache, .manifest. https://github.com/halostatue/mime-types/pull/24
+* Fixed some Manifest.txt related madness on Travis.
+
+== 1.20.1 / 2013-01-26
+
+* New MIME Types:
+  * Apple iWork document types added by Hans de Graaff
+    (application/x-iwork-keynote-sffkey, .key;
+    application/x-iwork-pages-sffpages, .pages;
+    application/x-iwork-numbers-sffnumbers, .numbers).
+    https://github.com/halostatue/mime-types/issue/20
+  * epub, ibooks, mobi, and DMG content types by Mauricio
+    Linhares (mac:application/x-apple-diskimage, .dmg; application/epub\+zip,
+    .epub; application/x-ibooks\+zip, .ibooks; application/x-mobipocket-ebook,
+    .mobi). https://github.com/halostatue/mime-types/issue/22
+  * rss content type by Garret Alfert (application/rss\+xml, .rss).
+    https://github.com/halostatue/mime-types/issue/23
+  * Added or updated MIME types from the latest IANA list.
+* Fixed MIME Types:
+  * Excel macro-enabled spreadsheets had an incorrect extension. Thanks to
+    Rafael Belvederese for reporting this issue.
+    https://github.com/halostatue/mime-types/issue/21
+* Enabled for use with travis.
+* Enabled gem signing.
+* Fixed an error related to MIME type downloads.
+* This was previously published as 1.20, but I had forgotten some attributions.
+
+== 1.19 / 2012-06-20
+* New MIME Types:
+  * XCF Gnome Images (image/x-xcf, image/x-compressed-xcf; .xcf). https://github.com/halostatue/mime-types/issue/17
+  * Types reported in https://github.com/halostatue/mime-types/issues/12:
+    * DV (video/x-dv; .dv)
+    * IVF (video/x-ivf; .ivf)
+    * Matroska (video/x-matroska; .mkv)
+    * Motion JPEG (video/x-motion-jpeg; .mjpg)
+    * RealMedia (official; application/vnd.rn-realmedia; .rm)
+* New extensions:
+  * dcm (application/dicom); https://github.com/halostatue/mime-types/issue/16.
+  * Types reported in https://github.com/halostatue/mime-types/issues/12:
+    * 3g2, 3gpp2 (video/3gpp2)
+    * mpeg (video/mpeg)
+    * mxf (application/mxf)
+    * ts (video/MP2T)
+    * ogg (video/ogg)
+* Fixed MIME Types:
+  * Adobe AIR application installer packages was missing a hyphen. https://github.com/halostatue/mime-types/issue/13
+  * Types reported in https://github.com/halostatue/mime-types/issues/12:
+    * audio/x-pn-realaudio extension is .ra, not .rm.
+* Resolved https://github.com/halostatue/mime-types/issues/8. Apparently some people run the tests on Linux. Imagine that.
+
+== 1.18 / 2012-03-20
+* New MIME Types:
+  * Types reported in https://github.com/halostatue/mime-types/issues/6:
+    * CoffeeScript (text/x-coffeescript; .coffee; 8bit).
+    * AIR (application/vnd.adobe.air-applicationinstaller-package+zip, .air; base64).
+    * WOFF (application/font-woff; .woff; base64).
+    * TrueType (application/x-font-truetype; .ttf; base64).
+    * OpenType (application/x-font-opentype; .otf; base64).
+  * WebM (audio/webm, video/webm; .webm). https://github.com/halostatue/mime-types/issues/11.
+* New extensions:
+  * f4v/f4p (video/mp4, used by Adobe); f4a/fb4 (audio/mp4, used by Adobe).
+* Bug Fixes:
+  * It was pointed out that Licence.txt was incorrectly named. Fixed by renaming to Licence.rdoc (from Issue/Pull Request #8, https://github.com/halostatue/mime-types/issues/8).
+  * It was pointed out that a plan to have the test output generated automatically never went through. https://github.com/halostatue/mime-types/issues/10
+
+== 1.17.2 / 2011-10-25
+* Bug Fixes:
+  * Fixed an issue with Ruby 1.9 and file encoding.
+
+== 1.17.1 / 2011-10-23
+* Minor Enhancements:
+  * Implemented modern 'hoe' semantics.
+  * Switched to minitest instead of test/unit.
+  * Converted documentation from .txt to .rdoc.
+  * Removed setup.rb. https://github.com/halostatue/mime-types/issues/3
+  * Should no longer complain about missing RubyGems keys https://github.com/halostatue/mime-types/issues/2
+  * Added .mp4 and .mpg4 as recognized extensions for
+    {application,audio,video}/mp4 per RFC4337. https://github.com/halostatue/mime-types/issues/1
+  * Added audio/x-aac and .aac per RubyForge issue #28054
+    (http://rubyforge.org/tracker/index.php?func=detail&aid=28054&group_id=293&atid=1194).
+  * Made it much easier to update MIME types from this point forward.
+  * Updated MIME types from IANA.
+
+== 1.16
+* Made compatible with Ruby 1.8.6, 1.8.7, and 1.9.1.
+* Switched to the 'hoe' gem system and added a lot of build-time tools.
+* Updated the MIME types to the list based on the values in the Perl library
+  version 1.27. Also updated based on external source information and bug
+  reports.
+* This is the last planned version of MIME::Types 1.x. Work will be
+  starting soon on MIME::Types 2.x with richer data querying mechanisms
+  and support for external data sources.
+
+== 1.15
+* Removed lib/mime/type.rb to form a single MIME::Types database source. It
+  is unlikely that one will ever need MIME::Type without MIME::Types.
+* Re-synchronized the MIME type list with the sources, focusing primarily on
+  the IANA list.
+* Added more detailed source information for MIME::Type objects.
+* Changed MIME::Types from a module to a class with a default instance. There
+  should be no difference in usage.
+* Removed MIME::Types::DATA_VERSION; it is now an attribute on the
+  MIME::Types instance.
+* NOTE: Synchronization with the Perl version of MIME::Types is no longer a
+  priority as of this release. The data format and information has changed.
+* Removed MIME::Types.by_suffix and MIME::Types.by_mediatype.
+
+== 1.13.1
+* Fixed a problem with the installer running tests. This now works.
+* Improved the implementation of MIME::Type.signature?
+* Moved code around to use the class << self idiom instead of always
+  prepending the module/class name.
+* Added two new best-guess implementations of functions found in Perl's
+  MIME::Types implementation (1.13). Do not rely on these until the purpose
+  and implementation is stabilised.
+* Updated the MIME list to reflect changes noted by
+  Ville Skyttä <ville.skytta@iki.fi>.
+* Added a new constant to MIME::Types, DATA_VERSION. This will allow the Ruby
+  version number to be updated separately from the Perl version while keeping
+  the MIME Type list version in sync.
+
+== 1.13
+  ! WARNING: This version changes the API of MIME::Types !
+  ! WARNING: This version is compatible with Ruby 1.8 and higher ONLY !
+* Removed dependency on InstallPackage; offering 1.13 as either .tar.gz or
+  .gem.
+* Split into two files, mime/type.rb and mime/types.rb. This will make
+  maintaining the list of changes easier.
+* Changed the MIME::Type construction API. Accepts only a single String
+  argument (but does no named type-checking) and yields self.
+* Removed private methods #init_extensions, #init_encoding, and #init_system
+  and replaced with #extensions=, #encoding=, and #system=.
+* Added #default_encoding to return 'quoted-printable' or 'base64' depending
+  on the media type of the MIME type.
+* Added #raw_media_type and #raw_sub_type to provide the non-simplified
+  versions of the media type and subtype.
+* Alternative constructors MIME::Type.from_array, MIME::Type.from_hash, and
+  MIME::Type.from_mime_type added to compensate for the removal of named type
+  checking in the original constructor.
+* Added #to_str, #to_a, and #to_hash methods. The latter two will provide
+  output suitable for use in #from_array and #from_hash.
+* Removed "binary" encoding and enforced the use of a valid encoding string.
+* Added #system? returning true if the MIME::Type is an OS-specific
+  MIME::Type.
+* Added #platform? returning true if the MIME::Type is an OS-specific
+  MIME::Type for the current RUBY_PLATFORM.
+* Added #like? returning true if the simplified type matches the other value
+  provided. #<'application/x-excel'>.like?('application/excel') is true.
+* Added #complete? returning true if the MIME::Type specifies an extension
+  list.
+* Updated the MIME type list to reflect additions by Mark Overmeer for Perl's
+  MIME::Types 1.12 and the official IANA list as of 2004.04.06. A number of
+  formerly "registered" MIME types are now no longer registered (e.g.,
+  application/excel is now application/x-excel). This ensures that the
+  simplified type still works with applications, but does not report an
+  unregistered type as registered.
+* Restored MIME type list to Mark Overmeer's format to facilitate easy
+  exchange between the two projects.
+* Added additional unit tests from Mark Overmeer's 1.12 version.
+
+== 1.07
+* Changed version numbering to match Perl MIME::Types 1.07.
+* Re-synchronized with Mark Overmeer's list in Perl PMIME::Types 1.07.
+* [NN Poster] updated the attributes for the PGP types.
+
+== 1.005
+* Changed to Phil Thomson's InstallPackage.
+* Added several types from Perl MIME::Types 1.005.
+* Cleaned up data format; some data formats will show up with proper data now.
+
+== 1.004
+* Updated to match Perl MIME::Types 1.004, links credited to Dan Puro. Adds
+  new reference list to http://www.indiana.edu/cgi-bin-local/mimetypes
+* Removed InvalidType and replaced with TypeError.
+* Changed instances of #type to #class.
+* Cleaned up how simplified versions are created.
+
+== 1.003
+* Initial release based on Perl MIME::Types 1.003.

@@ -96,6 +96,14 @@
             <version>2.1_3</version>
         </dependency>
 
+        <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
+        <dependency>
+            <groupId>${bcprov.groupId}</groupId>
+            <artifactId>${bcprov.artifactId}</artifactId>
+            <version>${bcprov.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>com.thoughtworks.go</groupId>

@@ -1,0 +1,25 @@
+# Please do not submit patches for including directives to ignore IDE/editor
+# generated files. Use a global gitignore as described in
+# https://help.github.com/articles/ignoring-files and find useful gitignore
+# samples at https://github.com/github/gitignore
+
+# system crap
+.DS_Store
+.*.swp
+
+# files created by running the specs
+tmp/
+
+# built gems
+pkg/
+*.gem
+
+# rubinius bytecode
+*.rbc
+.rbx/
+
+# output from ronn
+lib/bundler/man/
+
+# output from ci_reporter
+spec/reports/

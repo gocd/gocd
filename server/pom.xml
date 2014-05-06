@@ -248,12 +248,16 @@
         <dependency>
             <groupId>org.jruby</groupId>
             <artifactId>jruby-complete</artifactId>
-            <version>1.5.0</version>
+            <!-- latest version with a rubygems compatible with Rails 2.3.x (1.8.24) -->
+            <version>1.7.4</version>
         </dependency>
         <dependency>
             <groupId>org.jruby.rack</groupId>
             <artifactId>jruby-rack</artifactId>
-            <version>0.9.6-b6d3d45</version>
+            <!-- minimum update forced by the Rails upgrade -->
+            <!-- the plan is to upgrade to latest as soon as Rails goes to 4.x -->
+            <!-- https://github.com/jruby/jruby-rack/issues/7 -->
+            <version>1.0.6</version>
         </dependency>
 
         <dependency>

@@ -30,7 +30,7 @@ generated.
 
 Example:
 
-  gem lock rails-1.0.0 > lockdown.rb
+  gemlock rails-1.0.0 > lockdown.rb
 
 will produce in lockdown.rb:
 

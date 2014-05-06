@@ -1,7 +1,7 @@
 require 'rubygems/command'
 require 'rubygems/local_remote_options'
 require 'rubygems/version_option'
-require 'rubygems/package'
+require 'rubygems/format'
 
 class Gem::Commands::SpecificationCommand < Gem::Command
 
@@ -17,7 +17,6 @@ class Gem::Commands::SpecificationCommand < Gem::Command
 
     add_version_option('examine')
     add_platform_option
-    add_prerelease_option
 
     add_option('--all', 'Output specifications for all versions of',
                'the gem') do |value, options|
@@ -28,7 +27,7 @@ class Gem::Commands::SpecificationCommand < Gem::Command
       options[:format] = :ruby
     end
 
-    add_option('--yaml', 'Output YAML format') do |value, options|
+    add_option('--yaml', 'Output RUBY format') do |value, options|
       options[:format] = :yaml
     end
 
@@ -50,22 +49,6 @@ FIELD         name of gemspec field to show
     "--local --version '#{Gem::Requirement.default}' --yaml"
   end
 
-  def description # :nodoc:
-    <<-EOF
-The specification command allows you to extract the specification from
-a gem for examination.
-
-The specification can be output in YAML, ruby or Marshal formats.
-
-Specific fields in the specification can be extracted in YAML format:
-
-  $ gem spec rake summary
-  --- Ruby based make-like utility.
-  ...
-
-    EOF
-  end
-
   def usage # :nodoc:
     "#{program_name} [GEMFILE] [FIELD]"
   end
@@ -79,13 +62,13 @@ Specific fields in the specification can be extracted in YAML format:
             "Please specify a gem name or file on the command line"
     end
 
-    case v = options[:version]
+    case options[:version]
     when String
-      req = Gem::Requirement.create v
+      req = Gem::Requirement.parse options[:version]
     when Gem::Requirement
-      req = v
+      req = options[:version]
     else
-      raise Gem::CommandLineError, "Unsupported version type: '#{v}'"
+      raise Gem::CommandLineError, "Unsupported version type: #{options[:version]}"
     end
 
     if !req.none? and options[:all]
@@ -96,7 +79,7 @@ Specific fields in the specification can be extracted in YAML format:
     if options[:all]
       dep = Gem::Dependency.new gem
     else
-      dep = Gem::Dependency.new gem, req
+      dep = Gem::Dependency.new gem, options[:version]
     end
 
     field = get_one_optional_argument
@@ -106,7 +89,7 @@ Specific fields in the specification can be extracted in YAML format:
 
     if local? then
       if File.exist? gem then
-        specs << Gem::Package.new(gem).spec rescue nil
+        specs << Gem::Format.from_file_by_path(gem).spec rescue nil
       end
 
       if specs.empty? then
@@ -115,14 +98,17 @@ Specific fields in the specification can be extracted in YAML format:
     end
 
     if remote? then
-      dep.prerelease = options[:prerelease]
-      found, _ = Gem::SpecFetcher.fetcher.spec_for_dependency dep
+      found = Gem::SpecFetcher.fetcher.fetch dep, true
+
+      if dep.prerelease? or options[:prerelease]
+        found += Gem::SpecFetcher.fetcher.fetch dep, false, true, true
+      end
 
       specs.push(*found.map { |spec,| spec })
     end
 
     if specs.empty? then
-      alert_error "No gem matching '#{dep}' found"
+      alert_error "Unknown gem '#{gem}'"
       terminate_interaction 1
     end
 

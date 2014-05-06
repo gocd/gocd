@@ -34,24 +34,6 @@ class Gem::Commands::UnpackCommand < Gem::Command
     "--version '#{Gem::Requirement.default}'"
   end
 
-  def description
-    <<-EOF
-The unpack command allows you to examine the contents of a gem or modify
-them to help diagnose a bug.
-
-You can add the contents of the unpacked gem to the load path using the
-RUBYLIB environment variable or -I:
-
-  $ gem unpack my_gem
-  Unpacked gem: '.../my_gem-1.0'
-  [edit my_gem-1.0/lib/my_gem.rb]
-  $ ruby -Imy_gem-1.0/lib -S other_program
-
-You can repackage an unpacked gem using the build command.  See the build
-command help for an example.
-    EOF
-  end
-
   def usage # :nodoc:
     "#{program_name} GEMNAME"
   end
@@ -87,10 +69,8 @@ command help for an example.
       else
         basename = File.basename path, '.gem'
         target_dir = File.expand_path basename, options[:target]
-
-        package = Gem::Package.new path
-        package.extract_files target_dir
-
+        FileUtils.mkdir_p target_dir
+        Gem::Installer.new(path, :unpack => true).unpack target_dir
         say "Unpacked gem: '#{target_dir}'"
       end
     end
@@ -154,11 +134,9 @@ command help for an example.
   ##
   # Extracts the Gem::Specification and raw metadata from the .gem file at
   # +path+.
-  #--
-  # TODO move to Gem::Package as #raw_spec or something
 
   def get_metadata path
-    format = Gem::Package.new path
+    format = Gem::Format.from_file_by_path path
     spec = format.spec
 
     metadata = nil

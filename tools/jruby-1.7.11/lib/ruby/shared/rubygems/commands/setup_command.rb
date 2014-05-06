@@ -5,22 +5,14 @@ require 'rubygems/command'
 # RubyGems checkout or tarball.
 
 class Gem::Commands::SetupCommand < Gem::Command
-  HISTORY_HEADER = /^===\s*[\d.]+\s*\/\s*\d{4}-\d{2}-\d{2}\s*$/
-  VERSION_MATCHER = /^===\s*([\d.]+)\s*\/\s*\d{4}-\d{2}-\d{2}\s*$/
 
   def initialize
     require 'tmpdir'
 
     super 'setup', 'Install RubyGems',
-          :format_executable => true, :document => %w[ri],
+          :format_executable => true, :rdoc => true, :ri => true,
           :site_or_vendor => :sitelibdir,
-          :destdir => '', :prefix => '', :previous_version => ''
-
-    add_option '--previous-version=VERSION',
-               'Previous version of rubygems',
-               'Used for changelog processing' do |version, options|
-      options[:previous_version] = version
-    end
+          :destdir => '', :prefix => ''
 
     add_option '--prefix=PREFIX',
                'Prefix path for installing RubyGems',
@@ -45,40 +37,15 @@ class Gem::Commands::SetupCommand < Gem::Command
       options[:format_executable] = value
     end
 
-    add_option '--[no-]document [TYPES]', Array,
-               'Generate documentation for RubyGems.',
-               'List the documentation types you wish to',
-               'generate.  For example: rdoc,ri' do |value, options|
-      options[:document] = case value
-                           when nil   then %w[rdoc ri]
-                           when false then []
-                           else            value
-                           end
-    end
-
     add_option '--[no-]rdoc',
                'Generate RDoc documentation for RubyGems' do |value, options|
-      if value then
-        options[:document] << 'rdoc'
-      else
-        options[:document].delete 'rdoc'
-      end
-
-      options[:document].uniq!
+      options[:rdoc] = value
     end
 
     add_option '--[no-]ri',
                'Generate RI documentation for RubyGems' do |value, options|
-      if value then
-        options[:document] << 'ri'
-      else
-        options[:document].delete 'ri'
-      end
-
-      options[:document].uniq!
+      options[:ri] = value
     end
-
-    @verbose = nil
   end
 
   def check_ruby_version
@@ -91,7 +58,7 @@ class Gem::Commands::SetupCommand < Gem::Command
   end
 
   def defaults_str # :nodoc:
-    "--format-executable --document ri"
+    "--format-executable --rdoc --ri"
   end
 
   def description # :nodoc:
@@ -139,13 +106,11 @@ By default, this RubyGems will install gem as:
 
     remove_old_bin_files bin_dir
 
-    remove_old_lib_files lib_dir
-
     say "RubyGems #{Gem::VERSION} installed"
 
     uninstall_old_gemcutter
 
-    documentation_success = install_rdoc
+    install_rdoc
 
     say
     if @verbose then
@@ -153,13 +118,19 @@ By default, this RubyGems will install gem as:
       say
     end
 
-    if options[:previous_version].empty?
-      options[:previous_version] = Gem::VERSION.sub(/[0-9]+$/, '0')
-    end
+    release_notes = File.join Dir.pwd, 'History.txt'
 
-    options[:previous_version] = Gem::Version.new(options[:previous_version])
+    release_notes = if File.exist? release_notes then
+                      open release_notes do |io|
+                        text = io.gets '==='
+                        text << io.gets('===')
+                        text[0...-3].sub(/^# coding:.*?^=/m, '')
+                      end
+                    else
+                      "Oh-no! Unable to find release notes!"
+                    end
 
-    show_release_notes
+    say release_notes
 
     say
     say "-" * 78
@@ -173,31 +144,6 @@ By default, this RubyGems will install gem as:
       say "If `gem` was installed by a previous RubyGems installation, you may need"
       say "to remove it by hand."
       say
-    end
-
-    if documentation_success
-      if options[:document].include? 'rdoc' then
-        say "Rdoc documentation was installed. You may now invoke:"
-        say "  gem server"
-        say "and then peruse beautifully formatted documentation for your gems"
-        say "with your web browser."
-        say "If you do not wish to install this documentation in the future, use the"
-        say "--no-document flag, or set it as the default in your ~/.gemrc file. See"
-        say "'gem help env' for details."
-        say
-      end
-
-      if options[:document].include? 'ri' then
-        say "Ruby Interactive (ri) documentation was installed. ri is kind of like man "
-        say "pages for ruby libraries. You may access it like this:"
-        say "  ri Classname"
-        say "  ri Classname.class_method"
-        say "  ri Classname#instance_method"
-        say "If you do not wish to install this documentation in the future, use the"
-        say "--no-document flag, or set it as the default in your ~/.gemrc file. See"
-        say "'gem help env' for details."
-        say
-      end
     end
   end
 
@@ -219,7 +165,7 @@ By default, this RubyGems will install gem as:
                              end
 
         dest_file = File.join bin_dir, bin_file_formatted
-        bin_tmp_file = File.join Dir.tmpdir, "#{bin_file}.#{$$}"
+        bin_tmp_file = File.join Dir.tmpdir, bin_file
 
         begin
           bin = File.readlines bin_file
@@ -259,27 +205,21 @@ TEXT
     end
   end
 
-  def install_file file, dest_dir
-    dest_file = File.join dest_dir, file
-    dest_dir = File.dirname dest_file
-    mkdir_p dest_dir unless File.directory? dest_dir
-
-    install file, dest_file, :mode => 0644
-  end
-
   def install_lib(lib_dir)
     say "Installing RubyGems" if @verbose
 
-    lib_files = rb_files_in 'lib'
-    pem_files = pem_files_in 'lib'
-
     Dir.chdir 'lib' do
-      lib_files.each do |lib_file|
-        install_file lib_file, lib_dir
-      end
+      lib_files =  Dir[File.join('**', '*rb')]
 
-      pem_files.each do |pem_file|
-        install_file pem_file, lib_dir
+      # Be sure to include our SSL ca bundles
+      lib_files += Dir[File.join('**', '*pem')]
+
+      lib_files.each do |lib_file|
+        dest_file = File.join lib_dir, lib_file
+        dest_dir = File.dirname dest_file
+        mkdir_p dest_dir unless File.directory? dest_dir
+
+        install lib_file, dest_file, :mode => 0644
       end
     end
   end
@@ -289,12 +229,6 @@ TEXT
     rubygems_name = "rubygems-#{Gem::VERSION}"
     rubygems_doc_dir = File.join gem_doc_dir, rubygems_name
 
-    begin
-      Gem.ensure_gem_subdirectories Gem.dir
-    rescue SystemCallError
-      # ignore
-    end
-
     if File.writable? gem_doc_dir and
        (not File.exist? rubygems_doc_dir or
         File.writable? rubygems_doc_dir) then
@@ -303,26 +237,21 @@ TEXT
         rm_rf dir
       end
 
-      require 'rubygems/rdoc'
-
-      fake_spec = Gem::Specification.new 'rubygems', Gem::VERSION
-      def fake_spec.full_gem_path
-        File.expand_path '../../../..', __FILE__
+      if options[:ri] then
+        ri_dir = File.join rubygems_doc_dir, 'ri'
+        say "Installing #{rubygems_name} ri into #{ri_dir}" if @verbose
+        run_rdoc '--ri', '--op', ri_dir
       end
 
-      generate_ri   = options[:document].include? 'ri'
-      generate_rdoc = options[:document].include? 'rdoc'
-
-      rdoc = Gem::RDoc.new fake_spec, generate_rdoc, generate_ri
-      rdoc.generate
-
-      return true
+      if options[:rdoc] then
+        rdoc_dir = File.join rubygems_doc_dir, 'rdoc'
+        say "Installing #{rubygems_name} rdoc into #{rdoc_dir}" if @verbose
+        run_rdoc '--op', rdoc_dir
+      end
     elsif @verbose then
       say "Skipping RDoc generation, #{gem_doc_dir} not writable"
       say "Set the GEM_HOME environment variable if you want RDoc generated"
     end
-
-    return false
   end
 
   def make_destination_dirs(install_destdir)
@@ -370,18 +299,6 @@ TEXT
     [lib_dir, bin_dir]
   end
 
-  def pem_files_in dir
-    Dir.chdir dir do
-      Dir[File.join('**', '*pem')]
-    end
-  end
-
-  def rb_files_in dir
-    Dir.chdir dir do
-      Dir[File.join('**', '*rb')]
-    end
-  end
-
   def remove_old_bin_files(bin_dir)
     old_bin_files = {
       'gem_mirror' => 'gem mirror',
@@ -414,60 +331,21 @@ abort "#{deprecation_message}"
     end
   end
 
-  def remove_old_lib_files lib_dir
-    rubygems_dir = File.join lib_dir, 'rubygems'
-    lib_files = rb_files_in 'lib/rubygems'
-
-    old_lib_files = rb_files_in rubygems_dir
-
-    to_remove = old_lib_files - lib_files
-
-    to_remove.delete_if do |file|
-      file.start_with? 'defaults'
+  def run_rdoc(*args)
+    begin
+      gem 'rdoc'
+    rescue Gem::LoadError
     end
 
-    Dir.chdir rubygems_dir do
-      to_remove.each do |file|
-        FileUtils.rm_f file
+    require 'rdoc/rdoc'
 
-        warn "unable to remove old file #{file} please remove it by hand" if
-          File.exist? file
-      end
-    end
-  end
+    args << '--main' << 'README.rdoc' << '--quiet'
+    args << '.'
+    args << 'README.rdoc' << 'UPGRADING.rdoc'
+    args << 'LICENSE.txt' << 'MIT.txt' << 'History.txt'
 
-  def show_release_notes
-    release_notes = File.join Dir.pwd, 'History.txt'
-
-    release_notes =
-      if File.exist? release_notes then
-        history = File.read release_notes
-
-        history.force_encoding Encoding::UTF_8 if
-          Object.const_defined? :Encoding
-
-        history = history.sub(/^# coding:.*?^=/m, '')
-
-        text = history.split(HISTORY_HEADER)
-        text.shift # correct an off-by-one generated by split
-        version_lines = history.scan(HISTORY_HEADER)
-        versions = history.scan(VERSION_MATCHER).flatten.map do |x|
-          Gem::Version.new(x)
-        end
-
-        history_string = ""
-
-        until versions.length == 0 or
-              versions.shift < options[:previous_version] do
-          history_string += version_lines.shift + text.shift
-        end
-
-        history_string
-      else
-        "Oh-no! Unable to find release notes!"
-      end
-
-    say release_notes
+    r = RDoc::RDoc.new
+    r.document args
   end
 
   def uninstall_old_gemcutter

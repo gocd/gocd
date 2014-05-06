@@ -1,7 +1,6 @@
 require 'rubygems/command'
 require 'rubygems/version_option'
 require 'rubygems/uninstaller'
-require 'fileutils'
 
 ##
 # Gem uninstaller command line tool
@@ -14,8 +13,7 @@ class Gem::Commands::UninstallCommand < Gem::Command
 
   def initialize
     super 'uninstall', 'Uninstall gems from the local repository',
-          :version => Gem::Requirement.default, :user_install => true,
-          :check_dev => false
+          :version => Gem::Requirement.default, :user_install => true
 
     add_option('-a', '--[no-]all',
       'Uninstall all matching versions'
@@ -27,12 +25,6 @@ class Gem::Commands::UninstallCommand < Gem::Command
                'Ignore dependency requirements while',
                'uninstalling') do |value, options|
       options[:ignore] = value
-    end
-
-    add_option('-D', '--[no-]-check-development',
-               'Check development dependencies while uninstalling',
-               '(default: false)') do |value, options|
-      options[:check_dev] = value
     end
 
     add_option('-x', '--[no-]executables',
@@ -62,18 +54,6 @@ class Gem::Commands::UninstallCommand < Gem::Command
       options[:format_executable] = value
     end
 
-    add_option('--[no-]force',
-               'Uninstall all versions of the named gems',
-               'ignoring dependencies') do |value, options|
-      options[:force] = value
-    end
-
-    add_option('--[no-]abort-on-dependent',
-               'Prevent uninstalling gems that are',
-               'depended on by other gems.') do |value, options|
-      options[:abort_on_dependent] = value
-    end
-
     add_version_option
     add_platform_option
   end
@@ -83,18 +63,9 @@ class Gem::Commands::UninstallCommand < Gem::Command
   end
 
   def defaults_str # :nodoc:
-    "--version '#{Gem::Requirement.default}' --no-force " +
+    "--version '#{Gem::Requirement.default}' --no-force " \
+    "--install-dir #{Gem.dir}\n" \
     "--user-install"
-  end
-
-  def description # :nodoc:
-    <<-EOF
-The uninstall command removes a previously installed gem.
-
-RubyGems will ask for confirmation if you are attempting to uninstall a gem
-that is a dependency of an existing gem.  You can use the
---ignore-dependencies option to skip this check.
-    EOF
   end
 
   def usage # :nodoc:
@@ -102,48 +73,19 @@ that is a dependency of an existing gem.  You can use the
   end
 
   def execute
-    if options[:all] and not options[:args].empty? then
-      uninstall_specific
-    elsif options[:all] then
-      uninstall_all
-    else
-      uninstall_specific
-    end
-  end
+    original_path = Gem.path
 
-  def uninstall_all
-    _, specs = Gem::Specification.partition { |spec| spec.default_gem? }
-
-    specs.each do |spec|
-      options[:version] = spec.version
-
-      begin
-        Gem::Uninstaller.new(spec.name, options).uninstall
-      rescue Gem::InstallError
-      end
-    end
-
-    alert "Uninstalled all gems in #{options[:install_dir]}"
-  end
-
-  def uninstall_specific
-    deplist = Gem::DependencyList.new
-
-    get_all_gem_names.uniq.each do |name|
-      Gem::Specification.find_all_by_name(name).each do |spec|
-        deplist.add spec
-      end
-    end
-
-    deps = deplist.strongly_connected_components.flatten.reverse
-
-    deps.map(&:name).uniq.each do |gem_name|
+    get_all_gem_names.each do |gem_name|
       begin
         Gem::Uninstaller.new(gem_name, options).uninstall
+      rescue Gem::InstallError => e
+        alert e.message
       rescue Gem::GemNotInHomeException => e
         spec = e.spec
-        alert("In order to remove #{spec.name}, please execute:\n" +
+        alert("In order to remove #{spec.name}, please execute:\n" \
               "\tgem uninstall #{spec.name} --install-dir=#{spec.installation_path}")
+      ensure
+        Gem.use_paths(*original_path)
       end
     end
   end

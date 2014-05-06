@@ -5,12 +5,11 @@
 #++
 
 require 'optparse'
-require 'rubygems/requirement'
 require 'rubygems/user_interaction'
 
 ##
 # Base class for all Gem commands.  When creating a new gem command, define
-# #initialize, #execute, #arguments, #defaults_str, #description and #usage
+# #new, #execute, #arguments, #defaults_str, #description and #usage
 # (as appropriate).  See the above mentioned methods for details.
 #
 # A very good example to look at is Gem::Commands::ContentsCommand
@@ -151,9 +150,8 @@ class Gem::Command
 
   def show_lookup_failure(gem_name, version, errors, domain)
     if errors and !errors.empty?
-      msg = "Could not find a valid gem '#{gem_name}' (#{version}), here is why:\n"
-      errors.each { |x| msg << "          #{x.wordy}\n" }
-      alert_error msg
+      alert_error "Could not find a valid gem '#{gem_name}' (#{version}), here is why:"
+      errors.each { |x| say "          #{x.wordy}" }
     else
       alert_error "Could not find a valid gem '#{gem_name}' (#{version}) in any repository"
     end
@@ -179,21 +177,6 @@ class Gem::Command
     end
 
     args.select { |arg| arg !~ /^-/ }
-  end
-
-  ##
-  # Get all [gem, version] from the command line.
-  #
-  # An argument in the form gem:ver is pull apart into the gen name and version,
-  # respectively.
-  def get_all_gem_names_and_versions
-    get_all_gem_names.map do |name|
-      if /\A(.*):(#{Gem::Requirement::PATTERN_RAW})\z/ =~ name
-        [$1, $2]
-      else
-        [name]
-      end
-    end
   end
 
   ##
@@ -285,17 +268,7 @@ class Gem::Command
   # Invoke the command with the given list of arguments.
 
   def invoke(*args)
-    invoke_with_build_args args, nil
-  end
-
-  ##
-  # Invoke the command with the given list of normal arguments
-  # and additional build arguments.
-
-  def invoke_with_build_args(args, build_args)
     handle_options args
-
-    options[:build_args] = build_args
 
     if options[:help] then
       show_help
@@ -371,7 +344,7 @@ class Gem::Command
 
   def handle_options(args)
     args = add_extra_args(args)
-    @options = Marshal.load Marshal.dump @defaults # deep copy
+    @options = @defaults.clone
     parser.parse!(args)
     @options[:args] = args
   end
@@ -399,57 +372,6 @@ class Gem::Command
 
   private
 
-  def add_parser_description # :nodoc:
-    return unless description
-
-    formatted = description.split("\n\n").map do |chunk|
-      wrap chunk, 80 - 4
-    end.join "\n"
-
-    @parser.separator nil
-    @parser.separator "  Description:"
-    formatted.split("\n").each do |line|
-      @parser.separator "    #{line.rstrip}"
-    end
-  end
-
-  def add_parser_options # :nodoc:
-    @parser.separator nil
-
-    regular_options = @option_groups.delete :options
-
-    configure_options "", regular_options
-
-    @option_groups.sort_by { |n,_| n.to_s }.each do |group_name, option_list|
-      @parser.separator nil
-      configure_options group_name, option_list
-    end
-  end
-
-  ##
-  # Adds a section with +title+ and +content+ to the parser help view.  Used
-  # for adding command arguments and default arguments.
-
-  def add_parser_run_info title, content
-    return if content.empty?
-
-    @parser.separator nil
-    @parser.separator "  #{title}:"
-    content.split(/\n/).each do |line|
-      @parser.separator "    #{line}"
-    end
-  end
-
-  def add_parser_summary # :nodoc:
-    return unless @summary
-
-    @parser.separator nil
-    @parser.separator "  Summary:"
-    wrap(@summary, 80 - 4).split("\n").each do |line|
-      @parser.separator "    #{line.strip}"
-    end
-  end
-
   ##
   # Create on demand parser.
 
@@ -458,22 +380,57 @@ class Gem::Command
     @parser
   end
 
-  ##
-  # Creates an option parser and fills it in with the help info for the
-  # command.
-
   def create_option_parser
     @parser = OptionParser.new
 
-    add_parser_options
+    @parser.separator nil
+    regular_options = @option_groups.delete :options
+
+    configure_options "", regular_options
+
+    @option_groups.sort_by { |n,_| n.to_s }.each do |group_name, option_list|
+      @parser.separator nil
+      configure_options group_name, option_list
+    end
 
     @parser.separator nil
     configure_options "Common", Gem::Command.common_options
 
-    add_parser_run_info "Arguments", arguments
-    add_parser_summary
-    add_parser_description
-    add_parser_run_info "Defaults", defaults_str
+    unless arguments.empty?
+      @parser.separator nil
+      @parser.separator "  Arguments:"
+      arguments.split(/\n/).each do |arg_desc|
+        @parser.separator "    #{arg_desc}"
+      end
+    end
+
+    if @summary then
+      @parser.separator nil
+      @parser.separator "  Summary:"
+      wrap(@summary, 80 - 4).split("\n").each do |line|
+        @parser.separator "    #{line.strip}"
+      end
+    end
+
+    if description then
+      formatted = description.split("\n\n").map do |chunk|
+        wrap chunk, 80 - 4
+      end.join "\n"
+
+      @parser.separator nil
+      @parser.separator "  Description:"
+      formatted.split("\n").each do |line|
+        @parser.separator "    #{line.rstrip}"
+      end
+    end
+
+    unless defaults_str.empty?
+      @parser.separator nil
+      @parser.separator "  Defaults:"
+      defaults_str.split(/\n/).each do |line|
+        @parser.separator "    #{line}"
+      end
+    end
   end
 
   def configure_options(header, option_list)
@@ -564,7 +521,7 @@ basic help message containing pointers to more information.
                                  http://localhost:8808/
                                  with info about installed gems
   Further information:
-    http://guides.rubygems.org
+    http://rubygems.rubyforge.org
   HELP
 
   # :startdoc:
@@ -572,7 +529,7 @@ basic help message containing pointers to more information.
 end
 
 ##
-# \Commands will be placed in this namespace
+# This is where Commands will be placed in the namespace
 
 module Gem::Commands
 end

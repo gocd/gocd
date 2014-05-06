@@ -57,7 +57,7 @@ public class GoConfigMigrationTest {
             + "      <jobs>"
             + "        <job name='do-something'>"
             + "         <tasks>"
-            + "              <exec command=\"tools/jruby/bin/jruby\" args=\"-S buildr kill_server\" />"
+            + "              <exec command=\"tools/bin/go.jruby\" args=\"-S buildr kill_server\" />"
             + "         </tasks>"
             + "        </job>"
             + "      </jobs>"

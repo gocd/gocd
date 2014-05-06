@@ -1,5 +1,5 @@
 require 'rubygems/command'
-require 'rubygems/package'
+require 'rubygems/builder'
 
 class Gem::Commands::BuildCommand < Gem::Command
 
@@ -15,25 +15,6 @@ class Gem::Commands::BuildCommand < Gem::Command
     "GEMSPEC_FILE  gemspec file name to build a gem for"
   end
 
-  def description # :nodoc:
-    <<-EOF
-The build command allows you to create a gem from a ruby gemspec.
-
-The best way to build a gem is to use a Rakefile and the Gem::PackageTask
-which ships with RubyGems.
-
-The gemspec can either be created by hand or extracted from an existing gem
-with gem spec:
-
-  $ gem unpack my_gem-1.0.gem
-  Unpacked gem: '.../my_gem-1.0'
-  $ gem spec my_gem-1.0.gem --ruby > my_gem-1.0/my_gem-1.0.gemspec
-  $ cd my_gem-1.0
-  [edit gem contents]
-  $ gem build my_gem-1.0.gemspec
-    EOF
-  end
-
   def usage # :nodoc:
     "#{program_name} GEMSPEC_FILE"
   end
@@ -41,11 +22,11 @@ with gem spec:
   def execute
     gemspec = get_one_gem_name
 
-    if File.exist? gemspec then
-      spec = Gem::Specification.load gemspec
+    if File.exist? gemspec
+      spec = load_gemspec gemspec
 
       if spec then
-        Gem::Package.build spec, options[:force]
+        Gem::Builder.new(spec).build options[:force]
       else
         alert_error "Error loading gemspec. Aborting."
         terminate_interaction 1
@@ -56,5 +37,23 @@ with gem spec:
     end
   end
 
-end
+  def load_gemspec filename
+    if yaml?(filename)
+      open(filename) do |f|
+        begin
+          Gem::Specification.from_yaml(f)
+        rescue Gem::EndOfYAMLException
+          nil
+        end
+      end
+    else
+      Gem::Specification.load(filename) # can return nil
+    end
+  end
 
+  def yaml?(filename)
+    line = open(filename) { |f| line = f.gets }
+    result = line =~ %r{!ruby/object:Gem::Specification}
+    result
+  end
+end

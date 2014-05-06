@@ -1,0 +1,16 @@
+language: ruby
+rvm:
+  - 1.9.3
+  - 2.0.0
+gemfile:
+  - gemfiles/Gemfile-edge
+  - Gemfile
+notifications:
+  email: false
+  campfire:
+    on_success: change
+    on_failure: always
+    rooms:
+      - secure: "DwWWfmRXWSYoelIo3W6H99FrLM2V9ugFoAu+xBo42n2pNV44lU+8T9O+zWkV\nwD3Lz+7URB/5IRPcEel/KYaRYNJl71YUBgtlcvjM7Xl/7YGLYFAcPT2RXfKA\nctvckk/5NehmSawnLhhvMz2gKtIx/fIwCVqxUnRqqYE0eEQaONA="
+before_install:
+  - gem install bundler

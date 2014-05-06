@@ -1,0 +1,10 @@
+script: "rake test"
+rvm:
+  - rbx-19mode
+  - jruby
+  - 1.9.3
+  - 2.0.0
+notifications:
+  email: false
+  irc:
+    - "irc.freenode.org#rails-contrib"

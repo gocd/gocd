@@ -1,0 +1,2 @@
+---
+exclude: !ruby/regexp /(tmp|swp)$|CVS|TAGS|\.(svn|git|hg|DS_Store|idea)|Gemfile\.lock|type-lists\/|\.gemspec/

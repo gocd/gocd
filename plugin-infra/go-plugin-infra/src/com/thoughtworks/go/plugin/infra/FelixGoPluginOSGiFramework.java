@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
@@ -31,20 +23,24 @@ import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.felix.framework.cache.BundleCache;
+import org.apache.felix.framework.util.FelixConstants;
 import org.apache.log4j.Logger;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
@@ -185,6 +181,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 + ", " + internalServicesPackage + ", " + javaxPackages + ", " + orgXmlSaxPackages + ", " + orgW3cDomPackages);
         config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
         config.put(BundleCache.CACHE_LOCKING_PROP, "false");
+        config.put(FelixConstants.SERVICE_URLHANDLERS_PROP, "false");
         return config;
     }
 

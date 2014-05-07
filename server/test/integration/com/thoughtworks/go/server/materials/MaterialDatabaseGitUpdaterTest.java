@@ -17,36 +17,26 @@
 package com.thoughtworks.go.server.materials;
 
 import java.io.File;
-import java.util.List;
 
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import org.apache.commons.io.FileUtils;
 import org.aspectj.util.FileUtil;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
-
-    private GitTestRepo gitTestRepo;
-
     protected GitMaterial material() {
         return new GitMaterial(testRepo.projectRepositoryUrl());
     }
 
     protected GitTestRepo repo() {
-        gitTestRepo = new GitTestRepo();
-        return gitTestRepo;
+        return new GitTestRepo();
     }
 
     @Test
@@ -68,22 +58,5 @@ public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
         assertThat(materialInstance, is(nullValue()));
         assertThat(FileUtil.listFiles(flyweightDir).length, is(0));//no flyweight dir left behind
     }
-
-    @Test
-    public void shouldCheckoutNonUTF8Files() throws Exception {
-        String nonUTF8FileName = "乔梁.txt";
-        String comment = "pushing non UTF8 file with name 乔梁.txt";
-
-        gitTestRepo.checkInOneFile(nonUTF8FileName, comment);
-
-        Material gitMaterial = gitTestRepo.material();
-        updater.updateMaterial(gitMaterial);
-
-        MaterialRevisions revisions = materialRepository.findLatestModification(gitMaterial);
-        Modifications modifications = revisions.getModifications(gitMaterial);
-        assertThat(modifications.size(), Matchers.is(1));
-        assertThat(modifications.first().getComment(), is(comment));
-    }
-
 
 }

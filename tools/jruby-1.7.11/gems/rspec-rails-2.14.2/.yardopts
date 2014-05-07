@@ -1,0 +1,9 @@
+--no-private
+--exclude features
+--exclude lib/generators/**/*_spec.rb
+--markup markdown
+--template-path yard/template/
+-
+Changelog.md
+License.txt
+Capybara.md

@@ -1,0 +1,19 @@
+module RSpec::Rails
+  module ModuleInclusion
+    # @deprecated No replacement.
+    #
+    # Will be removed from rspec-rails-3.0
+    #
+    # This was never intended to be a public API and is no longer needed
+    # internally. As it happens, there are a few blog posts citing its use, so
+    # I'm leaving it here, but deprecated.
+    def include_self_when_dir_matches(*path_parts)
+      lambda do |c|
+        RSpec.deprecate('include_self_when_dir_matches')
+        c.include self, :example_group => {
+          :file_path => Regexp.compile(path_parts.join('[\\\/]'))
+        }
+      end
+    end
+  end
+end

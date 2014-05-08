@@ -19,12 +19,15 @@ package com.thoughtworks.go.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.log4j.Logger;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -46,9 +49,11 @@ public class ProcessManager {
     public ProcessWrapper createProcess(String[] commandLine, String commandLineForDisplay, File workingDir, Map<String, String> envMap, EnvironmentVariableContext environmentVariableContext,
                                         ConsoleOutputStreamConsumer consumer, String processTag, String encoding, String errorPrefix) {
         ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing: " + commandLineForDisplay);
         }
+
         if (workingDir != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("[Command Line] Using working directory %s to start the process.", workingDir.getAbsolutePath()));
@@ -56,8 +61,22 @@ public class ProcessManager {
             processBuilder.directory(workingDir);
         }
 
-        environmentVariableContext.setupRuntimeEnvironment(processBuilder.environment(), consumer);
-        processBuilder.environment().putAll(envMap);
+        // Combine the existing process environments into a single environment variable map. Each is prefixed with
+        // Env. so that in the future if other scopes of variables want to be supported, it's trivial to add.
+        Map<String, String> fullEnvMap = new HashMap<String, String>();
+        MapUtil.putAllWithPrefix(fullEnvMap, "Env.", processBuilder.environment());
+        MapUtil.putAllWithPrefix(fullEnvMap, "Env.", environmentVariableContext.getProperties());
+        MapUtil.putAllWithPrefix(fullEnvMap, "Env.", envMap);
+
+        StrSubstitutor envSubstitutor = new StrSubstitutor(fullEnvMap);
+
+        String[] processedCommandLine = ArrayUtil.expandVariables(commandLine, envSubstitutor);
+        processBuilder.command(processedCommandLine);
+
+        environmentVariableContext.setupRuntimeEnvironment(processBuilder.environment(), consumer, envSubstitutor);
+
+        Map<String, String> processedEnvMap = MapUtil.expandVaraibles(envMap, envSubstitutor);
+        processBuilder.environment().putAll(processedEnvMap);
 
         Process process = startProcess(processBuilder, commandLineForDisplay);
         ProcessWrapper processWrapper = new ProcessWrapper(process, processTag, commandLineForDisplay, consumer, encoding, errorPrefix);

@@ -102,13 +102,13 @@ task "spec" => RAILS_DEPENDENCIES do
   rm_rf SPEC_SERVER_DIR
   reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
   puts "reports directory: " + reports_dir
-  str = 'rspec' +
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
           ' --require rspec-extra-formatters' +
           ' --format progress' +
           ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
           ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
           ' spec '
-  str=str+ "--pattern "+ ENV['spec_module']+'/**/*_spec.rb' if ENV.has_key? 'spec_module'
+  str = str + "--pattern " + ENV['spec_module'] +'/**/*_spec.rb' if ENV.has_key? 'spec_module'
   execute_under_rails(str)
 end
 

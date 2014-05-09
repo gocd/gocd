@@ -34,3 +34,11 @@ Go::Application.configure do
   # Print deprecation notices to the stderr.
   # config.active_support.deprecation = :stderr
 end
+
+# Override load_context of Spring for rspec.
+import org.springframework.context.support.ClassPathXmlApplicationContext
+
+def Spring.load_context
+  ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", "applicationContext*.xml"))].map { |path| "WEB-INF/#{File.basename(path)}"}
+  ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
+end

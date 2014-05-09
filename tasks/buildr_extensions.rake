@@ -89,6 +89,7 @@ def package_submodule_layout(_parent, _module, _package_basename)
   new_layout[:windows_package] = "#{new_layout[:target]}/windows_package/#{_package_basename}-#{VERSION_NUMBER}-#{RELEASE_REVISION}-setup.exe"
   new_layout[:solaris_package] = "#{new_layout[:target]}/sol/#{_package_basename}-#{VERSION_NUMBER}.#{RELEASE_REVISION}-solaris.gz"
   new_layout[:zip_package] = "#{new_layout[:target]}/#{_package_basename}-#{VERSION_NUMBER}-#{RELEASE_REVISION}.zip"
+  new_layout[:osx_package] = "#{new_layout[:target]}/osx_package/#{_package_basename}-#{VERSION_NUMBER}-#{RELEASE_REVISION}-osx.zip"
   new_layout
 end
 
@@ -402,6 +403,45 @@ module WinPackageHelper
     end
   end
 end
+
+module OSXPackageHelper
+  def osx_dir
+    _(:target, "osx_package")
+  end
+
+  def build_osx_installer(pkg, pkg_dir)
+    go_pkg_name_with_release_revision = "#{"go-#{pkg}-#{VERSION_NUMBER}"}-#{RELEASE_REVISION}"
+
+
+    Dir.chdir(osx_dir) do
+      contents_dir = File.join(pkg_dir, "Contents")
+      mkdir_p contents_dir
+      cp File.join("..", "..", "..", "..", "installers", pkg, "osx", "Info.plist"), contents_dir
+      replace_content_in_file(File.join(contents_dir, "Info.plist"), "@VERSION@", "#{VERSION_NUMBER}.#{RELEASE_REVISION}")
+      replace_content_in_file(File.join(contents_dir, "Info.plist"), "@REGVER@", "#{RELEASE_REVISION}")
+
+      resources_dir = File.join(contents_dir, "Resources")
+      mkdir_p resources_dir
+      cp File.join("..", "..", "..", "..", "build", "icons", "go-#{pkg}.icns"), resources_dir
+
+      mac_os_dir = File.join(contents_dir, "MacOS")
+      mkdir_p mac_os_dir
+      java_application_stub_64_file = File.join(mac_os_dir, "go-#{pkg}")
+      cp File.join("..", "..", "..", "..", "build", "osx", "JavaApplicationStub64"), java_application_stub_64_file
+      chmod 0755, java_application_stub_64_file
+
+      `zip -q -r -9 #{go_pkg_name_with_release_revision}-osx.zip "#{pkg_dir}"`
+      rm_rf pkg_dir
+    end
+  end
+
+  def replace_content_in_file file_name, pattern, replacement
+    text = File.read(file_name)
+    text.gsub!(pattern, replacement)
+    File.open(file_name, 'w') {|file| file.puts text}
+  end
+end
+
 
 def in_root filename
   File.join($PROJECT_BASE, filename)

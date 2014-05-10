@@ -1,0 +1,169 @@
+= MiniPortile
+
+* {Source Code}[https://github.com/luislavena/mini_portile]
+* {Bug Reports}[https://github.com/luislavena/mini_portile/issues]
+
+This project is a minimalistic, simplistic and stupid implementation of a port/recipe
+system <b>for developers</b>.
+
+== Another port system, srsly?
+
+No, is not a general port system, is not aimed to take over apt, macports or
+anything like that.
+
+The rationale is simple.
+
+You create a library A that uses B at runtime or compile time. Target audience
+of your library might have different versions of B installed than yours.
+
+You know, <em>Works on my machine</em> is not what you expect from one
+developer to another.
+
+Developers having problems report them back to you, and what you do then?
+Compile B locally, replacing your existing installation of B or simply hacking
+things around so nothing breaks.
+
+All this, manually.
+
+Computers are tools, are meant to help us, not the other way around.
+
+What if I tell you the above scenario can be simplified with something like
+this:
+
+  rake compile B_VERSION=1.2.3
+
+And your library will use the version of B you specified. Done.
+
+== You make it sound easy, where is the catch?
+
+You got me, there is a catch. At this time (and highly likely will be always)
+MiniPortile is only compatible with GCC compilers and autoconf/configure-based
+projects.
+
+It assumes the library you want to build contains a <tt>configure</tt> script,
+which all the autoconf-based libraries do.
+
+=== How to use
+
+Now that you know the catch, and you're still reading this, let me show you a
+quick example:
+
+  require "mini_portile"
+  recipe = MiniPortile.new("libiconv", "1.13.1")
+  recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
+  recipe.cook
+  recipe.activate
+
+That's all. <tt>cook</tt> will download, extract, patch, configure and compile
+the library into a namespaced structure. <tt>activate</tt> ensures GCC find
+this library and prefers it over a system-wide installation.
+
+=== Structure
+
+At this time, if you haven't digged into the code yet, are wondering <em>what
+is all that structure talk about?</em>.
+
+MiniPortile follows the principle of <b>convention over configuration</b> and
+established a folder structure where is going to place files and perform work.
+
+Take the above example, and let's draw some picture:
+
+  mylib
+    |-- ports
+    |   |-- archives
+    |   |   `-- libiconv-1.13.1.tar.gz
+    |   `-- <platform>
+    |       `-- libiconv
+    |           `-- 1.13.1
+    |               |-- bin
+    |               |-- include
+    |               `-- lib
+    `-- tmp
+        `-- <platform>
+            `-- ports
+
+In above structure, <tt>platform</tt> refers to the architecture that represents
+the operating system you're using (e.g. i686-linux, i386-mingw32, etc).
+
+Inside this folder, MiniPortile will store the artifacts that result from the
+compilation process. As you cans see, it versions out the library so you can
+run multiple version combination without compromising these overlap each other.
+
+<tt>archives</tt> is where downloaded source files are stored. It is recommended
+you avoid trashing that folder so no further downloads will be required (save
+bandwidth, save the world).
+
+The <tt>tmp</tt> is where compilation is performed and can be safely discarded.
+
+Don't worry, you don't need to know the path structure by memory, just use recipe's
+<tt>path</tt> to obtain the full path to the installation directory:
+
+  recipe.cook
+  recipe.path # => /home/luis/projects/myapp/ports/i686-linux/libiconv/1.13.1
+
+=== How can I combine this with my compilation task?
+
+In the simplified proposal, the idea is that using Rake, your <tt>compile</tt>
+task depends on MiniPortile compilation and most important, activation.
+
+Take the following as a simplification of how you can use MiniPortile with
+Rake:
+
+  task :libiconv do
+    recipe = MiniPortile.new("libiconv", "1.13.1")
+    recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
+    checkpoint = ".#{recipe.name}-#{recipe.version}.installed"
+
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
+  end
+
+  task :compile => [:libiconv] do
+    # ...
+  end
+
+This example will:
+
+* Compile the library only once (using a timestamp file)
+* Ensure compiled library gets activated every time
+* Make compile task depend on compiled library activation
+
+For your homework, you can make libiconv version be taken from <tt>ENV</tt>
+variables.
+
+=== Native or cross-compilation
+
+Above examples cover the normal use case: compile support libraries natively.
+
+MiniPortile also covers another use case, which is the cross-compilation of the
+support libraries to be used as part of a binary gem compilation.
+
+It is the perfect complementary tool for rake-compiler and it's <tt>cross</tt>
+Rake task.
+
+Depending on your usage of rake-compiler, you will need to use <tt>host</tt> to
+match the installed cross-compiler toolchain.
+
+Please refer to the examples directory for simplified and practical usage.
+
+=== Supported scenarios
+
+As mentioned before, MiniPortile requires a GCC compiler toolchain. This has
+been tested against Ubuntu, OSX and even Windows (RubyInstaller with DevKit)
+
+== Disclaimer
+
+If you have any trouble, don't hesitate to contact the author. As always,
+I'm not going to say <em>Use at your own risk</em> because I don't want this
+library to be risky.
+
+If you trip on something, I'll share the liability by repairing things
+as quickly as I can. Your responsibility is to report the inadequacies.
+
+== License
+
+This library is licensed under MIT license. Please see LICENSE.txt for details.

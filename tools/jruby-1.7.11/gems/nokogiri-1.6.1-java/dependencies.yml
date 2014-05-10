@@ -1,0 +1,4 @@
+libxml2: "2.8.0"
+libxslt: "1.1.26"
+zlib: "1.2.7"
+libiconv: "1.13.1"

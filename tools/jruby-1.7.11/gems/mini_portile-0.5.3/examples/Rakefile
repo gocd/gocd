@@ -1,0 +1,55 @@
+require File.expand_path("mini_portile", File.join(File.dirname(__FILE__), "../lib"))
+
+$recipes = {}
+
+ICONV_VERSION = "1.13.1"
+$recipes[:libiconv] = MiniPortile.new "libiconv", ICONV_VERSION
+$recipes[:libiconv].files << "ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
+
+$recipes[:sqlite3] = MiniPortile.new "sqlite3", "3.7.5"
+$recipes[:sqlite3].files << "http://sqlite.org/sqlite-autoconf-3070500.tar.gz"
+
+namespace :ports do
+  directory "ports"
+
+  desc "Install port libiconv #{ICONV_VERSION}"
+  task :libiconv => ["ports"] do |t|
+    recipe = $recipes[:libiconv]
+    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
+  end
+
+  desc "Install port sqlite3 #{$recipes[:sqlite3].version}"
+  task :sqlite3 => ["ports"] do |t|
+    recipe = $recipes[:sqlite3]
+    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
+  end
+
+  desc "Install all ports and display installation location"
+  task :all => [:libiconv, :sqlite3] do
+    $recipes.each do |_, recipe|
+      puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
+    end
+    puts "LDFLAGS: " << ENV['LDFLAGS'].inspect
+  end
+end
+
+desc "Adjust all recipes host for cross-compilation"
+task :cross do
+  $recipes.each do |_, recipe|
+    recipe.host = "i686-w64-mingw32"
+  end
+end

@@ -1,0 +1,252 @@
+= MIME Types Changes by Version
+
+== 2.2 / 2014-03-14
+* Added <tt>.sj</tt> to +application/javascript+ as provided by Brandon
+  Galbraith (@brandongalbraith) in
+  {#58}[https://github.com/halostatue/mime-types/pull/58].
+* Marked application/excel and application/x-excel as obsolete in favour of
+  application/vnd.ms-excel per
+  {#60}[https://github.com/halostatue/mime-types/pull/60].
+* Merged duplicate MIME types for 3M post-it-notes into the registered MIME type.
+  The only difference between the MIME types was capitalization; the MIME type
+  registry is case-preserving.
+  * Affected MIME types: application/vnd.3M.Post-it-Notes,
+    application/vnd.FloGraphIt, application/vnd.HandHeld-Entertainment\+xml,
+    application/vnd.hp-HPGL, application/vnd.hp-PCL, application/vnd.hp-PCLXL,
+    application/vnd.ibm.MiniPay, application/vnd.Kinar, application/vnd.MFER,
+    application/vnd.Mobius.DAF, application/vnd.Mobius.DIS,
+    application/vnd.Mobius.MBK, application/vnd.Mobius.MSL,
+    application/vnd.Mobius.MQY, application/vnd.Mobius.PLC,
+    application/vnd.Mobius.TXF, application/vnd.ms-excel.addin.macroEnabled.12,
+    application/vnd.ms-excel.sheet.binary.macroEnabled.12,
+    application/vnd.ms-excel.sheet.macroEnabled.12,
+    application/vnd.ms-excel.template.macroEnabled.12,
+    application/vnd.ms-powerpoint.addin.macroEnabled.12,
+    application/vnd.ms-powerpoint.presentation.macroEnabled.12,
+    application/vnd.ms-powerpoint.slide.macroEnabled.12,
+    application/vnd.ms-powerpoint.slideshow.macroEnabled.12,
+    application/vnd.ms-powerpoint.template.macroEnabled.12,
+    application/vnd.ms-word.document.macroEnabled.12,
+    application/vnd.ms-word.template.macroEnabled.12,
+    application/vnd.novadigm.EDM, application/vnd.novadigm.EDX,
+    application/vnd.novadigm.EXT, application/vnd.Quark.QuarkXPress,
+    application/vnd.SimTech-MindMapper, audio/AMR-WB, video/H261, video/H263,
+    video/H264, video/JPEG, video/MJ2.
+
+* Updated the IANA media registry entries as of release date.
+  * Registered type person names have been updated from surname only to full
+    name.
+  * Several types had updated RFC or draft RFC references.
+  * Added application/bacnet-xdd\+zip, application/cms,
+    application/load-control\+xml, application/PDX, application/ttml\+xml,
+    application/vnd.collection.doc\+json,
+    application/vnd.iptc.g2.catalogitem\+xml, application/vnd.pcos,
+    text/parameters, text/vnd.a, video/iso.segment
+
+== 2.1 / 2014-01-25
+
+* The IANA media type registry format changed, resulting in updates to most of
+  the 1,427 registered MIME types.
+  * Many registered MIME types have had some metadata updates due to the change
+    in the IANA registry format.
+    * MIME types having a publicly available registry application now include a
+      link to that file in references.
+    * Added +xrefs+ data as discovered (see the API changes noted above).
+* The Apache mime types configuration has been added to track additional common
+  but unregistered MIME types and known extensions for those MIME types. This
+  has affected many of the available MIME types.
+* Added newly registered MIME types:
+  * application/emotionml\+xml
+  * application/ODX
+  * application/prs.hpub\+zip
+  * application/vcard\+json
+  * application/vnd.bekitzur-stech\+json
+  * application/vnd.etsi.timestamp-token
+  * application/vnd.oma.cab-feature-handler\+xml
+  * application/vnd.openeye.oeb
+  * application/vnd.tcpdump.pcap
+  * audio/amr-wb
+  * model/x3d\+xml
+  * model/x3d-vrml
+* Added 180 unregistered MIME types from the Apache list:
+  * application/applixware
+  * application/cu-seeme
+  * application/docbook\+xml
+  * application/gml\+xml
+  * application/gpx\+xml
+  * application/gxf
+  * application/java-archive
+  * application/java-serialized-object
+  * application/java-vm
+  * application/jsonml\+json
+  * application/metalink\+xml
+  * application/omdoc\+xml
+  * application/onenote
+  * application/pics-rules
+  * application/rsd\+xml
+  * application/ssdl\+xml
+  * application/vnd.3m.post-it-notes
+  * application/vnd.amazon.ebook
+  * application/vnd.anser-web-funds-transfer-initiation
+  * application/vnd.curl.car
+  * application/vnd.curl.pcurl
+  * application/vnd.dolby.mlp
+  * application/vnd.ds-keypoint
+  * application/vnd.flographit
+  * application/vnd.handheld-entertainment\+xml
+  * application/vnd.hp-hpgl
+  * application/vnd.hp-pcl
+  * application/vnd.hp-pclxl
+  * application/vnd.ibm.minipay
+  * application/vnd.kinar
+  * application/vnd.mfer
+  * application/vnd.mobius.daf
+  * application/vnd.mobius.dis
+  * application/vnd.mobius.mbk
+  * application/vnd.mobius.mqy
+  * application/vnd.mobius.msl
+  * application/vnd.mobius.plc
+  * application/vnd.mobius.txf
+  * application/vnd.ms-excel.addin.macroenabled.12
+  * application/vnd.ms-excel.sheet.binary.macroenabled.12
+  * application/vnd.ms-excel.sheet.macroenabled.12
+  * application/vnd.ms-excel.template.macroenabled.12
+  * application/vnd.ms-pki.seccat
+  * application/vnd.ms-pki.stl
+  * application/vnd.ms-powerpoint.addin.macroenabled.12
+  * application/vnd.ms-powerpoint.presentation.macroenabled.12
+  * application/vnd.ms-powerpoint.slide.macroenabled.12
+  * application/vnd.ms-powerpoint.slideshow.macroenabled.12
+  * application/vnd.ms-powerpoint.template.macroenabled.12
+  * application/vnd.ms-word.document.macroenabled.12
+  * application/vnd.ms-word.template.macroenabled.12
+  * application/vnd.novadigm.edm
+  * application/vnd.novadigm.edx
+  * application/vnd.novadigm.ext
+  * application/vnd.quark.quarkxpress
+  * application/vnd.rim.cod
+  * application/vnd.rn-realmedia-vbr
+  * application/vnd.simtech-mindmapper
+  * application/vnd.symbian.install
+  * application/winhlp
+  * application/x-abiword
+  * application/x-ace-compressed
+  * application/x-authorware-bin
+  * application/x-authorware-map
+  * application/x-authorware-seg
+  * application/x-bittorrent
+  * application/x-blorb
+  * application/x-bzip
+  * application/x-cbr
+  * application/x-cfs-compressed
+  * application/x-chat
+  * application/x-conference
+  * application/x-dgc-compressed
+  * application/x-doom
+  * application/x-dtbncx\+xml
+  * application/x-dtbook\+xml
+  * application/x-dtbresource\+xml
+  * application/x-envoy
+  * application/x-eva
+  * application/x-font-bdf
+  * application/x-font-ghostscript
+  * application/x-font-linux-psf
+  * application/x-font-otf
+  * application/x-font-pcf
+  * application/x-font-snf
+  * application/x-font-ttf
+  * application/x-font-type1
+  * application/x-freearc
+  * application/x-gca-compressed
+  * application/x-glulx
+  * application/x-gnumeric
+  * application/x-gramps-xml
+  * application/x-install-instructions
+  * application/x-iso9660-image
+  * application/x-lzh-compressed
+  * application/x-mie
+  * application/x-ms-application
+  * application/x-ms-shortcut
+  * application/x-ms-xbap
+  * application/x-msbinder
+  * application/x-mscardfile
+  * application/x-msclip
+  * application/x-msmediaview
+  * application/x-msmetafile
+  * application/x-msmoney
+  * application/x-mspublisher
+  * application/x-msschedule
+  * application/x-msterminal
+  * application/x-mswrite
+  * application/x-nzb
+  * application/x-pkcs12
+  * application/x-pkcs7-certificates
+  * application/x-pkcs7-certreqresp
+  * application/x-research-info-systems
+  * application/x-silverlight-app
+  * application/x-sql
+  * application/x-stuffitx
+  * application/x-subrip
+  * application/x-t3vm-image
+  * application/x-tads
+  * application/x-tex-tfm
+  * application/x-tgif
+  * application/x-xfig
+  * application/x-xliff\+xml
+  * application/x-xz
+  * application/x-zmachine
+  * application/xaml\+xml
+  * application/xproc\+xml
+  * application/xspf\+xml
+  * audio/adpcm
+  * audio/amr-wb
+  * audio/AMR-WB
+  * audio/midi
+  * audio/s3m
+  * audio/silk
+  * audio/x-caf
+  * audio/x-flac
+  * audio/x-matroska
+  * audio/x-mpegurl
+  * audio/xm
+  * chemical/x-cdx
+  * chemical/x-cif
+  * chemical/x-cmdf
+  * chemical/x-cml
+  * chemical/x-csml
+  * image/sgi
+  * image/vnd.ms-photo
+  * image/x-3ds
+  * image/x-cmx
+  * image/x-freehand
+  * image/x-icon
+  * image/x-mrsid-image
+  * image/x-pcx
+  * image/x-tga
+  * model/x3d\+binary
+  * model/x3d\+vrml
+  * text/plain
+  * text/vnd.curl.dcurl
+  * text/vnd.curl.mcurl
+  * text/vnd.curl.scurl
+  * text/x-asm
+  * text/x-c
+  * text/x-fortran
+  * text/x-java-source
+  * text/x-nfo
+  * text/x-opml
+  * text/x-pascal
+  * text/x-sfv
+  * text/x-uuencode
+  * video/h261
+  * video/h263
+  * video/h264
+  * video/jpeg
+  * video/jpm
+  * video/mj2
+  * video/x-f4v
+  * video/x-m4v
+  * video/x-mng
+  * video/x-ms-vob
+  * video/x-smv
+* Merged the non-standard VMS platform text/plain with the standard text/plain.

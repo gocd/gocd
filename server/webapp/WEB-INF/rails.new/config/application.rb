@@ -18,7 +18,7 @@ module Go
     # config.i18n.default_locale = :de
 
     # Rails4 does not load lib/* by default. Forcing it to do so.
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths += Dir[Rails.root.join('lib', '**/'), Rails.root.join('app', 'models', '**/')]
 
     # Replacement for "helper :all", used to make all helper methods available to controllers.
     config.action_controller.include_all_helpers = true

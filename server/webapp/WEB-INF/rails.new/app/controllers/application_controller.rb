@@ -69,6 +69,16 @@ class ApplicationController < ActionController::Base
     SystemUtil.isLocalhost(request.env["SERVER_NAME"], request.env["REMOTE_ADDR"])
   end
 
+  def error_template_for_request
+    @error_template_for_request || 'shared/error'
+  end
+
+  #FIXME could be moved to another helper
+  def render_localized_operation_result(result)
+    message = result.message(Spring.bean('localizer'))
+    render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
+  end
+
   def render_if_error message, status
     return if (status < 400)
     render_error_response message, status, (params[:no_layout] == true)
@@ -94,4 +104,5 @@ class ApplicationController < ActionController::Base
       render_error_template(message, status)
     end
   end
+  #FIXME end
 end

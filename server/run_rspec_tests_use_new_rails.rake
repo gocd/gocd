@@ -122,19 +122,20 @@ task "spec" => RAILS_DEPENDENCIES do
   execute_under_rails(str)
 end
 
-task "spec_file" => RAILS_DEPENDENCIES do
-  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" unless ENV.has_key? 'spec_file'
+task "spec_file", [:spec_file_path, :spec_file_line] => RAILS_DEPENDENCIES do |t, args|
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" if args[:spec_file_path] == nil
 
   running_tests!
   rm_rf SPEC_SERVER_DIR
   reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
-  str = 'rspec' +
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
           ' --require rspec-extra-formatters' +
           ' --format progress' +
           ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
           ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
-          ' spec' +
-          " --pattern #{ENV['spec_file']}"
+          ' --drb' +
+          " #{args[:spec_file_path]}"
+  str += " --line #{args[:spec_file_line]}" unless args[:spec_file_line] == nil
   execute_under_rails(str)
 
   puts File.read(File.join(reports_dir, 'spec_full_report'))

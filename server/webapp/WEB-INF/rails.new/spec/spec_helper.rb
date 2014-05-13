@@ -20,6 +20,7 @@ ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
+require 'capybara/rspec'
 load 'spec/java_spec_imports.rb'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
@@ -44,6 +45,8 @@ RSpec.configure do |config|
   config.before(:each) do
     com.thoughtworks.go.server.web.FlashMessageService.useFlash(com.thoughtworks.go.server.web.FlashMessageService::Flash.new)
   end
+
+  #config.include Capybara::DSL
 end
 
 include JavaImports
@@ -52,9 +55,8 @@ include JavaSpecImports
 def java_date_utc(year, month, day, hour, minute, second)
   org.joda.time.DateTime.new(year, month, day, hour, minute, second, 0, org.joda.time.DateTimeZone::UTC).toDate()
 end
-
 def stub_server_health_messages
-  assigns[:current_server_health_states] = com.thoughtworks.go.serverhealth.ServerHealthStates.new
+  assign(:current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new)
 end
 
 unless $has_loaded_one_time_enhancements

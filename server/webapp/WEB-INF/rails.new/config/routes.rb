@@ -5,6 +5,23 @@ Go::Application.routes.draw do
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
+  # dummy mappings. for specs to pass
+  get '/admin/pipelines' => 'test/test#index', as: :pipeline_groups
+  get '/admin/templates' => 'test/test#index', as: :templates
+  get '/server/messages.json' => 'test/test#index', as: :global_message
+  get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
+  get '/agents' => 'agents#index', as: :agents_for_test
+  get '/environments' => 'environments#index', as: :environments_for_test
+  get 'test' => 'test/test#index', as: :plugins_listing
+  get 'test' => 'test/test#index', as: :config_view
+  get 'test' => 'test/test#index', as: :edit_server_config
+  get 'test' => 'test/test#index', as: :gadgets_oauth_clients
+  get 'test' => 'test/test#index', as: :package_repositories_new
+  get 'test' => 'test/test#index', as: :user_listing
+  get 'test' => 'test/test#index', as: :oauth_clients
+  get 'test' => 'test/test#index', as: :package_repositories_list
+  get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

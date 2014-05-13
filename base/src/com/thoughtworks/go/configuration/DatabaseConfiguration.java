@@ -16,6 +16,19 @@
 
 package com.thoughtworks.go.configuration;
 
-public interface DatabaseConfiguration {
-    void loadConfiguration();
+import com.thoughtworks.go.util.SystemEnvironment;
+
+import java.util.Properties;
+
+public abstract class DatabaseConfiguration {
+
+    protected final SystemEnvironment systemEnvironment;
+    protected final Properties properties;
+
+    protected DatabaseConfiguration(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+        this.properties = loadConfiguration();
+    }
+
+    public abstract Properties loadConfiguration();
 }

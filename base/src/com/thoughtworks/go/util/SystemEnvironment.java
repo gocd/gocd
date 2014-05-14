@@ -630,7 +630,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         private String propertyName;
         private T defaultValue;
 
-        private GoSystemProperty(String propertyName, T defaultValue) {
+        protected GoSystemProperty(String propertyName, T defaultValue) {
             this.propertyName = propertyName;
             this.defaultValue = defaultValue;
         }

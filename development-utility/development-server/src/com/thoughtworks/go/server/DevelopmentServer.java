@@ -59,9 +59,10 @@ public class DevelopmentServer {
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         File pluginsDist = new File("../tw-go-plugins/dist/");
-        if (pluginsDist.exists()) {
-            new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
+        if (!pluginsDist.exists()) {
+            pluginsDist.mkdirs();
         }
+        new ZipUtil().zipFolderContents(pluginsDist, new File(classpath(), "plugins.zip"));
         GoServer server = new GoServer();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {

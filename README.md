@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # gocd 
 
 This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
@@ -14,3 +15,9 @@ A lot of useful information like links to user documentation, design documentati
 ## License
 
 Go is an open source project, sponsored by <a href="http://www.thoughtworks.com/">ThoughtWorks Inc.</a> under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+=======
+gocd-add-agent-sandbox-config
+=============================
+
+Adding support for agent sandbox configuration to GO.
+>>>>>>> 73682b22657d240d92fc92b7b11009fe9494704f

@@ -40,8 +40,8 @@ public class H2Configuration extends DatabaseConfiguration {
         return systemEnvironment.get(SystemEnvironment.GO_DATABASE_HOST);
     }
 
-    public String getPort() {
-        return systemEnvironment.get(SystemEnvironment.GO_DATABASE_PORT);
+    public int getPort() {
+        return systemEnvironment.getDatabaseSeverPort();
     }
 
     public String getName() {

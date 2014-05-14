@@ -92,7 +92,7 @@ public class H2Database implements Database {
                 String[] args = {
                         "-tcp",
                         "-tcpAllowOthers",
-                        "-tcpPort", configuration.getPort(),
+                        "-tcpPort", String.valueOf(configuration.getPort()),
                         "-baseDir", systemEnvironment.getDbPath().getCanonicalPath()
                 };
                 tcpServer = Server.createTcpServer(args);

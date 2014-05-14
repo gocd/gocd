@@ -40,14 +40,14 @@ public class H2ConfigurationTest {
     @Test
     public void shouldReturnH2ConfigurationFromSystemEnvironment() throws Exception {
         String host = "host";
-        String port = "1234";
+        int port = 1234;
         String name = "name";
         String user = "user";
         String password = "password";
         int maxIdle = 42;
         int maxActive = 4242;
         when(systemEnvironment.get(SystemEnvironment.GO_DATABASE_HOST)).thenReturn(host);
-        when(systemEnvironment.get(SystemEnvironment.GO_DATABASE_PORT)).thenReturn(port);
+        when(systemEnvironment.getDatabaseSeverPort()).thenReturn(port);
         when(systemEnvironment.get(SystemEnvironment.GO_DATABASE_NAME)).thenReturn(name);
         when(systemEnvironment.get(SystemEnvironment.GO_DATABASE_USER)).thenReturn(user);
         when(systemEnvironment.get(SystemEnvironment.GO_DATABASE_PASSWORD)).thenReturn(password);
@@ -63,7 +63,7 @@ public class H2ConfigurationTest {
         assertThat(configuration.getMaxActive(), is(maxActive));
 
         verify(systemEnvironment).get(SystemEnvironment.GO_DATABASE_HOST);
-        verify(systemEnvironment).get(SystemEnvironment.GO_DATABASE_PORT);
+        verify(systemEnvironment).getDatabaseSeverPort();
         verify(systemEnvironment).get(SystemEnvironment.GO_DATABASE_NAME);
         verify(systemEnvironment).get(SystemEnvironment.GO_DATABASE_USER);
         verify(systemEnvironment).get(SystemEnvironment.GO_DATABASE_PASSWORD);

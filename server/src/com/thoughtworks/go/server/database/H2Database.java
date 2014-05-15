@@ -40,13 +40,16 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  */
 public class H2Database implements Database {
     private static final Logger LOG = Logger.getLogger(H2Database.class);
-    private SystemEnvironment env;
-    private BasicDataSource dataSource;
-    private Server tcpServer;
     static final String DIALECT_H2 = "org.hibernate.dialect.H2Dialect";
 
-    public H2Database(SystemEnvironment env) {
-        this.env = env;
+    private final H2Configuration configuration;
+    private final SystemEnvironment systemEnvironment;
+    private BasicDataSource dataSource;
+    private Server tcpServer;
+
+    public H2Database(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+        this.configuration = new H2Configuration(systemEnvironment);
     }
 
     @Override
@@ -61,11 +64,12 @@ public class H2Database implements Database {
 
     public void startDatabase() {
         try {
-            new Migrate().execute(env.getDbPath(), true, Migrate.USER, Migrate.PASSWORD, false);
+            new Migrate().execute(systemEnvironment.getDbPath(), true, configuration.getUser(),
+                    configuration.getPassword(), false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        if (env.inDbDebugMode()) {
+        if (systemEnvironment.inDbDebugMode()) {
             if (tcpServer != null) {
                 return;
             }
@@ -83,13 +87,13 @@ public class H2Database implements Database {
             }
             try {
                 LOG.info("Starting h2 server in debug mode : "
-                        + "port=" + dbPortAsString()
-                        + " baseDir=" + env.getDbPath().getCanonicalPath());
+                        + "port=" + configuration.getPort()
+                        + " baseDir=" + systemEnvironment.getDbPath().getCanonicalPath());
                 String[] args = {
                         "-tcp",
                         "-tcpAllowOthers",
-                        "-tcpPort", dbPortAsString(),
-                        "-baseDir", env.getDbPath().getCanonicalPath()
+                        "-tcpPort", String.valueOf(configuration.getPort()),
+                        "-baseDir", systemEnvironment.getDbPath().getCanonicalPath()
                 };
                 tcpServer = Server.createTcpServer(args);
                 tcpServer.start();
@@ -103,14 +107,15 @@ public class H2Database implements Database {
     private BasicDataSource createDataSource(Boolean mvccEnabled) {
         if (this.dataSource == null) {
             BasicDataSource source = new BasicDataSource();
-            if (env.inDbDebugMode()) {
-                String url = "jdbc:h2:tcp://localhost:" + dbPortAsString() + "/cruise";
+            if (systemEnvironment.inDbDebugMode()) {
+                String url = String.format("jdbc:h2:tcp://%s:%s/%s", configuration.getHost(),
+                        configuration.getPort(), configuration.getName());
                 configureDataSource(source, url);
-                LOG.info("Creating debug datasource on port=" + dbPortAsString());
+                LOG.info("Creating debug data source on port=" + configuration.getPort());
             } else {
                 String url = dburl(mvccEnabled);
                 configureDataSource(source, url);
-                LOG.info("Creating datasource with url=" + url);
+                LOG.info("Creating data source with url=" + url);
             }
             this.dataSource = source;
         }
@@ -118,33 +123,29 @@ public class H2Database implements Database {
     }
 
     private void configureDataSource(BasicDataSource source, String url) {
-        String databaseUsername = env.get(SystemEnvironment.GO_DATABASE_USER);
-        String databasePassword = env.get(SystemEnvironment.GO_DATABASE_PASSWORD);
+        String databaseUsername = configuration.getUser();
+        String databasePassword = configuration.getPassword();
         LOG.info(String.format("[db] Using connection configuration %s [User: %s]", url, databaseUsername));
         source.setDriverClassName("org.h2.Driver");
         source.setUrl(url);
         source.setUsername(databaseUsername);
         source.setPassword(databasePassword);
-        source.setMaxActive(env.get(SystemEnvironment.GO_DATABASE_MAX_ACTIVE));
-        source.setMaxIdle(env.get(SystemEnvironment.GO_DATABASE_MAX_IDLE));
+        source.setMaxActive(configuration.getMaxActive());
+        source.setMaxIdle(configuration.getMaxIdle());
     }
 
     public BasicDataSource createDataSource() {
         return createDataSource(Boolean.TRUE);
     }
 
-    private String dbPortAsString() {
-        return String.valueOf(env.getDatabaseSeverPort());
-    }
-
     private String dburl(Boolean mvccEnabled) {
-        return "jdbc:h2:" + env.getDbPath() + "/" + env.get(SystemEnvironment.GO_DATABASE_NAME)
+        return "jdbc:h2:" + systemEnvironment.getDbPath() + "/" + configuration.getName()
                 + ";DB_CLOSE_DELAY=-1"
                 + ";DB_CLOSE_ON_EXIT=FALSE"
                 + ";MVCC=" + mvccEnabled.toString().toUpperCase()
-                + ";CACHE_SIZE=" + env.getCruiseDbCacheSize()
-                + ";TRACE_LEVEL_FILE=" + env.getCruiseDbTraceLevel()
-                + ";TRACE_MAX_FILE_SIZE=" + env.getCruiseDbTraceFileSize()
+                + ";CACHE_SIZE=" + systemEnvironment.getCruiseDbCacheSize()
+                + ";TRACE_LEVEL_FILE=" + systemEnvironment.getCruiseDbTraceLevel()
+                + ";TRACE_MAX_FILE_SIZE=" + systemEnvironment.getCruiseDbTraceFileSize()
 //                Commented out until H2 fix their bug
 //                + ";CACHE_TYPE=SOFT_LRU" //See http://www.h2database.com/html/changelog.html
                 + ";DATABASE_EVENT_LISTENER='" + H2EventListener.class.getName() + "'";
@@ -152,21 +153,21 @@ public class H2Database implements Database {
 
     public void upgrade() throws SQLException {
         BasicDataSource source = createDataSource(Boolean.FALSE);
-        if (env.inDbDebugMode()) {
+        if (systemEnvironment.inDbDebugMode()) {
             LOG.info("In debug mode - not upgrading database");
             //don't upgrade
         } else {
-            Migration upgradeToH2 = new MigrateHsqldbToH2(source, env);
+            Migration upgradeToH2 = new MigrateHsqldbToH2(source, systemEnvironment);
             upgradeToH2.migrate();
 
-            Migration migrateSchema = new DbDeployMigration(source, env);
+            Migration migrateSchema = new DbDeployMigration(source, systemEnvironment);
             migrateSchema.migrate();
         }
         shutdown();
     }
 
     public void shutdown() throws SQLException {
-        if (env.inDbDebugMode()) {
+        if (systemEnvironment.inDbDebugMode()) {
             LOG.info("Shutting down database server.");
             if (tcpServer == null) {
                 return;

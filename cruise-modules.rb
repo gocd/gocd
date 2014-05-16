@@ -52,6 +52,7 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
       include RpmPackageHelper
       include WinPackageHelper
       include SolarisPackageHelper
+      include OSXPackageHelper
       include CopyHelper
     end
     self.metadata_src_project = 'cruise:agent-bootstrapper'
@@ -101,6 +102,20 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
     end
 
     sol_build(:sol_data, 'agent', name_with_version)
+
+    task :osx => exploded_zip do
+      pkg = "agent"
+      pkg_dir = "Go Agent.app"
+      pkg_dir_path = File.join(osx_dir, pkg_dir)
+
+      mkdir_p osx_dir
+
+      filter.from(explode).into(pkg_dir_path).run
+      filter.from(explode).include("config/log4j.properties").into(pkg_dir_path).
+          using(/[^=]+$/, "go-#{pkg}.log" => "/Library/Logs/#{pkg_dir}/go-#{pkg}.log").run
+
+      build_osx_installer(pkg, pkg_dir)
+    end
   end
 end
 
@@ -268,6 +283,7 @@ define "cruise:server", :layout => server_layout("server") do
       include RpmPackageHelper
       include WinPackageHelper
       include SolarisPackageHelper
+      include OSXPackageHelper
       include CopyHelper
     end
     self.metadata_src_project = 'cruise:server'
@@ -308,6 +324,24 @@ define "cruise:server", :layout => server_layout("server") do
     win_build(:windows_data, 'server', 'go-server', 'Server', 'jre')
 
     sol_build(exploded_zip, 'server', name_with_version)
+
+    task :osx => exploded_zip do
+      pkg = "server"
+      pkg_dir = "Go Server.app"
+      pkg_dir_path = File.join(osx_dir, pkg_dir)
+
+      mkdir_p osx_dir
+
+      filter.from(explode).into(pkg_dir_path).run
+      Zip::ZipFile.open(File.join(pkg_dir_path, "go.jar"), Zip::ZipFile::CREATE ) { |zipfile|
+        text = zipfile.read(File.join("defaultFiles", "config", "log4j.properties"))
+        text.gsub!("go-#{pkg}.log", "/Library/Logs/#{pkg_dir}/go-#{pkg}.log")
+        zipfile.get_output_stream(File.join("defaultFiles", "config", "log4j.properties")) { |f| f.puts text }
+      }
+
+      build_osx_installer(pkg, pkg_dir)
+    end
+
   end
 
   task :pull_from_central_command_repo do
@@ -535,6 +569,12 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:solaris_package), _(:target)
     cp project('cruise:server:dist').path_to(:solaris_package), _(:target)
+  end
+
+  task :osx => ['cruise:agent-bootstrapper:dist:osx', 'cruise:server:dist:osx'] do
+    mkdir_p _(:target)
+    cp project('cruise:agent-bootstrapper:dist').path_to(:osx_package), _(:target)
+    cp project('cruise:server:dist').path_to(:osx_package), _(:target)
   end
 
   task :installer_links do

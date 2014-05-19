@@ -16,5 +16,11 @@ module Go
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+
+    # Rails4 does not load lib/* by default. Forcing it to do so.
+    config.autoload_paths += Dir[Rails.root.join('lib', '**/'), Rails.root.join('app', 'models', '**/')]
+
+    # Replacement for "helper :all", used to make all helper methods available to controllers.
+    config.action_controller.include_all_helpers = true
   end
 end

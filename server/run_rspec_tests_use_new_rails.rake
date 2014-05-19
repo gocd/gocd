@@ -35,6 +35,10 @@ def execute_under_rails command
   h2db_dir = File.join(db_dir, 'h2db')
   deltas_dir = File.join(db_dir, 'h2deltas')
 
+  bundled_plugins_dir = File.join(SPEC_SERVER_DIR, 'plugins', 'bundled')
+  external_plugins_dir = File.join(SPEC_SERVER_DIR, 'plugins', 'external')
+  plugins_work_dir = File.join(SPEC_SERVER_DIR, 'plugins', 'plugins_work')
+
   log4j_properties = File.join(File.dirname(__FILE__), 'properties', 'test', 'log4j.properties')
 
   jruby = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.jruby')
@@ -43,7 +47,7 @@ def execute_under_rails command
 
   cp_r(File.join(File.dirname(__FILE__), 'config'), config_dir)
   cp_r(File.join(File.dirname(__FILE__), 'db', 'dbtemplate', 'h2db'), db_dir)
-  cp_r(File.join(File.dirname(__FILE__), 'db', 'migrate', 'h2deltas'), db_dir)
+  cp_r(File.join(File.dirname(__FILE__), 'db', 'migrate', 'h2deltas'), deltas_dir)
 
   # if windows
   if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
@@ -59,6 +63,9 @@ def execute_under_rails command
             ' -J-Dcruise.i18n.cache.life=0 ' +
             ' -J-Dcruise.config.dir=' + config_dir +
             ' -J-Dcruise.database.dir=' + h2db_dir +
+            ' -J-Dplugins.go.provided.path=' + bundled_plugins_dir +
+            ' -J-Dplugins.external.provided.path=' + external_plugins_dir +
+            ' -J-Dplugins.work.path=' + plugins_work_dir +
             (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
             ' -S ' + command
 
@@ -72,6 +79,9 @@ def execute_under_rails command
             ' -J-Dcruise.i18n.cache.life=0' +
             ' -J-Dcruise.config.dir=' + config_dir +
             ' -J-Dcruise.database.dir=' + h2db_dir +
+            ' -J-Dplugins.go.provided.path=' + bundled_plugins_dir +
+            ' -J-Dplugins.external.provided.path=' + external_plugins_dir +
+            ' -J-Dplugins.work.path=' + plugins_work_dir +
             (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
             ' -S ' + command
 
@@ -112,19 +122,20 @@ task "spec" => RAILS_DEPENDENCIES do
   execute_under_rails(str)
 end
 
-task "spec_file" => RAILS_DEPENDENCIES do
-  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" unless ENV.has_key? 'spec_file'
+task "spec_file", [:spec_file_path, :spec_file_line] => RAILS_DEPENDENCIES do |t, args|
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" if args[:spec_file_path] == nil
 
   running_tests!
   rm_rf SPEC_SERVER_DIR
   reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
-  str = 'rspec' +
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
           ' --require rspec-extra-formatters' +
           ' --format progress' +
           ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
           ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
-          ' spec' +
-          " --pattern #{ENV['spec_file']}"
+          ' --drb' +
+          " #{args[:spec_file_path]}"
+  str += " --line #{args[:spec_file_line]}" unless args[:spec_file_line] == nil
   execute_under_rails(str)
 
   puts File.read(File.join(reports_dir, 'spec_full_report'))

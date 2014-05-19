@@ -1,0 +1,105 @@
+#! /usr/bin/env bash
+#
+#  script to build gems for all relevant platforms:
+#  - MRI et al (standard gem)
+#  - windows (x86-mingw32 and x86-mswin32-60)
+#  - jruby
+#
+#  here's what I recommend for building all the gems:
+#
+#   1. set up a vagrant VM guest running ubuntu lucid 32-bit.
+#   2. install rvm, and install 1.9.3, 2.0.0 and jruby.
+#   3. `sudo apt-get install mingw32`
+#
+#  as you build, you may run into these problems:
+#
+#  - if you're using Virtualbox shared directories, you'll get a mingw
+#    "Protocol error" at linktime. Boo! Either use NFS or a
+#    locally-checked-out repository.
+#
+#  - on ubuntus 11 and later, you may have issues with building
+#    rake-compiler's rubies against openssl v2. Just comment the lines
+#    out from ossl_ssl.c and you'll be fine.
+#
+#  - you may have issues with Pathname conversion to String in
+#    bundler. Add this to the offending bundler file:
+#
+#      class Pathname
+#        def to_str
+#          to_s
+#        end
+#      end
+#
+#  - you may also have to hack rubygems.rb to eliminate a reference to
+#    RUBY_ENGINE (just comment it out)
+#
+
+HOST=
+
+# Load RVM into a shell session *as a function*
+if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
+    source "$HOME/.rvm/scripts/rvm"
+elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+    source "/usr/local/rvm/scripts/rvm"
+else
+    echo "ERROR: An RVM installation was not found.\n"
+fi
+
+function rvm_use {
+    current_ruby=$1
+    rvm use "${1}@nokogiri" --create || rvm -v
+}
+
+set -o errexit
+
+# initialize
+rvm_use 1.8.7
+bundle install --quiet --local || bundle install
+rm -rf tmp pkg
+bundle exec rake clean
+
+# holding pen
+rm -rf gems
+mkdir -p gems
+
+# windows
+platform=$(uname -i)
+if [[ $platform =~ "64" ]] ; then
+    echo ""
+    echo "ERROR: You need to build the windows gem on a 32-bit machine!"
+    echo ""
+    exit 1
+fi
+rvm_use 1.8.7
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.8.7-p358/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
+
+    # if this fails around the purelib.rb thing, try varying the ruby
+    # used to run this script, and whether the HOST env var is set
+    # below.
+
+    bundle exec rake-compiler cross-ruby VERSION=1.8.7-p358 # HOST=i386-mingw32
+fi
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
+    bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
+fi
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-2.0.0-p0/lib/ruby/2.0.0/x86_64-linux/rbconfig.rb ]] ; then
+    bundle exec rake-compiler cross-ruby VERSION=2.0.0-p0
+fi
+bundle exec rake cross
+bundle exec rake gem:windows
+cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
+
+# MRI
+rvm_use 1.8.7
+bundle exec rake gem
+cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
+
+# jruby
+rvm_use jruby
+bundle install --quiet --local || bundle install
+bundle exec rake clean clobber
+rvm_use 1.8.7
+bundle exec rake generate
+rvm_use jruby
+bundle exec rake gem
+cp -v pkg/nokogiri*java.gem gems

@@ -103,19 +103,11 @@ server/webapp/javascripts/shine.js
 
 server/webapp/WEB-INF/rails/vendor/plugins/shine
 server/webapp/WEB-INF/rails/historical_jars
-server/webapp/WEB-INF/rails/config/agentkeystore
-server/webapp/WEB-INF/rails/config/cache
-server/webapp/WEB-INF/rails/db/shine
-server/webapp/WEB-INF/rails/config/shine_store.jks
-server/webapp/WEB-INF/rails/plugins/
+server/webapp/WEB-INF/rails/db/config.git
 
 server/webapp/WEB-INF/rails.new/vendor/plugins/shine
 server/webapp/WEB-INF/rails.new/historical_jars
-server/webapp/WEB-INF/rails.new/config/agentkeystore
-server/webapp/WEB-INF/rails.new/config/cache
-server/webapp/WEB-INF/rails.new/db/shine
-server/webapp/WEB-INF/rails.new/config/shine_store.jks
-server/webapp/WEB-INF/rails.new/plugins/
+server/webapp/WEB-INF/rails.new/db/config.git
 
 server/config/agentkeystore
 server/config/keystore
@@ -123,7 +115,6 @@ server/config/shine_store.jks
 server/config/truststore
 server/config/cruise-config.xml.*
 server/db/shine/cache
-server/webapp/WEB-INF/rails/db/config.git
 rack_hack/projectFilesBackup/*
 agent/config/agent.jks
 agent/config/trust.jks

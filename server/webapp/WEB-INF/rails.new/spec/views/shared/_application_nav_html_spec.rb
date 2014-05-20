@@ -20,19 +20,19 @@ describe "/shared/_application_nav.html.erb" do
   include GoUtil
 
   before do
-    class << template
+    class << view
       include ApplicationHelper
     end
     stub_server_health_messages
     assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-    template.stub!(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
 
   describe :header do
     before :each do
-      template.stub!(:url_for_path).and_return('url_for_path')
-      template.stub!(:url_for).and_return('url_for')
-      template.stub!(:can_view_admin_page?).and_return(true)
+      allow(view).to receive(:url_for_path).and_return('url_for_path')
+      allow(view).to receive(:url_for).and_return('url_for')
+      allow(view).to receive(:can_view_admin_page?).and_return(true)
     end
 
     it 'should have the header links' do
@@ -53,7 +53,7 @@ describe "/shared/_application_nav.html.erb" do
   describe "user name and logout" do
     it "should display username and logout botton if a user is logged in" do
       assign(:user, com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("maulik suchak")))
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action] = 'index'
@@ -66,7 +66,7 @@ describe "/shared/_application_nav.html.erb" do
 
     it "should not display username and logout botton if anonymous user is logged in" do
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action] = 'index'
@@ -81,7 +81,7 @@ describe "/shared/_application_nav.html.erb" do
   describe "server health messages" do
 
     it "should render header with pipelines tab selected as current" do
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action] = 'index'
@@ -93,7 +93,7 @@ describe "/shared/_application_nav.html.erb" do
     it "should mark admin tab as hilighted when current_tab override used" do
       assign(:current_tab_name, "admin")
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      template.stub!(:can_view_admin_page?).and_return(true)
+      allow(view).to receive(:can_view_admin_page?).and_return(true)
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action] = 'index'
       render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
@@ -104,7 +104,7 @@ describe "/shared/_application_nav.html.erb" do
     it "should not mark admin tab as hilighted when not overridden" do
       assign(:current_tab_name, nil)
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      template.stub!(:can_view_admin_page?).and_return(true)
+      allow(view).to receive(:can_view_admin_page?).and_return(true)
 
       controller.request.path_parameters[:controller] = 'environments'
       controller.request.path_parameters[:action] = 'index'
@@ -115,7 +115,7 @@ describe "/shared/_application_nav.html.erb" do
 
     it "should render header with pipelines not selected as current when visiting environment page" do
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       controller.request.path_parameters[:controller] = 'environments'
       controller.request.path_parameters[:action] = 'index'
@@ -126,7 +126,7 @@ describe "/shared/_application_nav.html.erb" do
 
     it "should hookup auto refresh of server health messages" do
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
       controller.request.path_parameters[:controller] = 'agents'
       controller.request.path_parameters[:action] = 'index'
       render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
@@ -136,7 +136,7 @@ describe "/shared/_application_nav.html.erb" do
     it "should hookup auto refresh with update once when auto refresh is false" do
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
       params[:autoRefresh] = 'false'
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
       controller.request.path_parameters[:controller] = 'agents'
       controller.request.path_parameters[:action] = 'index'
       render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
@@ -147,7 +147,7 @@ describe "/shared/_application_nav.html.erb" do
   describe "licese expiry warning" do
 
     before :each do
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
     end
 
     it "should not render the popup to show that the license is about to expire when the request attribute is not set" do
@@ -182,20 +182,21 @@ describe "/shared/_application_nav.html.erb" do
 
   describe :admin_dropdown do
     before :each do
-      template.stub!(:can_view_admin_page?).and_return(true)
-      template.stub!(:tab_with_display_name).and_return('some_random_text')
+      allow(view).to receive(:can_view_admin_page?).and_return(true)
+      allow(view).to receive(:tab_with_display_name).and_return('some_random_text')
 
-      template.stub!(:pipeline_groups_path).and_return('pipeline_groups_path')
-      template.stub!(:templates_path).and_return('templates_path')
-      template.stub!(:config_view_path).and_return('config_view_path')
-      template.stub!(:pipelines_snippet_path).and_return('pipelines_snippet_path')
-      template.stub!(:edit_server_config_path).and_return('edit_server_config_path')
-      template.stub!(:user_listing_path).and_return('user_listing_path')
-      template.stub!(:oauth_clients_path).and_return('oauth_clients_path')
-      template.stub!(:gadgets_oauth_clients_path).and_return('gadgets_oauth_clients_path')
-      template.stub!(:backup_server_path).and_return('backup_server_path')
-      template.stub!(:plugins_listing_path).and_return('plugins_listing_path')
-      template.stub!(:package_repositories_new_path).and_return('package_repositories_new_path')
+      allow(view).to receive(:pipeline_groups_path).and_return('pipeline_groups_path')
+      allow(view).to receive(:templates_path).and_return('templates_path')
+      allow(view).to receive(:config_view_path).and_return('config_view_path')
+      allow(view).to receive(:pipelines_snippet_path).and_return('pipelines_snippet_path')
+      allow(view).to receive(:edit_server_config_path).and_return('edit_server_config_path')
+      allow(view).to receive(:user_listing_path).and_return('user_listing_path')
+      allow(view).to receive(:oauth_clients_path).and_return('oauth_clients_path')
+      allow(view).to receive(:gadgets_oauth_clients_path).and_return('gadgets_oauth_clients_path')
+      allow(view).to receive(:backup_server_path).and_return('backup_server_path')
+      allow(view).to receive(:plugins_listing_path).and_return('plugins_listing_path')
+      allow(view).to receive(:package_repositories_new_path).and_return('package_repositories_new_path')
+
     end
 
     it 'should show dropdown items for admin link on header' do
@@ -220,9 +221,9 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it "should show only templates in admin dropdown if user is just template admin" do
-      template.stub!(:is_user_a_template_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
-      template.stub!(:is_user_a_group_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_view_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
       render :partial => "shared/application_nav.html.erb"
 
@@ -246,9 +247,9 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it "should show only tabs relevent to group admin in admin dropdown if user is just group admin" do
-      template.stub!(:is_user_a_template_admin?).and_return(false)
-      template.stub!(:is_user_an_admin?).and_return(false)
-      template.stub!(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_a_template_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
       render :partial => "shared/application_nav.html.erb"
 
@@ -276,9 +277,9 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it "should show tabs relevent to group admin in admin dropdown if user is both template and group admin" do
-      template.stub!(:is_user_a_template_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
-      template.stub!(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_a_template_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
       render :partial => "shared/application_nav.html.erb"
 
@@ -306,7 +307,7 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it "should disable admin link on header in case of non-admins" do
-      template.stub!(:can_view_admin_page?).and_return(false)
+      allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       render :partial => "shared/application_nav.html.erb"
 

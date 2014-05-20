@@ -29,28 +29,28 @@ describe "/layouts/admin" do
     assign(:error_count, 0)
     assign(:warning_count, 0)
     @user.stub(:anonymous?).and_return(true)
-    template.stub!(:can_view_admin_page?).and_return(true)
-    template.stub!(:is_user_a_group_admin?).and_return(true)
-    template.stub!(:is_user_an_admin?).and_return(true)
-    class << template
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+    class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
       end
 
       alias_method_chain :url_for, :stub
     end
-    template.stub(:oauth_clients_path).and_return("/path/for/oauth/clients")
-    template.stub(:user_listing_path).and_return("/path/for/user/listing")
-    template.stub(:backup_server_path).and_return("admin/backup")
-    template.stub(:pipelines_snippet_path).and_return("admin/pipelines/snippet")
-    template.stub!(:is_user_a_template_admin?).and_return(false)
+    allow(view).to receive(:oauth_clients_path).and_return("/path/for/oauth/clients")
+    allow(view).to receive(:user_listing_path).and_return("/path/for/user/listing")
+    allow(view).to receive(:backup_server_path).and_return("admin/backup")
+    allow(view).to receive(:pipelines_snippet_path).and_return("admin/pipelines/snippet")
+    allow(view).to receive(:is_user_a_template_admin?).and_return(false)
   end
 
   it_should_behave_like :layout
 
   it "should display only pipeline configurations and pipeline groups tab when the user is a group admin" do
-    template.stub!(:is_user_an_admin?).and_return(false)
-    template.stub!(:is_user_a_group_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
     render :inline => '<div>content</div>', :layout => @layout_name
     Capybara.string(response.body).find('.sub_tab_container').tap do |tab|
@@ -75,8 +75,8 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled" do
-      template.stub!(:is_plugins_enabled?).and_return(true)
-      template.stub!(:plugins_listing_path).and_return("some_path_to_plugins")
+      allow(view).to receive(:is_plugins_enabled?).and_return(true)
+      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         tab.find("li#plugins-listing-tab-button") do |li|
@@ -86,8 +86,8 @@ describe "/layouts/admin" do
     end
 
     it "should not show plugins listing page if plugins are disabled" do
-      template.stub!(:is_plugins_enabled?).and_return(false)
-      template.stub!(:plugins_listing_path).and_return("some_path_to_plugins")
+      allow(view).to receive(:is_plugins_enabled?).and_return(false)
+      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         expect(tab).to_not have_selector("li#plugins-listing-tab-button")
@@ -95,11 +95,11 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled and user is admin" do
-      template.stub!(:is_plugins_enabled?).and_return(true)
+      allow(view).to receive(:is_plugins_enabled?).and_return(true)
 
-      template.stub(:is_user_an_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(true)
 
-      template.stub!(:plugins_listing_path).and_return("some_path_to_plugins")
+      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         tab.find("li#plugins-listing-tab-button") do |li|
@@ -109,12 +109,12 @@ describe "/layouts/admin" do
     end
 
     it "should show plugins listing page if plugins are enabled and user is group admin" do
-      template.stub!(:is_plugins_enabled?).and_return(true)
+      allow(view).to receive(:is_plugins_enabled?).and_return(true)
 
-      template.stub(:is_user_an_admin?).and_return(false)
-      template.stub(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
-      template.stub!(:plugins_listing_path).and_return("some_path_to_plugins")
+      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         tab.find("li#plugins-listing-tab-button") do
@@ -124,12 +124,12 @@ describe "/layouts/admin" do
     end
 
     it "should not show plugins listing page if plugins are enabled and user is neither an admin nor a group admin" do
-      template.stub!(:is_plugins_enabled?).and_return(true)
+      allow(view).to receive(:is_plugins_enabled?).and_return(true)
 
-      template.stub(:is_user_an_admin?).and_return(false)
-      template.stub(:is_user_a_group_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
-      template.stub!(:plugins_listing_path).and_return("some_path_to_plugins")
+      allow(view).to receive(:plugins_listing_path).and_return("some_path_to_plugins")
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container") do |tab|
         expect(tab).to_not have_selector("li#plugins-listing-tab-button")
@@ -214,16 +214,16 @@ describe "/layouts/admin" do
     end
 
     it "should not be visible for group admins" do
-      template.stub!(:is_user_a_group_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
       expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']", 'Templates')
     end
 
     it "should be visible for template admins" do
-      template.stub!(:is_user_a_template_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_template_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
 
@@ -268,8 +268,8 @@ describe "/layouts/admin" do
     end
 
     it "should show xml tab for group admin" do
-      template.stub!(:is_user_a_group_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
 
@@ -279,16 +279,16 @@ describe "/layouts/admin" do
     end
 
     it "should not show xml tab for go administrators" do
-      template.stub!(:is_user_a_group_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(true)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(true)
 
       render :inline => 'content', :layout => @layout_name
       expect(response.body).to_not have_selector('li#tab-content-of-pipelines-snippet')
     end
 
     it "should not show source xml tab for group admin" do
-      template.stub!(:is_user_a_group_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
 
@@ -302,8 +302,8 @@ describe "/layouts/admin" do
     end
 
     it "should show package repositories tab for super admin" do
-      template.stub!(:is_user_an_admin?).and_return(true)
-      template.stub!(:is_user_a_group_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(true)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
 
@@ -313,8 +313,8 @@ describe "/layouts/admin" do
     end
 
     it "should show package repositories tab for group admin" do
-      template.stub!(:is_user_a_group_admin?).and_return(true)
-      template.stub!(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
 

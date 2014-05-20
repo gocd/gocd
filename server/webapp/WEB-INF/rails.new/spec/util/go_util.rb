@@ -43,7 +43,7 @@ module GoUtil
   end
 
   def stub_context_path obj
-    obj.stub!(:servlet_request).and_return(req = mock('req'))
+    obj.stub(:servlet_request).and_return(req = double('req'))
     req.stub(:getContextPath).and_return("/go")
   end
 end

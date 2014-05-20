@@ -20,47 +20,47 @@ describe ApplicationHelper do
   include ApplicationHelper, RailsLocalizer
 
   it "should generate a label tag with required asterisk" do
-    mock_form = mock(:form)
+    mock_form = double(:form)
     mock_form.should_receive(:label).with("name", "value<span class='asterisk'>*</span>")
     required_label(mock_form, "name", "value")
   end
 
   it "should respect anchor classes provided irrespective of tab being current" do
-    stub!(:url_for).and_return("/go/quux")
+    allow(self).to receive(:url_for).and_return("/go/quux")
     tab_for("quux", :class => "foo bar", :anchor_class => "skip_dirty_stop").should == "<li id='cruise-header-tab-quux' class=' foo bar'>\n<a class=\"skip_dirty_stop\" href=\"/go/quux\">QUUX</a>\n</li>"
   end
 
   it "url_for_path should handle default_url_options" do
-    stub!(:root_path).and_return("/go/quux?x")
+    allow(self).to receive(:root_path).and_return("/go/quux?x")
     url = url_for_path("/foo")
     url.should == "/go/quux/foo?x"
   end
 
   it "url_for_path should handle default_url_options" do
-    stub!(:root_path).and_return("/go/quux?x")
+    allow(self).to receive(:root_path).and_return("/go/quux?x")
     url = url_for_path("/foo?bar=blah")
     url.should == "/go/quux/foo?bar=blah&x"
   end
 
   it "url_for_login should give the url for login" do
-    stub!(:root_path).and_return("/go/quux?x")
+    allow(self).to receive(:root_path).and_return("/go/quux?x")
     url_for_login.should == "/go/quux/auth/login?x"
   end
 
   it "url_for_path should handle query params" do
-    stub!(:root_path).and_return("/go/quux/?x")
+    allow(self).to receive(:root_path).and_return("/go/quux?x")
     url = url_for_path("/foo")
     url.should == "/go/quux/foo?x"
   end
 
   it "url_for_path should handle url without params" do
-    stub!(:root_path).and_return("/go/quux")
+    allow(self).to receive(:root_path).and_return("/go/quux")
     url = url_for_path("/foo")
     url.should == "/go/quux/foo"
   end
 
   it "url_for_path should handle root url with trailing slash and provided sub path with leading slash" do
-    stub!(:root_path).and_return("/go/quux/")
+    allow(self).to receive(:root_path).and_return("/go/quux/")
     url = url_for_path("/foo")
     url.should == "/go/quux/foo"
   end
@@ -70,14 +70,14 @@ describe ApplicationHelper do
   end
 
   it "should generate hidden field for config_md5" do
-    stub!(:cruise_config_md5).and_return("foo_bar_baz")
+    allow(self).to receive(:cruise_config_md5).and_return("foo_bar_baz")
     config_md5_field.should == '<input type="hidden" name="cruise_config_md5" value="foo_bar_baz"/>'
   end
 
   describe :tab_for do
     before do
-      stub!(:url_for).and_return("/go/quux")
-      stub!(:root_path).and_return("/go/quux")
+      allow(self).to receive(:url_for).and_return("/go/quux")
+      allow(self).to receive(:root_path).and_return("/go/quux")
     end
 
     describe 'with link enabled' do
@@ -311,54 +311,56 @@ describe ApplicationHelper do
   end
 
   it "should convert urls to https" do
-    should_receive(:system_environment).and_return(env = mock('sys_env'))
+    should_receive(:system_environment).and_return(env = double('sys_env'))
     env.should_receive(:getSslServerPort).and_return(8154)
     make_https("http://user:loser@google.com/hello?world=foo").should == "https://user:loser@google.com:8154/hello?world=foo"
   end
 
   it "should identify flash messages as session[:notice]" do
-    stub!(:session).and_return({})
+    allow(self).to receive(:session).and_return({})
 
     session_has(:notice).should be_false
 
-    stub!(:flash).and_return({:error => "i errored"})
+    allow(self).to receive(:flash).and_return({:error => "i errored"})
     session_has(:notice).should be_true
 
-    stub!(:flash).and_return({:notice => "some notice"})
+    allow(self).to receive(:flash).and_return({:notice => "some notice"})
     session_has(:notice).should be_true
 
-    stub!(:flash).and_return({:success => "is success"})
+    allow(self).to receive(:flash).and_return({:success => "is success"})
     session_has(:notice).should be_true
 
     session_has(:foo).should be_false
 
-    stub!(:session).and_return({:foo => "foo"})
+    allow(self).to receive(:session).and_return({:foo => "foo"})
     session_has(:foo).should be_true
   end
 
   it "should return FlashMessageModel from flash[key]='string'" do
-    service = stub("flash_message_service", :get => nil)
-    stub!(:flash_message_service).and_return(service)
-
-    service.should_receive("get").with("quux").and_return("bang")
+    service = double("flash_message_service")
+    service.should_receive(:get).with("quux").and_return("bang")
+    allow(self).to receive(:flash_message_service).and_return(service)
     load_flash_message(:quux).should == "bang"
 
-    stub!(:session).and_return(session = {:foo => "bar"})
+    service = double("flash_message_service")
+    service.stub(:get).with(anything).and_return(nil)
+    allow(self).to receive(:flash_message_service).and_return(service)
+    allow(self).to receive(:session).and_return(session = {:foo => "bar"})
     load_flash_message(:foo).should == "bar"
     session.should be_empty
 
-    stub!(:session).and_return(session = {})
+    allow(self).to receive(:session).and_return(session = {})
     load_flash_message(:foo).should be_nil
     session.should be_empty
 
-    stub!(:flash).and_return(flash = {:error => "i errored"})
+    allow(self).to receive(:flash).and_return(flash = {:error => "i errored"})
     load_flash_message(:notice).should == FlashMessageModel.new("i errored", "error")
     flash[:error].should == "i errored"
 
-    stub!(:flash).and_return({:notice => "some notice"})
+    allow(self).to receive(:flash).and_return({:notice => "some notice"})
     load_flash_message(:notice).should == FlashMessageModel.new("some notice", "notice")
 
-    stub!(:flash).and_return({:success => "is success"})
+    allow(self).to receive(:flash).and_return({:success => "is success"})
     load_flash_message(:notice).should == FlashMessageModel.new("is success", "success")
   end
 
@@ -368,7 +370,7 @@ describe ApplicationHelper do
 
   describe "load_from_flash" do
     it "should render multiple flash errors seperated by a period" do
-      stub!(:flash).and_return({:error => ["I errored", "You errored", "We all errored"]})
+      allow(self).to receive(:flash).and_return({:error => ["I errored", "You errored", "We all errored"]})
       flash_model = load_from_flash
       flash_model.toString().should == "I errored. You errored. We all errored"
     end
@@ -402,14 +404,14 @@ describe ApplicationHelper do
 
   describe "plugins" do
     it "should render the right plugin template" do
-      stub!(:view_rendering_service).and_return(renderer = mock("rendering-service"))
+      allow(self).to receive(:view_rendering_service).and_return(renderer = double("rendering-service"))
       view_model = TaskViewModel.new(ExecTask.new(), "new", "erb")
       renderer.should_receive(:render).with(view_model, :view => self, "view" => self).and_return("view")
       render_pluggable_template(view_model).should == "view"
     end
 
     it "should render the right form plugin template" do
-      stub!(:view_rendering_service).and_return(renderer = mock("rendering-service"))
+      allow(self).to receive(:view_rendering_service).and_return(renderer = double("rendering-service"))
       view_model = TaskViewModel.new(ExecTask.new(), "new", "erb")
       form_name_provider = Object.new()
       renderer.should_receive(:render).with(view_model, {"formNameProvider" => form_name_provider, :view => self, "view" => self, "foo" => "bar" }).and_return("view")
@@ -455,11 +457,12 @@ describe ApplicationHelper do
 
   describe :is_user_a_template_admin do
     before :each do
-      @security_service = mock('security service')
+      @security_service = double('security service')
     end
+
     it 'should check with security service if user is a template admin' do
       should_receive(:security_service).and_return(@security_service)
-      stub!(:current_user).and_return(:template_admin_user)
+      allow(self).to receive(:current_user).and_return(:template_admin_user)
       @security_service.should_receive(:isAuthorizedToViewAndEditTemplates).with(:template_admin_user).and_return(true)
       is_user_a_template_admin?.should == true
     end

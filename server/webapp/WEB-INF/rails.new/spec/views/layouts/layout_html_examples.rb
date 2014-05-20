@@ -58,7 +58,7 @@ shared_examples :layout do
   end
 
   it "should link all the tabs right" do
-    template.stub!(:mycruise_available?).and_return(true)    
+    allow(view).to receive(:mycruise_available?).and_return(true)
     render :inline => "<span>foo</span>", :layout => @layout_name
     expect(response.body).to have_selector("a[href='/pipelines']", 'PIPELINES')
     expect(response.body).to have_selector("a[href='/agents']", 'AGENTS')
@@ -69,13 +69,13 @@ shared_examples :layout do
   end
 
   it "should disable mycruise tab when mycruise is not available" do
-    template.stub!(:mycruise_available?).and_return(false)
+    allow(view).to receive(:mycruise_available?).and_return(false)
     render :inline => "<span>foo</span>", :layout => @layout_name
     expect(response.body).to_not(have_selector("ul.current_user"))
   end
 
   it "should disable admin tab when user is not an administrator" do
-    template.stub!(:can_view_admin_page?).and_return(false)
+    allow(view).to receive(:can_view_admin_page?).and_return(false)
     render :inline => "<span>foo</span>", :layout => @layout_name
     expect(response.body).to have_selector('li span', "ADMIN")
   end

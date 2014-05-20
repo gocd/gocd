@@ -27,15 +27,15 @@ describe Admin::AdminHelper do
   end
 
   it "should return true when postgresql is used" do
-    system_environment = mock("system environment")
-    stub!(:system_environment).and_return(system_environment)
+    system_environment = double("system environment")
+    allow(self).to receive(:system_environment).and_return(system_environment)
     system_environment.should_receive(:isDefaultDbProvider).and_return(false)
     external_db?.should == true
   end
 
   it "should return false when postgresql is not used" do
-    system_environment = mock("system environment")
-    stub!(:system_environment).and_return(system_environment)
+    system_environment = double("system environment")
+    allow(self).to receive(:system_environment).and_return(system_environment)
     system_environment.should_receive(:isDefaultDbProvider).and_return(true)
     external_db?.should == false
   end

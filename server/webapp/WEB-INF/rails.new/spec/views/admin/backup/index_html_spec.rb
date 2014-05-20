@@ -19,7 +19,7 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 describe "admin/backup/index.html.erb" do
 
   before :each do
-    template.stub!(:perform_backup_path).and_return("perform_backup_url")
+    allow(view).to receive(:perform_backup_path).and_return("perform_backup_url")
     @last_backup_time = java.util.Date.new()
     @last_backup_user = "loser"
     assign(:last_backup_time, @last_backup_time)
@@ -37,7 +37,7 @@ describe "admin/backup/index.html.erb" do
   end
 
   it "should display warning message when postgresql is used" do
-    template.stub!(:external_db?).and_return(true)
+    allow(view).to receive(:external_db?).and_return(true)
     render
     Capybara.string(response.body).find('.postgresql.warnings').tap do |warnings|
       expect(warnings).to have_selector("span.info", "When postgreSQL is used, this operation will not perform a database backup. We recommend taking a manual backup of the database as needed.")
@@ -45,7 +45,7 @@ describe "admin/backup/index.html.erb" do
   end
 
   it "should not display warning message when postgresql is not used" do
-    template.stub!(:external_db?).and_return(false)
+    allow(view).to receive(:external_db?).and_return(false)
     render
     expect(response.body).to_not have_selector(".postgresql.warning")
   end

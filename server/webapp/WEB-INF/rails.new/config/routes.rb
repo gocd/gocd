@@ -1,9 +1,27 @@
 Go::Application.routes.draw do
+  unless defined?(CONSTANTS)
+    USER_NAME_FORMAT = /[\w\-][\w\-.]*/
+  end
+
   root 'welcome#index' # put to get root_path. '/' is handled by java.
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+
+
+  namespace :api, defaults: {no_layout: true} do
+    delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
+
+    defaults :format => 'xml' do
+      get 'users.xml' => 'users#index'
+    end
+
+end
+
+  #api/
+  #    no_layout.match 'api/users/:username', :action => 'destroy', :controller => 'api/users', :conditions => {:method => :delete}, :requirements => {:username => USER_NAME_FORMAT}
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -10,14 +10,18 @@ Go::Application.routes.draw do
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
 
-  namespace :api, defaults: {no_layout: true} do
-    delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
+  namespace :api do
+    defaults :no_layout => true do
+      delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
 
-    defaults :format => 'xml' do
-      get 'users.xml' => 'users#index'
+      defaults :format => 'xml' do
+        get 'users.xml' => 'users#index'
+        get 'server.xml' => 'server#info'
+      end
+
+      get 'support' => 'server#capture_support_info', :format => 'text'
     end
-
-end
+  end
 
   #api/
   #    no_layout.match 'api/users/:username', :action => 'destroy', :controller => 'api/users', :conditions => {:method => :delete}, :requirements => {:username => USER_NAME_FORMAT}

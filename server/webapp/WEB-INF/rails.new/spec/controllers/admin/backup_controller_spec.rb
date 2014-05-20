@@ -26,7 +26,7 @@ describe Admin::BackupController do
   describe :index do
 
     before :each do
-      controller.stub!(:backup_service).and_return(@backup_service = mock('backup_server'))
+      controller.stub(:backup_service).and_return(@backup_service = double('backup_server'))
       @backup_service.should_receive(:lastBackupTime).and_return(@time = java.util.Date.new)
       @backup_service.should_receive(:backupLocation).and_return(@location = "/var/lib/go-server/logs/server-backups")
       @backup_service.should_receive(:availableDiskSpace).and_return(@space = "424242")
@@ -67,7 +67,7 @@ describe Admin::BackupController do
   describe :perform_backup do
 
     it "should return success if the backup is successful" do
-      controller.stub!(:backup_service).and_return(backup_service = mock("backup_service"))
+      controller.stub(:backup_service).and_return(backup_service = double("backup_service"))
 
       backup_service.should_receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |u, r|
         r.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"))
@@ -79,7 +79,7 @@ describe Admin::BackupController do
     end
 
     it "should return error if the backup has failed" do
-      controller.stub!(:backup_service).and_return(backup_service = mock("backup_service"))
+      controller.stub(:backup_service).and_return(backup_service = double("backup_service"))
 
       backup_service.should_receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |user, result|
         result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", ["Ran out of disk space"].to_java(java.lang.String)))

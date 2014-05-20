@@ -18,6 +18,7 @@
 module ApplicationHelper
   include Services
   include RailsLocalizer
+
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
   def url_for_path(java_path, options = {})

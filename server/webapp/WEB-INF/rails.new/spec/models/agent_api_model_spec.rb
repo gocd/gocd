@@ -19,21 +19,21 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe AgentAPIModel do
   before(:each) do
     @agent_view_model = double(AgentViewModel)
-    @agent_view_model.stub!(:getUuid).and_return("uuid3")
-    @agent_view_model.stub!(:getHostname).and_return("CCeDev01")
-    @agent_view_model.stub!(:getIpAddress).and_return("127.0.0.1")
-    @agent_view_model.stub!(:getLocation).and_return("/var/lib/go-server")
-    @agent_view_model.stub!(:getStatusForDisplay).and_return("Idle")
-    @agent_view_model.stub!(:buildLocator).and_return("/pipeline/1/stage/1/job")
-    @agent_view_model.stub!(:getOperatingSystem).and_return("Linux")
+    @agent_view_model.stub(:getUuid).and_return("uuid3")
+    @agent_view_model.stub(:getHostname).and_return("CCeDev01")
+    @agent_view_model.stub(:getIpAddress).and_return("127.0.0.1")
+    @agent_view_model.stub(:getLocation).and_return("/var/lib/go-server")
+    @agent_view_model.stub(:getStatusForDisplay).and_return("Idle")
+    @agent_view_model.stub(:buildLocator).and_return("/pipeline/1/stage/1/job")
+    @agent_view_model.stub(:getOperatingSystem).and_return("Linux")
     disk_space = DiskSpace.new(0)
-    @agent_view_model.stub!(:freeDiskSpace).and_return(disk_space)
+    @agent_view_model.stub(:freeDiskSpace).and_return(disk_space)
     resources_arr = Array.new
     resources_arr << "java"
-    @agent_view_model.stub!(:getResources).and_return(resources_arr)
+    @agent_view_model.stub(:getResources).and_return(resources_arr)
     environments_arr = Array.new
     environments_arr << "foo"
-    @agent_view_model.stub!(:getEnvironments).and_return(environments_arr)
+    @agent_view_model.stub(:getEnvironments).and_return(environments_arr)
   end
 
   describe "should initialize correctly" do

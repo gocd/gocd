@@ -20,7 +20,7 @@ describe Feed do
   describe "whent there are no stages" do
 
     before(:each) do
-      @feed = Feed.new(Username::ANONYMOUS, stub(:feed => FeedEntries.new), HttpLocalizedOperationResult.new)
+      @feed = Feed.new(Username::ANONYMOUS, double(:feed => FeedEntries.new), HttpLocalizedOperationResult.new)
     end
 
     it "should report now as updated date if there are no jobs" do
@@ -41,7 +41,7 @@ describe Feed do
     before(:each) do
       @date = java_date_utc(2004, 12, 25, 12, 0, 0)
       @job = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(1, 99, com.thoughtworks.go.domain.StageIdentifier.new("cruise/1/stage/1"), 1, @date, StageResult::Cancelled)
-      @feed = Feed.new(Username::ANONYMOUS, stub(:feed => FeedEntries.new([@job])), HttpLocalizedOperationResult.new)
+      @feed = Feed.new(Username::ANONYMOUS, double(:feed => FeedEntries.new([@job])), HttpLocalizedOperationResult.new)
     end
 
     it "should report updated_date as that of first job" do
@@ -60,7 +60,7 @@ describe Feed do
       @date = java_date_utc(2004, 12, 25, 12, 0, 0)
       @stage1 = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(1, 99, com.thoughtworks.go.domain.StageIdentifier.new("cruise/1/stage/1"), 1, @date, StageResult::Cancelled)
       @stage2 = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(2, 99, com.thoughtworks.go.domain.StageIdentifier.new("cruise/1/stage/1"), 1, @date, StageResult::Cancelled)
-      @jobInstanceService = mock()
+      @jobInstanceService = double()
       @result = HttpLocalizedOperationResult.new
     end
 

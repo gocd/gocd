@@ -20,7 +20,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe ValueStreamMapModel do
 
   before :each do
-    @result = mock("HttpLocalizedOperationResult")
+    @result = double("HttpLocalizedOperationResult")
     @l = Spring.bean("localizer")
   end
 

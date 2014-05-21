@@ -1,0 +1,14 @@
+<div class="error_messaging_counter">
+  <div id="cruise_message_counts" class="cruise_messages">
+      <%= render :partial => "server/counts.html" -%>
+  </div>
+  <div id="cruise_message_body" style="display:none;">
+      <%= render :partial => "server/messages_body.html" -%>
+  </div>
+
+  <%- if auto_refresh? -%>
+     <script type="text/javascript">
+        Util.on_load(function() {new AjaxRefresher('<%= global_message_path() %>', null);});
+     </script>
+    <%- end -%>
+</div>

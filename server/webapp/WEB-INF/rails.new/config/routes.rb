@@ -1,9 +1,25 @@
 Go::Application.routes.draw do
+  unless defined?(CONSTANTS)
+    USER_NAME_FORMAT = /[\w\-][\w\-.]*/
+  end
+
   root 'welcome#index' # put to get root_path. '/' is handled by java.
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+
+  namespace :api do
+    defaults :no_layout => true do
+      delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
+      get 'support' => 'server#capture_support_info', :format => 'text'
+
+      defaults :format => 'xml' do
+        get 'users.xml' => 'users#index'
+        get 'server.xml' => 'server#info'
+      end
+    end
+  end
 
   # dummy mappings. for specs to pass
   get '/admin/pipelines' => 'test/test#index', as: :pipeline_groups

@@ -178,6 +178,10 @@ module ApplicationHelper
     system_environment.use_compressed_js()
   end
 
+  def current_user
+    instance_variable_get(:@user)
+  end
+
   def can_view_admin_page?
     security_service.canViewAdminPage(current_user)
   end

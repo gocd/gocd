@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.TaskProperty;
+import com.thoughtworks.go.util.FileUtil;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.config.parser.GoConfigFieldTypeConverter;
-import com.thoughtworks.go.domain.TaskProperty;
-import com.thoughtworks.go.util.FileUtil;
 
 @ConfigTag("nant")
 public class NantTask extends BuildTask {
@@ -71,10 +70,7 @@ public class NantTask extends BuildTask {
     }
 
     protected void setBuildTaskConfigAttributes(Map attributeMap) {
-        if (attributeMap.containsKey(NANT_PATH)) {
-            File file = new GoConfigFieldTypeConverter().convertIfNecessary(attributeMap.get(NANT_PATH), File.class);
-            nantPath = file == null ? null : file.getPath();
-        }
+        nantPath = inferValueFromMap(attributeMap, NANT_PATH);
     }
 
     @Override public List<TaskProperty> getPropertiesForDisplay() {

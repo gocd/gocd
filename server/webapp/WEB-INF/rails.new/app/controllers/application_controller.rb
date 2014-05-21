@@ -1,13 +1,14 @@
 class ApplicationController < ActionController::Base
   include Services
+  include JavaImports
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :set_current_user
+  before_filter :set_current_user, :populate_health_messages, :local_access_only
 
-  before_filter :set_current_user, :populate_health_messages
+  LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
   # user
   def set_current_user
@@ -52,5 +53,45 @@ class ApplicationController < ActionController::Base
   # health messages
   def populate_health_messages
       @current_server_health_states = server_health_service.getAllValidLogs(go_config_service.getCurrentConfig())
+  end
+
+  def local_access_only
+    LOCAL_ONLY_ACTIONS[params[:controller]].include?(params[:action]) ? allow_local_only : true
+  end
+
+  def allow_local_only
+    return true if request_from_localhost?
+    render_if_error("Unauthorized", 401)
+    false
+  end
+
+  def request_from_localhost?
+    SystemUtil.isLocalhost(request.env["SERVER_NAME"], request.env["REMOTE_ADDR"])
+  end
+
+  def render_if_error message, status
+    return if (status < 400)
+    render_error_response message, status, (params[:no_layout] == true)
+    return true
+  end
+
+  def render_error_template(message, status)
+    @status, @message = status, message
+    render error_template_for_request, status: @status, layout: 'application'
+  end
+
+  def render_text_with_status(message, status)
+    unless message == nil || message.last == "\n"
+      message = message + "\n"
+    end
+    render text: message, status: status
+  end
+
+  def render_error_response message, status, is_text
+    if is_text
+      render_text_with_status(message, status)
+    else
+      render_error_template(message, status)
+    end
   end
 end

@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.domain.TaskProperty;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.hasItems;

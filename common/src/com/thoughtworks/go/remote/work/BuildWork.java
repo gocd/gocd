@@ -31,6 +31,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -68,7 +69,10 @@ public class BuildWork implements Work {
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
-        workingDirectory = assignment.getWorkingDirectory();
+
+        File sandboxDirectory = FileUtil.getSandboxDirectory();
+        workingDirectory = FileUtil.applyBaseDirIfRelative(sandboxDirectory, assignment.getWorkingDirectory());
+
         materialRevisions = assignment.materialRevisions();
         buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),

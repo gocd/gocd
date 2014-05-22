@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.io.File;
 import java.util.List;
@@ -62,27 +63,24 @@ public class NantTask extends BuildTask {
     }
 
     public void setNantPath(String path) {
-        this.nantPath = new File(path).getPath();
+        this.nantPath = path;
     }
 
     public String getNantPath() {
-        return nantPath == null ? null : filePath();
+        return nantPath;
     }
 
     protected void setBuildTaskConfigAttributes(Map attributeMap) {
         nantPath = inferValueFromMap(attributeMap, NANT_PATH);
     }
 
-    @Override public List<TaskProperty> getPropertiesForDisplay() {
+    @Override
+    public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> list = super.getPropertiesForDisplay();
-        if(nantPath != null){
-            list.add(new TaskProperty(NANT_PATH, filePath()));
+        if (nantPath != null) {
+            list.add(new TaskProperty(NANT_PATH, nantPath));
         }
         return list;
-    }
-
-    private String filePath() {
-        return new File(nantPath).getPath();
     }
 
     @Override
@@ -111,5 +109,10 @@ public class NantTask extends BuildTask {
         int result = super.hashCode();
         result = 31 * result + (nantPath != null ? nantPath.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

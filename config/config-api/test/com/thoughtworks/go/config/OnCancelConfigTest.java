@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.service.TaskFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -113,7 +112,7 @@ public class OnCancelConfigTest {
         expectedNantTask.setBuildFile("default.build");
         expectedNantTask.setTarget("compile");
         expectedNantTask.setWorkingDirectory("pwd");
-        expectedNantTask.setNantPath("/usr/bin/nant"); //Heh he
+        expectedNantTask.setNantPath("/usr/bin/nant");
         assertThat((NantTask) cancelConfig.getTask(), is(expectedNantTask));
     }
 

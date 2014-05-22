@@ -85,7 +85,7 @@ public class DatabaseStrategy implements Database {
             Constructor<?> constructor = Class.forName(databaseProvider).getConstructor(SystemEnvironment.class);
             return ((Database) constructor.newInstance(systemEnvironment));
         } catch (Exception e) {
-            throw new RuntimeException("could not locate database provider:" + databaseProvider);
+            throw new RuntimeException(String.format("Failed loading database provider [%s]", databaseProvider), e);
         }
     }
 

@@ -64,6 +64,12 @@
         <bcprov.groupId>bouncycastle</bcprov.groupId>
         <bcprov.artifactId>bcprov-jdk16</bcprov.artifactId>
         <bcprov.version>140</bcprov.version>
+
+        <!-- Temporary: Feature toggle "use.new.rails" is related to this.
+        <bcprov.groupId>org.bouncycastle</bcprov.groupId>
+        <bcprov.artifactId>bcprov-jdk15on</bcprov.artifactId>
+        <bcprov.version>1.47</bcprov.version>
+        -->
     </properties>
 
     <modules>

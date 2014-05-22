@@ -15,11 +15,6 @@
             <%= end_form_tag-%>
         </div>
     </div>
-    <% if external_db? -%>
-        <div class="postgresql warnings">
-            <span class="info"><%=l.string("POSTGRESQL_BACKUP_WARNING")-%></span>
-        </div>
-    <% end -%>
     <div class="backup_storage_message information">
         <span class="info"><%=l.string("BACKUPS_STORED_IN")-%> <strong class="location"><%=@backup_location-%></strong></span>
     </div>

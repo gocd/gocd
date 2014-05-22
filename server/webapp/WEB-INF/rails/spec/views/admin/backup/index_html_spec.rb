@@ -34,19 +34,6 @@ describe "admin/backup/index.html.erb" do
     end
   end
 
-  it "should display warning message when postgresql is used" do
-    template.stub!(:external_db?).and_return(true)
-    render "admin/backup/index.html.erb"
-    response.body.should have_tag(".postgresql.warnings") do
-      with_tag("span.info", "When postgreSQL is used, this operation will not perform a database backup. We recommend taking a manual backup of the database as needed.")
-    end
-  end
-
-  it "should not display warning message when postgresql is not used" do
-    template.stub!(:external_db?).and_return(false)
-    render "admin/backup/index.html.erb"
-    response.body.should_not have_tag(".postgresql.warning")
-  end
 
   it "should contain server back up form" do
     render "admin/backup/index.html.erb"

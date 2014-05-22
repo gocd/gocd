@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.io.File;
 import java.util.List;
@@ -108,5 +109,10 @@ public class NantTask extends BuildTask {
         int result = super.hashCode();
         result = 31 * result + (nantPath != null ? nantPath.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

@@ -47,7 +47,7 @@ public class NantTaskTest {
     @Test
     public void shouldUpdateAllItsAttributes() throws Exception {
         NantTask nant = new NantTask();
-        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "file:///usr/bin/nant"));
+        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "/usr/bin/nant"));
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
         assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(m());

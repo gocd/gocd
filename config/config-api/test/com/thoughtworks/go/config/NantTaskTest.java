@@ -49,13 +49,13 @@ public class NantTaskTest {
         NantTask nant = new NantTask();
         nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "file:///usr/bin/nant"));
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(m());
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(null);
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
     }
 
     @Test
@@ -94,14 +94,5 @@ public class NantTaskTest {
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");
         assertThat(task.arguments(), Is.is("-buildfile:\"build/build.xml\" compile"));
-    }
-
-    private String makePath(String... folderNames) {
-        String ps = File.separator;
-        String path = "";
-        for (String folderName : folderNames) {
-            path += ps + folderName;
-        }
-        return path;
     }
 }

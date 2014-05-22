@@ -62,27 +62,24 @@ public class NantTask extends BuildTask {
     }
 
     public void setNantPath(String path) {
-        this.nantPath = new File(path).getPath();
+        this.nantPath = path;
     }
 
     public String getNantPath() {
-        return nantPath == null ? null : filePath();
+        return nantPath;
     }
 
     protected void setBuildTaskConfigAttributes(Map attributeMap) {
         nantPath = inferValueFromMap(attributeMap, NANT_PATH);
     }
 
-    @Override public List<TaskProperty> getPropertiesForDisplay() {
+    @Override
+    public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> list = super.getPropertiesForDisplay();
-        if(nantPath != null){
-            list.add(new TaskProperty(NANT_PATH, filePath()));
+        if (nantPath != null) {
+            list.add(new TaskProperty(NANT_PATH, nantPath));
         }
         return list;
-    }
-
-    private String filePath() {
-        return new File(nantPath).getPath();
     }
 
     @Override

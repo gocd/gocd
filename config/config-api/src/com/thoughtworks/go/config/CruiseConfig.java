@@ -74,7 +74,15 @@ public class CruiseConfig implements Validatable {
     private String md5;
     private ConfigErrors errors = new ConfigErrors();
 
-    public static final String WORKING_BASE_DIR = "pipelines/";
+    public static String WORKING_BASE_DIR = "pipelines/";
+
+    static {
+        String pipeLineWorkingDir = System.getenv("GO_PIPELINE_WORKING_DIR");
+
+        if (pipeLineWorkingDir != null) {
+            WORKING_BASE_DIR = pipeLineWorkingDir;
+        }
+    }
 
     private ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     private List<PipelineConfig> allPipelineConfigs;

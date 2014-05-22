@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.builder;
 import java.io.File;
 
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.lang.StringUtils;
@@ -33,14 +34,17 @@ public class CommandBuilderWithArgList extends BaseCommandBuilder {
     }
 
     protected CommandLine buildCommandLine() {
+        File sandboxDirectory = FileUtil.getSandboxDirectory();
+        File workingDirectory = FileUtil.applyBaseDirIfRelative(sandboxDirectory, workingDir);
+
         CommandLine command = null;
         if (SystemUtil.isWindows()) {
-            command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDir);
+            command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDirectory);
             command.withArg("/c");
             command.withArg(translateToWindowsPath(this.command));
         }
         else {
-            command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDir);
+            command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDirectory);
         }
         for (String arg : args) {
             command.withArg(arg);

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.go.util.GoConstants;
+import org.apache.commons.lang.text.StrSubstitutor;
 
 import static java.lang.String.*;
 
@@ -232,6 +233,10 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer) {
+        setupRuntimeEnvironment(env, consumer, null);
+    }
+
+    public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer, StrSubstitutor substitutor) {
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
@@ -244,7 +249,7 @@ public class EnvironmentVariableContext implements Serializable {
                 }
 
                 consumer.stdOutput(line);
-                env.put(name, value);
+                env.put(name, (substitutor != null) ? substitutor.replace(value) : value);
             }
         }
     }

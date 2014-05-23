@@ -69,6 +69,10 @@ class ApplicationController < ActionController::Base
     SystemUtil.isLocalhost(request.env["SERVER_NAME"], request.env["REMOTE_ADDR"])
   end
 
+  def unresolved
+    render_error_response l.urlNotKnown(url_for), 404, false
+  end
+
   def render_if_error message, status
     return if (status < 400)
     render_error_response message, status, (params[:no_layout] == true)

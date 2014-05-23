@@ -74,7 +74,7 @@ public class NantTaskTest {
         nantTask.setTarget("bulls_eye");
         nantTask.setWorkingDirectory("some/dir");
         nantTask.setNantPath("foo/bar/baz");
-        assertThat(nantTask.getPropertiesForDisplay(), hasItems(new TaskProperty(NantTask.NANT_PATH, new File("foo/bar/baz").getPath(), "nantpath"),
+        assertThat(nantTask.getPropertiesForDisplay(), hasItems(new TaskProperty(NantTask.NANT_PATH, "foo/bar/baz", "nantpath"),
                 new TaskProperty(BuildTask.BUILD_FILE, "some-file.xml", "buildfile"), new TaskProperty(BuildTask.TARGET, "bulls_eye", "target"),
                 new TaskProperty(BuildTask.WORKING_DIRECTORY, "some/dir", "workingdirectory")));
         assertThat(nantTask.getPropertiesForDisplay().size(), is(4));

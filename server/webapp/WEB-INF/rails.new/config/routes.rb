@@ -1,6 +1,6 @@
 Go::Application.routes.draw do
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = /[\w\-][\w\-.]*/
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
@@ -9,10 +9,15 @@ Go::Application.routes.draw do
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
-  namespace :api do
+  namespace :api, as: "" do
     defaults :no_layout => true do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
-      get 'support' => 'server#capture_support_info', :format => 'text'
+
+      defaults :format => 'text' do
+        get 'support' => 'server#capture_support_info'
+        get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
+        get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
+      end
 
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'

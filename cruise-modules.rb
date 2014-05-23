@@ -18,11 +18,12 @@ require 'buildr/java/cobertura' unless ENV['INSTRUMENT_FOR_COVERAGE'].nil?
 require 'buildr/core/util'
 
 task :prepare do
-    # Temporary: Feature toggle "use.new.rails" is related to this.
-    bcprov_dependency_params = ENV['USE_NEW_RAILS'] == "Y" ? "-Dbcprov.groupId=org.bouncycastle -Dbcprov.artifactId=bcprov-jdk15on -Dbcprov.version=1.47" : ""
+  # Temporary: Feature toggle "use.new.rails" is related to this.
+  maven_profiles_for_rails = ENV['USE_NEW_RAILS'] == "Y" ? "newrails,!oldrails" : "oldrails,!newrails"
+  puts "Using Maven profiles: #{maven_profiles_for_rails}"
 
-    system("mvn install -DskipTests #{bcprov_dependency_params}") || raise("Failed to run: mvn install -DskipTests")
-    task("cruise:server:db:refresh").invoke
+  system("mvn install -DskipTests -P #{maven_profiles_for_rails}") || raise("Failed to run: mvn install -DskipTests -P #{maven_profiles_for_rails}")
+  task("cruise:server:db:refresh").invoke
 end
 
 task :clean do

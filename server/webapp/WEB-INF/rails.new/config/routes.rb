@@ -17,6 +17,7 @@ Go::Application.routes.draw do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
         get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
+        get 'process_list' => 'process_list#process_list'
       end
 
       defaults :format => 'xml' do

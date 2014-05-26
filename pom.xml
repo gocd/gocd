@@ -60,11 +60,30 @@
         <jmock.version>2.4.0</jmock.version>
         <pax-exam.version>3.0.0.M4</pax-exam.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <bcprov.groupId>bouncycastle</bcprov.groupId>
-        <bcprov.artifactId>bcprov-jdk16</bcprov.artifactId>
-        <bcprov.version>140</bcprov.version>
     </properties>
+
+    <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
+    <profiles>
+        <profile>
+            <id>oldrails</id>
+            <properties>
+                <bcprov.groupId>bouncycastle</bcprov.groupId>
+                <bcprov.artifactId>bcprov-jdk16</bcprov.artifactId>
+                <bcprov.version>140</bcprov.version>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>newrails</id>
+            <properties>
+                <bcprov.groupId>org.bouncycastle</bcprov.groupId>
+                <bcprov.artifactId>bcprov-jdk15on</bcprov.artifactId>
+                <bcprov.version>1.47</bcprov.version>
+            </properties>
+        </profile>
+    </profiles>
 
     <modules>
         <module>base</module>

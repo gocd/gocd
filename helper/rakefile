@@ -19,11 +19,11 @@ require 'rake/clean'
 require 'pathname'
 
 require 'rexml/document'
-require 'builder/element_handler'
-require 'builder/topic_handler'
-require 'builder/toc_handler'
-require 'builder/topic_maker'
-require 'builder/html_renderer'
+require File.join(File.expand_path(File.dirname(__FILE__)), File.join('builder', 'element_handler'))
+require File.join(File.expand_path(File.dirname(__FILE__)), File.join('builder', 'topic_handler'))
+require File.join(File.expand_path(File.dirname(__FILE__)), File.join('builder', 'toc_handler'))
+require File.join(File.expand_path(File.dirname(__FILE__)), File.join('builder', 'topic_maker'))
+require File.join(File.expand_path(File.dirname(__FILE__)), File.join('builder', 'html_renderer'))
 require 'find'
 
 BUILD_DIR = 'build'

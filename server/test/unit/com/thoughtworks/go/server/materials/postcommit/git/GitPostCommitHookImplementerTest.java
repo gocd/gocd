@@ -139,4 +139,22 @@ public class GitPostCommitHookImplementerTest {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("something.completely.random"));
         assertThat(isEqual, is(false));
     }
+
+    @Test
+    public void shouldReturnFalseUpWheNoProtocolIsGiven() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("repo-url.git"));
+        assertThat(isEqual, is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForEmptyURLField() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://"));
+        assertThat(isEqual, is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForEmptyURLFieldWithAuth() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:password@"));
+        assertThat(isEqual, is(false));
+    }
 }

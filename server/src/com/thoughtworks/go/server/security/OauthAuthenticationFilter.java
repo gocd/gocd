@@ -44,7 +44,9 @@ public class OauthAuthenticationFilter extends SpringSecurityFilter {
         String header = request.getHeader(AUTHORIZATION);//Token token="ACCESS_TOKEN"
 
         if (header != null) {
-            logger.debug("Oauth authorization header: " + header);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Oauth authorization header: " + header);
+            }
             Matcher matcher = OAUTH_TOKEN_PATTERN.matcher(header);
             if (matcher.matches()) {
                 String token = matcher.group(1);
@@ -53,7 +55,9 @@ public class OauthAuthenticationFilter extends SpringSecurityFilter {
                     Authentication authResult = authenticationManager.authenticate(authenticationToken);
                     SecurityContextHolder.getContext().setAuthentication(authResult);
                 } catch (AuthenticationException e) {
-                    logger.debug("Oauth authentication request for token: " + token + " failed: " + e.toString());
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Oauth authentication request for token: " + token, e);
+                    }
                     SecurityContextHolder.getContext().setAuthentication(null);
                 }
             }

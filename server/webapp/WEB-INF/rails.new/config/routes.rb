@@ -1,6 +1,6 @@
 Go::Application.routes.draw do
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = /[\w\-][\w\-.]*/
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
@@ -9,14 +9,29 @@ Go::Application.routes.draw do
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
-  namespace :api do
+  defaults :no_layout => true do
+    get 'materials/:id.xml' => 'application#unresolved', as: :material
+    get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification
+  end
+
+  namespace :api, as: "" do
     defaults :no_layout => true do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
-      get 'support' => 'server#capture_support_info', :format => 'text'
+      get 'plugins/status' => 'plugins#status'
+      post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
+      post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
+
+      defaults :format => 'text' do
+        get 'support' => 'server#capture_support_info'
+        get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
+        get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
+        get 'process_list' => 'process_list#process_list'
+      end
 
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'
         get 'server.xml' => 'server#info'
+        get 'stages/:id.xml' => 'stages#index', as: :stage
       end
     end
   end

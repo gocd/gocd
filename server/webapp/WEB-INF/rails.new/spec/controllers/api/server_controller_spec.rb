@@ -20,7 +20,7 @@ describe Api::ServerController do
 
   before :each do
     controller.stub(:populate_health_messages) do
-      stub_server_health_messages
+      stub_server_health_messages_for_controllers
     end
     @system_environment = double('system_environment')
     @go_config_service = double('go_config_service')
@@ -42,11 +42,11 @@ describe Api::ServerController do
 
       get :info, {:format => "xml", :no_layout => true}
 
-      assigns[:base_url].should == :base_url
-      assigns[:base_ssl_url].should == :base_ssl_url
-      assigns[:artifacts_dir].should =~ /artifacts$/
-      assigns[:shine_db_path].should =~ /shineDb$/
-      assigns[:config_dir].should =~ /config$/
+      expect(assigns[:base_url]).to eq(:base_url)
+      expect(assigns[:base_ssl_url]).to eq(:base_ssl_url)
+      expect(assigns[:artifacts_dir]).to match(/artifacts$/)
+      expect(assigns[:shine_db_path]).to  match(/shineDb$/)
+      expect(assigns[:config_dir]).to match(/config$/)
     end
 
     it "should return 401 if request is not from localhost" do

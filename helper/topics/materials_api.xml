@@ -105,6 +105,8 @@
                 #
 
                 echo `curl -d "repository_url=http://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
+                echo `curl -d "repository_url=git://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
+                echo `curl -d "repository_url=https://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
             </code>
         </subsection>
     </section>

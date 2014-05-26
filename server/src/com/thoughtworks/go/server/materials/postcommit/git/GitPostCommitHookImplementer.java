@@ -28,6 +28,7 @@ import java.util.Set;
 public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
 
     static final String REPO_URL_PARAM_KEY = "repository_url";
+    private final GitUrlValidator validators = new GitUrlValidator();
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map params) {
@@ -47,8 +48,8 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
         }
     }
 
-    private boolean isUrlEqual(String paramRepoUrl, GitMaterial material) {
+    boolean isUrlEqual(String paramRepoUrl, GitMaterial material) {
         String materialUrl = material.getUrlArgument().forCommandline();
-        return materialUrl.equalsIgnoreCase(paramRepoUrl);
+        return validators.perform(paramRepoUrl, materialUrl);
     }
 }

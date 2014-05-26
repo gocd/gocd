@@ -109,4 +109,34 @@ public class GitPostCommitHookImplementerTest {
 
         verifyNoMoreInteractions(material1);
     }
+
+    @Test
+    public void shouldReturnTrueWhenURLIsAnExactMatch() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://repo-url.git"));
+        assertThat(isEqual, is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:passW)rD@repo-url.git"));
+        assertThat(isEqual, is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:@repo-url.git"));
+        assertThat(isEqual, is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenProtocolIsDifferent() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("https://repo-url.git"));
+        assertThat(isEqual, is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenNoValidatorCouldParseUrl() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("something.completely.random"));
+        assertThat(isEqual, is(false));
+    }
 }

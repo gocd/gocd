@@ -114,3 +114,7 @@ def assert_redirect(url)
   response.status.should == 302
   response.redirect_url.should =~ %r{#{url}}
 end
+
+def cdata_wraped_regexp_for(value)
+  /<!\[CDATA\[#{value}\]\]>/
+end

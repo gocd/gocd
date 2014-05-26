@@ -18,6 +18,8 @@ Go::Application.routes.draw do
     defaults :no_layout => true do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
+      post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
+      post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
 
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
@@ -29,6 +31,7 @@ Go::Application.routes.draw do
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'
         get 'server.xml' => 'server#info'
+        get 'stages/:id.xml' => 'stages#index', as: :stage
       end
     end
   end

@@ -98,4 +98,9 @@ class ApplicationController < ActionController::Base
       render_error_template(message, status)
     end
   end
+
+  def render_localized_operation_result(result)
+    message = result.message(Spring.bean('localizer'))
+    render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
+  end
 end

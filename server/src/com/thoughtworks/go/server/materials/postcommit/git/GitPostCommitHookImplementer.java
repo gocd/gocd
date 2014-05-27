@@ -28,7 +28,7 @@ import java.util.Set;
 public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
 
     static final String REPO_URL_PARAM_KEY = "repository_url";
-    private final GitUrlValidator validators = new GitUrlValidator();
+    private final GitUrlMatchers validators = new GitUrlMatchers();
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map params) {

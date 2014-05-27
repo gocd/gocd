@@ -21,20 +21,20 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GitUrlValidator {
+public class GitUrlMatchers {
 
-    private final ArrayList<GitValidator> validators;
+    private final ArrayList<GitMatcher> validators;
 
-    public GitUrlValidator() {
-        validators = new ArrayList<GitValidator>();
-        validators.add(new GitUrlWithFullAuthValidator());
-        validators.add(new GitUrlWithUserNameAndEmptyPasswordAuthValidator());
-        validators.add(new GitUrlWithUserNameAndNoPasswordAuthValidator());
-        validators.add(new GitUrlWithNoAuthValidator());
+    public GitUrlMatchers() {
+        validators = new ArrayList<GitMatcher>();
+        validators.add(new GitUrlWithFullAuthMatcher());
+        validators.add(new GitUrlWithUserNameAndEmptyPasswordAuthMatcher());
+        validators.add(new GitUrlWithUserNameAndNoPasswordAuthMatcher());
+        validators.add(new GitUrlWithNoAuthMatcher());
     }
 
     public boolean perform(String paramUrl, String materialUrl) {
-        for (GitValidator validator : validators) {
+        for (GitMatcher validator : validators) {
             if (validator.isValid(paramUrl, materialUrl)) {
                 return true;
             }
@@ -43,11 +43,11 @@ public class GitUrlValidator {
     }
 }
 
-interface GitValidator {
+interface GitMatcher {
     public boolean isValid(String paramUrl, String materialUrl);
 }
 
-class GitUrlWithFullAuthValidator implements GitValidator {
+class GitUrlWithFullAuthMatcher implements GitMatcher {
 
     private static final Pattern URL_WITH_FULL_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?):(.+?)@(.+)$");
 
@@ -63,7 +63,7 @@ class GitUrlWithFullAuthValidator implements GitValidator {
     }
 }
 
-class GitUrlWithUserNameAndEmptyPasswordAuthValidator implements GitValidator {
+class GitUrlWithUserNameAndEmptyPasswordAuthMatcher implements GitMatcher {
 
     private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?):@(.+)$");
 
@@ -79,7 +79,7 @@ class GitUrlWithUserNameAndEmptyPasswordAuthValidator implements GitValidator {
     }
 }
 
-class GitUrlWithUserNameAndNoPasswordAuthValidator implements GitValidator {
+class GitUrlWithUserNameAndNoPasswordAuthMatcher implements GitMatcher {
 
     private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?)@(.+)$");
 
@@ -95,7 +95,7 @@ class GitUrlWithUserNameAndNoPasswordAuthValidator implements GitValidator {
     }
 }
 
-class GitUrlWithNoAuthValidator implements GitValidator {
+class GitUrlWithNoAuthMatcher implements GitMatcher {
 
     private static final Pattern URL_WITH_NO_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+)$");
 

@@ -28,7 +28,8 @@ public class GitUrlValidator {
     public GitUrlValidator() {
         validators = new ArrayList<GitValidator>();
         validators.add(new GitUrlWithFullAuthValidator());
-        validators.add(new GitUrlWithUserNameAuthValidator());
+        validators.add(new GitUrlWithUserNameAndEmptyPasswordAuthValidator());
+        validators.add(new GitUrlWithUserNameAndNoPasswordAuthValidator());
         validators.add(new GitUrlWithNoAuthValidator());
     }
 
@@ -62,9 +63,25 @@ class GitUrlWithFullAuthValidator implements GitValidator {
     }
 }
 
-class GitUrlWithUserNameAuthValidator implements GitValidator {
+class GitUrlWithUserNameAndEmptyPasswordAuthValidator implements GitValidator {
 
     private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?):@(.+)$");
+
+    @Override
+    public boolean isValid(String paramRepoUrl, String materialUrl) {
+        Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
+        if (userNameAuthMatcher.matches()) {
+            String protocolField = userNameAuthMatcher.group(1);
+            String urlField = userNameAuthMatcher.group(3);
+            return String.format("%s%s", protocolField, urlField).equalsIgnoreCase(paramRepoUrl);
+        }
+        return false;
+    }
+}
+
+class GitUrlWithUserNameAndNoPasswordAuthValidator implements GitValidator {
+
+    private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?)@(.+)$");
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {

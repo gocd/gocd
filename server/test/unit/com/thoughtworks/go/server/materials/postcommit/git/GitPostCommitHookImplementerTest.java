@@ -129,6 +129,12 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
+    public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user@repo-url.git"));
+        assertThat(isEqual, is(true));
+    }
+
+    @Test
     public void shouldReturnFalseWhenProtocolIsDifferent() throws Exception {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("https://repo-url.git"));
         assertThat(isEqual, is(false));

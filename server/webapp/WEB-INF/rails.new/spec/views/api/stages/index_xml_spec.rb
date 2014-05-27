@@ -35,19 +35,20 @@ describe "/api/stages" do
   it "should contain stage details" do
     render :template => '/api/stages/index.xml.erb'
 
-    doc = Nokogiri::Slop(response.body)
+    doc = Nokogiri::XML(response.body)
+    stage = doc.xpath("//stage[@name='blah-stage'][@counter='12']")
 
-    expect(doc.stage["name"]).to eq("blah-stage")
-    expect(doc.stage["counter"]).to eq("12")
-    expect(doc.stage.pipeline["name"]).to eq("pipeline_name")
-    expect(doc.stage.pipeline["counter"]).to eq("100")
-    expect(doc.stage.pipeline["label"]).to eq("LABEL-100")
-    expect(doc.stage.pipeline["href"]).to eq("http://localhost:8153/go/api/pipelines/pipeline_name/100.xml")
-    expect(doc.stage.updated.content).to eq(@last_updated.iso8601())
-    expect(doc.stage.result.content).to eq("Passed")
-    expect(doc.stage.state.content).to eq("Completed")
-    expect(doc.stage.approvedBy.content).to eq("blahUser")
-    expect(doc.stage.jobs.job["href"]).to eq("http://localhost:8153/go/api/jobs/-1.xml")
+    expect(stage).to_not be_nil_or_empty
+    expect(stage.xpath("pipeline[@name='pipeline_name'][@counter='100'][@label='LABEL-100'][@href='http://localhost:8153/go/api/pipelines/pipeline_name/100.xml']")).to_not be_nil_or_empty
+    expect(stage.xpath("updated").text).to eq(@last_updated.iso8601())
+    expect(stage.xpath("result").text).to eq("Passed")
+    expect(stage.xpath("state").text).to eq("Completed")
+    expect(stage.xpath("state").text).to eq("Completed")
+    expect(stage.xpath("approvedBy").text).to eq("blahUser")
+
+    jobs = stage.xpath("jobs/job")
+    expect(jobs.count).to eq(1)
+    expect(jobs[0].attr('href')).to eq("http://localhost:8153/go/api/jobs/-1.xml")
 
     expect(response.body).to match(/#{cdata_wraped_regexp_for("blahUser")}/)
   end
@@ -55,10 +56,12 @@ describe "/api/stages" do
   it "should have a self referncing link" do
     render :template => '/api/stages/index.xml.erb'
 
-    doc = Nokogiri::Slop(response.body)
-    expect(doc.stage.link["href"]).to eq("http://localhost:8153/go/api/stages/#{@stage.getId()}.xml")
-    expect(doc.stage.link["rel"]).to eq("self")
-    expect(doc.stage.id.content).to eq("urn:x-go.studios.thoughtworks.com:stage-id:pipeline_name:100:blah-stage:12")
+    doc = Nokogiri::XML(response.body)
+    stage = doc.xpath("//stage[@name='blah-stage'][@counter='12']")
+
+    expect(stage.xpath("link[@href='http://localhost:8153/go/api/stages/#{@stage.getId()}.xml']")).to_not be_nil_or_empty
+    expect(stage.xpath("link[@rel='self']")).to_not be_nil_or_empty
+    expect(stage.xpath("id").text).to eq("urn:x-go.studios.thoughtworks.com:stage-id:pipeline_name:100:blah-stage:12")
   end
 
   it "should escape xml sensitive characters" do

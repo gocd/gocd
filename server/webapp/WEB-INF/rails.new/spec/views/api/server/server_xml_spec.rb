@@ -27,13 +27,13 @@ describe "/api/server/server.xml" do
     assign(:config_dir, "/etc/cruise")
 
     render :template => 'api/server/info.xml.erb'
+    server = Nokogiri::XML(response.body).xpath("server")
 
-    doc = Nokogiri::Slop(response)
-    expect(doc.server.baseUrl.content).to eq("http://foo:667/go")
-    expect(doc.server.baseUrlSsl.content).to eq("https://foo:666/go")
-    expect(doc.server.configDirectory.content).to eq("/etc/cruise")
-    expect(doc.server.artifactsDir.content).to eq("/var/lib/cruise-server")
-    expect(doc.server.shineDbDirectory.content).to eq("path_to_shine_tdb_directory")
+    expect(server.xpath("baseUrl").text).to eq("http://foo:667/go")
+    expect(server.xpath("baseUrlSsl").text).to eq("https://foo:666/go")
+    expect(server.xpath("configDirectory").text).to eq("/etc/cruise")
+    expect(server.xpath("artifactsDir").text).to eq("/var/lib/cruise-server")
+    expect(server.xpath("shineDbDirectory").text).to eq("path_to_shine_tdb_directory")
   end
 
   it "should handle xml sensitive as values" do

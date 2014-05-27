@@ -49,6 +49,16 @@ public class FileUtil {
     private static final boolean ON_NETWARE = Os.isFamily("netware");
     private static final boolean ON_DOS = Os.isFamily("dos");
 
+    private static File sandboxDirectory = new File(".");
+
+    static {
+        String sandboxDir = System.getenv("GO_AGENT_SANDBOX_DIR");
+
+        if (sandboxDir != null) {
+            sandboxDirectory = new File(sandboxDir);
+        }
+    }
+
     public static final FileFilter NONHIDDEN_FILE_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return !isHidden(pathname);
@@ -448,13 +458,25 @@ public class FileUtil {
         return dir;
     }
 
+    public static File getSandboxDirectory() {
+        return sandboxDirectory;
+    }
+
+    public static void setSandboxDirectory(File sandbox) {
+        if (sandbox == null) {
+            ExceptionUtils.bomb("Sandbox folder is not valid.");
+        }
+
+        sandboxDirectory = sandbox;
+    }
+
     public static boolean isFolderInsideSandbox(String path) {
         File fileAtPath = new File(path);
         if (fileAtPath.isAbsolute()) {
             return false;
         }
         try {
-            if (!FileUtil.isSubdirectoryOf(new File("."), fileAtPath)) {
+            if (!FileUtil.isSubdirectoryOf(sandboxDirectory, fileAtPath)) {
                 return false;
             }
         } catch (IOException e) {

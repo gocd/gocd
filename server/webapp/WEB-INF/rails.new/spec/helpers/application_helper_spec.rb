@@ -252,7 +252,7 @@ describe ApplicationHelper do
     it "should have class 'select' and image for 'select type' button" do
       submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick").should == "<button class=\"class select submit button\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
               "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png?N/A\" />" +
+              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
               "</button>"
     end
@@ -268,7 +268,7 @@ describe ApplicationHelper do
     it "should respect disabled flag for type 'select'" do
       submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true).should == "<button class=\"class select submit button disabled\" disabled=\"disabled\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
               "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png?N/A\" />" +
+              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
               "</button>"
     end

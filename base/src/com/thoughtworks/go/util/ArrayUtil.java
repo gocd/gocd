@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 
 public class ArrayUtil {
     private ArrayUtil() {
@@ -70,5 +71,15 @@ public class ArrayUtil {
             list.add(StringUtils.capitalize(t.toString()));
         }
         return list.toArray();
+    }
+
+    public static String[] expandVariables(String[] array, StrSubstitutor substitutor) {
+        String[] newArray = new String[array.length];
+
+        for (int i = 0; i < array.length; ++i) {
+            newArray[i] = substitutor.replace(array[i]);
+        }
+
+        return newArray;
     }
 }

@@ -21,6 +21,7 @@ import java.io.File;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.DateUtils;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.CheckedCommandLineException;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CompositeConsumer;
@@ -48,15 +49,37 @@ public abstract class BaseCommandBuilder extends Builder {
             throws CruiseControlException {
         final long startTime = System.currentTimeMillis();
 
-        if (!workingDir.isDirectory()) {
-            String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
+        publisher.consumeLine("Checkpoint 1");
+
+        publisher.consumeLine("Checkpoint 1 - " + FileUtil.getSandboxDirectory());
+        publisher.consumeLine("Checkpoint 1 - " + FileUtil.applyBaseDirIfRelative(FileUtil.getSandboxDirectory(), workingDir));
+
+        CommandLine commandLine;
+
+        try {
+            commandLine = buildCommandLine();
+        }
+        catch (RuntimeException e ) {
+            publisher.consumeLine("Checkpoint 1 - error - " + e);
+            throw e;
+        }
+
+        publisher.consumeLine("Checkpoint 2");
+
+        String message3 = "Working directory <><><> \"" + commandLine.getWorkingDirectory().getAbsolutePath() + "\".";
+        publisher.consumeLine(message3);
+
+        if (!commandLine.getWorkingDirectory().isDirectory()) {
+            String message = "Working directory \"" + commandLine.getWorkingDirectory().getAbsolutePath() + "\" is not a directory!";
             publisher.consumeLine(message);
             setBuildError(buildLogElement, message);
             throw new CruiseControlException(message);
         }
 
+        String message2 = "Working directory \"" + commandLine.getWorkingDirectory().getAbsolutePath() + "\".";
+        publisher.consumeLine(message2);
+
         ExecScript execScript = new ExecScript(errorString);
-        CommandLine commandLine = buildCommandLine();
 
         // mimic Ant target/task logging
         buildLogElement.setBuildLogHeader(command);

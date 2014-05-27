@@ -23,7 +23,7 @@
     <note>
         <strong>NOTE</strong>: Only Go Administrators will be able to invoke this API
     </note>
-    <section title="Subversion">
+    <section title="Subversion" collapsed="true">
         <table caption="Parameters">
             <header-row>
                 <col-header>URL format</col-header>
@@ -38,7 +38,7 @@
                 <col>Notifies Go that a commit has been made to a subversion repository with the given UUID</col>
             </row>
         </table>
-	<note>When using this feature, uncheck <strong>Poll for new changes</strong> or set <strong>autoUpdate</strong> flag in cruise configuration to <strong>false</strong> for the relevant subversion materials</note>
+	<note>When using this feature, un-check <strong>Poll for new changes</strong> or set <strong>autoUpdate</strong> flag in cruise configuration to <strong>false</strong> for the relevant subversion materials</note>
         <subsection title="Examples">
             <bullets>
                 <item>We use curl, a command line tool for transferring files with URL syntax, in the following examples. Of course, you can use any HTTP client library.</item>
@@ -66,6 +66,49 @@
                 curl -d "uuid=$UUID" -u admin:password http://goserver.com:8153/go/api/material/notify/svn
             </code>
         </subsection>
-
     </section>
+
+    <section title="Git" collapsed="true">
+        <table caption="Parameters">
+            <header-row>
+                <col-header>URL format</col-header>
+                <col-header>HTTP Verb</col-header>
+                <col-header>Data</col-header>
+                <col-header>Explanation</col-header>
+            </header-row>
+            <row>
+                <col>http://[server]:[port]/go/api/material/notify/git</col>
+                <label>POST</label>
+                <col>repository_url=[URL of this repository configured in Go]</col>
+                <col>Notifies Go that a commit has been made to a git repository with the given URL</col>
+            </row>
+        </table>
+        <note>When using this feature, un-check <strong>Poll for new changes</strong> or set <strong>autoUpdate</strong> flag in cruise configuration to <strong>false</strong> for the relevant git materials</note>
+        <subsection title="Examples">
+            <bullets>
+                <item>We use curl, a command line tool for transferring files with URL syntax, in the following examples. Of course, you can use any HTTP client library.</item>
+                <item>We assume that the URL of the Go server is<strong>http://goserver.com:8153/</strong>.
+                </item>
+                <item>We assume security has been switched on, and that there is an admin user named
+                    <strong>admin</strong>
+                    with the password<strong>password</strong>.
+                </item>
+            </bullets>
+
+            <p>To notify Go via Git post commit hook</p>
+            <code>
+                # File: [git-repository]/hooks/post-receive
+                # ================================================
+                #!/bin/sh
+
+                # POST-RECEIVE HOOK
+                #
+
+                echo `curl -d "repository_url=http://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
+                echo `curl -d "repository_url=git://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
+                echo `curl -d "repository_url=https://url-for-git-repo.git" -u admin:badger http://goserver.com:8153/go/api/material/notify/git`
+            </code>
+        </subsection>
+    </section>
+
 </topic>

@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.materials.postcommit;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,7 @@ public class PostCommitHookMaterialTypeResolver {
     public PostCommitHookMaterialTypeResolver() {
         allKnownMaterialTypes.add(new UnknownPostCommitHookMaterialType());
         allKnownMaterialTypes.add(new SvnPostCommitHookMaterialType());
+        allKnownMaterialTypes.add(new GitPostCommitHookMaterialType());
     }
 
     public PostCommitHookMaterialType toType(String type) {
@@ -70,6 +72,25 @@ public class PostCommitHookMaterialTypeResolver {
 
         @Override public PostCommitHookImplementer getImplementer() {
             return new SvnPostCommitHookImplementer();
+        }
+    }
+
+    final class GitPostCommitHookMaterialType implements PostCommitHookMaterialType {
+        private static final String TYPE = "git";
+
+        @Override
+        public boolean isKnown() {
+            return true;
+        }
+
+        @Override
+        public boolean isValid(String type) {
+            return TYPE.equalsIgnoreCase(type);
+        }
+
+        @Override
+        public PostCommitHookImplementer getImplementer() {
+            return new GitPostCommitHookImplementer();
         }
     }
 }

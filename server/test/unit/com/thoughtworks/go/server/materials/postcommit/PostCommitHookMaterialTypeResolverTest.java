@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials.postcommit;
 
+import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,15 @@ public class PostCommitHookMaterialTypeResolverTest {
         assertThat(materialType.isKnown(), is(true));
         assertThat(materialType.isValid("SVN"), is(true));
         assertThat(materialType.getImplementer() instanceof SvnPostCommitHookImplementer, is(true));
+    }
+
+    @Test
+    public void shouldReturnGitPostCommitHookMaterialType() {
+        final PostCommitHookMaterialType materialType = resolver.toType("GIT");
+        assertThat(materialType instanceof PostCommitHookMaterialTypeResolver.GitPostCommitHookMaterialType, is(true));
+        assertThat(materialType.isKnown(), is(true));
+        assertThat(materialType.isValid("GIT"), is(true));
+        assertThat(materialType.getImplementer() instanceof GitPostCommitHookImplementer, is(true));
     }
 
 

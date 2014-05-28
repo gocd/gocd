@@ -14,8 +14,6 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-# Use the same session store as Java. This is what makes us see the authentication context from Spring for example.
-if defined?($servlet_context)
-  require 'action_controller/session/java_servlet_store'
-  Go::Application.config.session_store :java_servlet_store
+class Api::ApiController < ApplicationController
+  skip_before_filter :verify_authenticity_token
 end

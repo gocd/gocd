@@ -22,10 +22,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class DatabaseStrategyTest {
 
@@ -81,6 +82,19 @@ public class DatabaseStrategyTest {
     public void shouldGetQueryExtensions() throws SQLException {
         databaseStrategy.getQueryExtensions();
         assertThat(database.getQueryExtensions, is(true));
+    }
+
+    @Test
+    public void shouldThrowUpWhenFailedToLoadDatabaseProvider() throws Exception {
+        when(systemEnvironment.getDatabaseProvider()).thenReturn("some.random.provider");
+        try {
+            new DatabaseStrategy(systemEnvironment);
+            fail("Should have thrown exception");
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage(), is("Failed loading database provider [some.random.provider]"));
+            assertThat(e.getCause(), is(instanceOf(ClassNotFoundException.class)));
+            assertThat(e.getCause().getMessage(), is("some.random.provider"));
+        }
     }
 }
 

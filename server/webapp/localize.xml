@@ -661,7 +661,7 @@
     <entry key="ARTIFACT_DIRECTORY_DISK_SPACE">Available disk space in backup directory:</entry>
     <entry key="BACKUP_HELP_HEADING">On performing a backup, Go will create a backup of:</entry>
     <entry key="BACKUP_HELP_CONFIG">Configuration - An archive named config-dir.zip containing XML configuration, Jetty server configuration, keystores and other Go internal configurations.</entry>
-    <entry key="BACKUP_HELP_DB">Database - An archive named db.zip containing a single database file named cruise.h2.db</entry>
+    <entry key="BACKUP_HELP_DB">Database - The database is archived to a file which could be used to restore Go's database.</entry>
     <entry key="BACKUP_HELP_CONFIG_REPOSITORY">XML Configuration Version Repository - An archive named config-repo.zip containing a Git repository of the XML configuration file.</entry>
     <entry key="BACKUP_HELP_VERSION">Go Version - A flat file named version.txt containing the version of Go that the backup was taken against.</entry>
     <entry key="SHOW_BISECT_DIFF_CONFIRMATION">This comparison involves a pipeline instance that was triggered with a non-sequential material revision.</entry>
@@ -732,7 +732,6 @@
     <entry key="USER_DELETE_SUCCESSFUL">User ''{0}'' was deleted successfully.</entry>
     <entry key="USER_NOT_FOUND">User ''{0}'' not found.</entry>
     <entry key="USER_NOT_DISABLED">User ''{0}'' is not disabled.</entry>
-    <entry key="POSTGRESQL_BACKUP_WARNING">When postgreSQL is used, this operation will not perform a database backup. We recommend taking a manual backup of the database as needed.</entry>
     <entry key="VIEW">View</entry>
     <entry key="ADD_NEW_REPOSITORY">Add New Repository</entry>
     <entry key="MANDATORY_CONFIGURATION_FIELD">This field is required</entry>

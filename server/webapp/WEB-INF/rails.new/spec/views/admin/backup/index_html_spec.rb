@@ -36,20 +36,6 @@ describe "admin/backup/index.html.erb" do
     end
   end
 
-  it "should display warning message when postgresql is used" do
-    allow(view).to receive(:external_db?).and_return(true)
-    render
-    Capybara.string(response.body).find('.postgresql.warnings').tap do |warnings|
-      expect(warnings).to have_selector("span.info", "When postgreSQL is used, this operation will not perform a database backup. We recommend taking a manual backup of the database as needed.")
-    end
-  end
-
-  it "should not display warning message when postgresql is not used" do
-    allow(view).to receive(:external_db?).and_return(false)
-    render
-    expect(response.body).to_not have_selector(".postgresql.warning")
-  end
-
   it "should contain server back up form" do
     render
 

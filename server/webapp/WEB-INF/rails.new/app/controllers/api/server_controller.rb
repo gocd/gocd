@@ -14,8 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-# Use the same session store as Java. This is what makes us see the authentication context from Spring for example.
-if defined?($servlet_context)
-  require 'action_controller/session/java_servlet_store'
-  Go::Application.config.session_store :java_servlet_store
+class Api::ServerController < Api::ApiController
+  def info
+    @base_url = system_environment.getBaseUrlForShine()
+    @base_ssl_url = system_environment.getBaseSslUrlForShine()
+    @artifacts_dir = go_config_service.artifactsDir().getAbsolutePath()
+    @shine_db_path = system_environment.shineDb().getAbsolutePath()
+    @config_dir = system_environment.configDir().getAbsolutePath()
+  end
+
+  def capture_support_info
+    file = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
+    if !result.isSuccessful()
+      render_localized_operation_result result
+    else
+      send_file file.getAbsolutePath(), :disposition => "inline", :stream => false, :type => "text"
+    end
+  end
 end

@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class BuildTask extends AbstractTask implements CommandTask {
     @ConfigAttribute(value = "buildfile", allowNull = true)
@@ -68,7 +68,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
         setBuildTaskConfigAttributes(attributeMap);
     }
 
-    private String inferValueFromMap(Map attributeMap, String key) {
+    protected String inferValueFromMap(Map attributeMap, String key) {
         String value = null;
         if (attributeMap.containsKey(key) && !StringUtil.isBlank((String) attributeMap.get(key))) {
             value = (String) attributeMap.get(key);

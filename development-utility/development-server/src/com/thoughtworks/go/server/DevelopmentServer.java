@@ -67,6 +67,14 @@ public class DevelopmentServer {
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {
             server.startServer();
+
+            String hostName = systemEnvironment.getListenHost();
+            if(hostName == null){
+                hostName = "localhost";
+            }
+
+            System.out.println("Go server dashboard started on http://" + hostName + ":" + systemEnvironment.getServerPort());
+            System.out.println("* credentials: \"admin\" / \"badger\"");
         } catch (Exception e) {
             System.err.println("Failed to start Go server. Exception:");
             e.printStackTrace();

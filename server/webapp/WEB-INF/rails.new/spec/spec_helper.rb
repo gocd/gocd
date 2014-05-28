@@ -55,8 +55,13 @@ include JavaSpecImports
 def java_date_utc(year, month, day, hour, minute, second)
   org.joda.time.DateTime.new(year, month, day, hour, minute, second, 0, org.joda.time.DateTimeZone::UTC).toDate()
 end
+
 def stub_server_health_messages
   assign(:current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new)
+end
+
+def stub_server_health_messages_for_controllers
+  assigns[:current_server_health_states] = com.thoughtworks.go.serverhealth.ServerHealthStates.new
 end
 
 unless $has_loaded_one_time_enhancements
@@ -113,4 +118,8 @@ end
 def assert_redirect(url)
   response.status.should == 302
   response.redirect_url.should =~ %r{#{url}}
+end
+
+def cdata_wraped_regexp_for(value)
+  /<!\[CDATA\[#{value}\]\]>/
 end

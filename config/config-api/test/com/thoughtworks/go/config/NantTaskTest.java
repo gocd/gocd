@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.domain.TaskProperty;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -47,15 +47,15 @@ public class NantTaskTest {
     @Test
     public void shouldUpdateAllItsAttributes() throws Exception {
         NantTask nant = new NantTask();
-        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "file:///usr/bin/nant"));
+        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "/usr/bin/nant"));
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(m());
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(null);
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
-        assertThat(nant.getNantPath(), is(makePath("usr", "bin", "nant")));
+        assertThat(nant.getNantPath(), is("/usr/bin/nant"));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class NantTaskTest {
         nantTask.setTarget("bulls_eye");
         nantTask.setWorkingDirectory("some/dir");
         nantTask.setNantPath("foo/bar/baz");
-        assertThat(nantTask.getPropertiesForDisplay(), hasItems(new TaskProperty(NantTask.NANT_PATH, new File("foo/bar/baz").getPath(), "nantpath"),
+        assertThat(nantTask.getPropertiesForDisplay(), hasItems(new TaskProperty(NantTask.NANT_PATH, "foo/bar/baz", "nantpath"),
                 new TaskProperty(BuildTask.BUILD_FILE, "some-file.xml", "buildfile"), new TaskProperty(BuildTask.TARGET, "bulls_eye", "target"),
                 new TaskProperty(BuildTask.WORKING_DIRECTORY, "some/dir", "workingdirectory")));
         assertThat(nantTask.getPropertiesForDisplay().size(), is(4));
@@ -94,14 +94,5 @@ public class NantTaskTest {
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");
         assertThat(task.arguments(), Is.is("-buildfile:\"build/build.xml\" compile"));
-    }
-
-    private String makePath(String... folderNames) {
-        String ps = File.separator;
-        String path = "";
-        for (String folderName : folderNames) {
-            path += ps + folderName;
-        }
-        return path;
     }
 }

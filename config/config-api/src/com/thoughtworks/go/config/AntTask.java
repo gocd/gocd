@@ -51,8 +51,4 @@ public class AntTask extends BuildTask {
     public String command() {
         return "ant";
     }
-
-    protected void setBuildTaskConfigAttributes(Map attributeMap) {
-    }
-
 }

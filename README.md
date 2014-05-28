@@ -2,7 +2,7 @@
 
 This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 
-This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://github.com/gocd/documentation/blob/master/3/3.1.md).
+This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://github.com/gocd/documentation/blob/master/2/2.1.md).
 
 All information to help you get started with Go can be found on the <a href="http://www.go.cd/">go.cd</a> website.
 

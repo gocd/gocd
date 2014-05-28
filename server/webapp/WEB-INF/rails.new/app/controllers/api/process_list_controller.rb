@@ -14,8 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-# Use the same session store as Java. This is what makes us see the authentication context from Spring for example.
-if defined?($servlet_context)
-  require 'action_controller/session/java_servlet_store'
-  Go::Application.config.session_store :java_servlet_store
+class Api::ProcessListController < Api::ApiController
+  def process_list
+    @process_list = ProcessManager.getInstance().currentProcessListForDisplay();
+    @str = "<html><body><table border=\"1\">"
+    @process_list.each do |process|
+      @str += "<tr><td>" + process.getCommand() + "</td><td>" + process.getStartTimeForDisplay() + "</td><td>" + (process.getIdleTime() / 60000).to_s + " minutes</td></tr>"
+    end
+    @str += "</table></body></html>"
+    render text: @str
+  end
 end

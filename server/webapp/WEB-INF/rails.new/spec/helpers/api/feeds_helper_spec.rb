@@ -14,8 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-# Use the same session store as Java. This is what makes us see the authentication context from Spring for example.
-if defined?($servlet_context)
-  require 'action_controller/session/java_servlet_store'
-  Go::Application.config.session_store :java_servlet_store
+require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+
+describe Api::FeedsHelper do
+  include Api::FeedsHelper
+  #it "should return the url to pipeline resource given pipeline id" do
+  #  pipeline_details_url("cruise/1/dev/1", 1).should == "http://test.host/api/pipelines/cruise/1.xml"
+  #end
 end

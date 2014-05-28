@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -47,6 +48,18 @@ public class NotificationFilterTest {
     }
 
     @Test
+    public void shouldMatchForAllStageAllEvent() {
+        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ALL_STAGES, StageEvent.All, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All), is(true));
+    }
+
+    @Test
+    public void shouldMatchForAllStageBroken() {
+        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ALL_STAGES, StageEvent.Fails, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fails), is(true));
+    }
+
+    @Test
     public void shouldNotMatchStageWithDifferentName() {
         NotificationFilter filter = new NotificationFilter("cruise", "xyz", StageEvent.All, false);
         assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All), is(false));
@@ -65,4 +78,6 @@ public class NotificationFilterTest {
                 new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)), is(true));
 
     }
+
+
 }

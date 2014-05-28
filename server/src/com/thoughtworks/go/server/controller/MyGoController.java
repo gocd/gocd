@@ -40,6 +40,7 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +184,9 @@ public class MyGoController {
     }
 
     private List<PipelineViewModel.StageViewModel> getStagesModelsFor(PipelineConfig pipelineConfig) {
-        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<PipelineViewModel.StageViewModel>();
+        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<PipelineViewModel.StageViewModel>() {{
+            add(new PipelineViewModel.StageViewModel(GoConstants.ALL_STAGES));
+        }};
         for (StageConfig stageConfig : pipelineConfig) {
             stageModels.add(new PipelineViewModel.StageViewModel(CaseInsensitiveString.str(stageConfig.name())));
         }

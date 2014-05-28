@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.GoConstants;
+
 public class NotificationFilter extends PersistentObject {
     private String pipelineName;
     private String stageName;
@@ -75,7 +77,7 @@ public class NotificationFilter extends PersistentObject {
 
     public boolean matchStage(StageConfigIdentifier stageIdentifier, StageEvent event) {
         return stageIdentifier.getPipelineName().equals(pipelineName) &&
-                stageIdentifier.getStageName().equals(stageName) &&
+                (stageIdentifier.getStageName().equals(stageName) || stageName.equals(GoConstants.ALL_STAGES)) &&
                 this.event.include(event);
     }
 

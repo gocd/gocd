@@ -290,12 +290,4 @@ public class  User extends PersistentObject {
         });
         notificationFilters.removeAll(toBeDeleted);
     }
-
-    public boolean hasSubscribedFor(String pipelineName, String stageName) {
-        for (NotificationFilter notificationFilter : notificationFilters) {
-            if (notificationFilter.getPipelineName().equals(pipelineName) && notificationFilter.getStageName().equals(stageName))
-                return true;
-        }
-        return false;
-    }
 }

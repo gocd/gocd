@@ -25,15 +25,27 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.DummyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class ScmMaterialTest {
     DummyMaterial material = new DummyMaterial();
+
+    @Rule
+    public ExpectedException should = ExpectedException.none();
 
     @Test
     public void shouldSmudgePasswordForDescription() throws Exception{
@@ -61,7 +73,7 @@ public class ScmMaterialTest {
 
     @Test
     public void populateEnvironmentContextShouldSetFromAndToRevisionEnvironmentVariables() {
-        
+
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
         final ArrayList<Modification> modifications = new ArrayList<Modification>();
 
@@ -74,7 +86,7 @@ public class ScmMaterialTest {
         assertThat(ctx.getProperty(ScmMaterial.GO_REVISION), is(nullValue()));
 
         material.populateEnvironmentContext(ctx, materialRevision, new File("."));
-        
+
         assertThat(ctx.getProperty(ScmMaterial.GO_FROM_REVISION), is("23"));
         assertThat(ctx.getProperty(ScmMaterial.GO_TO_REVISION), is("24"));
         assertThat(ctx.getProperty(ScmMaterial.GO_REVISION), is("24"));
@@ -122,5 +134,69 @@ public class ScmMaterialTest {
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_FOLDER_NAME"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldUpdateRevisionSuccessfully() {
+        InMemoryStreamConsumer inMemoryStreamConsumer = new InMemoryStreamConsumer();
+        TestSubprocessExecutionContext testSubprocessExecutionContext = new TestSubprocessExecutionContext();
+
+        ScmMaterial mockMaterial = mockScmMaterialWith(inMemoryStreamConsumer, testSubprocessExecutionContext);
+
+        doNothing()
+                .when(mockMaterial)
+                .updateToInternal(eq(inMemoryStreamConsumer), any(StringRevision.class), any(File.class), eq(testSubprocessExecutionContext));
+        mockMaterial.updateTo(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+
+        verify(mockMaterial, times(1)).updateToInternal(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+    }
+
+    @Test
+    public void shouldRetryOnUpdateToFailureAndSucceedSubsequently() {
+        InMemoryStreamConsumer inMemoryStreamConsumer = new InMemoryStreamConsumer();
+        TestSubprocessExecutionContext testSubprocessExecutionContext = new TestSubprocessExecutionContext();
+
+        ScmMaterial mockMaterial = mockScmMaterialWith(inMemoryStreamConsumer, testSubprocessExecutionContext);
+        doThrow(new RuntimeException("UpdateTo failed"))
+            .doNothing()
+            .when(mockMaterial)
+            .updateToInternal(eq(inMemoryStreamConsumer), any(StringRevision.class), any(File.class), eq(testSubprocessExecutionContext));
+
+        mockMaterial.updateTo(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+        verify(mockMaterial, times(2)).updateToInternal(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+    }
+
+    @Test
+    public void shouldRetryOnUpdateToFailureWithMeaningfulLogsOnConsoleStream() {
+        String failureMessage = "SCM Mock material update failed.";
+        should.expectMessage(failureMessage);
+
+        InMemoryStreamConsumer inMemoryStreamConsumer = new InMemoryStreamConsumer();
+        TestSubprocessExecutionContext testSubprocessExecutionContext = new TestSubprocessExecutionContext();
+
+        ScmMaterial mockMaterial = mockScmMaterialWith(inMemoryStreamConsumer, testSubprocessExecutionContext);
+
+        doThrow(new RuntimeException("UpdateTo failed"))
+                .doThrow(new RuntimeException("UpdateTo failed"))
+                .doThrow(new RuntimeException("UpdateTo failed"))
+                .doNothing()
+                .when(mockMaterial)
+                .updateToInternal(eq(inMemoryStreamConsumer), any(StringRevision.class), any(File.class), eq(testSubprocessExecutionContext));
+
+        mockMaterial.updateTo(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+        verify(mockMaterial, times(3)).updateToInternal(inMemoryStreamConsumer, new StringRevision("test-revision"), new File("/tmp/test-revision"), testSubprocessExecutionContext);
+    }
+
+    private ScmMaterial mockScmMaterialWith(InMemoryStreamConsumer inMemoryStreamConsumer, TestSubprocessExecutionContext testSubprocessExecutionContext) {
+        ScmMaterialConfig mockMaterialConfig = mock(ScmMaterialConfig.class);
+        ScmMaterial mockMaterial = mock(ScmMaterial.class);
+
+        when(mockMaterialConfig.getNumAttempts()).thenReturn(3);
+        when(mockMaterial.config()).thenReturn(mockMaterialConfig);
+        when(mockMaterial.getType()).thenReturn("SCM Mock");
+        when(mockMaterial.getRetryIntervalInSeconds()).thenReturn(1);
+
+        doCallRealMethod().when(mockMaterial).updateTo(eq(inMemoryStreamConsumer), any(StringRevision.class), any(File.class), eq(testSubprocessExecutionContext));
+        return mockMaterial;
     }
 }

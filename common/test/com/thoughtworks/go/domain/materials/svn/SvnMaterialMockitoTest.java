@@ -73,7 +73,7 @@ public class SvnMaterialMockitoTest {
         when(subversion.getUrl()).thenReturn(new UrlArgument(url));
         SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
         svnMaterial.setUrl(url);
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
 
         assertThat(workingCopy.exists(), is(true));
         verify(subversion).updateTo(outputStreamConsumer, workingCopy, revision);

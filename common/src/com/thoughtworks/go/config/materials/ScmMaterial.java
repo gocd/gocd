@@ -28,10 +28,12 @@ import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.lang.StringUtils;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 
 
@@ -47,6 +49,8 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected Filter filter;
     protected String folder;
     protected boolean autoUpdate = true;
+    protected int numAttempts = ScmMaterialConfig.DEFAULT_NUMBER_OF_ATTEMPTS;
+    protected int retryIntervalInSeconds = ScmMaterialConfig.DEFAULT_RETRY_INTERVAL;
 
     public ScmMaterial(String typeName) {
         super(typeName);
@@ -100,6 +104,8 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected abstract UrlArgument getUrlArgument();
 
     protected abstract String getLocation();
+
+    protected abstract void updateToInternal(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, SubprocessExecutionContext execCtx);
 
     public void setFilter(Filter filter) {
         this.filter = filter;
@@ -167,6 +173,44 @@ public abstract class ScmMaterial extends AbstractMaterial {
 
     public void setAutoUpdate(boolean value) {
         autoUpdate = value;
+    }
+
+    public int getNumAttempts() {
+        return numAttempts;
+    }
+
+    public void setNumAttempts(int numAttempts) {
+        this.numAttempts = numAttempts;
+    }
+
+    public int getRetryIntervalInSeconds() {
+        return retryIntervalInSeconds;
+    }
+
+    public void setRetryIntervalInSeconds(int retryIntervalInSeconds) {
+        this.retryIntervalInSeconds = retryIntervalInSeconds;
+    }
+
+    @Override
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, SubprocessExecutionContext execCtx) {
+        ScmMaterialConfig config = (ScmMaterialConfig) config();
+        boolean success = false;
+        int attemptsSoFar = 0;
+        while (attemptsSoFar < config.getNumAttempts()) {
+            ++attemptsSoFar;
+            try {
+                updateToInternal(outputStreamConsumer, revision, baseDir, execCtx);
+                success = true;
+                break;
+            } catch(Exception e){
+                outputStreamConsumer.stdOutput(String.format("[%s] Update material attempt %d/%d failed", getType(), attemptsSoFar, config.getNumAttempts()));
+                try {
+                    Thread.sleep(getRetryIntervalInSeconds() * 1000);
+                } catch (InterruptedException ignored) {}
+            }
+        }
+
+        if(!success) bomb(String.format("%s material update failed.", getType()));
     }
 
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {

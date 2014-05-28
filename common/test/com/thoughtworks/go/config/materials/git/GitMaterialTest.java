@@ -155,13 +155,13 @@ public class GitMaterialTest {
         assertThat(outputStreamConsumer.getStdError(), is(""));
 
         InMemoryStreamConsumer output = inMemoryConsumer();
-        git.updateTo(output, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateToInternal(output, REVISION_1, workingDir, new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_1.getRevision()));
         assertThat(newFile.exists(), is(false));
 
         output = inMemoryConsumer();
-        git.updateTo(output, REVISION_2, workingDir, new TestSubprocessExecutionContext());
+        git.updateToInternal(output, REVISION_2, workingDir, new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_2.getRevision()));
         assertThat(newFile.exists(), is(true));
@@ -173,13 +173,13 @@ public class GitMaterialTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        gitMaterial.updateToInternal(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), exists());
 
         submoduleRepos.removeSubmodule("sub1");
 
         outputStreamConsumer = inMemoryConsumer();
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        gitMaterial.updateToInternal(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), not(exists()));
     }
 
@@ -363,7 +363,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
-        git.updateTo(outputStreamConsumer, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateToInternal(outputStreamConsumer, REVISION_1, workingDir, new TestSubprocessExecutionContext());
         assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", REVISION_1.getRevision(),
                         git.getUrl())));

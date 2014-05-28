@@ -68,7 +68,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="73"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="72"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -104,8 +104,6 @@
                                 <xsd:attribute type="packageIdType" name="id"/>
                                 <xsd:attribute type="nameType" name="name" use="required"/>
                                 <xsd:attribute type="xsd:boolean" name="autoUpdate" use="optional"/>
-                                <xsd:attribute type="xsd:int" name="numAttempts" use="optional"/>
-                                <xsd:attribute type="xsd:int" name="retryInterval" use="optional"/>
                             </xsd:complexType>
                         </xsd:element>
                     </xsd:sequence>

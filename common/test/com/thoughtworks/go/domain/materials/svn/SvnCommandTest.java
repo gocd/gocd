@@ -115,7 +115,7 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        material.updateToInternal(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
     }
@@ -131,7 +131,7 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        material.updateToInternal(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
     }
@@ -149,7 +149,7 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        material.updateToInternal(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
     }

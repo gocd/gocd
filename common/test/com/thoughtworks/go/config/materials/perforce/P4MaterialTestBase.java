@@ -84,10 +84,10 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
 
     @Test public void shouldUpdateToSpecificRevision() throws Exception {
         P4Material p4Material = p4Fixture.material(VIEW);
-        p4Material.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
         assertThat(clientFolder.listFiles().length, is(8));
 
-        p4Material.updateTo(outputconsumer, new StringRevision("3"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer, new StringRevision("3"), clientFolder, new TestSubprocessExecutionContext());
         assertThat(clientFolder.listFiles().length, is(7));
     }
 
@@ -97,18 +97,18 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
             secondTestRepo.onSetup();
 
             P4Material p4Material = p4Fixture.material(VIEW);
-            p4Material.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+            p4Material.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
             File.createTempFile("temp", "txt", clientFolder);
             assertThat(clientFolder.listFiles().length, is(9));
 
             P4Material otherMaterial = secondTestRepo.material("//depot/lib/... //something/...");
             otherMaterial.setUsername("cceuser1");
-            otherMaterial.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+            otherMaterial.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
             File.createTempFile("temp", "txt", clientFolder);
             assertThat("Should clean and re-checkout after p4repo changed", clientFolder.listFiles().length, is(3));
             otherMaterial.setUsername("cceuser");
             otherMaterial.setPassword("password");
-            otherMaterial.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+            otherMaterial.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
             assertThat("Should clean and re-checkout after user changed", clientFolder.listFiles().length, is(2));
             assertThat(outputconsumer.getStdOut(),
                     containsString("Working directory has changed. Deleting and re-creating it."));
@@ -121,7 +121,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     @Test
     public void shouldMapDirectoryInRepoToClientRoot() throws Exception {
         P4Material p4Material = p4Fixture.material("//depot/lib/... //cws/...");
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         assertThat(getContainedFileNames(clientFolder), hasItem("junit.jar"));
     }
@@ -138,7 +138,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     @Test
     public void shouldMapDirectoryInRepoToDirectoryUnderClientRoot() throws Exception {
         P4Material p4Material = p4Fixture.material("//depot/lib/... //cws/release1/...");
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         assertThat(getContainedFileNames(new File(clientFolder, "release1")), hasItem("junit.jar"));
     }
@@ -146,7 +146,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     @Test
     public void shouldExcludeSpecifiedDirectory() throws Exception {
         P4Material p4Material = p4Fixture.material("//depot/... //cws/...   \n  -//depot/lib/... //cws/release1/...");
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         assertThat(new File(clientFolder, "release1").exists(), is(false));
         assertThat(new File(clientFolder, "release1/junit.jar").exists(), is(false));
@@ -155,7 +155,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     @Test
     public void shouldSupportAsterisk() throws Exception {
         P4Material p4Material = p4Fixture.material("//depot/lib/*.jar //cws/*.war");
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         File file = new File(clientFolder, "junit.war");
         assertThat(file.exists(), is(true));
@@ -165,7 +165,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     public void shouldSupportPercetage() throws Exception {
         P4Material p4Material = p4Fixture.material("//depot/lib/%%1.%%2 //cws/%%2.%%1");
 
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         File file = new File(clientFolder, "jar.junit");
         assertThat(file.exists(), is(true));
@@ -179,7 +179,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         File file = new File(clientFolder, "build/junit.jar");
         File folderNet = new File(clientFolder, "build/net");
 
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         assertThat(folderNet.exists(), is(false));
         assertThat(file.exists(), is(true));
@@ -193,7 +193,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         File file = new File(clientFolder, "build/junit.jar");
         File folderNet = new File(clientFolder, "build/net");
 
-        p4Material.updateTo(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer.inMemoryConsumer(), new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
 
         assertThat(folderNet.exists(), is(true));
         assertThat(file.exists(), is(true));
@@ -201,11 +201,11 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
 
     @Test public void shouldCleanOutRepoWhenViewChanges() throws Exception {
         P4Material p4Material = p4Fixture.material(VIEW);
-        p4Material.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
         assertThat(clientFolder.listFiles().length, is(8));
 
         P4Material otherMaterial = p4Fixture.material("//depot/lib/... //something/...");
-        otherMaterial.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        otherMaterial.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
         assertThat(clientFolder.listFiles().length, is(2));
     }
 
@@ -247,7 +247,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
         P4Material p4Material = p4Fixture.material(VIEW);
-        p4Material.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
+        p4Material.updateToInternal(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
         String message = format("Start updating %s at revision %s from %s", "files", "2", p4Material.getUrl());
         assertThat(outputconsumer.getStdOut(), JUnitMatchers.containsString(message));
     }

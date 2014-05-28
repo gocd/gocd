@@ -121,7 +121,7 @@ public class HgMaterialTest {
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        hgMaterial.updateToInternal(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
 
         String workingUrl = new HgCommand(null, workingFolder, "default").workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
@@ -156,18 +156,18 @@ public class HgMaterialTest {
 
     @Test
     public void shouldUpdateToSpecificRevision() throws Exception {
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        hgMaterial.updateToInternal(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
         File end2endFolder = new File(workingFolder, "end2end");
         assertThat(end2endFolder.listFiles().length, is(3));
         assertThat(outputStreamConsumer.getStdOut(), is(not("")));
 
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("1"), workingFolder, new TestSubprocessExecutionContext());
+        hgMaterial.updateToInternal(outputStreamConsumer, new StringRevision("1"), workingFolder, new TestSubprocessExecutionContext());
         assertThat(end2endFolder.listFiles().length, is(4));
     }
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        hgMaterial.updateToInternal(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
         assertThat(outputStreamConsumer.getStdOut(), JUnitMatchers.containsString(
                 format("Start updating %s at revision %s from %s", "files", "0",
                         hgMaterial.getUrl())));

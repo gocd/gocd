@@ -388,7 +388,7 @@ public class MaterialRevisionTest {
     private void checkInFiles(HgMaterial hgMaterial, String... fileNames) throws Exception {
         final File localDir = TestFileUtil.createTempFolder("foo");
         InMemoryStreamConsumer consumer = inMemoryConsumer();
-        hgMaterial.updateTo(consumer, latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext()), localDir, new TestSubprocessExecutionContext());
+        hgMaterial.updateToInternal(consumer, latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext()), localDir, new TestSubprocessExecutionContext());
         for (String fileName : fileNames) {
             File file = new File(localDir, fileName);
             FileUtils.writeStringToFile(file, "");

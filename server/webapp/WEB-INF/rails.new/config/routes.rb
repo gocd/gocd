@@ -1,6 +1,25 @@
+##########################GO-LICENSE-START################################
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################GO-LICENSE-END##################################
+
 Go::Application.routes.draw do
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = /[\w\-][\w\-.]*/
+    PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
+    PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
+    STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
@@ -18,8 +37,15 @@ Go::Application.routes.draw do
     defaults :no_layout => true do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
+
+      # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
       post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
+
+      # pipeline api's
+      post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_action
+      post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
+      post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
 
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
@@ -31,7 +57,15 @@ Go::Application.routes.draw do
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'
         get 'server.xml' => 'server#info'
+
+        # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage
+
+        # pipeline api's
+        get 'pipelines/:name/stages.xml' => 'pipelines#stage_feed', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_stage_feed
+        get 'pipelines/:name/:id.xml' => 'pipelines#pipeline_instance', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_instance
+        get 'card_activity/:pipeline_name/:from_pipeline_counter/to/:to_pipeline_counter' => 'pipelines#card_activity', constraints: {from_pipeline_counter: PIPELINE_COUNTER_FORMAT, to_pipeline_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :card_activity
+        get 'pipelines.xml' => 'pipelines#pipelines', as: :api_pipelines
       end
     end
   end
@@ -43,6 +77,9 @@ Go::Application.routes.draw do
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
   get '/agents' => 'agents#index', as: :agents_for_test
   get '/environments' => 'environments#index', as: :environments_for_test
+  get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
+  get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
+
   get 'test' => 'test/test#index', as: :plugins_listing
   get 'test' => 'test/test#index', as: :config_view
   get 'test' => 'test/test#index', as: :edit_server_config

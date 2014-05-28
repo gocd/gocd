@@ -15,11 +15,13 @@
 ##########################GO-LICENSE-END##################################
 
 module MaterialsHelper
+  include Services
+
   def attributes_for_material(material)
     material.getSqlCriteria().inject("") do |s, entry|
       key, value = entry.first, entry.last
       value = material.getUriForDisplay() if key == "url"
-      "#{s} #{key}=\"#{h(value)}\""
+      "#{s} #{key}=\"#{ERB::Util.h(value)}\""
     end
   end
 
@@ -76,7 +78,7 @@ module MaterialsHelper
 
   def render_tracking_tool_link_for_comment(comment, pipeline_name)
     comment_renderer = go_config_service.getCommentRendererFor(pipeline_name)
-    simple_format comment_renderer.render(comment)
+    old_simple_format comment_renderer.render(comment)
   end
 
 
@@ -98,5 +100,20 @@ module MaterialsHelper
 
   def admin_material_edit_path(material)
     send("admin_#{material_type_from_class(material)}_edit_path", :finger_print => material.getPipelineUniqueFingerprint())
+  end
+
+
+  private
+  # They changed the implementation of this method between Rails 2.3 and Rails 4. Using the older one here.
+  # OLD: https://github.com/rails/rails/blob/v2.3.18/actionpack/lib/action_view/helpers/text_helper.rb#L324
+  # NEW: https://github.com/rails/rails/blob/v4.0.4/actionpack/lib/action_view/helpers/text_helper.rb#L264
+  def old_simple_format(text, html_options={})
+    start_tag = tag('p', html_options, true)
+    text = text.to_s.dup
+    text.gsub!(/\r\n?/, "\n")                    # \r\n and \r -> \n
+    text.gsub!(/\n\n+/, "</p>\n\n#{start_tag}")  # 2+ newline  -> paragraph
+    text.gsub!(/([^\n]\n)(?=[^\n])/, '\1<br />') # 1 newline   -> br
+    text.insert 0, start_tag
+    text << "</p>"
   end
 end

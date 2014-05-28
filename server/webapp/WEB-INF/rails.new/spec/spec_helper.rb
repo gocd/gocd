@@ -1,3 +1,19 @@
+##########################GO-LICENSE-START################################
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################GO-LICENSE-END##################################
+
 require 'rubygems'
 require 'spork'
 #uncomment the following line to use spork with the debugger
@@ -120,6 +136,32 @@ def assert_redirect(url)
   response.redirect_url.should =~ %r{#{url}}
 end
 
+
 def cdata_wraped_regexp_for(value)
   /<!\[CDATA\[#{value}\]\]>/
+end
+
+def setup_base_urls
+  config_service = Spring.bean("goConfigService")
+  if (config_service.currentCruiseConfig().server().getSiteUrl().getUrl().nil?)
+    config_service.updateConfig(Class.new do
+      def update config
+        server = config.server()
+        com.thoughtworks.go.util.ReflectionUtil.setField(server, "siteUrl", com.thoughtworks.go.domain.ServerSiteUrlConfig.new("http://test.host"))
+        com.thoughtworks.go.util.ReflectionUtil.setField(server, "secureSiteUrl", com.thoughtworks.go.domain.ServerSiteUrlConfig.new("https://ssl.host:443"))
+        return config
+      end
+    end.new)
+  end
+end
+
+def fake_template_prescence file_path, content
+  controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
+end
+
+# TODO: SBD: Move out to a new file.
+RSpec::Matchers.define :be_nil_or_empty do
+  match do |actual|
+    actual.nil? or actual.size == 0
+  end
 end

@@ -1,3 +1,19 @@
+##########################GO-LICENSE-START################################
+# Copyright 2014 ThoughtWorks, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################GO-LICENSE-END##################################
+
 class ApplicationController < ActionController::Base
   include Services
   include JavaImports
@@ -73,10 +89,31 @@ class ApplicationController < ActionController::Base
     render_error_response l.urlNotKnown(url_for), 404, false
   end
 
+  def render_localized_operation_result(result)
+    message = result.message(Spring.bean('localizer'))
+    render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
+  end
+
+  def render_operation_result_if_failure(result)
+    result.httpCode() >= 400 && render_operation_result(result)
+  end
+
+  def render_operation_result(result)
+    render_if_error(result.detailedMessage(), result.httpCode()) || render_text_with_status(result.detailedMessage(), result.httpCode())
+  end
+
   def render_if_error message, status
     return if (status < 400)
     render_error_response message, status, (params[:no_layout] == true)
     return true
+  end
+
+  def render_error_response message, status, is_text
+    if is_text
+      render_text_with_status(message, status)
+    else
+      render_error_template(message, status)
+    end
   end
 
   def render_error_template(message, status)
@@ -89,18 +126,5 @@ class ApplicationController < ActionController::Base
       message = message + "\n"
     end
     render text: message, status: status
-  end
-
-  def render_error_response message, status, is_text
-    if is_text
-      render_text_with_status(message, status)
-    else
-      render_error_template(message, status)
-    end
-  end
-
-  def render_localized_operation_result(result)
-    message = result.message(Spring.bean('localizer'))
-    render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
   end
 end

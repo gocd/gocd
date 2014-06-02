@@ -163,4 +163,10 @@ public class GitPostCommitHookImplementerTest {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:password@"));
         assertThat(isEqual, is(false));
     }
+
+    @Test
+    public void shouldMatchFileBasedAccessWithoutAuth() throws Exception {
+        boolean isEqual = implementer.isUrlEqual("/tmp/foo/repo-git", new GitMaterial("/tmp/foo/repo-git"));
+        assertThat(isEqual, is(true));
+    }
 }

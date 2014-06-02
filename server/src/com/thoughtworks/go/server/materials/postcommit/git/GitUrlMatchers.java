@@ -27,6 +27,7 @@ public class GitUrlMatchers {
 
     public GitUrlMatchers() {
         validators = new ArrayList<GitMatcher>();
+        validators.add(new GitUrlExactMatch());
         validators.add(new GitUrlWithFullAuthMatcher());
         validators.add(new GitUrlWithUserNameAndEmptyPasswordAuthMatcher());
         validators.add(new GitUrlWithUserNameAndNoPasswordAuthMatcher());
@@ -108,5 +109,13 @@ class GitUrlWithNoAuthMatcher implements GitMatcher {
             return String.format("%s%s", protocolField, urlField).equalsIgnoreCase(paramRepoUrl);
         }
         return false;
+    }
+}
+
+class GitUrlExactMatch implements GitMatcher {
+
+    @Override
+    public boolean isValid(String paramRepoUrl, String materialUrl) {
+        return paramRepoUrl.equalsIgnoreCase(materialUrl);
     }
 }

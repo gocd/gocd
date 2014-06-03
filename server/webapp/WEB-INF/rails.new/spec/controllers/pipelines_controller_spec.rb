@@ -20,8 +20,8 @@ describe PipelinesController do
 
   before(:each)  do
     controller.stub(:populate_health_messages)
-    @stage_service = mock('stage service')
-    @material_service = mock('material service')
+    @stage_service = double('stage service')
+    @material_service = double('material service')
     @user = Username.new(CaseInsensitiveString.new("foo"))
     @user_id = 1
     @status = HttpOperationResult.new
@@ -29,62 +29,61 @@ describe PipelinesController do
     @localized_result = HttpLocalizedOperationResult.new
     @subsection_result = SubsectionLocalizedOperationResult.new
     HttpLocalizedOperationResult.stub(:new).and_return(@localized_result)
-    controller.stub!(:current_user).and_return(@user)
-    controller.stub!(:current_user_entity_id).and_return(@user_id)
-    controller.stub!(:stage_service).and_return(@stage_service)
-    controller.stub!(:material_service).and_return(@material_service)
+    controller.stub(:current_user).and_return(@user)
+    controller.stub(:current_user_entity_id).and_return(@user_id)
+    controller.stub(:stage_service).and_return(@stage_service)
+    controller.stub(:material_service).and_return(@material_service)
 
     @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
-    controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
-    controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=mock())
-    controller.stub(:go_config_service).and_return(@go_config_service=mock())
-    controller.stub(:security_service).and_return(@security_service=mock())
+    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
+    controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
+    controller.stub(:go_config_service).and_return(@go_config_service=double())
+    controller.stub(:security_service).and_return(@security_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
     controller.stub(:populate_config_validity)
-    @pipeline_service = mock('pipeline_service')
+    @pipeline_service = double('pipeline_service')
     controller.stub(:pipeline_service).and_return(@pipeline_service)
   end
 
   describe "build_cause" do
     it "should render build cause" do
       @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline_name", 10, @user, @status).and_return(@pim)
-      # TODO this fails, I have no idea why
-      # controller.should_receive(:render).with(:partial => "shared/build_cause_popup", :locals => {:scope => {:pipeline_instance => @pim}}, :layout => false)
 
       get :build_cause, :pipeline_name => "pipeline_name", :pipeline_counter => "10"
 
-      # FIXME it ignores locals. Can't make it fail with wrong locals
-      expect(response).to render_template(partial: "shared/_build_cause_popup", locals: {foo: :fooo})
+      expect(assigns[:pipeline_instance]).to eq(@pim)
+      assert_template "build_cause"
+      assert_template layout: false
     end
 
-    it "should render build cause" do
+    it "should fail to render build cause when not allowed to see pipeline" do
       @pipeline_history_service.should_receive(:findPipelineInstance) do |pipeline_name, pipeline_counter, user, result|
         result.error("not allowed", "you are so not allowed", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
-      controller.should_receive(:render).with(:partial => "shared/build_cause_popup", :locals => {:scope => {:pipeline_instance => @pim}}).never
+      controller.should_receive(:render).with("build_cause", layout: false).never
       controller.should_receive(:render_operation_result_if_failure).with(@status)
 
       get :build_cause, :pipeline_name => "pipeline_name", :pipeline_counter => "10", :layout => false
     end
 
     it "should route to build_cause action" do
-      {:get => "/pipelines/name_of_pipeline/15/build_cause"}.should route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "name_of_pipeline", :pipeline_counter => "15", :no_layout => true)
+      expect({:get => "/pipelines/name_of_pipeline/15/build_cause"}).to route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "name_of_pipeline", :pipeline_counter => "15", :no_layout => true)
     end
 
     it "should route to build_cause action with dots in pipline name" do
-      {:get => "/pipelines/blah.pipe-line/1/build_cause"}.should route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "blah.pipe-line", :pipeline_counter => "1", :no_layout => true)
+      expect({:get => "/pipelines/blah.pipe-line/1/build_cause"}).to route_to(:controller => "pipelines", :action => "build_cause", :pipeline_name => "blah.pipe-line", :pipeline_counter => "1", :no_layout => true)
     end
 
     it "should have a named route" do
-      controller.send(:build_cause_url, :pipeline_name => "foo", :pipeline_counter => 20).should == "http://test.host/pipelines/foo/20/build_cause"
+      expect(controller.send(:build_cause_url, :pipeline_name => "foo", :pipeline_counter => 20)).to eq("http://test.host/pipelines/foo/20/build_cause")
     end
   end
 
   describe "index" do
     before(:each) do
       @selected_pipeline_id = "456"
-      controller.stub!(:cookies).and_return(cookiejar={:selected_pipelines => @selected_pipeline_id})
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => @selected_pipeline_id})
     end
 
     it "should load the dashboard" do
@@ -95,14 +94,14 @@ describe PipelinesController do
 
       get :index
 
-      assigns[:pipeline_groups].should == :pipeline_group_models
-      assigns[:pipeline_selections].should == selections
-      assigns[:pipeline_configs].should == viewable_groups
+      expect(assigns[:pipeline_groups]).to eq(:pipeline_group_models)
+      expect(assigns[:pipeline_selections]).to eq(selections)
+      expect(assigns[:pipeline_configs]).to eq(viewable_groups)
     end
 
     it "should resolve" do
-      {:get => "/pipelines"}.should route_to(:controller => "pipelines", :action => "index")
-      {:get => "/home"}.should route_to(:controller => "pipelines", :action => "index")
+      expect({:get => "/pipelines"}).to route_to(:controller => "pipelines", :action => "index")
+      expect({:get => "/home"}).to route_to(:controller => "pipelines", :action => "index")
     end
 
     it "should redirect to 'add pipeline wizard' when there are no pipelines in config only if the user is an admin" do
@@ -112,7 +111,7 @@ describe PipelinesController do
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
-      controller.stub!(:url_for_path).with("/admin/pipeline/new?group=defaultGroup").and_return("/admin/pipeline/new?group=defaultGroup")
+      controller.stub(:url_for_path).with("/admin/pipeline/new?group=defaultGroup").and_return("/admin/pipeline/new?group=defaultGroup")
 
       get :index
       expect(response).to redirect_to('/admin/pipeline/new?group=defaultGroup')
@@ -127,7 +126,8 @@ describe PipelinesController do
       @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
 
       get :index
-      response.should be_success
+
+      expect(response).to be_success
     end
 
     it "should not redirect to 'add pipeline wizard' when there are pipelines in config" do
@@ -137,8 +137,10 @@ describe PipelinesController do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(pipeline_group_models)
       @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups)
+
       get :index
-      response.should be_success
+
+      expect(response).to be_success
     end
   end
 
@@ -164,9 +166,11 @@ describe PipelinesController do
       expected.add("foo","foo_value")
       expected.add("bar","bar_value")
       @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
+
       get 'show', :pipeline_name => 'blah-pipeline-name'
-      assigns[:pipeline].should == @pim
-      assigns[:variables].should == expected
+
+      expect(assigns[:pipeline]).to eq(@pim)
+      expect(assigns[:variables]).to eq(expected)
     end
   end
 
@@ -177,29 +181,37 @@ describe PipelinesController do
       expected.add("foo","foo_value")
       expected.add("bar","bar_value")
       @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
+
       get 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
-      assigns[:pipeline].should == @pim
+
+      expect(assigns[:pipeline]).to eq(@pim)
     end
 
     it "should resolve get from /pipelines/show_for_trigger as a call" do
-      #TODO check :no_layout => true
-      {:post => "/pipelines/show_for_trigger"}.should route_to(:controller => 'pipelines', :action => 'show_for_trigger')
+      expect({:post => "/pipelines/show_for_trigger"}).to route_to(:controller => 'pipelines', :action => 'show_for_trigger', :no_layout => true)
     end
-
   end
 
   it "should resolve post to /pipelines/material_search as a call" do
-    #TODO check :no_layout => true
-    {:post => "/pipelines/material_search"}.should route_to(:controller => 'pipelines', :action => 'material_search')
+    expect({:post => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
   end
 
   it "should show error message if the user is not authorized to view the pipeline" do
-    @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p,sha,search,user, result|
+    @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
       result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
     end
 
-    get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
-    response.status.should == 401
+    get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+    expect(response.status).to eq(401)
+  end
+
+  it "should show error message if the user is not authorized to view the pipeline - with POST" do
+    @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()) do |p, sha, search, user, result|
+      result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), nil)
+    end
+
+    post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+    expect(response.status).to eq(401)
   end
 
   it "should set up the matched revisions" do
@@ -210,9 +222,22 @@ describe PipelinesController do
 
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
 
-    response.should be_success
-    assigns[:matched_revisions].should == revisions
-    assigns[:material_type].should == "PackageMaterial"
+    expect(response).to be_success
+    expect(assigns[:matched_revisions]).to eq(revisions)
+    expect(assigns[:material_type]).to eq("PackageMaterial")
+  end
+
+  it "should set up the matched revisions - with POST" do
+    revisions = [MatchedRevision.new('search', '1', '1', 'me', java.util.Date.new, 'comment')]
+    @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()).and_return(revisions)
+    pkg_config = MaterialConfigsMother.packageMaterialConfig()
+    @go_config_service.should_receive(:materialForPipelineWithFingerprint).with('pipeline', 'sha').and_return(pkg_config)
+
+    post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
+
+    expect(response).to be_success
+    expect(assigns[:matched_revisions]).to eq(revisions)
+    expect(assigns[:material_type]).to eq("PackageMaterial")
   end
 
   describe "select_pipelines with security disabled" do
@@ -222,23 +247,23 @@ describe PipelinesController do
     
     it "should set cookies for a selected pipelines" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"]).and_return(1234)
-      controller.stub!(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}
-      cookiejar[:selected_pipelines].should == {:value=>1234, :expires=>1.year.from_now.beginning_of_day}
+      expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
 
     it "should set cookies when no pipelines selected" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, []).and_return(1234)
-      controller.stub!(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       post "select_pipelines", "selector" => {}
-      cookiejar[:selected_pipelines].should == {:value=>1234, :expires=>1.year.from_now.beginning_of_day}
+      expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
 
     it "should set cookies when no pipelines or groups selected" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, []).and_return(1234)
-      controller.stub!(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       post "select_pipelines"
-      cookiejar[:selected_pipelines].should == {:value=>1234, :expires=>1.year.from_now.beginning_of_day}
+      expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
   end
 
@@ -249,16 +274,16 @@ describe PipelinesController do
     
     it "should not update set cookies for selected pipelines when security enabled" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"]).and_return(1234)
-      controller.stub!(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
       post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}
-      cookiejar[:selected_pipelines].should == "456"
+      expect(cookiejar[:selected_pipelines]).to eq("456")
     end
 
     it "should not set cookies when selected pipeline cookie is absent when security enabled" do
       @go_config_service.should_receive(:persistSelectedPipelines).with(nil, @user_id, []).and_return(1234)
-      controller.stub!(:cookies).and_return(cookiejar = {})
+      controller.stub(:cookies).and_return(cookiejar = {})
       post "select_pipelines", "selector" => {}
-      cookiejar[:selected_pipelines].should == nil
+      expect(cookiejar[:selected_pipelines]).to eq(nil)
     end
   end
 end

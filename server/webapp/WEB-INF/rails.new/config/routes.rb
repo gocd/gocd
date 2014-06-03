@@ -91,14 +91,16 @@ Go::Application.routes.draw do
   get 'test' => 'test/test#index', as: :package_repositories_list
   get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
 
+  defaults :no_layout => true do
+    post 'pipelines/material_search' => 'pipelines#material_search'
+    post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
+    get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
+  end
+  get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
+  get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
 
-  get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', as: :build_cause,
-    defaults: {no_layout: true}, constraints: PIPELINE_LOCATOR_CONSTRAINTS
-
-  post 'pipelines/:action' => 'pipelines#:action', as: :pipeline
-
-  # The priority is based upon order of creation: first created -> highest priority.
+# The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"

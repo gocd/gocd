@@ -20,8 +20,13 @@ class PipelinesController < ApplicationController
 
   def build_cause
     result = HttpOperationResult.new
-    pipeline_instance = pipeline_history_service.findPipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
-    result.canContinue() ?  render(:partial => 'shared/build_cause_popup', :locals => {:scope => {:pipeline_instance => pipeline_instance}}, :layout => false) : render_operation_result_if_failure(result)
+    @pipeline_instance = pipeline_history_service.findPipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
+
+    if result.canContinue()
+      render "build_cause", layout: false
+    else
+      render_operation_result_if_failure(result)
+    end
   end
 
   def index
@@ -57,7 +62,6 @@ class PipelinesController < ApplicationController
   end
 
   private
-
   def populate_and_show should_show
     pipeline_name = params[:pipeline_name]
     @pipeline = pipeline_history_service.latest(pipeline_name, current_user)

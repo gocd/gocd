@@ -67,6 +67,10 @@ Go::Application.routes.draw do
         get 'pipelines/:name/:id.xml' => 'pipelines#pipeline_instance', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_instance
         get 'card_activity/:pipeline_name/:from_pipeline_counter/to/:to_pipeline_counter' => 'pipelines#card_activity', constraints: {from_pipeline_counter: PIPELINE_COUNTER_FORMAT, to_pipeline_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :card_activity
         get 'pipelines.xml' => 'pipelines#pipelines', as: :api_pipelines
+
+        #job api's
+        get 'jobs/scheduled.xml' => 'jobs#scheduled'
+        post 'jobs/:id.xml' => 'jobs#index'
       end
     end
   end

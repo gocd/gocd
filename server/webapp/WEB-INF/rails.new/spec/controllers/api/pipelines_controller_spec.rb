@@ -105,7 +105,7 @@ describe Api::PipelinesController do
       @status.stub(:httpCode).and_return(404)
       @status.stub(:detailedMessage).and_return(message)
       controller.should_receive(:render_if_error).with(message, 404).and_return(true)
-      fake_template_prescence "api/pipelines/schedule.erb", "dummy"
+      fake_template_presence "api/pipelines/schedule.erb", "dummy"
 
       post 'schedule', :pipeline_name => 'idonotexist', :no_layout => true
     end
@@ -118,7 +118,7 @@ describe Api::PipelinesController do
       @status.stub(:detailedMessage).and_return(message)
 
       controller.should_receive(:render_if_error).with(message, 404).and_return(true)
-      fake_template_prescence "api/pipelines/schedule.erb", "dummy"
+      fake_template_presence "api/pipelines/schedule.erb", "dummy"
 
       post 'schedule', :pipeline_name => 'pipeline', "materials" => {'material_does_not_exist' => "foo"}, :no_layout => true
     end
@@ -327,7 +327,7 @@ describe Api::PipelinesController do
         operation_result.notAcceptable("done", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
-      fake_template_prescence 'api/pipelines/releaseLock.erb', 'dummy'
+      fake_template_presence 'api/pipelines/releaseLock.erb', 'dummy'
       controller.should_receive(:render_if_error).with("done\n", 406).and_return(true)
 
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true

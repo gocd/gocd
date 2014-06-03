@@ -84,6 +84,7 @@ Go::Application.routes.draw do
   get '/environments' => 'environments#index', as: :environments_for_test
   get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
+  get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter.:format" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {format: 'html'}
 
   get 'test' => 'test/test#index', as: :plugins_listing
   get 'test' => 'test/test#index', as: :config_view

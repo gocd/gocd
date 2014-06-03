@@ -155,7 +155,7 @@ def setup_base_urls
   end
 end
 
-def fake_template_prescence file_path, content
+def fake_template_presence file_path, content
   controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
 end
 

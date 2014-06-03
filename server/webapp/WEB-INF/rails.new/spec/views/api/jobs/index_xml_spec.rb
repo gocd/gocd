@@ -18,7 +18,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper')
 
 describe "/api/jobs" do
 
-  before(:each) do
+  before :each do
     @properties = com.thoughtworks.go.domain.Properties.new
     @properties.add(com.thoughtworks.go.domain.Property.new("foo", "value_of_property_foo"))
 
@@ -36,69 +36,86 @@ describe "/api/jobs" do
     @job.setStageId(666)
     @job.setAgentUuid("UUID")
 
-    @job_properties_reader = mock("job_properties_reader")
+    @job_properties_reader = double("job_properties_reader")
     @job_properties_reader.stub(:getPropertiesForJob).with(1).and_return(@properties)
 
-    @artifacts_url_reader = mock("artifacts_url_reader")
+    @artifacts_url_reader = double("artifacts_url_reader")
     @artifacts_url_reader.stub(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
     @artifacts_url_reader.stub(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
 
-    @job_plan_loader = mock("job_plan_loader")
+    @job_plan_loader = double("job_plan_loader")
     @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables))
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
-    assigns[:doc] = JobXmlViewModel.new(@job).toXml(@context)
-    class << template
+    assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
+    class << view
       include ApplicationHelper
       include Api::FeedsHelper
     end
   end
 
   it "should have a self referencing link" do
-    render '/api/jobs/index.xml'
-    response.body.should have_tag "link[rel='self'][href='http://test.host/api/jobs/1.xml']"
-    response.body.should have_tag "id", "urn:x-go.studios.thoughtworks.com:job-id:pipeline:1:stage:1:job-name"
+    render :template => '/api/jobs/index.xml.erb'
+
+    job = Nokogiri::XML(response.body).xpath("//job")
+    expect(job.xpath("link[@rel='self'][@href='http://test.host/api/jobs/1.xml']")).to_not be_nil_or_empty
+    expect(job.xpath("id").text).to eq("urn:x-go.studios.thoughtworks.com:job-id:pipeline:1:stage:1:job-name")
   end
 
   it "should contain link to stage" do
-    render '/api/jobs/index.xml'
-    response.body.should have_tag "stage[name='stage'][counter='1'][href='http://test.host/api/stages/666.xml']"
+    render :template => '/api/jobs/index.xml.erb'
+    expect(Nokogiri::XML(response.body).xpath("//job/stage[@name='stage'][@counter='1'][@href='http://test.host/api/stages/666.xml']")).to_not be_nil_or_empty
   end
 
   it "should contain job details" do
-    render '/api/jobs/index.xml'
+    render :template => '/api/jobs/index.xml.erb'
 
-    response.body.should have_tag("job[name='job-name']") do
-      with_tag "pipeline[name='pipeline'][counter='1'][label='label-1']"
+    doc = Nokogiri::XML(response.body)
+    job = doc.xpath("//job[@name='job-name']")
 
-      with_tag "state", "Completed"
-      with_tag "result", "Passed"
-      with_tag "properties" do
-        with_tag "property[name='foo']", "value_of_property_foo"
-      end
-      with_tag "artifacts[baseUri='http://test.host/artifacts-url'][pathFromArtifactRoot='/artifacts-path']" do
-        with_tag "artifact[dest='blahartifact/path'][src='artifact'][type='file']"
-        with_tag "artifact[dest='log-path'][src='logs/log-artifact'][type='file']"
-        with_tag "artifact[dest=''][src='test.xml'][type='unit']"
+    expect(job).to_not be_nil_or_empty
+    job.tap do |entry|
+      expect(entry.xpath("pipeline[@name='pipeline'][@counter='1'][@label='label-1']"))
+      expect(entry.xpath("state").text).to eq("Completed")
+      expect(entry.xpath("result").text).to eq("Passed")
 
+      properties = entry.xpath("properties")
+      expect(properties).to_not be_nil_or_empty
+      properties.tap do |node|
+        expect(node.xpath("property[@name='foo']").text).to eq("value_of_property_foo")
       end
-      with_tag "agent[uuid='UUID']"
-      with_tag "resources" do
-        with_tag "resource", "linux"
-        with_tag "resource", "teapot"
+
+      artifacts = entry.xpath("artifacts[@baseUri='http://test.host/artifacts-url'][@pathFromArtifactRoot='/artifacts-path']")
+      expect(artifacts).to_not be_nil_or_empty
+      artifacts.tap do |node|
+        expect(node.xpath("artifact[@dest='blahartifact/path'][@src='artifact'][@type='file']")).to_not be_nil_or_empty
+        expect(node.xpath("artifact[@dest='log-path'][@src='logs/log-artifact'][@type='file']")).to_not be_nil_or_empty
+        expect(node.xpath("artifact[@dest=''][@src='test.xml'][@type='unit']")).to_not be_nil_or_empty
       end
-      with_tag "environmentvariables" do
-        with_tag "variable[name='VARIABLE_NAME']", "variable-value"
+      expect(entry.xpath("agent[@uuid='UUID']")).to_not be_nil_or_empty
+
+      resources = entry.xpath("resources")
+      expect(resources).to_not be_nil_or_empty
+      resources.tap do |node|
+        expect(node.xpath("resource")[0].text).to eq("linux")
+        expect(node.xpath("resource")[1].text).to eq("teapot")
+      end
+
+      environment_variables = entry.xpath("environmentvariables")
+      expect(environment_variables).to_not be_nil_or_empty
+      environment_variables.tap do |node|
+        expect(node.xpath("variable[@name='VARIABLE_NAME']").text).to eq("variable-value")
       end
     end
-    response.body.should =~ cdata_wraped_regexp_for("value_of_property_foo")
-    response.body.should =~ cdata_wraped_regexp_for("variable-value")
+
+    expect(response.body).to match(/#{cdata_wraped_regexp_for("value_of_property_foo")}/)
+    expect(response.body).to match(/#{cdata_wraped_regexp_for("variable-value")}/)
   end
 
   describe "xml sensitive characters" do
     include GoUtil
 
-    before(:each) do
+    before :each do
       properties = com.thoughtworks.go.domain.Properties.new
       properties.add(com.thoughtworks.go.domain.Property.new("prop<er\"ty", "val<ue_of_prop\"erty_foo"))
 
@@ -117,29 +134,29 @@ describe "/api/jobs" do
       @artifacts_url_reader.stub(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
       @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables))
 
-      assigns[:doc] = JobXmlViewModel.new(@job).toXml(@context)
+      assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
     end
 
     it "should be escaped" do
-      render '/api/jobs/index.xml'
+      render :template => '/api/jobs/index.xml.erb'
       root = dom4j_root_for(response.body)
-      root.valueOf("//job/@name").should == "job<na\"me"
-      root.valueOf("//stage/@name").should == "stage"
-      root.valueOf("//pipeline/@name").should == "pipeline"
-      root.valueOf("//property/@name").should == "prop<er\"ty"
-      root.valueOf("//property/.").should == "val<ue_of_prop\"erty_foo"
-      root.valueOf("//agent/@uuid").should == "1234"
-      root.valueOf("//artifacts/@pathFromArtifactRoot").should == "/artifacts-path"
-      root.valueOf("//artifact[1]/@dest").should == "blah<artif\"act/path"
-      root.valueOf("//artifact[2]/@dest").should == "log-path"
-      root.valueOf("//artifact[3]/@dest").should == ""
-      root.valueOf("//artifact[1]/@src").should == "artifact"
-      root.valueOf("//artifact[2]/@src").should == "logs/log-arti\"fact"
-      root.valueOf("//artifact[3]/@src").should == "te<s\"t.xml"
-      root.valueOf("//resource[1]/.").should == "linux"
-      root.valueOf("//resource[2]/.").should == "teapot"
-      root.valueOf("//variable/@name").should == "VARIA<BLE_NA\"ME"
-      root.valueOf("//variable/.").should == "varia<ble-val\"ue"
+      expect(root.valueOf("//job/@name")).to eq("job<na\"me")
+      expect(root.valueOf("//stage/@name")).to eq("stage")
+      expect(root.valueOf("//pipeline/@name")).to eq("pipeline")
+      expect(root.valueOf("//property/@name")).to eq("prop<er\"ty")
+      expect(root.valueOf("//property/.")).to eq("val<ue_of_prop\"erty_foo")
+      expect(root.valueOf("//agent/@uuid")).to eq("1234")
+      expect(root.valueOf("//artifacts/@pathFromArtifactRoot")).to eq("/artifacts-path")
+      expect(root.valueOf("//artifact[1]/@dest")).to eq("blah<artif\"act/path")
+      expect(root.valueOf("//artifact[2]/@dest")).to eq("log-path")
+      expect(root.valueOf("//artifact[3]/@dest")).to eq("")
+      expect(root.valueOf("//artifact[1]/@src")).to eq("artifact")
+      expect(root.valueOf("//artifact[2]/@src")).to eq("logs/log-arti\"fact")
+      expect(root.valueOf("//artifact[3]/@src")).to eq("te<s\"t.xml")
+      expect(root.valueOf("//resource[1]/.")).to eq("linux")
+      expect(root.valueOf("//resource[2]/.")).to eq("teapot")
+      expect(root.valueOf("//variable/@name")).to eq("VARIA<BLE_NA\"ME")
+      expect(root.valueOf("//variable/.")).to eq("varia<ble-val\"ue")
     end
   end
 end

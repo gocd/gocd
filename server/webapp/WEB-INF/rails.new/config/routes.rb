@@ -20,6 +20,7 @@ Go::Application.routes.draw do
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
+    CONSTANTS = true
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
@@ -90,7 +91,16 @@ Go::Application.routes.draw do
   get 'test' => 'test/test#index', as: :package_repositories_list
   get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
 
-  # The priority is based upon order of creation: first created -> highest priority.
+  defaults :no_layout => true do
+    post 'pipelines/material_search' => 'pipelines#material_search'
+    post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
+    get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
+  end
+  get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
+  get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
+  get 'home' => 'pipelines#index'
+
+# The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"

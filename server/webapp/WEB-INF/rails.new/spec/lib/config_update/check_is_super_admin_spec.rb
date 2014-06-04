@@ -20,8 +20,8 @@ describe ConfigUpdate::CheckIsSuperAdmin do
   include ::ConfigUpdate::CheckIsSuperAdmin
 
   before do
-    stub!(:params).and_return(@params = {})
-    @security_service = mock("security_service") #Instance variable because the module expects this to be defined
+    allow(self).to receive(:params).and_return(@params = {})
+    @security_service = double("security_service") #Instance variable because the module expects this to be defined
     @user = "loser" #Instance variable because the module expects this to be defined
   end
 

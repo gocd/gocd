@@ -20,7 +20,7 @@ describe ConfigUpdate::TemplatesTemplateSubject do
   include ::ConfigUpdate::TemplatesTemplateSubject
 
   before do
-    stub!(:params).and_return(@params = {})
+    allow(self).to receive(:params).and_return(@params = {})
   end
 
   it "should return template from template collection" do

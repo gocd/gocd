@@ -20,9 +20,9 @@ describe ConfigUpdate::CheckCanEditPipeline do
   include ::ConfigUpdate::CheckCanEditPipeline
 
   before do
-    stub!(:params).and_return(@params = {})
-    @security_service = mock("security_service") #Instance variable because the module expects this to be defined
-    @user_helper = mock("user_helper") #Instance variable because the module expects this to be defined
+    allow(self).to receive(:params).and_return(@params = {})
+    @security_service = double("security_service") #Instance variable because the module expects this to be defined
+    @user_helper = double("user_helper") #Instance variable because the module expects this to be defined
     @user = CaseInsensitiveString.new("pipeline-group-admin") #Instance variable because the module expects this to be defined
   end
 

@@ -20,7 +20,7 @@ describe ::ConfigUpdate::LoadConfig do
   include ::ConfigUpdate::LoadConfig
 
   before(:each) do
-    stub!(:params).and_return(@params = {})
+    allow(self).to receive(:params).and_return(@params = {})
     cruise_config_mother = com.thoughtworks.go.helper.GoConfigMother.new
     @cruise_config = cruise_config_mother.cruiseConfigWithOnePipelineGroup()
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("my_template"), [StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job")].to_java(StageConfig))

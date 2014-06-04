@@ -20,7 +20,7 @@ describe ::ConfigUpdate::JobsJobSubject do
   include ::ConfigUpdate::JobsJobSubject
 
   before(:each) do
-    stub!(:params).and_return(@params = {})
+    allow(self).to receive(:params).and_return(@params = {})
     @jobs = JobConfigs.new([@foo = JobConfig.new("foo"), @bar = JobConfig.new("bar"), @baz = JobConfig.new("baz")].to_java(JobConfig))
   end
 

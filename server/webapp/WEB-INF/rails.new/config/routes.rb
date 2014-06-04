@@ -48,6 +48,8 @@ Go::Application.routes.draw do
       post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
       post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
 
+      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify'
+
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}

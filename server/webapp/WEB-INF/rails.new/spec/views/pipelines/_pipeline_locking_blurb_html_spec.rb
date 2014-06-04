@@ -26,7 +26,7 @@ describe "/pipelines/_pipelines_locking_blurb.html.erb" do
     second_job = PipelineHistoryMother.job(JobState::Completed, JobResult::Passed, now.toDate())
     stage = PipelineHistoryMother.stagePerJob("stage", [first_job, second_job])
 
-    PipelineHistoryMother.singlePipeline("pipeline-name", stage);
+    PipelineHistoryMother.singlePipeline("pipeline-name", stage)
   end
 
   it "should show locked when pipeline is lockable and a current instance running " do
@@ -39,7 +39,7 @@ describe "/pipelines/_pipelines_locking_blurb.html.erb" do
 
     render :partial => "pipelines/pipeline_locking_blurb", :locals => {:scope => {:pipeline_model => pipeline_model}}
 
-    response.should  have_tag "span[class='locked_instance locked']"
+    expect(response).to have_selector("span[class='locked_instance locked']")
   end
 
   it "should show click to unlock when pipeline is lockable and it can be unlocked " do
@@ -53,7 +53,6 @@ describe "/pipelines/_pipelines_locking_blurb.html.erb" do
 
     render :partial => "pipelines/pipeline_locking_blurb", :locals => {:scope => {:pipeline_model => pipeline_model}}
 
-    response.should  have_tag "span[class='locked_instance click_to_unlock']"
+    expect(response).to have_selector("span[class='locked_instance click_to_unlock']")
   end
-
 end

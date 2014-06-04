@@ -224,19 +224,15 @@ describe ApplicationHelper do
       blocking_form_remote_tag(:url => "url")
     end
 
-    it "should append 401 handler to link" do
-      should_receive(:link_to_remote).with("lkb", {:url => "url", :success => "whatever", 202 => "do something here", 401 => "redirectToLoginPage('/auth/login');", :before => "AjaxRefreshers.disableAjax();", :complete => "AjaxRefreshers.enableAjax();"}, nil)
-      blocking_link_to_remote("lkb", :url => "url", :success => "whatever", 202 => "do something here")
-    end
+    it "should create a blocking link to a remote location" do
+      actual = blocking_link_to_remote_new :name => "&nbsp;",
+                                           :url => api_pipeline_action_path(:pipeline_name => "SOME_NAME", :action => 'releaseLock'),
+                                           :update => {:failure => "message_pane", :success => 'function(){}'},
+                                           :html => {},
+                                           :before => "spinny('unlock');"
 
-    it "return the before and completed options for a link remote action" do
-      should_receive(:link_to_remote).with("doDDamma", {:url => "url", :success => "whatever", 202 => "do something here", 401 => "redirectToLoginPage('/auth/login');", :before => "AjaxRefreshers.disableAjax();interesting one", :complete => "AjaxRefreshers.enableAjax();alert(0);"}, nil)
-      blocking_link_to_remote("doDDamma", :url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete=> "alert(0);")
-    end
-
-    it "return the before and completed options when not defined for a link remote action" do
-      should_receive(:link_to_remote).with("lkb", {:url => "url", :success => "whatever", 202 => "do something here", 401 => "redirectToLoginPage('/auth/login');", :before => "AjaxRefreshers.disableAjax();", :complete => "AjaxRefreshers.enableAjax();"}, nil)
-      blocking_link_to_remote("lkb", :url => "url", :success => "whatever", 202 => "do something here")
+      exp = %q|<a href="#" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
+      expect(actual).to eq(exp)
     end
   end
 

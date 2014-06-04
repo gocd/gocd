@@ -1,0 +1,8 @@
+<div class="pipeline_instance_details">
+    <div class="schedule_time" title="<%= scope[:active_pipeline_in_pipeline].getScheduledDate() %>">
+        <%= trigger_message(scope[:active_pipeline_in_pipeline].getScheduledDate().getTime(), scope[:active_pipeline_in_pipeline]) -%>
+    </div>
+    <%= render :partial=> 'shared/stage_bar.html', :locals => {:scope =>{:pipeline => scope[:active_pipeline_in_pipeline],
+                                                                         :total_width => 20.0,
+                                                                         :rendering_gadget => scope[:rendering_gadget] }} %>
+</div>

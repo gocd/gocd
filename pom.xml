@@ -50,7 +50,7 @@
     </pluginRepositories>
 
     <properties>
-        <go.version>14.1.0</go.version>
+        <go.version>14.2.0</go.version>
         <main.dir>${project.basedir}</main.dir>
 
         <spring.version>3.1.3.RELEASE</spring.version>

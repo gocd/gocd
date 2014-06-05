@@ -118,6 +118,9 @@ Go::Application.routes.draw do
   get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
 
+  # catch all route
+  match '*url', via: :all, to: 'application#unresolved'
+
 # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

@@ -52,6 +52,7 @@ Go::Application.routes.draw do
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
 
+      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
 
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'

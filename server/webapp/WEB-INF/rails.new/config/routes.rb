@@ -50,6 +50,9 @@ Go::Application.routes.draw do
 
       post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
 
+      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
+
+
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}

@@ -8,7 +8,7 @@
 
             <% unless scope[:omit_pipeline] %>
                 <div id="<%= pipelines_pipeline_dom_id(pipeline_model_in_pipeline_group) -%>" class="pipeline">
-                    <% cache(view_cache_key.forPipelineModelBox(pipeline_model_in_pipeline_group), :subkey => "pipeline_html") do %>
+                    <% cache(view_cache_key.forPipelineModelBox(pipeline_model_in_pipeline_group), {:subkey => "pipeline_html", :skip_digest => true}) do %>
                         <%= render :partial => "shared/pipeline.html", :locals => {:scope => {:pipeline_model => pipeline_model_in_pipeline_group, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true}} -%>
                     <% end %>
                 </div>

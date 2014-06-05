@@ -20,9 +20,8 @@ describe Api::CommandsController do
 
   describe "routes" do
     it "should generate path for command snippet cache reload " do
-      route_for(:no_layout => true, :controller => "api/commands", :action => "reload_cache").should == {:path => "/api/admin/command-repo-cache/reload", :method => "post"}
-      params_from(:post, "/api/admin/command-repo-cache/reload").should == {:no_layout => true, :controller => "api/commands", :action => "reload_cache"}
-      admin_command_cache_reload_path.should == "/api/admin/command-repo-cache/reload"
+      expect(:post => '/api/admin/command-repo-cache/reload').to route_to(:no_layout => true, :controller => "api/commands", :action => "reload_cache")
+      expect(admin_command_cache_reload_path).to eq("/api/admin/command-repo-cache/reload")
     end
   end
 
@@ -37,7 +36,8 @@ describe Api::CommandsController do
 
         post :reload_cache, :no_layout => true
 
-        response.code.should == "200"
+        expect(response.status).to eq(200)
+        expect(response.code).to eq("200")
       end
     end
   end

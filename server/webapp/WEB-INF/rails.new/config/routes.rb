@@ -29,6 +29,8 @@ Go::Application.routes.draw do
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
+  get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
+
   defaults :no_layout => true do
     get 'materials/:id.xml' => 'application#unresolved', as: :material
     get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification
@@ -115,6 +117,9 @@ Go::Application.routes.draw do
   get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
   get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
+
+  # catch all route
+  match '*url', via: :all, to: 'application#unresolved'
 
 # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

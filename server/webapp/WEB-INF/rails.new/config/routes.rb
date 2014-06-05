@@ -54,6 +54,11 @@ Go::Application.routes.draw do
 
       post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
 
+      #agents api's
+      get 'agents' => 'agents#index', format: :json, as: :agents_information
+      post 'agents/edit_agents' => 'agents/edit_agents', as: :api_disable_agent
+      post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
+
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}

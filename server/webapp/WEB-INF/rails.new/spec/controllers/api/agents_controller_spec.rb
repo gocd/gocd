@@ -18,14 +18,14 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::AgentsController do
   before do
-    controller.stub!(:agent_service).and_return(@agent_service = mock('agent-service'))
-    controller.stub!(:current_user).and_return(@user = Object.new)
+    controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
+    controller.stub(:current_user).and_return(@user = Object.new)
   end
 
   describe :index do
     it "should resolve to list agents" do
-      route_for(:controller => "api/agents", :action => "index", :format => 'json', :no_layout => true ).should == "/api/agents"
-      agents_information_path.should == "/api/agents"
+      expect(:get => '/api/agents').to route_to(:controller => "api/agents", :action => "index", :format => 'json', :no_layout => true )
+      expect(agents_information_path).to eq("/api/agents")
     end
 
     it "should get agents json" do
@@ -41,7 +41,7 @@ describe Api::AgentsController do
       end
 
       get :index, :no_layout => true, :format => 'json'
-      response.body.should == agents_api_arr.to_json
+      expect(response.body).to eq(agents_api_arr.to_json)
     end
 
     it "should get empty json when there are no agents" do
@@ -52,7 +52,7 @@ describe Api::AgentsController do
       end
 
       get :index, :no_layout => true, :format => 'json'
-      response.body.should == "[]"
+      expect(response.body).to eq("[]")
     end
   end
 
@@ -62,13 +62,13 @@ describe Api::AgentsController do
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
       post :delete, :uuid => "abc", :no_layout => true
-      response.status.should == "406 Not Acceptable"
+      expect(response.status).to eq(406)
     end
 
     it "should resolve as /api/agents/UUID/delete" do
-      params_from(:post, "/api/agents/123abc/delete").should == {:uuid => "123abc", :action => "delete", :controller => 'api/agents', :no_layout => true}
+      expect(:post => "/api/agents/123abc/delete").to route_to(:uuid => "123abc", :action => "delete", :controller => 'api/agents', :no_layout => true)
       raise_error do
-        params_from(:get, "/api/agents/123abc/delete")
+        {:get =>  "/api/agents/123abc/delete"}
       end
     end
   end
@@ -79,13 +79,13 @@ describe Api::AgentsController do
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
       post :disable, :uuid => "abc", :no_layout => true
-      response.status.should == "406 Not Acceptable"
+      expect(response.status).to eq(406)
     end
 
     it "should resolve as /api/agents/UUID/disable" do
-      params_from(:post, "/api/agents/123abc/disable").should == {:uuid => "123abc", :action => "disable", :controller => 'api/agents', :no_layout => true}
+      expect(:post => "/api/agents/123abc/disable").to route_to(:uuid => "123abc", :action => "disable", :controller => 'api/agents', :no_layout => true)
       raise_error do
-        params_from(:get, "/api/agents/123abc/disable")
+        {:get => "/api/agents/123abc/disable"}
       end
     end
   end
@@ -96,13 +96,13 @@ describe Api::AgentsController do
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
       post :enable, :uuid => "UUID1", :no_layout => true
-      response.status.should == "406 Not Acceptable"
+      expect(response.status).to eq(406)
     end
 
     it "should resolve as /api/agents/UUID/enable" do
-      params_from(:post, "/api/agents/123abc/enable").should == {:uuid => "123abc", :action => "enable", :controller => 'api/agents', :no_layout => true}
+      expect(:post => "/api/agents/123abc/enable").to route_to(:uuid => "123abc", :action => "enable", :controller => 'api/agents', :no_layout => true)
       raise_error do
-        params_from(:get, "/api/agents/123abc/enable")
+        {:get => "/api/agents/123abc/enable"}
       end
     end
   end
@@ -113,7 +113,7 @@ describe Api::AgentsController do
         result.notAcceptable("Error message", HealthStateType.general(HealthStateScope::GLOBAL))
       end
       post :edit_agents, :operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true
-      response.body.should ==  "Error message"
+      expect(response.body).to eq("Error message")
     end
 
     it "should show message for a successful bulk_edit" do
@@ -121,24 +121,22 @@ describe Api::AgentsController do
         result.ok("Enabled 3 agent(s)")
       end
       post :edit_agents, :operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true
-      response.body.should == "Enabled 3 agent(s)"
-
+      expect(response.body).to eq("Enabled 3 agent(s)")
     end
 
     it "should show message for an unrecognised operation" do
       post :edit_agents, :operation => 'BAD_OPERATION', :selected => ["UUID1", "UUID2"], :no_layout => true
-      response.body.should == "The operation BAD_OPERATION is not recognized."
+      expect(response.body).to eq("The operation BAD_OPERATION is not recognized.")
     end
 
     it "should show error if selected parameter is omitted" do
       post :edit_agents, :operation => 'Enable', :no_layout => true
-      response.body.should == "No agents were selected. Please select at least one agent and try again."
-
+      expect(response.body).to eq("No agents were selected. Please select at least one agent and try again.")
     end
 
     it "should show error if no agents are selected" do
       post :edit_agents, :operation => 'Enable', :selected => [], :no_layout => true
-      response.body.should == "No agents were selected. Please select at least one agent and try again."
+      expect(response.body).to eq("No agents were selected. Please select at least one agent and try again.")
     end
   end
 end

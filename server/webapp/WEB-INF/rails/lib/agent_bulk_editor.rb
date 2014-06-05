@@ -39,6 +39,4 @@ module AgentBulkEditor
     end
     result
   end
-
-
 end

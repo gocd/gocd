@@ -20,8 +20,8 @@ describe "agent_bulk_editor" do
   include AgentBulkEditor
 
   before :each do
-    stub!(:agent_service).and_return(@agent_service = mock('agent-service'))
-    stub!(:current_user).and_return(@user = Object.new)
+    allow(self).to receive(:agent_service).and_return(@agent_service = double('agent-service'))
+    allow(self).to receive(:current_user).and_return(@user = Object.new)
   end
 
   it "should enable selected agents" do
@@ -30,16 +30,17 @@ describe "agent_bulk_editor" do
     end
 
     params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    stub!(:params).and_return(params)
-    response = bulk_edit
+    allow(self).to receive(:params).and_return(params)
+    bulk_edit
   end
 
   it "should disable selected agents" do
     @agent_service.should_receive(:disableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Accepted")
     end
+
     params = {:operation => 'Disable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
     bulk_edit
   end
 
@@ -47,8 +48,9 @@ describe "agent_bulk_editor" do
     @agent_service.should_receive(:deleteAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Accepted")
     end
+
     params = {:operation => 'Delete', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
     bulk_edit
   end
 
@@ -57,8 +59,9 @@ describe "agent_bulk_editor" do
     @agent_service.should_receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
+
     params =  {:operation => 'Add_Resource', :selected => ["UUID1", "UUID2"], :add_resource => "new-resource", :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
     bulk_edit
   end
 
@@ -67,8 +70,9 @@ describe "agent_bulk_editor" do
     @agent_service.should_receive(:modifyResources).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
+
     params = {:operation => 'Apply_Resource', :selected => ["UUID1", "UUID2"], :selections => {"new-resource" => 'add', "old-resource" => "remove"}, :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
     bulk_edit
   end
 
@@ -77,8 +81,9 @@ describe "agent_bulk_editor" do
     @agent_service.should_receive(:modifyEnvironments).with(@user, anything(), ["UUID1", "UUID2"], selections) do |user, result, uuids|
       result.ok("Accepted")
     end
+
     params =  {:operation => 'Apply_Environment', :selected => ["UUID1", "UUID2"], :selections => {"uat" => 'add', "prod" => "remove"}, :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
     bulk_edit
   end
 
@@ -86,40 +91,41 @@ describe "agent_bulk_editor" do
     @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.notAcceptable("Error message", HealthStateType.general(HealthStateScope::GLOBAL))
     end
+
     params = { :operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true }
-    stub!(:params).and_return(params)
-    bulk_edit.message().should == "Error message"
+    allow(self).to receive(:params).and_return(params)
+    expect(bulk_edit.message()).to eq("Error message")
   end
 
   it "should show message for a successful bulk_edit" do
     @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
       result.ok("Enabled 3 agent(s)")
     end
-    params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    stub!(:params).and_return(params)
 
-    bulk_edit.message().should == "Enabled 3 agent(s)"
+    params =  {:operation => 'Enable', :selected => ["UUID1", "UUID2"], :no_layout => true}
+    allow(self).to receive(:params).and_return(params)
+    expect(bulk_edit.message()).to eq("Enabled 3 agent(s)")
   end
 
   it "should show message for an unrecognised operation" do
     params =  {:operation => 'BAD_OPERATION', :selected => ["UUID1", "UUID2"], :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
 
-    bulk_edit.message().should == "The operation BAD_OPERATION is not recognized."
+    expect(bulk_edit.message()).to eq("The operation BAD_OPERATION is not recognized.")
   end
 
   it "should show error if selected parameter is omitted" do
     params = {:operation => 'Enable', :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
 
-    bulk_edit.message().should == "No agents were selected. Please select at least one agent and try again."
+    expect(bulk_edit.message()).to eq("No agents were selected. Please select at least one agent and try again.")
   end
 
   it "should show error if no agents are selected" do
     params = {:operation => 'Enable', :selected => [], :no_layout => true}
-    stub!(:params).and_return(params)
+    allow(self).to receive(:params).and_return(params)
 
-    bulk_edit.message().should == "No agents were selected. Please select at least one agent and try again."
+    expect(bulk_edit.message()).to eq("No agents were selected. Please select at least one agent and try again.")
   end
 end
 

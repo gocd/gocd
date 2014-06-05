@@ -20,12 +20,12 @@ class Api::AgentsController < Api::ApiController
   def index
     agents = agent_service.agents
     agents_api_arr = agents.collect{|agent| AgentAPIModel.new(agent)}
-    render :json => agents_api_arr.to_json
+    render json: agents_api_arr.to_json
   end
 
   def delete
-      agent_service.deleteAgents(current_user, result = HttpOperationResult.new, [params[:uuid]])
-      render_operation_result(result)
+    agent_service.deleteAgents(current_user, result = HttpOperationResult.new, [params[:uuid]])
+    render_operation_result(result)
   end
 
   def disable
@@ -39,6 +39,6 @@ class Api::AgentsController < Api::ApiController
   end
 
   def edit_agents
-    render :text => bulk_edit.message()
+    render text: bulk_edit.message()
   end
 end

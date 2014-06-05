@@ -14,12 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class Api::CommandsController < Api::ApiController
-  layout nil
+class Api::MaterialsController < Api::ApiController
 
-  def reload_cache
-    command_repository_service.reloadCache()
-
-    render text: "Command Repository reloaded.\n"
+  def notify
+    result = HttpLocalizedOperationResult.new
+    material_update_service.notifyMaterialsForUpdate(current_user, params, result)
+    render_localized_operation_result result
   end
 end

@@ -14,12 +14,10 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class Api::CommandsController < Api::ApiController
-  layout nil
-
-  def reload_cache
-    command_repository_service.reloadCache()
-
-    render text: "Command Repository reloaded.\n"
+class Api::AdminController < Api::ApiController
+  def start_backup
+    result = HttpLocalizedOperationResult.new
+    backup_service.startBackup(current_user, result)
+    render_localized_operation_result(result)
   end
 end

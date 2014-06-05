@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class Api::CommandsController < Api::ApiController
-  layout nil
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-  def reload_cache
-    command_repository_service.reloadCache()
+describe Api::AdminController do
 
-    render text: "Command Repository reloaded.\n"
+  it "should resolve on backup-trigger call" do
+    expect(:post => '/api/admin/start_backup').to route_to(:action => "start_backup", :controller => 'api/admin', :no_layout => true)
+    expect(backup_api_url_path).to eq("/api/admin/start_backup")
   end
 end

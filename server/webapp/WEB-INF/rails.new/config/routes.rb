@@ -48,6 +48,12 @@ Go::Application.routes.draw do
       post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
       post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
 
+      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
+
+      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
+
+      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
+
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}

@@ -159,6 +159,16 @@ def fake_template_presence file_path, content
   controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
 end
 
+def stub_service_on(obj, service_getter)
+  service = double(service_getter.to_s.camelize)
+  obj.stub(service_getter).and_return(service)
+  service
+end
+
+def stub_service(service_getter)
+  stub_service_on(@controller, service_getter)
+end
+
 # TODO: SBD: Move out to a new file.
 RSpec::Matchers.define :be_nil_or_empty do
   match do |actual|

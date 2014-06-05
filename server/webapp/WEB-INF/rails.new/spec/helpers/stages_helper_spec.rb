@@ -27,20 +27,20 @@ describe StagesHelper do
   end
 
   it "should generate pipeline url when stage identifier is given" do
-    stage_detail_path_for_identifier(StageIdentifier.new("pipeline", 10, "stage", "5")).should == "/pipelines/pipeline/10/stage/5"
+    expect(stage_detail_path_for_identifier(StageIdentifier.new("pipeline", 10, "stage", "5"))).to eq("/pipelines/pipeline/10/stage/5")
   end
 
   it "should generate a stage tabl url for a given tab" do
-    tab_aware_path_for_stage(StageIdentifier.new("pipeline", 10, "stage", "5"), "jobs").should == "/pipelines/pipeline/10/stage/5/jobs"
+    expect(tab_aware_path_for_stage(StageIdentifier.new("pipeline", 10, "stage", "5"), "jobs")).to eq("/pipelines/pipeline/10/stage/5/jobs")
   end
 
   it "should generate pipeline url when stage identifier is given" do
-    stage_detail_pipeline_tab_for_identifier(StageIdentifier.new("pipeline", 10, "stage", "5")).should == "/pipelines/pipeline/10/stage/5/pipeline"
+    expect(stage_detail_pipeline_tab_for_identifier(StageIdentifier.new("pipeline", 10, "stage", "5"))).to eq("/pipelines/pipeline/10/stage/5/pipeline")
   end
 
   it "should understand if stage is dummy" do
-    placeholder_stage?(@stage_summary).should be_false
-    placeholder_stage?(@new_stage_summary).should be_true
+    expect(placeholder_stage?(@stage_summary)).to be_false
+    expect(placeholder_stage?(@new_stage_summary)).to be_true
   end
 
   it "should understand if stage is the current stage" do
@@ -48,31 +48,31 @@ describe StagesHelper do
     params[:pipeline_counter] = "1"
     params[:stage_name] = "stage_name"
     params[:stage_counter] = "2"
-    is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "2")).should be_true
-    is_current_stage?(StageIdentifier.new('pipeline_name_x', 1, "stage_name", "2")).should be_false
-    is_current_stage?(StageIdentifier.new('pipeline_name', 10, "stage_name", "2")).should be_false
-    is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name_x", "2")).should be_false
-    is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "20")).should be_false
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "2"))).to be_true
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name_x', 1, "stage_name", "2"))).to be_false
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 10, "stage_name", "2"))).to be_false
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name_x", "2"))).to be_false
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "20"))).to be_false
   end
 
   it "should generate link with current tab css if this is the current tab" do
     in_params(:pipeline_name => "foo_bar", :stage_name => "stage-name", :pipeline_counter => "1", :stage_counter => "1", :action => "jobs", :controller => "stages")
     link = link_with_current_tab "Jobs", "jobs"
-    link.should have_tag("li.current a[href='/pipelines/foo_bar/1/stage-name/1/jobs']", "Jobs")
+    expect(link).to have_selector("li.current a[href='/pipelines/foo_bar/1/stage-name/1/jobs']", :text => "Jobs")
   end
 
   it "should not generate link with current tab css if this is not the current tab" do
     in_params(:pipeline_name => "foo_bar", :stage_name => "stage-name", :pipeline_counter => "1", :stage_counter => "1", :action => "jobs", :controller => "stages")
     link = link_with_current_tab "Tests", "tests"
-    link.should_not have_tag("li.current")
-    link.should have_tag("li a[href='/pipelines/foo_bar/1/stage-name/1/tests']", "Tests")
+    expect(link).to_not have_selector("li.current")
+    expect(link).to have_selector("li a[href='/pipelines/foo_bar/1/stage-name/1/tests']", :text => "Tests")
   end
 
   it "should return true when config version mismatches" do
-    is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'bar').should == true
+    expect(is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'bar')).to eq(true)
   end
 
   it "should return false when config version matches" do
-    is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'foo').should == false
+    expect(is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'foo')).to eq(false)
   end
 end

@@ -16,34 +16,33 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-
 describe EnvironmentsHelper do
   include EnvironmentsHelper
 
   describe "stage_width" do
     it "should return 4.9em for a non latest stage with 4 stages" do
-      stage_width_em(4, false, 20.0).should == "4.9167em"
+      expect(stage_width_em(4, false, 20.0)).to eq("4.9167em")
     end
 
     it "should return 4.7em for the latest stage with 4 stages" do
-      stage_width_em(4, true, 20.0).should == "4.75em"
+      expect(stage_width_em(4, true, 20.0)).to eq("4.75em")
     end
 
     it "should return 19.7em for 1 stage" do
-      stage_width_em(1, true, 20.0).should == "19.75em"
+      expect(stage_width_em(1, true, 20.0)).to eq("19.75em")
     end
 
     it "should return 6.5667em for a non latest stage with 3 stages" do
-      stage_width_em(3, false, 20.0).should == "6.5834em"
+      expect(stage_width_em(3, false, 20.0)).to eq("6.5834em")
     end
 
     it "should return 6.3667em for the latest stage with 3 stages" do
-      stage_width_em(3, true, 20.0).should == "6.4167em"
+      expect(stage_width_em(3, true, 20.0)).to eq("6.4167em")
     end
 
 
     it "should return percent" do
-      stage_width_percent(3, true, 20.0).should == "6.6667%"
+      expect(stage_width_percent(3, true, 20.0)).to eq("6.6667%")
     end
   end
 
@@ -53,9 +52,9 @@ describe EnvironmentsHelper do
       list.add(first = Object.new)
       list.add(middle = Object.new)
       list.add(last = Object.new)
-      is_last(list, first).should be_false
-      is_last(list, middle).should be_false
-      is_last(list, last).should be_true
+      expect(is_last(list, first)).to be_false
+      expect(is_last(list, middle)).to be_false
+      expect(is_last(list, last)).to be_true
     end
   end
 end

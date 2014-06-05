@@ -37,7 +37,7 @@ module EnvironmentsHelper
   def env_pipeline_dom_id(pipeline_model)
     "environment_pipeline_#{pipeline_name(pipeline_model)}_panel"
   end
-  
+
   def env_dom_id(environment_name)
     "environment_#{environment_name}_panel"
   end

@@ -218,11 +218,11 @@ public class DefaultGoPluginActivatorIntegrationTest {
         }
 
         File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, PluginAwareExtensionOuterClass.class,
-                PluginAwareExtensionOuterClass.PluginAwareExtensionNestedClass.class,
-                PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.class,
-                PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.PluginAwareExtensionSecondLevelInnerClass.class,
-                PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.PluginAwareExtensionSecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class,
-                PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.PluginAwareExtensionSecondLevelSiblingInnerClassWhichDoesNotHaveADefaultConstructor.class);
+                PluginAwareExtensionOuterClass.NestedClass.class,
+                PluginAwareExtensionOuterClass.InnerClass.class,
+                PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.class,
+                PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class,
+                PluginAwareExtensionOuterClass.InnerClass.SecondLevelSiblingInnerClassNoDefaultConstructor.class);
         BundleContext installedBundledContext = bundleContext(installBundleFoundInDirectory(bundleWithActivator));
 
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(PluginDescriptorAware.class.getName(), null);
@@ -230,9 +230,9 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         assertEquals(Arrays.toString(services), 4, services.length);
         assertEquals(PluginAwareExtensionOuterClass.class.getName(), services[0]);
-        assertEquals(PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.class.getName(), services[1]);
-        assertEquals(PluginAwareExtensionOuterClass.PluginAwareExtensionInnerClass.PluginAwareExtensionSecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class.getName(), services[2]);
-        assertEquals(PluginAwareExtensionOuterClass.PluginAwareExtensionNestedClass.class.getName(), services[3]);
+        assertEquals(PluginAwareExtensionOuterClass.InnerClass.class.getName(), services[1]);
+        assertEquals(PluginAwareExtensionOuterClass.InnerClass.SecondLevelInnerClass.PluginAwareExtensionThirdLevelInnerClass.class.getName(), services[2]);
+        assertEquals(PluginAwareExtensionOuterClass.NestedClass.class.getName(), services[3]);
     }
 
     @Test

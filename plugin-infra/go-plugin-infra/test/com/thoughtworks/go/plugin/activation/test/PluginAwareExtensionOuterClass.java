@@ -28,7 +28,7 @@ public class PluginAwareExtensionOuterClass implements PluginDescriptorAware {
     }
 
     @Extension
-    public static class PluginAwareExtensionNestedClass implements PluginDescriptorAware {
+    public static class NestedClass implements PluginDescriptorAware {
 
         @Override
         public void setPluginDescriptor(PluginDescriptor descriptor) {
@@ -37,14 +37,14 @@ public class PluginAwareExtensionOuterClass implements PluginDescriptorAware {
     }
 
     @Extension
-    public class PluginAwareExtensionInnerClass implements PluginDescriptorAware {
+    public class InnerClass implements PluginDescriptorAware {
 
         @Override
         public void setPluginDescriptor(PluginDescriptor descriptor) {
             throw new UnsupportedOperationException();
         }
 
-        public class PluginAwareExtensionSecondLevelInnerClass {
+        public class SecondLevelInnerClass {
 
             @Extension
             public class PluginAwareExtensionThirdLevelInnerClass implements PluginDescriptorAware {
@@ -57,12 +57,12 @@ public class PluginAwareExtensionOuterClass implements PluginDescriptorAware {
 
         }
 
-        public class PluginAwareExtensionSecondLevelSiblingInnerClassWhichDoesNotHaveADefaultConstructor {
-            public PluginAwareExtensionSecondLevelSiblingInnerClassWhichDoesNotHaveADefaultConstructor(int x) {
+        public class SecondLevelSiblingInnerClassNoDefaultConstructor {
+            public SecondLevelSiblingInnerClassNoDefaultConstructor(int x) {
             }
 
             @Extension
-            public class PluginAwareExtensionThirdLevelInnerClassWhichHasInvalidParent implements PluginDescriptorAware {
+            public class ThirdLevelInnerClassWithInvalidParent implements PluginDescriptorAware {
 
                 @Override
                 public void setPluginDescriptor(PluginDescriptor descriptor) {

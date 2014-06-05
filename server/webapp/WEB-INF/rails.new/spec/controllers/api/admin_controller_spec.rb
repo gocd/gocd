@@ -17,10 +17,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::AdminController do
-  before do
-  end
 
   it "should resolve on backup-trigger call" do
-    params_from(:post, "/api/admin/start_backup").should == {:action => "start_backup", :controller => 'api/admin', :no_layout => true}
+    expect(:post => '/api/admin/start_backup').to route_to(:action => "start_backup", :controller => 'api/admin', :no_layout => true)
+    expect(backup_api_url_path).to eq("/api/admin/start_backup")
   end
 end

@@ -17,12 +17,12 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::StagesController do
-  integrate_views
+  render_views
 
   before :each do
     controller.go_cache.clear
-    controller.stub!(:stage_service).and_return(@stage_service = mock())
-    controller.stub!(:set_locale)
+    controller.stub(:stage_service).and_return(@stage_service = double())
+    controller.stub(:set_locale)
     controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
 
@@ -33,17 +33,24 @@ describe Api::StagesController do
     stage.setPipelineId(120)
     @stage_service.should_receive(:stageById).with(99).and_return(stage)
     get 'index', :id => "99", :format => "xml", :no_layout => true
-    response.should have_tag("stage[name='stage_name'][counter='2']") do
-      with_tag("link[rel='self'][href='http://test.host/go/api/stages/#{stage.getId()}.xml']")
-      with_tag("pipeline[name='pipeline_name'][counter='30'][label='LABEL-30'][href='http://test.host/go/api/pipelines/pipeline_name/120.xml']")
-      with_tag("updated", stage.latestTransitionDate().iso8601)
-      with_tag("result", StageResult::Passed.to_s)
-      with_tag("state", "Completed")
-      with_tag("approvedBy", GoConstants::DEFAULT_APPROVED_BY)
-      with_tag("jobs") do
-        with_tag("job[href='http://test.host/go/api/jobs/-1.xml']")
+
+    doc = Nokogiri::XML(response.body)
+    stage_element = doc.xpath("stage[@name='stage_name'][@counter='2']")
+    expect(stage_element).to_not be_nil_or_empty
+
+    stage_element.tap do |entry|
+      expect(entry.xpath("link[@rel='self'][@href='http://test.host/go/api/stages/#{stage.getId()}.xml']")).to_not be_nil_or_empty
+      expect(entry.xpath("pipeline[@name='pipeline_name'][@counter='30'][@label='LABEL-30'][@href='http://test.host/go/api/pipelines/pipeline_name/120.xml']")).to_not be_nil_or_empty
+      expect(entry.xpath("updated").text).to eq(stage.latestTransitionDate().iso8601)
+      expect(entry.xpath("result").text).to eq(StageResult::Passed.to_s)
+      expect(entry.xpath("state").text).to eq("Completed")
+      expect(entry.xpath("approvedBy").text).to eq(GoConstants::DEFAULT_APPROVED_BY)
+
+      job_element = entry.xpath("jobs")
+      expect(job_element).to_not be_nil_or_empty
+      job_element.tap do |node|
+        expect(node.xpath("job[@href='http://test.host/go/api/jobs/-1.xml']")).to_not be_nil_or_empty
       end
     end
   end
-
 end

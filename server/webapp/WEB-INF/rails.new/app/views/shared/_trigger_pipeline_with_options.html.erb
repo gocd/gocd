@@ -1,6 +1,6 @@
 <%= pipeline_operations_blocking_form_remote_tag :url => { :controller => 'pipelines', :action => 'show_for_trigger' },
                              :html => {
-                                     :onsubmit => "PipelineOperations.onTriggerWithOptions(this, '#{scope[:pipeline].getName()}', '#{l.string('TRIGGER')}', '#{pipeline_show_with_option_path}'); return false;"
+                                     :onsubmit => "PipelineOperations.onTriggerWithOptions(this, '#{scope[:pipeline].getName()}', '#{l.string('TRIGGER')}', '#{pipeline_show_with_option_path}'); return false;".html_safe
                              }
 
 -%>
@@ -11,4 +11,4 @@
     <% if scope[:has_upstream_material] %>
         <input type="hidden" name="pegged_revisions[<%= scope[:pegged_pipeline] %>]" value="<%= scope[:pegged_revision] %>"/>
     <% end%>
-<%= end_form_tag %>
+<%== end_form_tag %>

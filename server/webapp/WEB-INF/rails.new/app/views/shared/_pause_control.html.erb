@@ -9,7 +9,7 @@
     scope[:pause_onclick] = "Modalbox.show($(\"#{scope[:pause_info_id]}\"),{title: \"Pause pipeline: #{scope[:pipeline_name]} \",overlayClose:false})"
 -%>
     <div class='operate pause_wrapper'>
-        <%= submit_button("Pause", {:type=> "image", :id => "confirm-pause-#{scope[:pipeline_name]}", :onclick => "#{scope[:pause_onclick]}"}) %>
+        <%= submit_button("Pause", {:type=> "image", :id => "confirm-pause-#{scope[:pipeline_name]}", :onclick => "#{h(scope[:pause_onclick])}"}) %>
     </div>
     <div id="<%= scope[:pause_info_id] %>" style="display:none">
         <form action="<%= pause_pipeline_path(:pipeline_name => scope[:pipeline_name]) -%>" method="post" onsubmit="PipelineOperations.onPause(this, '<%= scope[:pipeline_name] -%>', '<%= pause_pipeline_path(scope[:pipeline_name]) -%>'); return false;">

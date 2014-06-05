@@ -18,35 +18,43 @@ require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper')
 
 describe "/api/dependency_modifications/index.xml.erb" do
   before do
-    assigns[:modifications] = [
+    assign(:modifications, [
             Modification.new(java.util.Date.new(111, 5, 28, 19, 0, 0), "acceptance/2016/twist/1", "acceptance-2016", nil),
             Modification.new(java.util.Date.new(111, 6, 30, 5, 0, 0), "acceptance/3000/twist/2", "acceptance-3000", nil),
             Modification.new(java.util.Date.new(111, 7, 4, 15, 0, 0), "acceptance/3050/twist/3", "acceptance-3050", nil)
-    ]
+    ])
 
     params[:pipeline_name] = "acceptance"
     params[:stage_name] = "twist"
   end
 
   it "should render modification list" do
-    render '/api/dependency_modifications/index.xml'
+    render :template => '/api/dependency_modifications/index.xml.erb'
 
-    response.body.should have_tag("modifications") do
-      have_tag("title", "acceptance/twist")
-      have_tag("entry") do
-        with_tag("revision", "acceptance/3016/twist/1")
-        with_tag("modifiedTime", "2011-07-01T04:00:00+05:30")
-        with_tag("pipelineLabel", "acceptance-3016")
+    modifications_tag = Nokogiri::XML(response.body).xpath("modifications")
+    expect(modifications_tag).to_not be_nil_or_empty
+    modifications_tag.tap do |entry|
+      expect(entry.xpath("title").text).to eq("acceptance/twist")
+
+      entry_tag_1 = entry.xpath("entry")[0]
+      entry_tag_1.tap do |node|
+        expect(node.xpath("revision").text).to eq("acceptance/2016/twist/1")
+        expect(node.xpath("modifiedTime").text).to eq("2011-06-28T19:00:00+05:30")
+        expect(node.xpath("pipelineLabel").text).to eq("acceptance-2016")
       end
-      have_tag("entry") do
-        with_tag("revision", "acceptance/3020/twist/1")
-        with_tag("modifiedTime", "2011-07-01T08:10:00+05:30")
-        with_tag("pipelineLabel", "acceptance-3020")
+
+      entry_tag_2 = entry.xpath("entry")[1]
+      entry_tag_2.tap do |node|
+        expect(node.xpath("revision").text).to eq("acceptance/3000/twist/2")
+        expect(node.xpath("modifiedTime").text).to eq("2011-07-30T05:00:00+05:30")
+        expect(node.xpath("pipelineLabel").text).to eq("acceptance-3000")
       end
-      have_tag("entry") do
-        with_tag("revision", "acceptance/3100/twist/1")
-        with_tag("modifiedTime", "2011-07-01T04:10:00+05:30")
-        with_tag("pipelineLabel", "acceptance-3100")
+
+      entry_tag_3 = entry.xpath("entry")[2]
+      entry_tag_3.tap do |node|
+        expect(node.xpath("revision").text).to eq("acceptance/3050/twist/3")
+        expect(node.xpath("modifiedTime").text).to eq("2011-08-04T15:00:00+05:30")
+        expect(node.xpath("pipelineLabel").text).to eq("acceptance-3050")
       end
     end
   end

@@ -33,8 +33,8 @@ CustomTreeView = function (url) {
             });
 
             jQuery('.packages > li').each(function (e) {
-                var package = $j(this).find('a').text().trim().toLowerCase();
-                if (package.indexOf(typedText) != -1) {
+                var packageName = $j(this).find('a').text().trim().toLowerCase();
+                if (packageName.indexOf(typedText) != -1) {
                     $j(this).show();
                     $j(this).parent('li').show();
                 }

@@ -15,49 +15,31 @@
 <!-- END: prototype hooks for css injection -->
 
 <% if use_compressed_js? %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery-1.7.2.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/prototype-1.6.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/angular.1.0.8.min.js' %>
-
-    <%= javascript_include_tag '/go/compressed/lib/effects-1.8.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/accordion-2.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/angular-resource.1.0.8.min.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/bootstrap-2.3.2.min.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/controls-1.8.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/es5-shim.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/highcharts-2.3.3.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.autocomplete-1.1.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.ba-throttle-debounce-1.1.min.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.highlight-3.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.timeago-1.2.3.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.tipTip-1.3.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.treeview-1.5pre.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.url-1.0.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery.validate-1.5.5.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/jquery-ui-1.7.3.custom.min.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/modalbox-1.6.1.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/ui.core-1.7.3.js' %>
-    <%= javascript_include_tag '/go/compressed/lib/ui.dialog-1.7.3.js' %>
-
+    <%= javascript_include_tag '/go/compressed/framework/jquery-1.7.2.js' %>
+    <%= javascript_include_tag '/go/compressed/framework/prototype-1.6.0.js' %>
+    <%= javascript_include_tag '/go/compressed/framework/angular.1.0.8.min.js' %>
+    <%= javascript_include_tag '/go/compressed/framework/bootstrap-2.3.2.min.js' %>
     <![if !IE]>
-    <%= javascript_include_tag '/go/compressed/lib/d3-3.1.5.js' %>
+    <%= javascript_include_tag '/go/compressed/framework/d3-3.1.5.min.js' %>
     <![endif]>
     <!--[if gt IE 8]><!-->
-    <%= javascript_include_tag '/go/compressed/lib/d3-3.1.5.js' %>
+    <%= javascript_include_tag '/go/compressed/framework/d3-3.1.5.min.js' %>
     <!--<![endif]-->
+
+    <%= javascript_include_tag '/go/compressed/lib.js' %>
 
     <%= javascript_include_tag '/go/compressed/all.js' %>
 <% else %>
-    <%= javascript_include_tag 'lib/jquery-1.7.2.js' %>
-    <%= javascript_include_tag 'lib/prototype-1.6.0.js' %>
-    <%= javascript_include_tag 'lib/angular.1.0.8.min.js' %>
+    <%= javascript_include_tag 'framework/jquery-1.7.2.js' %>
+    <%= javascript_include_tag 'framework/prototype-1.6.0.js' %>
+    <%= javascript_include_tag 'framework/angular.1.0.8.min.js' %>
+    <%= javascript_include_tag 'framework/bootstrap-2.3.2.min.js' %>
+    <%= javascript_include_tag 'framework/d3-3.1.5.min.js' %>
 
     <%= javascript_include_tag 'lib/effects-1.8.0.js' %>
     <%= javascript_include_tag 'lib/accordion-2.0.js' %>
     <%= javascript_include_tag 'lib/angular-resource.1.0.8.min.js' %>
-    <%= javascript_include_tag 'lib/bootstrap-2.3.2.min.js' %>
     <%= javascript_include_tag 'lib/controls-1.8.0.js' %>
-    <%= javascript_include_tag 'lib/d3-3.1.5.js' %>
     <%= javascript_include_tag 'lib/es5-shim.js' %>
     <%= javascript_include_tag 'lib/highcharts-2.3.3.js' %>
     <%= javascript_include_tag 'lib/jquery.autocomplete-1.1.js' %>

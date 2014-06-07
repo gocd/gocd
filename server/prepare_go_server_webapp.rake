@@ -136,32 +136,37 @@ task :write_revision_number do
 end
 
 # javascript optimization
-JS_DIR = "target/webapp/javascripts"
-JS_TO_BE_SKIPPED = [JS_DIR + "/test_helper.js"]
+JS_LIB_DIR = "target/webapp/javascripts/lib"
+JS_APP_DIR = "target/webapp/javascripts"
+JS_LIB_PUT_FIRST = [JS_LIB_DIR + "/effects-1.8.0.js"]
+JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_to_css.js", JS_APP_DIR + "/util.js", JS_APP_DIR + "/micro_content_popup.js", JS_APP_DIR + "/ajax_popup_handler.js", JS_APP_DIR + "/stage_detail_observer.js", JS_APP_DIR + "/compare_pipelines.js"]
+COMPRESSED_LIB_DOT_JS = "target/lib.js"
 COMPRESSED_ALL_DOT_JS = "target/all.js"
+JS_TO_BE_SKIPPED = [JS_APP_DIR + "/test_helper.js"]
+COMPRESSION_LEVEL = "SIMPLE"
 
 task :create_all_js do
-  file_list = Dir.glob(JS_DIR + "/*.js")
-  put_first = [JS_DIR + "/build_base_observer.js", JS_DIR + "/json_to_css.js", JS_DIR + "/util.js", JS_DIR + "/micro_content_popup.js", JS_DIR + "/ajax_popup_handler.js", JS_DIR + "/stage_detail_observer.js", JS_DIR + "/compare_pipelines.js"]
+  closure_compress(JS_LIB_DIR + "/*.js", JS_LIB_PUT_FIRST, COMPRESSED_LIB_DOT_JS)
+  closure_compress(JS_APP_DIR + "/*.js", JS_APP_PUT_FIRST, COMPRESSED_ALL_DOT_JS)
+end
+
+def closure_compress directory, put_first, compressed_file
+  file_list = Dir.glob(directory)
   file_list = put_first + (file_list - put_first)
 
   js_file_list = ''
   file_list.each do |file|
-    puts file
     js_file_list += " --js #{file}" unless JS_TO_BE_SKIPPED.include? file
   end
 
-  sh "java -jar ../tools/closure-compiler-v20140508/compiler.jar --compilation_level SIMPLE --js_output_file #{COMPRESSED_ALL_DOT_JS} #{js_file_list}"
+  sh "java -jar ../tools/closure-compiler-v20140508/compiler.jar --compilation_level #{COMPRESSION_LEVEL} --js_output_file #{compressed_file} #{js_file_list}"
 end
 
 task :copy_compressed_js_to_webapp do
+  safe_cp COMPRESSED_LIB_DOT_JS, "target/webapp/compressed"
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
-  safe_cp "target/webapp/javascripts/lib", "target/webapp/compressed"
+  safe_cp "target/webapp/javascripts/framework", "target/webapp/compressed"
   FileUtils.remove_dir("target/webapp/javascripts", true)
-end
-
-def expand_js_wildcard wildcard
-  Dir.glob("target/webapp/javascripts/" + wildcard)
 end
 
 # css optimization

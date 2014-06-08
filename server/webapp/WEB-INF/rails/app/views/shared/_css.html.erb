@@ -2,9 +2,6 @@
 
 <%= stylesheet_link_tag "structure/reset.css" %>
 
-<!-- Structure css -->
-<%= stylesheet_link_tag "structure/application.css" %>
-
 <!-- Main css -->
 <% if use_compressed_js? %>
     <%= stylesheet_link_tag "all.css" %>
@@ -17,6 +14,9 @@
     <%= stylesheet_link_tag "module.css"%>
     <!-- END - LEGACY Module pieces css, TODO: migrate these to patterns/plugins/views-->
 <% end %>
+
+<!-- Structure css -->
+<%= stylesheet_link_tag "structure/application.css" %>
 
 <!-- Plugins css -->
 <% if use_compressed_js? %>

@@ -179,8 +179,8 @@ end
 
 # css optimization
 CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
-COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css"]
-CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css"]
+COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
+CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
 
 def expand_css_wildcard wildcard
   Dir.glob("target/webapp/stylesheets/" + wildcard)

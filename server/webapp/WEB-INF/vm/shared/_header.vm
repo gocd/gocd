@@ -37,12 +37,16 @@
     <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    #if ($useCompressJS)
+    <link href="$req.getContextPath()/stylesheets/vm/vm.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    #else
+    <link href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/vm/old_ui_hack.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    #end
     <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
     #if($extra_css_list)
     #foreach($css_name in $extra_css_list)

@@ -31,7 +31,6 @@ describe "show.html.erb" do
     assigns[:package_configuration] = model
 
     render "admin/package_definitions/show_for_new_pipeline_wizard.html"
-    puts response.body
 
     response.body.should have_tag(".new_form_item_block label", "Package Name")
     response.body.should have_tag(".new_form_item_block input[type='text'][disabled='disabled'][value='package-name']")

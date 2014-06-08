@@ -171,8 +171,8 @@ end
 
 # css optimization
 CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
-COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css"]
-CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css"]
+COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
+CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
 
 def expand_css_wildcard wildcard
   Dir.glob("target/webapp/stylesheets/" + wildcard)
@@ -188,18 +188,35 @@ task :pull_latest_sass do
   FileUtils.remove_dir("target/webapp/sass", true)
 end
 
+def yui_compress(path)
+  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --type css --charset utf-8 -o #{path} #{path}"
+end
+
+def compress_and_merge(h, path)
+  yui_compress(path)
+
+  contents = File.read(path)
+  name = File.basename(path)
+  h.puts "/* #{name} - start */"
+  h.write(contents)
+  h.puts "\n/* #{name} - end */"
+end
+
 task :create_all_css do
   CSS_TO_BE_COMPRESSED.each_with_index do |wildcard, index|
     matched_paths = expand_css_wildcard(wildcard)
     File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |h|
       matched_paths.each do |path|
-        contents = File.read(path)
-        name = File.basename(path)
-        h.puts "/* #{name} - start */"
-        h.write(contents)
-        h.puts "\n/* #{name} - end */"
+        compress_and_merge(h, path)
       end
     end
+  end
+
+  # compress each file in css/ & stylesheets/structure/
+  matched_paths = Dir.glob("target/webapp/css/*.css")
+  matched_paths += expand_css_wildcard("structure/*.css")
+  matched_paths.each do |path|
+    yui_compress(path)
   end
 end
 

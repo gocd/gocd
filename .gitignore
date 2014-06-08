@@ -124,8 +124,11 @@ server/config/gadget_truststore.jks
 server/db/shine/rdf-files
 server/logs/
 server/go-server.log*
-server/webapp/stylesheets/patterns/all.css
-server/webapp/stylesheets/views/all.css
+server/webapp/stylesheets/patterns/patterns.css
+server/webapp/stylesheets/plugins/plugins.css
+server/webapp/stylesheets/views/views.css
+server/webapp/stylesheets/vm/vm.css
+server/webapp/stylesheets/all.css
 performance/scripts/output*
 performance/output/
 performance/config/cruise-config.xml.template

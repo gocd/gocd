@@ -201,6 +201,8 @@ task :create_all_css do
     matched_paths = expand_css_wildcard(wildcard)
     File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |h|
       matched_paths.each do |path|
+        sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --type css --charset utf-8 -o #{path} #{path}"
+
         contents = File.read(path)
         name = File.basename(path)
         h.puts "/* #{name} - start */"

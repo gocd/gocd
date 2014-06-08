@@ -135,6 +135,20 @@ task :write_revision_number do
   end
 end
 
+def yui_compress(path)
+  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o #{path} #{path}"
+end
+
+def compress_and_merge(h, path)
+  yui_compress(path)
+
+  contents = File.read(path)
+  name = File.basename(path)
+  h.puts "/* #{name} - start */"
+  h.write(contents)
+  h.puts "\n/* #{name} - end */"
+end
+
 # javascript optimization
 JS_LIB_DIR = "target/webapp/javascripts/lib"
 JS_APP_DIR = "target/webapp/javascripts"
@@ -143,23 +157,21 @@ JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_
 COMPRESSED_LIB_DOT_JS = "target/lib.js"
 COMPRESSED_ALL_DOT_JS = "target/all.js"
 JS_TO_BE_SKIPPED = [JS_APP_DIR + "/test_helper.js"]
-COMPRESSION_LEVEL = "SIMPLE"
 
 task :create_all_js do
-  closure_compress(JS_LIB_DIR + "/*.js", JS_LIB_PUT_FIRST, COMPRESSED_LIB_DOT_JS)
-  closure_compress(JS_APP_DIR + "/*.js", JS_APP_PUT_FIRST, COMPRESSED_ALL_DOT_JS)
+  compress_js(JS_LIB_DIR + "/*.js", JS_LIB_PUT_FIRST, COMPRESSED_LIB_DOT_JS)
+  compress_js(JS_APP_DIR + "/*.js", JS_APP_PUT_FIRST, COMPRESSED_ALL_DOT_JS)
 end
 
-def closure_compress directory, put_first, compressed_file
+def compress_js directory, put_first, compressed_file
   file_list = Dir.glob(directory)
   file_list = put_first + (file_list - put_first)
 
-  js_file_list = ''
-  file_list.each do |file|
-    js_file_list += " --js #{file}" unless JS_TO_BE_SKIPPED.include? file
+  File.open(compressed_file, "w") do |h|
+    file_list.each do |path|
+      compress_and_merge(h, path) unless JS_TO_BE_SKIPPED.include? path
+    end
   end
-
-  sh "java -jar ../tools/closure-compiler-v20140508/compiler.jar --compilation_level #{COMPRESSION_LEVEL} --js_output_file #{compressed_file} #{js_file_list}"
 end
 
 task :copy_compressed_js_to_webapp do
@@ -186,20 +198,6 @@ task :pull_latest_sass do
   sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
 
   FileUtils.remove_dir("target/webapp/sass", true)
-end
-
-def yui_compress(path)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --type css --charset utf-8 -o #{path} #{path}"
-end
-
-def compress_and_merge(h, path)
-  yui_compress(path)
-
-  contents = File.read(path)
-  name = File.basename(path)
-  h.puts "/* #{name} - start */"
-  h.write(contents)
-  h.puts "\n/* #{name} - end */"
 end
 
 task :create_all_css do

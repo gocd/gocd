@@ -136,45 +136,37 @@ task :write_revision_number do
 end
 
 # javascript optimization
-JS_PATTERNS_TO_BE_COMPRESSED_IN_ORDER = ["es5-shim.js", "jquery.js", "jquery.timeago.js", "jquery.url.js", "jquery_no_conflict.js", "prototype.js", "scriptaculous.js", "bootstrap.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "build_base_observer.js", "effects.js", "json_to_css.js", "util.js", "micro_content_popup.js", "ajax_popup_handler.js", "stage_detail.js", "compare_pipelines.js", "*.js"]
-JS_PATTERNS_NOT_TO_BE_COMPRESSED = ["d3.js", "Tooltip.js", "Tooltip_ext.js"]
-JS_PATTERNS_NOT_TO_BE_FORCE_APPENDED = ["inplace-editor.js"]
+JS_LIB_DIR = "target/webapp/javascripts/lib"
+JS_APP_DIR = "target/webapp/javascripts"
+JS_LIB_PUT_FIRST = [JS_LIB_DIR + "/effects-1.8.0.js"]
+JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_to_css.js", JS_APP_DIR + "/util.js", JS_APP_DIR + "/micro_content_popup.js", JS_APP_DIR + "/ajax_popup_handler.js", JS_APP_DIR + "/stage_detail_observer.js", JS_APP_DIR + "/compare_pipelines.js"]
+COMPRESSED_LIB_DOT_JS = "target/lib.js"
 COMPRESSED_ALL_DOT_JS = "target/all.js"
+JS_TO_BE_SKIPPED = [JS_APP_DIR + "/test_helper.js"]
+COMPRESSION_LEVEL = "SIMPLE"
 
 task :create_all_js do
-  js_files_to_be_compressed = JS_PATTERNS_TO_BE_COMPRESSED_IN_ORDER.inject([]) do |to_be_compressed, wildcard|
-    matched_paths = expand_js_wildcard(wildcard)
-    to_be_compressed + matched_paths.sort { |first, second| File.basename(first) <=> File.basename(second) }
+  closure_compress(JS_LIB_DIR + "/*.js", JS_LIB_PUT_FIRST, COMPRESSED_LIB_DOT_JS)
+  closure_compress(JS_APP_DIR + "/*.js", JS_APP_PUT_FIRST, COMPRESSED_ALL_DOT_JS)
+end
+
+def closure_compress directory, put_first, compressed_file
+  file_list = Dir.glob(directory)
+  file_list = put_first + (file_list - put_first)
+
+  js_file_list = ''
+  file_list.each do |file|
+    js_file_list += " --js #{file}" unless JS_TO_BE_SKIPPED.include? file
   end
 
-  js_files_to_be_compressed = JS_PATTERNS_NOT_TO_BE_COMPRESSED.inject(js_files_to_be_compressed) do |to_be_compressed, wildcard|
-    to_be_compressed - expand_js_wildcard(wildcard)
-  end
-
-  js_files_to_be_compressed = JS_PATTERNS_NOT_TO_BE_FORCE_APPENDED.inject(js_files_to_be_compressed) do |to_be_compressed, wildcard|
-    matched_files = expand_js_wildcard(wildcard)
-    (to_be_compressed - matched_files) + matched_files
-  end
-
-  File.open(COMPRESSED_ALL_DOT_JS, "w") do |h|
-    js_files_to_be_compressed.uniq.each do |path|
-      contents = File.read(path)
-      name = File.basename(path)
-      h.puts "// #{name} - start"
-      h.write(contents)
-      h.puts ";\n// #{name} - end"
-    end
-  end
+  sh "java -jar ../tools/closure-compiler-v20140508/compiler.jar --compilation_level #{COMPRESSION_LEVEL} --js_output_file #{compressed_file} #{js_file_list}"
 end
 
 task :copy_compressed_js_to_webapp do
+  safe_cp COMPRESSED_LIB_DOT_JS, "target/webapp/compressed"
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
-  cp "target/webapp/javascripts/d3.js", "target/webapp/compressed"
+  safe_cp "target/webapp/javascripts/framework", "target/webapp/compressed"
   FileUtils.remove_dir("target/webapp/javascripts", true)
-end
-
-def expand_js_wildcard wildcard
-  Dir.glob("target/webapp/javascripts/" + wildcard)
 end
 
 # css optimization

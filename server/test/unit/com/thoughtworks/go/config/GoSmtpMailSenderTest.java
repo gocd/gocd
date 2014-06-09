@@ -30,9 +30,11 @@ import static org.junit.Assert.assertThat;
 @RunWith(JUnit4ClassRunner.class)
 public class GoSmtpMailSenderTest {
 
+    private final String hostName = "smtp.company.test";
+
     @Test
     public void testShouldNotSendOutTestEmailToAdminstrator() {
-        GoSmtpMailSender sender = new GoSmtpMailSender("pavan.rocks", 465, "cruise.test.admin@gmail.com",
+        GoSmtpMailSender sender = new GoSmtpMailSender(hostName, 465, "cruise.test.admin@gmail.com",
                 "password123", true,
                 "from.cruise.test@gmail.com", "cruise.test.admin@gmail.com");
         ValidationBean bean = sender.send("Subject", "Body", "cruise.test.admin@gmail.com");
@@ -42,7 +44,7 @@ public class GoSmtpMailSenderTest {
     
     @Test
     public void shouldNotSendTestEmailToSmtpServerIfTlsConfiguredIncorrect() {
-        GoSmtpMailSender sender = new GoSmtpMailSender("smtp.company.test", 25, "cruise2", "password123", true, "from.cruise.test@gmail.com", "cruise.test.admin@gmail.com");
+        GoSmtpMailSender sender = new GoSmtpMailSender(hostName, 25, "cruise2", "password123", true, "from.cruise.test@gmail.com", "cruise.test.admin@gmail.com");
         ValidationBean bean = sender.send("Subject", "Body", "cruise.test.admin@gmail.com");
 
         assertThat(bean, is(not(ValidationBean.valid())));
@@ -50,7 +52,6 @@ public class GoSmtpMailSenderTest {
 
     @Test
     public void shouldCreateSmtpMailSender() throws Exception {
-        String hostName = "smtp.company.com";
         MailHost mailHost = new MailHost(hostName, 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com");
         GoMailSender sender = GoSmtpMailSender.createSender(mailHost);
 
@@ -61,7 +62,6 @@ public class GoSmtpMailSenderTest {
 
     @Test
     public void shouldUseTheNewPasswordIfThePasswordIsChanged() {
-        String hostName = "smtp.company.com";
         MailHost mailHost = new MailHost(hostName, 25, "smtpuser", "password", "encrypted_password", true, true, "cruise@me.com", "jez@me.com");
         GoMailSender sender = GoSmtpMailSender.createSender(mailHost);
         assertThat((BackgroundMailSender) sender, is(new BackgroundMailSender(new GoSmtpMailSender(hostName, 25, "smtpuser", "password", true, "cruise@me.com", "jez@me.com"))));
@@ -69,7 +69,6 @@ public class GoSmtpMailSenderTest {
 
     @Test
     public void shouldUseTheEncryptedPasswordIfThePasswordIsNotChanged() throws InvalidCipherTextException {
-        String hostName = "smtp.company.com";
         String encryptedPassword = new GoCipher().encrypt("encrypted_password");
         MailHost mailHost = new MailHost(hostName, 25, "smtpuser", "password", encryptedPassword, false, true, "cruise@me.com", "jez@me.com");
         GoMailSender sender = GoSmtpMailSender.createSender(mailHost);

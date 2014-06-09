@@ -46,6 +46,13 @@ Go::Application.routes.draw do
   get 'home' => 'pipelines#index'
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
+  scope 'compare' do
+    get ':pipeline_name/:from_counter/with/:to_counter' => 'comparison#show', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
+    get ':pipeline_name/page/:page' => 'comparison#page', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_page
+    get ':pipeline_name/list/compare_with/:other_pipeline_counter' => 'comparison#list', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, format: 'json', as: :compare_pipelines_list
+    get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
+  end
+
   defaults :no_layout => true do
     get 'materials/:id.xml' => 'application#unresolved', as: :material
     get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification

@@ -16,6 +16,8 @@
 
 require 'rubygems'
 require 'spork'
+require 'rexml/document'
+
 #uncomment the following line to use spork with the debugger
 #require 'spork/ext/ruby-debug'
 
@@ -155,6 +157,42 @@ def setup_base_urls
   end
 end
 
+def check_fragment_caching(obj1, obj2, cache_key_proc)
+  ActionController::Base.cache_store.clear
+  ActionController::Base.perform_caching = false
+
+  yield obj1
+  obj_1_not_cached_body = response.body
+  ActionController::Base.cache_store.writes.length.should == 0
+  allow_double_render
+  ActionController::Base.cache_store.read(*cache_key_proc[obj2]).should be_nil
+  ActionController::Base.perform_caching = true
+
+  yield obj2
+  ActionController::Base.cache_store.read(*cache_key_proc[obj2]).should_not be_nil
+  ActionController::Base.cache_store.writes.length.should == 1
+  allow_double_render
+
+  yield obj2
+  ActionController::Base.cache_store.writes.length.should == 1
+  allow_double_render
+
+  ActionController::Base.cache_store.read(*cache_key_proc[obj1]).should be_nil
+  yield obj1
+  ActionController::Base.cache_store.writes.length.should == 2
+  ActionController::Base.cache_store.read(*cache_key_proc[obj1]).should_not be_nil
+  assert_equal obj_1_not_cached_body, response.body
+ensure
+  ActionController::Base.perform_caching = false
+end
+
+# erase_results does not exist, in Rails 3 and above.
+# https://github.com/markcatley/responds_to_parent/pull/2/files
+# http://www.dixis.com/?p=488
+def allow_double_render
+  self.instance_variable_set(:@_response_body, nil)
+end
+
 def fake_template_presence file_path, content
   controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
 end
@@ -175,3 +213,46 @@ RSpec::Matchers.define :be_nil_or_empty do
     actual.nil? or actual.size == 0
   end
 end
+
+# TODO: SBD: DEFINITELY move this
+def assert_fixture_equal(fixture, response)
+  generated = extract_test("<div class='under_test'>" + response + "</div>")
+  jsunit = extract_test(File.read(File.join(Rails.root, "..", "..", "..", "jsunit", "tests", fixture)))
+
+#      File.open('/tmp/jsunit.xml', 'w') {|f| f.write(jsunit) }
+#      File.open('/tmp/generated.xml', 'w') {|f| f.write(generated) }
+#      puts `diff /tmp/generated.xml /tmp/jsunit.xml`
+
+
+  generated.gsub(/\s+/, " ").should == jsunit.gsub(/\s+/, " ")
+end
+
+#
+# Modify HTML to remove time dependent stuff so we can compare HTML files more reliably
+#
+def extract_test(xml)
+  xml.gsub!(/[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/, "UUID")
+  xml.gsub!(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(([-+]\d{2}:\d{2})|Z)/, "REPLACED_DATE")
+  xml.gsub!(/\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \w{3} \d{4}/, "REPLACED_DATE_TIME")
+  xml.gsub!(/\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \w{3}\+\d{2}:\d{2} \d{4}/, "REPLACED_DATE_TIME")
+  xml.gsub!(/\d{13}/, "REPLACED_DATE_TIME_MILLIS")
+  xml.gsub!(/[\d\w\s]*?\sminute[s]*\sago\s*/, "REPLACED_RELATIVE_TIME")
+  xml.gsub!(/[\d\w\s]*?\shour[s]*\sago\s*/, "REPLACED_RELATIVE_TIME")
+  xml.gsub!(/[\d\w\s]*?\sday[s]*\sago\s*/, "REPLACED_RELATIVE_TIME")
+  xml.gsub!(/\s+/m, " ")
+  xml.gsub!(/Windows 2003/, "OPERATING SYSTEM")
+  xml.gsub!(/Linux/, "OPERATING SYSTEM")
+  xml.gsub!(/SunOS/, "OPERATING SYSTEM")
+  xml.gsub!(/Mac OS X/, "OPERATING SYSTEM")
+  xml.gsub!(/<script.*?<\/script>/m, "")
+
+  resp_doc = REXML::Document.new(xml)
+  generated_content = resp_doc.root.elements["//div[@class='under_test']"]
+
+  formatter = REXML::Formatters::Pretty.new
+  formatter.compact = true
+  out = ""
+  formatter.write(generated_content, out)
+  out
+end
+# END TODO: SBD: DEFINITELY move this

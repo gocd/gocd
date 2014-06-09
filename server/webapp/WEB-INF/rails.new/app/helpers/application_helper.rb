@@ -271,6 +271,12 @@ module ApplicationHelper
     link_to_remote(name, options, html_options)
   end
 
+  def blocking_link_to_remote_new(options = {})
+    [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
+    merge_block_options(options)
+    %Q|<a href="#" onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
+  end
+
   def end_form_tag
     "</form>"
   end
@@ -406,5 +412,9 @@ module ApplicationHelper
 
   def is_ie8? user_agent
     !(user_agent =~ /MSIE 8.0/).blank?
+  end
+
+  def view_cache_key
+    @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
   end
 end

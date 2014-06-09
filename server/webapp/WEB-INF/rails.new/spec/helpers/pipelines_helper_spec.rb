@@ -61,22 +61,26 @@ describe PipelinesHelper do
   #  after :each do
   #    java.util.TimeZone.setDefault(@default_timezone)
   #  end
-  #
-  #  it "should display the trigger message with username and isodate in title" do
-  #    triggered_date = java.util.Date.new
-  #    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-  #    message = trigger_message(triggered_date.getTime(), pim)
-  #    message.should have_tag(".who", "Anonymous")
-  #    message.should have_tag("input[value=#{triggered_date.getTime()}]")
-  #  end
-  #
-  #  it "should not display the trigger message when the pipeline is being scheduled for the first time" do
-  #    triggered_date = java.util.Date.new
-  #    pim =  PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
-  #    message = trigger_message(triggered_date.getTime(), pim)
-  #    message.blank?.should be_true
-  #  end
-  #
+
+  it "should display the trigger message with username and isodate in title" do
+    triggered_date = java.util.Date.new
+    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+
+    message = trigger_message(triggered_date.getTime(), pim)
+
+    expect(message).to have_selector(".who", "Anonymous")
+    expect(message).to have_selector("input[value='#{triggered_date.getTime()}']")
+  end
+
+  it "should not display the trigger message when the pipeline is being scheduled for the first time" do
+    triggered_date = java.util.Date.new
+    pim =  PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
+
+    message = trigger_message(triggered_date.getTime(), pim)
+
+    expect(message.blank?).to be_true
+  end
+
   #  it "should display the trigger message with the time and username" do
   #    joda_date = org.joda.time.DateTime.new(2010,8,20,18,3,44,0,org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
   #    message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
@@ -125,20 +129,34 @@ describe PipelinesHelper do
   #    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
   #    url_for_pipeline_instance(pim).should == "/pipelines/blah-pipeline/5/cruise/10/pipeline"
   #end
-  #
-  #it "should return the url for value stream map of given pipeline instance" do
-  #  pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-  #  url_for_pipeline_value_stream_map(pim).should == "/pipelines/value_stream_map/blah-pipeline/5"
-  #end
+
+  it "should return the url for value stream map of given pipeline instance" do
+    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    url_for_pipeline_value_stream_map(pim).should == "/pipelines/value_stream_map/blah-pipeline/5"
+  end
 
   it "should return the pipeline instance identifier" do
-    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
     expect(pipeline_instance_identifier(pim)).to eq("blah-pipeline_5")
   end
 
   it "should return the url for given DMR" do
-      dmr =  DependencyMaterialRevision.create("blah-pipeline", 2, "blah-label", "blah-stage", 3)
-      expect(url_for_dmr(dmr)).to eq("/pipelines/blah-pipeline/2/blah-stage/3/pipeline")
+    dmr = DependencyMaterialRevision.create("blah-pipeline", 2, "blah-label", "blah-stage", 3)
+    expect(url_for_dmr(dmr)).to eq("/pipelines/blah-pipeline/2/blah-stage/3/pipeline")
+  end
+
+  it "should return the dom id for a pipeline group" do
+    expect(pipelines_dom_id("blah")).to eq("pipeline_group_blah_panel")
+  end
+
+  it "should return the dom id for a pipeline" do
+    pipeline_model = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false)
+    expect(pipelines_pipeline_dom_id(pipeline_model)).to eq("pipeline_blah-pipeline_panel")
+  end
+
+  it "should return the build cause popup id for a given pipeline instance model" do
+    pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    expect(pipeline_build_cause_popup_id(pim)).to eq("changes_blah-pipeline_5")
   end
 
   #describe "revision_for" do

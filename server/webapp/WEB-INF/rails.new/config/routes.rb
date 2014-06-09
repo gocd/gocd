@@ -24,12 +24,24 @@ Go::Application.routes.draw do
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
+  get 'home' => 'pipelines#index'
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
+
+  defaults :no_layout => true do
+    post 'pipelines/material_search' => 'pipelines#material_search'
+    post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
+    get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
+  end
+  get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
+  get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
+  post "pipelines/:action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
+
+  get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   defaults :no_layout => true do
     get 'materials/:id.xml' => 'application#unresolved', as: :material
@@ -95,9 +107,11 @@ Go::Application.routes.draw do
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
   get '/agents' => 'agents#index', as: :agents_for_test
   get '/environments' => 'environments#index', as: :environments_for_test
+  get "environments/new" => 'environments#new', as: :environment_new
   get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
-  get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter.:format" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {format: 'html'}
+  get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
+  get "admin/pipelines/:pipeline_name/:current_tab" => 'test/test#edit', constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit
 
   get 'test' => 'test/test#index', as: :plugins_listing
   get 'test' => 'test/test#index', as: :config_view
@@ -108,15 +122,6 @@ Go::Application.routes.draw do
   get 'test' => 'test/test#index', as: :oauth_clients
   get 'test' => 'test/test#index', as: :package_repositories_list
   get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
-
-  defaults :no_layout => true do
-    post 'pipelines/material_search' => 'pipelines#material_search'
-    post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
-    get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
-  end
-  get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-  get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
-  get 'home' => 'pipelines#index'
 
   # catch all route
   match '*url', via: :all, to: 'application#unresolved'

@@ -14,35 +14,5 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class GoCacheStore < ActiveSupport::Cache::Store
-  def read_entry(name, options = nil)
-    cache.get(*key(name, options))
-  end
-
-  def write_entry(name, value, options = nil)
-    cache.put(*(key(name, options) << value))
-  end
-
-  def delete_entry(name, options = nil)
-    value = cache.get(*key(name, options))
-    cache.remove(*key(name, options))
-    value
-  end
-
-  def exist?(name, options = nil)
-    super(*key(name, options), options)
-  end
-
-  def clear
-    cache.clear
-  end
-
-  private
-  def cache
-    @cache ||= Spring.bean("goCache")
-  end
-
-  def key(name, options)
-    (options && options.has_key?(:subkey)) ? [name, options[:subkey]] : [name]
-  end
-end
+load File.join(Rails.root, 'lib', 'go_cache_store.rb')
+ActionController::Base.cache_store = GoCacheStore.new

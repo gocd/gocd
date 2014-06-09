@@ -22,7 +22,7 @@
 <script type="text/javascript">
     Util.on_load(function() {
     <% if auto_refresh? %>
-        var dashboard_ajax_refresher = new DashboardAjaxRefresher('<%= url_for(:action => 'index', :format=>"json") %>', {redirectUrl: '<%= url_for_login %>', className: '.pipeline_group', refreshCompleted: function(isPartialRefresh) {
+        var dashboard_ajax_refresher = new DashboardAjaxRefresher('<%= pipeline_dashboard_path(:action => 'index', :format=>"json") %>', {redirectUrl: '<%= url_for_login %>', className: '.pipeline_group', refreshCompleted: function(isPartialRefresh) {
             if (!isPartialRefresh) {
                 Util.enable('show_pipelines_selector');
             }

@@ -21,7 +21,7 @@ module PipelineModelMother
   def pipeline_model(pipeline_name, label_name, no_history=false, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false)
     stages = StageInstanceModels.new
     if no_history
-      stages.addFutureStage("cruise-in-future", false);
+      stages.addFutureStage("cruise-in-future", false)
       pipeline = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipeline_name, BuildCause.createNeverRun(), stages)
     else
       stages.add(stage = stage_model("cruise", "10"))

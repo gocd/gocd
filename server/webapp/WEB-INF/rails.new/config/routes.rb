@@ -37,6 +37,7 @@ Go::Application.routes.draw do
   end
   get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
   get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
+  post "pipelines/:action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
 
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
@@ -93,6 +94,7 @@ Go::Application.routes.draw do
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
   get '/agents' => 'agents#index', as: :agents_for_test
   get '/environments' => 'environments#index', as: :environments_for_test
+  get "environments/new" => 'environments#new', as: :environment_new
   get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS

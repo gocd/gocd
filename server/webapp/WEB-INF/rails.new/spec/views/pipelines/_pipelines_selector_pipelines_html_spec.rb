@@ -33,56 +33,55 @@ describe "/pipelines/pipelines_selector.html.erb" do
 
     @group2 = PipelineConfigMother.createGroup("group-2", [PipelineConfigMother.pipelineConfig("pipeline-2-1")].to_java(PipelineConfig))
 
-    assigns[:pipeline_configs] = @groups = [@group1, @group2, @groupx]
-    assigns[:pipeline_selections] = PipelineSelections.new()
+    @groups = [@group1, @group2, @groupx]
+    assign(:pipeline_configs, @groups)
+    assign(:pipeline_selections, PipelineSelections.new())
   end
 
   it "should have the same contents as the jsunit fixture" do
     render :partial => "pipelines/pipelines_selector", :locals => {:scope => {}}
+
     assert_fixture_equal("pipelines_selector_test.html", response.body)
   end
 
-
   describe "/pipelines/pipeline_selector_pipelines.html.erb" do
     it "should render checkboxes for all groups and pipelines" do
-
       render :partial => "pipelines/pipeline_selector_pipelines", :locals => {:scope => {}}
-      @groups.each do |group|
-        group_name=group.getGroup()
-        response.should have_tag "#selector_group_#{group_name}" do
-          with_tag  "input#select_group_#{group_name}[type='checkbox'][name='selector[group][]'][value='#{group_name}']"
-          puts "checking for #{group_name}"
-          with_tag  ".label[for='select_group_#{group_name}']", group_name
-        end
 
+      @groups.each do |group|
+        group_name = group.getGroup()
+        Capybara.string(response.body).find("#selector_group_#{group_name}").tap do |selector_group_node|
+          expect(selector_group_node).to have_selector("input#select_group_#{group_name}[type='checkbox'][name='selector[group][]'][value='#{group_name}']")
+          expect(selector_group_node).to have_selector(".label[for='select_group_#{group_name}']", :text => group_name)
+        end
         group.each do |pipeline|
-          pipeline_name=pipeline.name().to_s
-          response.should have_tag "#selector_pipeline_#{pipeline_name}" do
-            with_tag "input#select_pipeline_#{pipeline_name}[type='checkbox'][name='selector[pipeline][]'][value='#{pipeline_name}']"
-            with_tag ".label[for='select_pipeline_#{pipeline_name}']", pipeline_name
+          pipeline_name = pipeline.name().to_s
+          Capybara.string(response.body).find("#selector_pipeline_#{pipeline_name}").tap do |selector_pipeline_node|
+            expect(selector_pipeline_node).to have_selector("input#select_pipeline_#{pipeline_name}[type='checkbox'][name='selector[pipeline][]'][value='#{pipeline_name}']")
+            expect(selector_pipeline_node).to have_selector(".label[for='select_pipeline_#{pipeline_name}']", :text => pipeline_name)
           end
         end
       end
     end
 
     it "should check checkboxes that are selected" do
-      assigns[:pipeline_selections] = PipelineSelections.new(["pipeline-x3", "pipeline-x4"])
+      assign(:pipeline_selections, PipelineSelections.new(["pipeline-x3", "pipeline-x4"]))
+
       render :partial => "pipelines/pipeline_selector_pipelines", :locals => {:scope => {}}
 
-      response.should  have_tag "input#select_group_group-1[checked]"
-      response.should  have_tag "input#select_group_group-2[checked]"
-      response.should_not  have_tag "input#select_group_group-x[checked]"
+      expect(response).to have_selector("input#select_group_group-1[checked]")
+      expect(response).to have_selector("input#select_group_group-2[checked]")
+      expect(response).to_not have_selector("input#select_group_group-x[checked]")
 
       [@group1, @group2].each do |group|
         group.each do |pipeline|
-          with_tag "input#select_pipeline_#{pipeline.name()}[checked]"
+          expect(response).to have_selector("input#select_pipeline_#{pipeline.name()}[checked]")
         end
       end
-      response.should  have_tag "input#select_pipeline_pipeline-x1[checked]"
-      response.should  have_tag "input#select_pipeline_pipeline-x2[checked]"
-      response.should_not  have_tag "input#select_pipeline_pipeline-x3[checked]"
-      response.should_not  have_tag "input#select_pipeline_pipeline-x4[checked]"
+      expect(response).to have_selector("input#select_pipeline_pipeline-x1[checked]")
+      expect(response).to have_selector("input#select_pipeline_pipeline-x2[checked]")
+      expect(response).to_not have_selector("input#select_pipeline_pipeline-x3[checked]")
+      expect(response).to_not have_selector("input#select_pipeline_pipeline-x4[checked]")
     end
-
   end
 end

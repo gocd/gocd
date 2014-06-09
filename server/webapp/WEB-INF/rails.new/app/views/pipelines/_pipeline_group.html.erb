@@ -1,7 +1,7 @@
 <% scope[:omit_pipeline] ||= false %>
 <div class="pipeline_bundle pipeline_group">
     <div class="pipelines">
-        <%= content_wrapper_tag %>
+        <%== content_wrapper_tag %>
             <h2 class="entity_title"><%= scope[:pipeline_group].getName() %></h2>
             <% scope[:pipeline_models] = scope[:pipeline_group].getPipelineModels()
                scope[:pipeline_models].each_with_index do |pipeline_model_in_pipeline_group, idx_in_pipeline_group| -%>
@@ -16,6 +16,6 @@
 
             <div class="divider"></div>
         <% end -%>
-        <%= end_content_wrapper %>
+        <%== end_content_wrapper %>
     </div>
 </div>

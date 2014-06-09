@@ -1154,33 +1154,3 @@ table{
 	display: inline-block;
     height: 1%;
 }
-
-<!--[if IE]>
-<style type="text/css">
-	#header,
-	#body,
-	#footer,
-	#content_titlebar,
-    #content_statusbar,
-	.content,
-    #environments .environments,
-    #header .pipeline_flow .pipeline,
-    .page_title_bar,
-    .content_wrapper_inner,
-    .content_wrapper_outer,
-    .overview_widget,
-    .pipeline_flow .pipeline .stages .stage .row1,
-    .sub_tabs_container,
-    .content_wrapper_outer,
-    .content_wrapper_inner,
-    .pipelines, .pipeline_bundle,
-    .entity_status_wrapper
-    {
-		zoom: 1;     /* triggers hasLayout */
-		display: block;     /* resets display for IE/Win */
-        height: 1%;
-	}  /* Only IE can see inside the conditional comment
-    and read this CSS rule. Don't ever use a normal HTML
-    comment inside the CC or it will close prematurely. */
-</style>
-<![endif]-->

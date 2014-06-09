@@ -30,6 +30,8 @@ Go::Application.routes.draw do
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
+  get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
+
   defaults :no_layout => true do
     post 'pipelines/material_search' => 'pipelines#material_search'
     post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
@@ -59,6 +61,17 @@ Go::Application.routes.draw do
       post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_action
       post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
       post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
+
+      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
+
+      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
+
+      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
+
+      #agents api's
+      get 'agents' => 'agents#index', format: 'json', as: :agents_information
+      post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
+      post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
 
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
@@ -109,6 +122,9 @@ Go::Application.routes.draw do
   get 'test' => 'test/test#index', as: :oauth_clients
   get 'test' => 'test/test#index', as: :package_repositories_list
   get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
+
+  # catch all route
+  match '*url', via: :all, to: 'application#unresolved'
 
 # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

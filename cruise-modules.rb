@@ -475,13 +475,18 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     sh "firefox http://localhost:8585/jsunit/testRunner.html?testPage=http://localhost:8585/jsunit/tests/#{ENV['test']}.html\\&autoRun=true"
   end
 
-  COMPRESSED_ALL_DOT_JS = "server/target/all.js"
   task :prepare_jsunit_file_structure do
     mkdir_p _(:target, 'jsunit/compressed')
     filter_files(project('cruise:server').path_to("jsunit"), _(:target, "jsunit"))
     cp project('cruise:server').path_to("jsunit.xml"), _(:target)
-    cp COMPRESSED_ALL_DOT_JS, _(:target, 'jsunit/compressed/all.js')
-    cp project('cruise:server').path_to('webapp/javascripts/d3.js'), _(:target, 'jsunit/compressed/d3.js')
+    cp "server/target/webapp/compressed/framework/jquery-1.7.2.js", _(:target, 'jsunit/compressed')
+    cp "server/target/webapp/compressed/framework/prototype-1.6.0.js", _(:target, 'jsunit/compressed')
+    cp "server/target/webapp/compressed/framework/angular.1.0.8.min.js", _(:target, 'jsunit/compressed')
+    cp "server/target/webapp/compressed/framework/bootstrap-2.3.2.min.js", _(:target, 'jsunit/compressed')
+    cp "server/target/webapp/compressed/framework/d3-3.1.5.min.js", _(:target, 'jsunit/compressed')
+    cp "server/target/lib.js", _(:target, 'jsunit/compressed')
+    cp "server/target/all.js", _(:target, 'jsunit/compressed')
+    cp "server/webapp/javascripts/test_helper.js", _(:target, 'jsunit/compressed')
     cp project('cruise:server').path_to('webapp/stylesheets/module.css'), _(:target, 'jsunit/css/module.css')
   end
 

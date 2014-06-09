@@ -42,7 +42,7 @@ public class GoSmtpMailSenderTest {
     
     @Test
     public void shouldNotSendTestEmailToSmtpServerIfTlsConfiguredIncorrect() {
-        GoSmtpMailSender sender = new GoSmtpMailSender("10.18.3.171", 25, "cruise2", "password123", true, "from.cruise.test@gmail.com", "cruise.test.admin@gmail.com");
+        GoSmtpMailSender sender = new GoSmtpMailSender("smtp.company.test", 25, "cruise2", "password123", true, "from.cruise.test@gmail.com", "cruise.test.admin@gmail.com");
         ValidationBean bean = sender.send("Subject", "Body", "cruise.test.admin@gmail.com");
 
         assertThat(bean, is(not(ValidationBean.valid())));

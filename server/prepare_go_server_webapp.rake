@@ -201,6 +201,14 @@ task :pull_latest_sass do
 end
 
 task :create_all_css do
+  main_dir = "target/webapp/stylesheets/"
+  matched_paths = [main_dir + "main.css", main_dir + "layout.css", main_dir + "structure.css", main_dir + "ie_hacks.css", main_dir + "module.css"]
+  File.open("target/all.css", "w") do |h|
+    matched_paths.each do |path|
+      compress_and_merge(h, path)
+    end
+  end
+
   CSS_TO_BE_COMPRESSED.each_with_index do |wildcard, index|
     matched_paths = expand_css_wildcard(wildcard)
     File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |h|
@@ -219,6 +227,8 @@ task :create_all_css do
 end
 
 task :copy_compressed_css_to_webapp do
+  cp "target/all.css", "target/webapp/stylesheets"
+
   COMPRESSED_ALL_DOT_CSS.each do |file|
     name = File.basename(file).gsub(File.extname(file), '')
     cp file, "target/webapp/stylesheets/#{name}"

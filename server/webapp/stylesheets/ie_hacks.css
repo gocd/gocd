@@ -37,23 +37,4 @@
     visibility: hidden;
 }
 
-<!--[if IE7]>
-*+html .steps_wrapper {
-    display: inline-block;
-    zoom: 1;
-}
-<![endif]-->
-
-<!--[if IE]>
-<style type="text/css">
-.steps_wrapper {
-    zoom: 1;
-    display: block;
-    height: 1%;
-}
-
-</style>
-<![endif]-->
-
-
 

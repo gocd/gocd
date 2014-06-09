@@ -277,36 +277,3 @@ page_header
 	height:0;
 	visibility:hidden;
 }
-
-<!--[if IE 7]>
-*+html #header,
-*+html #header .header_wrapper,
-*+html #header .application_nav,
-*+html .page_title_bar .page_status_bar,
-*+html .pipeline_flow .pipeline .stages,
-*+html .entity_status_wrapper,
-*+html .page_header
-{
-	display: inline-block;
-    zoom:1;
-}  /* for IE/Mac */
-<![endif]-->
-
-
-<!--[if IE]>
-<style type="text/css">
-	#header,
-    #header .header_wrapper,
-    #header .application_nav,
-    .page_title_bar .page_status_bar,
-    .pipeline_flow .pipeline .stages,
-    .entity_status_wrapper,
-    .page_header
-    {
-		zoom: 1;     /* triggers hasLayout */
-		display: block;     /* resets display for IE/Win */
-	}  /* Only IE can see inside the conditional comment
-    and read this CSS rule. Don't ever use a normal HTML
-    comment inside the CC or it will close prematurely. */
-</style>
-<![endif]-->

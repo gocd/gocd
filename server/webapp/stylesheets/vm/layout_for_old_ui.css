@@ -215,20 +215,3 @@ body{
 {
 	display: inline-block;
 }  /* for IE/Mac */
-
-<!--[if IE]>
-<style type="text/css">
-	#header,
-    #header .header_wrapper,
-    #header .application_nav,
-    .page_title_bar .page_status_bar,
-    .pipeline_flow .pipeline .stages,
-    .entity_status_wrapper
-    {
-		zoom: 1;     /* triggers hasLayout */
-		display: block;     /* resets display for IE/Win */
-	}  /* Only IE can see inside the conditional comment
-    and read this CSS rule. Don't ever use a normal HTML
-    comment inside the CC or it will close prematurely. */
-</style>
-<![endif]-->

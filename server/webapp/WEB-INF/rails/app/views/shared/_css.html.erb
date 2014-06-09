@@ -2,13 +2,20 @@
 
 <%= stylesheet_link_tag "structure/reset.css" %>
 
-<!-- LEGACY Structure css, TODO: migrate these to structure/application.css and patterns -->
-<%= stylesheet_link_tag "main", "layout", "structure", "ie_hacks" %>
+<!-- Main css -->
+<% if use_compressed_js? %>
+    <%= stylesheet_link_tag "all.css" %>
+<% else %>
+    <!-- LEGACY Structure css, TODO: migrate these to structure/application.css and patterns -->
+    <%= stylesheet_link_tag "main", "layout", "structure", "ie_hacks" %>
+    <!-- END - LEGACY Structure css, TODO: migrate these to structure/application.css and patterns -->
 
-<!-- END - LEGACY Structure css, TODO: migrate these to structure/application.css and patterns -->
+    <!-- LEGACY Module pieces css, TODO: migrate these to patterns/plugins/views-->
+    <%= stylesheet_link_tag "module.css"%>
+    <!-- END - LEGACY Module pieces css, TODO: migrate these to patterns/plugins/views-->
+<% end %>
 
 <!-- Structure css -->
-
 <%= stylesheet_link_tag "structure/application.css" %>
 
 <!-- Plugins css -->
@@ -46,12 +53,6 @@
     %>
     <%= stylesheet_link_tag "patterns/patterns.css" %>
 <% end %>
-
-
-<!-- LEGACY Module pieces css, TODO: migrate these to patterns/plugins/views-->
-<%= stylesheet_link_tag "module.css"%>
-<!-- END - LEGACY Module pieces css, TODO: migrate these to patterns/plugins/views-->
-
 
 <!-- Views css -->
 <% if use_compressed_js? %>

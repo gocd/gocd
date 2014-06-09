@@ -18,19 +18,19 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/application" do
-before do
-stub_server_health_messages
-end
   before do
-    @layout_name = "application"
+    stub_server_health_messages
+  end
+  before do
+    @layout_name = "layouts/application"
     @admin_url = "/admin/pipelines"
-    assigns[:user] = @user = Object.new
-    assigns[:error_count] = 0
-    assigns[:warning_count] = 0
+    assign(:user, @user = Object.new)
+    assign(:error_count, 0)
+    assign(:warning_count, 0)
     @user.stub(:anonymous?).and_return(true)
-    template.stub!(:can_view_admin_page?).and_return(true)
-    template.stub!(:is_user_an_admin?).and_return(true)
-    class << template
+    view.stub(:can_view_admin_page?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(true)
+    class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
       end
@@ -39,40 +39,43 @@ end
     end
   end
 
-  it_should_behave_like "layout"
+  it_should_behave_like :layout
 
   it "should show content" do
     render :inline => '<div>content</div>', :layout => @layout_name
-    response.should have_tag('html body div div','content')
+
+    expect(response).to have_selector('html body div div', 'content')
   end
 
   it "should display Add New environment link" do
-    assigns[:show_add_environments] = true
-    assigns[:page_header] = "Environments"
+    assign(:show_add_environments, true)
+    assign(:page_header, "Environments")
 
     render :inline => '<div>content</div>', :layout => @layout_name
 
-    response.body.should have_tag(".add_new_environment a.link_as_header_button", "Add a new environment")
+    expect(response).to have_selector(".add_new_environment a.link_as_header_button", :text => "Add a new environment")
   end
 
   it "should not display Add New environment link when there is not show_add_environments" do
-    assigns[:page_header] = "Environments"
-    
+    assign(:page_header, "Environments")
+
     render :inline => '<div>content</div>', :layout => @layout_name
 
-    response.body.should_not have_tag(".add_new_environment a.link_as_button")
+    expect(response).to_not have_selector(".add_new_environment a.link_as_button")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
-    assigns[:config_file_conflict] = true
+    assign(:config_file_conflict, true)
+
     render :inline => '<div>content</div>', :layout => @layout_name
-    response.body.should have_tag("#messaging_wrapper #config_save_actions button.reload_config#reload_config", "Reload")
-    response.body.should have_tag("#messaging_wrapper #config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
+
+    expect(response).to have_selector("#messaging_wrapper #config_save_actions button.reload_config#reload_config", :text => "Reload")
+    expect(response).to have_selector("#messaging_wrapper #config_save_actions label", :text => "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
     render :inline => '<div>content</div>', :layout => @layout_name
-    response.body.should_not have_tag("#messaging_wrapper #config_save_actions")
-  end
 
+    expect(response).to_not have_selector("#messaging_wrapper #config_save_actions")
+  end
 end

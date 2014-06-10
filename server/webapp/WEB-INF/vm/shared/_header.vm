@@ -61,6 +61,7 @@
     #else
     <script src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery_no_conflict.js"></script>
 
     <script src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
@@ -79,7 +80,6 @@
     <script type="text/javascript" src="$req.getContextPath()/javascripts/json_to_css.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/admin.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/agent.js"></script>
-    <script type="text/javascript" src="$req.getContextPath()/javascripts/jquery_no_conflict.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/agent_observer.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/enhanced_modalbox.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/ajax_refresher.js"></script>

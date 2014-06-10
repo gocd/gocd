@@ -152,22 +152,33 @@ end
 # javascript optimization
 JS_LIB_DIR = "target/webapp/javascripts/lib"
 JS_APP_DIR = "target/webapp/javascripts"
-JS_LIB_PUT_FIRST = [JS_LIB_DIR + "/effects-1.8.0.js"]
-JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_to_css.js", JS_APP_DIR + "/util.js", JS_APP_DIR + "/micro_content_popup.js", JS_APP_DIR + "/ajax_popup_handler.js", JS_APP_DIR + "/stage_detail_observer.js", JS_APP_DIR + "/compare_pipelines.js"]
-COMPRESSED_LIB_DOT_JS = "target/lib.js"
+JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_to_css.js", JS_APP_DIR + "/util.js", JS_APP_DIR + "/micro_content_popup.js", JS_APP_DIR + "/ajax_popup_handler.js", JS_APP_DIR + "/compare_pipelines.js"]
 COMPRESSED_ALL_DOT_JS = "target/all.js"
-JS_TO_BE_SKIPPED = [JS_APP_DIR + "/test_helper.js"]
+JS_TO_BE_SKIPPED = [JS_LIB_DIR + "/d3-3.1.5.min.js", JS_APP_DIR + "/test_helper.js"]
 
-task :create_all_js do
-  compress_js(JS_LIB_DIR + "/*.js", JS_LIB_PUT_FIRST, COMPRESSED_LIB_DOT_JS)
-  compress_js(JS_APP_DIR + "/*.js", JS_APP_PUT_FIRST, COMPRESSED_ALL_DOT_JS)
+def put_first(lib_paths, files_to_put_first)
+  files_to_put_first + (lib_paths - files_to_put_first)
 end
 
-def compress_js directory, put_first, compressed_file
-  file_list = Dir.glob(directory)
-  file_list = put_first + (file_list - put_first)
+task :create_all_js do
+  # doing this to fix load order! :'(
+  lib_paths = [JS_LIB_DIR + "/es5-shim.min.js"] +
 
-  File.open(compressed_file, "w") do |h|
+               [JS_LIB_DIR + "/jquery-1.7.2.js", JS_LIB_DIR + "/bootstrap-2.3.2.min.js", JS_LIB_DIR + "/highcharts-2.3.3.min.js",
+               JS_LIB_DIR + "/jquery.autocomplete-1.1.js", JS_LIB_DIR + "/jquery.ba-throttle-debounce-1.1.min.js", JS_LIB_DIR + "/jquery.dirtyform.js", JS_LIB_DIR + "/jquery.highlight-3.0.js",
+               JS_LIB_DIR + "/jquery.timeago-1.2.3.js", JS_LIB_DIR + "/jquery.tipTip-1.3.js", JS_LIB_DIR + "/jquery.treeview-1.5pre.js", JS_LIB_DIR + "/jquery.url-1.0.js",
+               JS_LIB_DIR + "/jquery.validate-1.5.5.js", JS_LIB_DIR + "/jquery-ui-1.7.3.custom.min.js", JS_LIB_DIR + "/ui.core-1.7.3.js", JS_LIB_DIR + "/ui.dialog-1.7.3.js", JS_LIB_DIR + "/jquery_no_conflict.js"] +
+
+               [JS_LIB_DIR + "/prototype-1.6.0.js", JS_LIB_DIR + "/scriptaculous-1.8.0.js", JS_LIB_DIR + "/effects-1.8.0.js", JS_LIB_DIR + "/accordion-2.0.js",
+                JS_LIB_DIR + "/controls-1.8.0.js", JS_LIB_DIR + "/dragdrop-1.8.0.js", JS_LIB_DIR + "/modalbox-1.6.1.js", JS_LIB_DIR + "/slider-1.8.0.js", JS_LIB_DIR + "/trimpath-template-1.0.38.js"] +
+
+               [JS_LIB_DIR + "/angular.1.0.8.min.js", JS_LIB_DIR + "/angular-resource.1.0.8.min.js"]
+
+  app_paths = put_first(Dir.glob(JS_APP_DIR + "/*.js"), JS_APP_PUT_FIRST)
+
+  file_list = lib_paths + app_paths
+
+  File.open(COMPRESSED_ALL_DOT_JS, "w") do |h|
     file_list.each do |path|
       compress_and_merge(h, path) unless JS_TO_BE_SKIPPED.include? path
     end
@@ -175,9 +186,8 @@ def compress_js directory, put_first, compressed_file
 end
 
 task :copy_compressed_js_to_webapp do
-  safe_cp COMPRESSED_LIB_DOT_JS, "target/webapp/compressed"
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
-  safe_cp "target/webapp/javascripts/framework", "target/webapp/compressed"
+  safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
   FileUtils.remove_dir("target/webapp/javascripts", true)
 end
 

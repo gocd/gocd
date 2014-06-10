@@ -41,7 +41,7 @@ describe "/pipelines/pipelines_selector.html.erb" do
   it "should have the same contents as the jsunit fixture" do
     render :partial => "pipelines/pipelines_selector", :locals => {:scope => {}}
 
-    assert_fixture_equal("pipelines_selector_test.html", response.body)
+    assert_fixture_equal("pipelines_selector_test_rails_new.html", response.body)
   end
 
   describe "/pipelines/pipeline_selector_pipelines.html.erb" do

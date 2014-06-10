@@ -24,7 +24,6 @@ Go::Application.routes.draw do
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
-  get 'home' => 'pipelines#index'
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
@@ -44,6 +43,7 @@ Go::Application.routes.draw do
     post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
   end
 
+  get 'home' => 'pipelines#index'
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   defaults :no_layout => true do

@@ -95,6 +95,10 @@
             result.addTestPage("tests/add_new_package_definition_state_test.html");
             result.addTestPage("tests/ajax_form_submit_test.html");
 
+            // TODO: SBD: Temporary: Feature toggle "use.new.rails" is related to this. This should be removed.
+            result.addTestPage("tests/pipelines_selector_test_rails_new.html");
+            result.addTestPage("tests/pipeline_dashboard_test_rails_new.html");
+
             return result;
         }
 

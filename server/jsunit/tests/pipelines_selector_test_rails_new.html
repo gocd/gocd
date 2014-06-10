@@ -14,6 +14,18 @@
  * limitations under the License.
  *************************GO-LICENSE-END******************************* -->
 
+<!--
+     TODO: SBD: Temporary: Feature toggle "use.new.rails" is related to this. This should be
+     renamed to pipelines_selector_test.html and the older file with that name should be removed.
+
+     This is because the new Rails adds a few snippets around the "form" tag. For instance:
+
+     Old rails: <form action='/pipelines/select_pipelines' method='post' ...
+     New rails: <form accept-charset='UTF-8' action='/pipelines/select_pipelines' method='post' ...
+
+     Old rails: <form action='/pipelines/select_pipelines' method='post' ... > ... </form>
+     New rails: <form accept-charset='UTF-8' action='/pipelines/select_pipelines' method='post' ...> <div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div> ... </form>
+-->
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -137,8 +149,9 @@
         <span>PERSONALIZE</span>
     </button>
     <div id='pipelines_selector' class='enhanced_dropdown hidden'>
-        <form action='/pipelines/select_pipelines' method='post'
+        <form accept-charset='UTF-8' action='/pipelines/select_pipelines' method='post'
               onsubmit="PipelineOperations.onPipelineSelector(this, '/pipelines/select_pipelines'); return false;; ">
+            <div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>
             <div class='select_all_none_panel'>
                 <div id='select_text'>Select:</div>
                 <a  class='link_as_button' href='javascript:void(0);' id='select_all_pipelines'>All</a>

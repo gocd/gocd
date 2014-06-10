@@ -69,5 +69,4 @@ describe "/pipelines/_pipeline_group.html" do
     stage_instance.setId(id)
     stage_instance
   end
-
 end

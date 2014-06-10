@@ -24,7 +24,6 @@ Go::Application.routes.draw do
   end
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
-  get 'home' => 'pipelines#index'
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
@@ -32,15 +31,19 @@ Go::Application.routes.draw do
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
-  defaults :no_layout => true do
-    post 'pipelines/material_search' => 'pipelines#material_search'
-    post 'pipelines/show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
-    get 'pipelines/:pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
-  end
-  get 'pipelines/:action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-  get "pipelines" => 'pipelines#index', as: :pipeline_dashboard
-  post "pipelines/:action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
+  scope 'pipelines' do
+    defaults :no_layout => true do
+      post 'material_search' => 'pipelines#material_search'
+      post 'show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
+      get ':pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
+    end
 
+    get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
+    get "" => 'pipelines#index', as: :pipeline_dashboard
+    post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
+  end
+
+  get 'home' => 'pipelines#index'
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   defaults :no_layout => true do

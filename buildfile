@@ -77,6 +77,7 @@ define "cruise" do |project|
   require 'buildr/core/util'
 
   task :prepare do
+    ENV['MAVEN_OPTS'] ||= '-Xmx2048m'
     # Temporary: Feature toggle "use.new.rails" is related to this.
     maven_profiles_for_rails = ENV['USE_NEW_RAILS'] == "Y" ? "newrails,!oldrails" : "oldrails,!newrails"
     puts "Using Maven profiles: #{maven_profiles_for_rails}"

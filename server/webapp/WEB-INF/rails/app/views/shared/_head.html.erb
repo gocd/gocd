@@ -15,32 +15,18 @@
 <!-- END: prototype hooks for css injection -->
 
 <% if use_compressed_js? %>
-    <%= javascript_include_tag '/go/compressed/framework/jquery-1.7.2.js' %>
-    <%= javascript_include_tag '/go/compressed/framework/prototype-1.6.0.js' %>
-    <%= javascript_include_tag '/go/compressed/framework/angular.1.0.8.min.js' %>
-    <%= javascript_include_tag '/go/compressed/framework/bootstrap-2.3.2.min.js' %>
+    <%= javascript_include_tag '/go/compressed/all.js' %>
+
     <![if !IE]>
-    <%= javascript_include_tag '/go/compressed/framework/d3-3.1.5.min.js' %>
+    <%= javascript_include_tag '/go/compressed/d3-3.1.5.min.js' %>
     <![endif]>
     <!--[if gt IE 8]><!-->
-    <%= javascript_include_tag '/go/compressed/framework/d3-3.1.5.min.js' %>
+    <%= javascript_include_tag '/go/compressed/d3-3.1.5.min.js' %>
     <!--<![endif]-->
-
-    <%= javascript_include_tag '/go/compressed/lib.js' %>
-
-    <%= javascript_include_tag '/go/compressed/all.js' %>
 <% else %>
-    <%= javascript_include_tag 'framework/jquery-1.7.2.js' %>
-    <%= javascript_include_tag 'framework/prototype-1.6.0.js' %>
-    <%= javascript_include_tag 'framework/angular.1.0.8.min.js' %>
-    <%= javascript_include_tag 'framework/bootstrap-2.3.2.min.js' %>
-    <%= javascript_include_tag 'framework/d3-3.1.5.min.js' %>
-
-    <%= javascript_include_tag 'lib/effects-1.8.0.js' %>
-    <%= javascript_include_tag 'lib/accordion-2.0.js' %>
-    <%= javascript_include_tag 'lib/angular-resource.1.0.8.min.js' %>
-    <%= javascript_include_tag 'lib/controls-1.8.0.js' %>
-    <%= javascript_include_tag 'lib/es5-shim.js' %>
+    <%= javascript_include_tag 'lib/es5-shim.min.js' %>
+    <%= javascript_include_tag 'lib/jquery-1.7.2.js' %>
+    <%= javascript_include_tag 'lib/bootstrap-2.3.2.min.js' %>
     <%= javascript_include_tag 'lib/highcharts-2.3.3.js' %>
     <%= javascript_include_tag 'lib/jquery.autocomplete-1.1.js' %>
     <%= javascript_include_tag 'lib/jquery.ba-throttle-debounce-1.1.min.js' %>
@@ -51,11 +37,20 @@
     <%= javascript_include_tag 'lib/jquery.url-1.0.js' %>
     <%= javascript_include_tag 'lib/jquery.validate-1.5.5.js' %>
     <%= javascript_include_tag 'lib/jquery-ui-1.7.3.custom.min.js' %>
-    <%= javascript_include_tag 'lib/modalbox-1.6.1.js' %>
     <%= javascript_include_tag 'lib/ui.core-1.7.3.js' %>
     <%= javascript_include_tag 'lib/ui.dialog-1.7.3.js' %>
+    <%= javascript_include_tag 'lib/jquery_no_conflict.js' %>
 
-        <%= javascript_include_tag "jquery_no_conflict", "util", "cookie_utils", "application", "agent_filter",
+    <%= javascript_include_tag 'lib/prototype-1.6.0.js' %>
+    <%= javascript_include_tag 'lib/effects-1.8.0.js' %>
+    <%= javascript_include_tag 'lib/accordion-2.0.js' %>
+    <%= javascript_include_tag 'lib/controls-1.8.0.js' %>
+    <%= javascript_include_tag 'lib/modalbox-1.6.1.js' %>
+
+    <%= javascript_include_tag 'lib/angular.1.0.8.min.js' %>
+    <%= javascript_include_tag 'lib/angular-resource.1.0.8.min.js' %>
+
+        <%= javascript_include_tag "util", "cookie_utils", "application", "agent_filter",
                                    "edit_popup_handler", "tristate_checkbox", "ajax_refresher", "ajax_refreshers", "agents_ajax_refresher", "default_text", "agent_util", "env_edit_form",
                                    "field_state_replicator", "css_toggling", "micro_content_popup" , "ajax_popup_handler", "autocomplete", "stage_detail_ajax_refresher", 'form_fields_table',
                                    "pipeline_visualization", "helpers","pipeline_material_revision", "dashboard_ajax_refresher.js", "tabs.js", "dirty_tracker","pipeline_selector", "element_aligner",
@@ -68,6 +63,8 @@
                                    "pipeline_search", "angular_helper", "task_plugin_view"
 
         %>
+
+    <%= javascript_include_tag 'lib/d3-3.1.5.min.js' %>
 <% end %>
 
 <%= yield :after_javascript %>

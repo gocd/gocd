@@ -57,29 +57,23 @@
     <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
     <!--[if IE 6]><script type="text/javascript">window.cruise_is_running_in_ie6 = true;</script><![endif]-->
     #if ($useCompressJS)
-    <script src="$req.getContextPath()/compressed/framework/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/compressed/framework/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/compressed/framework/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/compressed/framework/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-
-    <script src="$req.getContextPath()/compressed/lib.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-
     <script src="$req.getContextPath()/compressed/all.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     #else
-    <script src="$req.getContextPath()/javascripts/framework/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/javascripts/framework/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/javascripts/framework/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/javascripts/framework/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
 
+    <script src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/effects-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/accordion-2.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/controls-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/dragdrop-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/modalbox-1.6.1.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-    <script src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/slider-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
     <script src="$req.getContextPath()/javascripts/lib/trimpath-template-1.0.38.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+
+    <script src="$req.getContextPath()/javascripts/lib/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
 
     <script type="text/javascript" src="$req.getContextPath()/javascripts/build_base_observer.js"></script>
     <script type="text/javascript" src="$req.getContextPath()/javascripts/json_to_css.js"></script>

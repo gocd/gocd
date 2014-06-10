@@ -1,0 +1,33 @@
+<div class="form_content">
+    <div class="environment_variables_section popup_form">
+        <textarea id="environment_variables_template" class="template">
+            <%- scope[:form].fields_for :variables, :index => "" do |var_form| -%>
+                <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form}} -%>
+            <%- end -%>
+        </textarea>
+        <ul class="variables">
+            <% scope[:form].object.variables.each do |variable| -%>
+                <%- scope[:form].fields_for :variables, variable, :index => "" do |var_form| -%>
+                    <li>
+                        <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :variable => variable}} -%>
+                    </li>
+                <%- end -%>
+            <%- end -%>
+        </ul>
+        <a class="add_item" id="add_variable"><%= l.string("ADD") -%></a>
+    </div>
+</div>
+<script type="text/javascript">
+    Util.on_load(function() {
+        function setupEnvVarForm(finish_button) {
+            var rowCreator = new EnvironmentVariables.RowCreator(jQuery('#environment_variables_template'), 'li', '.delete_parent');
+            var environmentVariables = new EnvironmentVariables(jQuery('ul.variables'), rowCreator, null, null, null);
+            environmentVariables.addDefaultRow();
+            environmentVariables.registerAddButton(jQuery("#add_variable"));
+            environmentVariables.registerFinishButton(finish_button);
+        }
+
+        var finish_button = jQuery(".finish");
+        setupEnvVarForm(finish_button);
+    });
+</script>

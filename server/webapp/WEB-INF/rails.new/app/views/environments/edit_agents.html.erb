@@ -1,0 +1,5 @@
+<%= render :partial => "edit_before.html" %>
+<%= render :partial => "edit_agents", :locals => {:scope => {:environment => @environment, :agents => @agents}} %>
+<%= config_md5_field %>
+<%= register_defaultable_list("environment>agents") %>
+<%= render :partial => "edit_after.html" %>

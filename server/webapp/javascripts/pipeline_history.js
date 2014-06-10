@@ -161,9 +161,6 @@ PipelineHistoryPage.prototype = {
 
         if (jQuery('#bd').width() < max_width + 30) {
                 jQuery('#bd').css({minWidth: max_width + 30 + 'px'});
-            }
-        else {
-               jQuery('#bd').css({minWidth: ''});
         }
     }
 }

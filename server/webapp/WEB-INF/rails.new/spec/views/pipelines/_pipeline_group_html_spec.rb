@@ -22,7 +22,7 @@ describe "/pipelines/_pipeline_group.html" do
   it "should cache pipeline partials of different pipelines separately" do
     pipeline_group1 = pipeline_group_model_for_caching("pipelineName", JobState::Building, JobResult::Unknown)
     pipeline_group2 = pipeline_group_model_for_caching("pipelineName", JobState::Completed, JobResult::Failed)
-    key_proc = proc {|pipeline_group| [ViewCacheKey.new.forPipelineModelBox(pipeline_group.getPipelineModels().get(0)), {:subkey => "pipeline_html"}]}
+    key_proc = proc {|pipeline_group| [ViewCacheKey.new.forPipelineModelBox(pipeline_group.getPipelineModels().get(0)), {:subkey => "pipeline_html", :skip_digest => true}]}
     check_fragment_caching(pipeline_group1, pipeline_group2, key_proc) do |pipeline_group|
       render :partial => "pipelines/pipeline_group", :locals => {:scope => {:pipeline_group => pipeline_group}}
     end

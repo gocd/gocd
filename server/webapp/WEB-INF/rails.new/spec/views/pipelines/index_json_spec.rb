@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "/pipelines/index" do
+describe "/pipelines/index.json.erb" do
   include PipelineModelMother
   include PipelinesHelper
 
@@ -32,25 +32,26 @@ describe "/pipelines/index" do
     second = PipelineGroupModel.new("second")
     second.add(pip3)
 
-    assigns[:pipeline_groups] = [first, second]
+    assign(:pipeline_groups, [first, second])
 
-    template.should_receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => first, :omit_pipeline => true}} ).and_return("\"first_group\"")
-    template.should_receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => second, :omit_pipeline => true}} ).and_return("\"second_group\"")
-    template.should_receive(:render_json).with(:partial=>'pipelines/pipeline_selector_pipelines.html', :locals => {:scope => {}} ).and_return("\"pipeline_selectors\"")
+    allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => first, :omit_pipeline => true}} ).and_return("\"first_group\"")
+    allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => second, :omit_pipeline => true}} ).and_return("\"second_group\"")
+    allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_selector_pipelines.html', :locals => {:scope => {}} ).and_return("\"pipeline_selectors\"")
 
-    template.should_receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip1, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"first pipeline\"")
-    template.should_receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip2, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"second pipeline\"")
-    template.should_receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip3, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"third pipeline\"")
+    allow(view).to receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip1, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"first pipeline\"")
+    allow(view).to receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip2, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"second pipeline\"")
+    allow(view).to receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pip3, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true} } ).and_return("\"third pipeline\"")
 
-    render "pipelines/index.json"
+    render
+
     json = JSON.parse(response.body)
 
-    json["pipeline_group_first_panel"].should == {"html" => "first_group", "parent_id" => "pipeline_groups_container", "index" => 0, "type" => "group_of_pipelines"}
-    json["pipeline_group_second_panel"].should == {"html" => "second_group", "parent_id" => "pipeline_groups_container", "index" => 1, "type" => "group_of_pipelines"}
-    json["pipeline_pip1_panel"].should == {"html" => "first pipeline", "parent_id" => "pipeline_group_first_panel", "index" => 0, "type" => "pipeline"}
-    json["pipeline_pip2_panel"].should == {"html" => "second pipeline", "parent_id" => "pipeline_group_first_panel", "index" => 1, "type" => "pipeline"}
-    json["pipeline_pip3_panel"].should == {"html" => "third pipeline", "parent_id" => "pipeline_group_second_panel", "index" => 0, "type" => "pipeline"}
-    json["pipelines_selector_pipelines"].should == { "html" => "pipeline_selectors", "type"=>"pipeline_selector" }
+    expect(json["pipeline_group_first_panel"]).to eq({"html" => "first_group", "parent_id" => "pipeline_groups_container", "index" => 0, "type" => "group_of_pipelines"})
+    expect(json["pipeline_group_second_panel"]).to eq({"html" => "second_group", "parent_id" => "pipeline_groups_container", "index" => 1, "type" => "group_of_pipelines"})
+    expect(json["pipeline_pip1_panel"]).to eq({"html" => "first pipeline", "parent_id" => "pipeline_group_first_panel", "index" => 0, "type" => "pipeline"})
+    expect(json["pipeline_pip2_panel"]).to eq({"html" => "second pipeline", "parent_id" => "pipeline_group_first_panel", "index" => 1, "type" => "pipeline"})
+    expect(json["pipeline_pip3_panel"]).to eq({"html" => "third pipeline", "parent_id" => "pipeline_group_second_panel", "index" => 0, "type" => "pipeline"})
+    expect(json["pipelines_selector_pipelines"]).to eq({ "html" => "pipeline_selectors", "type"=>"pipeline_selector" })
   end
 
   describe "caching" do
@@ -60,19 +61,19 @@ describe "/pipelines/index" do
 
       pipeline_group2 = pipeline_group_model_for_caching(JobState::Completed, JobResult::Failed)
       pipeline_model_2 = pipeline_group2.getPipelineModels().get(0)
-      key_proc = proc { |pipeline_group| [ViewCacheKey.new.forPipelineModelBox(pipeline_group.getPipelineModels().get(0)), {:subkey => "pipeline_json_#{pipelines_dom_id(pipeline_group.getName())}"}] }
+      key_proc = proc { |pipeline_group| [ViewCacheKey.new.forPipelineModelBox(pipeline_group.getPipelineModels().get(0)), {:subkey => "pipeline_json_#{pipelines_dom_id(pipeline_group.getName())}", :skip_digest => true}] }
 
-      template.should_receive(:render_json).any_number_of_times.with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pipeline_model_1, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true } } ).and_return("\"first pipeline\"")
-      template.should_receive(:render_json).any_number_of_times.with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pipeline_model_2, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true } } ).and_return("\"first pipeline\"")
+      allow(view).to receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pipeline_model_1, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true } } ).and_return("\"first pipeline\"")
+      allow(view).to receive(:render_json).with(:partial=>'shared/pipeline.html', :locals => { :scope => { :pipeline_model => pipeline_model_2, :should_display_previously_blurb => true, :show_controls => true, :show_changes => true, :show_compare => true } } ).and_return("\"first pipeline\"")
 
-      template.should_receive(:render_json).any_number_of_times.with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => pipeline_group1, :omit_pipeline => true}} ).and_return("\"first_group\"")
-      template.should_receive(:render_json).any_number_of_times.with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => pipeline_group2, :omit_pipeline => true}} ).and_return("\"second_group\"")
+      allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => pipeline_group1, :omit_pipeline => true}} ).and_return("\"first_group\"")
+      allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_group.html', :locals => {:scope => { :pipeline_group => pipeline_group2, :omit_pipeline => true}} ).and_return("\"second_group\"")
 
-      template.should_receive(:render_json).any_number_of_times.with(:partial=>'pipelines/pipeline_selector_pipelines.html', :locals => {:scope => {}} ).and_return("\"pipeline_selectors_1\"")
+      allow(view).to receive(:render_json).with(:partial=>'pipelines/pipeline_selector_pipelines.html', :locals => {:scope => {}} ).and_return("\"pipeline_selectors_1\"")
 
       check_fragment_caching(pipeline_group1, pipeline_group2, key_proc) do |pipeline_group|
-        assigns[:pipeline_groups] = [pipeline_group]
-        render "pipelines/index.json"
+        assign(:pipeline_groups, [pipeline_group])
+        render
       end
     end
 

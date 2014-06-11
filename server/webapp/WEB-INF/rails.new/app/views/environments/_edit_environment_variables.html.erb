@@ -7,11 +7,11 @@
         </textarea>
         <ul class="variables">
             <% scope[:form].object.variables.each do |variable| -%>
-                <%- scope[:form].fields_for :variables, variable, :index => "" do |var_form| -%>
+                <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
                     <li>
                         <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :variable => variable}} -%>
                     </li>
-                <%- end -%>
+                <% end %>
             <%- end -%>
         </ul>
         <a class="add_item" id="add_variable"><%= l.string("ADD") -%></a>

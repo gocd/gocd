@@ -36,35 +36,35 @@ Util.on_load(function() {
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('hostname') -%>
-            <th class='hostname'><%= column_header("Agent Name",  "hostname", scope[:sortable_columns]) %></th>
+            <th class='hostname'><%== column_header("Agent Name",  "hostname", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('location') -%>
-            <th class='location'><%= column_header("Sandbox", "location", scope[:sortable_columns]) %></th>
+            <th class='location'><%== column_header("Sandbox", "location", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('operating_system') -%>
-            <th class='operating_system'><%= column_header("OS", "operating_system", scope[:sortable_columns]) %></th>
+            <th class='operating_system'><%== column_header("OS", "operating_system", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('ip_address') -%>
-            <th class='ip_address'><%= column_header("IP Address", "ip_address", scope[:sortable_columns]) %></th>
+            <th class='ip_address'><%== column_header("IP Address", "ip_address", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('status') -%>
-            <th class='status'><%= column_header("Status", "status", scope[:sortable_columns]) %></th>
+            <th class='status'><%== column_header("Status", "status", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('usable_space') -%>
-            <th class='usable_space'><%= column_header("Free Space", "usable_space", scope[:sortable_columns]) %></th>
+            <th class='usable_space'><%== column_header("Free Space", "usable_space", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('resources') -%>
-            <th class='resources'><%= column_header("Resources", "resources", scope[:sortable_columns]) %></th>
+            <th class='resources'><%== column_header("Resources", "resources", scope[:sortable_columns]) %></th>
         <% end -%>
 
         <% unless scope[:exclude_columns].include?('environments') -%>
-            <th class='environments'><%= column_header("Environments", "environments", scope[:sortable_columns]) %></th>
+            <th class='environments'><%== column_header("Environments", "environments", scope[:sortable_columns]) %></th>
         <% end -%>
     </tr>
     </thead>

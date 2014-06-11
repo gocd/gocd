@@ -16,10 +16,11 @@
 
 Go::Application.routes.draw do
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
+    ENVIRONMENT_NAME_CONSTRAINT = {:name => ENVIRONMENT_NAME_FORMAT}
     CONSTANTS = true
   end
 
@@ -50,6 +51,20 @@ Go::Application.routes.draw do
     get 'materials/:id.xml' => 'application#unresolved', as: :material
     get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification
   end
+
+  scope 'environments' do
+    defaults :no_layout => true do
+      post "create" => 'environments#create', as: :environment_create
+      get "new" => 'environments#new', as: :environment_new
+      put ":name" => 'environments#update', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :environment_update
+
+      [:pipelines, :agents, :variables].each do |action|
+        get ":name/edit/#{action}" => "environments#edit_#{action}", constraints: ENVIRONMENT_NAME_CONSTRAINT, as: "environment_edit_#{action}"
+      end
+    end
+    get ":name/show" => 'environments#show', constraints: ENVIRONMENT_NAME_CONSTRAINT, as: :environment_show
+  end
+  match "environments(.:format)" => 'environments#index', defaults: {:format => :html}, via: [:post, :get], as: :environments
 
   namespace :api, as: "" do
     defaults :no_layout => true do
@@ -109,8 +124,8 @@ Go::Application.routes.draw do
   get '/server/messages.json' => 'test/test#index', as: :global_message
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
   get '/agents' => 'agents#index', as: :agents_for_test
+  get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
-  get "environments/new" => 'environments#new', as: :environment_new
   get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS

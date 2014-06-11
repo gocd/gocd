@@ -183,6 +183,13 @@ module ApplicationHelper
     instance_variable_get(:@user)
   end
 
+  # TODO: #130 - ugly hack. need to figure out what we can do. move dependent methods to controller as helper methods?
+  def cruise_config_md5
+    config_md5 = instance_variable_get(:@cruise_config_md5)
+    raise "md5 for config file has not been loaded yet" if config_md5.nil?
+    config_md5
+  end
+
   def can_view_admin_page?
     security_service.canViewAdminPage(current_user)
   end
@@ -278,7 +285,7 @@ module ApplicationHelper
   end
 
   def end_form_tag
-    "</form>"
+    "</form>".html_safe
   end
 
   def form_remote_tag(options = {})
@@ -292,11 +299,6 @@ module ApplicationHelper
     form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
   end
 
-  def form_tag(url_for_options = {}, options = {}, *parameters_for_url)
-    html_options = html_options_for_form(url_for_options, options, *parameters_for_url)
-    form_tag_html(html_options)
-  end
-
   def check_for_cancelled_contents(state, options={} )
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
@@ -308,11 +310,11 @@ module ApplicationHelper
   end
 
   def content_wrapper_tag(options={})
-    return "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">"
+    "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 
   def end_content_wrapper()
-    return "</div></div>"
+    "</div></div>".html_safe
   end
 
   def word_breaker(txt, break_at_length=15)
@@ -370,7 +372,7 @@ module ApplicationHelper
   end
 
   def config_md5_field
-    "<input type=\"hidden\" name=\"cruise_config_md5\" value=\"#{cruise_config_md5}\"/>"
+    "<input type=\"hidden\" name=\"cruise_config_md5\" value=\"#{cruise_config_md5}\"/>".html_safe
   end
 
   def unauthorized_access
@@ -416,5 +418,9 @@ module ApplicationHelper
 
   def view_cache_key
     @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
+  end
+
+  def register_defaultable_list nested_name
+    "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>".html_safe
   end
 end

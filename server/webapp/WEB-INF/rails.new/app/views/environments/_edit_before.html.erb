@@ -1,4 +1,4 @@
-<%= form_tag environment_update_path,
+<%= form_tag environment_update_path(:name => scope[:environment].name()),
                     :method => "put",
                     :class => "popup_form",
                     :onsubmit => "return AjaxForm.jquery_ajax_submit(this);" %>

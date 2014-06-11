@@ -16,24 +16,30 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "environments/new.html" do
+describe "environments/edit_variables.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
   
   before do
     @environment = EnvironmentConfig.new()
     @environment.addEnvironmentVariable("plain_name", "plain_value")
-    assigns[:environment] = @environment
+    assign(:environment, @environment)
 
-    template.stub(:environment_update_path).and_return("update_path")
-    template.stub(:cruise_config_md5).and_return("md5")
+    view.stub(:environment_update_path).and_return("update_path")
+    view.stub(:cruise_config_md5).and_return("foo_bar_baz")
   end
 
   it "should display existing variables" do
-    render "environments/edit_variables.html"
+    render
 
-    response.should have_tag("ul.variables") do
-      with_tag("input.environment_variable_name[name='environment[variables][][name]'][value='plain_name']")
-      with_tag("input.environment_variable_value[name='environment[variables][][valueForDisplay]'][value='plain_value']")
+    Capybara.string(response.body).find("ul.variables").tap do |variables|
+      expect(variables).to have_selector("input.environment_variable_name[name='environment[variables][][name]'][value='plain_name']")
+      expect(variables).to have_selector("input.environment_variable_value[name='environment[variables][][valueForDisplay]'][value='plain_value']")
     end
+  end
+
+  it "should have cruise_config_md5 as part of output" do
+    render
+
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
   end
 end

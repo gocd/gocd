@@ -26,7 +26,7 @@
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
-        <artifactId>main</artifactId>
+        <artifactId>gocd</artifactId>
         <version>1.0</version>
         <relativePath>../../</relativePath>
     </parent>

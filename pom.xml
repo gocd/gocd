@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.thoughtworks.go</groupId>
-    <artifactId>main</artifactId>
+    <artifactId>gocd</artifactId>
     <version>1.0</version>
     <name>Thoughtworks Go</name>
     <url>http://www.thoughtworks.com/products/go-continuous-delivery</url>

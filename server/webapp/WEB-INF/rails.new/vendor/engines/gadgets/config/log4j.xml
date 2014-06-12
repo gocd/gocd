@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+                     debug="false">
+
+  <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+    <param name="Target" value="System.out"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+             value="%d{dd MMM yyyy HH:mm:ss.SSS} - %25t - %-5p - %30c{1} - (%C{1}.java:%L) - %m%n"/>
+    </layout>
+  </appender>
+
+  <appender name="fileAppender" class="org.apache.log4j.FileAppender">
+    <param name="File" value="/tmp/debug.log"/>
+    <param name="Append" value="false"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern"
+             value="%d{dd MMM yyyy HH:mm:ss.SSS} - %25t - %-5p - %30c{1} - (%C{1}.java:%L) - %m%n"/>
+    </layout>
+  </appender>
+
+  <appender name="asyncAppender" class="org.apache.log4j.AsyncAppender">
+    <!-- appender-ref ref="consoleAppender" / -->
+    <appender-ref ref="fileAppender"/>
+  </appender>
+
+  <!-- SSL is chatty logs -->
+  <category name="com.thoughtworks.studios.platform.net.EasyX509TrustManager">
+    <priority value="NONE"/>
+  </category>
+  
+  <category name="org.apache.commons.httpclient">
+    <priority value="INFO"/>
+  </category>
+
+  <root>
+    <priority value="INFO"/>
+    <!--<appender-ref ref="consoleAppender"/>-->
+    <appender-ref ref="fileAppender"/>
+  </root>
+
+</log4j:configuration>

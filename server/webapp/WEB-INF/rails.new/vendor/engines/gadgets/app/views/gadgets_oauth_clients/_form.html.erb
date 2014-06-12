@@ -1,0 +1,49 @@
+<% form_for(@gadgets_oauth_client, :html => {:id => 'gadgets_oauth_client_create_form', :class => nil}) do |f| %>
+
+  <div class="form_item">
+    <label for='service_name'>
+        Name:
+        <span class="notes">
+          (The name of the service provider, i.e. the application whose data <%= Gadgets::Configuration.application_name %> will be accessing)
+        </span>
+    </label>
+    <%= f.text_field :service_name, :class => 'width-large' %>
+  </div>
+  <div class="form_item">
+    <label for='oauth_authorize_url'>
+        OAuth Authorization URL:
+        <span class="notes">
+          (The URL of the OAuth Authorization server)
+        </span>
+    </label>
+    <%= f.text_field :oauth_authorize_url, :class => 'width-large' %>
+  </div>
+  <div class="form_item">
+    <label for='client_id'>
+        OAuth Client ID:
+        <span class="notes">
+          (The ID assigned to <%= Gadgets::Configuration.application_name %> by the service provider)
+        </span>
+    </label>
+    <%= f.text_field :client_id, :class => 'width-large' %>
+  </div>
+  <div class="form_item">
+    <label for='client_secret'>
+        OAuth Client Secret:
+        <span class="notes">
+          (The secret assigned to <%= Gadgets::Configuration.application_name %> by the service provider)
+        </span>
+    </label>
+    <%= f.text_field :client_secret, :class => 'width-large' %>
+  </div>
+
+  <% if @cert %>
+      <%= render :partial => "display_certificate", :locals => {:cert => @cert} %>
+  <% end %>
+
+  <div class="action-bar">
+    <%= link_to_function 'Submit', '$(this).up("form").submit()', :class => 'link_as_button primary primary_link_as_button'%>
+    <%= link_to 'Cancel', gadgets_oauth_clients_path, :class => 'link_as_button back_link' %>
+  </div>
+
+<% end %>

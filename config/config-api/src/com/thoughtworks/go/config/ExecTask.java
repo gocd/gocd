@@ -60,7 +60,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     public ExecTask(String command, String args, Arguments argList) {
-        this.command = command;
+        setCommand(command);
         this.args = args;
         this.argList = argList;
     }
@@ -71,13 +71,13 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     private ExecTask(String command, String workingDir) {
-        this.command = command;
+        setCommand(command);
         this.workingDirectory = workingDir;
     }
 
     protected void setTaskConfigAttributes(Map attributeMap) {
         if (attributeMap.containsKey(COMMAND)) {
-            command = (String) attributeMap.get(COMMAND);
+            setCommand((String) attributeMap.get(COMMAND));
         }
         if (attributeMap.containsKey(ARG_LIST_STRING)) {
             clearCurrentArgsAndArgList();
@@ -100,6 +100,10 @@ public class ExecTask extends AbstractTask implements CommandTask {
             final String newWorkingDir = (String) attributeMap.get(WORKING_DIR);
             workingDirectory = StringUtil.isBlank(newWorkingDir) ? null : newWorkingDir;
         }
+    }
+
+    private void setCommand(String cmd) {
+        command = (cmd != null ? cmd.trim() : cmd);
     }
 
     private void clearCurrentArgsAndArgList() {

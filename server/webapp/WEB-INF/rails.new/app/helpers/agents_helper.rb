@@ -24,7 +24,7 @@ module AgentsHelper
   end
 
   def agent_selector_without_cell uuid, selector_name, selected_uuids
-    "<input type='checkbox' name='#{h(selector_name)}' value='#{h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".html_safe
+    "<input type='checkbox' name='#{ERB::Util.h(selector_name)}' value='#{ERB::Util.h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".html_safe
   end
 
   def cell_with_title value, klass, title = value

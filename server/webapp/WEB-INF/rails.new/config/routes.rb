@@ -130,6 +130,7 @@ Go::Application.routes.draw do
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "admin/pipelines/:pipeline_name/:current_tab" => 'test/test#edit', constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit
+  get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
   get 'test' => 'test/test#index', as: :plugins_listing
   get 'test' => 'test/test#index', as: :config_view

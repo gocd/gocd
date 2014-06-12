@@ -19,35 +19,11 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe AgentsHelper do
   include AgentsHelper
-  include SortableTableHelper
   include AgentMother
   include GoUtil
 
   before do
     stub_context_path self
-  end
-  
-  describe :table_sort_params do
-    it "should generate sort link params to sort ASC the first time" do
-      expect(table_sort_params('hostname')).to eq({ :column => 'hostname', :order => 'ASC', :filter => nil})
-      expect(table_sort_params('ip_address')).to eq({ :column => 'ip_address', :order => 'ASC', :filter => nil})
-    end
-
-    it "should generate sort link params to switch to DESC when accending" do
-      params[:column] = 'hostname'
-      params[:order] = 'ASC'
-      expect(table_sort_params('hostname')).to eq({ :column => 'hostname', :order => 'DESC', :filter => nil})
-    end
-
-    it "should generate sort link params to switch to ASC when decending" do
-      params[:column] = 'hostname'
-      params[:order] = 'DESC'
-      expect(table_sort_params('hostname')).to eq({ :column => 'hostname', :order => 'ASC', :filter => nil})
-    end
-
-    it "should sorround with span" do
-      expect(surround_with_span("Resources")).to eq("<span>Resources</span>")
-    end
   end
 
   describe :agent_selector do
@@ -67,30 +43,6 @@ describe AgentsHelper do
       it "should not select agent thats not selected in current request" do
         expect(agent_selector('uuid1', 'selected[]', nil)).to eq("<td class='selector'><input type='checkbox' name='selected[]' value='uuid1' class='agent_select' /></td>")
       end
-    end
-  end
-
-  describe :sortable_column_status do
-    it "should return no options for unsorted column" do
-      expect(sortable_column_status('hostname')).to eq({ })
-    end
-
-    it "should add css class 'sorted_asc' for column sorted asc" do
-      params[:column] = 'hostname'
-      params[:order] = 'ASC'
-      expect(sortable_column_status('hostname')).to eq({ :class => 'sorted_asc' })
-    end
-
-    it "should add css class 'sorted_desc' for column sorted desc" do
-      params[:column] = 'hostname'
-      params[:order] = 'DESC'
-      expect(sortable_column_status('hostname')).to eq({ :class => 'sorted_desc' })
-    end
-
-    it "should return no options for unsorted column even with another one being sorted" do
-      params[:column] = 'hostname'
-      params[:order] = 'DESC'
-      expect(sortable_column_status('location')).to eq({ })
     end
   end
 
@@ -115,91 +67,91 @@ describe AgentsHelper do
 
   end
 
-  #describe :agent_status_cell do
-  #  before do
-  #    @time = java.util.Date.new
-  #  end
-  #
-  #  it "should be 'disabled (building)' when agent is disabled while building" do
-  #
-  #    agent_status_cell(disabled_agent(:locator => 'locator')).should =~ />disabled \(building\)</
-  #  end
-  #
-  #  it "should be 'disabled' when agent is disabled while building and locator is not available to whatever reason" do
-  #    agent_status_cell(disabled_agent(:locator => '')).should =~ />disabled</
-  #    agent_status_cell(disabled_agent(:locator => nil)).should =~ />disabled</
-  #  end
-  #
-  #  it "should be 'disabled' when agent is disabled" do
-  #    agent_status_cell(disabled_agent).should =~ />disabled</
-  #  end
-  #
-  #  it "should be 'disabled (building)' when agent is disabled while 'cancelled (building)'" do
-  #    agent = AgentInstanceMother.building()
-  #    agent.cancel()
-  #    agent.deny()
-  #    agent_status_cell(AgentViewModel.new(agent)).should =~ />disabled \(building\)</
-  #  end
-  #
-  #  it "should title status cell with last heard time if agent status is lost contact" do
-  #    should_receive(:cell_with_title).with("lost contact", "status", anything()).and_return do |arg1,arg2,arg3|
-  #      arg3.should =~ /lost contact at/
-  #      "blah"
-  #    end
-  #    agent_status_cell(lost_contact_agent(:locator=>'')).should == 'blah'
-  #  end
-  #
-  #  it "should title status cell with status when agent status is other than lost contact" do
-  #    should_receive(:cell_with_title).with('pending', "status").and_return("cell")
-  #    agent_status_cell(pending_agent).should == 'cell'
-  #  end
-  #
-  #  it "should not show link to job detail page when agent is building but user does not have permissions on the pipeline" do
-  #    should_receive(:has_view_or_operate_permission_on_pipeline?).with('foo/bar').and_return(false)
-  #    should_receive(:cell_with_title).with('building', "status").and_return("cell")
-  #    agent_status_cell(building_agent(:locator=>'foo/bar')).should == 'cell'
-  #  end
-  #
-  #  it "should make status inner html a link to build detail when building" do
-  #    should_receive(:has_view_or_operate_permission_on_pipeline?).with('foo/bar').and_return(true)
-  #    should_receive(:cell_with_title).with(link_to('building', build_locator_url("foo/bar")), "status", 'foo/bar').and_return("cell")
-  #    agent_status_cell(building_agent(:locator=>'foo/bar')).should == 'cell'
-  #  end
-  #
-  #  it "should make status inner html a link to build detail when cancelled with locator" do
-  #    should_receive(:cell_with_title).with(link_to('building (cancelled)', build_locator_url("foo/bar")), "status", 'foo/bar').and_return("cell")
-  #    agent_status_cell(cancelled_agent(:locator=>'foo/bar')).should == 'cell'
-  #  end
-  #
-  #  it "should make status inner html show status only when cancelled without locator" do
-  #    should_receive(:cell_with_title).with('building (cancelled)',"status").and_return("cell")
-  #    agent_status_cell(cancelled_agent(:locator=>'')).should == 'cell'
-  #  end
-  #
-  #end
+  describe :agent_status_cell do
+    before do
+      @time = java.util.Date.new
+    end
 
-  #it "should prepend build_locator with tab/build/detail to make it a valid path" do
-  #  build_locator_url("foo/bar").should == "/go/tab/build/detail/foo/bar"
-  #end
+    it "should be 'disabled (building)' when agent is disabled while building" do
+      expect(agent_status_cell(disabled_agent(:locator => 'locator'))).to match(/>disabled \(building\)</)
+    end
 
-  #it "should call security service to check if user has view or operate permission" do
-  #  should_receive(:current_user).and_return(:user)
-  #  should_receive(:security_service).and_return(security_service = Object.new)
-  #  security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
-  #  has_view_or_operate_permission_on_pipeline?("uat/1/dist/2/build").should == true
-  #end
+    it "should be 'disabled' when agent is disabled while building and locator is not available to whatever reason" do
+      expect(agent_status_cell(disabled_agent(:locator => ''))).to match(/>disabled</)
+      expect(agent_status_cell(disabled_agent(:locator => nil))).to match(/>disabled</)
+    end
 
-  #it "should show default label for blank string" do
-  #  label_for(nil, "default text").should == "default text"
-  #  label_for("", "default text").should == "default text"
-  #  label_for("foo", "default text").should == "foo"
-  #  label_for(" ", "default text").should == " "
-  #end
+    it "should be 'disabled' when agent is disabled" do
+      expect(agent_status_cell(disabled_agent)).to match(/>disabled</)
+    end
 
-  #it "should capture sort while paginating" do
-  #  in_params :controller => "agents", :action => "job_run_history", :page => 10, :column => "pipeline", :order => "ASC", :uuid => "boouid"
-  #  job_on_agent_page_handler(com.thoughtworks.go.server.util.Pagination::PageNumber.new(10)).should == link_to("10", job_run_history_on_agent_path(:page => 10, :column => "pipeline", :order => "ASC", :uuid => "boouid"))
-  #end
+    it "should be 'disabled (building)' when agent is disabled while 'cancelled (building)'" do
+      agent = AgentInstanceMother.building()
+      agent.cancel()
+      agent.deny()
+      expect(agent_status_cell(AgentViewModel.new(agent))).to match(/>disabled \(building\)</)
+    end
+
+    it "should title status cell with last heard time if agent status is lost contact" do
+      should_receive(:cell_with_title).with("lost contact", "status", anything()).and_return do |arg1,arg2,arg3|
+        expect(arg3).to match(/lost contact at/)
+        "blah"
+      end
+      expect(agent_status_cell(lost_contact_agent(:locator=>''))).to eq('blah')
+    end
+
+    it "should title status cell with status when agent status is other than lost contact" do
+      should_receive(:cell_with_title).with('pending', "status").and_return("cell")
+      expect(agent_status_cell(pending_agent)).to eq('cell')
+    end
+
+    it "should not show link to job detail page when agent is building but user does not have permissions on the pipeline" do
+      should_receive(:has_view_or_operate_permission_on_pipeline?).with('foo/bar').and_return(false)
+      should_receive(:cell_with_title).with('building', "status").and_return("cell")
+      expect(agent_status_cell(building_agent(:locator=>'foo/bar'))).to eq('cell')
+    end
+
+    it "should make status inner html a link to build detail when building" do
+      should_receive(:has_view_or_operate_permission_on_pipeline?).with('foo/bar').and_return(true)
+      should_receive(:cell_with_title).with(link_to('building', build_locator_url("foo/bar")), "status", 'foo/bar').and_return("cell")
+      expect(agent_status_cell(building_agent(:locator=>'foo/bar'))).to eq('cell')
+    end
+
+    it "should make status inner html a link to build detail when cancelled with locator" do
+      should_receive(:cell_with_title).with(link_to('building (cancelled)', build_locator_url("foo/bar")), "status", 'foo/bar').and_return("cell")
+      expect(agent_status_cell(cancelled_agent(:locator=>'foo/bar'))).to eq('cell')
+    end
+
+    it "should make status inner html show status only when cancelled without locator" do
+      should_receive(:cell_with_title).with('building (cancelled)',"status").and_return("cell")
+      expect(agent_status_cell(cancelled_agent(:locator=>''))).to eq('cell')
+    end
+  end
+
+
+  it "should prepend build_locator with tab/build/detail to make it a valid path" do
+    expect(build_locator_url("foo/bar")).to eq("/go/tab/build/detail/foo/bar")
+  end
+
+  it "should call security service to check if user has view or operate permission" do
+    should_receive(:current_user).and_return(:user)
+    should_receive(:security_service).and_return(security_service = Object.new)
+    security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(:user, "uat").and_return(true)
+
+    expect(has_view_or_operate_permission_on_pipeline?("uat/1/dist/2/build")).to eq(true)
+  end
+
+  it "should show default label for blank string" do
+    expect(label_for(nil, "default text")).to eq("default text")
+    expect(label_for("", "default text")).to eq("default text")
+    expect(label_for("foo", "default text")).to eq("foo")
+    expect(label_for(" ", "default text")).to eq(" ")
+  end
+
+  it "should capture sort while paginating" do
+    in_params :controller => "agents", :action => "job_run_history", :page => 10, :column => "pipeline", :order => "ASC", :uuid => "boouid"
+    expect(job_on_agent_page_handler(com.thoughtworks.go.server.util.Pagination::PageNumber.new(10))).to eq(link_to("10", job_run_history_on_agent_path(:page => 10, :column => "pipeline", :order => "ASC", :uuid => "boouid")))
+  end
 
   it "should give Disabled status if show_only_disabled is true and Agent Status is Disabled" do
     agent_status = get_agent_status_class(true, AgentStatus::Disabled)

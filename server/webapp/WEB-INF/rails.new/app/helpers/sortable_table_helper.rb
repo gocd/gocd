@@ -26,11 +26,12 @@ module SortableTableHelper
     {:class => "sorted_#{params[:order].downcase}"}
   end
 
-  def surround_with_span span_text
-    "<span>#{span_text}</span>"
-  end
-
   def column_header(name, param_name, sortable = true)
     sortable ? link_to(surround_with_span(name), table_sort_params(param_name), sortable_column_status(param_name)) : surround_with_span(name)
+  end
+
+  private
+  def surround_with_span span_text
+    "<span>#{span_text}</span>".html_safe
   end
 end

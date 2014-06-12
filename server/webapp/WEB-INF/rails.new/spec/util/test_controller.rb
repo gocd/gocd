@@ -16,25 +16,25 @@
 
 unless defined? NonApiController
   def draw_test_controller_route
-    ActionController::Routing::Routes.draw do |map|
-      map.connect 'rails/foo', :controller => 'api/test', :action => 'not_found_action'
-      map.connect 'rails/bar', :controller => 'api/test', :action => 'unauthorized_action'
-      map.connect 'rails/baz', :controller => 'api/test', :action => 'another_not_found_action'
-      map.connect 'rails/bang', :controller => 'api/test', :action => 'localized_not_found_action'
-      map.connect 'rails/quux', :controller => 'api/test', :action => 'localized_not_found_action_with_message_ending_in_newline'
-      map.connect 'rails/boom', :controller => 'api/test', :action => 'localized_operation_result_without_message'
-      map.connect 'rails/:controller/:action', :controller => "api/test", :action => "test_action"
-      map.connect 'rails/auto_refresh', :controller => "api/test", :action => "auto_refresh"
+    Go::Application.routes.draw do
+      match 'rails/foo', via: :all, to: 'api/test#not_found_action'
+      match 'rails/bar', via: :all, to: 'api/test#unauthorized_action'
+      match 'rails/baz', via: :all, to: 'api/test#another_not_found_action'
+      match 'rails/bang', via: :all, to: 'api/test#localized_not_found_action'
+      match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
+      match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
+      match 'rails/:controller/:action', via: :all, to: 'api/test#test_action'
+      match 'rails/auto_refresh', via: :all, to: 'api/test#auto_refresh'
 
-      map.connect 'rails/non_api_404', :controller => 'non_api', :action => 'not_found_action'
-      map.connect 'rails/non_api_localized_404', :controller => 'non_api', :action => 'localized_not_found_action'
-      map.connect 'rails/exception_out', :controller => 'non_api', :action => 'exception_out'
-      map.connect 'rails/double_render', :controller => 'non_api', :action => 'double_render'
-      map.connect 'rails/render_and_redirect', :controller => 'non_api', :action => 'redirect_after_render'
-      map.connect 'rails/double_render_without_error', :controller => 'non_api', :action => 'double_render_without_error'
+      match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
+      match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
+      match 'rails/exception_out', via: :all, to: 'non_api#exception_out'
+      match 'rails/double_render', via: :all, to: 'non_api#double_render'
+      match 'rails/render_and_redirect', via: :all, to: 'non_api#redirect_after_render'
+      match 'rails/double_render_without_error', via: :all, to: 'non_api#double_render_without_error'
 
-      map.connect 'rails/encoded_param_user', :controller => 'non_api', :action => 'encoded_param_user_action'
-      map.connect 'rails/non_encoded_param_user', :controller => 'non_api', :action => 'non_encoded_param_user_action'
+      match 'rails/encoded_param_user', via: :all, to: 'non_api#encoded_param_user_action'
+      match 'rails/non_encoded_param_user', via: :all, to: 'non_api#non_encoded_param_user_action'
     end
   end
 end

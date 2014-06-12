@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :set_current_user, :populate_health_messages, :local_access_only
+  before_filter :set_current_user, :populate_health_messages, :populate_config_validity, :local_access_only
 
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
@@ -145,5 +145,9 @@ class ApplicationController < ActionController::Base
     nested_keys.empty? && return
     sub_map[nested_keys.first] ||= ((nested_keys.length > 1) ? {} : [])
     do_param_defaulting(sub_map[nested_keys.first], nested_keys[1..-1])
+  end
+
+  def populate_config_validity
+    @config_valid = go_config_service.checkConfigFileValid().isValid()
   end
 end

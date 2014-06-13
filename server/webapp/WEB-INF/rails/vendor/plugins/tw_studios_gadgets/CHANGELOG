@@ -1,3 +1,7 @@
+[2819f03 | Tue Jun 03 18:00:18 UTC 2014] pwang <pwang@thoughtworks.com>
+
+  * check default ca certs for for ssl connections. this should solve the problem of card_activity gadget on mingle saas
+
 [ec23a97 | Fri Oct 12 05:20:57 UTC 2012] wpc <alex.hal9000@gmail.com>
 
   * remove common client source jar

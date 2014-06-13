@@ -24,38 +24,39 @@ describe 'environments/index.html.erb' do
     @bar = Environment.new("bar", [])
   end
 
-
   it "should render partial 'environment' for each environment" do
-    assigns[:environments] = [@foo, @bar]
-    assigns[:show_add_environments] = true
-    template.stub!(:environments_allowed?).and_return(true)
-    template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => { :environment => @foo, :show_edit_environments => true}}).and_return("(foo content)")
-    template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => { :environment => @bar, :show_edit_environments => true}}).and_return("(bar content)")
-    render 'environments/index.html.erb'
-    response.should have_tag("div.environments"), "(foo content)(bar content)"
+    assign(:environments, [@foo, @bar])
+    assign(:show_add_environments, true)
+    allow(view).to receive(:environments_allowed?).and_return(true)
+
+    stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
+
+    render
+
+    expect(response).to have_selector("div.environments div#environment_foo_panel", :text => "Content for: foo")
+    expect(response).to have_selector("div.environments div#environment_bar_panel", :text => "Content for: bar")
   end
 
   it "should display 'no environments configured' message with link to configuration when there are no environments and using enterprise license" do
-    assigns[:environments] = []
-    template.stub!(:environments_allowed?).and_return(true)
-    render 'environments/index.html.erb'
-    response.should have_tag("div.unused_feature") do
-      with_tag("a[href='/help/managing_environments.html']", "More Information")
-    end
+    assign(:environments, [])
+    allow(view).to receive(:environments_allowed?).and_return(true)
+
+    render
+
+    expect(response).to have_selector("div.unused_feature a[href='/help/managing_environments.html']", :text => "More Information")
   end
 
   describe :auto_refresh do
     before do
       @partial = 'environments/index.html.erb'
       @ajax_refresher = /DashboardAjaxRefresher/
-      assigns[:environments] = [@foo, @bar]
-      assigns[:show_add_environments] = true
-      template.stub!(:environments_allowed?).and_return(true)
-      template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => { :environment => @foo, :show_edit_environments => true}}).and_return("(foo content)")
-      template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => { :environment => @bar, :show_edit_environments => true}}).and_return("(bar content)")
+      assign(:environments, [@foo, @bar])
+      assign(:show_add_environments, true)
+      allow(view).to receive(:environments_allowed?).and_return(true)
+
+      stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
     end
 
-    it_should_behave_like "auto_refresh"    
+    it_should_behave_like :auto_refresh
   end
-
 end

@@ -23,19 +23,23 @@ shared_examples_for :auto_refresh do
 
   it "should include auto-refresh javascript if autoRefresh is true" do
     params[:autoRefresh] = "anything"
-    render @partial
-    response.should have_tag("script[type='text/javascript']", @ajax_refresher)
+
+    render :template => @partial
+
+    expect(response.body).to have_selector("script[type='text/javascript']", :text => @ajax_refresher, :visible => false)
   end
 
   it "should include auto-refresh javascript if autoRefresh is absent" do
-    render @partial
-    response.should have_tag("script[type='text/javascript']", @ajax_refresher)
+    render :template => @partial
+
+    expect(response.body).to have_selector("script[type='text/javascript']", :text => @ajax_refresher, :visible => false)
   end
 
   it "should not include auto-refresh javascript if autoRefresh is false" do
     params[:autoRefresh] = "false"
-    render @partial
-    response.should_not have_tag("script[type='text/javascript']", @ajax_refresher)
-  end
 
+    render :template => @partial
+
+    expect(response).to_not have_selector("script[type='text/javascript']", :text => @ajax_refresher, :visible => false)
+  end
 end

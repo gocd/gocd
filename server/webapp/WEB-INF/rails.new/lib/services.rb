@@ -1,9 +1,22 @@
+class ServiceCache
+  @@services = {}
+
+  def self.get_service alias_name, service
+    @@services[alias_name] ||= Spring.bean(service)
+  end
+end
+
+class ServiceCacheStrategy
+  def self.instance
+    @@instance ||= Kernel.const_get(Rails.configuration.java_services_cache)
+  end
+end
+
 module Services
   def self.service_with_alias_name(alias_name, bean_name)
     define_method alias_name do
-      instance_variable_get("@#{alias_name}") || instance_variable_set("@#{alias_name}", Spring.bean(bean_name))
+      ServiceCacheStrategy.instance.get_service alias_name, bean_name
     end
-    #helper_method alias_name
   end
 
   def self.services(*args)

@@ -208,20 +208,28 @@ describe ApplicationHelper do
   end
 
   describe 'form remote add on' do
-
     it "return the before and completed options for a form remote action" do
-      should_receive(:form_remote_tag).with(:url => "url", :success => "whatever", 202 => "do something here", :before => "AjaxRefreshers.disableAjax();interesting one", 401 => "redirectToLoginPage('/auth/login');", :complete => "AjaxRefreshers.enableAjax();alert(0);")
-      blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete=> "alert(0);")
+      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();interesting one; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();alert(0);}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+
+      actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete => "alert(0);")
+
+      expect(actual).to eq(expected)
     end
 
     it "return the before and completed options when not defined" do
-      should_receive(:form_remote_tag).with(:url => "url", :success => "whatever", 202 => "do something here", 401 => "redirectToLoginPage('/auth/login');", :before => "AjaxRefreshers.disableAjax();", :complete => "AjaxRefreshers.enableAjax();")
-      blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here")
+      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+
+      actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here")
+
+      expect(actual).to eq(expected)
     end
 
     it "should append 401 handler to form" do
-      should_receive(:form_remote_tag).with(:url => "url", 401 => "redirectToLoginPage('/auth/login');", :before => "AjaxRefreshers.disableAjax();", :complete => "AjaxRefreshers.enableAjax();")
-      blocking_form_remote_tag(:url => "url")
+      expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+
+      actual = blocking_form_remote_tag(:url => "url")
+
+      expect(actual).to eq(expected)
     end
 
     it "should create a blocking link to a remote location" do

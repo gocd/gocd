@@ -28,10 +28,10 @@ describe "/environments/_environment_pipeline.html.erb" do
   include PipelineModelMother
 
   before do
-    class << template
+    class << view
       include StagesHelper
     end
-    template.stub!(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
   end
 
   it "should show 'no historical data' when there is no history for the pipeline" do
@@ -39,7 +39,7 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineInstanceModel.createEmptyPipelineInstanceModel("pipeline", BuildCause.createWithEmptyModifications(),  StageInstanceModels.new))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".status .message", "No historical data")
+    expect(response.body).to have_selector(".status .message", :text => "No historical data")
   end
 
   it "should display pipeline label and schedule time" do
@@ -50,10 +50,11 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stage))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".status .label", /Label:\s+1/) do
-      with_tag "a","1"
+
+    Capybara.string(response.body).find(".status .label", :text => /Label:\s+1/).tap do |label|
+      expect(label).to have_selector("a", :text => "1")
     end
-    response.body.should have_tag(".status .schedule_time[title='#{now.toDate()}']")
+    expect(response.body).to have_selector(".status .schedule_time[title='#{now.toDate()}']")
   end
 
   it "should display status for last active stage" do
@@ -66,7 +67,8 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stage))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".latest_stage", "Cancelled: stage-0")
+
+    expect(response.body).to have_selector(".latest_stage", :text => "Cancelled: stage-0")
   end
 
   it "should display last run stage with 9.7em width when 2 stages" do
@@ -79,10 +81,9 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stage))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".stages a .last_run_stage .stage_bar") do |stage|
-      first_stage = stage[0]
 
-      first_stage.attributes["style"].should include("width: 9.75em")
+    Capybara.string(response.body).all(".stages a .last_run_stage .stage_bar").tap do |stages|
+      expect(stages[0]["style"]).to match(/width: 9.75em/)
     end
   end
 
@@ -96,11 +97,11 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stages))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".stages a .stage_bar") do |stage|
-      second_stage = stage[1]
-      second_stage.attributes["class"].should include("Passed")
-      second_stage.attributes["class"].should_not include("last_run_stage")
 
+    Capybara.string(response.body).all(".stages a .stage_bar") do |stages|
+      second_stage = stages[1]
+      expect(second_stage["class"]).to match("Passed")
+      second_stage.attributes["class"].should_not include("last_run_stage")
       second_stage.attributes["style"].should include("width: 9.9167em")
     end
   end
@@ -115,11 +116,12 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stages))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".stages a .stage_bar") do |stage|
-      stage[0].attributes["class"].should include("Cancelled")
-      stage[0].attributes["title"].should include("stage-0 (Cancelled)")
-      stage[1].attributes["class"].should include("Passed")
-      stage[1].attributes["title"].should include("stage-1 (Passed)")
+
+    Capybara.string(response.body).all(".stages a .stage_bar").tap do |stages|
+      expect(stages[0]["class"]).to match("Cancelled")
+      expect(stages[0]["title"]).to match("stage-0 \\(Cancelled\\)")
+      expect(stages[1]["class"]).to match("Passed")
+      expect(stages[1]["title"]).to match("stage-1 \\(Passed\\)")
     end
   end
 
@@ -131,11 +133,9 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(PipelineHistoryMother.singlePipeline("pipeline", stages))
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".stages a .last_run_stage .stage_bar") do |stage|
-      first_stage = stage[0]
 
-
-      first_stage.attributes["style"].should include("width: 19.75em")
+    Capybara.string(response.body).all(".stages a .last_run_stage .stage_bar").tap do |stages|
+      expect(stages[0]["style"]).to match("width: 19.75em")
     end
   end
 
@@ -153,30 +153,32 @@ describe "/environments/_environment_pipeline.html.erb" do
     pipeline_model.addPipelineInstance(pim)
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".deploy") do |deploy|
-      deploy.should have_tag("form[action='/api/pipelines/pipeline-name/schedule']") do |form|
-        form.should have_tag("button[type='submit'][value='Deploy Latest']")
+
+    Capybara.string(response.body).find(".deploy").tap do |deploy|
+      deploy.find("form[action='/api/pipelines/pipeline-name/schedule']").tap do |form|
+        expect(form).to have_selector("button[type='submit'][value='Deploy Latest']")
       end
     end
-    response.should have_tag(".has_new_materials")
+    expect(response).to have_selector(".has_new_materials")
   end
 
   it "should show deploy button when no revisions have run and there are no new revisions found (autoUpdate=false)" do
     stage = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, org.joda.time.DateTime.new.toDate())])
 
-    pim = PipelineInstanceModel.createPipeline("pipeline-name", -1, "1", BuildCause.createNeverRun(), stage);
+    pim = PipelineInstanceModel.createPipeline("pipeline-name", -1, "1", BuildCause.createNeverRun(), stage)
     pim.setCounter(1)
     pim.setLatestRevisions(MaterialRevisions::EMPTY)
     pipeline_model =  create_pipeline_model()
     pipeline_model.addPipelineInstance(pim)
 
     render_environment(pipeline_model)
-    response.body.should have_tag(".deploy") do |deploy|
-      deploy.should have_tag("form[action='/api/pipelines/pipeline-name/schedule']") do |form|
-        form.should have_tag("button[type='submit'][value='Deploy Latest']")
+
+    Capybara.string(response.body).find(".deploy").tap do |deploy|
+      deploy.find("form[action='/api/pipelines/pipeline-name/schedule']").tap do |form|
+        expect(form).to have_selector("button[type='submit'][value='Deploy Latest']")
       end
     end
-    response.should_not have_tag(".warn_message", "new revisions")
+    expect(response).to_not have_selector(".warn_message", :text => "new revisions")
   end
 
   it "should NOT show deploy button when no new modifications" do
@@ -199,8 +201,8 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    response.body.should_not have_tag(".warn_message")
-    response.body.should_not have_tag("input#deploy-pipeline-name")
+    expect(response.body).to_not have_selector(".warn_message")
+    expect(response.body).to_not have_selector("input#deploy-pipeline-name")
   end
 
   it "should show new revisions message only when there are new modifications" do
@@ -220,7 +222,7 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    response.body.should_not have_tag(".warn_message")
+    expect(response.body).to_not have_selector(".warn_message")
   end
 
   it "should disable deploy button when preparing to schedule" do
@@ -229,7 +231,7 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    response.body.should have_tag("button#deploy-pipeline-name[disabled='disabled']")
+    expect(response.body).to have_selector("button#deploy-pipeline-name[disabled='disabled']")
   end
 
   it "should always show compare link" do
@@ -241,15 +243,19 @@ describe "/environments/_environment_pipeline.html.erb" do
 
     render_environment(pipeline_model)
 
-    response.body.should have_tag("span.compare_pipeline")
+    expect(response.body).to have_selector("span.compare_pipeline")
   end
 
   it "should render pipeline partial with admin status passed along" do
-    pipeline_model =  create_pipeline_model()
-    pipeline_model.addPipelineInstance(PipelineInstanceModel.createPreparingToSchedule("pipeline-name", StageInstanceModels.new().addFutureStage("stage-1", false)))
-    template.should_receive(:render).with(:partial => "shared/pipeline.html", :locals => {:scope => {:pipeline_model => pipeline_model, :show_compare => true}}).and_return("pipeline")
+    pipeline_model_1 =  create_pipeline_model()
+    pipeline_model_1.addPipelineInstance(PipelineInstanceModel.createPreparingToSchedule("pipeline-name", StageInstanceModels.new().addFutureStage("stage-1", false)))
 
-    render_environment(pipeline_model)
+    stub_template "shared/_pipeline.html.erb" => "PIPELINE_PARTIAL"
+
+    render_environment(pipeline_model_1)
+
+    assert_template partial: "shared/_pipeline.html" , locals: {scope: {pipeline_model: pipeline_model_1, show_compare: true}}
+    expect(rendered).to match("PIPELINE_PARTIAL")
   end
 
   describe :deployed_revisions do
@@ -286,18 +292,15 @@ describe "/environments/_environment_pipeline.html.erb" do
       latest_hg_rev = @hg_revisions.getMaterialRevision(0)
       @pim.getMaterials().get(1).setName(CaseInsensitiveString.new("named_hg_material"))
 
-
       render environments_partial
 
-      response.body.should have_tag(".deployed_revisions") do
-        with_tag(".revision_number[title=1234]", "1234")
-        with_tag(".date[title='#{@yesterday.iso8601}']", "1 day ago")
-        with_tag(".material_name", "url") #url chosen my material mother
-      end
+      Capybara.string(response.body).find(".deployed_revisions").tap do |deployed_revisions|
+        expect(deployed_revisions).to have_selector(".revision_number[title='1234']", :text => "1234")
+        expect(deployed_revisions).to have_selector(".date[title='#{@yesterday.iso8601}']", :text => "1 day ago")
+        expect(deployed_revisions).to have_selector(".material_name", :text => "url") #url chosen my material mother
 
-      response.body.should have_tag(".deployed_revisions") do
-        with_tag(".revision_number[title=#{latest_hg_rev.getLatestRevisionString()}]", latest_hg_rev.getLatestShortRevision())
-        with_tag(".material_name", "named_hg_material")
+        expect(deployed_revisions).to have_selector(".revision_number[title='#{latest_hg_rev.getLatestRevisionString()}']", :text => "#{latest_hg_rev.getLatestShortRevision()}")
+        expect(deployed_revisions).to have_selector(".material_name", :text => "named_hg_material")
       end
     end
 
@@ -306,11 +309,11 @@ describe "/environments/_environment_pipeline.html.erb" do
 
       render environments_partial
 
-      response.body.should have_tag(".deployed_revisions") do
-        with_tag(".material_name", "not-run")
-        with_tag(".revision_number[title='N/A']", "N/A")
-        with_tag(".date[title='N/A']", "N/A")
-        without_tag("img[alt='new revisions available']")
+      Capybara.string(response.body).find(".deployed_revisions").tap do |deployed_revisions|
+        expect(deployed_revisions).to have_selector(".material_name", :text => "not-run")
+        expect(deployed_revisions).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+        expect(deployed_revisions).to have_selector(".date[title='N/A']", :text => "N/A")
+        expect(deployed_revisions).to_not have_selector("img[alt='new revisions available']")
       end
     end
 
@@ -323,11 +326,10 @@ describe "/environments/_environment_pipeline.html.erb" do
       @pim.setLatestRevisions(revisions)
 
       render environments_partial
-
-      response.body.should have_tag(".deployed_revisions.has_new_materials") do
-        with_tag(".material_name", "not-run")
-        with_tag(".revision_number[title='N/A']", "N/A")
-        with_tag(".date[title='N/A']", "N/A")
+      Capybara.string(response.body).find(".deployed_revisions.has_new_materials").tap do |deployed_revisions_has_new_materials|
+        expect(deployed_revisions_has_new_materials).to have_selector(".material_name", :text => "not-run")
+        expect(deployed_revisions_has_new_materials).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+        expect(deployed_revisions_has_new_materials).to have_selector(".date[title='N/A']", :text => "N/A")
       end
     end
 
@@ -336,33 +338,36 @@ describe "/environments/_environment_pipeline.html.erb" do
 
       render environments_partial
 
-      response.body.should have_tag(".deployed_revisions.has_new_materials") do |m|
-        with_tag(".material_name", "url")
-        with_tag(".revision_number[title='N/A']", "N/A")
-        with_tag(".date[title='N/A']", "N/A")
-      end
+      Capybara.string(response.body).find(".deployed_revisions.has_new_materials").tap do |deployed_revisions_has_new_materials|
 
-      response.body.should have_tag(".deployed_revisions.has_new_materials") do |m|
-        with_tag(".material_name", "hg-url")
-        with_tag(".revision_number[title='N/A']", "N/A")
-        with_tag(".date[title='N/A']", "N/A")
+        expect(deployed_revisions_has_new_materials).to have_selector(".material_name", :text => "url")
+        expect(deployed_revisions_has_new_materials).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+        expect(deployed_revisions_has_new_materials).to have_selector(".date[title='N/A']", :text => "N/A")
+
+        expect(deployed_revisions_has_new_materials).to have_selector(".material_name", :text => "hg-url")
+        expect(deployed_revisions_has_new_materials).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+        expect(deployed_revisions_has_new_materials).to have_selector(".date[title='N/A']", :text => "N/A")
       end
     end
 
     it "should show truncated material name with full name in title" do
       @pim.getMaterials().get(1).setName(CaseInsensitiveString.new("foo_bar_baz_quuz_ban_pavan"))
+
       render environments_partial
-      response.should have_tag(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", "foo_bar_ba..._ban_pavan")
+
+      expect(response.body).to have_selector(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", :text => "foo_bar_ba..._ban_pavan")
     end
 
     it "should show change button for materials" do
       render :partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => @pipeline_model}}
-      response.should have_tag("form button.change_revision[type=submit][value='Deploy Specific Revision']")
+
+      expect(response.body).to have_selector("form button.change_revision[type=submit][value='Deploy Specific Revision']")
     end
 
     it "should spit javascript in content body if last" do
       render :partial => "environments/environment_pipeline", :locals=>{:scope => {:pipeline_model => @pipeline_model}}
-      response.should have_tag("script[type='text/javascript']", "Util.on_load(function() { AjaxRefreshers.main().afterRefreshOf('environment_pipeline_pipeline-name_panel', function() { make_collapsable('environment_pipeline_pipeline-name_panel'); });});")
+
+      expect(response.body).to have_selector("script[type='text/javascript']", :text => "Util.on_load(function() { AjaxRefreshers.main().afterRefreshOf('environment_pipeline_pipeline-name_panel', function() { make_collapsable('environment_pipeline_pipeline-name_panel'); });});", :visible => false)
     end
 
     it "should show new revisions available image at aggregation level" do
@@ -370,57 +375,67 @@ describe "/environments/_environment_pipeline.html.erb" do
       @pim.setLatestRevisions(ModificationsMother.createSvnMaterialRevisions(Modification.new(today, "12345", "label-10", nil)))
 
       render environments_partial
-      response.body.should have_tag(".deployed_revisions.has_new_materials")
+
+      expect(response.body).to have_selector(".deployed_revisions.has_new_materials")
     end
 
 
     it "should show new revisions available image for changed material" do
       today = org.joda.time.DateTime.new.toDate()
       @pim.setLatestRevisions(ModificationsMother.createSvnMaterialRevisions(Modification.new(today, "1234", "label-10", nil)))
+
       render environments_partial
-      response.should have_tag(".deployed_revisions table.materials tr") do |materials|
-        materials[0].to_s.should have_tag("th.material_name","Material")
-        materials[0].to_s.should have_tag("th.revision_number","Revision")
-        materials[0].to_s.should have_tag("th.date","Check-in/trigger")
 
-        materials[1].to_s.should have_tag(".material_name[title='url']")
-        materials[1].to_s.should_not have_tag("img")
+      Capybara.string(response.body).all(".deployed_revisions table.materials tr").tap do |materials|
+        expect(materials[0]).to have_selector("th.material_name", :text => "Material")
+        expect(materials[0]).to have_selector("th.revision_number", :text => "Revision")
+        expect(materials[0]).to have_selector("th.date", :text => "Check-in/trigger")
 
-        materials[2].to_s.should have_tag(".material_name[title='hg-url']")
-        materials[2].to_s.should have_tag("img.has_new_material_revisions[src='/images/icon-12-alert.png?N/A']")
+        expect(materials[1]).to have_selector(".material_name[title='url']")
+        expect(materials[1]).to_not have_selector("img")
+
+        expect(materials[2]).to have_selector(".material_name[title='hg-url']")
+        expect(materials[2]).to have_selector("img.has_new_material_revisions[src='/images/icon-12-alert.png?N/A']")
       end
     end
 
     it "should not show new revisions available image for material that has not changed" do
       today = org.joda.time.DateTime.new.toDate()
       @pim.setLatestRevisions(ModificationsMother.createSvnMaterialRevisions(Modification.new(today, "1234", "label-10", nil)))
+
       render environments_partial
-      response.should have_tag(".deployed_revisions .materials img.has_new_material_revisions[src='/images/icon-12-alert.png?N/A']")
+
+      expect(response.body).to have_selector(".deployed_revisions .materials img.has_new_material_revisions[src='/images/icon-12-alert.png?N/A']")
     end
 
     it "should not show new revisions available image at aggregation level when none" do
       today = org.joda.time.DateTime.new.toDate()
       @pim.setLatestRevisions(@material_revisions)
+
       render environments_partial
-      response.body.should_not have_tag(".deployed_revisions img")
+
+      expect(response.body).to_not have_selector(".deployed_revisions img")
     end
 
     it "should display number of materials in a pipeline" do
       render environments_partial
-      response.body.should have_tag(".deployed_revisions a.materials_count", "2 Material(s):")
+
+      expect(response.body).to have_selector(".deployed_revisions a.materials_count", :text => "2 Material(s):")
     end
 
     it "should not display when buildcause has no materials" do
       @pipeline_model =  create_pipeline_model()
       @pipeline_model.addPipelineInstance(PipelineInstanceModel.createPreparingToSchedule("pipeline-name", StageInstanceModels.new().addFutureStage("stage-1", false)))
+
       render environments_partial
-      response.body.should_not have_tag(".deployed_revisions")
+
+      expect(response.body).to_not have_selector(".deployed_revisions")
     end
 
     it "should should wire change button to pipelines controller" do
       render environments_partial
-      response.should have_tag("form[action='/pipelines/show']")
-    end
 
+      expect(response.body).to have_selector("form[action='/pipelines/show']")
+    end
   end
 end

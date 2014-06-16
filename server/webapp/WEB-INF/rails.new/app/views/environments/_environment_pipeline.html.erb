@@ -28,10 +28,10 @@
                     <% end -%>
                     </td>
                     <td class="material_name" title="<%= material_in_env_pipeline.getDisplayName() %>">
-                        <%= smart_word_breaker(material_in_env_pipeline.getTruncatedDisplayName()) %>
+                        <%== smart_word_breaker(material_in_env_pipeline.getTruncatedDisplayName()) %>
                     </td>
                     <td class="revision_number" title="<%= scope[:revision] ? scope[:revision].getLatestRevisionString() : "N/A" %>">
-                        <%= scope[:revision] ? smart_word_breaker(scope[:revision].getLatestShortRevision()) : "N/A" %>
+                        <%== scope[:revision] ? smart_word_breaker(scope[:revision].getLatestShortRevision()) : "N/A" %>
                     </td>
                     <td class="date" title="<%= scope[:revision] ? scope[:revision].getDateOfLatestModification().iso8601 : "N/A" %>">
                         <%= scope[:revision] ? scope[:revision].getDateOfLatestModification().display_time : "N/A" %>

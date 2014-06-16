@@ -293,8 +293,8 @@ module ApplicationHelper
 
     options[:html] ||= {}
     options[:html][:onsubmit] =
-        (options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
-            "#{remote_function(options)}; return false;"
+        ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
+            "#{remote_function(options)}; return false;").html_safe
 
     form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
   end
@@ -422,5 +422,14 @@ module ApplicationHelper
 
   def register_defaultable_list nested_name
     "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>".html_safe
+  end
+
+  private
+  # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
+  def remote_function options
+    retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
+    success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
+
+    %Q|#{options[:before]}; new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
   end
 end

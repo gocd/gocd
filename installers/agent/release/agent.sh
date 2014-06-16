@@ -90,6 +90,9 @@ else
 fi
 
 AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGENT_MAX_MEM $JVM_DEBUG $GC_LOG $GO_AGENT_SYSTEM_PROPERTIES"
+if [ "$TMPDIR" != "" ]; then
+    AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"
+fi
 export AGENT_STARTUP_ARGS
 export LOG_DIR
 export LOG_FILE

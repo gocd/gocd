@@ -135,22 +135,11 @@ task :write_revision_number do
   end
 end
 
-def yui_compress(path)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o #{path} #{path}"
-end
+YUI_CSS_OUTPUT = ".css$:.css"
+YUI_JS_OUTPUT = ".js$:.js"
 
-def yui_compress_all(parent_directory, pattern=".css$:.css", extension="*.css")
+def yui_compress_all(pattern, parent_directory, extension)
   sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}"
-end
-
-def compress_and_merge(h, path)
-  yui_compress(path)
-
-  contents = File.read(path)
-  name = File.basename(path)
-  h.puts "/* #{name} - start */"
-  h.write(contents)
-  h.puts "\n/* #{name} - end */"
 end
 
 def merge(file_handle, path)
@@ -173,8 +162,8 @@ def put_first(lib_paths, files_to_put_first)
 end
 
 task :create_all_js do
-  yui_compress_all(JS_LIB_DIR, ".js$:.js", "*.js")
-  yui_compress_all(JS_APP_DIR, ".js$:.js", "*.js")
+  yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
+  yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
   # doing this to fix load order! :'(
   lib_paths = [JS_LIB_DIR + "/es5-shim.min.js"] +
 
@@ -208,7 +197,6 @@ end
 # css optimization
 CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
 COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
-CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
 
 def expand_css_wildcard wildcard
   Dir.glob("target/webapp/stylesheets/" + wildcard)
@@ -226,25 +214,37 @@ end
 
 task :create_all_css do
   main_dir = "target/webapp/stylesheets/"
-  yui_compress_all(main_dir)
+  yui_compress_all(YUI_CSS_OUTPUT, main_dir, "*.css")
   File.open("target/all.css", "w") do |handle|
     ["main.css", "layout.css", "structure.css", "ie_hacks.css", "module.css"].each do |file|
       merge(handle, File.join(main_dir, file))
     end
   end
 
-  CSS_TO_BE_COMPRESSED.each_with_index do |wildcard, index|
+  parent_directory = "target/webapp/stylesheets"
+  css_directories_to_be_compressed = [{:dir => "plugins", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "patterns", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "views", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "css_sass", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "**/*.css") end},
+                                      {:dir => "vm", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end}]
+
+  css_directories_to_be_compressed.each do |tuple|
+    tuple[:perform].call(tuple[:dir])
+  end
+
+  css_to_be_merged = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
+  css_to_be_merged.each_with_index do |wildcard, index|
     matched_paths = expand_css_wildcard(wildcard)
-    File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |h|
+    File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |handle|
       matched_paths.each do |path|
-        compress_and_merge(h, path)
+        merge(handle, path)
       end
     end
   end
 
   # compress each file in css/ & stylesheets/structure/
-  yui_compress_all("target/webapp/css")
-  yui_compress_all("target/webapp/stylesheets/structure")
+  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/css", "*.css")
+  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/stylesheets/structure", "*.css")
 end
 
 task :copy_compressed_css_to_webapp do

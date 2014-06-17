@@ -16,90 +16,88 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "environments/new.html" do
+describe "environments/new.html.erb" do
   before do
-    assigns[:available_pipelines] = []
-    assigns[:unavailable_pipelines] = []
-    assigns[:agents] = []
-    assigns[:environment] = EnvironmentConfig.new()
-    template.stub!(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
-    template.stub!(:security_service).and_return(@security_service = Object.new)
+    assign(:available_pipelines, [])
+    assign(:unavailable_pipelines, [])
+    assign(:agents, [])
+    assign(:environment, EnvironmentConfig.new())
+    allow(view).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
+    allow(view).to receive(:security_service).and_return(@security_service = Object.new)
   end
 
   it "should render the environment name input box" do
-    render "environments/new.html"
+    render
 
-    response.body.should have_tag("#add_new_environment input#environment_name")
-    response.body.should have_tag("#add_new_environment input#environment_name[maxLength='255']")
-    response.body.should have_tag("#add_new_environment .section_title", "Environment Name:")
+    expect(response).to have_selector("#add_new_environment input#environment_name")
+    expect(response).to have_selector("#add_new_environment input#environment_name[maxlength='255']")
+    expect(response).to have_selector("#add_new_environment .section_title", :text => "Environment Name:")
   end
 
   it "should have the error message container" do
-    render "environments/new.html"
+    render
 
-    response.body.should have_tag("span#add_error_message")
+    expect(response).to have_selector("span#add_error_message")
   end
 
   it "should render the tab links" do
-    render "environments/new.html"
+    render
 
-    response.body.should have_tag(".tabs a", "Step 1:Name")
-    response.body.should have_tag(".tabs a", "Step 2:Add Pipelines")
-    response.body.should have_tag(".tabs a", "Step 3:Add Agents")
-    response.body.should have_tag(".tabs a", "Step 4:Add Environment Variables")
+    expect(response).to have_selector(".tabs a", :text => "Step 1:Name")
+    expect(response).to have_selector(".tabs a", :text => "Step 2:Add Pipelines")
+    expect(response).to have_selector(".tabs a", :text => "Step 3:Add Agents")
+    expect(response).to have_selector(".tabs a", :text => "Step 4:Add Environment Variables")
   end
 
   it "should render the submit and close buttons" do
-    render "environments/new.html"
+    render
 
-    body = response.body
-    body.should have_tag("div.actions button", "Cancel")
-    body.should have_tag("div.actions button[type='submit']", "FINISH")
+    expect(response).to have_selector("div.actions button", :text => "Cancel")
+    expect(response).to have_selector("div.actions button[type='submit']", :text => "FINISH")
   end
 
   it "should show the pipelines title" do
-    assigns[:available_pipelines] = [EnvironmentPipelineModel.new("first"), EnvironmentPipelineModel.new("second")]
+    assign(:available_pipelines, [EnvironmentPipelineModel.new("first"), EnvironmentPipelineModel.new("second")])
 
-    render "environments/new.html"
+    render
 
-    response.body.should have_tag("h2", "Pipelines to add:")
+    expect(response).to have_selector("h2", :text => "Pipelines to add:")
   end
 
   it "should show the pipelines that can be added to the environment" do
-    assigns[:available_pipelines] = [EnvironmentPipelineModel.new("first"), EnvironmentPipelineModel.new("second")]
+    assign(:available_pipelines, [EnvironmentPipelineModel.new("first"), EnvironmentPipelineModel.new("second")])
 
-    render "environments/new.html"
+    render
     
     verify_pipeline_is_present('first')
     verify_pipeline_is_present('second')
   end
 
   it "should show control to add environment variables" do
-    assigns[:available_pipelines] = [EnvironmentPipelineModel.new("first")]
+    assign(:available_pipelines, [EnvironmentPipelineModel.new("first")])
 
-    render "environments/new.html"
+    render
 
-    response.body.should have_tag("h2", "Environment Variables (Name = Value)")
-    response.body.should have_tag('div.environment_variables_section') do
-      with_tag("ul.variables")
-    end
+    expect(response).to have_selector("h2", "Environment Variables (Name = Value)")
+    expect(response).to have_selector("div.environment_variables_section ul.variables")
   end
 
   it "should show the environment name with pipeline selections while adding a new environment" do
-    assigns[:available_pipelines] = [EnvironmentPipelineModel.new("first")]
-    assigns[:unavailable_pipelines] = [EnvironmentPipelineModel.new("second", "foo-env")]
-    render "environments/new.html"
+    assign(:available_pipelines, [EnvironmentPipelineModel.new("first")])
+    assign(:unavailable_pipelines, [EnvironmentPipelineModel.new("second", "foo-env")])
 
-    response.body.should have_tag("div.form_content .pipeline_selector input#pipeline_first[name='environment[pipelines][][name]'][type='checkbox']")
-    response.body.should have_tag("div.form_content label[for='pipeline_first']")
+    render
 
-    response.body.should have_tag("div.form_content .unavailable_pipelines label", /second/)
-    response.body.should have_tag("div.form_content .unavailable_pipelines label", /(foo-env)/)
+    expect(response).to have_selector("div.form_content .pipeline_selector input#pipeline_first[name='environment[pipelines][][name]'][type='checkbox']")
+    expect(response).to have_selector("div.form_content label[for='pipeline_first']")
+
+    expect(response).to have_selector("div.form_content .unavailable_pipelines label", :text => /second/)
+    expect(response).to have_selector("div.form_content .unavailable_pipelines label", :text => /(foo-env)/)
   end
 
   def verify_pipeline_is_present(pipeline_name)
-    response.body.should have_tag("div.form_content .pipeline_selector input#pipeline_#{pipeline_name}[name='environment[pipelines][][name]'][type='checkbox']")
-    response.body.should have_tag("div.form_content label[for='pipeline_#{pipeline_name}']")
+    expect(response).to have_selector("div.form_content .pipeline_selector input#pipeline_#{pipeline_name}[name='environment[pipelines][][name]'][type='checkbox']")
+    expect(response).to have_selector("div.form_content label[for='pipeline_#{pipeline_name}']")
   end
 end
   

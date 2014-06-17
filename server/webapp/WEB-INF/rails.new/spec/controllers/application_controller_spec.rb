@@ -345,9 +345,8 @@ describe ApplicationController do
           expect(controller).to receive(:redirect_to) do |options|
             expect(options[:class]).to eq(nil)
             expect(options[:action]).to eq(:index)
-            expect(options[:params]).to has_subset({:column => "a", :sort => "b"})
-            #expect(options[:params][:column]).to eq("a")
-            #expect(options[:params][:sort]).to eq("b")
+            expect(options[:params][:column]).to eq("a")
+            expect(options[:params][:sort]).to eq("b")
             guid = options[:params][:fm]
           end
           controller.redirect_with_flash("Flash message", :action => :index, :params => {:column => "a", :sort => "b"}, :class => "warning")

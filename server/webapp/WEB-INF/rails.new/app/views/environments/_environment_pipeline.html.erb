@@ -23,7 +23,7 @@
                 scope[:revision] = scope[:pipeline].findCurrentMaterialRevisionForUI(material_in_env_pipeline) -%>
                 <tr <% if scope[:pipeline].hasNewRevisions(material_in_env_pipeline) -%>class="revision-row"<% end -%> >
                     <td class="noshow">
-                    <% if scope[:pipeline].hasNewRevisions(material_in_env_pipeline) -%>                            
+                    <% if scope[:pipeline].hasNewRevisions(material_in_env_pipeline) -%>
                         <img class="has_new_material_revisions" src="<%=image_path('/images/icon-12-alert.png')%>">
                     <% end -%>
                     </td>

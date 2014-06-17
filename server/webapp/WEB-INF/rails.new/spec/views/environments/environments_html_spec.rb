@@ -40,47 +40,50 @@ describe 'environments/_environments.html.erb' do
 
       @uat = Environment.new("uat", [@pipeline_model])
       @prod = Environment.new("prod", [@pipeline_model_2])
-      assigns[:environments] = [@uat, @prod]
+      assign(:environments, [@uat, @prod])
 
-      class << template
+      class << view
         include StagesHelper
       end
     end
 
     it "should have wrapping div for ajax refresh" do
-      render :partial=>'environments/environments.html.erb', :locals => {:scope => {:show_edit_environments => true}}
+      render :partial=>'environments/environments.html.erb', locals: {scope: {show_edit_environments: true}}
 
-      response.body.should have_tag("div#environment_uat_panel .environment h2", "uat")
+      expect(response).to have_selector("div#environment_uat_panel .environment h2", :text => "uat")
     end
 
     it "should yield for show hide script" do
-      render :partial=>'environments/environments.html.erb', :locals => {:scope => {:show_edit_environments => true}}
       script_snippet = "Util.on_load(function() { AjaxRefreshers.main().afterRefreshOf('environment_pipeline_pipline-name_panel', function() { make_collapsable('environment_pipeline_pipline-name_panel'); });});";
-      response.should have_tag("script[type='text/javascript']") do |script|
-        script.length.should == 2
+
+      render :partial=>'environments/environments.html.erb', :locals => {:scope => {:show_edit_environments => true}}
+
+      expect(response).to have_selector("script[type='text/javascript']", visible: false)
+      Capybara.string(response.body).all("script[type='text/javascript']", visible: false).tap do |script|
+        expect(script.length).to eq(2)
       end
-      response.should have_tag("script[type='text/javascript']", script_snippet)
+      expect(response).to have_selector("script[type='text/javascript']", :text => script_snippet, visible: false)
     end
 
     it "should show a message to add pipelines for an environment without pipelines" do
       @empty = Environment.new("empty", [])
-      assigns[:environments] = [@empty]
+      assign(:environments, [@empty])
 
       render :partial=>'environments/environments.html.erb', :locals => {:scope => {:show_edit_environments => true}}
 
-      response.body.should have_tag("div#environment_empty_panel .environment h2", "empty")
-      response.body.should have_tag("div#environment_empty_panel .pipelines span", "There are no pipelines configured for this environment.")
+      expect(response).to have_selector("div#environment_empty_panel .environment h2", :text => "empty")
+      expect(response).to have_selector("div#environment_empty_panel .pipelines span", :text => "There are no pipelines configured for this environment.")
     end
 
     it "should render environments using environment partial" do
-      template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => {:environment => @uat, :show_edit_environments => true}}).and_return("(foo content)")
-      template.should_receive(:render).with(:partial => "environment.html.erb", :locals => {:scope => {:environment => @prod, :show_edit_environments => true}}).and_return("(bar content)")
+      stub_template "_environment.html.erb" => "Content for: <%= scope[:environment].name %>"
 
       render :partial => 'environments/environments.html.erb', :locals => {:scope => {:show_edit_environments => true}}
+
+      expect(response).to have_selector("div#environment_uat_panel", :text => "Content for: uat")
+      expect(response).to have_selector("div#environment_prod_panel", :text => "Content for: prod")
     end
-
   end
-
 end
 
 

@@ -36,88 +36,89 @@ describe "/environments/_environment.html.erb" do
     @pipelines[0].addPipelineInstance(pipeline1)
     @pipelines[1].addPipelineInstance( pipeline2)
     @pipelines[2].addPipelineInstance( pipeline3)
-    @environment = stub('environment uat', :name => "UAT", :getPipelineModels => @pipelines)
-    class << template
+    @environment = double('environment uat', :name => "UAT", :getPipelineModels => @pipelines)
+    class << view
       include StagesHelper
     end
-    template.stub!(:on_pipeline_dashboard?).and_return(false)
+    allow(view).to receive(:on_pipeline_dashboard?).and_return(false)
   end
 
   def render_show
-    render :partial => 'environments/environment.html.erb', :locals => {:scope => { :environment => @environment, :show_edit_environments => true}}
+    render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: true}}
   end
 
   describe "environment title" do
 
       it "should display the environment name as link if show_add_environment is true" do
-        render :partial => 'environments/environment.html.erb', :locals => {:scope => { :environment => @environment, :show_edit_environments => true}}
-        response.should have_tag("div.environment h2.entity_title a[href='/environments/UAT/show']", /UAT/)
+        render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: true}}
+        expect(response).to have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']", :text => /UAT/)
       end
 
       it "should display the environment name as plain text if show_add_environment is false" do
-        render :partial => 'environments/environment.html.erb', :locals => {:scope => { :environment => @environment, :show_edit_environments => false}}
-        response.should have_tag("div.environment h2.entity_title", /UAT/)
-        response.should_not have_tag("div.environment h2.entity_title a[href='/environments/UAT/show']", /UAT/)
+        render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: false}}
+        expect(response).to have_selector("div.environment h2.entity_title", :text => /UAT/)
+        expect(response).to_not have_selector("div.environment h2.entity_title a[href='/environments/UAT/show']", :text => /UAT/)
       end
 
       it "should render environment with environment_pipeline partial" do
-        template.should_receive(:render).with(:partial => "environment_pipeline.html.erb", :locals => {:scope => {:pipeline_model => @pipelines[0], :pipeline_model_subkey => 'environment_html'}}).and_return("environment pipeline")
-        template.should_receive(:render).with(:partial => "environment_pipeline.html.erb", :locals => {:scope => {:pipeline_model => @pipelines[1], :pipeline_model_subkey => 'environment_html'}}).and_return("environment pipeline")
-        template.should_receive(:render).with(:partial => "environment_pipeline.html.erb", :locals => {:scope => {:pipeline_model => @pipelines[2], :pipeline_model_subkey => 'environment_html'}}).and_return("environment pipeline")
+        stub_template "_environment_pipeline.html.erb" => "environment pipeline"
 
-        render :partial => 'environments/environment.html.erb', :locals => {:scope => { :environment => @environment, :show_edit_environments => true}}
+        render :partial => 'environments/environment.html.erb', locals: {scope: {environment: @environment, show_edit_environments: true}}
+
+        assert_template partial: "environment_pipeline.html.erb" , locals: {scope: {pipeline_model: @pipelines[0], pipeline_model_subkey: 'environment_html'}}
+        assert_template partial: "environment_pipeline.html.erb" , locals: {scope: {pipeline_model: @pipelines[1], pipeline_model_subkey: 'environment_html'}}
+        assert_template partial: "environment_pipeline.html.erb" , locals: {scope: {pipeline_model: @pipelines[2], pipeline_model_subkey: 'environment_html'}}
       end
   end
 
   describe "has no new revisions" do
 
     before do
-      @environment.stub(:hasNewRevisions => false)
+      allow(@environment).to receive(:hasNewRevisions).and_return(false)
       render_show
     end
 
     it "should display all piplelines in a environemnt" do
-      response.should have_tag("div.pipeline") do
-        with_tag("h3.title a", "blahPipeline1")
-        with_tag("h3.title a", "blahPipeline2")
-        with_tag("h3.title a", "blahPipeline3")
+      Capybara.string(response.body).all("div.pipeline").tap do |pipelines|
+        expect(pipelines[0]).to have_selector("h3.title a", :text => "blahPipeline1")
+        expect(pipelines[1]).to have_selector("h3.title a", :text => "blahPipeline2")
+        expect(pipelines[2]).to have_selector("h3.title a", :text => "blahPipeline3")
       end
-      response.should have_tag("div.pipeline h3.title") do
-        with_tag("a[href='/tab/pipeline/history/blahPipeline1']", "blahPipeline1")
-        with_tag("a[href='/tab/pipeline/history/blahPipeline2']", "blahPipeline2")
-        with_tag("a[href='/tab/pipeline/history/blahPipeline3']", "blahPipeline3")
+
+      Capybara.string(response.body).all("div.pipeline h3.title").tap do |pipelines|
+        expect(pipelines[0]).to have_selector("a[href='/tab/pipeline/history/blahPipeline1']", :text => "blahPipeline1")
+        expect(pipelines[1]).to have_selector("a[href='/tab/pipeline/history/blahPipeline2']", :text => "blahPipeline2")
+        expect(pipelines[2]).to have_selector("a[href='/tab/pipeline/history/blahPipeline3']", :text => "blahPipeline3")
       end
     end
 
     it "should display url for each stage" do
-      response.should have_tag(".stages a.stage[href='/pipelines/blahPipeline1/1/blahStage-0/1']")
+      expect(response).to have_selector(".stages a.stage[href='/pipelines/blahPipeline1/1/blahStage-0/1']")
     end
 
     it "should display URL for pipeline for an unknown stage" do
-      response.should have_tag(".stages") do
-        with_tag "span.stage div[class='stage_bar Unknown']"
+      Capybara.string(response.body).all(".stages").tap do |stages|
+        expect(stages[1]).to have_selector("span.stage div[class='stage_bar Unknown']")
       end
     end
 
     it "should display Label for pipeline with a link to the pipeline detail page" do
-      response.should have_tag(".pipeline .status .label ", /Label:\s+1/) do
-        with_tag "a[href='/pipelines/value_stream_map/blahPipeline1/1']","1"
-      end
+      expect(response).to have_selector(".pipelines .status .label", :text => /Label:\s+1/)
+      expect(response).to have_selector(".pipelines .status .label a[href='/pipelines/value_stream_map/blahPipeline1/1']", :text => "1")
     end
 
     it "should set the input to time that the pipeline was run for javascript to display the converted time" do
-      response.should have_tag(".pipeline .status .schedule_time", /Triggered/) do
-        with_tag "input[type='hidden'][value=?]", @stages_for_pipeline_1.getScheduledDate().getTime()
-      end
+      expect(response).to have_selector(".pipeline .status .schedule_time", :text => /Triggered/)
+      expect(response).to have_selector(".pipeline .status .schedule_time input[type='hidden'][value='#{@stages_for_pipeline_1.getScheduledDate().getTime()}']")
     end
 
     it "should display all stages for the pipeline" do
-      response.should have_tag "div.pipeline .stages" do
+      Capybara.string(response.body).all("div.pipeline .stages").tap do |stages|
         #TODO: add href
-        with_tag "div.stage_bar[title='blahStage-0 (Building)']"
-        with_tag "div.stage_bar[title='blahStage-1 (Failed)']"
-        with_tag "div.stage_bar[title='blahStage-2 (Cancelled)']"
-        with_tag "div.stage_bar[title='blahStage-3 (Passed)']"
+        expect(stages[1]).to have_selector("div.stage_bar[title='blahStage-0 (Building)']")
+        expect(stages[1]).to have_selector("div.stage_bar[title='blahStage-1 (Failed)']")
+        expect(stages[1]).to have_selector("div.stage_bar[title='blahStage-2 (Cancelled)']")
+        expect(stages[1]).to have_selector("div.stage_bar[title='blahStage-3 (Passed)']")
       end
     end
   end

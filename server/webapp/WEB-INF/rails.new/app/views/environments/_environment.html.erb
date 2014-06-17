@@ -16,7 +16,7 @@
             <% scope[:pipeline_models].each do |pipeline_model_in_environment| %>
                 <div id="<%= env_pipeline_dom_id(pipeline_model_in_environment) %>" class="pipeline hidereveal_collapsed">
                     <% unless scope[:omit_pipeline] %>
-                        <% cache(view_cache_key.forEnvironmentPipelineBox(pipeline_model_in_environment), :subkey => "environment_html") do %>
+                        <% cache(view_cache_key.forEnvironmentPipelineBox(pipeline_model_in_environment), {:subkey => "environment_html", :skip_digest => true}) do %>
                             <%= render :partial=>'environment_pipeline.html.erb', :locals=>{:scope => {:pipeline_model => pipeline_model_in_environment, :pipeline_model_subkey => 'environment_html'}} %>
                         <% end %>
                     <% end %>

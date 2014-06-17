@@ -56,7 +56,7 @@ class AdminController < ApplicationController
 
     args.inject(@asserted_variables ||= {}) do |map, name|
       unless (var = instance_variable_get("@#{name}"))
-        RAILS_DEFAULT_LOGGER.warn("Could not load '#{name}', rendering failure #{caller[0..10].join("\n")}")
+        Rails.logger.warn("Could not load '#{name}', rendering failure #{caller[0..10].join("\n")}")
         render_assertion_failure(options)
         successful = false
       end
@@ -110,7 +110,7 @@ class AdminController < ApplicationController
     begin
       load_data.call
     rescue
-      log_error $!
+      Rails.logger.error $!
       render_assertion_failure({})
     end
     if @update_result.isSuccessful()

@@ -19,8 +19,7 @@ describe Admin::Plugins::PluginsController do
   describe :routes do
 
     it "should resolve the route" do
-      params_from(:get, "/admin/plugins").should == {:controller => "admin/plugins/plugins", :action => "index"}
-      route_for(:controller => "admin/plugins/plugins", :action => "index").should == "admin/plugins"
+      {:get => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "index")
       plugins_listing_path.should == "/admin/plugins"
     end
   end

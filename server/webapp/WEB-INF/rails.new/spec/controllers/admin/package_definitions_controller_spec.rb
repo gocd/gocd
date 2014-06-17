@@ -21,43 +21,37 @@ describe Admin::PackageDefinitionsController do
   include MockRegistryModule
   describe "routes" do
     it "should resolve route to the new package_definitions page" do
-      params_from(:get, "/admin/package_definitions/repoid/new").should == {:controller => "admin/package_definitions", :action => "new", :repo_id => "repoid"}
-      route_for(:controller => "admin/package_definitions", :repo_id => "repoid", :action => "new").should == "admin/package_definitions/repoid/new"
+      {:get => "/admin/package_definitions/repoid/new"}.should route_to(:controller => "admin/package_definitions", :action => "new", :repo_id => "repoid")
       package_definitions_new_path(:repo_id => "repoid").should == "/admin/package_definitions/repoid/new"
     end
 
     it "should resolve route to the new package_definitions page" do
-      params_from(:get, "/admin/package_definitions/repoid/new_for_new_pipeline_wizard").should == {:controller => "admin/package_definitions", :action => "new_for_new_pipeline_wizard", :repo_id => "repoid"}
-      route_for(:controller => "admin/package_definitions", :repo_id => "repoid", :action => "new_for_new_pipeline_wizard").should == "admin/package_definitions/repoid/new_for_new_pipeline_wizard"
+      {:get => "/admin/package_definitions/repoid/new_for_new_pipeline_wizard"}.should route_to(:controller => "admin/package_definitions", :action => "new_for_new_pipeline_wizard", :repo_id => "repoid")
       package_definitions_new_for_new_pipeline_wizard_path(:repo_id => "repoid").should == "/admin/package_definitions/repoid/new_for_new_pipeline_wizard"
     end
 
     it "should route to package_config action" do
-      params_from(:get, "/admin/package_definitions/repoid/packageid").should == {:controller => "admin/package_definitions", :action => "show", :repo_id => "repoid", :package_id => "packageid"}
-      route_for(:controller => "admin/package_definitions", :action => "show", :repo_id => "repoid", :package_id => "packageid").should == "admin/package_definitions/repoid/packageid"
+      {:get => "/admin/package_definitions/repoid/packageid"}.should route_to(:controller => "admin/package_definitions", :action => "show", :repo_id => "repoid", :package_id => "packageid")
       package_definitions_show_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid"
     end
 
     it "should route to package_config action" do
-      params_from(:get, "/admin/package_definitions/repoid/packageid/for_new_pipeline_wizard").should == {:controller => "admin/package_definitions", :action => "show_for_new_pipeline_wizard", :repo_id => "repoid", :package_id => "packageid"}
-      route_for(:controller => "admin/package_definitions", :action => "show_for_new_pipeline_wizard", :repo_id => "repoid", :package_id => "packageid").should == "admin/package_definitions/repoid/packageid/for_new_pipeline_wizard"
+      {:get => "/admin/package_definitions/repoid/packageid/for_new_pipeline_wizard"}.should route_to(:controller => "admin/package_definitions", :action => "show_for_new_pipeline_wizard", :repo_id => "repoid", :package_id => "packageid")
       package_definitions_show_for_new_pipeline_wizard_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid/for_new_pipeline_wizard"
     end
 
     it "should route to package_config action with repository listing" do
-      params_from(:get, "/admin/package_definitions/repoid/packageid/with_repository_list").should == {:controller => "admin/package_definitions", :action => "show_with_repository_list", :repo_id => "repoid", :package_id => "packageid"}
-      route_for(:controller => "admin/package_definitions", :action => "show_with_repository_list", :repo_id => "repoid", :package_id => "packageid").should == "admin/package_definitions/repoid/packageid/with_repository_list"
+      {:get => "/admin/package_definitions/repoid/packageid/with_repository_list"}.should route_to(:controller => "admin/package_definitions", :action => "show_with_repository_list", :repo_id => "repoid", :package_id => "packageid")
       package_definitions_show_with_repository_list_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid/with_repository_list"
     end
 
     it "should route to pipeline used in" do
-      params_from(:get, "/admin/package_definitions/repoid/packageid/pipelines_used_in").should == {:controller => "admin/package_definitions", :action => "pipelines_used_in", :repo_id => "repoid", :package_id => "packageid"}
-      route_for(:controller => "admin/package_definitions", :action => "pipelines_used_in", :repo_id => "repoid", :package_id => "packageid").should == "admin/package_definitions/repoid/packageid/pipelines_used_in"
+      {:get => "/admin/package_definitions/repoid/packageid/pipelines_used_in"}.should route_to(:controller => "admin/package_definitions", :action => "pipelines_used_in", :repo_id => "repoid", :package_id => "packageid")
       pipelines_used_in_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid/pipelines_used_in"
     end
 
     it "should route to delete package" do
-      params_from(:delete, "/admin/package_definitions/repoid/packageid").should == {:controller => "admin/package_definitions", :action => "destroy", :repo_id => "repoid", :package_id => "packageid"}
+      {:delete => "/admin/package_definitions/repoid/packageid"}.should route_to(:controller => "admin/package_definitions", :action => "destroy", :repo_id => "repoid", :package_id => "packageid")
       package_definition_delete_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid"
     end
 

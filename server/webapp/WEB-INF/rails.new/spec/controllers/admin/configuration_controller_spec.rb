@@ -67,20 +67,18 @@ describe Admin::ConfigurationController do
 
   describe "routes" do
     it "view" do
-      route_for(:controller => "admin/configuration", :action => "show").should == "/admin/config_xml"
       config_view_path.should == "/admin/config_xml"
-      params_from(:get, "/admin/config_xml").should == {:controller => "admin/configuration", :action => "show"}
+      {:get => "/admin/config_xml"}.should route_to(:controller => "admin/configuration", :action => "show")
     end
 
     it "edit" do
-      route_for(:controller => "admin/configuration", :action => "edit").should == "/admin/config_xml/edit"
       config_edit_path.should == "/admin/config_xml/edit"
-      params_from(:get, "/admin/config_xml/edit").should == {:controller => "admin/configuration", :action => "edit"}
+      {:get => "/admin/config_xml/edit"}.should route_to(:controller => "admin/configuration", :action => "edit")
     end
 
     it "update" do
       config_update_path.should == "/admin/config_xml"
-      params_from(:put, "/admin/config_xml").should == {:controller => "admin/configuration", :action => "update"}
+      {:put => "/admin/config_xml"}.should route_to(:controller => "admin/configuration", :action => "update")
     end
   end
 

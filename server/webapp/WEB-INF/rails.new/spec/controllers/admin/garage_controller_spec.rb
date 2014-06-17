@@ -19,12 +19,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Admin::GarageController do
   describe :route do
     it "should resolve index" do
-      params_from(:get, "/admin/garage").should == {:controller => "admin/garage", :action => "index"}
+      {:get => "/admin/garage"}.should route_to(:controller => "admin/garage", :action => "index")
       garage_index_path.should == "/admin/garage"
     end
 
     it "should resolve gc" do
-      params_from(:post, "/admin/garage/gc").should == {:controller => "admin/garage", :action => "gc"}
+      {:post => "/admin/garage/gc"}.should route_to(:controller => "admin/garage", :action => "gc")
       garage_gc_path.should == "/admin/garage/gc"
     end
   end

@@ -22,7 +22,7 @@ module GoUtil
 
   def in_params map
     map.each do |key, value|
-      params[key] = value
+      controller.params[key] = value
       @request.path_parameters[key] = value
     end
   end

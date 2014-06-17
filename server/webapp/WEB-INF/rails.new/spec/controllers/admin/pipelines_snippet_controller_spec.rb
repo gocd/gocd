@@ -20,25 +20,22 @@ describe Admin::PipelinesSnippetController do
 
   describe :routes do
     it "should resolve the route to partial config page" do
-      params_from(:get, "/admin/pipelines/snippet").should == {:controller => "admin/pipelines_snippet", :action => "index"}
-      route_for(:controller => "admin/pipelines_snippet", :action => "index").should == "admin/pipelines/snippet"
+      {:get => "/admin/pipelines/snippet"}.should route_to(:controller => "admin/pipelines_snippet", :action => "index")
       pipelines_snippet_path.should == "/admin/pipelines/snippet"
     end
 
     it "should resolve route to get group xml" do
-      params_from(:get, "/admin/pipelines/snippet/foo.bar").should == {:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar"}
-      route_for(:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar").should == "admin/pipelines/snippet/foo.bar"
+      {:get => "/admin/pipelines/snippet/foo.bar"}.should route_to(:controller => "admin/pipelines_snippet", :action => "show", :group_name => "foo.bar")
       pipelines_snippet_show_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar"
     end
 
     it "should resolve route to save group xml" do
-      params_from(:put, "/admin/pipelines/snippet/foo.bar").should == {:controller => "admin/pipelines_snippet", :action => "update", :group_name => "foo.bar"}
+      {:put => "/admin/pipelines/snippet/foo.bar"}.should route_to(:controller => "admin/pipelines_snippet", :action => "update", :group_name => "foo.bar")
       pipelines_snippet_update_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar"
     end
 
     it "should resolve route to edit group xml" do
-      params_from(:get, "/admin/pipelines/snippet/foo.bar/edit").should == {:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar"}
-      route_for(:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar").should == "admin/pipelines/snippet/foo.bar/edit"
+      {:get => "/admin/pipelines/snippet/foo.bar/edit"}.should route_to(:controller => "admin/pipelines_snippet", :action => "edit", :group_name => "foo.bar")
       pipelines_snippet_edit_path(:group_name => 'foo.bar').should == "/admin/pipelines/snippet/foo.bar/edit"
     end
   end

@@ -16,7 +16,8 @@
 
 Go::Application.routes.draw do
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = /[\w\-][\w\-.]*/
+    JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
@@ -25,9 +26,47 @@ Go::Application.routes.draw do
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
 
+  get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet
+  get "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#show", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_show
+  get "admin/pipelines/snippet/:group_name/edit" => "admin/pipelines_snippet#edit", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_edit
+  put "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_update
+
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+
+  get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
+
+  get "admin/commands" => "admin/commands#index", as: :admin_commands
+  get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition
+  get "admin/commands/lookup" => "admin/commands#lookup", :format => "text", as: :admin_command_lookup
+
+  get "admin/config_xml" => "admin/configuration#show", as: :config_view
+  put "admin/config_xml" => "admin/configuration#update", as: :config_update
+  get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
+
+  get "admin/garage" => "admin/garage#index", as: :garage_index
+  post "admin/garage/gc" => "admin/garage#gc", as: :garage_gc
+
+  get "admin/package_definitions/:repo_id/new" => "admin/package_definitions#new", as: :package_definitions_new
+  get "admin/package_definitions/:repo_id/new_for_new_pipeline_wizard" => "admin/package_definitions#new_for_new_pipeline_wizard", as: :package_definitions_new_for_new_pipeline_wizard
+  get "admin/package_definitions/:repo_id/:package_id/pipelines_used_in" => "admin/package_definitions#pipelines_used_in", as: :pipelines_used_in
+  get "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#show", as: :package_definitions_show
+  get "admin/package_definitions/:repo_id/:package_id/for_new_pipeline_wizard" => "admin/package_definitions#show_for_new_pipeline_wizard", as: :package_definitions_show_for_new_pipeline_wizard
+  get "admin/package_definitions/:repo_id/:package_id/with_repository_list" => "admin/package_definitions#show_with_repository_list", as: :package_definitions_show_with_repository_list
+  delete "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#destroy", as: :package_definition_delete
+  get "admin/package_definitions/check_connection" => "admin/package_definitions#check_connection", as: :package_definition_check_connection
+
+  get "admin/package_repositories" => "admin/package_repositories#index", as: :package_repositories
+  get "admin/package_repositories/new" => "admin/package_repositories#new", as: :package_repositories_new
+  get "admin/package_repositories/check_connection" => "admin/package_repositories#check_connection", as: :package_repositories_check_connection
+  get "admin/package_repositories/list" => "admin/package_repositories#list", as: :package_repositories_list
+  get "admin/package_repositories/:id/edit" => "admin/package_repositories#edit", as: :package_repositories_edit
+  post "admin/package_repositories" => "admin/package_repositories#create", as: :package_repositories_create
+  put "admin/package_repositories/:id" => "admin/package_repositories#update", as: :package_repositories_update
+  delete "admin/package_repositories/:id" => "admin/package_repositories#destroy", as: :package_repositories_delete
+  get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", as: :package_repositories_plugin_config
+  get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", as: :package_repositories_plugin_config_for_repo
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
@@ -116,14 +155,10 @@ Go::Application.routes.draw do
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "admin/pipelines/:pipeline_name/:current_tab" => 'test/test#edit', constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit
 
-  get 'test' => 'test/test#index', as: :plugins_listing
-  get 'test' => 'test/test#index', as: :config_view
   get 'test' => 'test/test#index', as: :edit_server_config
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients
-  get 'test' => 'test/test#index', as: :package_repositories_new
   get 'test' => 'test/test#index', as: :user_listing
   get 'test' => 'test/test#index', as: :oauth_clients
-  get 'test' => 'test/test#index', as: :package_repositories_list
   get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
 
   # catch all route

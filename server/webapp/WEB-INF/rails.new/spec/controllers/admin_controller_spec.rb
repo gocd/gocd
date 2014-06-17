@@ -134,7 +134,7 @@ describe AdminController do
   it "should render error response for exceptions in after update block" do
     stub_save_for_success
     exception = nil
-    controller.should_receive(:log_error) do |ex|
+    Rails.logger.should_receive(:error) do |ex|
       exception = ex
     end
     controller.should_receive(:render_assertion_failure).with({})
@@ -145,7 +145,7 @@ describe AdminController do
   end
 
   it "should use config_errors page for rendering errors" do
-    controller.class.filter_chain.map(&:method).should include(:enable_admin_error_template)
+    controller._process_action_callbacks.select { |c| c.kind == :before }.map(&:filter).should include(:enable_admin_error_template)
     controller.send(:enable_admin_error_template)
     controller.error_template_for_request.should == "shared/config_error"
   end

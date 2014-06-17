@@ -21,50 +21,47 @@ describe Admin::PackageRepositoriesController do
 
   describe :routes do
     it "should resolve route to the new package-repositories page" do
-      params_from(:get, "/admin/package_repositories/new").should == {:controller => "admin/package_repositories", :action => "new"}
-      route_for(:controller => "admin/package_repositories", :action => "new").should == "admin/package_repositories/new"
+      {:get => "/admin/package_repositories/new"}.should route_to(:controller => "admin/package_repositories", :action => "new")
       package_repositories_new_path.should == "/admin/package_repositories/new"
     end
 
     it "should resolve route to the list package-repositories page" do
-      params_from(:get, "/admin/package_repositories/list").should == {:controller => "admin/package_repositories", :action => "list"}
-      route_for(:controller => "admin/package_repositories", :action => "list").should == "admin/package_repositories/list"
+      {:get => "/admin/package_repositories/list"}.should route_to(:controller => "admin/package_repositories", :action => "list")
       package_repositories_list_path.should == "/admin/package_repositories/list"
     end
 
     it "should resolve route to the create package-repositories page" do
-      params_from(:post, "/admin/package_repositories").should == {:controller => "admin/package_repositories", :action => "create"}
+      {:post => "/admin/package_repositories"}.should route_to(:controller => "admin/package_repositories", :action => "create")
       package_repositories_create_path.should == "/admin/package_repositories"
     end
 
     it "should resolve route to the edit package-repositories page" do
-      params_from(:get, "/admin/package_repositories/abcd-1234/edit").should == {:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234"}
-      route_for(:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234").should == "admin/package_repositories/abcd-1234/edit"
+      {:get => "/admin/package_repositories/abcd-1234/edit"}.should route_to(:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234")
       package_repositories_edit_path(:id => "abcd-1234").should == "/admin/package_repositories/abcd-1234/edit"
     end
 
     it "should resolve route to the update package-repositories page" do
-      params_from(:put, "/admin/package_repositories/abcd-1234").should == {:controller => "admin/package_repositories", :action => "update", :id => "abcd-1234"}
+      {:put => "/admin/package_repositories/abcd-1234"}.should route_to(:controller => "admin/package_repositories", :action => "update", :id => "abcd-1234")
       package_repositories_update_path(:id => "abcd-1234").should == "/admin/package_repositories/abcd-1234"
     end
 
     it "should resolve route to plugin config" do
-      params_from(:get, "/admin/package_repositories/abcd-1234/config").should == {:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "abcd-1234"}
+      {:get => "/admin/package_repositories/abcd-1234/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "abcd-1234")
       package_repositories_plugin_config_path(:plugin => "abcd-1234").should == "/admin/package_repositories/abcd-1234/config"
     end
 
     it "should resolve route to plugin config for repo" do
-      params_from(:get, "/admin/package_repositories/repoid/pluginid/config").should == {:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "pluginid", :id => "repoid"}
+      {:get => "/admin/package_repositories/repoid/pluginid/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "pluginid", :id => "repoid")
       package_repositories_plugin_config_for_repo_path(:plugin => "pluginid", :id => "repoid").should == "/admin/package_repositories/repoid/pluginid/config"
     end
 
     it "should resolve route to check connection for repo" do
-      params_from(:get, "/admin/package_repositories/check_connection?id=foo").should == {:controller => "admin/package_repositories", :action => "check_connection", :id => "foo"}
+      {:get => "/admin/package_repositories/check_connection?id=foo"}.should route_to(:controller => "admin/package_repositories", :action => "check_connection", :id => "foo")
       package_repositories_check_connection_path.should == "/admin/package_repositories/check_connection"
     end
 
     it "should resolve route to deletion of repo" do
-      params_from(:delete, "/admin/package_repositories/repo").should == {:controller => "admin/package_repositories", :action => "destroy", :id => "repo"}
+      {:delete => "/admin/package_repositories/repo"}.should route_to(:controller => "admin/package_repositories", :action => "destroy", :id => "repo")
       package_repositories_delete_path(:id => "repo").should == "/admin/package_repositories/repo"
     end
   end
@@ -142,23 +139,24 @@ describe Admin::PackageRepositoriesController do
       end
 
       it "should get the configuration properties for a given plugin-id" do
-        controller.should_receive(:render).with(:partial => "config", :layout => false, :locals => {:scope => {:repository_configuration => anything, :plugin_id => "pluginid", :isNewRepo => true}})
         get :plugin_config, :plugin => "pluginid"
 
         assigns[:repository_configuration].should_not be_nil
         assigns[:repository_configuration].properties[0].display_name.should == "Key 1"
         assigns[:repository_configuration].properties[0].value.should == nil
-
+        assigns[:plugin_id].should == "pluginid"
+        assigns[:isNewRepo].should == true
       end
 
       it "should get the configuration properties with values for a given repo-id associated with package material plugin" do
-        controller.should_receive(:render).with(:partial => "config", :layout => false, :locals => {:scope => {:repository_configuration => anything, :plugin_id => "pluginid", :isNewRepo => false}})
         get :plugin_config_for_repo, :id => "repo1", :plugin => "pluginid"
 
         assigns[:repository_configuration].should_not be_nil
         assigns[:repository_configuration].properties.size.should == 1
         assigns[:repository_configuration].properties[0].display_name.should == "Key 1"
         assigns[:repository_configuration].properties[0].value.should == "v1"
+        assigns[:plugin_id].should == "pluginid"
+        assigns[:isNewRepo].should == false
       end
     end
 
@@ -177,7 +175,7 @@ describe Admin::PackageRepositoriesController do
         package_repository.setId("repo-id")
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("repo-id", 200,  "success"))
-        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
         response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"repo-id\",\"redirectUrl\":\"/admin/package_repositories/repo-id/edit\"}"
         flash[:success].should == "success"
         response.response_code.should == 200
@@ -188,7 +186,7 @@ describe Admin::PackageRepositoriesController do
         package_repository = PackageRepository.new
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::failure(nil, 500, "failed", nil, nil));
-        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
         flash[:success].should == nil
         response.response_code.should == 500
         response.headers["Go-Config-Error"].should == "failed"
@@ -258,7 +256,7 @@ describe Admin::PackageRepositoriesController do
         package_repository = PackageRepository.new
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("id", 200, "success"))
-        post :update, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
         response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\",\"redirectUrl\":\"/admin/package_repositories/id/edit\"}"
         flash[:success].should == "success"
         response.response_code.should == 200
@@ -275,7 +273,7 @@ describe Admin::PackageRepositoriesController do
         ajax_response = ConfigUpdateAjaxResponse::failure("id", 500, "failed", fieldErrors, Arrays.asList(["global1", "global2"].to_java(java.lang.String)))
 
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ajax_response)
-        post :update, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
         flash[:notice].should == nil
         response.body.should == "{\"fieldErrors\":{\"field2\":[\"error 2\"],\"field1\":[\"error 1\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"
         flash[:success].should == nil
@@ -299,7 +297,7 @@ describe Admin::PackageRepositoriesController do
         @result.should_receive(:message).with(anything).and_return("Connection OK from plugin.")
         @package_repository_service.should_receive(:checkConnection).with(package_repository, @result)
 
-        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
         json = JSON.parse(response.body)
         json["success"].should == "Connection OK from plugin."
@@ -312,7 +310,7 @@ describe Admin::PackageRepositoriesController do
         @result.should_receive(:message).twice.with(anything).and_return("Connection To Repo Failed. Bad Url")
         @package_repository_service.should_receive(:checkConnection).with(package_repository, @result)
 
-        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name, "key"}, :configurationValue => {:value, "value"}}}}
+        get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
         json = JSON.parse(response.body)
         json["success"].should == nil
@@ -328,7 +326,6 @@ describe Admin::PackageRepositoriesController do
         @go_config_service.should_receive(:getConfigForEditing).any_number_of_times.and_return(@cruise_config)
         @go_config_service.should_receive(:getCurrentConfig).any_number_of_times.and_return(@cruise_config)
         @config_md5 = "1234abcd"
-        controller.stub!(:performed?).and_return(false)
 
         @update_response = mock('update_response')
       end
@@ -338,13 +335,13 @@ describe Admin::PackageRepositoriesController do
         @update_response.should_receive(:getNode).and_return(@cruise_config)
         @update_response.should_receive(:getSubject).and_return(@cruise_config)
         @update_response.should_receive(:configAfterUpdate).and_return(@cruise_config)
+        @update_response.should_receive(:wasMerged).and_return(false)
         @go_config_service.should_receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(@update_response)
         stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
-        @update_response.should_receive(:wasMerged).and_return(false)
 
         delete :destroy, :id => "repo-id", :config_md5 => @config_md5
 
-        response.redirected_to.should == package_repositories_list_path(:fm => 'random-uuid')
+        response.should redirect_to package_repositories_list_path(:fm => 'random-uuid')
       end
 
       it "should render error when repository can not be deleted" do
@@ -353,18 +350,27 @@ describe Admin::PackageRepositoriesController do
         @update_response.should_receive(:getNode).and_return(@cruise_config)
         @update_response.should_receive(:getSubject).and_return(@cruise_config)
         @update_response.should_receive(:configAfterUpdate).and_return(@cruise_config)
-        repository_id = 'some_repository_id'
-        @cruise_config.should_receive(:getPackageRepositories).and_return([])
-        @cruise_config.should_receive(:getGroups).and_return([])
+        plugin_configuration = mock(PluginConfiguration)
+        plugin_configuration.should_receive(:getId).and_return(repository_id)
+        package_repository = mock(PackageRepository)
+        package_repository.should_receive(:getPluginConfiguration).and_return(plugin_configuration)
+        package_repositories = mock(PackageRepositories)
+        package_repositories.should_receive(:find).with(repository_id).and_return(package_repository)
+        @cruise_config.should_receive(:getPackageRepositories).twice.and_return(package_repositories)
+        pipeline_groups = mock(PipelineGroups)
+        pipeline_groups.should_receive(:getPackageUsageInPipelines).and_return(nil)
+        @cruise_config.should_receive(:getGroups).and_return(pipeline_groups)
         @cruise_config.should_receive(:getAllErrorsExceptFor).and_return([])
         @go_config_service.should_receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |action, md5, user, r|
           r.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end.and_return(@update_response)
-        controller.should_receive(:render).with({:action => :edit, :id => repository_id, :layout=> "admin", :status => 400})
 
         delete :destroy, :id => repository_id, :config_md5 => @config_md5
 
         assigns[:tab_name].should == "package-repositories"
+        assert_template "edit"
+        assert_template layout: "admin"
+        response.status.should == 400
       end
     end
   end

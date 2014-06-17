@@ -70,12 +70,16 @@ class Admin::PackageRepositoriesController < AdminController
 
   def plugin_config
     set_repository_configuration nil, params[:plugin]
-    render :partial => "config", :layout => false, :locals => {:scope => {:repository_configuration => @repository_configuration, :plugin_id => params[:plugin], :isNewRepo => true}}
+    @plugin_id = params[:plugin]
+    @isNewRepo = true
+    render :layout => false
   end
 
   def plugin_config_for_repo
     set_repository_configuration @cruise_config.getPackageRepositories().find(params[:id]), params[:plugin]
-    render :partial => "config", :layout => false, :locals => {:scope => {:repository_configuration => @repository_configuration, :plugin_id => params[:plugin], :isNewRepo => false}}
+    @plugin_id = params[:plugin]
+    @isNewRepo = false
+    render :layout => false
   end
 
   def check_connection

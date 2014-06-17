@@ -79,6 +79,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.ParamsConfig unless defined? ParamsConfig
   java_import com.thoughtworks.go.config.PipelineConfigs unless defined? PipelineConfigs
   java_import com.thoughtworks.go.config.PipelineConfig unless defined? PipelineConfig
+  java_import com.thoughtworks.go.domain.PipelineGroups unless defined? PipelineGroups
   java_import com.thoughtworks.go.domain.PipelineDependencyGraphOld unless defined? PipelineDependencyGraphOld
   java_import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap unless defined? ValueStreamMap
   java_import com.thoughtworks.go.domain.PipelineIdentifier unless defined? PipelineIdentifier

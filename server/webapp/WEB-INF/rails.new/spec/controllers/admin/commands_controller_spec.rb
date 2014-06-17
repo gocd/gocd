@@ -20,29 +20,26 @@ describe Admin::CommandsController do
 
   describe "routes" do
     it "should resolve commands" do
-      params_from(:get, "/admin/commands").should == {:controller => "admin/commands", :action => "index"}
+      {:get => "/admin/commands"}.should route_to(:controller => "admin/commands", :action => "index")
     end
 
     it "should generate command" do
-      route_for(:controller => "admin/commands", :action => "index").should == "/admin/commands"
       admin_commands_path.should == "/admin/commands"
     end
 
     it "should resolve command_definition" do
-      params_from(:get, "/admin/commands/show?command_name=maven-clean").should == {:controller => "admin/commands", :action => "show", :command_name => 'maven-clean'}
+      {:get => "/admin/commands/show?command_name=maven-clean"}.should route_to(:controller => "admin/commands", :action => "show", :command_name => 'maven-clean')
     end
 
     it "should generate command_definition" do
       admin_command_definition_path(:command_name => "foo").should == "/admin/commands/show?command_name=foo"
-      route_for(:controller => "admin/commands", :action => "show", :command_name=> 'maven-clean').should == "/admin/commands/show?command_name=maven-clean"
     end
 
     it "should resolve lookup autocomplete path" do
-      params_from(:get, "/admin/commands/lookup?lookup_prefix=some-prefix").should == {:controller => "admin/commands", :action => "lookup", :lookup_prefix => "some-prefix", :format => "text"}
+      {:get => "/admin/commands/lookup?lookup_prefix=some-prefix"}.should route_to(:controller => "admin/commands", :action => "lookup", :lookup_prefix => "some-prefix", :format => "text")
     end
 
     it "should generate path for command lookup" do
-      route_for(:controller => "admin/commands", :action => "lookup", :format => "text", :lookup_prefix => "some_prefix").should == "/admin/commands/lookup?lookup_prefix=some_prefix"
       admin_command_lookup_path.should == "/admin/commands/lookup"
     end
   end

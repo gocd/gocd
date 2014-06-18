@@ -118,7 +118,6 @@ Go::Application.routes.draw do
   get '/agents' => 'agents#index', as: :agents_for_test
   get '/environments' => 'environments#index', as: :environments_for_test
   get "environments/new" => 'environments#new', as: :environment_new
-  get '/compare/:pipeline_name/:from_counter/with/:to_counter' => 'test/test#index', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "admin/pipelines/:pipeline_name/:current_tab" => 'test/test#edit', constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit

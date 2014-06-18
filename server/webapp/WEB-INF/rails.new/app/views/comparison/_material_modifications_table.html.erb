@@ -1,6 +1,6 @@
 
     <div class="material_title">
-        <strong> <%= "#{scope[:material].getTypeForDisplay()}" %> - <%= "#{scope[:material].getLongDescription()}" -%></strong>
+        <strong> <%== "#{scope[:material].getTypeForDisplay()}" %> - <%= "#{scope[:material].getLongDescription()}" -%></strong>
     </div>
     <table class="list_table material_modifications">
         <tr>
@@ -11,18 +11,18 @@
         <% scope[:material_revision_in_diff_revisions].getModifications().each do |modification_in_diff_material_revision| %>
             <tr class="change">
                 <td class="revision">
-                    <%= smart_word_breaker(modification_in_diff_material_revision.getRevision()) -%>
+                    <%== smart_word_breaker(modification_in_diff_material_revision.getRevision()) -%>
                 </td>
                 <td class="modified_by">
-                    <%= smart_word_breaker(h(modification_in_diff_material_revision.getUserDisplayName())) -%>
+                    <%== smart_word_breaker(h(modification_in_diff_material_revision.getUserDisplayName())) -%>
                     <br/>
-                    <%= smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
+                    <%== smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
                 </td>
                 <td class="comment">
                     <%- if params[:pipeline_name] -%>
-                        <%= render_comment(modification_in_diff_material_revision, params[:pipeline_name]) -%>
+                        <%== render_comment(modification_in_diff_material_revision, params[:pipeline_name]) -%>
                     <%- else -%>
-                        <%= modification_in_diff_material_revision.getComment() -%>
+                        <%== modification_in_diff_material_revision.getComment() -%>
                     <%- end -%>
                 </td>
             </tr>

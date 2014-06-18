@@ -81,20 +81,20 @@ describe PipelinesHelper do
     expect(message.blank?).to be_true
   end
 
-  #  it "should display the trigger message with the time and username" do
-  #    joda_date = org.joda.time.DateTime.new(2010,8,20,18,3,44,0,org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
-  #    message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
-  #    message.should have_tag(".who", "Vipul")
-  #    message.should have_tag(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
-  #  end
-  #
-  #  it "should display appropriate message when when auto triggered " do
-  #    joda_date = org.joda.time.DateTime.new(2010,8,20,18,3,44,0,org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
-  #    message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
-  #    message.should have_tag(".label", "Automatically triggered")
-  #    message.should have_tag(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
-  #  end
-  #
+  it "should display the trigger message with the time and username" do
+    joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
+    message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
+    expect(message).to have_selector(".who", "Vipul")
+    expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
+  end
+
+  it "should display appropriate message when when auto triggered " do
+    joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
+    message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
+    expect(message).to have_selector(".label", "Automatically triggered")
+    expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
+  end
+
   #  it "should report result as is for results other than Unknown" do
   #    [StageState::Cancelled, StageState::Failed, StageState::Failing, StageState::Passed].each do |state|
   #      stage_status_for_ui(state).should == state.stageResult().toString()

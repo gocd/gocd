@@ -45,4 +45,10 @@ module MiscSpecExtensions
     ServiceCacheStrategy.instance.replace_service(service_getter.to_s, service)
     service
   end
+
+  def stub_localized_result
+    result = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.new
+    com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.stub(:new).and_return(result)
+    result
+  end
 end

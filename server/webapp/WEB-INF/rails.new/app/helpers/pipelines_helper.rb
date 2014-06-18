@@ -43,14 +43,14 @@ module PipelinesHelper
     end
   end
 
-  #def trigger_message_with_formatted_date_time(date_time, who)
-  #  on = "&nbsp;#{l.string("on")}&nbsp;<span class='time'>#{date_time.to_long_display_date_time}</span>"
-  #  if who == GoConstants::DEFAULT_APPROVED_BY
-  #    "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}"
-  #  else
-  #    "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}"
-  #  end
-  #end
+  def trigger_message_with_formatted_date_time(date_time, who)
+    on = "&nbsp;#{l.string("on")}&nbsp;<span class='time'>#{date_time.to_long_display_date_time}</span>"
+    if who == GoConstants::DEFAULT_APPROVED_BY
+      "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}"
+    else
+      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}"
+    end
+  end
   #
   #def clear_after(idx)
   #  idx % 3 == 2 ? " clear_after" : ""

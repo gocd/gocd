@@ -16,7 +16,7 @@
 
 class ComparisonController < ApplicationController
   include ComparisonHelper
-  layout "comparison", :except => [:list,:timeline]
+  layout :determine_layout
 
   PAGE_SIZE = 10
 
@@ -40,7 +40,7 @@ class ComparisonController < ApplicationController
     @dependency_material_revisions = revisions.find_all { | material | material.getMaterialType() == "Pipeline" }
 
     @cruise_config = go_config_service.getCurrentConfig()
-    
+
     render_localized_operation_result(result) unless result.isSuccessful()
   end
 
@@ -62,5 +62,9 @@ class ComparisonController < ApplicationController
       return nil
     end
     pipeline
+  end
+
+  def determine_layout
+    %w(show).include?(action_name) ? "comparison" : false
   end
 end

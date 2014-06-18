@@ -10,14 +10,14 @@
     <% scope[:material_revision_in_diff_revisions].getModifications().each do |modification_in_diff_material_revision| %>
         <tr class="change">
             <td class="revision">
-                <%= link_to(modification_in_diff_material_revision.getRevision(), path_for_stage(stage_identifier_for_locator(modification_in_diff_material_revision.getRevision()))) -%>
+                <%== link_to(modification_in_diff_material_revision.getRevision(), path_for_stage(stage_identifier_for_locator(modification_in_diff_material_revision.getRevision()))) -%>
             </td>
             <td class="label">
-                <%= stage_identifier = stage_identifier_for_locator(modification_in_diff_material_revision.getRevision())
+                <%== stage_identifier = stage_identifier_for_locator(modification_in_diff_material_revision.getRevision())
                     link_to(modification_in_diff_material_revision.getPipelineLabel(), vsm_show_path(stage_identifier.getPipelineName(),stage_identifier.getPipelineCounter())) -%>
             </td>
             <td class="completed_at">
-                <%= smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
+                <%== smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
             </td>
         </tr>
     <% end %>

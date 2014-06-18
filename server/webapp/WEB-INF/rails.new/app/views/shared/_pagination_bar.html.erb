@@ -7,9 +7,9 @@
                     <span>...</span>
                 <% else %>
                     <% if page.isCurrent() %>
-                        <span class="current_page"><%= page.getLabel() %></span>
+                        <span class="current_page"><%== page.getLabel() %></span>
                     <% else %>
-                        <%= send(scope[:page_handler], page, *scope[:handler_args]) -%>
+                        <%== send(scope[:page_handler], page, *scope[:handler_args]) -%>
                     <% end %>
                 <% end %>
             <% end %>

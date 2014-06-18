@@ -20,47 +20,44 @@ describe ComparisonController do
   include StageModelMother
 
   describe "routes" do
-
     it "should generate & resolve list" do
-      route_for(:controller => "comparison", :action => "list", :pipeline_name => 'foo.bar', :other_pipeline_counter => "10", :format=> "json").should == "/compare/foo.bar/list/compare_with/10"
-      params_from(:get, "/compare/foo.bar/list/compare_with/9").should == {:controller => "comparison", :pipeline_name=>"foo.bar", :action => "list", :other_pipeline_counter => "9", :format => "json"}
+      expect(:get => '/compare/foo.bar/list/compare_with/10').to route_to(:controller => "comparison", :action => "list", :pipeline_name => 'foo.bar', :other_pipeline_counter => "10", :format=> "json")
     end
 
     it "should generate the route for show action" do
-      route_for(:controller => "comparison", :action => "show", :pipeline_name => 'foo.bar', :from_counter => "10", :to_counter => "9").should == "/compare/foo.bar/10/with/9"
+      expect(:get => '/compare/foo.bar/10/with/9').to route_to(:controller => "comparison", :action => "show", :pipeline_name => 'foo.bar', :from_counter => "10", :to_counter => "9")
     end
 
     it "should resolve route to show action" do
-      params_from(:get, "/compare/foo.bar/10/with/9").should == {:controller => "comparison", :pipeline_name=>"foo.bar", :action => "show", :from_counter => "10", :to_counter => "9"}
+      expect(:get => '/compare/foo.bar/10/with/9').to route_to(:controller => "comparison", :pipeline_name=>"foo.bar", :action => "show", :from_counter => "10", :to_counter => "9")
     end
 
     it "should generate the route for page action" do
-      route_for(:controller => "comparison", :action => "page", :pipeline_name => 'foo.bar', :page => "1").should == "/compare/foo.bar/page/1"
+      expect(:get => '/compare/foo.bar/page/1').to route_to(:controller => "comparison", :action => "page", :pipeline_name => 'foo.bar', :page => "1")
     end
 
     it "should resolve route to page action" do
-      params_from(:get, "/compare/foo.bar/page/1").should == {:controller => "comparison", :action => "page", :pipeline_name=>"foo.bar", :page => "1"}
+      expect(:get => '/compare/foo.bar/page/1').to route_to(:controller => "comparison", :action => "page", :pipeline_name=>"foo.bar", :page => "1")
     end
 
     it "should generate the route for browse pipeline timeline" do
-      route_for(:controller => "comparison", :action => "timeline", :pipeline_name => "foo.bar", :page => "5").should == "/compare/foo.bar/timeline/5"
+      expect(:get => '/compare/foo.bar/timeline/5').to route_to(:controller => "comparison", :action => "timeline", :pipeline_name => "foo.bar", :page => "5")
     end
 
     it "should resolve route to browse pipeline timeline" do
-      params_from(:get, "/compare/foo.bar/timeline/5").should == {:controller => "comparison", :action => "timeline", :pipeline_name => "foo.bar", :page => "5"}
+      expect(:get => '/compare/foo.bar/timeline/5').to route_to(:controller => "comparison", :action => "timeline", :pipeline_name => "foo.bar", :page => "5")
     end
-
   end
 
   describe "comparison_controller" do
     before :each do
-      controller.stub!(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.stub(:pipeline_history_service).and_return(@phs = mock('PipelineHistoryService'))
+      controller.stub(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
+      controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
     end
 
     describe "show" do
       before :each do
-        controller.should_receive(:mingle_config_service).and_return(@mingle_service = mock('MingleConfigService'))
+        controller.should_receive(:mingle_config_service).and_return(@mingle_service = double('MingleConfigService'))
         @mingle_service.stub(:mingleConfigForPipelineNamed)
         @result = HttpOperationResult.new
         HttpOperationResult.stub(:new).and_return(@result)
@@ -80,19 +77,19 @@ describe ComparisonController do
 
         get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => "17"
 
-        assigns[:from_pipeline].should == from_pipeline
-        assigns[:to_pipeline].should == to_pipeline
-        assigns[:cruise_config].should == controller.go_config_service.getCurrentConfig()
+        expect(assigns[:from_pipeline]).to eq(from_pipeline)
+        expect(assigns[:to_pipeline]).to eq(to_pipeline)
+        expect(assigns[:cruise_config]).to eq(controller.go_config_service.getCurrentConfig())
       end
     end
 
     describe "show edge cases" do
       it "should bump up pipeline counter to 1 when counter is 0" do
         get :show, :pipeline_name => "some_pipeline", :from_counter => "0", :to_counter => "42"
-        response.should redirect_to(compare_pipelines_path(:pipeline_name => "some_pipeline", :from_counter => "1", :to_counter => "42"))
+        expect(response).to redirect_to(compare_pipelines_path(:pipeline_name => "some_pipeline", :from_counter => "1", :to_counter => "42"))
 
         get :show, :pipeline_name => "some_pipeline", :from_counter => "42", :to_counter => "0"
-        response.should redirect_to(compare_pipelines_path(:pipeline_name => "some_pipeline", :from_counter => "42", :to_counter => "1"))
+        expect(response).to redirect_to(compare_pipelines_path(:pipeline_name => "some_pipeline", :from_counter => "42", :to_counter => "1"))
       end
     end
 
@@ -102,7 +99,7 @@ describe ComparisonController do
         HttpLocalizedOperationResult.stub(:new).and_return(result)
         @phs.should_receive(:findMatchingPipelineInstances).with("some_pipeline", "query", 10, @loser, result).and_return(:from_pipeline)
         get :list, :pipeline_name => "some_pipeline", :other_pipeline_counter => 10, :q => "query", :format => "json"
-        assigns[:pipeline_instances].should == :from_pipeline
+        expect(assigns[:pipeline_instances]).to eq(:from_pipeline)
       end
     end
 
@@ -110,9 +107,8 @@ describe ComparisonController do
       it "should get pipeline history" do
         @phs.should_receive(:findPipelineInstancesByPageNumber).with("pipeline_up", 5, 10, "loser").and_return(:some_pipeline_instances)
         get :timeline, :pipeline_name => "pipeline_up", :page => "5"
-        assigns[:pipeline_instances].should == :some_pipeline_instances
+        expect(assigns[:pipeline_instances]).to eq(:some_pipeline_instances)
       end
     end
   end
-
 end

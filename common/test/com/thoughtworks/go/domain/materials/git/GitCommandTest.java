@@ -180,18 +180,6 @@ public class GitCommandTest {
         }
     }
 
-    private void executeOnGitRepo(String command, String... args) throws IOException {
-        executeOnDir(gitLocalRepoDir, command, args);
-    }
-
-    private void executeOnDir(File dir, String command, String... args) {
-        CommandLine commandLine = CommandLine.createCommandLine(command);
-        commandLine.withArgs(args);
-        assertThat(dir.exists(), is(true));
-        commandLine.setWorkingDir(dir);
-        commandLine.runOrBomb(true, null);
-    }
-
     @Test
     public void shouldRetrieveLatestModification() throws Exception {
         Modification mod = git.latestModification();
@@ -439,6 +427,24 @@ public class GitCommandTest {
         assertThat(FileUtils.readFileToString(fileInSubmodule), is("NEW CONTENT OF FILE"));
     }
 
+    @Test
+    @Ignore("Test to reproduce #152 - Will fix. -Aravind")
+    public void shouldAllowSubmoduleToHaveDifferentNameFromItsPath() throws Exception {
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
+
+        String submoduleNameInGitModulesFile = "some-submodule-name";
+        String submoduleDirectoryName = "some-submodule-path";
+
+        submoduleRepos.addSubmodule(SUBMODULE, submoduleNameInGitModulesFile, submoduleDirectoryName);
+
+        /* Simulate an agent checkout of code. */
+        File cloneDirectory = createTempWorkingDirectory();
+        GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false);
+        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD"));
+    }
+
     private List<File> allFilesIn(File directory, String prefixOfFiles) {
         return new ArrayList<File>(FileUtils.listFiles(directory, andFileFilter(fileFileFilter(), prefixFileFilter(prefixOfFiles)), null));
     }
@@ -476,5 +482,17 @@ public class GitCommandTest {
                 description.appendText("to start with \"" + repoUrl + "\"");
             }
         };
+    }
+
+    private void executeOnGitRepo(String command, String... args) throws IOException {
+        executeOnDir(gitLocalRepoDir, command, args);
+    }
+
+    private void executeOnDir(File dir, String command, String... args) {
+        CommandLine commandLine = CommandLine.createCommandLine(command);
+        commandLine.withArgs(args);
+        assertThat(dir.exists(), is(true));
+        commandLine.setWorkingDir(dir);
+        commandLine.runOrBomb(true, null);
     }
 }

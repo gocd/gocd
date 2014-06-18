@@ -20,6 +20,7 @@ load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
 describe Admin::TasksController do
   include TaskMother
   include FormUI
+  include ConfigSaveStubbing
 
   before :all do
     set_up_registry
@@ -69,6 +70,7 @@ describe Admin::TasksController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
 
       @go_config_service.should_receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
@@ -92,11 +94,14 @@ describe Admin::TasksController do
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task)].to_java(TaskViewModel))
         @task_view_service.should_receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
 
-        controller.should_receive(:render).with(:template => "/admin/tasks/plugin/new", :status => 400, :layout => false)
         post :create, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"
+
         assigns[:task].getConfiguration().getProperty("Url").errors().getAll().size().should == 1
         assigns[:task].getConfiguration().getProperty("Url").errors().getAll().should include("error message")
         assert_save_arguments
+        assert_template "admin/tasks/plugin/new"
+        assert_template layout: false
+        response.status.should == 400
       end
     end
 
@@ -114,13 +119,14 @@ describe Admin::TasksController do
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task)].to_java(TaskViewModel))
         task_view_service.should_receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
 
-        controller.should_receive(:render).with(:template => "/admin/tasks/plugin/edit", :status => 400, :layout => false)
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"
 
         assigns[:task].getConfiguration().getProperty("Url").errors().getAll().size().should == 1
         assigns[:task].getConfiguration().getProperty("Url").errors().getAll().should include("error message")
         assert_save_arguments
-
+        assert_template "admin/tasks/plugin/edit"
+        assert_template layout: false
+        response.status.should == 400
       end
     end
   end

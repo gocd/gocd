@@ -30,22 +30,21 @@ shared_examples_for :task_controller  do
   describe "routes" do
     describe "index" do
       it "should resolve templates as :stage_parent" do
-        params_from(:get, "/admin/templates/dev.foo/stages/test.bar/job/job-1.baz/tasks").should == {:controller=>"admin/tasks", :action=>"index", :stage_parent=>"templates", :pipeline_name=>"dev.foo", :stage_name=>"test.bar", :job_name=>"job-1.baz", :current_tab=>"tasks"}
+        {:get => "/admin/templates/dev.foo/stages/test.bar/job/job-1.baz/tasks"}.should route_to(:controller => "admin/tasks", :action => "index", :stage_parent=>"templates", :pipeline_name=>"dev.foo", :stage_name=>"test.bar", :job_name=>"job-1.baz", :current_tab=>"tasks")
       end
 
       it "should resolve" do
-        params_from(:get, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks").should == {:controller => "admin/tasks", :action => "index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks"}.should route_to(:controller => "admin/tasks", :action => "index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
-        route_for(:controller => "admin/tasks", :action => "index", :pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :stage_parent => "pipelines", :current_tab=>"tasks").should == "admin/pipelines/foo.bar/stages/baz/job/quux/tasks"
         admin_tasks_listing_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :stage_parent => "pipelines", :current_tab=>"tasks").should == "/admin/pipelines/foo.bar/stages/baz/job/quux/tasks"
       end
     end
 
     describe "increment_index" do
       it "should resolve" do
-        params_from(:post, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/increment").should == {:controller => "admin/tasks", :action => "increment_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/increment"}.should route_to(:controller => "admin/tasks", :action => "increment_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -55,7 +54,7 @@ shared_examples_for :task_controller  do
 
     describe "decrement_index" do
       it "should resolve" do
-        params_from(:post, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/decrement").should == {:controller => "admin/tasks", :action => "decrement_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/decrement"}.should route_to(:controller => "admin/tasks", :action => "decrement_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -65,23 +64,22 @@ shared_examples_for :task_controller  do
 
     describe "edit" do
       it "should resolve" do
-        params_from(:get, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1/edit").should == {:controller => "admin/tasks", :action => "edit", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1/edit"}.should route_to(:controller => "admin/tasks", :action => "edit", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
-        route_for(:controller => "admin/tasks", :action => "edit", :pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :task_index => "0", :type=> "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks").should == "admin/pipelines/foo.bar/stages/baz/job/quux/tasks/#{@task_type}/0/edit"
         admin_task_edit_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :task_index => 2, :type=> "#{@task_type}", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/baz/job/quux/tasks/#{@task_type}/2/edit"
       end
 
       it "should only accept numerical task_index(s)" do
-        params_from(:get, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello/edit").should == {:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello/edit".split("/")}
-        params_from(:get, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/100abc200/edit").should == {:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/100abc200/edit".split("/")}
+        {:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello/edit"}.should route_to(:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello/edit")
+        {:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/100abc200/edit"}.should route_to(:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/100abc200/edit")
       end
     end
 
     describe "delete" do
       it "should resolve" do
-        params_from(:delete, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/1").should == {:controller => "admin/tasks", :action => "destroy", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:delete => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/1"}.should route_to(:controller => "admin/tasks", :action => "destroy", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -89,13 +87,13 @@ shared_examples_for :task_controller  do
       end
 
       it "should only accept numerical task_index(s)" do
-        params_from(:delete, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello").should == {:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello".split("/")}
+        {:delete => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello"}.should route_to(:controller => "application", :action => "unresolved", :url => "admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/hello")
       end
     end
 
     describe "update" do
       it "should resolve" do
-        params_from(:put, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1").should == {:controller => "admin/tasks", :action => "update", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type=> "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:put => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1"}.should route_to(:controller => "admin/tasks", :action => "update", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type=> "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -106,7 +104,7 @@ shared_examples_for :task_controller  do
 
     describe "new" do
       it "should resolve" do
-        params_from(:get, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/new").should == {:controller => "admin/tasks", :action => "new", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/new"}.should route_to(:controller => "admin/tasks", :action => "new", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -117,7 +115,7 @@ shared_examples_for :task_controller  do
 
     describe "create" do
       it "should resolve" do
-        params_from(:post, "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}").should == {:controller => "admin/tasks", :action => "create", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks"}
+        {:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}"}.should route_to(:controller => "admin/tasks", :action => "create", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
       end
 
       it "should generate" do
@@ -187,12 +185,14 @@ shared_examples_for :task_controller  do
         @task_view_service.should_receive(:getOnCancelTaskViewModels).with(@example_task).and_return(@on_cancel_task_vms)
         @task_view_service.should_receive(:getViewModel).with(@example_task, "edit").and_return(vm_template_for(@example_task))
 
-        controller.should_receive(:render).with(:template => "/admin/tasks/plugin/edit", :layout => false)
         get :edit, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab=>"tasks"
+
         assigns[:task].should == @example_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
         response.status.should == 200
         assigns[:config_store].should == @config_store
+        assert_template "admin/tasks/plugin/edit"
+        assert_template layout: false
       end
     end
 
@@ -208,7 +208,7 @@ shared_examples_for :task_controller  do
 
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"
         assigns[:task].should == @updated_task
-        response.status.should == "200 OK"
+        response.status.should == 200
 
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::TaskNode, ::ConfigUpdate::NodeAsSubject
       end
@@ -224,7 +224,7 @@ shared_examples_for :task_controller  do
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => updated_payload_with_on_cancel, :stage_parent => "pipelines", :current_tab=>"tasks"
 
         assigns[:task].should == @updated_task
-        response.status.should == "200 OK"
+        response.status.should == 200
 
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::TaskNode, ::ConfigUpdate::NodeAsSubject
       end
@@ -239,12 +239,14 @@ shared_examples_for :task_controller  do
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task)].to_java(TaskViewModel))
         task_view_service.should_receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
 
-        controller.should_receive(:render).with(:template => "/admin/tasks/plugin/edit", :status => 400, :layout => false)
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"
 
         assigns[:errors].size.should == 1
         assigns[:on_cancel_task_vms].should == on_cancel_task_vms
         assert_save_arguments
+        assert_template "admin/tasks/plugin/edit"
+        assert_template layout: false
+        response.status.should == 400
       end
 
     end
@@ -266,7 +268,7 @@ shared_examples_for :task_controller  do
         get :new, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab=>"tasks"
         assigns[:task].should == @new_task
         assigns[:on_cancel_task_vms].should == @on_cancel_task_vms
-        response.status.should == "200 OK"
+        response.status.should == 200
         assigns[:config_store].should == @config_store
       end
     end
@@ -291,7 +293,7 @@ shared_examples_for :task_controller  do
         assigns[:task].should == @created_task
         assigns[:config_store].should == nil
 
-        response.status.should == "200 OK"
+        response.status.should == 200
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode
       end
 
@@ -304,7 +306,6 @@ shared_examples_for :task_controller  do
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task)].to_java(TaskViewModel))
         @task_view_service.should_receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
 
-        controller.should_receive(:render).with(:template => "/admin/tasks/plugin/new", :status => 400, :layout => false)
         post :create, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab=>"tasks"
 
         assigns[:errors].size.should == 1
@@ -312,6 +313,9 @@ shared_examples_for :task_controller  do
         assert_save_arguments
         assigns[:config_store].should_not == nil
         assigns[:config_store].should == @config_store
+        assert_template "admin/tasks/plugin/new"
+        assert_template layout: false
+        response.status.should == 400
       end
     end
   end

@@ -160,7 +160,7 @@ describe AdminController do
       result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", ["message"].to_java(java.lang.String)))
     end
     controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
-    controller.stub!(:response).and_return(response = mock('response'))
+    controller.stub(:response).and_return(response = double('response'))
     response.should_receive(:headers).and_return(header = {})
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)

@@ -42,10 +42,10 @@ describe Admin::PipelinesSnippetController do
 
   describe :actions do
     before :each do
-      @security_service = mock("Security Service")
+      @security_service = double("Security Service")
       controller.stub(:security_service).and_return(@security_service)
-      @pipeline_configs_service = mock('Pipelines Config Service')
-      @go_config_service = mock('Go Config Service')
+      @pipeline_configs_service = double('Pipelines Config Service')
+      @go_config_service = double('Go Config Service')
       controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service)
       controller.stub(:go_config_service).and_return(@go_config_service)
       controller.should_receive(:populate_config_validity).and_return(true)
@@ -59,7 +59,7 @@ describe Admin::PipelinesSnippetController do
     describe :index do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub!(:current_user).and_return(@user)
+        controller.stub(:current_user).and_return(@user)
       end
 
       it "should display first group by default" do
@@ -72,7 +72,7 @@ describe Admin::PipelinesSnippetController do
     describe :show do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub!(:current_user).and_return(@user)
+        controller.stub(:current_user).and_return(@user)
         @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
 
       end
@@ -107,7 +107,7 @@ describe Admin::PipelinesSnippetController do
     describe :edit do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub!(:current_user).and_return(@user)
+        controller.stub(:current_user).and_return(@user)
         @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
       end
 
@@ -146,7 +146,7 @@ describe Admin::PipelinesSnippetController do
     describe :update do
       before :each do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
-        controller.stub!(:current_user).and_return(@user)
+        controller.stub(:current_user).and_return(@user)
         @result = HttpLocalizedOperationResult.new
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
       end
@@ -154,14 +154,14 @@ describe Admin::PipelinesSnippetController do
       it "should persist group xml and redirect to show" do
         @result.setMessage(LocalizedMessage.string("SAVED_SUCCESSFULLY"))
         controller.should_receive(:set_flash_message).with("Saved successfully.","success").and_return("Success!")
-        pipeline_configs = mock(PipelineConfigs.class)
+        pipeline_configs = double(PipelineConfigs.class)
         pipeline_configs.stub(:get_group).and_return("renamed_group")
         updated_xml = "updated pipelines xml"
         @result.should_receive(:is_successful).and_return(true)
         group_name = "group_name"
-        cruise_config_operational_response = mock('cruise_config_operational_response')
+        cruise_config_operational_response = double('cruise_config_operational_response')
         cruise_config_operational_response.should_receive(:getConfigElement).and_return(pipeline_configs)
-        validity = mock('validity')
+        validity = double('validity')
         validity.should_receive(:errorMessage).never
         validity.should_receive(:isMergeConflict).and_return(false)
         validity.should_receive(:isPostValidationError).and_return(false)
@@ -177,9 +177,9 @@ describe Admin::PipelinesSnippetController do
         @result.should_receive(:is_successful).and_return(false)
         @result.should_receive(:message).with(anything).and_return("failed")
         group_name = "group_name"
-        cruise_config_operational_response = mock('cruise_config_operational_response')
+        cruise_config_operational_response = double('cruise_config_operational_response')
         cruise_config_operational_response.should_receive(:getConfigElement).and_return(nil)
-        validity = mock('validity')
+        validity = double('validity')
         validity.should_receive(:errorMessage).and_return('error message')
         validity.should_receive(:isValid).never
         validity.should_receive(:isMergeConflict).and_return(true)
@@ -204,9 +204,9 @@ describe Admin::PipelinesSnippetController do
         @result.should_receive(:is_successful).and_return(false)
         @result.should_receive(:message).with(anything).and_return("failed")
         group_name = "group_name"
-        cruise_config_operational_response = mock('cruise_config_operational_response')
+        cruise_config_operational_response = double('cruise_config_operational_response')
         cruise_config_operational_response.should_receive(:getConfigElement).and_return(nil)
-        validity = mock('validity')
+        validity = double('validity')
         validity.should_receive(:isValid).never
         validity.should_receive(:errorMessage).never
         validity.should_receive(:isPostValidationError).and_return(false)

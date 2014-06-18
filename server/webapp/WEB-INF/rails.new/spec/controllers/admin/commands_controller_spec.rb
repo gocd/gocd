@@ -64,7 +64,7 @@ describe Admin::CommandsController do
     end
 
     describe "definition" do
-      integrate_views
+      render_views
 
       before do
         @snippet = CommandSnippetMother.validSnippetWithKeywords("robocopy", ["cOpY12", "windows"].to_java(:string))

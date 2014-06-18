@@ -31,24 +31,23 @@ describe Admin::JobsController do
 
   describe "routes" do
     it "should resolve new" do
-      params_from(:get, "/admin/pipelines/dev/stages/test.1/jobs/new").should == {:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines"}
-      params_from(:get, "/admin/templates/dev/stages/test.1/jobs/new").should == {:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "templates"}
+      {:get => "/admin/pipelines/dev/stages/test.1/jobs/new"}.should route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
+      {:get => "/admin/templates/dev/stages/test.1/jobs/new"}.should route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "templates")
       admin_job_new_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/test.1/jobs/new"
       admin_job_new_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "templates").should == "/admin/templates/foo.bar/stages/test.1/jobs/new"
     end
 
     it "should resolve create" do
-      params_from(:post, "/admin/pipelines/dev/stages/test.1/jobs").should == {:controller => "admin/jobs", :action => "create", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines"}
+      {:post => "/admin/pipelines/dev/stages/test.1/jobs"}.should route_to(:controller => "admin/jobs", :action => "create", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
       admin_job_create_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/test.1/jobs"
     end
 
     it "should resolve destroy" do
-      params_from(:delete, "/admin/pipelines/dev/stages/test.1/job/job.1").should == {:controller => "admin/jobs", :action => "destroy", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines"}
+      {:delete => "/admin/pipelines/dev/stages/test.1/job/job.1"}.should route_to(:controller => "admin/jobs", :action => "destroy", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines")
     end
 
     it "should generate index" do
-      params_from(:get, "/admin/pipelines/dev/stages/test.1/jobs").should == {:controller => "admin/jobs", :action => "index", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines"}
-      route_for(:controller => "admin/jobs", :action => "index", :pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines").should == "admin/pipelines/foo.bar/stages/test.1/jobs"
+      {:get => "/admin/pipelines/dev/stages/test.1/jobs"}.should route_to(:controller => "admin/jobs", :action => "index", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
       admin_job_listing_path(:pipeline_name => "foo.bar", :stage_name => "test.1", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/test.1/jobs"
     end
 
@@ -58,7 +57,7 @@ describe Admin::JobsController do
     end
 
     it "should generate route for tabs" do
-      params_from(:get, "/admin/pipelines/dev/stages/test.1/job/job.1/tabs").should == {:controller => "admin/jobs", :action => "edit", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines", :current_tab => "tabs"}
+      {:get => "/admin/pipelines/dev/stages/test.1/job/job.1/tabs"}.should route_to(:controller => "admin/jobs", :action => "edit", :pipeline_name => "dev", :stage_name => "test.1", :job_name=> "job.1", :stage_parent => "pipelines", :current_tab => "tabs")
       admin_job_edit_path(:pipeline_name => "foo.bar", :stage_name => "foo.bar", :job_name => "foo.bar", :current_tab => "tabs", :stage_parent => "templates").should == "/admin/templates/foo.bar/stages/foo.bar/job/foo.bar/tabs"
       admin_job_edit_path(:pipeline_name => "foo.bar", :stage_name => "foo.bar", :job_name => "foo.bar", :current_tab => "tabs", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/foo.bar/job/foo.bar/tabs"
     end
@@ -200,12 +199,13 @@ describe Admin::JobsController do
         end
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
-        controller.should_receive(:render).with(:status => 401, :action => "settings", :layout => nil)
-
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
             :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"}, :stage_parent => "pipelines"
 
         response.location.should be_nil
+        assert_template "settings"
+        assert_template layout: nil
+        response.status.should == 401
       end
 
       it "should load resources for autocomplete even when update fails" do
@@ -325,7 +325,6 @@ describe Admin::JobsController do
         @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
@@ -338,6 +337,9 @@ describe Admin::JobsController do
         task_to_be_saved.instance_of?(PluggableTask).should == true
         task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
         task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 400
       end
 
       it "should create a new job" do
@@ -358,10 +360,13 @@ describe Admin::JobsController do
         stub_save_for_validation_error do |result, *_|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
-        controller.should_receive(:render).with(:status => 401, :action => :new, :layout => false)
 
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"
-        end
+
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 401
+      end
 
       it "should load jobs page with resource when creation fails" do
         execTask = ExecTask.new('ls', '', 'work')
@@ -376,11 +381,12 @@ describe Admin::JobsController do
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
 
-        controller.should_receive(:render).with({:status => 400, :action => :new, :layout => false})
-
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => {:name => "new_job", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}},  :config_md5 => "1234abcd", :stage_parent => "pipelines"
 
         assigns[:autocomplete_resources].should == ["anything"].to_json
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 400
       end
     end
   end

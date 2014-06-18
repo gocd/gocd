@@ -152,7 +152,12 @@ class Admin::PipelineGroupsController < AdminController
     @groups.each do |group|
       target_groups.push(group.getGroup()) if group.findBy(pipeline_to_be_moved).nil?
     end
-    render(:partial => "possible_groups_popup", :locals => {:scope => {:possible_groups => target_groups, :pipeline_name => pipeline_to_be_moved.toString(), :md5_match => match}}, :layout => false)
+
+    @possible_groups = target_groups
+    @pipeline_name = pipeline_to_be_moved.toString()
+    @md5_match = match
+
+    render(:layout => false)
   end
 
   private

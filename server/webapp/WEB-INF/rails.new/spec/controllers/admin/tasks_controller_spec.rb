@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require File.join(File.dirname(__FILE__), "/../../spec_helper")
 
 describe Admin::TasksController do
   include MockRegistryModule
@@ -109,7 +109,6 @@ describe Admin::TasksController do
     end
 
     it "should load tasks" do
-      controller.should_receive(:render).with({:layout => "pipelines/job"})
       controller.should_receive(:task_view_service).and_return(task_view_service = mock("task_view_service"))
       task_view_service.should_receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
 
@@ -120,6 +119,8 @@ describe Admin::TasksController do
       assigns[:job].should == @pipeline.get(0).getJobs().get(0)
       assigns[:tasks].should == Tasks.new([@example_task].to_java(Task))
       assigns[:task_view_models].should == tasks
+      assert_template "index"
+      assert_template layout: "pipelines/job"
     end
   end
 

@@ -26,11 +26,10 @@ describe Admin::MaterialsController do
 
   describe "routes" do
     it "should resolve index" do
-      params_from(:get, "/admin/pipelines/pipeline.name/materials").should == {:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "pipeline.name"}
+      {:get => "/admin/pipelines/pipeline.name/materials"}.should route_to(:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "pipeline.name")
     end
 
     it "should generate index" do
-      route_for(:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "foo.bar").should == "admin/pipelines/foo.bar/materials"
       admin_material_index_path(:pipeline_name => "foo.bar", :stage_parent=>"pipelines").should == "/admin/pipelines/foo.bar/materials"
     end
   end
@@ -55,7 +54,7 @@ describe Admin::MaterialsController do
 
     it "should set current tab param" do
       get :index, {:pipeline_name => @pipeline_name, :stage_parent => "pipelines"}
-      params[:current_tab].should == 'materials'
+      controller.params[:current_tab].should == 'materials'
     end
   end
 
@@ -107,7 +106,7 @@ describe Admin::MaterialsController do
       delete :destroy, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint(), :stage_parent => "pipelines"
 
       @cruise_config.getAllErrors().size.should == 1
-      response.status.should == "400 Bad Request"
+      response.status.should == 400
     end
   end
 end

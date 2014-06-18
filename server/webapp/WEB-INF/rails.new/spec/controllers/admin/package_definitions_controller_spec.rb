@@ -74,7 +74,7 @@ describe Admin::PackageDefinitionsController do
       @package_repositories = PackageRepositories.new([repository1, repository2].to_java(PackageRepository))
       @cruise_config.setPackageRepositories(@package_repositories)
 
-      @package_metadata_store = mock(PackageMetadataStore)
+      @package_metadata_store = double(PackageMetadataStore)
       PackageMetadataStore.stub(:getInstance).and_return(@package_metadata_store)
       @package_configurations = PackageConfigurations.new()
       @package_configurations.add(PackageConfiguration.new("k2").with(PackageConfiguration::DISPLAY_NAME, "Key 2"))
@@ -256,7 +256,7 @@ describe Admin::PackageDefinitionsController do
 
     describe :check_connection do
       before(:each) do
-        controller.stub(:package_definition_service).with().and_return(@package_definition_service= mock('Package Definition Service'))
+        controller.stub(:package_definition_service).with().and_return(@package_definition_service= double('Package Definition Service'))
         @result = HttpLocalizedOperationResult.new
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
       end
@@ -278,12 +278,12 @@ describe Admin::PackageDefinitionsController do
 
       it "should give error if check connection fails for given package definition" do
         pkg_params = {"package_definition" => {"repositoryId" => 'repository_id'}}
-        repositories = mock("repositories")
-        package_repository = mock('package_repository')
-        package_definition = mock('package_definition')
+        repositories = double("repositories")
+        package_repository = double('package_repository')
+        package_definition = double('package_definition')
         package_repository.should_receive(:findOrCreatePackageDefinition).with(pkg_params).and_return(package_definition)
         repositories.should_receive(:find).with('repository_id').and_return(package_repository)
-        cruise_config = mock("cruise config")
+        cruise_config = double("cruise config")
         cruise_config.should_receive(:getPackageRepositories).and_return(repositories)
         @go_config_service.should_receive(:getCurrentConfig).and_return(cruise_config)
         @package_definition_service.should_receive(:check_connection).with(package_definition, an_instance_of(HttpLocalizedOperationResult)) do |p, r|

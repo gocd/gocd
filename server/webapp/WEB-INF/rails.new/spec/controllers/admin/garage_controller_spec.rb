@@ -31,7 +31,7 @@ describe Admin::GarageController do
 
   describe :index do
     before :each do
-      @garage_service = mock('garage service')
+      @garage_service = double('garage service')
       @controller.stub(:garage_service).and_return(@garage_service)
     end
 
@@ -44,7 +44,7 @@ describe Admin::GarageController do
 
   describe :gc do
     before :each do
-      @garage_service = mock('garage service')
+      @garage_service = double('garage service')
       @controller.stub(:garage_service).and_return(@garage_service)
       @result = stub_localized_result
     end

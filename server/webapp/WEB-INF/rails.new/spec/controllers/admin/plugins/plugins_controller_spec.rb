@@ -27,7 +27,7 @@ describe Admin::Plugins::PluginsController do
   describe :index do
 
     before :each do
-      controller.stub!(:default_plugin_manager).and_return(@plugin_manager = mock('plugin_manager'))
+      controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
       @plugin_1 = plugin("id", "name")
       @plugin_2 = plugin("yum", "yum plugin")
       @plugin_3 = plugin("A-id", "Name")
@@ -44,7 +44,7 @@ describe Admin::Plugins::PluginsController do
 
     it "should populate the current list of plugins and the external plugins path" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
-      controller.should_receive(:system_environment).and_return(@system_environment = mock("system_environment"))
+      controller.should_receive(:system_environment).and_return(@system_environment = double("system_environment"))
       @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
       get :index
       assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_2)]

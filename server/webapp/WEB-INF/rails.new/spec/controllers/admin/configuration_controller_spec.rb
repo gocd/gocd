@@ -19,16 +19,16 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Admin::ConfigurationController do
 
   before(:each) do
-    @admin_service = mock("admin_service")
-    @config_repository = mock("config_repository")
-    controller.stub!(:admin_service).and_return(@admin_service)
-    controller.stub!(:config_repository).and_return(@config_repository)
+    @admin_service = double("admin_service")
+    @config_repository = double("config_repository")
+    controller.stub(:admin_service).and_return(@admin_service)
+    controller.stub(:config_repository).and_return(@config_repository)
   end
 
   describe "tab_name" do
     before :each do
       @config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(@config['md5']).and_return(cruise_config_revision)
     end
 
@@ -48,7 +48,7 @@ describe Admin::ConfigurationController do
   describe "view_title" do
     before :each do
       @config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(@config['md5']).and_return(cruise_config_revision)
     end
 
@@ -86,7 +86,7 @@ describe Admin::ConfigurationController do
     it "should render view with config" do
       config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       @admin_service.should_receive(:populateModel).with(anything).and_return(config)
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
       get :show
       response.should render_template "show"
@@ -101,7 +101,7 @@ describe Admin::ConfigurationController do
     it "should render edit" do
       config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       @admin_service.should_receive(:configurationMapForSourceXml).and_return(config)
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
       get :edit
       response.should render_template "edit"
@@ -124,13 +124,13 @@ describe Admin::ConfigurationController do
     it "should render edit page when config save fails" do
       current_config = {"content" => "config-content", "md5" => "current-md5", "location" => "/foo/bar"}
       submitted_copy = {"content" => "edited-content", "md5" => "md5"}
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(false)
       config_validity.should_receive(:errorMessage).and_return('Wrong config xml')
-      controller.stub!(:switch_to_split_pane?).once.with(config_validity).and_return(false)
+      controller.stub(:switch_to_split_pane?).once.with(config_validity).and_return(false)
       @admin_service.should_receive(:configurationMapForSourceXml).and_return(current_config)
       @admin_service.should_receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(submitted_copy['md5']).and_return(cruise_config_revision)
 
       put :update, {:go_config => submitted_copy}
@@ -148,12 +148,12 @@ describe Admin::ConfigurationController do
       current_config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       submitted_copy = {"content" => "content-which-caused-conflict", "md5" => "md5"}
       @admin_service.should_receive(:configurationMapForSourceXml).and_return(current_config)
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(false)
       config_validity.should_receive(:errorMessage).and_return('Conflict in merging')
-      controller.stub!(:switch_to_split_pane?).once.with(config_validity).and_return(true)
+      controller.stub(:switch_to_split_pane?).once.with(config_validity).and_return(true)
       @admin_service.should_receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
-      cruise_config_revision = mock('cruise config revision')
+      cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(current_config['md5']).and_return(cruise_config_revision)
       
       put :update, {:go_config => submitted_copy}
@@ -173,7 +173,7 @@ describe Admin::ConfigurationController do
 
     it "should render display configuration merged successfully when a merge happens" do
       submitted_copy = {"content" => "config_content_1", "md5" => "md5"}
-      config_validity = mock('config_validity')
+      config_validity = double('config_validity')
       config_validity.should_receive(:isValid).and_return(true)
       config_validity.should_receive(:wasMerged).and_return(true)
       @admin_service.should_receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
@@ -186,7 +186,7 @@ describe Admin::ConfigurationController do
 
   describe :switch_to_split_pane? do
     it "should return false when config validity is valid" do
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(true)
       config_validity.should_receive(:isMergeConflict).never
       config_validity.should_receive(:isPostValidationError).never
@@ -195,7 +195,7 @@ describe Admin::ConfigurationController do
     end
 
     it "should return true when config validity says a merge failure" do
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(false)
       config_validity.should_receive(:isMergeConflict).and_return(true)
       config_validity.should_receive(:isPostValidationError).never
@@ -204,7 +204,7 @@ describe Admin::ConfigurationController do
     end
 
     it "should return true when config validity says a post validation error" do
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(false)
       config_validity.should_receive(:isMergeConflict).and_return(false)
       config_validity.should_receive(:isPostValidationError).and_return(true)

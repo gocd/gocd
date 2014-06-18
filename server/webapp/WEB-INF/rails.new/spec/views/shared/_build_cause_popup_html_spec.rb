@@ -152,8 +152,6 @@ describe "/shared/_build_cause_popup.html.erb" do
 
       render :partial => "shared/build_cause_popup.html", :locals => {:scope => {:pipeline_instance => pim}}
 
-      STDERR.puts response.body
-
       Capybara.string(response.body).find(".build_cause").tap do |build_cause|
         all_rows = build_cause.all("tr")
 

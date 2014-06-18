@@ -69,24 +69,24 @@ describe Admin::PackageRepositoriesController do
   describe :actions do
 
     before :each do
-      config_validity = mock('config validity')
+      config_validity = double('config validity')
       config_validity.should_receive(:isValid).and_return(true)
-      @go_config_service = mock('go config service')
+      @go_config_service = double('go config service')
       controller.stub(:go_config_service).and_return(@go_config_service)
       @go_config_service.should_receive(:checkConfigFileValid).and_return(config_validity)
       @go_config_service.stub(:registry)
       controller.stub(:populate_health_messages)
 
-      @cloner = mock('cloner')
-      controller.stub!(:get_cloner_instance).and_return(@cloner)
+      @cloner = double('cloner')
+      controller.stub(:get_cloner_instance).and_return(@cloner)
     end
 
     describe "new" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = CruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @user = current_user
       end
 
@@ -103,9 +103,9 @@ describe Admin::PackageRepositoriesController do
 
     describe "list" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = CruiseConfig.new
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
       end
@@ -125,7 +125,7 @@ describe Admin::PackageRepositoriesController do
       before(:each) do
         @cruise_config = CruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
 
         repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -162,10 +162,10 @@ describe Admin::PackageRepositoriesController do
 
     describe "create" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = CruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
         @user = current_user
       end
@@ -196,9 +196,9 @@ describe Admin::PackageRepositoriesController do
 
     describe "edit" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = CruiseConfig.new
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
@@ -245,9 +245,9 @@ describe Admin::PackageRepositoriesController do
 
     describe "update" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = CruiseConfig.new
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
       end
@@ -286,7 +286,7 @@ describe Admin::PackageRepositoriesController do
     describe "check connection" do
 
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= mock('Package Repository Service'))
+        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
         @result = HttpLocalizedOperationResult.new
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
       end
@@ -321,13 +321,12 @@ describe Admin::PackageRepositoriesController do
     describe :destroy do
 
       before :each do
-        @cruise_config = mock('cruise config')
-        @cloner.should_receive(:deepClone).any_number_of_times.with(@cruise_config).and_return(@cruise_config)
-        @go_config_service.should_receive(:getConfigForEditing).any_number_of_times.and_return(@cruise_config)
-        @go_config_service.should_receive(:getCurrentConfig).any_number_of_times.and_return(@cruise_config)
+        @cruise_config = double('cruise config')
+        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        @go_config_service.should_receive(:getConfigForEditing).at_least(1).times.and_return(@cruise_config)
         @config_md5 = "1234abcd"
 
-        @update_response = mock('update_response')
+        @update_response = double('update_response')
       end
 
       it "should delete repository successfully" do
@@ -350,14 +349,14 @@ describe Admin::PackageRepositoriesController do
         @update_response.should_receive(:getNode).and_return(@cruise_config)
         @update_response.should_receive(:getSubject).and_return(@cruise_config)
         @update_response.should_receive(:configAfterUpdate).and_return(@cruise_config)
-        plugin_configuration = mock(PluginConfiguration)
+        plugin_configuration = double(PluginConfiguration)
         plugin_configuration.should_receive(:getId).and_return(repository_id)
-        package_repository = mock(PackageRepository)
+        package_repository = double(PackageRepository)
         package_repository.should_receive(:getPluginConfiguration).and_return(plugin_configuration)
-        package_repositories = mock(PackageRepositories)
+        package_repositories = double(PackageRepositories)
         package_repositories.should_receive(:find).with(repository_id).and_return(package_repository)
         @cruise_config.should_receive(:getPackageRepositories).twice.and_return(package_repositories)
-        pipeline_groups = mock(PipelineGroups)
+        pipeline_groups = double(PipelineGroups)
         pipeline_groups.should_receive(:getPackageUsageInPipelines).and_return(nil)
         @cruise_config.should_receive(:getGroups).and_return(pipeline_groups)
         @cruise_config.should_receive(:getAllErrorsExceptFor).and_return([])

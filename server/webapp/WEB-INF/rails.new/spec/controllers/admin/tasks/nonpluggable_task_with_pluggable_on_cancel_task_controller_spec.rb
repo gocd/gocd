@@ -142,7 +142,7 @@ describe Admin::TasksController do
   def vm_template_for task
     return vm_for task unless (task.instance_of? PluggableTask)
 
-    plugin_manager = mock(PluginManager.class)
+    plugin_manager = double(PluginManager.class)
     plugin_manager.should_receive(:doOn).and_return(TaskViewStub.new)
     PluggableTaskViewModelFactory.new(plugin_manager).viewModelFor(task, "edit")
   end

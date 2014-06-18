@@ -149,7 +149,7 @@ shared_examples_for :task_controller  do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @pluggable_task_service = stub_service(:pluggable_task_service)
-      @config_store = mock('config store')
+      @config_store = double('config store')
       @controller.stub(:config_store).and_return(@config_store)
     end
 

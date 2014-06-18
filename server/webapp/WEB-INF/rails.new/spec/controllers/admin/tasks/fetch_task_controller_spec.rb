@@ -21,6 +21,7 @@ load File.join(File.dirname(__FILE__), 'fetch_task_controller_example.rb')
 describe Admin::TasksController, "fetch task" do
   include TaskMother
   include FormUI
+  include ConfigSaveStubbing
 
   before do
     @example_task = fetch_task
@@ -65,6 +66,8 @@ describe Admin::TasksController, "fetch task" do
       @cruise_config.addPipeline("old-groups", @gramp_pipeline)
       @cruise_config.addTemplate(@template)
       set(@cruise_config, "md5", "abcd1234")
+
+      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
 
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
 

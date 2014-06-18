@@ -49,8 +49,8 @@ describe Admin::MaterialHelper do
       repository2.setPackages(Packages.new([pkg2, pkg4].to_java(PackageDefinition)))
       @original_cruise_config.setPackageRepositories(PackageRepositories.new([repository1, repository2, repository3].to_java(PackageRepository)))
 
-      metadata_store = mock("RepositoryMetadataStore")
-      RepositoryMetadataStore.stub!(:getInstance).and_return(metadata_store)
+      metadata_store = double("RepositoryMetadataStore")
+      RepositoryMetadataStore.stub(:getInstance).and_return(metadata_store)
       metadata_store.stub(:getMetadata).with(valid_plugin_id).and_return(PackageConfigurations.new)
       metadata_store.stub(:getMetadata).with(invalid_plugin_id).and_return(nil)
 
@@ -65,7 +65,7 @@ describe Admin::MaterialHelper do
     end
 
     it "should get all plugins with the select one for dropdown option" do
-      metadataStore = mock("RepositoryMetadataStore")
+      metadataStore = double("RepositoryMetadataStore")
       RepositoryMetadataStore.stub(:getInstance).and_return(metadataStore)
       metadataStore.stub(:getPlugins).and_return(Arrays.asList(["P1", "P2"].to_java(java.lang.String)))
 

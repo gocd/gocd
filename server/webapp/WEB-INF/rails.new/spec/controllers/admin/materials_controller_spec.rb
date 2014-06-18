@@ -43,9 +43,9 @@ describe Admin::MaterialsController do
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @go_config_service.should_receive(:checkConfigFileValid).and_return(GoConfigValidity.valid)
-      @cruise_config = mock("Cruise Config")
+      @cruise_config = double("Cruise Config")
       @cruise_config.should_receive(:name).and_return(@pipeline_name)
-      a = mock('config wrapper')
+      a = double('config wrapper')
       a.should_receive(:getConfig).and_return(@cruise_config)
       a.should_receive(:getCruiseConfig).and_return(@cruise_config)
       a.should_receive(:getProcessedConfig).and_return(@cruise_config)
@@ -72,7 +72,7 @@ describe Admin::MaterialsController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub!(:current_user).and_return(@user)
+      controller.stub(:current_user).and_return(@user)
       @result = stub_localized_result
 
       @go_config_service = stub_service(:go_config_service)

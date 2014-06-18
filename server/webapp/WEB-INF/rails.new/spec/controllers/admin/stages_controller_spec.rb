@@ -23,7 +23,7 @@ describe Admin::StagesController do
 
   before do
     controller.stub(:populate_health_messages)
-    controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = mock('Pipeline Pause Service'))
+    controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
     controller.stub(:set_current_user)
   end
   include ConfigSaveStubbing
@@ -116,11 +116,11 @@ describe Admin::StagesController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub!(:current_user).and_return(@user)
+      controller.stub(:current_user).and_return(@user)
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
-      @go_config_service = mock('Go Config Service')
+      @go_config_service = double('Go Config Service')
       controller.stub(:go_config_service).and_return(@go_config_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
     end
@@ -166,7 +166,7 @@ describe Admin::StagesController do
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        controller.should_receive(:task_view_service).and_return(task_view_service = mock("task_view_service"))
+        controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
       end
 
@@ -196,13 +196,13 @@ describe Admin::StagesController do
 
       before :each do
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        @pluggable_task_service = mock('Pluggable_task_service')
+        @pluggable_task_service = double('Pluggable_task_service')
         controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
       end
 
       it "should be able to create a stage with a pluggable task" do
         @pluggable_task_service.stub(:validate)
-        task_view_service = mock('Task View Service')
+        task_view_service = double('Task View Service')
         controller.stub(:task_view_service).and_return(task_view_service)
         @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
@@ -221,7 +221,7 @@ describe Admin::StagesController do
       end
 
       it "should validate pluggable tasks before create" do
-        task_view_service = mock('Task View Service')
+        task_view_service = double('Task View Service')
         controller.stub(:task_view_service).and_return(task_view_service)
         @pluggable_task_service.stub(:validate) do |task|
           task.getConfiguration().getProperty("key").addError("key", "some error")
@@ -275,7 +275,7 @@ describe Admin::StagesController do
       end
 
       it "should show error message when config save fails for reasons other than validations" do
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = mock("task_view_service"))
+        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
         task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
         stub_save_for_validation_error do |result, config, node|
@@ -355,7 +355,7 @@ describe Admin::StagesController do
     describe "edit_permissions_template" do
 
       before do
-        @template_config_service = mock('Template Config Service')
+        @template_config_service = double('Template Config Service')
         controller.stub(:template_config_service).and_return(@template_config_service)
         @template_config_service.should_receive(:loadForEdit).with("template-name", @user, @result).and_return(ConfigForEdit.new(@pipeline_template, @cruise_config, @cruise_config))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("template-name").and_return(@pause_info)

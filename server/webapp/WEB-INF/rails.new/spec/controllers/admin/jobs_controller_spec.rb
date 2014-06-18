@@ -75,15 +75,15 @@ describe Admin::JobsController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub!(:current_user).and_return(@user)
+      controller.stub(:current_user).and_return(@user)
       @result = HttpLocalizedOperationResult.new
       @load_result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result, @load_result)
 
-      @go_config_service = mock('Go Config Service')
+      @go_config_service = double('Go Config Service')
       controller.stub(:go_config_service).and_return(@go_config_service)
 
-      @pipeline_pause_service = mock('Pipeline Pause Service')
+      @pipeline_pause_service = double('Pipeline Pause Service')
       controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
@@ -110,7 +110,7 @@ describe Admin::JobsController do
 
     describe "new" do
       it "should render a new job" do
-        controller.should_receive(:task_view_service).and_return(task_view_service = mock("task_view_service"))
+        controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
@@ -292,13 +292,13 @@ describe Admin::JobsController do
       end
 
       before :each do
-        @pluggable_task_service = mock('Pluggable_task_service')
+        @pluggable_task_service = double('Pluggable_task_service')
         controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
       end
 
       it "should be able to create a job with a pluggable task" do
         @pluggable_task_service.stub(:validate)
-        task_view_service = mock('Task View Service')
+        task_view_service = double('Task View Service')
         controller.stub(:task_view_service).and_return(task_view_service)
         @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
@@ -317,7 +317,7 @@ describe Admin::JobsController do
       end
 
       it "should validate pluggable tasks before create" do
-        task_view_service = mock('Task View Service')
+        task_view_service = double('Task View Service')
         controller.stub(:task_view_service).and_return(task_view_service)
         @pluggable_task_service.stub(:validate) do |task|
           task.getConfiguration().getProperty("key").addError("key", "some error")
@@ -353,7 +353,7 @@ describe Admin::JobsController do
 
       it "should show error message when config save fails for reasons other than validations" do
         execTask = ExecTask.new('ls', '', 'work')
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = mock("task_view_service"))
+        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
         task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(execTask, "new", "erb")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
@@ -370,7 +370,7 @@ describe Admin::JobsController do
 
       it "should load jobs page with resource when creation fails" do
         execTask = ExecTask.new('ls', '', 'work')
-        controller.should_receive(:task_view_service).twice.and_return(task_view_service = mock("task_view_service"))
+        controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
         task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(execTask, "new", "erb")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)

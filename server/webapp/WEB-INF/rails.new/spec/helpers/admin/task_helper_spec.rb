@@ -28,8 +28,8 @@ describe Admin::TaskHelper do
   end
 
   it "should get all task options" do
-    mock_task_view_service = mock("task_view_service")
-    stub!(:task_view_service).and_return(mock_task_view_service)
+    mock_task_view_service = double("task_view_service")
+    allow(self).to receive(:task_view_service).and_return(mock_task_view_service)
     mock_task_view_service.should_receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
 
     result = task_options

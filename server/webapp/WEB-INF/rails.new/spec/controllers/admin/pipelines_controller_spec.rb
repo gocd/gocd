@@ -19,7 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Admin::PipelinesController do
   before do
     controller.stub(:populate_health_messages)
-    controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = mock('Pipeline Pause Service'))
+    controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
   end
 
   include ConfigSaveStubbing
@@ -27,7 +27,7 @@ describe Admin::PipelinesController do
 
   before(:each) do
     @user = Username.new(CaseInsensitiveString.new("loser"))
-    controller.stub!(:current_user).and_return(@user)
+    controller.stub(:current_user).and_return(@user)
   end
 
   describe "routes" do
@@ -73,7 +73,7 @@ describe Admin::PipelinesController do
 
       pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
 
-      controller.stub(:go_config_service).with().and_return(@go_config_service = mock('Go Config Service'))
+      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
 
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
@@ -101,7 +101,7 @@ describe Admin::PipelinesController do
       pipeline_config.setLabelTemplate("some_label_template")
       pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
 
-      controller.stub(:go_config_service).with().and_return(@go_config_service = mock('Go Config Service'))
+      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
 
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
@@ -140,7 +140,7 @@ describe Admin::PipelinesController do
     end
 
     describe "with view" do
-      integrate_views
+      render_views
 
       before do
         controller.stub(:populate_health_messages) do
@@ -276,7 +276,7 @@ describe Admin::PipelinesController do
   describe "new" do
 
     before(:each) do
-      controller.stub(:go_config_service).with().and_return(@go_config_service = mock('Go Config Service'))
+      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
       @cruise_config = CruiseConfig.new
@@ -342,7 +342,7 @@ describe Admin::PipelinesController do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline1", "stage-1", ["job-1"].to_java(java.lang.String))
       @cruise_config_mother.addPipeline(@cruise_config, "Ab", "stage-1", ["job-1"].to_java(java.lang.String))
 
-      controller.stub(:security_service).and_return(@security_service = mock('Security Service'))
+      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
       @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
@@ -373,7 +373,7 @@ describe Admin::PipelinesController do
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
-      controller.stub(:go_config_service).with().and_return(@go_config_service = mock('Go Config Service'))
+      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @cruise_config = CruiseConfig.new
       @repository1 = PackageRepositoryMother.create("repo-id", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -387,7 +387,7 @@ describe Admin::PipelinesController do
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_pause_service.stub(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
-      @pluggable_task_service = mock('Pluggable_task_service')
+      @pluggable_task_service = double('Pluggable_task_service')
       controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
     end
 
@@ -438,8 +438,8 @@ describe Admin::PipelinesController do
 
     it "should throw up if pipeline name is empty and populate all states required for new action" do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
-      controller.stub(:security_service).and_return(@security_service = mock('Security Service'))
-      controller.stub(:task_view_service).and_return(task_view_service = mock('Task View Service'))
+      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
+      controller.stub(:task_view_service).and_return(task_view_service = double('Task View Service'))
       task_view_models = Object.new()
       task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
       task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
@@ -481,8 +481,8 @@ describe Admin::PipelinesController do
 
     it "should handle validation errors for a pipeline based on a template" do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
-      controller.stub(:security_service).and_return(@security_service = mock('Security Service'))
-      controller.stub(:task_view_service).and_return(task_view_service = mock('Task View Service'))
+      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
+      controller.stub(:task_view_service).and_return(task_view_service = double('Task View Service'))
       task_view_models = Object.new()
       task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
       @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
@@ -511,7 +511,7 @@ describe Admin::PipelinesController do
     end
 
     it "should load group name if user does not have permission for that group" do
-      task_view_service = mock('Task View Service')
+      task_view_service = double('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
       task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new)
       task_view_models = Object.new()
@@ -586,7 +586,7 @@ describe Admin::PipelinesController do
 
     it "should be able to create a pipeline with a pluggable task" do
       @pluggable_task_service.stub(:validate)
-      task_view_service = mock('Task View Service')
+      task_view_service = double('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
       @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
       task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
@@ -609,7 +609,7 @@ describe Admin::PipelinesController do
     end
 
     it "should validate pluggable tasks before create" do
-      task_view_service = mock('Task View Service')
+      task_view_service = double('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
       @pluggable_task_service.stub(:validate) do |task|
         task.getConfiguration().getProperty("key").addError("key", "some error")
@@ -642,9 +642,9 @@ describe Admin::PipelinesController do
   describe "clone" do
 
     before :each do
-      controller.stub(:go_config_service).with().and_return(@go_config_service = mock('Go Config Service'))
+      controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      controller.stub(:security_service).and_return(@security_service = mock('Security Service'))
+      controller.stub(:security_service).and_return(@security_service = double('Security Service'))
       @cruise_config = CruiseConfig.new
       @pipeline = PipelineConfigMother.pipelineConfig("foo.bar")
       @cruise_config.addPipeline("group1", @pipeline)

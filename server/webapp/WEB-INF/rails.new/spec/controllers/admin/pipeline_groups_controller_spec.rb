@@ -26,7 +26,7 @@ describe Admin::PipelineGroupsController do
 
   describe "routes" do
     it "should resolve route to the pipeline groups listing page" do
-      params_from(:get, "/admin/pipelines").should == {:controller => "admin/pipeline_groups", :action => "index"}
+      {:get => "/admin/pipelines"}.should route_to(:controller => "admin/pipeline_groups", :action => "index")
     end
 
     it "should generate listing route" do
@@ -34,7 +34,7 @@ describe Admin::PipelineGroupsController do
     end
 
     it "should resolve route to move" do
-      params_from(:put, "/admin/pipelines/move/pipeline.name").should == {:controller => "admin/pipeline_groups", :action => "move", :pipeline_name => "pipeline.name"}
+      {:put => "/admin/pipelines/move/pipeline.name"}.should route_to(:controller => "admin/pipeline_groups", :action => "move", :pipeline_name => "pipeline.name")
     end
 
     it "should generate move route" do
@@ -42,7 +42,7 @@ describe Admin::PipelineGroupsController do
     end
 
     it "should resolve route to delete of pipeline" do
-      params_from(:delete, "/admin/pipelines/pipeline.name").should == {:controller => "admin/pipeline_groups", :action => "destroy", :pipeline_name => "pipeline.name"}
+      {:delete => "/admin/pipelines/pipeline.name"}.should route_to(:controller => "admin/pipeline_groups", :action => "destroy", :pipeline_name => "pipeline.name")
     end
 
     it "should generate group edit route" do
@@ -50,19 +50,19 @@ describe Admin::PipelineGroupsController do
     end
 
     it "should resolve route to edit pipeline group" do
-      params_from(:get, "/admin/pipeline_group/foo.group/edit").should == {:controller => "admin/pipeline_groups", :action => "edit", :group_name => "foo.group"}
+      {:get => "/admin/pipeline_group/foo.group/edit"}.should route_to(:controller => "admin/pipeline_groups", :action => "edit", :group_name => "foo.group")
     end
 
     it "should resolve route to show pipeline group" do
-      params_from(:get, "/admin/pipeline_group/foo.group").should == {:controller => "admin/pipeline_groups", :action => "show", :group_name => "foo.group"}
+      {:get => "/admin/pipeline_group/foo.group"}.should route_to(:controller => "admin/pipeline_groups", :action => "show", :group_name => "foo.group")
     end
 
     it "should resolve route to new pipeline group" do
-      params_from(:get, "/admin/pipeline_group/new").should == {:controller => "admin/pipeline_groups", :action => "new"}
+      {:get => "/admin/pipeline_group/new"}.should route_to(:controller => "admin/pipeline_groups", :action => "new")
     end
 
     it "should resolve /possible_groups" do
-      params_from(:get, "/admin/pipelines/possible_groups/my_pipeline/my_md5").should == {:controller => "admin/pipeline_groups", :action => 'possible_groups', :pipeline_name => "my_pipeline", :config_md5 =>"my_md5" }
+      {:get => "/admin/pipelines/possible_groups/my_pipeline/my_md5"}.should route_to(:controller => "admin/pipeline_groups", :action => "possible_groups", :pipeline_name => "my_pipeline", :config_md5 =>"my_md5")
       possible_groups_path(:pipeline_name => "my_pipeline", :config_md5=>"my_md5").should == "/admin/pipelines/possible_groups/my_pipeline/my_md5"
     end
 
@@ -71,7 +71,7 @@ describe Admin::PipelineGroupsController do
     end
 
     it "should resolve route to update pipeline group" do
-      params_from(:put, "/admin/pipeline_group/foo.group").should == {:controller => "admin/pipeline_groups", :action => "update", :group_name => "foo.group"}
+      {:put => "/admin/pipeline_group/foo.group"}.should route_to(:controller => "admin/pipeline_groups", :action => "update", :group_name => "foo.group")
     end
 
     it "should generate delete pipeline route" do
@@ -88,7 +88,7 @@ describe Admin::PipelineGroupsController do
 
     it "should generate route for destroy of group" do
       pipeline_group_delete_path(:group_name => "group.foo").should == "/admin/pipeline_group/group.foo"
-      params_from(:delete, "/admin/pipeline_group/foo.group").should == {:controller => "admin/pipeline_groups", :action => "destroy_group", :group_name => "foo.group"}
+      {:delete => "/admin/pipeline_group/foo.group"}.should route_to(:controller => "admin/pipeline_groups", :action => "destroy_group", :group_name => "foo.group")
     end
   end
 
@@ -142,7 +142,7 @@ describe Admin::PipelineGroupsController do
         end
 
         post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
       end
 
     end
@@ -225,7 +225,7 @@ describe Admin::PipelineGroupsController do
 
         delete :destroy, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"
 
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
         assigns[:groups].should == @groups.to_a
         assigns[:pipeline_to_can_delete].should == {
                 "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -302,7 +302,7 @@ describe Admin::PipelineGroupsController do
         stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-message-uuid")
         put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
 
-        response.status.should == "302 Found"
+        response.status.should == 302
         response.should redirect_to("http://test.host/admin/pipeline_group/new_group_name/edit?fm=random-message-uuid")
       end
 
@@ -311,14 +311,14 @@ describe Admin::PipelineGroupsController do
           result.notFound(LocalizedMessage.string("DELETE_TEMPLATE"), HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
-        controller.should_receive(:render).with(:status => 404, :action => :edit)
-
         put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
 
         assigns[:cruise_config].should == @config
         assigns[:group].should == @group
 
         assigns[:group].getGroup().should == "new_group_name"
+        assert_template "edit"
+        response.status.should == 404
       end
     end
 
@@ -383,8 +383,13 @@ describe Admin::PipelineGroupsController do
       it "should render possible groups for given pipeline" do
         @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
         @go_config_service.should_receive(:doesMd5Match).with("my_md5").and_return(true)
-        controller.should_receive(:render).with(:partial => "possible_groups_popup", :locals => {:scope => {:possible_groups => ["group2", "group3"], :pipeline_name => "pipeline_1", :md5_match => true}}, :layout => false)
+
         get :possible_groups, :pipeline_name => "pipeline_1", :config_md5 => "my_md5"
+
+        assigns[:possible_groups].should == ["group2", "group3"]
+        assigns[:pipeline_name].should == "pipeline_1"
+        assigns[:md5_match].should == true
+        assert_template "possible_groups"
       end
     end
 

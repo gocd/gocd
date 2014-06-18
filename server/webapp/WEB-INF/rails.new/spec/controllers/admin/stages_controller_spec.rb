@@ -29,58 +29,53 @@ describe Admin::StagesController do
   include ConfigSaveStubbing
   describe "routes" do
     it "should resolve index" do
-      params_from(:get, "/admin/pipelines/dev/stages").should == {:controller => "admin/stages", :action => "index", :pipeline_name => "dev", :stage_parent => "pipelines"}
+      {:get => "/admin/pipelines/dev/stages"}.should route_to(:controller => "admin/stages", :action => "index", :pipeline_name => "dev", :stage_parent => "pipelines")
     end
 
     it "should resolve new" do
-      params_from(:get, "/admin/pipelines/dev/stages/new").should == {:controller => "admin/stages", :action => "new", :pipeline_name => "dev", :stage_parent => "pipelines"}
+      {:get => "/admin/pipelines/dev/stages/new"}.should route_to(:controller => "admin/stages", :action => "new", :pipeline_name => "dev", :stage_parent => "pipelines")
     end
 
     it "should resolve create" do
-      params_from(:post, "/admin/pipelines/dev/stages").should == {:controller => "admin/stages", :action => "create", :pipeline_name => "dev", :stage_parent => "pipelines"}
+      {:post => "/admin/pipelines/dev/stages"}.should route_to(:controller => "admin/stages", :action => "create", :pipeline_name => "dev", :stage_parent => "pipelines")
     end
 
     it "should resolve edit/settings" do
-      params_from(:get, "/admin/pipelines/dev/stages/test.foo/settings").should == {:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings"}
-      params_from(:get, "/admin/templates/dev/stages/test.foo/settings").should == {:controller => "admin/stages", :action => "edit", :stage_parent => "templates", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings"}
+      {:get => "/admin/pipelines/dev/stages/test.foo/settings"}.should route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings")
+      {:get => "/admin/templates/dev/stages/test.foo/settings"}.should route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "templates", :pipeline_name => "dev", :stage_name => "test.foo", :current_tab => "settings")
     end
 
     it "should generate delete" do
       admin_stage_delete_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/baz.foo"
-      params_from(:delete, "/admin/pipelines/foo.bar/stages/baz.foo").should == {:controller => "admin/stages", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo"}
+      {:delete => "/admin/pipelines/foo.bar/stages/baz.foo"}.should route_to(:controller => "admin/stages", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo")
     end
 
     it "should resolve edit/environment_variables" do
-      params_from(:get, "/admin/pipelines/dev/stages/baz.foo/environment_variables").should == {:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "environment_variables"}
+      {:get => "/admin/pipelines/dev/stages/baz.foo/environment_variables"}.should route_to(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "environment_variables")
     end
 
     it "should generate edit/settings" do
-      route_for(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings").should == "admin/pipelines/foo.bar/stages/baz.foo/settings"
       admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings").should == "/admin/pipelines/foo.bar/stages/baz.foo/settings"
     end
 
     it "should generate edit/environment_variables" do
-      route_for(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "environment_variables").should == "admin/pipelines/foo.bar/stages/baz.foo/environment_variables"
       admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "environment_variables").should == "/admin/pipelines/foo.bar/stages/baz.foo/environment_variables"
     end
 
     it "should resolve update/settings" do
-      params_from(:put, "/admin/pipelines/dev/stages/baz.foo/settings").should == {:controller => "admin/stages", :action => "update", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "settings"}
+      {:put => "/admin/pipelines/dev/stages/baz.foo/settings"}.should route_to(:controller => "admin/stages", :action => "update", :stage_parent => "pipelines", :pipeline_name => "dev", :stage_name => "baz.foo", :current_tab => "settings")
     end
 
     it "should generate update/settings" do
-      route_for(:controller => "admin/stages", :action => "edit", :stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings").should == "admin/pipelines/foo.bar/stages/baz.foo/settings"
       admin_stage_update_path(:stage_parent => "pipelines", :pipeline_name => "foo.bar", :stage_name => "baz.foo", :current_tab => "settings").should == "/admin/pipelines/foo.bar/stages/baz.foo/settings"
     end
 
     it "should generate index" do
-      route_for(:controller => "admin/stages", :action => "index", :pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "admin/pipelines/foo.bar/stages"
       admin_stage_listing_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages"
-      params_from(:get, "/admin/pipelines/foo.bar/stages").should == {:controller => "admin/stages", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "foo.bar"}
+      {:get => "/admin/pipelines/foo.bar/stages"}.should route_to(:controller => "admin/stages", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "foo.bar")
     end
 
     it "should generate new" do
-      route_for(:controller => "admin/stages", :action => "new", :pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "admin/pipelines/foo.bar/stages/new"
       admin_stage_new_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/new"
     end
 
@@ -94,14 +89,14 @@ describe Admin::StagesController do
 
     it "should generate increment_index" do
       admin_stage_increment_index_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/baz.foo/index/increment"
-      end
+    end
 
     it "should generate decrement_index" do
       admin_stage_decrement_index_path(:pipeline_name => "foo.bar", :stage_name => "baz.foo", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/baz.foo/index/decrement"
     end
 
     it "should generate use template" do
-      params_from(:put, "/admin/pipelines/foo.bar/stages").should == {:controller => "admin/stages", :action => "use_template", :stage_parent=>"pipelines", :pipeline_name => "foo.bar"}
+      {:put => "/admin/pipelines/foo.bar/stages"}.should route_to(:controller => "admin/stages", :action => "use_template", :stage_parent=>"pipelines", :pipeline_name => "foo.bar")
       admin_stage_use_template_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages"
     end
 
@@ -140,7 +135,7 @@ describe Admin::StagesController do
 
       it "should set current tab param" do
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
-        params[:current_tab].should == 'stages'
+        controller.params[:current_tab].should == 'stages'
       end
 
       it "should populate stage_usage map with stages that are currently referenced in materials" do
@@ -233,7 +228,6 @@ describe Admin::StagesController do
         end
         @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
           result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
         end
@@ -241,12 +235,16 @@ describe Admin::StagesController do
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
         stage = {:name => "stage", :jobs => [job]}
+
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => stage
 
         task_to_be_saved = assigns[:pipeline].last().getJobs().first().getTasks().first()
         task_to_be_saved.instance_of?(PluggableTask).should == true
         task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
         task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 400
       end
 
       it "should populate config_file_conflict when the md5 has already been changed" do
@@ -263,12 +261,8 @@ describe Admin::StagesController do
       it "should save a new stage" do
         stub_save_for_success
 
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
-
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
+
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
 
         @cruise_config.getAllErrors().size.should == 0
@@ -276,6 +270,8 @@ describe Admin::StagesController do
         @pipeline.get(1).name().should == CaseInsensitiveString.new("stage")
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::PipelineOrTemplateNode, ::ConfigUpdate::RefsAsUpdatedRefs
+        response.body.should == 'Saved successfully'
+        assert_template "index"
       end
 
       it "should show error message when config save fails for reasons other than validations" do
@@ -285,10 +281,14 @@ describe Admin::StagesController do
         stub_save_for_validation_error do |result, config, node|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end
-        controller.should_receive(:render).with(:status => 401, :action => :new, :layout => false)
+
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
+
         assert_save_arguments
         assigns[:task_view_models].should == tvms
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 401
       end
 
       it "should assign config_errors for display when save fails due to validation errors" do
@@ -296,10 +296,14 @@ describe Admin::StagesController do
           @cruise_config.errors().add("base", "someError")
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
-        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
+
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}
+
         assigns[:errors].size.should == 1
         assert_save_arguments
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 400
       end
 
       it "should remove errors related to material before assigning config_errors " do
@@ -311,14 +315,15 @@ describe Admin::StagesController do
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
 
-        controller.should_receive(:render).with(:status => 400, :action => :new, :layout => false)
-
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123"}]}
 
         assigns[:errors].size.should == 2
         assigns[:errors][0].should == "someError"
         assigns[:errors][1].should == "bad-pipeline-name"
         assert_save_arguments
+        assert_template "new"
+        assert_template layout: false
+        response.status.should == 400
       end
     end
 
@@ -336,14 +341,14 @@ describe Admin::StagesController do
         user_service.should_receive(:rolesThatCanOperateOnStage).and_return(["role1", "role2", "role3"])
         user_service.should_receive(:usersThatCanOperateOnStage).and_return(["user1", "user2", "user3"])
 
-        controller.should_receive(:render).with(:action => "permissions", :layout => "pipelines/stage")
-
         get :edit, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :current_tab => "permissions"
 
         assigns[:stage].should == @pipeline.get(0)
         assigns[:pipeline_group].should == @pipeline_group
         assigns[:autocomplete_users].should == ["user1", "user2", "user3"].to_json
         assigns[:autocomplete_roles].should == ["role1", "role2", "role3"].to_json
+        assert_template "permissions"
+        assert_template layout: "pipelines/stage"
       end
     end
 
@@ -361,7 +366,6 @@ describe Admin::StagesController do
         controller.stub(:user_service).and_return(user_service = Object.new)
         user_service.should_receive(:allRoleNames).and_return(["role1", "role2", "role3", "role4"])
         user_service.should_receive(:allUsernames).and_return(["user1", "user2", "user3", "user4"])
-        controller.should_receive(:render).with(:action => "permissions", :layout => "templates/stage")
 
         get :edit, :stage_parent => "templates", :pipeline_name => "template-name", :stage_name => "template-stage-name", :current_tab => "permissions"
 
@@ -369,6 +373,8 @@ describe Admin::StagesController do
         assigns[:pipeline_group].should == nil
         assigns[:autocomplete_users].should == ["user1", "user2", "user3", "user4"].to_json
         assigns[:autocomplete_roles].should == ["role1", "role2", "role3", "role4"].to_json
+        assert_template "permissions"
+        assert_template layout: "templates/stage"
       end
     end
 
@@ -390,7 +396,7 @@ describe Admin::StagesController do
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         response.location.should =~ /\/admin\/pipelines\/pipeline-name\/stages\/stage-name\/permissions\?fm=#{uuid_pattern}$/
-        response.status.should == "200 OK"
+        response.status.should == 200
         response.body.should == "Saved successfully"
       end
 
@@ -399,7 +405,7 @@ describe Admin::StagesController do
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         response.location.should =~ /\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/
-        response.status.should == "200 OK"
+        response.status.should == 200
         response.body.should == "Saved successfully"
       end
 
@@ -432,9 +438,13 @@ describe Admin::StagesController do
         stub_save_for_validation_error do |result, _, _|
           result.conflict(LocalizedMessage.modifiedBy("loser", Time.now.to_s))
         end
-        controller.should_receive_render_with(:action => "permissions", :layout => nil, :status => 409)
+
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}
+
         response.location.should be_nil
+        assert_template "permissions"
+        assert_template layout: nil
+        response.status.should == 409
       end
     end
 

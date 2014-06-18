@@ -32,38 +32,38 @@ describe Admin::PipelinesController do
 
   describe "routes" do
     it "should match /edit" do
-      params_from(:get, "/admin/pipelines/foo.bar/general").should == {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => 'foo.bar', :current_tab => 'general', :stage_parent => "pipelines"}
+      {:get => "/admin/pipelines/foo.bar/general"}.should route_to(:controller => "admin/pipelines", :action => "edit", :pipeline_name => 'foo.bar', :current_tab => 'general', :stage_parent => "pipelines")
     end
 
     it "should match /update" do
-      params_from(:put, "/admin/pipelines/foo.baz/general").should == {:controller => "admin/pipelines", :action => 'update', :pipeline_name => 'foo.baz', :current_tab => 'general', :stage_parent => "pipelines"}
+      {:put => "/admin/pipelines/foo.baz/general"}.should route_to(:controller => "admin/pipelines", :action => "update", :pipeline_name => 'foo.baz', :current_tab => 'general', :stage_parent => "pipelines")
     end
 
     it "should match /pause_info" do
-      params_from(:get, "/admin/pipelines/foo.baz/pause_info.json").should == {:controller => "admin/pipelines", :action => 'pause_info', :pipeline_name => 'foo.baz', :format => "json"}
+      {:get => "/admin/pipelines/foo.baz/pause_info.json"}.should route_to(:controller => "admin/pipelines", :action => "pause_info", :pipeline_name => 'foo.baz', :format => "json")
       pause_info_refresh_path(:pipeline_name => 'foo.baz').should == "/admin/pipelines/foo.baz/pause_info.json"
     end
 
     it "should match /new" do
-      params_from(:get, "/admin/pipeline/new").should == {:controller => "admin/pipelines", :action => 'new'}
+      {:get => "/admin/pipeline/new"}.should route_to(:controller => "admin/pipelines", :action => "new")
       pipeline_new_path.should == "/admin/pipeline/new"
       pipeline_new_path(:group => "foo.bar").should == "/admin/pipeline/new?group=foo.bar"
     end
 
     it "should match /create" do
-      params_from(:post, "/admin/pipelines").should == {:controller => "admin/pipelines", :action => 'create'}
+      {:post => "/admin/pipelines"}.should route_to(:controller => "admin/pipelines", :action => "create")
       pipeline_create_path.should == "/admin/pipelines"
     end
 
     it "should match /clone" do
-      params_from(:get, "/admin/pipeline/foo.bar/clone").should == {:controller => "admin/pipelines", :action => 'clone', :pipeline_name => 'foo.bar'}
+      {:get => "/admin/pipeline/foo.bar/clone"}.should route_to(:controller => "admin/pipelines", :action => "clone", :pipeline_name => 'foo.bar')
       pipeline_clone_path(:pipeline_name => "foo.bar").should == "/admin/pipeline/foo.bar/clone"
     end
 
     it "should match /save_clone" do
-      params_from(:post, "/admin/pipeline/save_clone").should == {:controller => "admin/pipelines", :action => 'save_clone'}
+      {:post => "/admin/pipeline/save_clone"}.should route_to(:controller => "admin/pipelines", :action => "save_clone")
       pipeline_save_clone_path.should == "/admin/pipeline/save_clone"
-      end
+    end
 
   end
 
@@ -89,6 +89,7 @@ describe Admin::PipelinesController do
     it "should load pause_info for json" do
 
       get :pause_info, :pipeline_name => "HelloWorld", :format => "json"
+
       assigns[:pipeline].should_not be_nil
       assigns[:pause_info].should == @pause_info
     end
@@ -409,7 +410,6 @@ describe Admin::PipelinesController do
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
-      controller.should_receive(:redirect_to).with(anything)
       @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip"}}
@@ -418,13 +418,13 @@ describe Admin::PipelinesController do
       assigns[:pause_info].should == @pause_info
       assert_save_arguments
       assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
+      response.should redirect_to anything
     end
 
     it "should create a new pipeline based on a template" do
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
-      controller.should_receive(:redirect_to).with(anything)
       @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "new-pip", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some _template"}}
@@ -433,6 +433,7 @@ describe Admin::PipelinesController do
       assigns[:pause_info].should == @pause_info
       assert_save_arguments
       assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
+      response.should redirect_to anything
     end
 
     it "should throw up if pipeline name is empty and populate all states required for new action" do
@@ -455,7 +456,6 @@ describe Admin::PipelinesController do
         pipeline.addError("name", "empty pipeline name")
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
       end
-      controller.should_receive(:render).with(:status => 400, :action => :new, :layout => "application")
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => ""}}
 
@@ -474,6 +474,9 @@ describe Admin::PipelinesController do
       list_of_pipelines.add(CaseInsensitiveString.new("pipeline2"))
       assigns[:all_pipelines].should == list_of_pipelines
       assert_save_arguments
+      assert_template "new"
+      assert_template layout: "application"
+      response.status.should == 400
     end
 
     it "should handle validation errors for a pipeline based on a template" do
@@ -494,7 +497,6 @@ describe Admin::PipelinesController do
         pipeline.addError("name", "empty pipeline name")
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
       end
-      controller.should_receive(:render).with(:status => 400, :action => :new, :layout => "application")
 
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => "", :configurationType => PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :templateName => "some _template"}}
 
@@ -503,6 +505,9 @@ describe Admin::PipelinesController do
       assigns[:group_name].should == "new-group"
       assigns[:task_view_models].should == task_view_models
       assert_save_arguments
+      assert_template "new"
+      assert_template layout: "application"
+      response.status.should == 400
     end
 
     it "should load group name if user does not have permission for that group" do
@@ -587,7 +592,6 @@ describe Admin::PipelinesController do
       task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_success
-      controller.stub!(:redirect_to).with(anything)
       pipeline_name = "new-pip"
       @pipeline_pause_service.should_receive(:pause).with(pipeline_name, "Under construction", @user)
 
@@ -601,6 +605,7 @@ describe Admin::PipelinesController do
       assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
       pipeline_config = @cruise_config.getPipelineConfigByName(CaseInsensitiveString.new(pipeline_name))
       pipeline_config.getFirstStageConfig().getJobs().first().getTasks().first().instance_of?(PluggableTask).should == true
+      response.should redirect_to anything
     end
 
     it "should validate pluggable tasks before create" do
@@ -614,12 +619,10 @@ describe Admin::PipelinesController do
       task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil, nil))
       task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
-      controller.should_receive(:render).with(:status => 400, :action => :new, :layout => "application")
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
       end
       task_view_service.should_receive(:getTaskViewModels).and_return(Object.new())
-      controller.stub!(:redirect_to).with(anything)
       pipeline_name = "new-pip"
 
       job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
@@ -630,6 +633,9 @@ describe Admin::PipelinesController do
       task_to_be_saved.instance_of?(PluggableTask).should == true
       task_to_be_saved.getConfiguration().getProperty("key").errors().getAll().size().should > 0
       task_to_be_saved.getConfiguration().getProperty("key").errors().getAllOn("key").get(0).should == "some error"
+      assert_template "new"
+      assert_template layout: "application"
+      response.status.should == 400
     end
   end
 
@@ -673,7 +679,7 @@ describe Admin::PipelinesController do
         assigns[:pause_info].should == @pause_info
 
         response.location.should =~ /\/admin\/pipelines\/new-pip\/general/
-        response.status.should == "200 OK"
+        response.status.should == 200
         response.body.should == "Saved successfully"
       end
 
@@ -689,7 +695,7 @@ describe Admin::PipelinesController do
         assigns[:pause_info].should == @pause_info
 
         response.location.should =~ /\/admin\/pipelines\/new-pip\/general/
-        response.status.should == "200 OK"
+        response.status.should == 200
         response.body.should == "Saved successfully"
       end
 
@@ -705,7 +711,7 @@ describe Admin::PipelinesController do
 
         @cruise_config.getAllErrors().size.should == 1
         assigns[:errors].size.should == 1
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
         response.location.should be_nil
       end
     end

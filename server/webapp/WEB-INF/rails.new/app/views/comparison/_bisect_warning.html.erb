@@ -1,0 +1,18 @@
+<%- if scope[:to_pipeline].isBisect() || scope[:from_pipeline].isBisect() -%>
+    <div class="information">
+        <%- if params[:show_bisect] == true.to_s -%>
+            <div class="warning">
+                <%= l.string("SHOWING_BISECT_DIFF") -%>
+            </div>
+        <%- else -%>
+            <div class="message">
+                <span>
+                    <%= l.string("SHOW_BISECT_DIFF_CONFIRMATION") -%>
+                </span>
+                <span class="prompt">
+                    <%= link_to "Continue", compare_pipelines_path(:show_bisect => true), :class => :link_as_header_button -%>
+                </span>
+            </div>
+        <%- end -%>
+    </div>
+<%- end -%>

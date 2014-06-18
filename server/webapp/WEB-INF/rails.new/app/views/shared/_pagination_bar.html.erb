@@ -1,0 +1,18 @@
+<%- scope[:handler_args] = Array(scope[:handler_args]) -%>
+<% if scope[:pagination].getTotalPages() > 0 %>
+    <div class="pagination">
+        <div class="wrapper">
+            <% scope[:pagination].getPages().each do |page| %>
+                <% if page.isDots() %>
+                    <span>...</span>
+                <% else %>
+                    <% if page.isCurrent() %>
+                        <span class="current_page"><%= page.getLabel() %></span>
+                    <% else %>
+                        <%= send(scope[:page_handler], page, *scope[:handler_args]) -%>
+                    <% end %>
+                <% end %>
+            <% end %>
+        </div>
+    </div>
+<% end %>

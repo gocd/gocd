@@ -25,30 +25,28 @@ shared_examples_for :material_controller do
 
   describe "routes should resolve and generate" do
     it "new" do
-      params_from(:get, "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/new").should == {:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "pipeline.name"}
-      route_for(:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "foo.bar").should == "admin/pipelines/foo.bar/materials/#{@short_material_type}/new"
+      {:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/new"}.should route_to(:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "pipeline.name")
       send("admin_#{@short_material_type}_new_path", :pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials/#{@short_material_type}/new"
     end
 
     it "create" do
-      params_from(:post, "/admin/pipelines/pipeline.name/materials/#{@short_material_type}").should == {:controller => "admin/materials/#{@short_material_type}", :action => "create", :pipeline_name => "pipeline.name"}
+      {:post => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}"}.should route_to(:controller => "admin/materials/#{@short_material_type}", :action => "create", :pipeline_name => "pipeline.name")
       send("admin_#{@short_material_type}_create_path", :pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials/#{@short_material_type}"
     end
 
     it "update" do
-      params_from(:put, "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print").should == {:controller => "admin/materials/#{@short_material_type}", :action => "update", :pipeline_name => "pipeline.name", :finger_print => "finger_print"}
+      {:put => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print"}.should route_to(:controller => "admin/materials/#{@short_material_type}", :action => "update", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
       send("admin_#{@short_material_type}_update_path", :pipeline_name => "foo.bar", :finger_print => "abc").should == "/admin/pipelines/foo.bar/materials/#{@short_material_type}/abc"
     end
 
     it "edit" do
-      params_from(:get, "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print/edit").should == {:controller => "admin/materials/#{@short_material_type}", :action => "edit", :pipeline_name => "pipeline.name", :finger_print => "finger_print"}
-      route_for(:controller => "admin/materials/#{@short_material_type}", :action => "edit", :pipeline_name => "foo.bar", :finger_print =>  "finger_print").should == "admin/pipelines/foo.bar/materials/#{@short_material_type}/finger_print/edit"
+      {:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/finger_print/edit"}.should route_to(:controller => "admin/materials/#{@short_material_type}", :action => "edit", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
       send("admin_#{@short_material_type}_edit_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/#{@short_material_type}/finger_print/edit"
     end
 
     it "delete" do
-      params_from(:delete, "/admin/pipelines/pipeline.name/materials/finger_print").should == {:controller => "admin/materials", :action => "destroy", :pipeline_name => "pipeline.name", :finger_print => "finger_print", :stage_parent=> "pipelines"}
-      send("admin_material_delete_path", :pipeline_name => "foo.bar", :finger_print => "finger_print", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/materials/finger_print"
+      {:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}.should route_to(:controller => "admin/materials", :action => "destroy", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
+      send("admin_material_delete_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/finger_print"
     end
   end
 
@@ -80,10 +78,6 @@ shared_examples_for :material_controller do
       
       it "should add new material" do
         stub_save_for_success
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
 
         @pipeline.materialConfigs().size.should == 1
 
@@ -92,6 +86,8 @@ shared_examples_for :material_controller do
         @pipeline.materialConfigs().size.should == 2
         @cruise_config.getAllErrors().size.should == 0
         assert_successful_create
+        response.body.should == 'Saved successfully'
+        URI.parse(response.location).path.should == admin_material_index_path
       end
 
       it "should assign config_errors for display when create fails due to validation errors" do
@@ -105,7 +101,7 @@ shared_examples_for :material_controller do
         @cruise_config.getAllErrors().size.should == 1
 
         assigns[:errors].size.should == 1
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
       end
     end
 
@@ -135,11 +131,6 @@ shared_examples_for :material_controller do
       it "should update existing material" do
         stub_save_for_success
 
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
-
         @pipeline.materialConfigs().size.should == 1
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
@@ -148,15 +139,12 @@ shared_examples_for :material_controller do
         @cruise_config.getAllErrors().size.should == 0
         assert_successful_update
         assigns[:material].should_not == nil
+        response.body.should == 'Saved successfully'
+        URI.parse(response.location).path.should == admin_material_index_path
       end
 
       it "should not fail when subject is nil, because of last material being deleted concurrently by another user" do
         stub_config_save_with_subject nil
-
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
 
         @pipeline.materialConfigs().size.should == 1
 
@@ -166,6 +154,8 @@ shared_examples_for :material_controller do
         @cruise_config.getAllErrors().size.should == 0
         assert_successful_update
         assigns[:material].should == nil
+        response.body.should == 'Saved successfully'
+        URI.parse(response.location).path.should == admin_material_index_path
       end
 
       it "should assign config_errors for display when update fails due to validation errors" do
@@ -176,7 +166,7 @@ shared_examples_for :material_controller do
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
         assigns[:errors].size.should == 1
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
         assigns[:material].should_not == nil
       end
     end

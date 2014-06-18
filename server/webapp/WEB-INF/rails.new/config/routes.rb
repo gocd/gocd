@@ -39,8 +39,18 @@ Go::Application.routes.draw do
 
   get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
 
-  get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, :defaults => {:stage_parent => "pipelines"}, as: :admin_material_index
-  delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", as: :admin_material_delete
+  ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
+    get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
+    post "admin/pipelines/:pipeline_name/materials/#{material_type}" => "admin/materials/#{material_type}#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_create"
+    get "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print/edit" => "admin/materials/#{material_type}#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_edit"
+    put "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print" => "admin/materials/#{material_type}#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_update"
+  end
+  defaults :no_layout => true do
+    get "admin/pipelines/:pipeline_name/materials/dependency/pipeline_name_search" => "admin/materials/dependency#pipeline_name_search", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_pipeline_name_search
+    get "admin/pipelines/:pipeline_name/materials/dependency/load_stage_names_for" => "admin/materials/dependency#load_stage_names_for", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_load_stage_names_for
+  end
+  get "admin/pipelines/:pipeline_name/materials" => "admin/materials#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_index
+  delete "admin/pipelines/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_delete
 
   get "admin/pipeline/new" => "admin/pipelines#new", as: :pipeline_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create

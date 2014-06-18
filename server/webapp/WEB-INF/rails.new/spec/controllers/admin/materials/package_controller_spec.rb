@@ -18,6 +18,8 @@ require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::PackageController do
+  include ConfigSaveStubbing
+
   before do
     @material = MaterialConfigsMother.packageMaterialConfig()
     @short_material_type = 'package'
@@ -27,7 +29,34 @@ describe Admin::Materials::PackageController do
 
   describe :action do
     before :each do
-      setup_data
+      controller.stub(:populate_config_validity)
+
+      @cruise_config = CruiseConfig.new()
+      repository1 = PackageRepositoryMother.create("repo-id", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
+      @pkg = PackageDefinitionMother.create("pkg-id", "package3-name", Configuration.new([ConfigurationPropertyMother.create("k2", false, "p3v2")].to_java(ConfigurationProperty)), repository1)
+      repository1.setPackages(Packages.new([@pkg].to_java(PackageDefinition)))
+      repos = PackageRepositories.new
+      repos.add(repository1)
+      @cruise_config.setPackageRepositories(repos)
+
+      @cruise_config_mother = GoConfigMother.new
+
+      @pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", MaterialConfigs.new([@material].to_java(MaterialConfig)), ["build-name"].to_java(java.lang.String))
+
+      @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
+
+      ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
+      @user = Username.new(CaseInsensitiveString.new("loser"))
+      controller.stub!(:current_user).and_return(@user)
+      @result = stub_localized_result
+
+      @go_config_service = stub_service(:go_config_service)
+      @pipeline_pause_service = stub_service(:pipeline_pause_service)
+      @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
+      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+      @go_config_service.stub(:getCurrentConfig).and_return(@cruise_config)
+      @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
+
       setup_other_form_objects
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @repo_id = "repo-id"
@@ -37,10 +66,6 @@ describe Admin::Materials::PackageController do
       it "should add new material with new package definition" do
         stub_save_for_success
         controller.stub(:populate_config_validity)
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
 
         @pipeline.materialConfigs().size.should == 1
 
@@ -49,6 +74,8 @@ describe Admin::Materials::PackageController do
         @pipeline.materialConfigs().size.should == 2
         @cruise_config.getAllErrors().size.should == 0
         assert_successful_create
+        response.body.should == 'Saved successfully'
+        URI.parse(response.location).path.should == admin_material_index_path
       end
     end
 
@@ -60,11 +87,6 @@ describe Admin::Materials::PackageController do
       it "should update existing material with new package definition" do
         stub_save_for_success
 
-        controller.should_receive(:render).with(anything) do |options|
-          options[:text].should == 'Saved successfully'
-          options[:location][:action].should == :index
-        end
-
         @pipeline.materialConfigs().size.should == 1
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}, :finger_print => @material.getPipelineUniqueFingerprint()
@@ -73,6 +95,8 @@ describe Admin::Materials::PackageController do
         @cruise_config.getAllErrors().size.should == 0
         assert_successful_update
         assigns[:material].should_not == nil
+        response.body.should == 'Saved successfully'
+        URI.parse(response.location).path.should == admin_material_index_path
       end
     end
   end
@@ -121,7 +145,7 @@ describe Admin::Materials::PackageController do
   def assert_values(package_material)
     package_material.getType().should == "PackageMaterial"
     package_material.getPackageId().should_not be_nil
-    package_material.getPackageId().should == "pkg-id" if (params[:material][:create_or_associate_pkg_def] == "associate")
+    package_material.getPackageId().should == "pkg-id" if (controller.params[:material][:create_or_associate_pkg_def] == "associate")
     package_material.getPackageDefinition().should_not be_nil
     package_material.getPackageDefinition().getRepository().should_not be_nil
   end

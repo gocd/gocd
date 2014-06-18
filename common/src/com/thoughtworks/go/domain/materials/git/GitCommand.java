@@ -291,8 +291,8 @@ public class GitCommand extends SCMCommand {
     }
 
 
-    public void submoduleAdd(String repoUrl, String folder) {
-        String[] args = new String[]{"submodule", "add", repoUrl, folder};
+    public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
+        String[] args = new String[]{"submodule", "add", "--name", submoduleNameToPutInGitSubmodules, repoUrl, folder};
 
         CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
         runOrBomb(gitCmd);

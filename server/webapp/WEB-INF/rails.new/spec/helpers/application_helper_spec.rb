@@ -208,7 +208,7 @@ describe ApplicationHelper do
   end
 
   describe 'form remote add on' do
-    it "return the before and completed options for a form remote action" do
+    it "should return the before and completed options for a form remote action" do
       expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();interesting one; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();alert(0);}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
 
       actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete => "alert(0);")
@@ -216,10 +216,18 @@ describe ApplicationHelper do
       expect(actual).to eq(expected)
     end
 
-    it "return the before and completed options when not defined" do
+    it "should return the before and completed options when not defined" do
       expected = %q|<form accept-charset="UTF-8" action="url" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
 
       actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here")
+
+      expect(actual).to eq(expected)
+    end
+
+    it "should resolve URL for AJAX Request URL" do
+      expected = %q|<form accept-charset="UTF-8" action="/pipelines/show" method="post" onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/pipelines/show', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+
+      actual = blocking_form_remote_tag(:url => {:controller => 'pipelines', :action => 'show'}, :success => "whatever", 202 => "do something here")
 
       expect(actual).to eq(expected)
     end

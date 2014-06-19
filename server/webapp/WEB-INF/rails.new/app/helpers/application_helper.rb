@@ -288,17 +288,6 @@ module ApplicationHelper
     "</form>".html_safe
   end
 
-  def form_remote_tag(options = {})
-    options[:form] = true
-
-    options[:html] ||= {}
-    options[:html][:onsubmit] =
-        ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
-            "#{remote_function(options)}; return false;").html_safe
-
-    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
-  end
-
   def check_for_cancelled_contents(state, options={} )
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
@@ -425,11 +414,23 @@ module ApplicationHelper
   end
 
   private
+  def form_remote_tag(options = {})
+    options[:form] = true
+
+    options[:html] ||= {}
+    options[:html][:onsubmit] =
+        ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
+            "#{remote_function(options)}; return false;").html_safe
+
+    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
+  end
+
   # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
   def remote_function options
     retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
     success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
+    url = escape_javascript(url_for(options[:url]))
 
-    %Q|#{options[:before]}; new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
+    %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
   end
 end

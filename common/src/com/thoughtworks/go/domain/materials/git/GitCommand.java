@@ -290,12 +290,16 @@ public class GitCommand extends SCMCommand {
         return runOrBomb(gitCmd);
     }
 
-
     public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
-        String[] args = new String[]{"submodule", "add", "--name", submoduleNameToPutInGitSubmodules, repoUrl, folder};
+        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", repoUrl, folder};
+        String[] changeSubmoduleNameInGitModules = new String[]{"config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
+        String[] addGitModules = new String[]{"add", ".gitmodules"};
+        String[] changeSubmoduleNameInGitConfig = new String[]{"config", "--file", ".git/config", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
 
-        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitCmd);
+        runOrBomb(git().withArgs(addSubmoduleWithSameNameArgs).withWorkingDir(workingDir));
+        runOrBomb(git().withArgs(changeSubmoduleNameInGitModules).withWorkingDir(workingDir));
+        runOrBomb(git().withArgs(addGitModules).withWorkingDir(workingDir));
+        runOrBomb(git().withArgs(changeSubmoduleNameInGitConfig).withWorkingDir(workingDir));
     }
 
     public void submoduleRemove(String folderName) {

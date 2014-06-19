@@ -119,8 +119,9 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
 end
 
 def clone_command_repo(command_repository_default_dir)
+  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "git://"
   url = ENV["COMMAND_REPO_URL"] || 'github.com/goteam/go-command-repo.git'
-  system "git clone git://#{url} #{command_repository_default_dir}"
+  system "git clone #{protocol}#{url} #{command_repository_default_dir}"
 end
 
 define "cruise:server", :layout => server_layout("server") do
@@ -346,8 +347,9 @@ define "cruise:server", :layout => server_layout("server") do
   end
 
   task :bump_version_of_command_repository do
+    protocol = ENV["COMMAND_REPO_PROTOCOL"] || "https://"
     repo_url = ENV["COMMAND_REPO_URL"] || 'github.com/goteam/go-command-repo.git'
-    repo_full_url = "https://#{repo_url}"
+    repo_full_url = "#{protocol}#{repo_url}"
     require 'tmpdir'
     tmp_dir = Dir.tmpdir
     temp_checkout_dir_location = File.join(tmp_dir, 'go-command-repo-for-push')

@@ -20,7 +20,7 @@ describe Api::StagesController do
 
   describe "index" do
     before :each do
-      controller.stub(:stage_service).and_return(@stage_service = mock())
+      controller.stub(:stage_service).and_return(@stage_service = double())
       controller.stub(:set_locale)
       controller.stub(:licensed_agent_limit)
       controller.stub(:populate_config_validity)

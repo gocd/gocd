@@ -139,7 +139,7 @@ YUI_CSS_OUTPUT = ".css$:.css"
 YUI_JS_OUTPUT = ".js$:.js"
 
 def yui_compress_all(pattern, parent_directory, extension)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}" if ENV['YUI_COMPRESS_ASSETS'] == 'Y'
+  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}"
 end
 
 def merge(file_handle, path)

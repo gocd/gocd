@@ -102,14 +102,6 @@ public class PipelineInstanceModelTest {
         assertThat(model.getPipelineStatusMessage(), is("Passed: unit1"));
     }
 
-    @Test
-    public void shouldAbbreviateLongRevision() {
-        MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(MaterialsMother.hgMaterial(), HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
-
-        assertThat(model.getRevisionOfLatestModification(), is("a087402bd2a7..."));
-    }
 
     @Test
     public void shouldGetCurrentRevisionForMaterial() {

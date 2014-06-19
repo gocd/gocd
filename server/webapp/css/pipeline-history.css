@@ -111,6 +111,14 @@ font-size: 18px;
     position: relative; /* for popup */
 }
 
+.pipeline-history-group .pipeline-info.revision{
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    display: inline-block;
+}
+
 .empty-stage,
 .passed-stage,
 .failed-stage,

@@ -189,7 +189,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     private String abbreviate(String originalRevision) {
-        return originalRevision.length() < 12 ? originalRevision : originalRevision.substring(0, 12) + "...";
+        return originalRevision;
     }
 
     public Integer getCounter() {

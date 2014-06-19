@@ -112,8 +112,6 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
       mkdir_p osx_dir
 
       filter.from(explode).into(pkg_dir_path).run
-      filter.from(explode).include("config/log4j.properties").into(pkg_dir_path).
-          using(/[^=]+$/, "go-#{pkg}.log" => "/Library/Logs/#{pkg_dir}/go-#{pkg}.log").run
 
       build_osx_installer(pkg, pkg_dir)
     end
@@ -334,11 +332,6 @@ define "cruise:server", :layout => server_layout("server") do
       mkdir_p osx_dir
 
       filter.from(explode).into(pkg_dir_path).run
-      Zip::ZipFile.open(File.join(pkg_dir_path, "go.jar"), Zip::ZipFile::CREATE ) { |zipfile|
-        text = zipfile.read(File.join("defaultFiles", "config", "log4j.properties"))
-        text.gsub!("go-#{pkg}.log", "/Library/Logs/#{pkg_dir}/go-#{pkg}.log")
-        zipfile.get_output_stream(File.join("defaultFiles", "config", "log4j.properties")) { |f| f.puts text }
-      }
 
       build_osx_installer(pkg, pkg_dir)
     end

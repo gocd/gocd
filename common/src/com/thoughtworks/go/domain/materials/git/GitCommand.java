@@ -299,7 +299,6 @@ public class GitCommand extends SCMCommand {
         runOrBomb(git().withArgs(addSubmoduleWithSameNameArgs).withWorkingDir(workingDir));
         runOrBomb(git().withArgs(changeSubmoduleNameInGitModules).withWorkingDir(workingDir));
         runOrBomb(git().withArgs(addGitModules).withWorkingDir(workingDir));
-        runOrBomb(git().withArgs(changeSubmoduleNameInGitConfig).withWorkingDir(workingDir));
     }
 
     public void submoduleRemove(String folderName) {

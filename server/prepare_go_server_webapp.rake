@@ -117,6 +117,7 @@ task :copy_files do
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-1.2.8", true)
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-rails-1.2.7.1", true)
+  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true) if ENV['USE_NEW_RAILS'] != "Y"
 
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"

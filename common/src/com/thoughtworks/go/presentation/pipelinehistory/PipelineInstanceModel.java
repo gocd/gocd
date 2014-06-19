@@ -185,11 +185,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public String getRevisionOfLatestModification() {
-        return abbreviate(buildCause.getMaterialRevisions().latestRevision());
-    }
-
-    private String abbreviate(String originalRevision) {
-        return originalRevision;
+        return buildCause.getMaterialRevisions().latestRevision();
     }
 
     public Integer getCounter() {

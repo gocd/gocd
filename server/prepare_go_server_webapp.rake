@@ -143,12 +143,15 @@ def yui_compress_all(pattern, parent_directory, extension)
   sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}" if ENV['YUI_COMPRESS_ASSETS'] == 'Y'
 end
 
-def merge(file_handle, path)
+CSS_FILE_TERMINATOR=''
+JS_FILE_TERMINATOR=';'
+
+def merge(file_handle, path, terminator=CSS_FILE_TERMINATOR)
   contents = File.read(path)
   name = File.basename(path)
   file_handle.puts "// #{name} - start"
   file_handle.write(contents)
-  file_handle.write(";") unless ENV['YUI_COMPRESS_ASSETS'] == 'Y'  # Terminate file contents with ; in case the script does not end with a ; as the author might be assuming it will be loaded standalone
+  file_handle.write(terminator) # Terminate file contents with *_FILE_TERMINATOR. For example, in case the JS script does not end with a ; as the author might be assuming it will be loaded standalone, we will introduce a ;
   file_handle.puts "\n// #{name} - end"
 end
 
@@ -181,7 +184,7 @@ task :create_all_js do
 
   File.open(COMPRESSED_ALL_DOT_JS, "w") do |file_handle|
     file_list.each do |path|
-      merge(file_handle, path) unless JS_TO_BE_SKIPPED.include? path
+      merge(file_handle, path, JS_FILE_TERMINATOR) unless JS_TO_BE_SKIPPED.include? path
     end
   end
 end

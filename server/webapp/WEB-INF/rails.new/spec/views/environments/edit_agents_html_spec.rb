@@ -14,12 +14,24 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module FlashMessagesHelper
-  def flash_message_pane_start id, no_body = false, options = {}
-    ("<div class=\"flash\" id=\"#{id}\">" + (no_body ? flash_message_pane_end : "")).html_safe
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+
+describe "environments/edit_agents.html.erb" do
+  include GoUtil, FormUI, ReflectiveUtil
+
+  before do
+    @environment = EnvironmentConfigMother.environment("env")
+    @environment.addEnvironmentVariable("plain_name", "plain_value")
+    assign(:environment, @environment)
+
+    view.stub(:cruise_config_md5).and_return("foo_bar_baz")
   end
 
-  def flash_message_pane_end
-    "</div>"
+  it "should have cruise_config_md5 as part of output" do
+    stub_template "environments/_edit_agents.html.erb" => "DUMMY"
+
+    render
+
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
   end
 end

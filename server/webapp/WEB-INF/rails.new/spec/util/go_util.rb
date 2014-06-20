@@ -28,11 +28,11 @@ module GoUtil
   end
 
   def dom4j_root_for xml_string
-    map = HashMap.new();
-    map.put("a", "http://www.w3.org/2005/Atom");
-    map.put("go", "http://www.thoughtworks-studios.com/ns/go");
-    factory = DocumentFactory.getInstance();
-    factory.setXPathNamespaceURIs(map);
+    map = HashMap.new()
+    map.put("a", "http://www.w3.org/2005/Atom")
+    map.put("go", "http://www.thoughtworks-studios.com/ns/go")
+    factory = DocumentFactory.getInstance()
+    factory.setXPathNamespaceURIs(map)
     SAXReader.new().read(StringBufferInputStream.new(xml_string)).getRootElement()
   end
 
@@ -43,7 +43,7 @@ module GoUtil
   end
 
   def stub_context_path obj
-    obj.stub(:servlet_request).and_return(req = double('req'))
+    allow(obj).to receive(:servlet_request).and_return(req = double('req'))
     req.stub(:getContextPath).and_return("/go")
   end
 end

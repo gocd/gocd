@@ -1,0 +1,5 @@
+<%= scope[:var_form].text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
+<span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+<%= scope[:var_form].text_field :valueForDisplay, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+<span class="icon_remove delete_parent"></span>
+<span class="wizard_error_message"></span>

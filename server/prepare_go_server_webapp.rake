@@ -140,15 +140,19 @@ YUI_CSS_OUTPUT = ".css$:.css"
 YUI_JS_OUTPUT = ".js$:.js"
 
 def yui_compress_all(pattern, parent_directory, extension)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}"
+  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}" if ENV['YUI_COMPRESS_ASSETS'] == 'Y'
 end
 
-def merge(file_handle, path)
+CSS_FILE_TERMINATOR=''
+JS_FILE_TERMINATOR=';'
+
+def merge(file_handle, path, terminator=CSS_FILE_TERMINATOR)
   contents = File.read(path)
   name = File.basename(path)
-  file_handle.puts "/* #{name} - start */"
+  file_handle.puts "// #{name} - start"
   file_handle.write(contents)
-  file_handle.puts "\n/* #{name} - end */"
+  file_handle.write(terminator) # Terminate file contents with *_FILE_TERMINATOR. For example, in case the JS script does not end with a ; as the author might be assuming it will be loaded standalone, we will introduce a ;
+  file_handle.puts "\n// #{name} - end"
 end
 
 # javascript optimization
@@ -165,26 +169,22 @@ end
 task :create_all_js do
   yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
   yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
-  # doing this to fix load order! :'(
-  lib_paths = [JS_LIB_DIR + "/es5-shim.min.js"] +
 
-               [JS_LIB_DIR + "/jquery-1.7.2.js", JS_LIB_DIR + "/bootstrap-2.3.2.min.js", JS_LIB_DIR + "/highcharts-2.3.3.min.js",
-               JS_LIB_DIR + "/jquery.autocomplete-1.1.js", JS_LIB_DIR + "/jquery.ba-throttle-debounce-1.1.min.js", JS_LIB_DIR + "/jquery.dirtyform.js", JS_LIB_DIR + "/jquery.highlight-3.0.js",
-               JS_LIB_DIR + "/jquery.timeago-1.2.3.js", JS_LIB_DIR + "/jquery.tipTip-1.3.js", JS_LIB_DIR + "/jquery.treeview-1.5pre.js", JS_LIB_DIR + "/jquery.url-1.0.js",
-               JS_LIB_DIR + "/jquery.validate-1.5.5.js", JS_LIB_DIR + "/jquery-ui-1.7.3.custom.min.js", JS_LIB_DIR + "/ui.core-1.7.3.js", JS_LIB_DIR + "/ui.dialog-1.7.3.js", JS_LIB_DIR + "/jquery_no_conflict.js"] +
+  priority_libs = ["es5-shim.min.js", "jquery-1.7.2.js", "jquery.timeago-1.2.3.js", "jquery.url-1.0.js", "jquery_no_conflict.js", "prototype-1.6.0.js",
+  "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
+  libs_to_load_first = []
+  priority_libs.each do |lib|
+    libs_to_load_first << File.join(JS_LIB_DIR, lib)
+  end
+  libs_to_load_second = Dir.glob(File.join(JS_LIB_DIR, "*.js")) - libs_to_load_first
 
-               [JS_LIB_DIR + "/prototype-1.6.0.js", JS_LIB_DIR + "/scriptaculous-1.8.0.js", JS_LIB_DIR + "/effects-1.8.0.js", JS_LIB_DIR + "/accordion-2.0.js",
-                JS_LIB_DIR + "/controls-1.8.0.js", JS_LIB_DIR + "/dragdrop-1.8.0.js", JS_LIB_DIR + "/modalbox-1.6.1.js", JS_LIB_DIR + "/slider-1.8.0.js", JS_LIB_DIR + "/trimpath-template-1.0.38.js"] +
+  app_paths = put_first(Dir.glob(File.join(JS_APP_DIR, "*.js")), JS_APP_PUT_FIRST)
 
-               [JS_LIB_DIR + "/angular.1.0.8.min.js", JS_LIB_DIR + "/angular-resource.1.0.8.min.js"]
-
-  app_paths = put_first(Dir.glob(JS_APP_DIR + "/*.js"), JS_APP_PUT_FIRST)
-
-  file_list = lib_paths + app_paths
+  file_list = libs_to_load_first + libs_to_load_second + app_paths
 
   File.open(COMPRESSED_ALL_DOT_JS, "w") do |file_handle|
     file_list.each do |path|
-      merge(file_handle, path) unless JS_TO_BE_SKIPPED.include? path
+      merge(file_handle, path, JS_FILE_TERMINATOR) unless JS_TO_BE_SKIPPED.include? path
     end
   end
 end

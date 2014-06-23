@@ -57,8 +57,8 @@ Go::Application.routes.draw do
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
-  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit
-  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_update
+  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
+  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
 
   get "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_listing
   put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :defaults => {:stage_parent => "pipelines"}, as: :admin_stage_use_template

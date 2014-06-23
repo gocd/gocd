@@ -24,6 +24,7 @@ $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/acti
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/activerecord-deprecated_finders-1.0.3/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/arel-4.0.2/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/activerecord-4.0.4/lib")
+$:.unshift File.expand_path("#{path}/../../engines/gadgets/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/hike-1.2.3/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/thor-0.19.1/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/railties-4.0.4/lib")
@@ -31,3 +32,4 @@ $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/tilt
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/sprockets-2.12.1/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/sprockets-rails-2.0.1/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/rails-4.0.4/lib")
+$:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/validatable-1.6.7/lib")

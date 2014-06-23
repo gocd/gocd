@@ -1,0 +1,7 @@
+<div id="oauth_page">
+  <%= render_help_link('OAuth Enabled Gadget Provider', :class => 'page-help-at-action-bar') if defined?(render_help_link)  %>
+
+  <h1>Edit OAuth enabled gadget provider</h1>
+
+  <%= render :partial => "form", :locals => { :gadgets_oauth_client => @gadgets_oauth_client } %>
+</div>

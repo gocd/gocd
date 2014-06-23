@@ -271,7 +271,7 @@ describe Admin::StagesController do
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::PipelineOrTemplateNode, ::ConfigUpdate::RefsAsUpdatedRefs
         response.body.should == 'Saved successfully'
-        assert_template "index"
+        URI.parse(response.location).path.should == admin_stage_listing_path
       end
 
       it "should show error message when config save fails for reasons other than validations" do

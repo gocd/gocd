@@ -39,16 +39,26 @@ Go::Application.routes.draw do
 
   get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
 
-  get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, :defaults => {:stage_parent => "pipelines"}, as: :admin_material_index
-  delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", as: :admin_material_delete
+  ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
+    get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
+    post "admin/pipelines/:pipeline_name/materials/#{material_type}" => "admin/materials/#{material_type}#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_create"
+    get "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print/edit" => "admin/materials/#{material_type}#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_edit"
+    put "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print" => "admin/materials/#{material_type}#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_update"
+  end
+  defaults :no_layout => true do
+    get "admin/pipelines/:pipeline_name/materials/dependency/pipeline_name_search" => "admin/materials/dependency#pipeline_name_search", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_pipeline_name_search
+    get "admin/pipelines/:pipeline_name/materials/dependency/load_stage_names_for" => "admin/materials/dependency#load_stage_names_for", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_load_stage_names_for
+  end
+  get "admin/pipelines/:pipeline_name/materials" => "admin/materials#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_index
+  delete "admin/pipelines/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_delete
 
   get "admin/pipeline/new" => "admin/pipelines#new", as: :pipeline_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
-  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
-  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
+  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_edit
+  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, as: :pipeline_update
 
   get "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_listing
   put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :defaults => {:stage_parent => "pipelines"}, as: :admin_stage_use_template
@@ -72,14 +82,14 @@ Go::Application.routes.draw do
   get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition
   get "admin/commands/lookup" => "admin/commands#lookup", :format => "text", as: :admin_command_lookup
 
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks" => "admin/tasks#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, :current_tab => "tasks", as: :admin_tasks_listing
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/new" => "admin/tasks#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, :current_tab => "tasks", as: :admin_task_new
-  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type" => "admin/tasks#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, :current_tab => "tasks", as: :admin_task_create
-  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/task/:task_index/index/increment" => "admin/tasks#increment_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, :current_tab => "tasks", as: :admin_task_increment_index
-  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/task/:task_index/index/decrement" => "admin/tasks#decrement_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, :current_tab => "tasks", as: :admin_task_decrement_index
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/:task_index/edit" => "admin/tasks#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER}, :current_tab => "tasks", as: :admin_task_edit
-  delete "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:task_index" => "admin/tasks#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER}, :current_tab => "tasks", as: :admin_task_delete
-  put "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/:task_index" => "admin/tasks#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER}, :current_tab => "tasks", as: :admin_task_update
+  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks" => "admin/tasks#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_tasks_listing
+  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/new" => "admin/tasks#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_new
+  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type" => "admin/tasks#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_create
+  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/task/:task_index/index/increment" => "admin/tasks#increment_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_increment_index
+  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/task/:task_index/index/decrement" => "admin/tasks#decrement_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_decrement_index
+  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/:task_index/edit" => "admin/tasks#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_edit
+  delete "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:task_index" => "admin/tasks#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_delete
+  put "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/:task_index" => "admin/tasks#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT, task_index: NON_NEGATIVE_INTEGER, stage_parent: /(pipelines|templates)/}, :current_tab => "tasks", as: :admin_task_update
 
   get "admin/config_xml" => "admin/configuration#show", as: :config_view
   put "admin/config_xml" => "admin/configuration#update", as: :config_update

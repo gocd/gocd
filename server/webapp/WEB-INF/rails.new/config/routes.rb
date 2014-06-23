@@ -221,7 +221,6 @@ Go::Application.routes.draw do
   get '/agents' => 'agents#index', as: :agents_for_test
   get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
-  get "environments/new" => 'environments#new', as: :environment_new
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent

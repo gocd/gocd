@@ -27,7 +27,7 @@ describe Admin::TemplatesController do
 
   describe "routes" do
     it "should resolve route to the templates listing page" do
-      params_from(:get, "/admin/templates").should == {:controller => "admin/templates", :action => "index"}
+      {:get => "/admin/templates"}.should route_to(:controller => "admin/templates", :action => "index")
     end
 
     it "should generate listing route" do
@@ -35,38 +35,37 @@ describe Admin::TemplatesController do
     end
 
     it "should resolve route to the template delete" do
-      params_from(:delete, "/admin/templates/template.name").should == {:controller => "admin/templates", :action => "destroy", :pipeline_name => "template.name"}
+      {:delete => "/admin/templates/template.name"}.should route_to(:controller => "admin/templates", :action => "destroy", :pipeline_name => "template.name")
       delete_template_path(:pipeline_name => "template.name").should == "/admin/templates/template.name"
     end
 
     it "should resolve & generate route to the template edit" do
-      params_from(:get, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general'}
-      template_edit_path(:pipeline_name => "blah.blah", :stage_parent => "templates", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
-      route_for(:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "foo.bar", :current_tab => "general").should == "admin/templates/foo.bar/general"
+      {:get => "/admin/templates/blah.blah/general"}.should route_to(:controller => "admin/templates", :action => "edit", :pipeline_name => "blah.blah", :current_tab => 'general')
+      template_edit_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
     end
 
     it "should resolve & generate route to the template update" do
-      params_from(:put, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "update", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general'}
-      template_update_path(:pipeline_name => "blah.blah", :stage_parent => "templates", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
+      {:put => "/admin/templates/blah.blah/general"}.should route_to(:controller => "admin/templates", :action => "update", :pipeline_name => "blah.blah", :current_tab => 'general')
+      template_update_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
     end
 
     it "should resolve & generate route for new" do
-      params_from(:get, "/admin/templates/new").should == {:controller => "admin/templates", :action => "new"}
+      {:get => "/admin/templates/new"}.should route_to(:controller => "admin/templates", :action => "new")
       template_new_path.should == "/admin/templates/new"
     end
 
     it "should resolve & generate route for create" do
-      params_from(:post, "/admin/templates/create").should == {:controller => "admin/templates", :action => "create"}
+      {:post => "/admin/templates/create"}.should route_to(:controller => "admin/templates", :action => "create")
       template_create_path.should == "/admin/templates/create"
     end
 
     it "should resolve & generate route for edit permissions" do
-      params_from(:get, "/admin/templates/template_name/permissions").should == {:controller => "admin/templates", :action => "edit_permissions", :template_name => "template_name"}
+      {:get => "/admin/templates/template_name/permissions"}.should route_to(:controller => "admin/templates", :action => "edit_permissions", :template_name => "template_name")
       edit_template_permissions_path(:template_name => "foo").should == "/admin/templates/foo/permissions"
     end
 
     it "should resolve & generate route for update permissions" do
-      params_from(:post, "/admin/templates/template_name/permissions").should == {:controller => "admin/templates", :action => "update_permissions", :template_name => "template_name"}
+      {:post => "/admin/templates/template_name/permissions"}.should route_to(:controller => "admin/templates", :action => "update_permissions", :template_name => "template_name")
       update_template_permissions_path(:template_name => "foo").should == "/admin/templates/foo/permissions"
     end
   end
@@ -105,11 +104,11 @@ describe Admin::TemplatesController do
       end
 
       it "should assign template with name" do
-        controller.should_receive(:render).with(:action => "general", :layout => "templates/details")
-
-        get :edit, :pipeline_name => "some_template", :current_tab => "general", :stage_parent => "templates"
+        get :edit, :pipeline_name => "some_template", :current_tab => "general"
 
         assigns[:pipeline].should == @pipeline
+        assert_template "general"
+        assert_template layout: "templates/details"
       end
     end
 
@@ -155,7 +154,7 @@ describe Admin::TemplatesController do
         admins = @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template')).getAuthorization().getAdminsConfig()
         admins.size().should == 1
         admins.get(0).getName().toString().should == "new-admin"
-        response.status.should == "302 Found"
+        response.status.should == 302
         response.should redirect_to("http://test.host/admin/templates/some_template/permissions?fm=random-message-uuid")
       end
 
@@ -166,7 +165,7 @@ describe Admin::TemplatesController do
 
         put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template"}
 
-        response.status.should == "400 Bad Request"
+        response.status.should == 400
         assigns[:pipeline].should == @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template'))
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
       end
@@ -185,6 +184,7 @@ describe Admin::TemplatesController do
         stub_save_for_success
 
         delete :destroy, :pipeline_name => "some_template", :config_md5 => "abcd1234"
+
         assigns[:cruise_config].getTemplates().size().should == 1
 
         assert_save_arguments "abcd1234"
@@ -207,8 +207,6 @@ describe Admin::TemplatesController do
     describe "new" do
       it "should create an empty template" do
         @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
-        controller.should_receive(:render).with(:layout => "")
-
         template_config_service = stub_service(:template_config_service)
 
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
@@ -217,12 +215,13 @@ describe Admin::TemplatesController do
         get :new
 
         assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "", expected)
+        assert_template "new"
+        assert_template layout: []
       end
 
       it "should create an empty template when pipelineToExtractFrom is set" do
         in_params(:pipelineToExtractFrom => 'pipeline1')
         @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
-        controller.should_receive(:render).with(:layout => "")
 
         template_config_service = stub_service(:template_config_service)
 
@@ -232,6 +231,8 @@ describe Admin::TemplatesController do
         get :new
 
         assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "pipeline1", expected)
+        assert_template "new"
+        assert_template layout: []
       end
 
     end
@@ -316,8 +317,6 @@ describe Admin::TemplatesController do
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), pipeline2, PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
         template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
-        controller.should_receive(:render).with(:status => 400, :action => :new)
-
         post :create, :pipeline => {:template => {:name => "some_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline.2"}, :config_md5 => "abcd1234"
 
         assigns[:pipeline].useExistingPipeline().should be_true
@@ -325,6 +324,8 @@ describe Admin::TemplatesController do
         assigns[:pipeline].selectedPipelineName().should == "pipeline.2"
         assigns[:errors].size.should == 1
         assert_save_arguments "abcd1234"
+        assert_template "new"
+        response.status.should == 400
       end
     end
   end

@@ -27,7 +27,7 @@ class Admin::TemplatesController < AdminController
     pipelineName = CaseInsensitiveString.new(params[:pipelineToExtractFrom])
     if pipelineName.empty? || (!pipelineName.empty? && @cruise_config.hasPipelineNamed(pipelineName))
       assert_load :pipeline, create_empty_template_view_model
-      render :layout => ""
+      render :layout => false
     else
       render_error_template(l.string("PIPELINE_NOT_FOUND", [pipelineName]), 404)
     end
@@ -148,7 +148,7 @@ class Admin::TemplatesController < AdminController
 
   helper_method :default_url_options, :allow_pipeline_selection?
   def default_url_options(options = nil)
-    super.reverse_merge(params.only(:allow_pipeline_selection))
+    super.reverse_merge(params.only(:allow_pipeline_selection).symbolize_keys)
   end
 
   TRUE = true.to_s

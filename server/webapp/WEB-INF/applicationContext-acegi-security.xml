@@ -63,7 +63,9 @@
     <bean id="configValidityFilter" class="com.thoughtworks.go.server.web.ConfigValidityFilter" autowire="autodetect"/>
 
     <bean id="anonymousProcessingFilter" class="com.thoughtworks.go.server.security.AnonymousProcessingFilter" autowire="autodetect"/>
-    <bean id="performanceLoggingFilter" class="com.thoughtworks.go.server.security.PerformanceLoggingFilter" />
+    <bean id="performanceLoggingFilter" class="com.thoughtworks.go.server.security.PerformanceLoggingFilter" >
+        <constructor-arg ref="webRequestPerformanceLogger"/>
+    </bean>
 
     <bean id="httpSessionContextIntegrationFilter"
           class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>

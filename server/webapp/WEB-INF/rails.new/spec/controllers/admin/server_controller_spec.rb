@@ -56,7 +56,7 @@ describe Admin::ServerController do
     @cruise_config.setServerConfig(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
     @cruise_config.server().setJobTimeout("42")
     @cruise_config.server().setCommandRepositoryLocation("foo")
-    @go_config_service.stub!(:getConfigForEditing).and_return(@cruise_config)
+    @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
 
     controller.stub(:populate_config_validity)
     @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
@@ -135,7 +135,7 @@ describe Admin::ServerController do
 
     it "should assign command repo base directory location" do
       controller.stub(:system_environment).and_return(@system_environment = Object.new)
-      @system_environment.should_receive(:getCommandRepositoryRootLocation).any_number_of_times.and_return("foo")
+      @system_environment.should_receive(:getCommandRepositoryRootLocation).at_least(1).and_return("foo")
 
       get :index
 
@@ -148,7 +148,7 @@ describe Admin::ServerController do
     end
 
     describe "with view" do
-      integrate_views
+      render_views
 
       before do
         controller.stub(:populate_health_messages) do
@@ -158,9 +158,9 @@ describe Admin::ServerController do
         controller.stub(:set_current_user) do
           assigns[:user] = user
         end
-        controller.stub!(:current_user).and_return(user)
-        controller.stub!(:security_service).and_return(@security_service = Object.new)
-        @go_config_service.stub!(:isSecurityEnabled).and_return(true)
+        controller.stub(:current_user).and_return(user)
+        controller.stub(:security_service).and_return(@security_service = Object.new)
+        @go_config_service.stub(:isSecurityEnabled).and_return(true)
         @security_service.stub(:canViewAdminPage).with(user).and_return(true)
         @security_service.stub(:isUserAdmin).with(user).and_return(true)
       end
@@ -280,7 +280,7 @@ describe Admin::ServerController do
 
     describe "during concurrent edit" do
       it "on validation failure, should set cruise_config_md5 to old-md5 sent in request instead of latest md5" do
-        @cruise_config.stub!(:getMd5).and_return "new-md5"
+        @cruise_config.stub(:getMd5).and_return "new-md5"
 
         post :update, :server_configuration_form => @valid_server_params.merge(:port => "abcd"), :cruise_config_md5 => "old-md5"
 

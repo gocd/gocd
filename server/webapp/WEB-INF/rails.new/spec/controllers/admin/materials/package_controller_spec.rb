@@ -47,7 +47,7 @@ describe Admin::Materials::PackageController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub!(:current_user).and_return(@user)
+      controller.stub(:current_user).and_return(@user)
       @result = stub_localized_result
 
       @go_config_service = stub_service(:go_config_service)
@@ -122,8 +122,8 @@ describe Admin::Materials::PackageController do
   end
 
   def setup_metadata
-    metadata_store = mock("PackageMetadataStore")
-    PackageMetadataStore.stub!(:getInstance).and_return(metadata_store)
+    metadata_store = double("PackageMetadataStore")
+    PackageMetadataStore.stub(:getInstance).and_return(metadata_store)
     metadata_store.stub(:getMetadata).with("pluginid").and_return(PackageConfigurations.new)
     metadata_store.stub(:getMetadata).with("invalid-pluginid").and_return(nil)
   end

@@ -83,9 +83,9 @@ describe Admin::Materials::DependencyController do
 
     before(:each) do
       controller.stub(:populate_config_validity)
-      @go_config_service = mock('Go Config Service')
+      @go_config_service = double('Go Config Service')
       controller.stub(:go_config_service).and_return(@go_config_service)
-      @pipeline_pause_service = mock('Pipeline Pause Service')
+      @pipeline_pause_service = double('Pipeline Pause Service')
       controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
       @cruise_config_mother = GoConfigMother.new
@@ -96,7 +96,7 @@ describe Admin::Materials::DependencyController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub!(:current_user).and_return(@user)
+      controller.stub(:current_user).and_return(@user)
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
       pause_info = PipelinePauseInfo.paused("just for fun", "loser")
@@ -122,7 +122,7 @@ describe Admin::Materials::DependencyController do
     it "should not return pipeline [stage] json for pipelines which the user has no view permissions for" do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @cruise_config_mother.addPipeline(@cruise_config, "a", "b", ["job-1"].to_java(java.lang.String))
-      @security_service = mock('Security Service')
+      @security_service = double('Security Service')
       controller.stub(:security_service).and_return(@security_service)
       @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline2").and_return(false)
       @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "a").and_return(true)

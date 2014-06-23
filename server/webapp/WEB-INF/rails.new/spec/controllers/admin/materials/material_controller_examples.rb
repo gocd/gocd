@@ -195,7 +195,7 @@ shared_examples_for :material_controller do
 
     ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
     @user = Username.new(CaseInsensitiveString.new("loser"))
-    controller.stub!(:current_user).and_return(@user)
+    controller.stub(:current_user).and_return(@user)
     @result = stub_localized_result
 
     @go_config_service = stub_service(:go_config_service)

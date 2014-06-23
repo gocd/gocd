@@ -302,7 +302,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return System.getProperty(property, defaultValue);
     }
 
-    private String getPropertyImpl(String property) {
+    public String getPropertyImpl(String property) {
         return System.getProperty(property);
     }
 

@@ -116,6 +116,13 @@ public class ExecTaskTest {
     }
 
     @Test
+    public void shouldTrimTheCommandAttribute() throws Exception {
+        ExecTask exec = new ExecTask();
+        exec.setConfigAttributes(m(ExecTask.COMMAND, "  ls  "));
+        assertThat(exec.command(), is("ls"));
+    }
+
+    @Test
     public void shouldNotSetAttributesWhenKeysNotPresentInAttributeMap() throws Exception {
         ExecTask exec = new ExecTask();
         exec.setConfigAttributes(m(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));

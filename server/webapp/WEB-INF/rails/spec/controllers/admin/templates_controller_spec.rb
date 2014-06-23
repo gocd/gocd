@@ -40,14 +40,14 @@ describe Admin::TemplatesController do
     end
 
     it "should resolve & generate route to the template edit" do
-      params_from(:get, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general'}
-      template_edit_path(:pipeline_name => "blah.blah", :stage_parent => "templates", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
-      route_for(:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "foo.bar", :current_tab => "general").should == "admin/templates/foo.bar/general"
+      params_from(:get, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "edit", :pipeline_name => "blah.blah", :current_tab => 'general'}
+      template_edit_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
+      route_for(:controller => "admin/templates", :action => "edit", :pipeline_name => "foo.bar", :current_tab => "general").should == "admin/templates/foo.bar/general"
     end
 
     it "should resolve & generate route to the template update" do
-      params_from(:put, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "update", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general'}
-      template_update_path(:pipeline_name => "blah.blah", :stage_parent => "templates", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
+      params_from(:put, "/admin/templates/blah.blah/general").should == {:controller => "admin/templates", :action => "update", :pipeline_name => "blah.blah", :current_tab => 'general'}
+      template_update_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
     end
 
     it "should resolve & generate route for new" do
@@ -107,7 +107,7 @@ describe Admin::TemplatesController do
       it "should assign template with name" do
         controller.should_receive(:render).with(:action => "general", :layout => "templates/details")
 
-        get :edit, :pipeline_name => "some_template", :current_tab => "general", :stage_parent => "templates"
+        get :edit, :pipeline_name => "some_template", :current_tab => "general"
 
         assigns[:pipeline].should == @pipeline
       end

@@ -283,8 +283,8 @@ ActionController::Routing::Routes.draw do |map|
     template.update_template_permissions "admin/templates/:template_name/permissions", :action => "update_permissions", :requirements =>  { :template_name => TEMPLATE_NAME_FORMAT }, :conditions => { :method => :post }
 
     template.with_options(:controller => "admin/templates", :requirements => {:current_tab => /#{["general"].join("|")}/}) do |template|
-      template.template_edit "admin/:stage_parent/:pipeline_name/:current_tab", :action => "edit", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :get }
-      template.template_update "admin/:stage_parent/:pipeline_name/:current_tab", :action => "update", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :put }
+      template.template_edit "admin/templates/:pipeline_name/:current_tab", :action => "edit", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :get }
+      template.template_update "admin/templates/:pipeline_name/:current_tab", :action => "update", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :put }
     end
   end
 

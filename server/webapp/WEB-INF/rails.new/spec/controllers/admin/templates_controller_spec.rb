@@ -195,7 +195,7 @@ describe Admin::TemplatesController do
       end
 
       it "should return error if there are dependent pipelines for the template" do
-        controller.stub!(:set_error_flash).and_return("Error!")
+        controller.stub(:set_error_flash).and_return("Error!")
         com.thoughtworks.go.helper.GoConfigMother.new().addPipelineWithTemplate(@cruise_config, "P1", "Template1", "S1", ["J1"].to_java(java.lang.String))
 
         delete :destroy, :pipeline_name => "Template1", :config_md5 => "abcd1234"

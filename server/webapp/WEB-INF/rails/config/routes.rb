@@ -180,8 +180,8 @@ ActionController::Routing::Routes.draw do |map|
   end
 
   map.with_options(:controller => "admin/materials", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT }) do |material|
-    material.admin_material_index "admin/:stage_parent/:pipeline_name/materials", :action => "index", :defaults => {:stage_parent => "pipelines"}, :conditions => {:method => :get}
-    material.admin_material_delete "admin/:stage_parent/:pipeline_name/materials/:finger_print", :action => "destroy", :conditions => {:method => :delete}
+    material.admin_material_index "admin/pipelines/:pipeline_name/materials", :action => "index", :conditions => {:method => :get}
+    material.admin_material_delete "admin/pipelines/:pipeline_name/materials/:finger_print", :action => "destroy", :conditions => {:method => :delete}
   end
 
   map.pipeline_new "admin/pipeline/new", :controller => "admin/pipelines", :action => "new", :conditions => {:method => :get}
@@ -190,14 +190,14 @@ ActionController::Routing::Routes.draw do |map|
   map.pipeline_save_clone "admin/pipeline/save_clone", :controller => "admin/pipelines", :action => "save_clone", :conditions => {:method => :post}
   map.pause_info_refresh "admin/pipelines/:pipeline_name/pause_info.json", :controller => "admin/pipelines", :action => "pause_info", :format => "json", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT}, :conditions => {:method => :get}
 
-  map.with_options(:controller => "admin/pipelines", :requirements => {:stage_parent => "pipelines", :pipeline_name => PIPELINE_NAME_FORMAT, :current_tab => /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}) do |pipeline|
+  map.with_options(:controller => "admin/pipelines", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT, :current_tab => /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}) do |pipeline|
     pipeline.pipeline_edit "admin/pipelines/:pipeline_name/:current_tab", :action => "edit",  :conditions => {:method => :get}
     pipeline.pipeline_update "admin/pipelines/:pipeline_name/:current_tab", :action => "update", :conditions => {:method => :put}
   end
 
   map.with_options(:controller => "admin/stages", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT, :stage_parent => /(pipelines|templates)/}) do |stages|
     stages.admin_stage_listing "admin/:stage_parent/:pipeline_name/stages", :action => "index", :conditions => {:method => :get}
-    stages.admin_stage_use_template "admin/:stage_parent/:pipeline_name/stages", :action => "use_template", :defaults => {:stage_parent => "pipelines"},  :conditions => {:method => :put}
+    stages.admin_stage_use_template "admin/:stage_parent/:pipeline_name/stages", :action => "use_template", :conditions => {:method => :put}
     stages.admin_stage_new "admin/:stage_parent/:pipeline_name/stages/new", :action => "new", :conditions => {:method => :get}
     stages.admin_stage_delete "admin/:stage_parent/:pipeline_name/stages/:stage_name", :action => "destroy", :conditions => { :method => :delete}, :requirements => {:stage_name => STAGE_NAME_FORMAT}
     stages.admin_stage_create "admin/:stage_parent/:pipeline_name/stages", :action => "create", :conditions => {:method => :post}
@@ -231,7 +231,7 @@ ActionController::Routing::Routes.draw do |map|
     commands.admin_command_lookup "admin/commands/lookup", :action => "lookup", :conditions => {:method => :get}, :format => "text"
   end
 
-  map.with_options(:controller => "admin/tasks", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT, :stage_name => STAGE_NAME_FORMAT, :job_name => JOB_NAME_FORMAT}, :current_tab => "tasks") do |tasks|
+  map.with_options(:controller => "admin/tasks", :requirements => {:pipeline_name => PIPELINE_NAME_FORMAT, :stage_name => STAGE_NAME_FORMAT, :job_name => JOB_NAME_FORMAT, :stage_parent => /(pipelines|templates)/}, :current_tab => "tasks") do |tasks|
     tasks.admin_tasks_listing "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks", :action => "index", :conditions => {:method => :get}
     tasks.admin_task_new "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type/new", :action => "new", :conditions => {:method => :get}
     tasks.admin_task_create "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/tasks/:type", :action => "create", :conditions => {:method => :post}
@@ -283,8 +283,8 @@ ActionController::Routing::Routes.draw do |map|
     template.update_template_permissions "admin/templates/:template_name/permissions", :action => "update_permissions", :requirements =>  { :template_name => TEMPLATE_NAME_FORMAT }, :conditions => { :method => :post }
 
     template.with_options(:controller => "admin/templates", :requirements => {:current_tab => /#{["general"].join("|")}/}) do |template|
-      template.template_edit "admin/:stage_parent/:pipeline_name/:current_tab", :action => "edit", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :get }
-      template.template_update "admin/:stage_parent/:pipeline_name/:current_tab", :action => "update", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :put }
+      template.template_edit "admin/templates/:pipeline_name/:current_tab", :action => "edit", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :get }
+      template.template_update "admin/templates/:pipeline_name/:current_tab", :action => "update", :requirements =>  { :pipeline_name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :put }
     end
   end
 

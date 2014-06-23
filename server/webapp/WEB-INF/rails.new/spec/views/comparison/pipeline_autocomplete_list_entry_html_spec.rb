@@ -16,36 +16,35 @@
 
 require File.join(File.dirname(__FILE__), "/../../spec_helper")
 
-describe "pipeline_autocomplete_list_entry.html.erb" do
+describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
 
   include StageModelMother
 
   before :each do
     @hg_revisions = ModificationsMother.createHgMaterialRevisions()
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithModifications(@hg_revisions, "user"), stage_history_for("dev", "prod"))
-    template.stub(:go_config_service).and_return(@go_config_service = mock("go config service"))
+    view.stub(:go_config_service).and_return(@go_config_service = double("go config service"))
   end
 
   it "should display pipeline counter and its details" do
     @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").exactly(2).times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
-    response.body.should have_tag("div.pipeline_counter h3", "some-label")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
-    response.body.should have_tag("div.pipeline_details table") do
-      with_tag("tr") do
-        with_tag("td.label", "Revision:")
-        with_tag("td", "9fdcf27f16eadc362733328dd481d8a2c29915e1")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Comment:")
-        with_tag("td", "comment2")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Modified&nbsp;by:")
-        with_tag("td", /user2/)
+    Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
+      pipeline.find("div.pipeline_details table").tap do |table|
+        expect(table).to have_selector("tr td.label", :text => "Revision:")
+        expect(table).to have_selector("tr td", :text => "9fdcf27f16eadc362733328dd481d8a2c29915e1")
+        expect(table).to have_selector("tr td.label", :text => "Comment:")
+        expect(table).to have_selector("tr td", :text => "comment2")
+        table.all("tr").tap do |all_rows|
+          expect(all_rows[2]).to have_selector("td.label", :text => Nokogiri::HTML("Modified&nbsp;by:").text)
+          expect(all_rows[6]).to have_selector("td.label", :text => Nokogiri::HTML("Modified&nbsp;by:").text)
+        end
+        expect(table).to have_selector("tr td", :text => /user2/)
       end
     end
   end
@@ -55,22 +54,18 @@ describe "pipeline_autocomplete_list_entry.html.erb" do
     package_revisions = MaterialRevisions.new([package_revision].to_java(com.thoughtworks.go.domain.MaterialRevision))
     pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithModifications(package_revisions, "user"), stage_history_for("dev", "prod"))
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
 
-    response.body.should have_tag("div.pipeline_counter h3", "some-label")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
-    response.body.should have_tag("div.pipeline_details table") do
-      with_tag("tr") do
-        with_tag("td.label", "Revision:")
-        with_tag("td", "1234")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Comment:")
-        with_tag("td.comment", "Built on blrstdgobgr03.Trackback: /go/tab/build/detail/go-packages/244/dist/2/rpm")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Modified&nbsp;by:")
+    Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
+      pipeline.find("div.pipeline_details table").tap do |table|
+        expect(table).to have_selector("tr td.label", :text => "Revision:")
+        expect(table).to have_selector("tr td", :text => "1234")
+        expect(table).to have_selector("tr td.label", :text => "Comment:")
+        expect(table).to have_selector("tr td.comment", :text => "Built on blrstdgobgr03.Trackback: /go/tab/build/detail/go-packages/244/dist/2/rpm")
+        expect(table).to have_selector("tr td.label", :text => Nokogiri::HTML("Modified&nbsp;by:").text)
       end
     end
   end
@@ -80,21 +75,18 @@ describe "pipeline_autocomplete_list_entry.html.erb" do
     package_revisions = MaterialRevisions.new([package_revision].to_java(com.thoughtworks.go.domain.MaterialRevision))
     pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithModifications(package_revisions, "user"), stage_history_for("dev", "prod"))
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
-    response.body.should have_tag("div.pipeline_counter h3", "some-label")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
-    response.body.should have_tag("div.pipeline_details table") do
-      with_tag("tr") do
-        with_tag("td.label", "Revision:")
-        with_tag("td", "1234")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Comment:")
-        with_tag("td.comment", "Trackback: Not Provided")
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Modified&nbsp;by:")
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => pipeline}}
+
+    Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
+      pipeline.find("div.pipeline_details table").tap do |table|
+        expect(table).to have_selector("tr td.label", :text => "Revision:")
+        expect(table).to have_selector("tr td", :text => "1234")
+        expect(table).to have_selector("tr td.label", :text => "Comment:")
+        expect(table).to have_selector("tr td.comment", :text => "Trackback: Not Provided")
+        expect(table).to have_selector("tr td.label", :text => Nokogiri::HTML("Modified&nbsp;by:").text)
       end
     end
   end
@@ -102,43 +94,48 @@ describe "pipeline_autocomplete_list_entry.html.erb" do
   it "should skip modifications that do not match" do
     params[:q] = "foo"
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
-    response.body.should have_tag("div.pipeline_counter h3", "some-label")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
-    response.body.should have_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
-    response.body.should_not have_tag("div.modifications")
+    Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-label")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
+      expect(pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
+    end
+
+    expect(Capybara.string(response.body).all(:xpath, "div.modifications").count).to eq(0)
   end
 
   it "should render the stage bar" do
     params[:q] = "915"
     modified_time = java.util.Date.new
     revisions = MaterialRevisions.new(
-            [MaterialRevision.new(MaterialsMother.filteredHgMaterial("foo"),
-                                  [Modification.new("user-915-1", "comment-915", "some email", modified_time, "revision-9151")])
-            ].to_java(MaterialRevision))
+        [MaterialRevision.new(MaterialsMother.filteredHgMaterial("foo"),
+                              [Modification.new("user-915-1", "comment-915", "some email", modified_time, "revision-9151")])
+        ].to_java(MaterialRevision))
 
     stages = stage_history_for("dev", "prod")
     stages.add(stage_model_with_unknown_state("new_stage"))
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 19151, "some-915-label", BuildCause.createManualForced(revisions, Username.new(CaseInsensitiveString.new("user-915"))), stages)
     @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
-    response.body.should have_tag("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
-                                                               :pipeline_counter => 19151,
-                                                               :stage_name => 'dev',
-                                                               :stage_counter => 35)}']") do
-      with_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
+    capybara_string = Capybara.string(response.body)
+
+    capybara_string.find("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
+                                                      :pipeline_counter => 19151,
+                                                      :stage_name => 'dev',
+                                                      :stage_counter => 35)}']").tap do |link|
+      expect(link).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
     end
-    response.body.should have_tag("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
-                                                               :pipeline_counter => 19151,
-                                                               :stage_name => 'prod',
-                                                               :stage_counter => 35)}']") do
-      with_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
+    capybara_string.find("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
+                                                      :pipeline_counter => 19151,
+                                                      :stage_name => 'prod',
+                                                      :stage_counter => 35)}']").tap do |link|
+      expect(link).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
     end
-    response.body.should have_tag("div.stage") do
-      with_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
+    capybara_string.all("div.stage").tap do |stages|
+      expect(stages[1]).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
     end
   end
 
@@ -146,35 +143,37 @@ describe "pipeline_autocomplete_list_entry.html.erb" do
     params[:q] = "915"
     modified_time = java.util.Date.new
     revisions = MaterialRevisions.new(
-            [MaterialRevision.new(MaterialsMother.filteredHgMaterial("foo"),
-                                  [Modification.new("user-915-1", "comment-915", "some email", modified_time, "revision-9151")])
-            ].to_java(MaterialRevision))
+        [MaterialRevision.new(MaterialsMother.filteredHgMaterial("foo"),
+                              [Modification.new("user-915-1", "comment-915", "some email", modified_time, "revision-9151")])
+        ].to_java(MaterialRevision))
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 19151, "some-915-label", BuildCause.createManualForced(revisions, Username.new(CaseInsensitiveString.new("user-915"))), stage_history_for("dev", "prod"))
     @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
-    render :partial => "comparison/pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
-    response.body.should have_tag("div.pipeline_counter h3", "some-915-label")
-    response.body.should have_tag("div.pipeline_details table") do
-      with_tag("tr") do
-        with_tag("td.label", "Revision:")
-        with_tag("td", "revision-9151") do
-          with_tag("strong[class='highlight']", "915")
-        end
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Comment:")
-        with_tag("td", "comment-915") do
-          with_tag("strong[class='highlight']", "915")
-        end
-      end
-      with_tag("tr") do
-        with_tag("td.label", "Modified&nbsp;by:")
-        with_tag("td", "user-915-1 on #{modified_time.to_long_display_date_time()}") do
-          with_tag("strong[class='highlight']", "915")
-        end
+    Capybara.string(response.body).find("div.pipeline").tap do |pipeline|
+      expect(pipeline.find("div.pipeline_counter")).to have_selector("h3", "some-915-label")
+      pipeline.find("div.pipeline_details table").tap do |table|
+        expect(table).to have_selector("tr td.label", :text => "Revision:")
+        expect(table).to have_selector("tr td", :text => "revision-9151")
+        expect(table).to have_selector("tr td mark", :text => "915")
+        expect(table).to have_selector("tr td.label", :text => "Comment:")
+        expect(table).to have_selector("tr td", :text => "comment-915")
+        expect(table).to have_selector("tr td.comment mark", :text => "915")
+        expect(table).to have_selector("tr td.label", :text => Nokogiri::HTML("Modified&nbsp;by:").text)
+        expect(table).to have_selector("tr td", :text => "user-915-1 on #{modified_time.to_long_display_date_time()}")
+        expect(table).to have_selector("tr td mark", :text => "915")
       end
     end
   end
 
+  it "should render stage_bar html" do
+    @go_config_service.stub(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
+    stub_template "_stage_bar.html.erb" => "STAGE BAR"
+
+    render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline, :disable_stage_bar_href => true}}
+
+    assert_template partial: "_stage_bar.html.erb", locals: {scope: {pipeline: @pipeline, disable_stage_bar_href: true}}
+    expect(rendered).to match("STAGE BAR")
+  end
 end

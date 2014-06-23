@@ -22,12 +22,11 @@ describe "comparison/list.json.erb" do
     pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 17, "label-17", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
     pipeline_instances = PipelineInstanceModels.createPipelineInstanceModels()
     pipeline_instances.add(pipeline)
-    assigns[:pipeline_instances] = pipeline_instances
-    template.should_receive(:render_json).with(:partial=>'pipeline_autocomplete_list_entry.html.erb', :locals => {:scope => {:pipeline => pipeline}}).and_return("\"abc\"")
-    render "comparison/list.json.erb"
-    
-    json = JSON.parse(response.body)
-    json["html"].should == [{"data" => "abc", "value" => "17", "result" => "label-17"}]
-  end
+    assign(:pipeline_instances, pipeline_instances)
+    view.should_receive(:render_json).with(:partial=>'pipeline_autocomplete_list_entry.html.erb', :locals => {:scope => {:pipeline => pipeline}}).and_return("\"abc\"")
+    render :template => "comparison/list.json.erb"
 
+    json = JSON.parse(response.body)
+    expect(json["html"]).to eq([{"data" => "abc", "value" => "17", "result" => "label-17"}])
+  end
 end

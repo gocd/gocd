@@ -8,11 +8,11 @@
     }
     <% else %>
         <% @pipeline_instances.each_with_index do |pim, i| %>
-            <%= i > 0 ? "," : "" %>
+            <%== i > 0 ? "," : "" %>
             {
-                "data": <%= render_json :partial => "pipeline_autocomplete_list_entry.html.erb", :locals => {:scope => {:pipeline => pim}} -%>,
-                "value": "<%= pim.getCounter %>",
-                "result": "<%= pim.getLabel %>"
+                "data": <%== render_json :partial => "pipeline_autocomplete_list_entry.html.erb", :locals => {:scope => {:pipeline => pim}} -%>,
+                "value": "<%== pim.getCounter %>",
+                "result": "<%== pim.getLabel %>"
             }
         <% end %>
     <% end %>

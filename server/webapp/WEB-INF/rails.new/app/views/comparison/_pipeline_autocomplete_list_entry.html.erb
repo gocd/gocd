@@ -5,7 +5,7 @@
         </div>
         <div class="pipeline_details">
             <div class="stage_graphic clear_float">
-                <%= render :partial => "stage_bar.html", :locals => {:scope => {:pipeline => scope[:pipeline], :disable_stage_bar_href => scope[:disable_stage_bar_href]}} %>
+                <%= render :partial => "stage_bar.html.erb", :locals => {:scope => {:pipeline => scope[:pipeline], :disable_stage_bar_href => scope[:disable_stage_bar_href]}} %>
             </div>
             <table class="change">
                 <% scope[:pipeline].getBuildCause().getMaterialRevisions().each do |materialRevision| %>

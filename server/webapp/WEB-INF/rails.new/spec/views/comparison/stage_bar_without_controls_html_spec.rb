@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../spec_helper")
 
-describe "stage_bar_without_controls.html.erb" do
+describe "comparison/stage_bar_without_controls.html.erb" do
 
   include StageModelMother
 
@@ -29,11 +29,11 @@ describe "stage_bar_without_controls.html.erb" do
   it "should display PIM stage details" do
     render :partial => "comparison/stage_bar_without_controls.html.erb", :locals => {:scope => {:pipeline => @pipeline, :fixed_pipeline => @pipeline, :suffix => "to"}}
 
-    response.body.should have_tag("#compare_pipeline_to input[value=?]", @pipeline.getLabel())
-    response.body.should have_tag("div.selected_pipeline_to") do
-      with_tag("div[class='stage_bar Passed'][title='dev (Passed)']")
-      with_tag("div[class='stage_bar Passed'][title='prod (Passed)']")
+    response_body = Capybara.string(response.body)
+    expect(response_body).to have_selector("#compare_pipeline_to input[value='#{@pipeline.getLabel()}']")
+    response_body.find("div.selected_pipeline_to").tap do |selected_pipeline|
+      expect(selected_pipeline).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
+      expect(selected_pipeline).to have_selector("div[class='stage_bar Passed'][title='prod (Passed)']")
     end
   end
-
 end

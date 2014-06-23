@@ -112,8 +112,16 @@ fi
 if [ ! -z $SERVER_LISTEN_HOST ]; then
     GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES -Dcruise.listen.host=$SERVER_LISTEN_HOST"
 fi
-
-CMD="$JAVA_HOME/bin/java -server $YOURKIT -Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN $JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES -Duser.language=en -Dorg.mortbay.jetty.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000 -Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml -Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT -jar $SERVER_DIR/go.jar"
+SERVER_STARTUP_ARGS+=("-server $YOURKIT")
+SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
+SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
+SERVER_STARTUP_ARGS+=("-Duser.language=en -Dorg.mortbay.jetty.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000")
+SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
+SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
+if [ "$TMPDIR" != "" ]; then
+    SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
+fi
+CMD="$JAVA_HOME/bin/java ${SERVER_STARTUP_ARGS[@]} -jar $SERVER_DIR/go.jar"
 
 echo "Starting Go Server with command: $CMD" >>$LOG_FILE
 echo "Starting Go Server in directory: $GO_WORK_DIR" >>$LOG_FILE

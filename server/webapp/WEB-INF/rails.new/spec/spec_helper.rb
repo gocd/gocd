@@ -52,6 +52,41 @@ RSpec.configure do |config|
   end
 end
 
+ApplicationController.class_eval do
+  def should_receive_render_with(*expected)
+    self.should_receive(:render).with(*expected) do |*actual|
+      actual.should == expected
+      @performed_render = true
+    end
+  end
+
+  def should_receive_redirect_to(expected_url)
+    self.should_receive(:redirect_to).with(expected_url) do |actual_url|
+      actual_url.should =~ expected_url
+      @performed_redirect = true
+    end
+  end
+end
+
+ActionController::TestCase.class_eval do
+  setup :base_urls
+
+  def base_urls
+    setup_base_urls
+  end
+end
+
+def stub_localized_result
+  result = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.new
+  com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult.stub(:new).and_return(result)
+  result
+end
+
+def uuid_pattern
+  hex = "[a-f0-9]"
+  "#{hex}{8}-#{hex}{4}-#{hex}{4}-#{hex}{4}-#{hex}{12}"
+end
+
 include SporkConfig
 include JavaImports
 include JavaSpecImports

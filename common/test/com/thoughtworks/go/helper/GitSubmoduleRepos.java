@@ -44,8 +44,12 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     public File addSubmodule(String repoName, String folderName) throws Exception {
+        return addSubmodule(repoName, folderName, folderName);
+    }
+
+    public File addSubmodule(String repoName, String submoduleNameToPutInGitSubmodules, String folderName) throws Exception {
         File submodule = createRepo(repoName);
-        git(remoteRepoDir).submoduleAdd(submodule.getAbsolutePath(), folderName);
+        git(remoteRepoDir).submoduleAdd(submodule.getAbsolutePath(), submoduleNameToPutInGitSubmodules, folderName);
         git(remoteRepoDir).commit("Added submodule " + folderName);
         return submodule;
     }

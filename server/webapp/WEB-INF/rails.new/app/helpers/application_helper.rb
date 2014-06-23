@@ -183,6 +183,13 @@ module ApplicationHelper
     instance_variable_get(:@user)
   end
 
+  # TODO: #130 - ugly hack. need to figure out what we can do. move dependent methods to controller as helper methods?
+  def cruise_config_md5
+    config_md5 = instance_variable_get(:@cruise_config_md5)
+    raise "md5 for config file has not been loaded yet" if config_md5.nil?
+    config_md5
+  end
+
   def can_view_admin_page?
     security_service.canViewAdminPage(current_user)
   end
@@ -278,23 +285,7 @@ module ApplicationHelper
   end
 
   def end_form_tag
-    "</form>"
-  end
-
-  def form_remote_tag(options = {})
-    options[:form] = true
-
-    options[:html] ||= {}
-    options[:html][:onsubmit] =
-        (options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
-            "#{remote_function(options)}; return false;"
-
-    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
-  end
-
-  def form_tag(url_for_options = {}, options = {}, *parameters_for_url)
-    html_options = html_options_for_form(url_for_options, options, *parameters_for_url)
-    form_tag_html(html_options)
+    "</form>".html_safe
   end
 
   def check_for_cancelled_contents(state, options={} )
@@ -308,11 +299,11 @@ module ApplicationHelper
   end
 
   def content_wrapper_tag(options={})
-    return "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">"
+    "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 
   def end_content_wrapper()
-    return "</div></div>"
+    "</div></div>".html_safe
   end
 
   def word_breaker(txt, break_at_length=15)
@@ -370,7 +361,7 @@ module ApplicationHelper
   end
 
   def config_md5_field
-    "<input type=\"hidden\" name=\"cruise_config_md5\" value=\"#{cruise_config_md5}\"/>"
+    "<input type=\"hidden\" name=\"cruise_config_md5\" value=\"#{cruise_config_md5}\"/>".html_safe
   end
 
   def unauthorized_access
@@ -416,5 +407,30 @@ module ApplicationHelper
 
   def view_cache_key
     @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
+  end
+
+  def register_defaultable_list nested_name
+    "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>".html_safe
+  end
+
+  private
+  def form_remote_tag(options = {})
+    options[:form] = true
+
+    options[:html] ||= {}
+    options[:html][:onsubmit] =
+        ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
+            "#{remote_function(options)}; return false;").html_safe
+
+    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
+  end
+
+  # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
+  def remote_function options
+    retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
+    success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
+    url = escape_javascript(url_for(options[:url]))
+
+    %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
   end
 end

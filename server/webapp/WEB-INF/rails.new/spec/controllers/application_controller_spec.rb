@@ -20,6 +20,7 @@ describe ApplicationController do
 
   before do
     draw_test_controller_route
+    stub_server_health_messages_for_controllers
     UserHelper.stub(:getUserId).and_return(1)
   end
 
@@ -63,7 +64,6 @@ describe ApplicationController do
         @routes.draw do
           get "/anonymous/test_action"
         end
-
         controller.stub(:populate_health_messages) do
           stub_server_health_messages_for_controllers
         end

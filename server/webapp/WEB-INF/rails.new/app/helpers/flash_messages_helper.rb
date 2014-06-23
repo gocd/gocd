@@ -16,7 +16,7 @@
 
 module FlashMessagesHelper
   def flash_message_pane_start id, no_body = false, options = {}
-    "<div class=\"flash\" id=\"#{id}\">" + (no_body ? flash_message_pane_end : "")
+    ("<div class=\"flash\" id=\"#{id}\">" + (no_body ? flash_message_pane_end : "")).html_safe
   end
 
   def flash_message_pane_end

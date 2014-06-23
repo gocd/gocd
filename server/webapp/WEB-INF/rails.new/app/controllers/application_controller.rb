@@ -17,12 +17,15 @@
 class ApplicationController < ActionController::Base
   include Services
   include JavaImports
+  include RailsLocalizer
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :set_current_user, :populate_health_messages, :local_access_only
+  attr_accessor :error_template_for_request
+
+  before_filter :set_current_user, :populate_health_messages, :local_access_only, :populate_config_validity
 
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
@@ -131,5 +134,41 @@ class ApplicationController < ActionController::Base
       message = message + "\n"
     end
     render text: message, status: status
+  end
+
+  def default_url_options(options = nil)
+    # bug with the rails test framework where it does not setup the params before invoking this causing a NPE
+    return {} unless params
+    params["autoRefresh"] ? {"autoRefresh" => params["autoRefresh"]} : {}
+  end
+
+  def default_as_empty_list
+    (params.delete(:default_as_empty_list) || []).each do |locator|
+      do_param_defaulting(params, locator.split(/\>/))
+    end
+    return true
+  end
+
+  def do_param_defaulting sub_map, nested_keys
+    nested_keys.empty? && return
+    sub_map[nested_keys.first] ||= ((nested_keys.length > 1) ? {} : [])
+    do_param_defaulting(sub_map[nested_keys.first], nested_keys[1..-1])
+  end
+
+  def register_defaultable_list nested_name
+    "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>"
+  end
+
+  helper_method :register_defaultable_list
+
+  def cruise_config_md5
+    raise "md5 for config file has not been loaded yet" if @cruise_config_md5.nil?
+    @cruise_config_md5
+  end
+
+  helper_method :cruise_config_md5
+
+  def populate_config_validity
+    @config_valid = go_config_service.checkConfigFileValid().isValid()
   end
 end

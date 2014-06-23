@@ -117,6 +117,7 @@ task :copy_files do
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-1.2.8", true)
   FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-rails-1.2.7.1", true)
+  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true) if ENV['USE_NEW_RAILS'] != "Y"
 
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
@@ -135,18 +136,23 @@ task :write_revision_number do
   end
 end
 
-def yui_compress(path)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o #{path} #{path}"
+YUI_CSS_OUTPUT = ".css$:.css"
+YUI_JS_OUTPUT = ".js$:.js"
+
+def yui_compress_all(pattern, parent_directory, extension)
+  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}" if ENV['YUI_COMPRESS_ASSETS'] == 'Y'
 end
 
-def compress_and_merge(h, path)
-  yui_compress(path)
+CSS_FILE_TERMINATOR=''
+JS_FILE_TERMINATOR=';'
 
+def merge(file_handle, path, terminator=CSS_FILE_TERMINATOR)
   contents = File.read(path)
   name = File.basename(path)
-  h.puts "/* #{name} - start */"
-  h.write(contents)
-  h.puts "\n/* #{name} - end */"
+  file_handle.puts "// #{name} - start"
+  file_handle.write(contents)
+  file_handle.write(terminator) # Terminate file contents with *_FILE_TERMINATOR. For example, in case the JS script does not end with a ; as the author might be assuming it will be loaded standalone, we will introduce a ;
+  file_handle.puts "\n// #{name} - end"
 end
 
 # javascript optimization
@@ -161,26 +167,24 @@ def put_first(lib_paths, files_to_put_first)
 end
 
 task :create_all_js do
-  # doing this to fix load order! :'(
-  lib_paths = [JS_LIB_DIR + "/es5-shim.min.js"] +
+  yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
+  yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
 
-               [JS_LIB_DIR + "/jquery-1.7.2.js", JS_LIB_DIR + "/bootstrap-2.3.2.min.js", JS_LIB_DIR + "/highcharts-2.3.3.min.js",
-               JS_LIB_DIR + "/jquery.autocomplete-1.1.js", JS_LIB_DIR + "/jquery.ba-throttle-debounce-1.1.min.js", JS_LIB_DIR + "/jquery.dirtyform.js", JS_LIB_DIR + "/jquery.highlight-3.0.js",
-               JS_LIB_DIR + "/jquery.timeago-1.2.3.js", JS_LIB_DIR + "/jquery.tipTip-1.3.js", JS_LIB_DIR + "/jquery.treeview-1.5pre.js", JS_LIB_DIR + "/jquery.url-1.0.js",
-               JS_LIB_DIR + "/jquery.validate-1.5.5.js", JS_LIB_DIR + "/jquery-ui-1.7.3.custom.min.js", JS_LIB_DIR + "/ui.core-1.7.3.js", JS_LIB_DIR + "/ui.dialog-1.7.3.js", JS_LIB_DIR + "/jquery_no_conflict.js"] +
+  priority_libs = ["es5-shim.min.js", "jquery-1.7.2.js", "jquery.timeago-1.2.3.js", "jquery.url-1.0.js", "jquery_no_conflict.js", "prototype-1.6.0.js",
+  "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
+  libs_to_load_first = []
+  priority_libs.each do |lib|
+    libs_to_load_first << File.join(JS_LIB_DIR, lib)
+  end
+  libs_to_load_second = Dir.glob(File.join(JS_LIB_DIR, "*.js")) - libs_to_load_first
 
-               [JS_LIB_DIR + "/prototype-1.6.0.js", JS_LIB_DIR + "/scriptaculous-1.8.0.js", JS_LIB_DIR + "/effects-1.8.0.js", JS_LIB_DIR + "/accordion-2.0.js",
-                JS_LIB_DIR + "/controls-1.8.0.js", JS_LIB_DIR + "/dragdrop-1.8.0.js", JS_LIB_DIR + "/modalbox-1.6.1.js", JS_LIB_DIR + "/slider-1.8.0.js", JS_LIB_DIR + "/trimpath-template-1.0.38.js"] +
+  app_paths = put_first(Dir.glob(File.join(JS_APP_DIR, "*.js")), JS_APP_PUT_FIRST)
 
-               [JS_LIB_DIR + "/angular.1.0.8.min.js", JS_LIB_DIR + "/angular-resource.1.0.8.min.js"]
+  file_list = libs_to_load_first + libs_to_load_second + app_paths
 
-  app_paths = put_first(Dir.glob(JS_APP_DIR + "/*.js"), JS_APP_PUT_FIRST)
-
-  file_list = lib_paths + app_paths
-
-  File.open(COMPRESSED_ALL_DOT_JS, "w") do |h|
+  File.open(COMPRESSED_ALL_DOT_JS, "w") do |file_handle|
     file_list.each do |path|
-      compress_and_merge(h, path) unless JS_TO_BE_SKIPPED.include? path
+      merge(file_handle, path, JS_FILE_TERMINATOR) unless JS_TO_BE_SKIPPED.include? path
     end
   end
 end
@@ -194,7 +198,6 @@ end
 # css optimization
 CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
 COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
-CSS_TO_BE_COMPRESSED = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
 
 def expand_css_wildcard wildcard
   Dir.glob("target/webapp/stylesheets/" + wildcard)
@@ -212,28 +215,37 @@ end
 
 task :create_all_css do
   main_dir = "target/webapp/stylesheets/"
-  matched_paths = [main_dir + "main.css", main_dir + "layout.css", main_dir + "structure.css", main_dir + "ie_hacks.css", main_dir + "module.css"]
-  File.open("target/all.css", "w") do |h|
-    matched_paths.each do |path|
-      compress_and_merge(h, path)
+  yui_compress_all(YUI_CSS_OUTPUT, main_dir, "*.css")
+  File.open("target/all.css", "w") do |handle|
+    ["main.css", "layout.css", "structure.css", "ie_hacks.css", "module.css"].each do |file|
+      merge(handle, File.join(main_dir, file))
     end
   end
 
-  CSS_TO_BE_COMPRESSED.each_with_index do |wildcard, index|
+  parent_directory = "target/webapp/stylesheets"
+  css_directories_to_be_compressed = [{:dir => "plugins", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "patterns", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "views", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
+                                      {:dir => "css_sass", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "**/*.css") end},
+                                      {:dir => "vm", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end}]
+
+  css_directories_to_be_compressed.each do |tuple|
+    tuple[:perform].call(tuple[:dir])
+  end
+
+  css_to_be_merged = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
+  css_to_be_merged.each_with_index do |wildcard, index|
     matched_paths = expand_css_wildcard(wildcard)
-    File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |h|
+    File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |handle|
       matched_paths.each do |path|
-        compress_and_merge(h, path)
+        merge(handle, path)
       end
     end
   end
 
   # compress each file in css/ & stylesheets/structure/
-  matched_paths = Dir.glob("target/webapp/css/*.css")
-  matched_paths += expand_css_wildcard("structure/*.css")
-  matched_paths.each do |path|
-    yui_compress(path)
-  end
+  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/css", "*.css")
+  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/stylesheets/structure", "*.css")
 end
 
 task :copy_compressed_css_to_webapp do

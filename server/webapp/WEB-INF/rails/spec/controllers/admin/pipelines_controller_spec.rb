@@ -32,11 +32,11 @@ describe Admin::PipelinesController do
 
   describe "routes" do
     it "should match /edit" do
-      params_from(:get, "/admin/pipelines/foo.bar/general").should == {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => 'foo.bar', :current_tab => 'general', :stage_parent => "pipelines"}
+      params_from(:get, "/admin/pipelines/foo.bar/general").should == {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => 'foo.bar', :current_tab => 'general'}
     end
 
     it "should match /update" do
-      params_from(:put, "/admin/pipelines/foo.baz/general").should == {:controller => "admin/pipelines", :action => 'update', :pipeline_name => 'foo.baz', :current_tab => 'general', :stage_parent => "pipelines"}
+      params_from(:put, "/admin/pipelines/foo.baz/general").should == {:controller => "admin/pipelines", :action => 'update', :pipeline_name => 'foo.baz', :current_tab => 'general'}
     end
 
     it "should match /pause_info" do

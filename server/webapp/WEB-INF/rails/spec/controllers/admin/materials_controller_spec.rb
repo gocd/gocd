@@ -26,12 +26,12 @@ describe Admin::MaterialsController do
 
   describe "routes" do
     it "should resolve index" do
-      params_from(:get, "/admin/pipelines/pipeline.name/materials").should == {:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "pipeline.name"}
+      params_from(:get, "/admin/pipelines/pipeline.name/materials").should == {:controller => "admin/materials", :action => "index", :pipeline_name => "pipeline.name"}
     end
 
     it "should generate index" do
-      route_for(:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "foo.bar").should == "admin/pipelines/foo.bar/materials"
-      admin_material_index_path(:pipeline_name => "foo.bar", :stage_parent=>"pipelines").should == "/admin/pipelines/foo.bar/materials"
+      route_for(:controller => "admin/materials", :action => "index", :pipeline_name => "foo.bar").should == "admin/pipelines/foo.bar/materials"
+      admin_material_index_path(:pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials"
     end
   end
 

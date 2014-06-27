@@ -37,12 +37,6 @@ def server_launcher_dependencies
   jars
 end
 
-# Temporary: Feature toggle "use.new.rails" is related to this.
-def bouncy_castle_jar
-  jar =  ENV['USE_NEW_RAILS'] == 'Y' ? 'bcprov-jdk15on-1.47.jar' : 'bcprov-jdk16-140.jar'
-  [$PROJECT_BASE + '/server/bouncy-castle/' + jar]
-end
-
 def maven_dependency(groupid, artifactid, version, maven_repository = File.expand_path('~') + '/.m2/repository')
   groupid.gsub!('.', '/')
   path = maven_repository + '/' + groupid + '/' + artifactid + '/' + version + '/*.jar'

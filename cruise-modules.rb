@@ -247,7 +247,7 @@ define "cruise:server", :layout => server_layout("server") do
 
   cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,
-                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'), _('jruby_jars'))
+                                         tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'))
 
     onejar.path('defaultFiles/config/').include(
             _("..", "config", "config-server", "resources", "cruise-config.xsd"),
@@ -256,8 +256,7 @@ define "cruise:server", :layout => server_layout("server") do
             _("properties/src/log4j.properties"),
             _("config/jetty.xml"))
 
-    # Temporary: Feature toggle "use.new.rails" is related to this.
-    onejar.path('lib/').include(server_launcher_dependencies).include(bouncy_castle_jar).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
+    onejar.path('lib/').include(server_launcher_dependencies).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")
     include_fileset_from_target(onejar, 'server', "**/Mac*")
     include_fileset_from_target(onejar, 'common', "log4j.upgrade.*.properties")

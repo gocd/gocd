@@ -104,8 +104,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
     /* Temporary: Feature toggle "use.new.rails" is related to this. */
-    public static final GoSystemProperty<String> JRUBY_OLD_PATH = new GoStringSystemProperty("jruby.old.path", "jruby_jars/jruby-1.5.0/jruby-complete-1.5.0.jar,jruby_jars/jruby-1.5.0/jruby-rack-0.9.6-b6d3d45.jar");
-    public static final GoSystemProperty<String> JRUBY_NEW_PATH = new GoStringSystemProperty("jruby.new.path", "jruby_jars/jruby-1.7.11/jruby-complete-1.7.11.jar,jruby_jars/jruby-1.7.11/jruby-rack-1.1.14.jar");
     public static GoSystemProperty<Boolean> USE_NEW_RAILS = new GoBooleanSystemProperty("use.new.rails", false);
 
     public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<Integer>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));

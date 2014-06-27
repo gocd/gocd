@@ -187,7 +187,6 @@ public class GoServer {
     private void addExtraJarsToClasspath(WebAppContext wac) {
         ArrayList<File> extraClassPathFiles = new ArrayList<File>();
         extraClassPathFiles.addAll(getAddonJarFiles());
-        extraClassPathFiles.addAll(getJRubyJars());
         String extraClasspath = convertToClasspath(extraClassPathFiles);
         LOG.info("Including addons: " + extraClasspath);
         wac.setExtraClasspath(extraClasspath);
@@ -260,10 +259,6 @@ public class GoServer {
         validators.add(FileValidator.defaultFile("agent-launcher.jar"));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.defaultFile("historical_jars/h2-1.2.127.jar"));
-        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.5.0/jruby-complete-1.5.0.jar"));
-        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.5.0/jruby-rack-0.9.6-b6d3d45.jar"));
-        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.7.11/jruby-complete-1.7.11.jar"));
-        validators.add(FileValidator.defaultFile("jruby_jars/jruby-1.7.11/jruby-rack-1.1.14.jar"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFile("config.properties", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
@@ -272,25 +267,6 @@ public class GoServer {
         validators.add(new DatabaseValidator());
         validators.add(new LoggingValidator(systemEnvironment));
         return validators;
-    }
-
-    public List<File> getJRubyJars() {
-        ArrayList<File> jRubyJars = new ArrayList<File>();
-
-        SystemEnvironment.GoSystemProperty<String> propertForJRubyJars = SystemEnvironment.JRUBY_OLD_PATH;
-        if (systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)) {
-            propertForJRubyJars = SystemEnvironment.JRUBY_NEW_PATH;
-        }
-
-        String[] jars = systemEnvironment.get(propertForJRubyJars).split(",");
-        for (String jar : jars) {
-            File jarFile = new File(jar);
-            if (!jarFile.exists()) {
-                throw new RuntimeException("Failed to find extra classpath JAR: " + jarFile.getAbsolutePath());
-            }
-            jRubyJars.add(jarFile);
-        }
-        return jRubyJars;
     }
 
     class LegacyUrlRequestHandler extends ContextHandler {

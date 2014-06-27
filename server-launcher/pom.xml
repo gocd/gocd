@@ -74,6 +74,13 @@
 		</dependency>
 		<!-- jetty end -->
 
+		<!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
+		<dependency>
+			<groupId>${bcprov.groupId}</groupId>
+			<artifactId>${bcprov.artifactId}</artifactId>
+			<version>${bcprov.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>

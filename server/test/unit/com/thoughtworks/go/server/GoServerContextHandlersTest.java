@@ -19,10 +19,8 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.helpers.FileSystemUtils;
 import com.thoughtworks.go.server.util.GoCipherSuite;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +47,8 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -211,8 +210,6 @@ public class GoServerContextHandlersTest {
 
     @Test
     public void shouldLoadAllJarsInTheAddonsDirectoryIntoClassPath() throws Exception {
-        File jrubyJar = TestFileUtil.createTempFile("jruby.jar");
-
         File addonsDirectory = createInAddonDir("some-addon-dir");
         FileSystemUtils.createFile("addon-1.JAR", addonsDirectory);
         FileSystemUtils.createFile("addon-2.jar", addonsDirectory);
@@ -224,68 +221,41 @@ public class GoServerContextHandlersTest {
 
         File noAddonDirectory = createInAddonDir("no-addon-dir");
 
-        GoServer goServerWithMultipleAddons = new GoServer(setJRubyJarsTo(setAddonsPathTo(addonsDirectory), jrubyJar.getAbsolutePath()), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-        assertExtraClasspath(goServerWithMultipleAddons.webApp(), "test-addons/some-addon-dir/addon-1.JAR", "test-addons/some-addon-dir/addon-2.jar", "test-addons/some-addon-dir/addon-3.jAR", jrubyJar.getAbsolutePath());
+        GoServer goServerWithMultipleAddons = new GoServer(setJRubyJarsTo(setAddonsPathTo(addonsDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        assertExtraClasspath(goServerWithMultipleAddons.webApp(), "test-addons/some-addon-dir/addon-1.JAR", "test-addons/some-addon-dir/addon-2.jar", "test-addons/some-addon-dir/addon-3.jAR");
 
-        GoServer goServerWithOneAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(oneAddonDirectory), jrubyJar.getAbsolutePath()), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-        assertExtraClasspath(goServerWithOneAddon.webApp(), "test-addons/one-addon-dir/addon-1.jar", jrubyJar.getAbsolutePath());
+        GoServer goServerWithOneAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(oneAddonDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        assertExtraClasspath(goServerWithOneAddon.webApp(), "test-addons/one-addon-dir/addon-1.jar");
 
-        GoServer goServerWithNoAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(noAddonDirectory), jrubyJar.getAbsolutePath()), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-        assertThat(goServerWithNoAddon.webApp().getExtraClasspath(), is(jrubyJar.getAbsolutePath()));
+        GoServer goServerWithNoAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(noAddonDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        assertThat(goServerWithNoAddon.webApp().getExtraClasspath(), is(""));
 
-        GoServer goServerWithInaccessibleAddonDir = new GoServer(setJRubyJarsTo(setAddonsPathTo(new File("non-existent-directory")), jrubyJar.getAbsolutePath()), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-        assertThat(goServerWithInaccessibleAddonDir.webApp().getExtraClasspath(), is(jrubyJar.getAbsolutePath()));
+        GoServer goServerWithInaccessibleAddonDir = new GoServer(setJRubyJarsTo(setAddonsPathTo(new File("non-existent-directory"))), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        assertThat(goServerWithInaccessibleAddonDir.webApp().getExtraClasspath(), is(""));
     }
 
     @Test
     public void shouldToggleRailsToOldOneWhenTheNewOneIsNotSpecified() throws Exception {
-        File oldJruby = TestFileUtil.createTempFile("old-jruby-dir/jruby-old.jar");
-        File oldJrubyRack = TestFileUtil.createTempFile("old-jruby-dir/jruby-rack-old.jar");
-
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
         when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        when(systemEnvironment.get(SystemEnvironment.JRUBY_OLD_PATH)).thenReturn(oldJruby.getAbsolutePath() + "," + oldJrubyRack.getAbsolutePath());
         GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
 
         WebAppContext webApp = goServer.webApp();
 
-        assertExtraClasspath(webApp, oldJruby.getAbsolutePath(), oldJrubyRack.getAbsolutePath());
         assertThat(webApp.getInitParameter("rails.root"), is("/WEB-INF/rails"));
     }
 
     @Test
     public void shouldToggleRailsToOldOneWhenTheNewOneIsSpecified() throws Exception {
-        File newJruby = TestFileUtil.createTempFile("new-jruby-dir/jruby-new.jar");
-        File newJrubyRack = TestFileUtil.createTempFile("new-jruby-dir/jruby-rack-new.jar");
-
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
         when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.JRUBY_NEW_PATH)).thenReturn(newJruby.getAbsolutePath() + "," + newJrubyRack.getAbsolutePath());
         GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
 
         WebAppContext webApp = goServer.webApp();
 
-        assertExtraClasspath(webApp, newJruby.getAbsolutePath(), newJrubyRack.getAbsolutePath());
         assertThat(webApp.getInitParameter("rails.root"), is("/WEB-INF/rails.new"));
-    }
-
-    @Test
-    public void shouldFailWhenJRubyJarsAreNotFound() throws Exception {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.JRUBY_NEW_PATH)).thenReturn("junk-non-existent-path.jar");
-        GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-
-        try {
-            goServer.webApp();
-            fail("Should have failed since junk-non-existent-path.jar is not found.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), CoreMatchers.startsWith("Failed to find extra classpath JAR:"));
-            assertThat(e.getMessage(), CoreMatchers.endsWith("junk-non-existent-path.jar"));
-        }
     }
 
     private void assertExtraClasspath(WebAppContext context, String... expectedClassPathJars) {
@@ -372,14 +342,8 @@ public class GoServerContextHandlersTest {
         verifyNoMoreInteractions(response);
     }
 
-    private SystemEnvironment setJRubyJarsTo(SystemEnvironment mockSystemEnvironment, String path) {
+    private SystemEnvironment setJRubyJarsTo(SystemEnvironment mockSystemEnvironment) {
         when(mockSystemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        when(mockSystemEnvironment.get(SystemEnvironment.JRUBY_OLD_PATH)).thenReturn(path);
-        return mockSystemEnvironment;
-    }
-
-    private SystemEnvironment setNoJrubyJars(SystemEnvironment mockSystemEnvironment) {
-        setJRubyJarsTo(mockSystemEnvironment, "");
         return mockSystemEnvironment;
     }
 }

@@ -67,7 +67,6 @@
             <artifactId>jruby-rack</artifactId>
             <version>1.1.14</version>
         </dependency>
-
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>

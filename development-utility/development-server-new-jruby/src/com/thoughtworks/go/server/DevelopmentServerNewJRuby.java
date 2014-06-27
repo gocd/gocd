@@ -9,6 +9,6 @@ package com.thoughtworks.go.server;
  */
 public class DevelopmentServerNewJRuby {
     public static void main(String[] args) throws Exception {
-        DevelopmentServer.startWith(true, "./jruby_jars/jruby-1.7.11/jruby-complete-1.7.11.jar,./jruby_jars/jruby-1.7.11/jruby-rack-1.1.14.jar");
+        DevelopmentServer.start(true);
     }
 }

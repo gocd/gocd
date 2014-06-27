@@ -246,6 +246,17 @@
         </dependency>
 
         <dependency>
+            <groupId>${jruby.groupId}</groupId>
+            <artifactId>${jruby.artifactId}</artifactId>
+            <version>${jruby.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${jruby-rack.groupId}</groupId>
+            <artifactId>${jruby-rack.artifactId}</artifactId>
+            <version>${jruby-rack.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.openrdf</groupId>
             <artifactId>sesame-onejar</artifactId>
             <version>2.3.1</version>

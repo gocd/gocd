@@ -49,8 +49,6 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected Filter filter;
     protected String folder;
     protected boolean autoUpdate = true;
-    protected int numAttempts = ScmMaterialConfig.DEFAULT_NUMBER_OF_ATTEMPTS;
-    protected int retryIntervalInSeconds = ScmMaterialConfig.DEFAULT_RETRY_INTERVAL;
 
     public ScmMaterial(String typeName) {
         super(typeName);
@@ -175,22 +173,6 @@ public abstract class ScmMaterial extends AbstractMaterial {
         autoUpdate = value;
     }
 
-    public int getNumAttempts() {
-        return numAttempts;
-    }
-
-    public void setNumAttempts(int numAttempts) {
-        this.numAttempts = numAttempts;
-    }
-
-    public int getRetryIntervalInSeconds() {
-        return retryIntervalInSeconds;
-    }
-
-    public void setRetryIntervalInSeconds(int retryIntervalInSeconds) {
-        this.retryIntervalInSeconds = retryIntervalInSeconds;
-    }
-
     @Override
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, SubprocessExecutionContext execCtx) {
         ScmMaterialConfig config = (ScmMaterialConfig) config();
@@ -205,7 +187,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
             } catch(Exception e){
                 outputStreamConsumer.stdOutput(String.format("[%s] Update material attempt %d/%d failed", getType(), attemptsSoFar, config.getNumAttempts()));
                 try {
-                    Thread.sleep(getRetryIntervalInSeconds() * 1000);
+                    Thread.sleep(config.getRetryIntervalInSeconds() * 1000);
                 } catch (InterruptedException ignored) {}
             }
         }

@@ -1,0 +1,27 @@
+<div id="new_job_container">
+    <%= render(:partial => "shared/flash_message") %>
+    <%= render :partial => "shared/config_save_actions", :locals => { :scope => {}}-%>
+    <% form_for(:job, @job,
+                :url => admin_job_create_path,
+                :html => {"novalidate"=> "novalidate", :name => "pipeline_edit_form", :id => "pipeline_edit_form",
+                          :method => "POST",
+                          :onsubmit => "return AjaxForm.jquery_ajax_submit(this);",
+                          :class => "popup_form"}) do |f| %>
+        <%= md5_field %>
+        <input type="hidden" name="current_tab" value="jobs" />
+        <div class="form_content">
+            <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+            <h3><%= l.string("JOB_INFORMATION") -%></h3>
+            <%= render :partial => "job_basic_settings.html", :locals => { :scope => { :job => @job, :form => f, :cruise_config => @cruise_config}} -%>
+            <h3><%= l.string("INITIAL_TASK") -%></h3>
+            <div class="instructions">
+                <%= l.string('INSTRUCTION_JOB_TASK') -%>
+            </div>
+            <div class="form_item tasks">
+                <%= render :partial => "admin/shared/job_tasks.html", :locals => { :scope => { :job => @job, :job_form => f}} -%>
+            </div>
+        </div>
+        <%= render :partial => "shared/form_buttons.html", :locals => {:scope => {:submit_label => "SAVE"}} %>
+        <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
+    <% end %>
+</div>

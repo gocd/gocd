@@ -1,0 +1,10 @@
+<ul>
+    <li id="general"><%= link_to l.string("GENERAL_OPTIONS"), pipeline_edit_path(:current_tab => 'general') %></li>
+    <li id="project_management"><%= link_to l.string("PROJECT_MANAGEMENT"), pipeline_edit_path(:current_tab => 'project_management') %></li>
+    <li id="materials"><%= link_to 'Materials', admin_material_index_path(:current_tab => 'materials', :stage_parent => "pipelines") %></li>
+    <li id="stages">
+        <%= link_to "#{l.string("STAGES")}", admin_stage_listing_path(:stage_parent => "pipelines", :current_tab => "stages") %>
+    </li>
+    <li id="environment_variables"><%= link_to l.string("ENVIRONMENT_VARIABLES"), pipeline_edit_path(:current_tab => 'environment_variables') %></li>
+    <li id="parameters"><%= link_to l.string("PARAMETERS"), pipeline_edit_path(:current_tab => 'parameters') %></li>
+</ul>

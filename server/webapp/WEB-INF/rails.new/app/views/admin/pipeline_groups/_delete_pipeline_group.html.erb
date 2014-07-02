@@ -1,0 +1,17 @@
+<%
+   group = scope[:group]
+   group_name = group.getGroup()
+%>
+<% if group.isEmpty() %>
+    <% form_for :group, group, :url => pipeline_group_delete_path(:group_name => group_name), :html => {:id => "delete_group_#{group_name}", :method => :delete, :class => "group_name_delete", :title => "#{l.string("PIPELINE_GROUP_DELETE")}"} do |f| %>
+        <%= md5_field %>
+        <span class="delete_icon action_icon delete_parent" id="trigger_delete_group_<%= group_name %>">
+                        <%= link_to l.string("DELETE"), "#" %>
+            <%= render :partial => 'admin/shared/submit_with_prompt.html', :locals => {:scope => {:button_id => "trigger_delete_group_#{group_name}", :message => "Are you sure you want to delete the pipeline group '#{group_name}' ? ", :on_confirmation_js => "$('#{"delete_group_#{group_name}"}').submit()"}} %>
+        </span>
+    <% end %>
+<% else %>
+    <span class="action_icon delete_icon_disabled group_name_delete" title="<%= l.string("PIPELINE_GROUP_CANNOT_DELETE") -%>">
+    	<%= l.string("DELETE") -%>
+    </span>
+<% end %>

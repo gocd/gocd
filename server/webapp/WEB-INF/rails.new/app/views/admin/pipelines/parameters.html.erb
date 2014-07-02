@@ -1,0 +1,12 @@
+<h3><%= l.string("PARAMETERS") %></h3>
+<span title="<%= l.string("TOOLTIP_PARAMETERS") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
+
+<% form_for :pipeline, @pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'parameters'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
+    <div class="fieldset">
+        <%= md5_field %>
+        <%= register_defaultable_list("pipeline>params") %>
+        <%= render :partial => "admin/shared/name_value", :locals => {:scope => {:form => f, :collection => @pipeline.getParams(), :collection_name => :params}} %>
+         <div class="clear"></div>
+    </div>
+    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'parameters')}} %>
+<% end %>

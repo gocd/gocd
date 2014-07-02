@@ -1,0 +1,10 @@
+<script type="text/javascript">
+    Util.on_load(function() {
+        skip_dirty_stop = false;
+        jQuery('#<%= scope[:form_id] %>').dirty_form();
+        jQuery('a:not(.skip_dirty_stop)').  dirty_stopper({ dialog : {title : "<%=l.string("UNSAVED_CHANGES")-%>", height: 80}, message : "<%=l.string("UNSAVED_CHANGES_WARNING_MESSAGE")-%>"});
+        jQuery(window).resize(function() {
+            jQuery(".ui-dialog-content") && jQuery(".ui-dialog-content").dialog("option", "position", "center");
+        });
+    });
+</script>

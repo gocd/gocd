@@ -1,0 +1,29 @@
+<%- @view_title = "Administration" -%>
+<%= render :partial => "admin/shared/global_errors.html" -%>
+<div id = "pipeline_snippet_edit">
+    <%= render :partial => "pipeline_group_list", :locals => {:scope => {:modifiable_groups => @modifiable_groups, :group_name => @group_name}} %>
+
+    <div id="edit_group">
+        <% form_for @group_name,
+                    :url => pipelines_snippet_update_path(:group_name => @group_name),
+                    :html => {:method => :put,
+                              :id => "group_edit_form"} do |form| %>
+            <div class="form_buttons">
+                <button type="submit" class="submit primary skip_dirty_stop" id="save_config" disabled="disabled">
+                    <span><%= l.string("SAVE") %></span>
+                </button>
+                <%= link_to l.string("CANCEL"), pipelines_snippet_show_path(:group_name => @group_name), :class => 'cancel link_as_button skip_dirty_stop' -%>
+            </div>
+            <input name="config_md5" type="hidden" value="<%= @config_md5 %>"/>
+            <textarea name="group_xml" class='code' rows="40" id="content_container_for_edit"><%= h(@group_as_xml) %></textarea>
+
+        <% end %>
+    </div>
+    <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'group_edit_form'}} %>
+</div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery("button#save_config").removeAttr("disabled");
+    })
+</script>

@@ -189,9 +189,10 @@ public class PackageMaterialTest {
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
 
         StringBuilder content = new StringBuilder();
-        material.emailContent(content, new Modification(null, null, null, new Date(1367472329111L), "rev123"));
+        Date date = new Date(1367472329111L);
+        material.emailContent(content, new Modification(null, null, null, date, "rev123"));
 
-        assertThat(content.toString(), is("Package : repo-name:package-name\nrevision: rev123, completed on Thu May 02 10:55:29 IST 2013"));
+        assertThat(content.toString(), is(String.format("Package : repo-name:package-name\nrevision: rev123, completed on %s", date.toString())));
     }
 
     @Test

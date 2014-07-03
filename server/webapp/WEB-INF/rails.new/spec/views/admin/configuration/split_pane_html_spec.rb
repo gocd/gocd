@@ -24,8 +24,8 @@ describe "admin/configuration/split_pane.html" do
   end
 
   it "should render heading" do
-    assigns[:conflicted_config] = GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"})
-    assigns[:go_config] = GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"})
+    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
 
     render 'admin/configuration/split_pane.html'
 
@@ -37,15 +37,15 @@ describe "admin/configuration/split_pane.html" do
   end
 
   it "should render view" do
-    assigns[:conflicted_config] = GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"})
-    assigns[:go_config] = GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"})
+    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
     date = java.util.Date.new(1366866649)
     current_date = java.util.Date.new()
     difference = current_date.getYear() - date.getYear()
     cruise_config_revision = mock("cruise config revision")
     cruise_config_revision.should_receive(:getTime).and_return(date)
     cruise_config_revision.should_receive(:getUsername).and_return("Ali")
-    assigns[:go_config_revision] = cruise_config_revision
+    assign(:go_config_revision, cruise_config_revision)
 
     render 'admin/configuration/split_pane.html'
 
@@ -75,9 +75,9 @@ describe "admin/configuration/split_pane.html" do
   end
 
   it "should not bomb when no time stamp for current revision exists" do
-    assigns[:conflicted_config] = GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"})
-    assigns[:go_config] = GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"})
-    assigns[:go_config_revision] = nil
+    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config_revision, nil)
 
     render 'admin/configuration/split_pane.html'
 
@@ -85,9 +85,9 @@ describe "admin/configuration/split_pane.html" do
   end
 
   it "should show global errors in case of config save failure" do
-    assigns[:conflicted_config] = GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"})
-    assigns[:go_config] = GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"})
-    assigns[:errors] = ['some error that has happened', 'more lines']
+    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:errors, ['some error that has happened', 'more lines'])
 
     render 'admin/configuration/split_pane.html'
 

@@ -28,7 +28,7 @@ describe "show.html.erb" do
     package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2].to_java(ConfigurationProperty)))
 
     model = PackageViewModel.new metadata, package
-    assigns[:package_configuration] = model
+    assign(:package_configuration, model)
 
     render "admin/package_definitions/show.html"
 

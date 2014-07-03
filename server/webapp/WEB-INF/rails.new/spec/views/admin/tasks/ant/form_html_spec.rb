@@ -22,17 +22,17 @@ describe "admin/tasks/ant/new.html.erb" do
   include Admin::TaskHelper
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     template.stub(:admin_task_create_path).and_return("task_create_path")
     template.stub(:admin_task_update_path).and_return("task_update_path")
   end
 
   it "should render a simple ant task for new" do
     task = AntTask.new
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
     render "/admin/tasks/plugin/new"
 
@@ -53,8 +53,8 @@ describe "admin/tasks/ant/new.html.erb" do
     task.setBuildFile("build.xml")
     task.setWorkingDirectory("blah/foo-bar")
     task.setTarget("compile test and just deploy")
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
     response.body.should have_tag("form[action=?]", "task_update_path") do
@@ -72,8 +72,8 @@ describe "admin/tasks/ant/new.html.erb" do
   it "should render error messages if errors are present on the config" do
     task = ant_task
     task.addError(com.thoughtworks.go.config.BuildTask::WORKING_DIRECTORY, "working directory error")
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
     response.body.should have_tag("form[action=?]", "task_update_path") do
@@ -96,8 +96,8 @@ describe "admin/tasks/ant/new.html.erb" do
     task.setWorkingDirectory("blah/foo-bar")
     task.setTarget("compile test and just deploy")
     task.setCancelTask(ant_task())
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
     response.body.should have_tag("form[action=?]", "task_update_path") do

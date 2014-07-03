@@ -20,13 +20,13 @@ describe "/admin/tasks/plugin/edit.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
     template.stub(:admin_task_update_path).and_return("task_update_path")
-    assigns[:task] = @task = simple_exec_task
-    assigns[:task_view_model] = @tvm = vm_for(@task)
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:task, @task = simple_exec_task)
+    assign(:task_view_model, @tvm = vm_for(@task))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
   end
 
   it "should render what the rendering service returns" do
@@ -52,7 +52,7 @@ describe "/admin/tasks/plugin/edit.html.erb" do
   end
 
   it "should render the config conflict message" do
-    assigns[:config_file_conflict] = true
+    assign(:config_file_conflict, true)
 
     render "admin/tasks/plugin/edit.html.erb"
 

@@ -22,8 +22,8 @@ describe "admin/tasks/nant/new.html.erb" do
   include Admin::TaskHelper
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:cruise_config, config = CruiseConfig.new)
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     set(config, "md5", "abcd1234")
     template.stub(:admin_task_create_path).and_return("task_create_path")
     template.stub(:admin_task_update_path).and_return("task_update_path")
@@ -84,8 +84,8 @@ describe "admin/tasks/nant/new.html.erb" do
     task.addError(com.thoughtworks.go.config.BuildTask::WORKING_DIRECTORY, "working directory error")
     task.addError(com.thoughtworks.go.config.BuildTask::TARGET, "target error")
     task.addError(com.thoughtworks.go.config.NantTask::NANT_PATH, "nant path error")
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
     render "/admin/tasks/plugin/new"
     response.body.should have_tag("form[action=?]", "task_create_path") do

@@ -25,7 +25,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
 
   it "should display error message when the on cancel task plugin is missing" do
     @task = simple_task_with_pluggable_on_cancel_task
-    assigns[:on_cancel_task_vms] = []
+    assign(:on_cancel_task_vms, [])
     fields_for(:task, @task) do |f|
       @form = f
     end
@@ -53,7 +53,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
   end
 
   it "should not display plugin missing error message if pluggable on cancel task is not missing" do
-    assigns[:on_cancel_task_vms] = []
+    assign(:on_cancel_task_vms, [])
     fields_for(:task, @task) do |f|
       @form = f
     end

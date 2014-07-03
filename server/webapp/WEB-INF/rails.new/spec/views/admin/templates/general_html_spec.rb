@@ -23,8 +23,8 @@ describe "admin/templates/edit.html.erb" do
 
   before(:each) do
     template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template1"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
-    assigns[:pipeline] = template
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:pipeline, template)
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "template1")
   end

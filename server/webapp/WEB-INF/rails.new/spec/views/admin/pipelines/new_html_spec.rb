@@ -32,18 +32,18 @@ describe "admin/pipelines/new.html.erb" do
     @pipeline_group = PipelineConfigs.new
     @pipeline_group.add(@pipeline)
 
-    assigns[:pipeline] = @pipeline
-    assigns[:pipeline_group] = @pipeline_group
-    assigns[:template_list] = Array.new
-    assigns[:all_pipelines] = ArrayList.new
+    assign(:pipeline, @pipeline)
+    assign(:pipeline_group, @pipeline_group)
+    assign(:template_list, Array.new)
+    assign(:all_pipelines, ArrayList.new)
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.ExecTask.new, "admin/tasks/exec/new", "erb"))
-    assigns[:task_view_models] = tvms
-    assigns[:config_context]= create_config_context(MockRegistryModule::MockRegistry.new)
+    assign(:task_view_models, tvms)
+    assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
     @cruise_config = CruiseConfig.new
-    assigns[:cruise_config] = @cruise_config
-    assigns[:original_cruise_config] = @cruise_config
+    assign(:cruise_config, @cruise_config)
+    assign(:original_cruise_config, @cruise_config)
     set(@cruise_config, "md5", "abc")
     template.stub(:is_user_a_group_admin?).and_return(false)
     job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"))].to_java(JobConfig))
@@ -82,7 +82,7 @@ describe "admin/pipelines/new.html.erb" do
   describe "Basic Settings" do
 
     it "should have a text box for pipeline name and group name" do
-      assigns[:group_name] = ""
+      assign(:group_name, "")
       render "/admin/pipelines/new.html"
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
@@ -96,7 +96,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should populate group name if adding to an existing group" do
-      assigns[:group_name] = "foo.bar"
+      assign(:group_name, "foo.bar")
       render "/admin/pipelines/new.html"
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
@@ -110,7 +110,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should show dropdown for group name if user is a group admin" do
-      assigns[:groups_list] = ["foo.bar", "some_other_group"]
+      assign(:groups_list, ["foo.bar", "some_other_group"])
       template.stub(:is_user_a_group_admin?).and_return(true)
       
       render "admin/pipelines/new.html"
@@ -312,7 +312,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should display template dropdown" do
-      assigns[:template_list] = TemplatesConfig.new([PipelineTemplateConfigMother.createTemplate("foo"), PipelineTemplateConfigMother.createTemplate("bar_template_name")].to_java(PipelineTemplateConfig))
+      assign(:template_list, TemplatesConfig.new([PipelineTemplateConfigMother.createTemplate("foo"), PipelineTemplateConfigMother.createTemplate("bar_template_name")].to_java(PipelineTemplateConfig)))
 
       render "admin/pipelines/new"
 

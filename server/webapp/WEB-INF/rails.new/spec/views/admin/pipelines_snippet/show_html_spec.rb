@@ -21,9 +21,9 @@ describe "admin/pipelines_snippet/show.html.erb" do
 
   it "should render the group xml" do
     group_xml = "<foo></foo>"
-    assigns[:group_as_xml] = group_xml
-    assigns[:group_name] = "foo"
-    assigns[:modifiable_groups] = ["foo", "bar"]
+    assign(:group_as_xml, group_xml)
+    assign(:group_name, "foo")
+    assign(:modifiable_groups, ["foo", "bar"])
     render "admin/pipelines_snippet/show.html"
     response.body.should have_tag("div#view_group") do
       with_tag("pre#content_container", h(group_xml))

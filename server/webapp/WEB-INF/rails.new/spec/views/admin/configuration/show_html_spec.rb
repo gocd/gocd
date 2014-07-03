@@ -23,7 +23,7 @@ describe "admin/configuration/view.html" do
   end
 
   it "should render heading" do
-    assigns[:go_config] = GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"})
+    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
 
     render 'admin/configuration/show.html'
 
@@ -35,14 +35,14 @@ describe "admin/configuration/view.html" do
   end
 
   it "should render view" do
-    assigns[:go_config] = GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"})
+    assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
     date = java.util.Date.new(1366866649)
     current_date = java.util.Date.new()
     difference = current_date.getYear() - date.getYear()
     cruise_config_revision = mock("cruise config revision")
     cruise_config_revision.should_receive(:getTime).and_return(date)
     cruise_config_revision.should_receive(:getUsername).and_return("Ali")
-    assigns[:go_config_revision] = cruise_config_revision
+    assign(:go_config_revision, cruise_config_revision)
 
     render 'admin/configuration/show.html'
 

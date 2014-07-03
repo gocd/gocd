@@ -24,20 +24,20 @@ describe "admin/jobs/new.html.erb" do
 
   before :each do
     template.stub(:url_for).and_return("url_for_new_job")
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "pipeline-name", :action => "index", :controller => "admin/jobs", :stage_name => "stage-name")
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new, "template", "erb"))
-    assigns[:task_view_models] = tvms
-    assigns[:config_context]= create_config_context(MockRegistryModule::MockRegistry.new)
+    assign(:task_view_models, tvms)
+    assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
     template.stub(:render_pluggable_form_template).and_return("template")
   end
 
   it "should render form with name and id for angular binding" do
-    assigns[:job] = JobConfig.new
+    assign(:job, JobConfig.new)
 
     render "admin/jobs/new.html"
 
@@ -45,7 +45,7 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render job name and hidden current tab field" do
-    assigns[:job] = JobConfig.new
+    assign(:job, JobConfig.new)
 
     render "admin/jobs/new.html"
 
@@ -62,7 +62,7 @@ describe "admin/jobs/new.html.erb" do
 
   it "should render textbox for timeout" do
     @cruise_config.server().setJobTimeout("42")
-    assigns[:job] = JobConfig.new
+    assign(:job, JobConfig.new)
 
     render "admin/jobs/new.html"
 
@@ -82,7 +82,7 @@ describe "admin/jobs/new.html.erb" do
 
   it "should render text 'Never' beside default radio button" do
     @cruise_config.server().setJobTimeout("0")
-    assigns[:job] = JobConfig.new
+    assign(:job, JobConfig.new)
 
     render "admin/jobs/new.html"
 
@@ -93,7 +93,7 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render job resources and run on all agents checkbox" do
-    assigns[:job] = JobConfig.new
+    assign(:job, JobConfig.new)
 
     render "admin/jobs/new.html"
 
@@ -107,7 +107,7 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render errors on the job name" do
-    assigns[:job] = job = JobConfig.new
+    assign(:job, job = JobConfig.new)
     set(job, "errors", config_error(JobConfig::NAME, "Name cannot be duplicated"))
 
     render "admin/jobs/new.html"
@@ -119,14 +119,14 @@ describe "admin/jobs/new.html.erb" do
   end
 
   it "should render job tasks" do
-    assigns[:job] = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task)))
+    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
     template.should_receive(:render).with(:partial => "admin/shared/job_tasks.html", :locals => instance_of(Hash))
 
     render "admin/jobs/new.html"
   end
 
   it "should render job task instructions" do
-    assigns[:job] = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task)))
+    assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
 
     render "admin/jobs/new.html"
 

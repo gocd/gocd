@@ -21,31 +21,31 @@ describe "admin/tasks/fetch/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
     template.stub(:admin_task_create_path).and_return("task_create_path")
     template.stub(:admin_task_update_path).and_return("task_update_path")
 
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
-   assigns[:stage] = StageConfigMother.stageConfig("stage2")
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:stage, StageConfigMother.stageConfig("stage2"))
     upstream = PipelineConfigMother.createPipelineConfig("upstream", "stage1", ["job", "job1", "job2"].to_java(java.lang.String))
     downstream = PipelineConfigMother.createPipelineConfig("downstream", "stage2", ["job"].to_java(java.lang.String))
     downstream.addMaterialConfig(DependencyMaterialConfig.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1")))
-    assigns[:pipelines_for_fetch] = [upstream, downstream]
-    assigns[:pipeline] = downstream
+    assign(:pipelines_for_fetch, [upstream, downstream])
+    assign(:pipeline, downstream)
   end
 
   it "should render a simple fetch task for edit" do
-    task = assigns[:task] = FetchTask.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1"), CaseInsensitiveString.new("job"), "src", "dest")
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    task = assign(:task, FetchTask.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1"), CaseInsensitiveString.new("job"), "src", "dest"))
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
     assert_response_body
   end
 
   it "should render a simple fetch task for create" do
-    task = assigns[:task] = FetchTask.new
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    task = assign(:task, FetchTask.new)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
     render "/admin/tasks/plugin/new"
     assert_response_body

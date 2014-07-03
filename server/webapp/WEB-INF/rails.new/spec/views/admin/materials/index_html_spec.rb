@@ -29,13 +29,13 @@ describe "admin/materials index.html.erb" do
     material_configs = MaterialConfigs.new([svn_config, package_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig))
 
     @pipeline_config = PipelineConfigMother.pipelineConfig("pipeline-name", "foo", material_configs, ["build-1"].to_java(java.lang.String))
-    assigns[:pipeline_config] = @pipeline_config
+    assign(:pipeline_config, @pipeline_config)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline_config)
 
     ReflectionUtil.setField(@cruise_config, "md5", "abc")
-    assigns[:pipeline] = @pipeline_config
+    assign(:pipeline, @pipeline_config)
 
     in_params(:pipeline_name => "pipeline-name", :stage_parent => "pipelines")
   end

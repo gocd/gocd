@@ -32,14 +32,14 @@ describe "admin/pipelines/_material_form.html.erb" do
     @pipeline_group = PipelineConfigs.new
     @pipeline_group.add(@pipeline)
 
-    assigns[:pipeline] = @pipeline
-    assigns[:pipeline_group] = @pipeline_group
-    assigns[:template_list] = Array.new
-    assigns[:all_pipelines] = java.util.ArrayList.new
+    assign(:pipeline, @pipeline)
+    assign(:pipeline_group, @pipeline_group)
+    assign(:template_list, Array.new)
+    assign(:all_pipelines, java.util.ArrayList.new)
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new,"template","erb"))
-    assigns[:task_view_models] = tvms
-    assigns[:config_context]= create_config_context(MockRegistryModule::MockRegistry.new)
+    assign(:task_view_models, tvms)
+    assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
     @cruise_config = CruiseConfig.new
     repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -51,8 +51,8 @@ describe "admin/pipelines/_material_form.html.erb" do
     repos.add(repository1)
     repos.add(repository2)
     @cruise_config.setPackageRepositories(repos)
-    assigns[:cruise_config] = @cruise_config
-    assigns[:original_cruise_config] = @cruise_config
+    assign(:cruise_config, @cruise_config)
+    assign(:original_cruise_config, @cruise_config)
     template.stub(:is_user_a_group_admin?).and_return(false)
     set(@cruise_config, "md5", "abc")
     template.stub(:render_pluggable_form_template).and_return("template")
@@ -294,7 +294,7 @@ describe "admin/pipelines/_material_form.html.erb" do
           p2 = ConfigurationProperty.new(ConfigurationKey.new("key2"), ConfigurationValue.new("value2"), nil, nil)
           p3_secure = ConfigurationProperty.new(ConfigurationKey.new("key3_secure"), nil, EncryptedConfigurationValue.new("secure"), nil)
           @package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2, p3_secure].to_java(ConfigurationProperty)))
-          assigns[:package_configuration] = PackageViewModel.new @metadata, @package
+          assign(:package_configuration, PackageViewModel.new(@metadata, @package))
         end
 
         it "should render show_package_definition with check connection if the form was opened for associating a existing package definition" do
@@ -336,7 +336,7 @@ describe "admin/pipelines/_material_form.html.erb" do
         end
 
         it "should not render package configuration elements if there is no package configured" do
-          assigns[:package_configuration] = nil
+          assign(:package_configuration, nil)
           in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
 
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}

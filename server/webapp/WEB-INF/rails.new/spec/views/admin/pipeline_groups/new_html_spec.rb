@@ -22,14 +22,14 @@ describe "admin/templates/new.html.erb" do
   include GoUtil
 
   before(:each) do
-    assigns[:user] = Username.new(CaseInsensitiveString.new("loser"))
-    assigns[:cruise_config] = cruise_config = CruiseConfig.new
+    assign(:user, Username.new(CaseInsensitiveString.new("loser")))
+    assign(:cruise_config, cruise_config = CruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     template.stub(:pipeline_group_create_path).and_return("pipeline_group_create_path")
   end
 
   it "should display form to create a new template" do
-    assigns[:group] = PipelineConfigs.new
+    assign(:group, PipelineConfigs.new)
 
     render "admin/pipeline_groups/new.html"
 

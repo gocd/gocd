@@ -25,10 +25,10 @@ describe "admin/jobs/index.html.erb" do
     job_1.resources().add(Resource.new("resource-1"))
     job_1.resources().add(Resource.new("resource-2"))
     job_1.setRunOnAllAgents(true)
-    assigns[:pipeline] = @pipeline
-    assigns[:stage] = @pipeline.get(0)
-    assigns[:jobs] = @pipeline.get(0).getJobs()
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:pipeline, @pipeline)
+    assign(:stage, @pipeline.get(0))
+    assign(:jobs, @pipeline.get(0).getJobs())
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :action => "index", :controller => "admin/jobs", :stage_name => "stage-name")

@@ -28,15 +28,15 @@ describe "admin/tasks/index.html.erb" do
     tasks.add(ant_task)
     tasks.add(rake_task)
     tasks.add(nant_task)
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
-    assigns[:pipeline] = @pipeline
-    assigns[:stage] = stage
-    assigns[:job] = job
-    assigns[:tasks] = tasks
+    assign(:pipeline, @pipeline)
+    assign(:stage, stage)
+    assign(:job, job)
+    assign(:tasks, tasks)
     in_params(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :action => "index", :controller => "admin/tasks", :stage_parent => "pipelines")
-    assigns[:task_view_models] = [tvm(ExecTask.new), tvm(RakeTask.new), tvm(AntTask.new),tvm(FetchTask.new), tvm(NantTask.new)]
+    assign(:task_view_models, [tvm(ExecTask.new), tvm(RakeTask.new), tvm(AntTask.new),tvm(FetchTask.new), tvm(NantTask.new)])
   end
 
   it "should show tasks" do
@@ -202,7 +202,7 @@ describe "admin/tasks/index.html.erb" do
       end
 
       it "should show display value of plugin, and not 'pluggable task'" do
-        assigns[:tasks] = [@task_1]
+        assign(:tasks, [@task_1])
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
 
         render "admin/tasks/index.html"
@@ -218,7 +218,7 @@ describe "admin/tasks/index.html.erb" do
       it "for plugin on-cancel task of a plugin task, it should show display value of plugin, and not 'pluggable task'" do
         @task_1.setCancelTask(@task_2)
 
-        assigns[:tasks] = [@task_1]
+        assign(:tasks, [@task_1])
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
         @tvm_2.stub(:getTypeForDisplay).and_return("MAVEN")
 
@@ -232,7 +232,7 @@ describe "admin/tasks/index.html.erb" do
       end
 
       it "for missing plugin task, it should add missing class" do
-        assigns[:tasks] = [@task_1, @task_3]
+        assign(:tasks, [@task_1, @task_3])
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
@@ -248,7 +248,7 @@ describe "admin/tasks/index.html.erb" do
       it "should have missing plugin class in on cancel task name if respective plugin is missing" do
         @builtin_task_1.setCancelTask(@task_3)
 
-        assigns[:tasks] = [@builtin_task_1]
+        assign(:tasks, [@builtin_task_1])
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
         render "admin/tasks/index.html"
@@ -263,7 +263,7 @@ describe "admin/tasks/index.html.erb" do
       it "should have missing plugin class in on-cancel task if both task & on-cancel task are pluggable task of a missing plugin" do
         @task_3.setCancelTask(@task_3)
 
-        assigns[:tasks] = [@task_3]
+        assign(:tasks, [@task_3])
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
         render "admin/tasks/index.html"
@@ -281,7 +281,7 @@ describe "admin/tasks/index.html.erb" do
       it "for plugin on-cancel task of a builtin task, it should show display value of plugin, and not 'pluggable task'" do
         @builtin_task_1.setCancelTask(@task_2)
 
-        assigns[:tasks] = [@builtin_task_1]
+        assign(:tasks, [@builtin_task_1])
         @tvm_2.stub(:getTypeForDisplay).and_return("MAVEN")
 
         render "admin/tasks/index.html"

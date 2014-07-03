@@ -20,17 +20,17 @@ describe "admin/tasks/new_exec.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     template.stub(:admin_task_create_path).and_return("task_create_path")
   end
 
   it "should render a simple exec task for create" do
-    task = assigns[:task] = simple_exec_task
+    task = assign(:task, simple_exec_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
     render "/admin/tasks/plugin/new"
 
@@ -48,8 +48,8 @@ describe "admin/tasks/new_exec.html.erb" do
   end
 
   it "should display empty div to load gist based auto complete" do
-    task = assigns[:task] = simple_exec_task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    task = assign(:task, simple_exec_task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
     render "/admin/tasks/plugin/new"
 

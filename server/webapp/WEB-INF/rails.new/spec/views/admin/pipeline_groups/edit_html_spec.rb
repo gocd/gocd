@@ -23,8 +23,8 @@ describe "admin/pipeline_groups/edit.html" do
     @cruise_config = CruiseConfig.new
     set(@cruise_config, "md5", "abcd1234")
     @group = PipelineConfigMother.createGroups(["group1"].to_java(java.lang.String)).get(0)
-    assigns[:group] = @group
-    assigns[:cruise_config] = @cruise_config
+    assign(:group, @group)
+    assign(:cruise_config, @cruise_config)
     @group.getAuthorization().getAdminsConfig().add(AdminUser.new(CaseInsensitiveString.new("admin")))
     @group.getAuthorization().getOperationConfig().add(AdminUser.new(CaseInsensitiveString.new("operator")))
     @group.getAuthorization().getViewConfig().add(AdminUser.new(CaseInsensitiveString.new("viewer")))

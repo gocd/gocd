@@ -25,7 +25,7 @@ describe "admin/garage/index.html" do
   it 'should show config.git details' do
     size = "42MB"
     @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
-    assigns[:garage_data] = @garage_data
+    assign(:garage_data, @garage_data)
 
     render "admin/garage/index.html"
     response.body.should have_tag("div#config_version_content") do
@@ -40,7 +40,7 @@ describe "admin/garage/index.html" do
   it 'should show config.git flash messages' do
     size = "42MB"
     @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
-    assigns[:garage_data] = @garage_data
+    assign(:garage_data, @garage_data)
     flash = {:notice => {:gc => "notice"}, :error => {:gc => "error"}}
     template.should_receive(:flash).any_number_of_times.and_return(flash)
 

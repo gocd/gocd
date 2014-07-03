@@ -22,13 +22,13 @@ describe "admin/pipelines/clone.html.erb" do
 
   it "should have a text box for pipeline name and group name" do
     pipeline = PipelineConfigMother.pipelineConfig("some-pipeline")
-    assigns[:pipeline] = pipeline
+    assign(:pipeline, pipeline)
     pipeline_group = PipelineConfigs.new
     pipeline_group.add(pipeline)
-    assigns[:pipeline_group] = pipeline_group
-    assigns[:group_name] = ""
-    assigns[:groups_list] = ["foo.bar", "some_other_group"]
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:pipeline_group, pipeline_group)
+    assign(:group_name, "")
+    assign(:groups_list, ["foo.bar", "some_other_group"])
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     set(@cruise_config, "md5", "abc")
     template.stub(:is_user_a_group_admin?).and_return(false)
 

@@ -25,10 +25,10 @@ describe "admin/stages/environment_variables.html.erb" do
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))
     @stage = pipeline.get(0)
     @stage.setVariables(@variables)
-    assigns[:pipeline] = pipeline
-    assigns[:stage] = @stage
+    assign(:pipeline, pipeline)
+    assign(:stage, @stage)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", pipeline)
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :current_tab => "environment_variables")

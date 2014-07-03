@@ -20,17 +20,17 @@ describe "/admin/tasks/plugin/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
     template.stub(:admin_task_create_path).and_return("task_create_path")
-    assigns[:task] = @task = simple_exec_task
-    assigns[:task_view_model] = @tvm = vm_for(@task)
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:task, @task = simple_exec_task)
+    assign(:task_view_model, @tvm = vm_for(@task))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
   end
 
   it "should render what the rendering service returns" do
-    assigns[:task] = @task = ExecTask.new("", "", "")
+    assign(:task, @task = ExecTask.new("", "", ""))
     render "admin/tasks/plugin/new.html.erb"
 
     response.body.should have_tag("form[action=?][method='post']", 'task_create_path') do
@@ -52,7 +52,7 @@ describe "/admin/tasks/plugin/new.html.erb" do
   end
 
   it "should render the config conflict message" do
-    assigns[:config_file_conflict] = true
+    assign(:config_file_conflict, true)
 
     render "admin/tasks/plugin/new.html.erb"
 

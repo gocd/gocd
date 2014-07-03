@@ -22,15 +22,15 @@ describe "admin/templates/new.html.erb" do
   include GoUtil
 
   before(:each) do
-    assigns[:user] = Username.new(CaseInsensitiveString.new("loser"))
-    assigns[:cruise_config] = cruise_config = CruiseConfig.new
+    assign(:user, Username.new(CaseInsensitiveString.new("loser")))
+    assign(:cruise_config, cruise_config = CruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     template.stub(:template_create_path).and_return("template_create_path")
   end
 
   it "should display form to create a new template" do
     template.stub(:allow_pipeline_selection?).and_return(true)
-    assigns[:pipeline] = PipelineTemplateConfigViewModel.new
+    assign(:pipeline, PipelineTemplateConfigViewModel.new)
     
     render "admin/templates/new.html"
 
@@ -43,7 +43,7 @@ describe "admin/templates/new.html.erb" do
   it "should display the pipeline from which to extract a template" do
     template.stub(:allow_pipeline_selection?).and_return(true)
     foo = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, nil, java.util.Arrays.asList([PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline.2"), PipelineConfigMother.pipelineConfig("Foo")].to_java(PipelineConfig)))
-    assigns[:pipeline] = foo
+    assign(:pipeline, foo)
 
     render "admin/templates/new.html"
 
@@ -68,7 +68,7 @@ describe "admin/templates/new.html.erb" do
 
   it "should show the pipelines selection and check 'extract from' if useExistingPipeline is true" do
     template.stub(:allow_pipeline_selection?).and_return(true)
-    assigns[:pipeline] = vm = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1',java.util.Arrays.asList([PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline.2"), PipelineConfigMother.pipelineConfig("Foo")].to_java(PipelineConfig)))
+    assign(:pipeline, vm = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1',java.util.Arrays.asList([PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline.2"), PipelineConfigMother.pipelineConfig("Foo")].to_java(PipelineConfig))))
     vm.setConfigAttributes( {"template" => {"name" => ""}, "useExistingPipeline" => "1", "pipelineNames" => "pipeline1", "selectedPipelineName" => "pipeline1"})
 
 
@@ -86,7 +86,7 @@ describe "admin/templates/new.html.erb" do
 
   it "should disable the pipelines selection if there are no pipelines" do
     template.stub(:allow_pipeline_selection?).and_return(true)
-    assigns[:pipeline] = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new())
+    assign(:pipeline, PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new()))
 
     render "admin/templates/new.html"
 
@@ -101,7 +101,7 @@ describe "admin/templates/new.html.erb" do
 
   it "should disable the pipelines selection and checkbox if pipeline to extract is pegged" do
     template.stub(:allow_pipeline_selection?).and_return(false)
-    assigns[:pipeline] = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new())
+    assign(:pipeline, PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new()))
     params[:pipelineToExtractFrom] = "temp_pipeline"
 
     render "admin/templates/new.html"

@@ -39,7 +39,7 @@ describe "show_with_repository_list.html.erb" do
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 
     #md5 setup
-    assigns[:cruise_config] = @cruise_config = mock("cruise config")
+    assign(:cruise_config, @cruise_config = mock("cruise config"))
     @cruise_config.should_receive(:canDeletePackageRepository).any_number_of_times.with(anything).and_return(true)
     @cruise_config.should_receive(:getMd5).any_number_of_times.and_return("abc")
 
@@ -51,9 +51,9 @@ describe "show_with_repository_list.html.erb" do
     p2 = ConfigurationProperty.new(ConfigurationKey.new("key2"), ConfigurationValue.new("value2"), nil, nil)
     package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2].to_java(ConfigurationProperty)))
     model = PackageViewModel.new metadata, package
-    assigns[:package_configuration] = model
-    assigns[:package_repositories] = @repos
-    assigns[:package_to_pipeline_map] = @packageToPipelineMap
+    assign(:package_configuration, model)
+    assign(:package_repositories, @repos)
+    assign(:package_to_pipeline_map, @packageToPipelineMap)
   end
 
   describe "list.html" do

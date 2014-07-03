@@ -30,9 +30,9 @@ describe "admin/pipelines/environment_variables.html.erb" do
     variables.add(@encryptedVariable)
 
     @pipeline.setVariables(variables)
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
 
     in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/pipelines")

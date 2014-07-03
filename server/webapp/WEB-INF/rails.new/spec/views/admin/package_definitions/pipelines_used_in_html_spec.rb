@@ -23,7 +23,7 @@ describe "show_with_repository_list.html.erb" do
     @pipeline_group_one_admin = Username.new(CaseInsensitiveString.new("group-one-admin"))
     @pipeline_group_two_admin = Username.new(CaseInsensitiveString.new("group-two-admin"))
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     security_config = SecurityConfig.new()
     security_config.modifyPasswordFile(PasswordFileConfig.new("/tmp/pass"));
     admin_config = security_config.adminsConfig()
@@ -46,12 +46,12 @@ describe "show_with_repository_list.html.erb" do
     packagePipelines = ArrayList.new
     @pipeline_config = PipelineConfig.new(CaseInsensitiveString.new("pipeline-name"), MaterialConfigs.new(), [StageConfig.new].to_java(StageConfig))
     packagePipelines.add(Pair.new(@pipeline_config, @group_one))
-    assigns[:pipelines_with_group] = packagePipelines
+    assign(:pipelines_with_group, packagePipelines)
   end
 
   describe "list.html" do
     it "should render package name and package configurations along with listing for super admin" do
-      assigns[:user] = @admin
+      assign(:user, @admin)
       render "admin/package_definitions/pipelines_used_in.html"
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do
@@ -64,7 +64,7 @@ describe "show_with_repository_list.html.erb" do
     end
 
     it "should render package name and package configurations along with listing for pipeline admin" do
-      assigns[:user] = @pipeline_group_one_admin
+      assign(:user, @pipeline_group_one_admin)
       render "admin/package_definitions/pipelines_used_in.html"
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do
@@ -77,7 +77,7 @@ describe "show_with_repository_list.html.erb" do
     end
 
     it "should render package name and package configurations along with listing for non pipeline admin" do
-      assigns[:user] = @pipeline_group_two_admin
+      assign(:user, @pipeline_group_two_admin)
       render "admin/package_definitions/pipelines_used_in.html"
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do

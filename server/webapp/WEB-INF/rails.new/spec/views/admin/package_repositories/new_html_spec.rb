@@ -23,10 +23,10 @@ describe "admin/package_repositories/new.html.erb" do
 
   before(:each) do
     template.stub(:package_repositories_create_path).and_return("create_package_repositories_path")
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     set(@cruise_config, "md5", "abc")
-    assigns[:package_repository] = PackageRepository.new
-    assigns[:package_repositories] = PackageRepositories.new
+    assign(:package_repository, PackageRepository.new)
+    assign(:package_repositories, PackageRepositories.new)
   end
 
   describe "new.html" do

@@ -23,11 +23,11 @@ describe "admin/jobs/artifacts.html" do
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))
     stage = pipeline.get(0)
     @job = stage.getJobs().get(0)
-    assigns[:pipeline] = pipeline
-    assigns[:stage] = stage
-    assigns[:job] = @job
+    assign(:pipeline, pipeline)
+    assign(:stage, stage)
+    assign(:job, @job)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", pipeline)
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")

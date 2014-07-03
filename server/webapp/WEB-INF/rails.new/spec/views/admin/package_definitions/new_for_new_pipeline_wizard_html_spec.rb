@@ -29,7 +29,7 @@ describe "new.html.erb" do
 
     configuration = Configuration.new([p1, p2].to_java(com.thoughtworks.go.domain.config.ConfigurationProperty))
     package_definition.setConfiguration(configuration)
-    assigns[:package_configuration] = PackageViewModel.new metadata, package_definition
+    assign(:package_configuration, PackageViewModel.new(metadata, package_definition))
 
     render "admin/package_definitions/new_for_new_pipeline_wizard.html"
 

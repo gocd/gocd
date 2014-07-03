@@ -43,7 +43,7 @@ describe "list.html.erb" do
     @packageToPipelineMap.put("pid1",packageOnePipelines)
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 
-    assigns[:cruise_config] = @cruise_config = mock("cruise config")
+    assign(:cruise_config, @cruise_config = mock("cruise config"))
     @cruise_config.should_receive(:canDeletePackageRepository).any_number_of_times.with(anything).and_return(true)
     @cruise_config.should_receive(:getMd5).any_number_of_times.and_return("abc")
 
@@ -213,7 +213,7 @@ describe "list.html.erb" do
       cruise_config.should_receive(:canDeletePackageRepository).with(repo1).and_return(true)
       cruise_config.should_receive(:canDeletePackageRepository).with(repo2).and_return(false)
       cruise_config.should_receive(:getMd5).and_return("abc")
-      assigns[:cruise_config] = cruise_config
+      assign(:cruise_config, cruise_config)
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => [repo1, repo2]}}
 
       response.body.should have_tag("form#delete_repository_repo1")

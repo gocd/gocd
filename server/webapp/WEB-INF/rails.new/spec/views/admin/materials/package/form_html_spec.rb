@@ -30,8 +30,8 @@ describe "_form.html.erb" do
     repos.add(repository1)
     repos.add(repository2)
     @cruise_config.setPackageRepositories(repos)
-    assigns[:cruise_config] = @cruise_config
-    assigns[:original_cruise_config] = @cruise_config
+    assign(:cruise_config, @cruise_config)
+    assign(:original_cruise_config, @cruise_config)
     set(@cruise_config, "md5", "abc")
   end
 
@@ -83,7 +83,7 @@ describe "_form.html.erb" do
       p2 = ConfigurationProperty.new(ConfigurationKey.new("key2"), ConfigurationValue.new("value2"), nil, nil)
       p3_secure = ConfigurationProperty.new(ConfigurationKey.new("key3_secure"), nil, EncryptedConfigurationValue.new("secure"), nil)
       @package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2, p3_secure].to_java(ConfigurationProperty)))
-      assigns[:package_configuration] = PackageViewModel.new @metadata, @package
+      assign(:package_configuration, PackageViewModel.new(@metadata, @package))
     end
 
     it "should render show_package_definition with check connection if the form was opened for associating a existing package definition" do
@@ -137,7 +137,7 @@ describe "_form.html.erb" do
 
 
     it "should not render package configuration elements if there is no package configured" do
-      assigns[:package_configuration] = nil
+      assign(:package_configuration, nil)
       in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
 
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}

@@ -23,11 +23,11 @@ describe "admin/stages/permissions.html.erb" do
   before :each do
     template.stub(:url_for).and_return("go_url")
 
-    assigns[:pipeline] = @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
-    assigns[:stage] = @stage = @pipeline.get(0)
-    assigns[:pipeline_group] = @group = PipelineConfigMother::groupWithOperatePermission(@pipeline, ["admin", "badger"].to_java(java.lang.String))
+    assign(:pipeline, @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string)))
+    assign(:stage, @stage = @pipeline.get(0))
+    assign(:pipeline_group, @group = PipelineConfigMother::groupWithOperatePermission(@pipeline, ["admin", "badger"].to_java(java.lang.String)))
 
-    assigns[:cruise_config] = cruise_config = GoConfigMother.defaultCruiseConfig()
+    assign(:cruise_config, cruise_config = GoConfigMother.defaultCruiseConfig())
     set(cruise_config, "md5", "abc")
     cruise_config.addPipeline("group-1", @pipeline)
 

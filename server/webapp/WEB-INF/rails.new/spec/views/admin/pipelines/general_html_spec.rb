@@ -23,9 +23,9 @@ describe "admin/pipelines/general.html.erb" do
 
   before(:each) do
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
 
     set(@cruise_config, "md5", "abc")
@@ -66,7 +66,7 @@ describe "admin/pipelines/general.html.erb" do
   it "should render form with approval type manual of the first stage" do
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")
     @pipeline.get(0).updateApproval(Approval.manualApproval())
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
 
     render PIPELINE_GENERAL_PAGE
 
@@ -82,8 +82,8 @@ describe "admin/pipelines/general.html.erb" do
   it "should render form with approval type as disabled if pipeline refers to a template" do
     @cruise_config = CruiseConfig.new
     @pipeline = GoConfigMother.new.addPipelineWithTemplate(@cruise_config, "pipeline", "template", "stage", ["job"].to_java(java.lang.String))
-    assigns[:pipeline] = @pipeline
-    assigns[:cruise_config] = @cruise_config
+    assign(:pipeline, @pipeline)
+    assign(:cruise_config, @cruise_config)
 
     render PIPELINE_GENERAL_PAGE
 

@@ -21,13 +21,13 @@ describe "admin/materials/hg/new.html.erb" do
   include GoUtil
 
   before :each do
-    assigns[:material] = @material = HgMaterial.new("url", nil)
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:material, @material = HgMaterial.new("url", nil))
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     ReflectionUtil.setField(@cruise_config, "md5", "abc")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
-    assigns[:config_file_conflict] = true
+    assign(:config_file_conflict, true)
     in_params(:pipeline_name => "pipeline_name")
 
     render "admin/materials/hg/new.html"
@@ -36,12 +36,12 @@ describe "admin/materials/hg/new.html.erb" do
   end
 
   it "should render help links next to flash message" do
-    assigns[:flash_message] = 'flash_key'
+    assign(:flash_message, 'flash_key')
     flash = mock('flash')
     flash.should_receive(:flashClass).and_return('error')
     flash.should_receive(:to_s).and_return('some random message')
     template.stub(:load_flash_message).with('flash_key').and_return(flash)
-    assigns[:flash_help_link] = "<a href='foo'>Foo</a>"
+    assign(:flash_help_link, "<a href='foo'>Foo</a>")
 
     render "shared/_flash_message.html"
 
@@ -51,12 +51,12 @@ describe "admin/materials/hg/new.html.erb" do
   end
 
   it "should not bomb when no help link exists" do
-    assigns[:flash_message] = 'flash_key'
+    assign(:flash_message, 'flash_key')
     flash = mock('flash')
     flash.should_receive(:flashClass).and_return('error')
     flash.should_receive(:to_s).and_return('some random message')
     template.stub(:load_flash_message).with('flash_key').and_return(flash)
-    assigns[:flash_help_link] = nil
+    assign(:flash_help_link, nil)
 
     render "shared/_flash_message.html"
 

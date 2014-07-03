@@ -21,14 +21,14 @@ describe "admin/pipeline_groups/index.html.erb" do
   include ReflectiveUtil
 
   before(:each) do
-    assigns[:groups] = groups("group_foo", "group_bar", "group_quux")
-    assigns[:user] = Username.new(CaseInsensitiveString.new("loser"))
+    assign(:groups, groups("group_foo", "group_bar", "group_quux"))
+    assign(:user, Username.new(CaseInsensitiveString.new("loser")))
     template.stub(:tab_with_display_name).and_return("tab_link")
     template.stub(:mycruise_available?).and_return(false)
     template.stub(:can_view_admin_page?).and_return(true)
-    assigns[:cruise_config] = cruise_config = CruiseConfig.new
+    assign(:cruise_config, cruise_config = CruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
-    assigns[:pipeline_to_can_delete] = {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
+    assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -37,7 +37,7 @@ describe "admin/pipeline_groups/index.html.erb" do
                                         CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
-    }
+    })
     template.stub(:is_user_an_admin?).and_return(true)
   end
 
@@ -57,8 +57,8 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should display a message if the pipeline group is empty" do
-    assigns[:groups] = [PipelineConfigs.new("group", Authorization.new, [].to_java(PipelineConfig))]
-    assigns[:pipeline_to_can_delete] = {}
+    assign(:groups, [PipelineConfigs.new("group", Authorization.new, [].to_java(PipelineConfig))])
+    assign(:pipeline_to_can_delete, {})
 
     render 'admin/pipeline_groups/index.html'
 
@@ -121,7 +121,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   describe "delete pipeline" do
     it "should display delete link next to an empty pipeline group" do
-      assigns[:groups] = [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))]
+      assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       render 'admin/pipeline_groups/index.html'
 
       response.body.should have_tag("div.group_pipelines") do
@@ -138,7 +138,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should not display delete link if user is group admin" do
-      assigns[:groups] = [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))]
+      assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       template.stub(:is_user_an_admin?).and_return(false)
 
       render 'admin/pipeline_groups/index.html'
@@ -232,7 +232,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should not show delete action if the pipeline cannot be deleted" do
-      assigns[:pipeline_to_can_delete] = {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", ["pipeline_in_group_foo", "env"])),
+      assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", ["pipeline_in_group_foo", "env"])),
                                           CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                           CaseInsensitiveString.new("pipeline_with_template_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                           CaseInsensitiveString.new("pipeline_in_group_bar") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", ["pipeline_in_group_bar", "pipeline_in_group_foo"])),
@@ -241,7 +241,7 @@ describe "admin/pipeline_groups/index.html.erb" do
                                           CaseInsensitiveString.new("pipeline_in_group_quux") => CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", ["pipeline_in_group_bar", "pipeline_in_group_foo"])),
                                           CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                           CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
-      }
+      })
 
       render 'admin/pipeline_groups/index.html'
 
@@ -264,7 +264,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should render move control only when more than one pipeline-groups are present" do
-    assigns[:groups] = groups("group_foo")
+    assign(:groups, groups("group_foo"))
     render 'admin/pipeline_groups/index.html'
 
     response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
@@ -274,7 +274,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   describe "move pipeline" do
     it "should render move control only when more than one pipeline-groups are present" do
-      assigns[:groups] = groups("group_foo")
+      assign(:groups, groups("group_foo"))
       render 'admin/pipeline_groups/index.html'
 
       response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
@@ -286,7 +286,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   describe "new pipeline wizard links" do
 
     it "should display new-pipeline-links which take you to the new wizard" do
-      assigns[:groups] = groups("group_foo")
+      assign(:groups, groups("group_foo"))
 
       render "admin/pipeline_groups/index.html"
 
@@ -296,7 +296,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should display link when no pipelines exist for a group" do
-      assigns[:groups] = [PipelineConfigs.new("some-group", Authorization.new, [].to_java(PipelineConfig))]
+      assign(:groups, [PipelineConfigs.new("some-group", Authorization.new, [].to_java(PipelineConfig))])
 
       render "admin/pipeline_groups/index.html"
 
@@ -306,7 +306,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should display link to add first pipeline" do
-      assigns[:groups] = []
+      assign(:groups, [])
 
       render "admin/pipeline_groups/index.html"
 

@@ -29,8 +29,8 @@ describe "admin/templates/edit_permissions.html" do
     @template.getAuthorization().getAdminsConfig().add(AdminUser.new(CaseInsensitiveString.new("new-admin")))
     @template.getAuthorization().getAdminsConfig().add(AdminUser.new(CaseInsensitiveString.new("old-admin")))
 
-    assigns[:cruise_config] = @cruise_config
-    assigns[:pipeline] = @template
+    assign(:cruise_config, @cruise_config)
+    assign(:pipeline, @template)
   end
 
   it "should render template edit permissions form with grid for users" do

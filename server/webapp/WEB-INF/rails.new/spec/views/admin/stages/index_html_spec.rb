@@ -25,16 +25,16 @@ describe "admin/stages/index.html.erb" do
   before(:each) do
     template.stub(:is_user_an_admin?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
 
     @dev_stage = @pipeline.get(0)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
 
-    assigns[:stage_usage] = java.util.HashSet.new
+    assign(:stage_usage, java.util.HashSet.new)
     assigns[:stage_usage].add(@dev_stage)
-    assigns[:template_list] = ["defaultTemplate"]
+    assign(:template_list, ["defaultTemplate"])
 
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages", :stage_parent => "pipelines")
@@ -55,9 +55,9 @@ describe "admin/stages/index.html.erb" do
     @pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline-name", "template-name")
     test_template = PipelineTemplateConfigMother.createTemplate("template-name")
     @cruise_config.stub(:getTemplateByName).and_return(test_template)
-    assigns[:processed_cruise_config] = @processed_cruise_config = CruiseConfig.new
+    assign(:processed_cruise_config, @processed_cruise_config = CruiseConfig.new)
     @processed_cruise_config.stub(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
     render STAGE_INDEX_PAGE
 
     response.body.should have_tag("input[type='radio'][checked='checked'][title='Use Template']")
@@ -66,7 +66,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should render templates dropdown always along with a edit link" do
-    assigns[:template_list] = ["template1", "template2"]
+    assign(:template_list, ["template1", "template2"])
     render STAGE_INDEX_PAGE
 
     response.body.should have_tag("select[id='select_template']") do
@@ -80,7 +80,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should render switch to template form with prompt on save pipeline" do
-    assigns[:template_list] = ["template1", "template2"]
+    assign(:template_list, ["template1", "template2"])
     render STAGE_INDEX_PAGE
 
     response.body.should have_tag("form#pipeline_edit_form[method='post']") do
@@ -91,7 +91,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should not render error div when no error exists" do
-    assigns[:template_list] = ["template1", "template2"]
+    assign(:template_list, ["template1", "template2"])
 
     render STAGE_INDEX_PAGE
 
@@ -124,7 +124,7 @@ describe "admin/stages/index.html.erb" do
 
   it "should disable the delete button if there is only 1 stage" do
     @pipeline.remove(@dev_stage)
-    assigns[:pipeline] = @pipeline
+    assign(:pipeline, @pipeline)
     render STAGE_INDEX_PAGE
     response.body.should have_tag("tr.stage_acceptance td.remove span.delete_icon_disabled[title=?]", "Cannot delete the only stage in a pipeline")
   end
@@ -158,7 +158,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should display view template button when stage configuration uses templates" do
-    assigns[:template_list] = ["template1", "template2"]
+    assign(:template_list, ["template1", "template2"])
     render STAGE_INDEX_PAGE
 
     response.body.should have_tag("select[id='select_template']") do
@@ -170,7 +170,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should not render template dropdown and options when there are no templates. Should display relevant message" do
-    assigns[:template_list] = []
+    assign(:template_list, [])
     render STAGE_INDEX_PAGE
 
     response.body.should have_tag(".no_templates_message", "There are no templates configured")

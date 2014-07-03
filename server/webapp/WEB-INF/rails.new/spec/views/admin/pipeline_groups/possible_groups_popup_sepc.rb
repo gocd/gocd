@@ -21,7 +21,7 @@ describe "possible_groups_popup" do
 
   it "should render all the groups as a list" do
     template.stub(:move_pipeline_to_group_path).and_return("foo")
-    assigns[:cruise_config] = cruise_config = CruiseConfig.new
+    assign(:cruise_config, cruise_config = CruiseConfig.new)
     set(cruise_config, "md5", "abc")
 
     render :partial => "admin/pipeline_groups/possible_groups_popup", :locals => {:scope => {:possible_groups => ['group1','group2'], :pipeline_name => 'pipeline1', :md5_match => true}}
@@ -36,7 +36,7 @@ describe "possible_groups_popup" do
 
   it "should display conflict message on md5 mismatch" do
     template.stub(:move_pipeline_to_group_path).and_return("foo")
-    assigns[:cruise_config] = cruise_config = CruiseConfig.new
+    assign(:cruise_config, cruise_config = CruiseConfig.new)
     set(cruise_config, "md5", "abc")
 
     render :partial => "admin/pipeline_groups/possible_groups_popup", :locals => {:scope => {:possible_groups => ['group1','group2'], :pipeline_name => 'pipeline1', :md5_match => false}}

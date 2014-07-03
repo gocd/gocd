@@ -23,7 +23,7 @@ describe "admin/package_repositories/edit.html.erb" do
 
   before(:each) do
     template.stub(:package_repositories_update_path).and_return("package_repositories_update_path")
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     set(@cruise_config, "md5", "abc")
 
     plugin_configuration = PluginConfiguration.new("yum","1.0")
@@ -32,8 +32,8 @@ describe "admin/package_repositories/edit.html.erb" do
     package_repository.set_name("name")
     package_repository.setPluginConfiguration(plugin_configuration)
 
-    assigns[:package_repository] = package_repository
-    assigns[:package_repositories] = PackageRepositories.new
+    assign(:package_repository, package_repository)
+    assign(:package_repositories, PackageRepositories.new)
   end
 
   describe "edit.html" do

@@ -28,7 +28,7 @@ describe "/admin/tasks/plugin/_task_entry.html.erb" do
     template.stub!(:admin_task_edit_path).and_return('admin_task_edit_path')
     template.stub!(:admin_task_delete_path).and_return('admin_task_delete_path')
     template.stub!(:md5_field).and_return('md5')
-    assigns[:tasks] = []
+    assign(:tasks, [])
   end
 
   it 'should display plugin name in the header' do

@@ -26,11 +26,11 @@ describe "admin/jobs/environment_variables.html.erb" do
     @job = stage.getJobs().get(0)
     @job.addTab("tab1", "path1")
     @job.addTab("tab2", "path2")
-    assigns[:pipeline] = pipeline
-    assigns[:stage] = stage
-    assigns[:job] = @job
+    assign(:pipeline, pipeline)
+    assign(:stage, stage)
+    assign(:job, @job)
 
-    assigns[:cruise_config] = @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config = CruiseConfig.new)
     @cruise_config.addPipeline("group-1", pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "pipline-name", :stage_name => "stage-name", :action => "edit", :controller => "admin/jobs", :job_name => "job-name", :current_tab => "tabs")

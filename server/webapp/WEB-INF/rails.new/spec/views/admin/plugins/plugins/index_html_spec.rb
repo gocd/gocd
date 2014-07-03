@@ -26,7 +26,7 @@ end
 describe "admin/plugins/plugins/index.html.erb" do
 
   it "should list a set of plugins" do
-    assigns[:plugin_descriptors] = [valid_descriptor("1"), invalid_descriptor('2', ['message1', 'message2'])]
+    assign(:plugin_descriptors, [valid_descriptor("1"), invalid_descriptor('2', ['message1', 'message2'])])
 
     render "admin/plugins/plugins/index.html.erb"
 
@@ -83,7 +83,7 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should add http:// to url if not specified" do
-    assigns[:plugin_descriptors] = [valid_descriptor_without_http("1")]
+    assign(:plugin_descriptors, [valid_descriptor_without_http("1")])
 
     render "admin/plugins/plugins/index.html.erb"
 
@@ -103,7 +103,7 @@ describe "admin/plugins/plugins/index.html.erb" do
 
   it "should not have a messages section when there are no messages" do
     description = valid_descriptor("1")
-    assigns[:plugin_descriptors] = [description]
+    assign(:plugin_descriptors, [description])
 
     render "admin/plugins/plugins/index.html.erb"
 
@@ -117,7 +117,7 @@ describe "admin/plugins/plugins/index.html.erb" do
 
   it "should have a messages section when there are messages" do
     description = invalid_descriptor('2', ['message1', 'message2'])
-    assigns[:plugin_descriptors] = [description]
+    assign(:plugin_descriptors, [description])
 
     render "admin/plugins/plugins/index.html.erb"
 
@@ -135,7 +135,7 @@ describe "admin/plugins/plugins/index.html.erb" do
   end
 
   it "should display proper message when no plugins are found" do
-    assigns[:plugin_descriptors] = []
+    assign(:plugin_descriptors, [])
 
     render "admin/plugins/plugins/index.html.erb"
 

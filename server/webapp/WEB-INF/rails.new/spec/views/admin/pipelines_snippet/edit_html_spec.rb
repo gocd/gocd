@@ -22,10 +22,10 @@ describe "admin/pipelines_snippet/edit.html.erb" do
   it "should render the group xml" do
     group_xml = "<grp></grp>"
     group_name = "foo"
-    assigns[:group_as_xml] = group_xml
-    assigns[:group_name] = group_name
-    assigns[:config_md5] = "md5"
-    assigns[:modifiable_groups] = ["foo", "bar"]
+    assign(:group_as_xml, group_xml)
+    assign(:group_name, group_name)
+    assign(:config_md5, "md5")
+    assign(:modifiable_groups, ["foo", "bar"])
 
     render "admin/pipelines_snippet/edit.html"
 
@@ -48,11 +48,11 @@ describe "admin/pipelines_snippet/edit.html.erb" do
   it "should render global errrors" do
     group_xml = "<grp></grp>"
     group_name = "foo"
-    assigns[:group_as_xml] = group_xml
-    assigns[:group_name] = group_name
-    assigns[:config_md5] = "md5"
-    assigns[:modifiable_groups] = ["foo", "bar"]
-    assigns[:errors] = ['error1', 'error2']
+    assign(:group_as_xml, group_xml)
+    assign(:group_name, group_name)
+    assign(:config_md5, "md5")
+    assign(:modifiable_groups, ["foo", "bar"])
+    assign(:errors, ['error1', 'error2'])
 
     render "admin/pipelines_snippet/edit.html"
 

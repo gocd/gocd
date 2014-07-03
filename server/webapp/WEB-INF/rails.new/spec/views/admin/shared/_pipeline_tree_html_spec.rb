@@ -53,7 +53,7 @@ describe "pipeline_tree" do
     pipeline_with_template = PipelineConfigMother.pipelineConfigWithTemplate("pipeline_with_temp", "new-template")
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
-    assigns[:user] = Username.new(CaseInsensitiveString.new("admin"))
+    assign(:user, Username.new(CaseInsensitiveString.new("admin")))
     template.stub(:is_user_an_admin?).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
@@ -69,7 +69,7 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     template_admin = Username.new(CaseInsensitiveString.new("template-admin"))
-    assigns[:user] = template_admin
+    assign(:user, template_admin)
     template.stub(:is_user_an_admin?).and_return(false)
     template.stub(:current_user).and_return(template_admin)
     @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)
@@ -86,7 +86,7 @@ describe "pipeline_tree" do
     pipeline_with_template = PipelineConfigMother.pipelineConfigWithTemplate("pipeline_with_temp", "new-template")
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
-    assigns[:user] = Username.new(CaseInsensitiveString.new("admin"))
+    assign(:user, Username.new(CaseInsensitiveString.new("admin")))
     template.stub(:is_user_an_admin?).and_return(false)
     template.stub(:is_user_a_template_admin_for_template?).and_return(false)
 
@@ -102,7 +102,7 @@ describe "pipeline_tree" do
     pipeline_with_template = PipelineConfigMother.pipelineConfigWithTemplate("pipeline_with_temp", "new-template")
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
-    assigns[:user] = Username.new(CaseInsensitiveString.new("user"))
+    assign(:user, Username.new(CaseInsensitiveString.new("user")))
     template.stub(:is_user_an_admin?).and_return(false)
     template.stub(:is_user_a_template_admin_for_template?).and_return(false)
 
@@ -121,7 +121,7 @@ describe "pipeline_tree" do
     pipeline_with_template = PipelineConfigMother.pipelineConfigWithTemplate("pipeline_with_temp", "new-template")
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
-    assigns[:user] = Username.new(CaseInsensitiveString.new("admin"))
+    assign(:user, Username.new(CaseInsensitiveString.new("admin")))
     template.stub(:is_user_an_admin?).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
@@ -139,7 +139,7 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     template_admin = Username.new(CaseInsensitiveString.new("template-admin"))
-    assigns[:user] = template_admin
+    assign(:user, template_admin)
     template.stub(:is_user_an_admin?).and_return(false)
     template.stub(:current_user).and_return(template_admin)
     @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)

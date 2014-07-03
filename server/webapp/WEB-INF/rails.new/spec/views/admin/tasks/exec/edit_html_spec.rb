@@ -20,17 +20,17 @@ describe "admin/tasks/edit_exec.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assigns[:cruise_config] = config = CruiseConfig.new
+    assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     template.stub(:admin_task_update_path).and_return("task_edit_path")
   end
 
   it "should render a simple exec task for edit" do
-    task = assigns[:task] = simple_exec_task
+    task = assign(:task, simple_exec_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -47,9 +47,9 @@ describe "admin/tasks/edit_exec.html.erb" do
   end
 
   it "should render an exec task with args list" do
-    task = assigns[:task] = simple_exec_task_with_args_list
+    task = assign(:task, simple_exec_task_with_args_list)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -62,9 +62,9 @@ describe "admin/tasks/edit_exec.html.erb" do
   end
 
   it "should render an on cancel exec task" do
-    task = assigns[:task] = with_run_if(RunIfConfig::FAILED, exec_task)
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    task = assign(:task, with_run_if(RunIfConfig::FAILED, exec_task))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -90,9 +90,9 @@ describe "admin/tasks/edit_exec.html.erb" do
   end
 
   it "should not render on cancel task when not configured" do
-    task = assigns[:task] = simple_exec_task
+    task = assign(:task, simple_exec_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -109,9 +109,9 @@ describe "admin/tasks/edit_exec.html.erb" do
   it "should not render exec on cancel task when its not exec" do
     simple_task = simple_exec_task
     simple_task.setCancelTask(rake_task)
-    assigns[:task] = simple_task
+    assign(:task, simple_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(simple_task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -126,9 +126,9 @@ describe "admin/tasks/edit_exec.html.erb" do
 
   it "should not render on cancel task form when there is no 'on cancel task' specified" do
     simple_task = simple_exec_task
-    assigns[:task] = simple_task
+    assign(:task, simple_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(simple_task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -141,9 +141,9 @@ describe "admin/tasks/edit_exec.html.erb" do
 
   it "should hide all 'on cancel task' on load" do
     simple_task = simple_exec_task
-    assigns[:task] = simple_task
+    assign(:task, simple_task)
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(simple_task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 
@@ -158,9 +158,9 @@ describe "admin/tasks/edit_exec.html.erb" do
   end
 
   it "should render an exec task with runif for edit" do
-    task = assigns[:task] = with_run_if(RunIfConfig::FAILED, simple_exec_task)
+    task = assign(:task, with_run_if(RunIfConfig::FAILED, simple_exec_task))
 
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render "/admin/tasks/plugin/edit"
 

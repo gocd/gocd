@@ -10,7 +10,7 @@
                 <%= md5_field %>
                 <%= f.label com.thoughtworks.go.config.PipelineTemplateConfig::NAME, l.string('TEMPLATE_NAME') -%>
                 <%= f.text_field com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :readonly => :readonly, :disabled=> :disabled -%>
-                <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :css_class => "form_error") %>
+                <%= error_message_on(RailsFormModelWrapper.new(@pipeline), com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :css_class => "form_error") %>
                 <div class="clear"></div>
             </div>
 

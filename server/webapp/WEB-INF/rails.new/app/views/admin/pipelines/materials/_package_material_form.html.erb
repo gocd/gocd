@@ -36,7 +36,7 @@
         <div class="new_form_label"></div>
         <div class="new_form_control">
             <%= select_tag "material[packageId]", [], {:id => "package", :class => "required"} -%>
-            <%= error_message_on(scope[:material], "material[package_definition[packageId]]", :css_class => "form_error") %>
+            <%= error_message_on(RailsFormModelWrapper.new(scope[:material]), "material[package_definition[packageId]]", :css_class => "form_error") %>
         </div>
     </div>
 

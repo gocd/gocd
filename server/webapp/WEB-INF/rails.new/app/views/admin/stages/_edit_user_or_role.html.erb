@@ -17,7 +17,7 @@
                     <tr>
                         <td class="name_cell">
                             <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :omit_id_generation => true -%>
-                            <%= error_message_on(permission, "name", :css_class => "name_value_error") %>
+                            <%= error_message_on(RailsFormModelWrapper.new(permission), "name", :css_class => "name_value_error") %>
                         </td>
                         <td class="name_cell align_top">
                             <span class="icon_remove delete_parent"></span>

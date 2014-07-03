@@ -18,7 +18,7 @@
                 <div class="form_item required">
                     <%= label_tag stage_name_id = random_dom_id("stage_name_"), required_label_text(l.string('STAGE_NAME')) %>
                     <%= f.text_field com.thoughtworks.go.config.StageConfig::NAME, :class => "form_input", :id => stage_name_id -%>
-                    <%= error_message_on(@stage, "name", :css_class => "form_error") %>
+                    <%= error_message_on(RailsFormModelWrapper.new(@stage), "name", :css_class => "form_error") %>
                 </div>
                 <div class="form_item checkbox_row">
                     <label><%= l.string('STAGE_TRIGGER_TYPE:') -%></label>
@@ -35,7 +35,7 @@
                         </div>
 
 
-                        <%= error_message_on(@stage.getApproval(), "type", :css_class => "form_error") %>
+                        <%= error_message_on(RailsFormModelWrapper.new(@stage.getApproval()), "type", :css_class => "form_error") %>
 
                     <% end %>
                 </div>
@@ -51,7 +51,7 @@
                         <div class="form_item required">
                             <%= label_tag job_name_id = random_dom_id("job_name_"), required_label_text(l.string('JOB_NAME')) %>
                             <%= job_form.text_field(com.thoughtworks.go.config.JobConfig::NAME, :id => job_name_id) %>
-                            <%= error_message_on(job, com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
+                            <%= error_message_on(RailsFormModelWrapper.new(job), com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
                         </div>
                         <%= render :partial => "admin/shared/job_tasks.html", :locals => { :scope => { :job => job, :job_form => job_form}} -%>
                     <%- end -%>

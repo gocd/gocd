@@ -5,26 +5,26 @@
         <%= label_tag random_dom_id('pipeline_'), l.string('PIPELINE') -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::PIPELINE_NAME %>
         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_PIPELINE") -%>"></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::PIPELINE_NAME, :css_class => "form_error") %>
+        <%= error_message_on(RailsFormModelWrapper.new(@task), com.thoughtworks.go.config.FetchTask::PIPELINE_NAME, :css_class => "form_error") %>
     </div>
     <div class="form_item_block required">
         <%= label_tag random_dom_id('pipeline_'), required_label_text(l.string('STAGE')) -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::STAGE %>
         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_STAGE") -%>"></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::STAGE, :css_class => "form_error") %>
+        <%= error_message_on(RailsFormModelWrapper.new(@task), com.thoughtworks.go.config.FetchTask::STAGE, :css_class => "form_error") %>
     </div>
     <div class="form_item_block required">
         <%= label_tag random_dom_id('pipeline_'), required_label_text(l.string('JOB')) -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::JOB %>
         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_JOB") -%>"></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
+        <%= error_message_on(RailsFormModelWrapper.new(@task), com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
     </div>
 
     <div class="form_item_block required source">
         <%= label_tag source_dir_name = random_dom_id('source_'), required_label_text(l.string('SOURCE')) -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::SRC, {:class => "form_input", :id => source_dir_name} -%>
         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_SOURCE") -%>"></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::SRC, :css_class => "form_error") %>
+        <%= error_message_on(RailsFormModelWrapper.new(@task), com.thoughtworks.go.config.FetchTask::SRC, :css_class => "form_error") %>
     </div>
 
     <div class="form_item_block file_or_dir">
@@ -36,7 +36,7 @@
         <%= label_tag destination = random_dom_id('dest_'), l.string('DESTINATION') -%>
         <%= f.text_field com.thoughtworks.go.config.FetchTask::DEST, {:class => "form_input", :id => destination} -%>
         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_FETCH_TASK_DEST") -%>"></div>
-        <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::DEST, :css_class => "form_error") %>
+        <%= error_message_on(RailsFormModelWrapper.new(@task), com.thoughtworks.go.config.FetchTask::DEST, :css_class => "form_error") %>
     </div>
 </div>
 

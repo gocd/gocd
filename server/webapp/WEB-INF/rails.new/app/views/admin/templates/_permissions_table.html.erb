@@ -34,7 +34,7 @@
                     <% permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
                         <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :omit_id_generation => true %>
                     <% end %>
-                    <%= error_message_on(permission, com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :css_class => "name_value_error") %>
+                    <%= error_message_on(RailsFormModelWrapper.new(permission), com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :css_class => "name_value_error") %>
                 </td>
                 <td>
                     <%= action_icon({:type => "remove", :class => "delete_parent"}) %>

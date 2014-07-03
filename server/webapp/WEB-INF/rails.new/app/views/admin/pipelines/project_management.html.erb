@@ -19,13 +19,13 @@
                         <%= required_label(t, :regex, l.string('TRACKING_TOOL_REGEX'))-%>
                         <%= t.text_field :regex %>
                         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_TRACKING_TOOL_REGEX") -%>"></div>
-                        <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::REGEX, :css_class => "form_error") %>
+                        <%= error_message_on(RailsFormModelWrapper.new(@pipeline.trackingTool), com.thoughtworks.go.config.TrackingTool::REGEX, :css_class => "form_error") %>
                     </div>
                     <div class="form_item_block required">
                         <%= required_label(t, :link, l.string('TRACKING_TOOL_URL'))-%>
                         <%= t.text_field :link %>
                         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_TRACKING_TOOL_URL") -%>"></div>
-                        <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::LINK, :css_class => "form_error") %>
+                        <%= error_message_on(RailsFormModelWrapper.new(@pipeline.trackingTool), com.thoughtworks.go.config.TrackingTool::LINK, :css_class => "form_error") %>
                     </div>
                 </div>
                 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
@@ -39,13 +39,13 @@
                         <%= required_label(m, com.thoughtworks.go.config.MingleConfig::BASE_URL, l.string("MINGLE_URL"))-%>
                         <%= m.text_field com.thoughtworks.go.config.MingleConfig::BASE_URL %>
                         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MINGLE_URL") -%>"></div>
-                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::BASE_URL, :css_class => "form_error") %>
+                        <%= error_message_on(RailsFormModelWrapper.new(@pipeline.mingleConfig), com.thoughtworks.go.config.MingleConfig::BASE_URL, :css_class => "form_error") %>
                     </div>
                     <div class="form_item_block required">
                         <%= required_label(m, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, l.string("MINGLE_PROJECT_IDENTIFIER"))-%>
                         <%= m.text_field com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER %>
                         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MINGLE_PROJECT_IDENTIFIER") -%>"></div>
-                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, :css_class => "form_error") %>
+                        <%= error_message_on(RailsFormModelWrapper.new(@pipeline.mingleConfig), com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, :css_class => "form_error") %>
                     </div>
                     <% m.fields_for com.thoughtworks.go.config.MingleConfig::MQL_GROUPING_CONDITIONS, @pipeline.mingleConfig.mqlCriteria do |mQ| %>
                         <div class="form_item_block">
@@ -53,7 +53,7 @@
                             <div>
                                 <%= mQ.text_field com.thoughtworks.go.config.MqlCriteria::MQL %>
                                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MQL_GROUPING_CONDITIONS") -%>"></div>
-                                <%= error_message_on(@pipeline.mingleConfig.mqlCriteria, com.thoughtworks.go.config.MqlCriteria::MQL, :css_class => "form_error") %>
+                                <%= error_message_on(RailsFormModelWrapper.new(@pipeline.mingleConfig.mqlCriteria), com.thoughtworks.go.config.MqlCriteria::MQL, :css_class => "form_error") %>
                             </div>
                         </div>
                     <% end %>

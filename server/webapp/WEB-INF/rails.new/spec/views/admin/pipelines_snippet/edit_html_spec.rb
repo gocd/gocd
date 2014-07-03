@@ -27,21 +27,21 @@ describe "admin/pipelines_snippet/edit.html.erb" do
     assign(:config_md5, "md5")
     assign(:modifiable_groups, ["foo", "bar"])
 
-    render "admin/pipelines_snippet/edit.html"
+    render
 
-    response.body.should have_tag("div#edit_group") do
-      with_tag("form[action='#{pipelines_snippet_update_path(:group_name => group_name)}']") do
-        with_tag("input[type='hidden'][name='config_md5'][value='md5']")
-        with_tag("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", 'Cancel')
-        with_tag("button.submit[id='save_config'][disabled='disabled']") do
-          with_tag("span", "SAVE")
+    Capybara.string(response.body).find('div#edit_group').tap do |div|
+      div.find("form[action='#{pipelines_snippet_update_path(:group_name => group_name)}']").tap do |form|
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='md5']")
+        expect(form).to have_selector("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", 'Cancel')
+        form.find("button.submit[id='save_config'][disabled='disabled']").tap do |button|
+          expect(button).to have_selector("span", "SAVE")
         end
-        with_tag("textarea#content_container_for_edit", h(group_xml))
+        expect(form).to have_selector("textarea#content_container_for_edit", "&lt;foo&gt;&lt;/foo&gt;")
       end
     end
-    response.body.should have_tag("div#modifiable_groups") do
-      with_tag("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", 'foo')
-      with_tag("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", 'bar')
+    Capybara.string(response.body).find('div#modifiable_groups').tap do |div|
+      expect(div).to have_selector("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", 'foo')
+      expect(div).to have_selector("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", 'bar')
     end
   end
 
@@ -54,12 +54,12 @@ describe "admin/pipelines_snippet/edit.html.erb" do
     assign(:modifiable_groups, ["foo", "bar"])
     assign(:errors, ['error1', 'error2'])
 
-    render "admin/pipelines_snippet/edit.html"
+    render
 
-    response.body.should have_tag("div.form_submit_errors") do
-      with_tag("div.errors") do
-        with_tag("li", "error1")
-        with_tag("li", "error2")
+    Capybara.string(response.body).find('div.form_submit_errors').tap do |div|
+      div.find("div.errors").tap do |form|
+        expect(form).to have_selector("li", "error1")
+        expect(form).to have_selector("li", "error2")
       end
     end
   end

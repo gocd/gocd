@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/configuration/edit.html" do
+describe "admin/configuration/edit.html.erb" do
 
   before :each do
     template.stub(:config_view_path).and_return("config_xml_view_path")
@@ -26,12 +26,12 @@ describe "admin/configuration/edit.html" do
   it "should render heading" do
     assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
 
-    render 'admin/configuration/edit.html'
+    render
 
-    response.body.should have_tag("div.heading") do
-      with_tag("h2", "Configuration File")
-      with_tag("span", "Configuration File Path:")
-      with_tag("span", "path_to_config_xml")
+    Capybara.string(response.body).find('div.heading').tap do |div|
+      expect(div).to have_selector("h2", :text => "Configuration File")
+      expect(div).to have_selector("span", :text => "Configuration File Path:")
+      expect(div).to have_selector("span", :text => "path_to_config_xml")
     end
   end
 
@@ -46,24 +46,24 @@ describe "admin/configuration/edit.html" do
     cruise_config_revision.should_receive(:getUsername).and_return("Ali")
     assign(:go_config_revision, cruise_config_revision)
 
-    render 'admin/configuration/edit.html'
+    render
 
-    response.body.should have_tag("div.sub_tab_container_content") do
-      with_tag("div#tab-content-of-source-xml") do
-        with_tag(".admin_holder") do
-          with_tag("form#config_editor_form[method='post'][action=?]", 'config_update_path') do
-            with_tag("input[name='_method'][value=?]", 'put')
-            with_tag("div.form_heading") do
-              with_tag("div.config_change_timestamp", "Last modified: over #{difference} years ago by Ali")
-              with_tag("div.config_change_timestamp[title=?]", "Last modified: over #{difference} years ago by Ali")
-              with_tag("div.buttons-group") do
-                with_tag("input#save_config[class='link_as_button primary'][type='submit'][value='SAVE'][disabled='disabled']")
-                with_tag("a#cancel_edit[class='link_as_button'][href=?]", "config_xml_view_path", :text => "Cancel")
+    Capybara.string(response.body).find('div.sub_tab_container_content').tap do |div|
+      div.find("div#tab-content-of-source-xml").tap do |tab|
+        tab.find(".admin_holder").tap do |admin|
+          admin.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |config_editor|
+            expect(config_editor).to have_selector("input[name='_method'][value='put']")
+            config_editor.find("div.form_heading").tap do |form_heading|
+              expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: over #{difference} years ago by Ali")
+              expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: over #{difference} years ago by Ali']")
+              form_heading.find("div.buttons-group").tap do |buttons_group|
+                expect(buttons_group).to have_selector("input#save_config[class='link_as_button primary'][type='submit'][value='SAVE'][disabled='disabled']")
+                expect(buttons_group).to have_selector("a#cancel_edit[class='link_as_button'][href='config_xml_view_path']", :text => "Cancel")
               end
             end
-            with_tag("div#content_area") do
-              with_tag("textarea#content[spellcheck='false']", "config-content")
-              with_tag("input#go_config_md5[value='md5']")
+            admin.find("div#content_area").tap do |content_area|
+              expect(content_area).to have_selector("textarea#content[spellcheck='false']", :text => "config-content")
+              expect(content_area).to have_selector("input#go_config_md5[value='md5']")
             end
           end
         end
@@ -75,14 +75,14 @@ describe "admin/configuration/edit.html" do
     assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
     assign(:errors, ['some error that has happened', 'more lines'])
 
-    render 'admin/configuration/edit.html'
+    render
 
-    response.body.should have_tag("div.form_submit_errors") do
-      with_tag("div.errors") do
-        with_tag("h3", "The following error(s) need to be resolved in order to perform this action:")
-        with_tag("ul") do
-          with_tag("li.error", "some error that has happened")
-          with_tag("li.error", "more lines")  
+    Capybara.string(response.body).find('div.form_submit_errors').tap do |div|
+      div.find("div.errors").tap do |errors|
+        expect(errors).to have_selector("h3", :text => "The following error(s) need to be resolved in order to perform this action:")
+        errors.find("ul").tap do |ul|
+          expect(ul).to have_selector("li.error", :text => "some error that has happened")
+          expect(ul).to have_selector("li.error", :text => "more lines")
         end
       end
     end

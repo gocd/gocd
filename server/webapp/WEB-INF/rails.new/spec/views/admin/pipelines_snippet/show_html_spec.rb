@@ -24,14 +24,16 @@ describe "admin/pipelines_snippet/show.html.erb" do
     assign(:group_as_xml, group_xml)
     assign(:group_name, "foo")
     assign(:modifiable_groups, ["foo", "bar"])
-    render "admin/pipelines_snippet/show.html"
-    response.body.should have_tag("div#view_group") do
-      with_tag("pre#content_container", h(group_xml))
-      with_tag("a.edit[href='#{pipelines_snippet_edit_path(:group_name => 'foo')}']", 'Edit')
+
+    render
+
+    Capybara.string(response.body).find('div#view_group').tap do |div|
+      expect(div).to have_selector("pre#content_container", "&lt;foo&gt;&lt;/foo&gt;")
+      expect(div).to have_selector("a.edit[href='#{pipelines_snippet_edit_path(:group_name => 'foo')}']", :text => 'Edit')
     end
-    response.body.should have_tag("div#modifiable_groups") do
-      with_tag("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", 'foo')
-      with_tag("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", 'bar')
+    Capybara.string(response.body).find('div#modifiable_groups').tap do |div|
+      expect(div).to have_selector("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", :text => 'foo')
+      expect(div).to have_selector("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", :text => 'bar')
     end
   end
 end

@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/garage/index.html" do
+describe "admin/garage/index.html.erb" do
   before :each do
     @garage_data = mock('garage data')
     template.should_receive(:garage_gc_path).and_return('garage_gc_path')
@@ -27,12 +27,13 @@ describe "admin/garage/index.html" do
     @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
     assign(:garage_data, @garage_data)
 
-    render "admin/garage/index.html"
-    response.body.should have_tag("div#config_version_content") do
-      with_tag("h3", "Config Version Control GC")
-      with_tag("p", "Current size of the config.git directory is: #{size}")
-      with_tag("form[action='garage_gc_path'][method='post']") do
-        with_tag("input[type='submit'][value=?]", "Perform GC")
+    render
+
+    Capybara.string(response.body).find('div#config_version_content').tap do |div|
+      expect(div).to have_selector("h3", :text => "Config Version Control GC")
+      expect(div).to have_selector("p", :text => "Current size of the config.git directory is: #{size}")
+      div.find("form[action='garage_gc_path'][method='post']").tap do |form|
+        expect(form).to have_selector("input[type='submit'][value='Perform GC']")
       end
     end
   end
@@ -44,11 +45,12 @@ describe "admin/garage/index.html" do
     flash = {:notice => {:gc => "notice"}, :error => {:gc => "error"}}
     template.should_receive(:flash).any_number_of_times.and_return(flash)
 
-    render "admin/garage/index.html"
-    response.body.should have_tag("div#config_version_content") do
-      with_tag("div.flash") do
-        with_tag("p.notice code", "notice")
-        with_tag("p.error code", "error")
+    render
+
+    Capybara.string(response.body).find('div#config_version_content').tap do |div|
+      div.find("div.flash").tap do |flash|
+        expect(flash).to have_selector("p.notice code", :text => "notice")
+        expect(flash).to have_selector("p.error code", :text => "error")
       end
     end
   end

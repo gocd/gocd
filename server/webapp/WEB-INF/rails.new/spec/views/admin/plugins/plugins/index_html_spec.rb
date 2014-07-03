@@ -16,10 +16,10 @@
 
 require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
 
-def with_listItem class_name, key, value
-  with_tag("li.#{class_name}") do
-    with_tag("span.key", "#{key}")
-    with_tag("span.value", "#{value}")
+def with_listItem ul, class_name, key, value
+  ul.find("li.#{class_name}").tap do |li|
+    expect(li).to have_selector("span.key", :text => "#{key}")
+    expect(li).to have_selector("span.value", :text => "#{value}")
   end
 end
 
@@ -28,54 +28,54 @@ describe "admin/plugins/plugins/index.html.erb" do
   it "should list a set of plugins" do
     assign(:plugin_descriptors, [valid_descriptor("1"), invalid_descriptor('2', ['message1', 'message2'])])
 
-    render "admin/plugins/plugins/index.html.erb"
+    render
 
-    response.should have_tag("div#plugins-listing") do
-      without_tag("div.information")
-      with_tag("ul.plugins") do
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      expect(plugins_listing).not_to have_selector("div.information")
+      expect(plugins_listing).to have_selector("ul.plugins") do
 
-        with_tag("li.plugin.enabled[id='plugin1.id']") do
+        plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
 
-          with_tag("div.plugin-details") do
-            with_tag("span.name", "Name is 1")
-            with_tag("span.descriptor-id", "[plugin1.id]")
-            with_tag("span.smaller.version", "1.0.0")
-            with_tag("span.plugin-author.smaller") do
-              with_tag("span.key", "Author")
-              with_tag("span.value") do
-                with_tag("a[href='http://url/for/plugin/1']", "ThoughtWorks Go Team - Plugin 1")
+          li.find("div.plugin-details").tap do |plugin_details|
+            expect(plugin_details).to have_selector("span.name", :text => "Name is 1")
+            expect(plugin_details).to have_selector("span.descriptor-id", :text => "[plugin1.id]")
+            expect(plugin_details).to have_selector("span.smaller.version", :text => "1.0.0")
+            plugin_details.find("span.plugin-author.smaller").tap do |plugin_author|
+              expect(plugin_author).to have_selector("span.key", :text => "Author")
+              plugin_author.find("span.value").tap do |span|
+                expect(span).to have_selector("a[href='http://url/for/plugin/1']", :text => "ThoughtWorks Go Team - Plugin 1")
               end
             end
           end
 
-          with_tag("div.description", "Description for 1")
+          expect(plugins_listing).to have_selector("div.description", :text => "Description for 1")
 
-          with_tag("ul.more-info-detail") do
-            with_listItem("plugin-location", "Loaded from:", "/path/to/plugin1.jar")
-            with_listItem("plugin-target-oses", "Target operating systems:", "Linux, Windows")
-            with_listItem("plugin-target-go-version", "Target Go Version:", "13.3.0")
-            with_listItem("plugin-bundled-status", "Bundled:", "Yes")
+          li.find("ul.more-info-detail").tap do |ul|
+            with_listItem(ul, "plugin-location", "Loaded from:", "/path/to/plugin1.jar")
+            with_listItem(ul, "plugin-target-oses", "Target operating systems:", "Linux, Windows")
+            with_listItem(ul, "plugin-target-go-version", "Target Go Version:", "13.3.0")
+            with_listItem(ul, "plugin-bundled-status", "Bundled:", "Yes")
           end
         end
 
-        with_tag("li.plugin[id='plugin2.id']") do
+        plugins_listing.find("li.plugin[id='plugin2.id']").tap do |li|
 
-          with_tag("div.plugin-details") do
-            with_tag("span.name", "plugin2.id")
-            with_tag("span.version", "")
-            with_tag("span.plugin-author.smaller") do
-              with_tag("span.key", "Author")
-              with_tag("span.value", "Unknown")
+          li.find("div.plugin-details").tap do |plugin_details|
+            expect(plugin_details).to have_selector("span.name", :text => "plugin2.id")
+            expect(plugin_details).to have_selector("span.version", :text => "")
+            plugin_details.find("span.plugin-author.smaller").tap do |plugin_author|
+              expect(plugin_author).to have_selector("span.key", :text => "Author")
+              expect(plugin_author).to have_selector("span.value", :text => "Unknown")
             end
           end
 
-          with_tag("div.description", "No description available.")
+          expect(plugins_listing).to have_selector("div.description", :text => "No description available.")
 
-          with_tag("ul.more-info-detail") do
-            with_listItem("plugin-location", "Loaded from:", "/path/to/plugin2.jar")
-            with_listItem("plugin-target-oses", "Target operating systems:", "No restrictions")
-            with_listItem("plugin-target-go-version", "Target Go Version:", "Unknown")
-            with_listItem("plugin-bundled-status", "Bundled:", "No")
+          li.find("ul.more-info-detail").tap do |ul|
+            with_listItem(ul, "plugin-location", "Loaded from:", "/path/to/plugin2.jar")
+            with_listItem(ul, "plugin-target-oses", "Target operating systems:", "No restrictions")
+            with_listItem(ul, "plugin-target-go-version", "Target Go Version:", "Unknown")
+            with_listItem(ul, "plugin-bundled-status", "Bundled:", "No")
           end
         end
       end
@@ -85,15 +85,15 @@ describe "admin/plugins/plugins/index.html.erb" do
   it "should add http:// to url if not specified" do
     assign(:plugin_descriptors, [valid_descriptor_without_http("1")])
 
-    render "admin/plugins/plugins/index.html.erb"
+    render
 
-    response.should have_tag("div#plugins-listing") do
-      with_tag("ul.plugins") do
-        with_tag("li.plugin.enabled[id='plugin1.id']") do
-          with_tag("span.plugin-author") do
-            with_tag("span.key", "Author")
-            with_tag("span.value") do
-              with_tag("a[href='http://url/for/plugin/1'][target='_blank']", "ThoughtWorks Go Team - Plugin 1")
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("ul.plugins").tap do |ul|
+        ul.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
+          li.find("span.plugin-author").tap do |span|
+            expect(span).to have_selector("span.key", "Author")
+            span.find("span.value").tap do |value|
+              expect(value).to have_selector("a[href='http://url/for/plugin/1'][target='_blank']", :text => "ThoughtWorks Go Team - Plugin 1")
             end
           end
         end
@@ -105,12 +105,13 @@ describe "admin/plugins/plugins/index.html.erb" do
     description = valid_descriptor("1")
     assign(:plugin_descriptors, [description])
 
-    render "admin/plugins/plugins/index.html.erb"
+    render
 
     description.status().messages().length.should be 0
-    response.should have_tag("div#plugins-listing") do
-      with_tag("li.plugin.enabled[id='plugin1.id']") do
-        without_tag("div.plugin-messages")
+
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
+        expect(li).not_to have_selector("div.plugin-messages")
       end
     end
   end
@@ -119,15 +120,15 @@ describe "admin/plugins/plugins/index.html.erb" do
     description = invalid_descriptor('2', ['message1', 'message2'])
     assign(:plugin_descriptors, [description])
 
-    render "admin/plugins/plugins/index.html.erb"
+    render
 
-    response.should have_tag("div#plugins-listing") do
-      with_tag("li.plugin.disabled[id='plugin2.id']") do
-        with_tag("div.plugin-messages") do
-          with_tag("span", "Messages:")
-          with_tag("ul") do
-            with_tag("li", "message1")
-            with_tag("li", "message2")
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("li.plugin.disabled[id='plugin2.id']").tap do |li|
+        li.find("div.plugin-messages").tap do |plugin_messages|
+          expect(plugin_messages).to have_selector("span", :text => "Messages:")
+          plugin_messages.find("ul").tap do |ul|
+            expect(ul).to have_selector("li", :text => "message1")
+            expect(ul).to have_selector("li", :text => "message2")
           end
         end
       end
@@ -137,11 +138,11 @@ describe "admin/plugins/plugins/index.html.erb" do
   it "should display proper message when no plugins are found" do
     assign(:plugin_descriptors, [])
 
-    render "admin/plugins/plugins/index.html.erb"
+    render
 
-    response.should have_tag("div#plugins-listing") do
-      with_tag("div.information", "No plugins found. Please drop your plugin here at this location:")
-      without_tag("li.plugin")
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      expect(plugins_listing).to have_selector("div.information", :text => "No plugins found. Please drop your plugin here at this location:")
+      expect(plugins_listing).not_to have_selector("li.plugin")
     end
   end
 

@@ -4,4 +4,6 @@ gem 'rails', '4.0.4'
 
 gem 'validatable', '>=1.6.0'
 
+gem 'dynamic_form'
+
 gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'

@@ -203,7 +203,7 @@ public class ConsoleOutMatcher {
                 try {
                     this.consoleOut = consoleOut;
                     this.message = "Failed to upload " + file.getCanonicalPath();
-                    return StringUtils.contains(consoleOut, message);
+                    return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
                 } catch (IOException e) {
                     return false;
                 }

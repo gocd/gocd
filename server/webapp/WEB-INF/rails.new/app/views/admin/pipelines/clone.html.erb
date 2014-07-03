@@ -1,7 +1,7 @@
 <div class="clone_pipeline">
     <%= render(:partial => "shared/flash_message") %>
     <%= render :partial => "shared/config_save_actions", :locals => { :scope => {}}-%>
-    <% form_for :pipeline_group, @pipeline_group, :url => pipeline_save_clone_path(:pipeline_name => params[:pipeline_name]), :html => {:method => :post, :id => "pipeline_clone_form", :onsubmit => "return AjaxForm.jquery_ajax_submit(this);"} do |f| %>
+    <%= form_for @pipeline_group, :as => :pipeline_group, :url => pipeline_save_clone_path(:pipeline_name => params[:pipeline_name]), :html => {:method => :post, :id => "pipeline_clone_form", :onsubmit => "return AjaxForm.jquery_ajax_submit(this);"} do |f| %>
         <%= md5_field -%>
         <div class="form_content">
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>

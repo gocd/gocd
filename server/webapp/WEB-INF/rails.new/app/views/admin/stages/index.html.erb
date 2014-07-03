@@ -1,7 +1,7 @@
 <h3><%= l.string("STAGES") %></h3>
 
 <% if (params[:stage_parent] == "pipelines") %>
-    <% form_for :pipeline, @pipeline, :url => admin_stage_listing_path(), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
+    <%= form_for @pipeline, :as => :pipeline, :url => admin_stage_listing_path(), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
         <%= md5_field %>
 
         <%= render :partial => "admin/shared/stage_configuration_type.html", :locals => {:scope => {:form => f, :pipeline => @pipeline}} -%>
@@ -69,7 +69,7 @@
             <% @pipeline.each_with_index do |stage_config, stage_config_index| %>
                 <tr class="stage_<%= stage_config.name() %>">
                     <td>
-                        <% form_for :stage_config, stage_config, :url => {:action => "decrement_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]},
+                        <%= form_for stage_config, :as => :stage_config, :url => {:action => "decrement_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]},
                                     :html => {:method => :post} do |f| %>
                             <%= md5_field %>
                             <% unless stage_config_index == 0 %>
@@ -78,7 +78,7 @@
                                 </button>
                             <% end %>
                         <% end %>
-                        <% form_for :stage_config, stage_config, :url => {:action => "increment_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]}, :html => {:method => :post} do |f| %>
+                        <%= form_for stage_config, :as => :stage_config, :url => {:action => "increment_index", :stage_name => stage_config.name(), :pipeline_name => @pipeline.name(), :type => params[:type]}, :html => {:method => :post} do |f| %>
                             <%= md5_field %>
                             <% unless stage_config_index == @pipeline.size()-1 %>
                                 <button type="submit" value="" class="promote_button" title="<%= l.string("MOVE_STAGE_DOWN") %>">
@@ -99,7 +99,7 @@
                             <!-- <span class="icon_cannot_remove has_go_tip_right" title=""></span> -->
                         <% else %>
                             <% unique_stage_delete_id = random_dom_id("delete_stage_") %>
-                            <% form_for :stage_config, stage_config, :url => {:action => "destroy", :stage_name => stage_config.name()},
+                            <%= form_for stage_config, :as => :stage_config, :url => {:action => "destroy", :stage_name => stage_config.name()},
                                         :html => {:id => "#{unique_stage_delete_id}", :method => :delete} do |f| %>
                                 <%= md5_field %>
                                 <span class="icon_remove delete_parent" id="trigger_<%= unique_stage_delete_id %>">

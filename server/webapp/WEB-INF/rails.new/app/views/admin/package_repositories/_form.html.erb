@@ -15,7 +15,7 @@
             <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
             <div id="ajax_form_submit_errors" class="form_submit_errors">
             </div>
-            <% form_for "package_repository", scope[:package_repository], :url => scope[:url], :html => {:method => scope[:method], :id => "package_repositories_edit_form"} do |f| %>
+            <%= form_for scope[:package_repository], :as => "package_repository", :url => scope[:url], :html => {:method => scope[:method], :id => "package_repositories_edit_form"} do |f| %>
                 <fieldset>
                     <div class="hidden">
                         <%= md5_field %>

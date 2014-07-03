@@ -1,6 +1,7 @@
 <h3><%= l.string('STAGE_SETTINGS') %></h3>
 
-<% form_for(:stage, @stage,
+<%= form_for(@stage,
+                :as => :stage,
                 :url => admin_stage_update_path,
                 :html => {:method => "PUT",
                           :id => "stage_edit_form",

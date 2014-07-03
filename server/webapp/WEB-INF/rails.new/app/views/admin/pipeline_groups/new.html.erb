@@ -1,7 +1,8 @@
 <div id="new_pipeline_group_container">
     <%= render(:partial => "shared/flash_message") %>
     <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
-    <% form_for(:group, @group,
+    <%= form_for(@group,
+                :as => :group,
                 :method => :post,
                 :url => pipeline_group_create_path,
                 :html => {:method => "POST", :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>

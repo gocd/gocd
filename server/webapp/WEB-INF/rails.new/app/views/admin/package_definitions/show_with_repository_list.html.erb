@@ -35,7 +35,7 @@
 
 
                 <% if @package_to_pipeline_map.get(params[:package_id]) == nil %>
-                    <% form_for @package_configuration, :url => {:action => "destroy", :repo_id => params[:repo_id], :package_id => params[:package_id]}, :html => {:id => :delete_package_form, :method => :delete} do |f| %>
+                    <%= form_for @package_configuration, :url => {:action => "destroy", :repo_id => params[:repo_id], :package_id => params[:package_id]}, :html => {:id => :delete_package_form, :method => :delete} do |f| %>
                             <%= md5_field %>
                             <span id="trigger_package_delete_<%=params[:package_id]%>">
                                  <div class="form_buttons">

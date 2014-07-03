@@ -4,7 +4,7 @@
     <%= render :partial => "pipeline_group_list", :locals => {:scope => {:modifiable_groups => @modifiable_groups, :group_name => @group_name}} %>
 
     <div id="edit_group">
-        <% form_for @group_name,
+        <%= form_for @group_name,
                     :url => pipelines_snippet_update_path(:group_name => @group_name),
                     :html => {:method => :put,
                               :id => "group_edit_form"} do |form| %>

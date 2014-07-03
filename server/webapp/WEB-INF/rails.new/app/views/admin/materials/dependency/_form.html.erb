@@ -1,7 +1,7 @@
 <%= render(:partial => "shared/flash_message") %>
 <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
-<% form_for(:material, scope[:material],
-            :url => scope[:url],
+<%= form_for(scope[:material],
+            :as => :material, :url => scope[:url],
             :html => {:method => scope[:method],
                       :onsubmit => "return AjaxForm.jquery_ajax_submit(this);",
                       :class => "popup_form"}) do |f| %>

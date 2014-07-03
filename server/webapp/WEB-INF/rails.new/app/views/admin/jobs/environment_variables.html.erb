@@ -1,6 +1,7 @@
 <h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3>
 <span title="<%= l.string("TOOLTIP_ENVIRONMENT_VARIABLES") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
-<% form_for :job, @job,
+<%= form_for @job,
+                :as => :job,
                 :url => admin_job_update_path(:current_tab => "environment_variables"),
                 :html => {:method => :put,
                           :id => "job_edit_form",

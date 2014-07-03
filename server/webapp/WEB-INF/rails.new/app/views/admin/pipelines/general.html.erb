@@ -1,6 +1,6 @@
 <h3><%= l.string("BASIC_SETTINGS") %></h3>
 
-<% form_for :pipeline, @pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'general'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
+<%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'general'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
     <%= md5_field %>
     <div class="fieldset">
         <div class="form_item">

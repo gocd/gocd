@@ -1,6 +1,7 @@
 <h3><%= l.string("TABS") %></h3>
 <span title="<%= l.string("TOOLTIP_TABS") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
-<% form_for :job, @job,
+<%= form_for @job,
+                :as => :job,
                 :url => admin_job_update_path(:current_tab => "tabs"),
                 :html => {:method => :put,
                           :id => "job_edit_form",

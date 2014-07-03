@@ -4,7 +4,7 @@
 <div class="content_wrapper_inner">
     <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
 
-    <% form_for :pipeline_group, @pipeline_group, :url => pipeline_create_path, :html => {"novalidate"=> "novalidate", :method => :post, :name => "pipeline_edit_form", :id => "pipeline_edit_form"} do |f| %>
+    <%= form_for @pipeline_group, :as => :pipeline_group, :url => pipeline_create_path, :html => {"novalidate"=> "novalidate", :method => :post, :name => "pipeline_edit_form", :id => "pipeline_edit_form"} do |f| %>
         <%= md5_field -%>
         <div class="steps_wrapper sub_tabs_container">
             <ul class="tabs">

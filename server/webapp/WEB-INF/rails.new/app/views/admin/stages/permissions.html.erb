@@ -1,7 +1,8 @@
 <h3><%= l.string('PERMISSIONS') %></h3>
 
     <div class="instructions"><%= l.string("ADMIN_GROUP_ADMINS_CAN_OPERATE_MESSAGE") %></div>
-    <% form_for(:stage, @stage,
+    <%= form_for(@stage,
+                :as => :stage,
                 :url => admin_stage_update_path,
                 :html => {:method => "PUT",
                           :id => "stage_permissions_edit_form",

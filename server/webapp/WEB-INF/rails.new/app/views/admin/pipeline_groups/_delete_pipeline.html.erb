@@ -1,6 +1,6 @@
 <% pipeline_to_be_deleted_name = scope[:pipeline].name() %>
 <% unique_id_for_pipeline = random_dom_id("delete_pipeline_") %>
-<% form_for :pipeline, scope[:pipeline], :url => {:action => "destroy", :pipeline_name => pipeline_to_be_deleted_name}, :html => {:id => "#{unique_id_for_pipeline}_form", :method => :delete} do |f| %>
+<%= form_for scope[:pipeline], :as => :pipeline, :url => {:action => "destroy", :pipeline_name => pipeline_to_be_deleted_name}, :html => {:id => "#{unique_id_for_pipeline}_form", :method => :delete} do |f| %>
     <%= md5_field %>
     <% can_delete =  scope[:pipeline_to_can_delete][pipeline_to_be_deleted_name]
        message = can_delete.message().localize(Spring.bean("localizer"))

@@ -29,7 +29,7 @@
                         <% if material.isUsedInLabelTemplate(@pipeline) %>
                             <%= action_icon({:type => "delete", :disabled => true, :title => l.string("MATERIAL_NAME_IN_LABEL")}) %>
                         <% else %>
-                            <% form_for material, :url => admin_material_delete_path(:pipeline_name => @pipeline.name(), :finger_print => material.getPipelineUniqueFingerprint()),
+                            <%= form_for material, :url => admin_material_delete_path(:pipeline_name => @pipeline.name(), :finger_print => material.getPipelineUniqueFingerprint()),
                                         :html => {:id => "delete_material_#{material.getPipelineUniqueFingerprint()}", :method => "delete"} do |f| %>
                                 <%= md5_field %>
                                 <span class="icon_remove delete_parent" title="<%= l.string("REMOVE_THIS_MATERIAL") %>" id="trigger_delete_material_<%= material.getPipelineUniqueFingerprint() %>">

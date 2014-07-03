@@ -1,6 +1,7 @@
 <h3><%= l.string('JOB_SETTINGS') %></h3>
 
-<% form_for :job, @job,
+<%= form_for @job,
+                :as => :job,
                 :url => admin_job_update_path(:current_tab => "settings"),
                 :html => {:method => :put,
                           :id => "job_edit_form",

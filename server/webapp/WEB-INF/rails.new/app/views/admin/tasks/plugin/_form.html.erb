@@ -1,6 +1,6 @@
 <%= render(:partial => "shared/flash_message") %>
 <%= render :partial => "shared/config_save_actions" -%>
-<% form_for(:task, scope[:task], :url => scope[:url], :html => {"novalidate"=> "novalidate", :id=> "task_form", :name=> "task_form", :method => scope[:method], :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
+<%= form_for(scope[:task], :as => :task, :url => scope[:url], :html => {"novalidate"=> "novalidate", :id=> "task_form", :name=> "task_form", :method => scope[:method], :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
     <%= md5_field %>
     <div class="form_content exec_task_editor">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>

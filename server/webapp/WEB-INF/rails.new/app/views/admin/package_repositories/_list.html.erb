@@ -20,7 +20,7 @@
 
                 <div class="entity">
                     <%= link_to repo.getName(), package_repositories_edit_path(:id => repo.getId()) -%>
-                    <% form_for :repo, repo, :url => package_repositories_delete_path(:id => repo.getId()), :html => {:id => "delete_repository_"+repo.getId, :method => :delete} do |f| %>
+                    <%= form_for repo, :as => :repo, :url => package_repositories_delete_path(:id => repo.getId()), :html => {:id => "delete_repository_"+repo.getId, :method => :delete} do |f| %>
                         <% if @cruise_config.canDeletePackageRepository(repo) %>
                             <%= md5_field %>
                             <button title='<%= l.string("DELETE_REPOSITORY") %>' type="button" class="remove" id="button_for_repository_delete_from_tree_<%= repo.getId() %>"></button>
@@ -40,7 +40,7 @@
                             <li title="<%= pkg.getName() -%>" class="<%= pkg.getId() == scope[:package_id] ? 'selected' :'' %>">
                                 <div class="entity">
                                     <%= link_to pkg.getName(), package_definitions_show_with_repository_list_path(:repo_id => repo.getId(), :package_id => pkg.getId()) -%>
-                                    <% form_for :pkg, pkg, :url => package_definition_delete_path(:repo_id => repo.getId(), :package_id => pkg.getId()), :html => {:id => "delete_package_"+pkg.getId, :method => :delete} do |f| %>
+                                    <%= form_for pkg, :as => :pkg, :url => package_definition_delete_path(:repo_id => repo.getId(), :package_id => pkg.getId()), :html => {:id => "delete_package_"+pkg.getId, :method => :delete} do |f| %>
 
                                         <% if scope[:package_to_pipeline_map].get(pkg.getId()) == nil %>
                                             <%= md5_field %>

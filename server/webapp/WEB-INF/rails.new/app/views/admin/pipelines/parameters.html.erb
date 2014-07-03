@@ -1,7 +1,7 @@
 <h3><%= l.string("PARAMETERS") %></h3>
 <span title="<%= l.string("TOOLTIP_PARAMETERS") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
 
-<% form_for :pipeline, @pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'parameters'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
+<%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'parameters'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
     <div class="fieldset">
         <%= md5_field %>
         <%= register_defaultable_list("pipeline>params") %>

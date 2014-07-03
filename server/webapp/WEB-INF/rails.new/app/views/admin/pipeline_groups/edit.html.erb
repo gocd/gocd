@@ -1,7 +1,7 @@
 <% @view_title = "Edit Pipeline Group" -%>
 
 <div class="admin_workspace">
-    <% form_for(:group, @group, :url => pipeline_group_update_path, :html => {:method => "PUT", :id => "group_edit_form"}) do |f| %>
+    <%= form_for(@group, :as => :group, :url => pipeline_group_update_path, :html => {:method => "PUT", :id => "group_edit_form"}) do |f| %>
 
         <div class="form_content">
             <h3><%= l.string("BASIC_SETTINGS") -%></h3>

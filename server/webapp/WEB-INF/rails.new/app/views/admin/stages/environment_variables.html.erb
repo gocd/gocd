@@ -2,7 +2,8 @@
 <span title="<%= l.string("TOOLTIP_ENVIRONMENT_VARIABLES") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
 
 
-<% form_for(:stage, @stage,
+<%= form_for(@stage,
+            :as => :stage,
             :url => admin_stage_update_path,
             :html => {:method => "PUT",
                       :id => "stage_edit_form",

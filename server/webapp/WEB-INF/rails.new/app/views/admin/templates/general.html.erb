@@ -1,5 +1,5 @@
 <h3><%= l.string("BASIC_SETTINGS") %></h3>
-<% form_for :template, @pipeline, :url => template_update_path(:pipeline_name => @pipeline.name(), :stage_parent => "templates", :current_tab => 'general'), :html => {:method => "put", :id => "template_edit_form"} do |f| %>
+<%= form_for @pipeline, :as => :template, :url => template_update_path(:pipeline_name => @pipeline.name(), :stage_parent => "templates", :current_tab => 'general'), :html => {:method => "put", :id => "template_edit_form"} do |f| %>
     <%= md5_field %>
     <div class="fieldset">
         <div class="form_item">

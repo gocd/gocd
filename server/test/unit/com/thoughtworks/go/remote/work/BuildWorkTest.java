@@ -331,7 +331,7 @@ public class BuildWorkTest {
         artifactManipulator.printConsoleOut();
         File basedir = new File("pipelines/pipeline1");
 
-        assertThat(actual.toLowerCase(), containsString("Uploading artifacts from " + new File(basedir, "cruise-output/log.xml").getCanonicalPath().toLowerCase()));
+        assertThat(actual.toLowerCase(), containsString(("Uploading artifacts from " + new File(basedir, "cruise-output/log.xml").getCanonicalPath()).toLowerCase()));
 
         Map<String, File> uploadedFiles = httpService.getUploadedFiles();
 

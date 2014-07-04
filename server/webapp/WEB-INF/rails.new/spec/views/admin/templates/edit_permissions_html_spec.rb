@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
-describe "admin/templates/edit_permissions.html" do
+describe "admin/templates/edit_permissions.html.erb" do
   include GoUtil, ReflectiveUtil
 
   before(:each) do
@@ -34,7 +34,7 @@ describe "admin/templates/edit_permissions.html" do
   end
 
   it "should render template edit permissions form with grid for users" do
-    render "admin/templates/edit_permissions.html"
+    render
 
     response.body.should have_tag("form[action='/admin/templates/some_template/permissions'][method='post']") do
       with_tag("input[type='hidden'][name='config_md5'][value='abcd1234']")

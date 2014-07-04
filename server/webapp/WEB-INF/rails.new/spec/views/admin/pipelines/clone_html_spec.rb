@@ -32,7 +32,7 @@ describe "admin/pipelines/clone.html.erb" do
     set(@cruise_config, "md5", "abc")
     template.stub(:is_user_a_group_admin?).and_return(false)
 
-    render "/admin/pipelines/clone.html"
+    render
 
     response.body.should have_tag("form[method='post']") do
       with_tag("label[for='pipeline_group_pipeline_name']", "New Pipeline Name*")

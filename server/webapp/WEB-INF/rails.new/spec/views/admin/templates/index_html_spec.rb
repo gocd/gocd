@@ -38,7 +38,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display the list of all the templates and the pipelines in it" do
-    render "admin/templates/index.html"
+    render
 
     assigns[:tab_name].should == "templates"
 
@@ -90,7 +90,7 @@ describe "admin/templates/index.html.erb" do
     template.stub(:is_user_a_template_admin?).and_return(true)
     template.stub(:is_user_an_admin?).and_return(true)
 
-    render "admin/templates/index.html"
+    render
 
     assigns[:tab_name].should == "templates"
 
@@ -141,7 +141,9 @@ describe "admin/templates/index.html.erb" do
   it "should display that there are pipelines using this template but not show pipelines if user is template admin" do
     template.stub(:is_user_a_template_admin?).and_return(true)
     template.stub(:is_user_an_admin?).and_return(false)
-    render "admin/templates/index.html"
+
+    render
+
     assigns[:tab_name].should == "templates"
 
     response.body.should have_tag(".templates") do
@@ -179,7 +181,7 @@ describe "admin/templates/index.html.erb" do
   it "should display a message when there are no templates configured" do
     assign(:template_to_pipelines, {})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".information", "There are no templates configured")
@@ -191,7 +193,7 @@ describe "admin/templates/index.html.erb" do
   it "should display a link to create a new template when running enterprise mode" do
     assign(:template_to_pipelines, {})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag("a[href='#'][class='add_link']", "Add New Template")
@@ -203,7 +205,7 @@ describe "admin/templates/index.html.erb" do
     template.stub(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag("span[title=?]", "You are unauthorized to perform this operation. Please contact a Go System Administrator to create a template.")
@@ -215,7 +217,7 @@ describe "admin/templates/index.html.erb" do
     template.stub(:is_user_an_admin?).and_return(true)
     assign(:template_to_pipelines, {})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag("a[href='#'][class='add_link']", "Add New Template")
@@ -225,7 +227,7 @@ describe "admin/templates/index.html.erb" do
   it "should display a link to create a new template when running enterprise mode with templates already configured" do
     assign(:template_to_pipelines, {"template1" => to_list(["pipeline1", "pipeline2"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag("a[href='#'][class='add_link']", "Add New Template")
@@ -236,7 +238,7 @@ describe "admin/templates/index.html.erb" do
 
     assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do
@@ -249,10 +251,9 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a delete button next to the template name" do
-
     assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do
@@ -277,7 +278,7 @@ describe "admin/templates/index.html.erb" do
     template.stub(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do
@@ -293,7 +294,7 @@ describe "admin/templates/index.html.erb" do
 
     assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do
@@ -319,7 +320,7 @@ describe "admin/templates/index.html.erb" do
 
     assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do
@@ -335,7 +336,8 @@ describe "admin/templates/index.html.erb" do
 
     assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
+
     response.body.should have_tag(".templates") do
       with_tag(".template") do
         with_tag("h2", "used_template")
@@ -347,10 +349,9 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display an edit button next to the template name" do
-
     assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
 
-    render "admin/templates/index.html.erb"
+    render
 
     response.body.should have_tag(".templates") do
       with_tag(".template") do

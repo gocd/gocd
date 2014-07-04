@@ -35,7 +35,7 @@ describe "admin/jobs/index.html.erb" do
   end
 
   it "should show appropriate headers in table" do
-    render 'admin/jobs/index.html.erb'
+    render
     response.body.should have_tag("table.list_table") do
       with_tag("th", "Job")
       with_tag("th", "Resources")
@@ -46,7 +46,9 @@ describe "admin/jobs/index.html.erb" do
 
   it "should show job listing" do
     template.stub(:random_dom_id).and_return("delete_job_random_id")
-    render 'admin/jobs/index.html.erb'
+
+    render
+
     response.body.should have_tag("table.list_table") do
       with_tag("tr") do
         with_tag("td", "job-1") do

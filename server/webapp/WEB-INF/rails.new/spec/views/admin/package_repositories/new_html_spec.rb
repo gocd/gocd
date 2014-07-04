@@ -32,12 +32,14 @@ describe "admin/package_repositories/new.html.erb" do
   describe "new.html" do
 
     it "should have a page title and view title" do
-      render "/admin/package_repositories/new.html"
+      render
+
       assigns[:view_title].should == "Administration"
     end
 
     it "should have package repository listing panel" do
-      render "/admin/package_repositories/new.html"
+      render
+
       response.body.should have_tag("div#package-repositories") do
         with_tag ".navigation"
         with_tag("a.add", "Add New Repository")
@@ -45,7 +47,8 @@ describe "admin/package_repositories/new.html.erb" do
     end
     
     it "should have ajax_form_submit_errors div" do
-      render "/admin/package_repositories/new.html"
+      render
+
       response.body.should have_tag("div#package-repositories") do
         with_tag("#ajax_form_submit_errors.form_submit_errors")
       end
@@ -54,7 +57,9 @@ describe "admin/package_repositories/new.html.erb" do
 
     it "should have add package repository form" do
       template.stub(:package_material_plugins).and_return([["[Select]", ""], "pluginid"])
-      render "/admin/package_repositories/new.html"
+
+      render
+
       response.body.should have_tag("h2","Add Package RepositoryWhat is a Package Repository?")
       response.body.should have_tag("div#package-repositories form[method='post']") do
         with_tag "label[for='package_repository_name']"
@@ -76,7 +81,9 @@ describe "admin/package_repositories/new.html.erb" do
 
     it "should display message next to select box if no plugins found" do
       template.stub(:package_material_plugins).and_return([["[Select]", ""]])
-      render "/admin/package_repositories/new.html"
+
+      render
+
       with_tag "select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']" do
         with_tag("option[value='']","[Select]")
       end

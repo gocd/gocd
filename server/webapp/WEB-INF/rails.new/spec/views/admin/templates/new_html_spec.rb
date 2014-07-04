@@ -32,7 +32,7 @@ describe "admin/templates/new.html.erb" do
     template.stub(:allow_pipeline_selection?).and_return(true)
     assign(:pipeline, PipelineTemplateConfigViewModel.new)
     
-    render "admin/templates/new.html"
+    render
 
     response.body.should have_tag("form[action='template_create_path'][method='post']") do
       with_tag("input[name='config_md5'][value='abcd1234']")
@@ -45,7 +45,7 @@ describe "admin/templates/new.html.erb" do
     foo = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, nil, java.util.Arrays.asList([PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline.2"), PipelineConfigMother.pipelineConfig("Foo")].to_java(PipelineConfig)))
     assign(:pipeline, foo)
 
-    render "admin/templates/new.html"
+    render
 
     response.body.should have_tag("form[action='template_create_path'][method='post']") do
       with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]']")
@@ -71,8 +71,7 @@ describe "admin/templates/new.html.erb" do
     assign(:pipeline, vm = PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1',java.util.Arrays.asList([PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline.2"), PipelineConfigMother.pipelineConfig("Foo")].to_java(PipelineConfig))))
     vm.setConfigAttributes( {"template" => {"name" => ""}, "useExistingPipeline" => "1", "pipelineNames" => "pipeline1", "selectedPipelineName" => "pipeline1"})
 
-
-    render "admin/templates/new.html"
+    render
 
     response.body.should have_tag("form[action='template_create_path'][method='post']") do
       with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]']")
@@ -88,7 +87,7 @@ describe "admin/templates/new.html.erb" do
     template.stub(:allow_pipeline_selection?).and_return(true)
     assign(:pipeline, PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new()))
 
-    render "admin/templates/new.html"
+    render
 
     response.body.should have_tag("form[action='template_create_path'][method='post']") do
       with_tag("div.contextual_help.has_go_tip_right[title='No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.']")
@@ -104,7 +103,7 @@ describe "admin/templates/new.html.erb" do
     assign(:pipeline, PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, 'pipeline1', java.util.ArrayList.new()))
     params[:pipelineToExtractFrom] = "temp_pipeline"
 
-    render "admin/templates/new.html"
+    render
 
     response.body.should have_tag("form[action='template_create_path'][method='post']") do
       with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='1']")

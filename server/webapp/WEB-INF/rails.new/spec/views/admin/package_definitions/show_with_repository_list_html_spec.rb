@@ -17,7 +17,7 @@
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 include GoUtil, FormUI
 
-describe "show_with_repository_list.html.erb" do
+describe "admin/package_definitions/show_with_repository_list.html.erb" do
   before(:each) do
 
     # package repo setup
@@ -61,7 +61,7 @@ describe "show_with_repository_list.html.erb" do
 
       in_params(:repo_id => "id1",:package_id => "pid1")
 
-      render "admin/package_definitions/show_with_repository_list.html"
+      render
 
       response.body.should have_tag(".field label", "Package Name")
       response.body.should have_tag(".field input[type='text'][value='package-name']")
@@ -76,7 +76,7 @@ describe "show_with_repository_list.html.erb" do
 
       in_params(:repo_id => "id1",:package_id => "pid1")
 
-      render "admin/package_definitions/show_with_repository_list.html"
+      render
 
       response.body.should have_tag("a[id='show_pipelines_used_in']","Show pipelines using this package")
       response.body.should have_tag("button[id='delete_package'][disabled='disabled'][title='This package is being used in one or more pipeline(s), cannot delete the package']","Delete")
@@ -86,7 +86,7 @@ describe "show_with_repository_list.html.erb" do
 
       in_params(:repo_id => "id1",:package_id => "pid2")
 
-      render "admin/package_definitions/show_with_repository_list.html"
+      render
 
       response.body.should have_tag("div.information","No Pipelines currently use this package")
 

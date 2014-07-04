@@ -38,7 +38,8 @@ describe "admin/stages/settings.html.erb" do
   describe "stage approval" do
 
     it "should have manual, success and custom approval options" do
-      render "admin/stages/settings.html.erb"
+      render
+
       response.body.should have_tag("form") do
         with_tag("label[for='auto']", "On Success")
         with_tag("input#auto[type='radio'][name='stage[approval][type]'][value='success']")

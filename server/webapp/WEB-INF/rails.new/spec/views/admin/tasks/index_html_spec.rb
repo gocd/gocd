@@ -40,7 +40,7 @@ describe "admin/tasks/index.html.erb" do
   end
 
   it "should show tasks" do
-    render "admin/tasks/index.html"
+    render
 
     response.body.should have_tag("table.list_table") do
       with_tag("tr") do
@@ -145,7 +145,7 @@ describe "admin/tasks/index.html.erb" do
       template.should_receive(:admin_task_new_path).with(:type => AntTask.new.getTaskType())
       template.should_receive(:admin_task_new_path).with(:type => NantTask.new.getTaskType())
 
-      render "admin/tasks/index.html"
+      render
 
       response.body.should have_tag("#new_task_popup ul") do
         with_tag("li a[href='#']", "More...")
@@ -169,7 +169,7 @@ describe "admin/tasks/index.html.erb" do
       template.should_receive(:task_css_class).with("ant").and_return("")
       template.should_receive(:task_css_class).with("nant").and_return("")
 
-      render "admin/tasks/index.html"
+      render
 
       response.body.should have_tag("#new_task_popup ul") do
         with_tag("li a.foo", "More...")
@@ -205,7 +205,7 @@ describe "admin/tasks/index.html.erb" do
         assign(:tasks, [@task_1])
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag("table.list_table") do
           with_tag("tr") do
@@ -222,7 +222,7 @@ describe "admin/tasks/index.html.erb" do
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
         @tvm_2.stub(:getTypeForDisplay).and_return("MAVEN")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag("table.list_table") do
           with_tag("tr") do
@@ -236,7 +236,7 @@ describe "admin/tasks/index.html.erb" do
         @tvm_1.stub(:getTypeForDisplay).and_return("CURL")
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag("table.list_table") do
           with_tag("tr.missing_plugin") do
@@ -251,7 +251,7 @@ describe "admin/tasks/index.html.erb" do
         assign(:tasks, [@builtin_task_1])
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag('table.list_table') do
           with_tag("td.has_on_cancel") do
@@ -266,7 +266,7 @@ describe "admin/tasks/index.html.erb" do
         assign(:tasks, [@task_3])
         @tvm_3.stub(:getTypeForDisplay).and_return("MISSING")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag('table.list_table') do
           with_tag("tr.missing_plugin") do
@@ -284,7 +284,7 @@ describe "admin/tasks/index.html.erb" do
         assign(:tasks, [@builtin_task_1])
         @tvm_2.stub(:getTypeForDisplay).and_return("MAVEN")
 
-        render "admin/tasks/index.html"
+        render
 
         response.body.should have_tag("table.list_table") do
           with_tag("tr") do

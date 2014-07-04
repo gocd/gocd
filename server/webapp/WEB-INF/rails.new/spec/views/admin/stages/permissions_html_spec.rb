@@ -35,13 +35,13 @@ describe "admin/stages/permissions.html.erb" do
   end
 
   it "should have title Permissions" do
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("h3", "Permissions")
   end
 
   it "should show only-pipeline-group-operators message when pipeline group has permissions configured" do
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("div.information", "The pipeline group that this pipeline belongs to has permissions configured. You can add only those users and roles that have permissions to operate on this pipeline group.")
   end
@@ -49,14 +49,14 @@ describe "admin/stages/permissions.html.erb" do
   it "should not show only-pipeline-group-operators message when pipeline group has no permissions configured" do
     @group.setAuthorization(Authorization.new())
 
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should_not have_tag("div.information", /pipeline group that this pipeline belongs to has permissions configured/)
   end
 
 
   it "should show inherit or specify locally radio buttons" do
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("form") do
       with_tag("input[type='hidden'][name='config_md5'][value='abc']") #Check the md5
@@ -72,7 +72,8 @@ describe "admin/stages/permissions.html.erb" do
 
   it "should select inherit and show a message when both group and stage has no security" do
     @group.setAuthorization(Authorization.new())
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+
+    render
 
     response.body.should have_tag("form") do
       with_tag(".form_item.security_mode") do #check that inherit radio is selected
@@ -93,7 +94,7 @@ describe "admin/stages/permissions.html.erb" do
     StageConfigMother::addApprovalWithUsers(@stage, ["user1", "user2"].to_java(java.lang.String)) #Add stage level security. There is no pipeline group security
     StageConfigMother::addApprovalWithRoles(@stage, ["role1", "role2"].to_java(java.lang.String))
 
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("form") do
       with_tag(".form_item.security_mode") do
@@ -124,7 +125,7 @@ describe "admin/stages/permissions.html.erb" do
     StageConfigMother::addApprovalWithUsers(@stage, ["user1"].to_java(java.lang.String))
     StageConfigMother::addApprovalWithRoles(@stage, ["role1"].to_java(java.lang.String))
 
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("form") do
       with_tag(".form_item.security_mode") do
@@ -152,7 +153,7 @@ describe "admin/stages/permissions.html.erb" do
     @group.getAuthorization().getOperationConfig().add(AdminRole.new(CaseInsensitiveString.new("role1")))
     @group.getAuthorization().getOperationConfig().add(AdminRole.new(CaseInsensitiveString.new("role2")))
 
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("form") do
       with_tag(".form_item.security_mode") do
@@ -180,7 +181,7 @@ describe "admin/stages/permissions.html.erb" do
     @group.getAuthorization().getOperationConfig().add(AdminRole.new(CaseInsensitiveString.new("role1")))
     @group.getAuthorization().getOperationConfig().add(AdminRole.new(CaseInsensitiveString.new("role2")))
 
-    render "admin/stages/permissions.html.erb", :pipeline_name => "pipeline", :stage_name => "stage"
+    render
 
     response.body.should have_tag("form") do
       with_tag(".form_item.security_mode") do

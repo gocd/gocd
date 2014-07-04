@@ -17,7 +17,7 @@
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 include GoUtil
 
-describe "show_with_repository_list.html.erb" do
+describe "admin/package_definitions/pipelines_used_in.html.erb" do
   before(:each) do
     @admin = Username.new(CaseInsensitiveString.new("admin"))
     @pipeline_group_one_admin = Username.new(CaseInsensitiveString.new("group-one-admin"))
@@ -52,7 +52,9 @@ describe "show_with_repository_list.html.erb" do
   describe "list.html" do
     it "should render package name and package configurations along with listing for super admin" do
       assign(:user, @admin)
-      render "admin/package_definitions/pipelines_used_in.html"
+
+      render
+
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do
           with_tag("td") do
@@ -65,7 +67,9 @@ describe "show_with_repository_list.html.erb" do
 
     it "should render package name and package configurations along with listing for pipeline admin" do
       assign(:user, @pipeline_group_one_admin)
-      render "admin/package_definitions/pipelines_used_in.html"
+
+      render
+
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do
           with_tag("td") do
@@ -78,7 +82,9 @@ describe "show_with_repository_list.html.erb" do
 
     it "should render package name and package configurations along with listing for non pipeline admin" do
       assign(:user, @pipeline_group_two_admin)
-      render "admin/package_definitions/pipelines_used_in.html"
+
+      render
+
       response.body.should have_tag("table[class='list_table']") do
         with_tag("tr") do
           with_tag("td",@pipeline_config.name().toString())

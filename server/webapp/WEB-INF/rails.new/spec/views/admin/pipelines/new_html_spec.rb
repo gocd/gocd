@@ -52,14 +52,14 @@ describe "admin/pipelines/new.html.erb" do
   end
 
   it "should have a page title and view title" do
-    render "/admin/pipelines/new.html"
+    render
 
     assigns[:view_title].should == "Add Pipeline"
     assigns[:page_header].should have_tag("h1#page-title", "Add Pipeline")
   end
 
   it "should show wizard steps and the steps should be disabled" do
-    render "/admin/pipelines/new.html"
+    render
 
     response.body.should have_tag("div.steps_wrapper") do
       with_tag("ul.tabs") do
@@ -83,7 +83,8 @@ describe "admin/pipelines/new.html.erb" do
 
     it "should have a text box for pipeline name and group name" do
       assign(:group_name, "")
-      render "/admin/pipelines/new.html"
+
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
@@ -97,7 +98,8 @@ describe "admin/pipelines/new.html.erb" do
 
     it "should populate group name if adding to an existing group" do
       assign(:group_name, "foo.bar")
-      render "/admin/pipelines/new.html"
+
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
@@ -113,7 +115,7 @@ describe "admin/pipelines/new.html.erb" do
       assign(:groups_list, ["foo.bar", "some_other_group"])
       template.stub(:is_user_a_group_admin?).and_return(true)
       
-      render "admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
@@ -128,7 +130,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should have section title" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings") do
@@ -138,7 +140,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should have form buttons" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings") do
         with_tag("button.cancel_button", "Cancel")
@@ -157,7 +159,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should have config md5 hidden field" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("input[type='hidden'][name='config_md5'][value='abc']")
@@ -168,7 +170,7 @@ describe "admin/pipelines/new.html.erb" do
   describe "Materials" do
 
     it "should have material section " do
-      render "admin/pipelines/new"
+      render
 
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials") do
         with_tag("h2.section_title", "Step 2: Materials")
@@ -186,7 +188,7 @@ describe "admin/pipelines/new.html.erb" do
       it "should render all svn material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
         response.body.should have_tag("div#tab-content-of-materials div.form_content") do
           with_tag("label", "URL*")
@@ -201,7 +203,7 @@ describe "admin/pipelines/new.html.erb" do
       end
 
       it "should display check connection button" do
-        render "admin/pipelines/new"
+        render
 
         response.body.should have_tag("button#check_connection_svn", "CHECK CONNECTION")
         response.body.should have_tag("#vcsconnection-message_svn", "")
@@ -223,7 +225,7 @@ describe "admin/pipelines/new.html.erb" do
 
         set(@material_config, "errors", error)
 
-        render "admin/pipelines/new.html"
+        render
 
         response.body.should have_tag("form[method='post'][action='create_path']") do
           with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do
@@ -245,21 +247,24 @@ describe "admin/pipelines/new.html.erb" do
   describe "Stage and Job" do
 
     it "should have the title Stage/Job" do
-      render "admin/pipelines/new"
+      render
+
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag("h2.section_title", "Step 3: Stage/Job")
       end
     end
 
     it "should not have next button on the stage step" do
-      render "admin/pipelines/new"
+      render
+
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         without_tag("button.next")
       end
     end
 
     it "should have configuration type" do
-      render "admin/pipelines/new"
+      render
+
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag("label", "Configuration Type")
         with_tag("label[for='pipeline_configurationType_stages']", "Define Stages")
@@ -273,7 +278,8 @@ describe "admin/pipelines/new.html.erb" do
       @pipeline.clear()
       @pipeline.setTemplateName(CaseInsensitiveString.new("template_foo"))
 
-      render "admin/pipelines/new"
+      render
+
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag(".define_or_template label", "Configuration Type")
         with_tag("label[for='pipeline_configurationType_stages']", "Define Stages")
@@ -285,7 +291,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should be able to see stage information" do
-      render "admin/pipelines/new"
+      render
 
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag("input[name='pipeline_group[pipeline][stage][name]'][value=?]", "defaultStage")
@@ -295,7 +301,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "should be able to see basic job information" do
-      render "admin/pipelines/new"
+      render
 
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag("input[name='pipeline_group[pipeline][stage][jobs][][name]'][value=?]", "defaultJob")
@@ -314,7 +320,7 @@ describe "admin/pipelines/new.html.erb" do
     it "should display template dropdown" do
       assign(:template_list, TemplatesConfig.new([PipelineTemplateConfigMother.createTemplate("foo"), PipelineTemplateConfigMother.createTemplate("bar_template_name")].to_java(PipelineTemplateConfig)))
 
-      render "admin/pipelines/new"
+      render
 
       response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
         with_tag("div#select_template_container") do
@@ -329,7 +335,7 @@ describe "admin/pipelines/new.html.erb" do
 
   describe "Client Side Validations" do
     it "Basic Settings Tab validation" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
@@ -340,7 +346,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "Materials Tab validation" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do
@@ -356,7 +362,7 @@ describe "admin/pipelines/new.html.erb" do
     end
 
     it "Stage-Job Tab validation" do
-      render "/admin/pipelines/new.html"
+      render
 
       response.body.should have_tag("form[method='post'][action='create_path']") do
         with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do

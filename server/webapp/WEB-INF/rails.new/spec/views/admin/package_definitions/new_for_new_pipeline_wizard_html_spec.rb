@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
-describe "new.html.erb" do
+describe "admin/package_definitions/new_for_new_pipeline_wizard.html.erb" do
 
   it "should render new pkg def page" do
     metadata = PackageConfigurations.new
@@ -31,7 +31,7 @@ describe "new.html.erb" do
     package_definition.setConfiguration(configuration)
     assign(:package_configuration, PackageViewModel.new(metadata, package_definition))
 
-    render "admin/package_definitions/new_for_new_pipeline_wizard.html"
+    render
 
     response.body.should have_tag(".information", "The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.")
 

@@ -19,8 +19,6 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 describe "admin/pipelines/general.html.erb" do
   include GoUtil, ReflectiveUtil
 
-  PIPELINE_GENERAL_PAGE = 'admin/pipelines/general.html.erb' unless defined? PIPELINE_GENERAL_PAGE
-
   before(:each) do
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")
     assign(:pipeline, @pipeline)
@@ -33,7 +31,7 @@ describe "admin/pipelines/general.html.erb" do
   end
 
   it "should render new form" do
-    render PIPELINE_GENERAL_PAGE
+    render
 
     response.body.should have_tag("#pipeline_edit_form") do
       with_tag("input[type='hidden'][name='config_md5'][value='abc']")
@@ -53,7 +51,7 @@ describe "admin/pipelines/general.html.erb" do
   end
 
   it "should render form with approval type auto of the first stage" do
-    render PIPELINE_GENERAL_PAGE
+    render
 
     response.body.should have_tag("#pipeline_edit_form") do
       with_tag("input[type='hidden'][name='pipeline[approval][type]'][value=?]", "manual")
@@ -68,7 +66,7 @@ describe "admin/pipelines/general.html.erb" do
     @pipeline.get(0).updateApproval(Approval.manualApproval())
     assign(:pipeline, @pipeline)
 
-    render PIPELINE_GENERAL_PAGE
+    render
 
     response.body.should have_tag("#pipeline_edit_form") do
       without_tag("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked']")
@@ -85,7 +83,7 @@ describe "admin/pipelines/general.html.erb" do
     assign(:pipeline, @pipeline)
     assign(:cruise_config, @cruise_config)
 
-    render PIPELINE_GENERAL_PAGE
+    render
 
     response.body.should have_tag("#pipeline_edit_form") do
       with_tag("input[type='checkbox'][name='not_to_be_submitted'][checked='checked'][disabled='disabled']")
@@ -103,7 +101,7 @@ describe "admin/pipelines/general.html.erb" do
     set(@pipeline, "errors", errors)
     set(@pipeline.getTimer(), "errors", config_error(TimerConfig::TIMER_SPEC, "Invalid timer spec"))
 
-    render PIPELINE_GENERAL_PAGE
+    render
 
     response.body.should have_tag("#pipeline_edit_form") do
       with_tag("div.fieldWithErrors input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='bad-label-template']")

@@ -39,7 +39,7 @@ describe "admin/jobs/new.html.erb" do
   it "should render form with name and id for angular binding" do
     assign(:job, JobConfig.new)
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
   end
@@ -47,7 +47,7 @@ describe "admin/jobs/new.html.erb" do
   it "should render job name and hidden current tab field" do
     assign(:job, JobConfig.new)
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("form[method='post'][action='url_for_new_job']") do
       with_tag("input[type='hidden'][name='current_tab'][value=?]", "jobs")
@@ -64,7 +64,7 @@ describe "admin/jobs/new.html.erb" do
     @cruise_config.server().setJobTimeout("42")
     assign(:job, JobConfig.new)
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("#new_job_container .form_item") do
       with_tag("label", "Use default (42 minute(s))")
@@ -84,7 +84,7 @@ describe "admin/jobs/new.html.erb" do
     @cruise_config.server().setJobTimeout("0")
     assign(:job, JobConfig.new)
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("#new_job_container .form_item") do
       with_tag("label", "Use default (Never)")
@@ -95,7 +95,7 @@ describe "admin/jobs/new.html.erb" do
   it "should render job resources and run on all agents checkbox" do
     assign(:job, JobConfig.new)
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("#new_job_container .form_item_block") do
       with_tag("label", "Resources")
@@ -110,7 +110,7 @@ describe "admin/jobs/new.html.erb" do
     assign(:job, job = JobConfig.new)
     set(job, "errors", config_error(JobConfig::NAME, "Name cannot be duplicated"))
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("#new_job_container .form_item_block") do
       with_tag("div.fieldWithErrors input[type='text'][name='job[#{JobConfig::NAME}]']")
@@ -122,13 +122,13 @@ describe "admin/jobs/new.html.erb" do
     assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
     template.should_receive(:render).with(:partial => "admin/shared/job_tasks.html", :locals => instance_of(Hash))
 
-    render "admin/jobs/new.html"
+    render
   end
 
   it "should render job task instructions" do
     assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
 
-    render "admin/jobs/new.html"
+    render
 
     response.body.should have_tag("#new_job_container") do
       with_tag("div.instructions", "This job requires at least one task. You can add more tasks once this job has been created")

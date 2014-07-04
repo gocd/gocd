@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/jobs/artifacts.html" do
+describe "admin/jobs/artifacts.html.erb" do
   include GoUtil, FormUI
 
   before(:each) do
@@ -34,20 +34,20 @@ describe "admin/jobs/artifacts.html" do
   end
 
   it "should include a hidden field used to find out when all the artifacts are deleted" do
-    render 'admin/jobs/artifacts.html'
+    render
 
     response.body.should have_tag("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactPlans']")
   end
   
   it "should have a heading as Artifacts with a title tooltip" do
-    render 'admin/jobs/artifacts.html'
+    render
 
     response.body.should have_tag("h3", "Artifacts")
     response.body.should have_tag("span.has_go_tip_right[title='Publish build artifacts to the artifact repository']")
   end
 
   it "should have a headings for source and destination with a title tooltip" do
-    render 'admin/jobs/artifacts.html'
+    render
 
     response.body.should have_tag("h4.src", "Source")
     response.body.should have_tag("th span.has_go_tip_right[title='The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).']")

@@ -30,8 +30,7 @@ describe "admin/templates/edit.html.erb" do
   end
 
   it "should have form element to edit template name" do
-
-    render "admin/templates/general.html"
+    render
 
     response.body.should have_tag("form[action=?][method='post'][id='template_edit_form']", template_update_path(:pipeline_name => 'template1', :current_tab => "general", :stage_parent => "templates")) do
       with_tag("input[name='_method'][type='hidden'][value='put']")

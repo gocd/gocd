@@ -17,7 +17,7 @@
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 load File.join(File.dirname(__FILE__), "..", "environment_variables_form_example.rb")
 
-describe "admin/jobs/environment_variables.html.erb" do
+describe "admin/jobs/tabs.html.erb" do
   include GoUtil, ReflectiveUtil, FormUI
 
   before(:each) do
@@ -38,7 +38,7 @@ describe "admin/jobs/environment_variables.html.erb" do
   end
 
   it "should populate env vars for the pipeline" do
-    render "admin/jobs/tabs.html"
+    render
 
     response.body.should have_tag("form") do
       with_tag("input[name='job[tabs][][name]'][value='tab1']")
@@ -57,7 +57,7 @@ describe "admin/jobs/environment_variables.html.erb" do
 #    errors = config_errors([EnvironmentVariableConfig::NAME, "bad env var name"], [EnvironmentVariableConfig::VALUE, "bad value"])
 #    set(@variables.get(0), "configErrors", errors)
 #
-#    render "admin/jobs/tabs.html"
+#    render
 #
 #    response.body.should have_tag("form") do
 #      with_tag("div.fieldWithErrors input[name='job[variables][][name]'][value='env-name']")

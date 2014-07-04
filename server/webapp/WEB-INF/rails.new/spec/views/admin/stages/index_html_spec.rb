@@ -20,8 +20,6 @@ describe "admin/stages/index.html.erb" do
   include GoUtil
   include FormUI
 
-  STAGE_INDEX_PAGE = 'admin/stages/index.html.erb' unless defined?(STAGE_INDEX_PAGE)
-
   before(:each) do
     template.stub(:is_user_an_admin?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
@@ -41,7 +39,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should show stages" do
-    render STAGE_INDEX_PAGE
+    render
     response.body.should have_tag("table.list_table") do
       with_tag("td a", @dev_stage.name().to_s)
     end
@@ -58,7 +56,8 @@ describe "admin/stages/index.html.erb" do
     assign(:processed_cruise_config, @processed_cruise_config = CruiseConfig.new)
     @processed_cruise_config.stub(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
     assign(:pipeline, @pipeline)
-    render STAGE_INDEX_PAGE
+
+    render
 
     response.body.should have_tag("input[type='radio'][checked='checked'][title='Use Template']")
     response.body.should have_tag("input[type='radio'][disabled='disabled']")
@@ -67,7 +66,8 @@ describe "admin/stages/index.html.erb" do
 
   it "should render templates dropdown always along with a edit link" do
     assign(:template_list, ["template1", "template2"])
-    render STAGE_INDEX_PAGE
+
+    render
 
     response.body.should have_tag("select[id='select_template']") do
       with_tag("option[value='template1']")
@@ -81,7 +81,8 @@ describe "admin/stages/index.html.erb" do
 
   it "should render switch to template form with prompt on save pipeline" do
     assign(:template_list, ["template1", "template2"])
-    render STAGE_INDEX_PAGE
+
+    render
 
     response.body.should have_tag("form#pipeline_edit_form[method='post']") do
       with_tag("button#submit_pipeline_edit_form[onclick='return false;']", "SAVE")
@@ -93,14 +94,16 @@ describe "admin/stages/index.html.erb" do
   it "should not render error div when no error exists" do
     assign(:template_list, ["template1", "template2"])
 
-    render STAGE_INDEX_PAGE
+    render
 
     response.body.should_not have_tag(".form_error.template_form_error", "To assign this template, please fix the following template requirements for this pipeline:")
   end
 
   it "should not render templates dropdown when stage parent is templates" do
     in_params(:stage_parent => "templates")
-    render STAGE_INDEX_PAGE
+
+    render
+
     response.body.should_not have_tag("select[id='select_template']")
     response.body.should have_tag("table.list_table") do
       with_tag("td a", @dev_stage.name().to_s)
@@ -108,13 +111,16 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should disable the delete button if a stage is used as a material" do
-    render STAGE_INDEX_PAGE
+    render
+
     response.body.should have_tag("tr.stage_dev td.remove span.icon_cannot_remove[title=?]", "Cannot delete this stage because it is used as a material in other pipelines")
   end
 
   it "should submit a form on deletion and prompt on deletion" do
     template.stub(:random_dom_id).and_return("delete_stage_random_id")
-    render STAGE_INDEX_PAGE
+
+    render
+
     response.body.should have_tag("tr.stage_acceptance td.remove form#delete_stage_random_id") do
       with_tag("span#trigger_delete_stage_random_id.icon_remove")
       with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_stage_random_id #warning_prompt'\)/)
@@ -125,33 +131,39 @@ describe "admin/stages/index.html.erb" do
   it "should disable the delete button if there is only 1 stage" do
     @pipeline.remove(@dev_stage)
     assign(:pipeline, @pipeline)
-    render STAGE_INDEX_PAGE
+
+    render
+
     response.body.should have_tag("tr.stage_acceptance td.remove span.delete_icon_disabled[title=?]", "Cannot delete the only stage in a pipeline")
   end
 
   it "should display move stage down button" do
-    render STAGE_INDEX_PAGE
+    render
+
     response.body.should have_tag("table.list_table") do
       with_tag("td form[action=?] button[type='submit'] .promote_down", admin_stage_increment_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(0).name()))
     end
   end
 
   it "should disable the move stage down button for the last stage" do
-    render STAGE_INDEX_PAGE
+    render
+
     response.body.should have_tag("table.list_table") do
       without_tag("td form[action=?] button[type='submit'] .promote_down", admin_stage_increment_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name()))
     end
   end
 
   it "should display move stage up button" do
-    render STAGE_INDEX_PAGE
+    render
+
     response.body.should have_tag("table.list_table") do
       with_tag("td form[action=?] button[type='submit'] .promote_up", admin_stage_decrement_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(1).name()))
     end
   end
 
   it "should disable the move stage up button for the first stage" do
-    render STAGE_INDEX_PAGE
+    render
+
     response.body.should have_tag("table.list_table") do
       without_tag("td form[action=?] button[type='submit'] .promote_up", admin_stage_decrement_index_path(:pipeline_name => @pipeline.name(), :stage_name => @pipeline.get(0).name()))
     end
@@ -159,7 +171,8 @@ describe "admin/stages/index.html.erb" do
 
   it "should display view template button when stage configuration uses templates" do
     assign(:template_list, ["template1", "template2"])
-    render STAGE_INDEX_PAGE
+
+    render
 
     response.body.should have_tag("select[id='select_template']") do
       with_tag("option[value='template1']")
@@ -171,7 +184,8 @@ describe "admin/stages/index.html.erb" do
 
   it "should not render template dropdown and options when there are no templates. Should display relevant message" do
     assign(:template_list, [])
-    render STAGE_INDEX_PAGE
+
+    render
 
     response.body.should have_tag(".no_templates_message", "There are no templates configured")
     response.body.should_not have_tag(".template_selection")

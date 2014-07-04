@@ -51,7 +51,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should set tab and page title" do
-    render 'admin/pipeline_groups/index.html'
+    render
 
     template.instance_variable_get('@tab_name').should == "pipeline-groups"
   end
@@ -60,7 +60,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     assign(:groups, [PipelineConfigs.new("group", Authorization.new, [].to_java(PipelineConfig))])
     assign(:pipeline_to_can_delete, {})
 
-    render 'admin/pipeline_groups/index.html'
+    render
 
     response.body.should have_tag("div.group_pipelines") do
       with_tag("div.group") do
@@ -76,7 +76,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should remove the add new group for anyone other than super admin" do
       template.stub(:is_user_an_admin?).and_return(false)
 
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag(".group_pipelines") do
         without_tag("a[href='#'][class='add_link']", "Add New Pipeline Group")
@@ -85,7 +85,8 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should display all pipelines with delete link" do
-    render 'admin/pipeline_groups/index.html'
+    render
+
     response.body.should have_tag("div.group_pipelines") do
       with_tag("div.group") do
         with_tag("h2.group_name", "group_foo")
@@ -122,7 +123,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   describe "delete pipeline" do
     it "should display delete link next to an empty pipeline group" do
       assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("div.group_pipelines") do
         with_tag("div.group") do
@@ -141,7 +142,7 @@ describe "admin/pipeline_groups/index.html.erb" do
       assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       template.stub(:is_user_an_admin?).and_return(false)
 
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should_not have_tag("form#delete_group_empty_group")
       response.body.should_not have_tag("span.icon_cannot_remove")
@@ -161,7 +162,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
     it "should have unique random id for delete pipeline link" do
       template.stub(:random_dom_id).and_return("some_random_id")
-      render 'admin/pipeline_groups/index.html'
+
+      render
 
       response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][id='some_random_id_form']") do
         with_tag("span#trigger_some_random_id")
@@ -178,7 +180,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should display all pipelines with delete link" do
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("div.group_pipelines") do
         with_tag("div.group") do
@@ -219,7 +221,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should wire delete action" do
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']") do
         with_tag("span.delete_parent")
@@ -243,7 +245,7 @@ describe "admin/pipeline_groups/index.html.erb" do
                                           CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
       })
 
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']") do
         with_tag("span.delete_icon_disabled[title=?]", "Cannot delete pipeline 'pipeline_in_group_foo' as it is present in environment 'env'")
@@ -265,7 +267,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   it "should render move control only when more than one pipeline-groups are present" do
     assign(:groups, groups("group_foo"))
-    render 'admin/pipeline_groups/index.html'
+
+    render
 
     response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
 
@@ -275,7 +278,8 @@ describe "admin/pipeline_groups/index.html.erb" do
   describe "move pipeline" do
     it "should render move control only when more than one pipeline-groups are present" do
       assign(:groups, groups("group_foo"))
-      render 'admin/pipeline_groups/index.html'
+
+      render
 
       response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
 
@@ -288,7 +292,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should display new-pipeline-links which take you to the new wizard" do
       assign(:groups, groups("group_foo"))
 
-      render "admin/pipeline_groups/index.html"
+      render
 
       response.body.should have_tag("div.group_pipelines") do
         with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "group_foo"))
@@ -298,7 +302,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should display link when no pipelines exist for a group" do
       assign(:groups, [PipelineConfigs.new("some-group", Authorization.new, [].to_java(PipelineConfig))])
 
-      render "admin/pipeline_groups/index.html"
+      render
 
       response.body.should have_tag("div.add_first_pipeline_in_group") do
         with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "some-group"))
@@ -308,7 +312,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should display link to add first pipeline" do
       assign(:groups, [])
 
-      render "admin/pipeline_groups/index.html"
+      render
 
       response.body.should have_tag("span.title_secondary_info") do
         with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "defaultGroup"))
@@ -321,7 +325,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     it "should have extract template button for each pipeline" do
       template.stub(:is_user_an_admin?).and_return(true)
 
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
       response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_bar', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
@@ -333,15 +337,15 @@ describe "admin/pipeline_groups/index.html.erb" do
 
     it "should not show extract template link if user is not admin" do
       template.stub(:is_user_an_admin?).and_return(false)
-      render 'admin/pipeline_groups/index.html'
+
+      render
 
       response.body.should_not have_tag("li a[class='add_link']", "Extract Template")
       response.body.should_not have_tag("span[class='action_icon add_icon_disabled']", "Extract Template")
     end
 
     it "should disable extract template button for pipeline already using a template" do
-
-      render 'admin/pipeline_groups/index.html'
+      render
 
       response.body.should have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_foo", "Extract Template")
       response.body.should have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_bar", "Extract Template")
@@ -353,7 +357,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should wire edit button" do
-    render 'admin/pipeline_groups/index.html'
+    render
 
     response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']")
     response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']")
@@ -365,7 +369,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should wire clone button" do
-    render 'admin/pipeline_groups/index.html'
+    render
 
     response.body.should have_tag("li a.clone_button_for_pipeline_in_group_bar")
     response.body.should have_tag("li a.clone_button_for_pipeline_2_in_group_bar")

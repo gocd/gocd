@@ -19,8 +19,6 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 describe "admin/stages new.html.erb" do
   include GoUtil, FormUI
 
-  NEW_STAGE_PAGE = 'admin/stages/new.html.erb'
-
   before(:each) do
     @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
     @stage = StageConfig.new(CaseInsensitiveString.new("stage-name"), JobConfigs.new([@new_job].to_java(JobConfig)))
@@ -42,13 +40,13 @@ describe "admin/stages new.html.erb" do
   end
 
   it "should render form with name and id for angular binding" do
-    render "admin/stages/new.html"
+    render
 
     response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
   end
 
   it "should render new form" do
-    render NEW_STAGE_PAGE
+    render
 
     response.body.should have_tag("#new_stage_container form") do
       with_tag("h3", "Stage Information")
@@ -96,7 +94,7 @@ describe "admin/stages new.html.erb" do
     set(task, "errors", error)
     set(task, "args", "abc")
 
-    render NEW_STAGE_PAGE
+    render
 
     response.body.should have_tag("#new_stage_container form") do
       with_tag("div.fieldWithErrors input[type='text'][name='stage[#{StageConfig::NAME}]']")
@@ -120,37 +118,46 @@ describe "admin/stages new.html.erb" do
 
   it "should render reload option when the config file MD5 has changed under the message" do
     assign(:config_file_conflict, true)
-    render NEW_STAGE_PAGE
+
+    render
+
     response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
     response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
-    render NEW_STAGE_PAGE
+    render
+
     response.body.should_not have_tag("#config_save_actions")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
     assign(:config_file_conflict, true)
-    render NEW_STAGE_PAGE
+
+    render
+
     response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
     response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
-    render NEW_STAGE_PAGE
+    render
+
     response.body.should_not have_tag("#config_save_actions")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
     assign(:config_file_conflict, true)
-    render NEW_STAGE_PAGE
+
+    render
+
     response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
     response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
-    render NEW_STAGE_PAGE
+    render
+
     response.body.should_not have_tag("#config_save_actions")
   end
 end

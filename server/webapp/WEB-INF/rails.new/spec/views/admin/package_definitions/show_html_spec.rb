@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
-describe "show.html.erb" do
+describe "admin/package_definitions/show.html.erb" do
 
   it "should render package name and package configurations" do
     metadata = PackageConfigurations.new
@@ -30,7 +30,7 @@ describe "show.html.erb" do
     model = PackageViewModel.new metadata, package
     assign(:package_configuration, model)
 
-    render "admin/package_definitions/show.html"
+    render
 
     response.body.should have_tag(".new_form_item_block label", "Package Name")
     response.body.should have_tag(".new_form_item_block input[type='text'][disabled='disabled'][value='package-name']")

@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
-describe "admin/pipeline_groups/edit.html" do
+describe "admin/pipeline_groups/edit.html.erb" do
   include GoUtil, ReflectiveUtil
 
   before(:each) do

@@ -27,7 +27,7 @@ describe 'admin/pipelines/pause_info.json.erb' do
 
     template.should_receive(:render_json).with(:partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => pause_info, :pipeline_name => 'mingle'}}).and_return("\"pause_fragment\"")
 
-    render 'admin/pipelines/pause_info.json.erb'
+    render
 
     response.body.should == <<EOF.strip
 {

@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.plugin.infra.service;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -46,8 +43,18 @@ public class DefaultPluginLoggingService implements LoggingService {
     }
 
     @Override
+    public void debug(String pluginId, String loggerName, String message, Throwable throwable) {
+        getLogger(pluginId, loggerName).debug(message, throwable);
+    }
+
+    @Override
     public void info(String pluginId, String loggerName, String message) {
         getLogger(pluginId, loggerName).info(message);
+    }
+
+    @Override
+    public void info(String pluginId, String loggerName, String message, Throwable throwable) {
+        getLogger(pluginId, loggerName).info(message, throwable);
     }
 
     @Override
@@ -56,8 +63,18 @@ public class DefaultPluginLoggingService implements LoggingService {
     }
 
     @Override
+    public void warn(String pluginId, String loggerName, String message, Throwable throwable) {
+        getLogger(pluginId, loggerName).warn(message, throwable);
+    }
+
+    @Override
     public void error(String pluginId, String loggerName, String message) {
         getLogger(pluginId, loggerName).error(message);
+    }
+
+    @Override
+    public void error(String pluginId, String loggerName, String message, Throwable throwable) {
+        getLogger(pluginId, loggerName).error(message, throwable);
     }
 
     private Logger getLogger(String pluginId, String loggerName) {

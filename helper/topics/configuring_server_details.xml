@@ -17,19 +17,6 @@
 
 <!DOCTYPE chapter SYSTEM "mingle_help.dtd">
 <chapter title="Configuring server details">
-	<section title="Entering your license key">
-		<p>Go requires you to enter a license key before you can use it with remote agents</p> 
-		<p>You should have been emailed a license key when you downloaded Go. If not, you can get a trial license key from the Studios website: visit the <exref url="http://www.thoughtworks.com/products/go-continuous-delivery">Go homepage</exref> and follow the instructions to get your trial license.</p>
-		<p>Click on "Server Configuration" tab of the "Admin" tab.</p>
-		<p>You will see the License section</p>
-		<screenshot alttext="Enter license key" src="resources/images/cruise/license_key.png" />
-		<p>Your license key is tied to the username you used to register. Enter the username you used to register, and copy and paste the license key from your email into the textbox provided. Go will ignore spaces, line breaks and so forth in the license key. </p>
-		<p>When you are done, click on "Save" in the bottom of the "Server configuration" page. Go should tell you either that your license key has been updated successfully, or give you an error message telling you what went wrong.</p>
-		<p>You can also specify the license by clicking on "Server Details" link in the bottom of Go footer after logging in </p>
-		<screenshot alttext="Enter license key" src="resources/images/cruise/license_server_details.png" />
-
-		<p>Once you've entered your license key, you can proceed to <cref topic="quick_pipeline_setup">set up your first pipeline</cref> by clicking on the "Pipelines" tab.</p>
-	</section>
 	<section title="Artifact repository configuration" id="artifact_repo_config">
 		<p>Go needs no configuration once installed. However, we recommend that you create a separate partition on your computer's hard disk for Go server artifacts. The artifact repository can grow in size very quickly. If located on your system's main partition you may experience data loss and unpredictable application behaviour as the disk fills up.</p>
 		<p>Once you have created a new disk partition, you need to tell Go where to find it.</p>

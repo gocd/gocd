@@ -19,9 +19,17 @@ package com.thoughtworks.go.plugin.internal.api;
 public interface LoggingService {
     void debug(String pluginId, String loggerName, String message);
 
+    void debug(String pluginId, String loggerName, String message, Throwable throwable);
+
     void info(String pluginId, String loggerName, String message);
+
+    void info(String pluginId, String loggerName, String message, Throwable throwable);
 
     void warn(String pluginId, String loggerName, String message);
 
+    void warn(String pluginId, String loggerName, String message, Throwable throwable);
+
     void error(String pluginId, String loggerName, String message);
+
+    void error(String pluginId, String loggerName, String message, Throwable throwable);
 }

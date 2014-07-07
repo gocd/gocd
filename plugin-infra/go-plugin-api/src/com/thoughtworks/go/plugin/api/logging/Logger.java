@@ -67,6 +67,20 @@ public class Logger {
     }
 
     /**
+     * Messages to be logged in debug mode.
+     *
+     * @param message a string containing the message to be logged.
+     * @param throwable
+     */
+    public void debug(String message, Throwable throwable) {
+        if (loggingService == null) {
+            System.out.println(message);
+            return;
+        }
+        loggingService.debug(pluginId, loggerName, message, throwable);
+    }
+
+    /**
      * Messages to be logged in info mode.
      *
      * @param message a string containing the message to be logged.
@@ -77,6 +91,20 @@ public class Logger {
             return;
         }
         loggingService.info(pluginId, loggerName, message);
+    }
+
+    /**
+     * Messages to be logged in info mode.
+     *
+     * @param message a string containing the message to be logged.
+     * @param throwable
+     */
+    public void info(String message, Throwable throwable) {
+        if (loggingService == null) {
+            System.out.println(message);
+            return;
+        }
+        loggingService.info(pluginId, loggerName, message, throwable);
     }
 
     /**
@@ -93,6 +121,20 @@ public class Logger {
     }
 
     /**
+     * Messages to be logged in warn mode.
+     *
+     * @param message a string containing the message to be logged.
+     * @param throwable
+     */
+    public void warn(String message, Throwable throwable) {
+        if (loggingService == null) {
+            System.err.println(message);
+            return;
+        }
+        loggingService.warn(pluginId, loggerName, message, throwable);
+    }
+
+    /**
      * Messages to be logged in error mode.
      *
      * @param message a string containing the message to be logged.
@@ -103,6 +145,20 @@ public class Logger {
             return;
         }
         loggingService.error(pluginId, loggerName, message);
+    }
+
+    /**
+     * Messages to be logged in error mode.
+     *
+     * @param message a string containing the message to be logged.
+     * @param throwable a string containing the message to be logged.
+     */
+    public void error(String message, Throwable throwable) {
+        if (loggingService == null) {
+            System.err.println(message);
+            return;
+        }
+        loggingService.error(pluginId, loggerName, message, throwable);
     }
 
     private static Object getStaticField(Class kls, String name) {

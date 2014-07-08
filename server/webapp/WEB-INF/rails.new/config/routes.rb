@@ -224,12 +224,8 @@ Go::Application.routes.draw do
     end
   end
 
-  resources :agents, :only =>  [:index], :defaults => {:format => "html"} do
-    collection do
-      match "agents/edit_agents" => 'agents#edit_agents', via: [:post], as: :edit_agents
-    end
-  end
-
+  resources :agents, :only =>  [:index], :defaults => {:format => "html"}
+  post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
   post "agents/:action" , :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
 
 
@@ -237,12 +233,11 @@ Go::Application.routes.draw do
   get '/admin/templates' => 'test/test#index', as: :templates
   get '/server/messages.json' => 'test/test#index', as: :global_message
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  #get '/agents' => 'agents#index', as: :agents_for_test
-  #get "agents/:uuid" => "test/test#index", as: :agent_detail
+  get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
-  #get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
+  get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
   get 'test' => 'test/test#index', as: :edit_server_config
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients

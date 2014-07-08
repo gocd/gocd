@@ -19,7 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe AgentsController do
 
   before do
-    controller.stub!(:set_locale)
+    controller.stub(:set_locale)
     controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
   end
@@ -30,6 +30,13 @@ describe AgentsController do
       config = ConfigMigrator.migrate(ConfigFileFixture::WITH_VARITY_OF_AGENTS)
       cachedGoConfig = Spring.bean("cachedGoConfig")
       cachedGoConfig.save(config, false)
+    end
+
+    it "should answer for /agents" do
+      expect(:get => "/agents").to route_to({:controller => "agents", :action => 'index',:format => "html"})
+      expect(:get => "/agents.html").to route_to({:controller => "agents", :action => 'index', :format => "html"})
+      expect(:get => "/agents.json").to route_to({:controller => "agents", :action => 'index', :format => "json"})
+      expect(controller.send(:agents_path)).to eq("/agents")
     end
 
     it "should filter agents based on parameters" do
@@ -67,7 +74,7 @@ describe AgentsController do
     end
 
     it "should sort on status if no sort requested" do
-      controller.stub!(:agent_service).and_return(agent_service = Object.new)
+      controller.stub(:agent_service).and_return(agent_service = Object.new)
       agent_service.stub(:agents).and_return(agents = [])
       agents.should_receive(:sortBy).with(AgentsController::AgentViewModel.STATUS_COMPARATOR, com.thoughtworks.go.server.ui.SortOrder::ASC).and_return([])
       agents.should_receive(:filter).with(nil).and_return([])
@@ -103,7 +110,7 @@ describe AgentsController do
     end
 
     it "should use agent_instances.agent_count to find agent count by status(for building, idle, lost_contact and missing agents)" do
-      controller.stub!(:agent_service).and_return(agent_service = Object.new)
+      controller.stub(:agent_service).and_return(agent_service = Object.new)
       agent_service.stub(:agents).and_return(agents = [])
       agents.stub(:disabledCount).and_return(9)
       agents.stub(:enabledCount).and_return(10)
@@ -120,16 +127,14 @@ describe AgentsController do
 
   describe :edit_agents do
 
-    it "should answer for /agents" do
-      expect(:get => "/agents").to route_to({:controller => "agents", :action => 'index',:format => "html"})
-      expect(:get => "/agents.html").to route_to({:controller => "agents", :action => 'index', :format => "html"})
-      expect(:get => "/agents.json").to route_to({:controller => "agents", :action => 'index', :format => "json"})
-      expect(controller.send(:agents_path)).to eq("/agents")
+    it "should resolve routes" do
+      expect(:post => "agents/edit_agents").to route_to({:controller => "agents", :action => 'edit_agents'})
+      expect(controller.send(:edit_agents_path)).to eq("/agents/edit_agents")
     end
 
     it "should redirect to :index maintaining sort" do
       setup_base_urls
-      bulk_edit_result = mock('bulk_edit_result')
+      bulk_edit_result = double('bulk_edit_result')
       controller.should_receive(:bulk_edit).and_return(bulk_edit_result)
       bulk_edit_result.stub(:message).and_return("successfuly managed to edit")
       bulk_edit_result.stub(:canContinue).and_return(false)
@@ -140,7 +145,7 @@ describe AgentsController do
 
   describe :resource_selector do
     before(:each) do
-      controller.stub!(:agent_service).and_return(@agent_service = Object.new)
+      controller.stub(:agent_service).and_return(@agent_service = Object.new)
       @resources = [ TriStateSelection.new('resource-1', 'remove') ]
       @agent_service.stub(:getResourceSelections)
     end
@@ -165,12 +170,13 @@ describe AgentsController do
     it "should render partial resource_selector" do
       post :resource_selector, :selected => ["UUID1", "UUID2"]
       expect(response).to render_template("resource_selector")
+      assert_template :layout => false
     end
   end
 
   describe :environments_selector do
     before(:each) do
-      controller.stub!(:agent_service).and_return(@agent_service = Object.new)
+      controller.stub(:agent_service).and_return(@agent_service = Object.new)
       @environments = [ TriStateSelection.new('resource-1', 'remove') ]
       @agent_service.stub(:getEnvironmentSelections)
     end
@@ -195,6 +201,7 @@ describe AgentsController do
     it "should render partial selectors" do
       post :environment_selector, :selected => ["UUID1", "UUID2"]
       expect(response).to render_template("environment_selector")
+      assert_template :layout => false
     end
   end
 end

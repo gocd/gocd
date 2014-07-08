@@ -15,10 +15,9 @@
 ##########################GO-LICENSE-END##################################
 
 module AgentsHelper
-#
-#
-#  AgentStatus = com.thoughtworks.go.domain.AgentStatus
-#
+
+  AgentStatus = com.thoughtworks.go.domain.AgentStatus
+
   def agent_selector uuid, selector_name, selected_uuids
     "<td class='selector'>#{agent_selector_without_cell(uuid, selector_name, selected_uuids)}</td>".html_safe
   end

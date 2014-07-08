@@ -52,10 +52,12 @@ class AgentsController < ApplicationController
 
   def resource_selector
     @selections = agent_service.getResourceSelections(params[:selected] || [])
+    render :layout => false
   end
 
   def environment_selector
     @selections = agent_service.getEnvironmentSelections(params[:selected] || [])
+    render :layout => false
   end
 
   def edit_agents

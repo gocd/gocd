@@ -12,11 +12,11 @@
             <%= render :partial => "agents/hidden_selectors", :locals => {:scope => {:agents => @agents}} -%>
         </div>
 
-        <%= submit_button("Enable", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Enable')", :name => "Enable") %>
-        <%= submit_button("Disable", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Disable')", :name => "Disable") %>
-        <%= submit_button("Delete", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Delete')", :name => "Delete") %>
+        <%== submit_button("Enable", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Enable')", :name => "Enable") %>
+        <%== submit_button("Disable", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Disable')", :name => "Disable") %>
+        <%== submit_button("Delete", :onclick_lambda => "Util.set_value('agent_edit_operation', 'Delete')", :name => "Delete") %>
 
-        <%= submit_button("Resources", :id => "show_resources_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
+        <%== submit_button("Resources", :id => "show_resources_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
 
         <div id="resources_panel" class="hidden resources_panel agent_edit_popup enhanced_dropdown">
             <div class='resources_selector scrollable_panel'>
@@ -24,7 +24,7 @@
             </div>
             <div class="add_panel hidden">
                 <input type="text" name="add_resource" class='new_resource new_field'/>
-                <%= submit_button("Add", :class => "apply_resources apply_button submit_small primary", :name => "resource_operation") %>
+                <%== submit_button("Add", :class => "apply_resources apply_button submit_small primary", :name => "resource_operation") %>
 
                 <div class="validation_message error hidden">Invalid character. Please use a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe.</div>
             </div>
@@ -32,14 +32,14 @@
         </div>
 
 
-        <%= submit_button("Environments", :id => "show_environments_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
+        <%== submit_button("Environments", :id => "show_environments_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
 
         <div id="environments_panel" class="hidden environments_panel agent_edit_popup enhanced_dropdown">
             <div class='environments_selector scrollable_panel'>
                 <div class="loading"></div>
             </div>
             <div class="add_panel hidden">
-                <%= submit_button("Apply", :class => "submit_small primary apply_button", :name => "Apply",:onclick_lambda => "Util.set_value('agent_edit_operation', 'Apply_Environment')") %>
+                <%== submit_button("Apply", :class => "submit_small primary apply_button", :name => "Apply",:onclick_lambda => "Util.set_value('agent_edit_operation', 'Apply_Environment')") %>
             </div>
             <div class="no_selection_error error hidden">Please select one or more agents first.</div>
             <div class="no_environments_error error hidden">No environments are defined.</div>

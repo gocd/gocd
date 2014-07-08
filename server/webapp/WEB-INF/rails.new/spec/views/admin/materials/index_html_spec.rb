@@ -16,12 +16,12 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/materials index.html.erb" do
+describe "admin/materials/index.html.erb" do
 
   include GoUtil
 
   before do
-    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
+    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
     @stage = StageConfig.new(CaseInsensitiveString.new("stage-name"), JobConfigs.new([@new_job].to_java(JobConfig)))
 
     svn_config = MaterialConfigsMother.svnMaterialConfig("http://some/svn/url", "svnDir", nil, nil, false, nil)
@@ -41,34 +41,34 @@ describe "admin/materials index.html.erb" do
   end
 
   it "should show the headers for a materials table" do
-    render "admin/materials/index.html"
+    render
 
-    response.body.should have_tag("h3", "Materials")
-    response.body.should have_tag("table.list_table") do
-      with_tag("th", "Name")
-      with_tag("th", "Type")
-      with_tag("th", "URL")
-      with_tag("th", "Remove")
+    expect(response.body).to have_selector("h3", :text => "Materials")
+    Capybara.string(response.body).find('table.list_table').tap do |table|
+      expect(table).to have_selector("th", :text => "Name")
+      expect(table).to have_selector("th", :text => "Type")
+      expect(table).to have_selector("th", :text => "URL")
+      expect(table).to have_selector("th", :text => "Remove")
     end
   end
 
   it "should show can delete material icon with title" do
       @pipeline_config.addMaterialConfig(HgMaterialConfig.new("url", nil))
 
-      render "admin/materials/index.html"
+      render
 
-      response.body.should have_tag("table.list_table tr") do
-        with_tag(".icon_remove[title=?]", "Remove this material")
+      Capybara.string(response.body).all('table.list_table tr').tap do |trs|
+        expect(trs[1]).to have_selector(".icon_remove[title='Remove this material']")
       end
     end
 
   it "should show cannot delete material icon with title when there is only one material" do
     @pipeline_config.setMaterialConfigs(MaterialConfigs.new([@pipeline_config.materialConfigs().get(0)].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)))
 
-    render "admin/materials/index.html"
+    render
 
-    response.body.should have_tag("table.list_table tr") do
-      with_tag(".delete_icon_disabled[title=?]", "Cannot delete this material as pipeline should have at least one material")
+    Capybara.string(response.body).all('table.list_table tr').tap do |trs|
+      expect(trs[1]).to have_selector(".delete_icon_disabled[title='Cannot delete this material as pipeline should have at least one material']")
     end
   end
 
@@ -78,10 +78,10 @@ describe "admin/materials index.html.erb" do
     job.addTask(FetchTask.new(CaseInsensitiveString.new("up"), CaseInsensitiveString.new("stage"), CaseInsensitiveString.new("job"), "srcfile", "dest"))
     @pipeline_config.addMaterialConfig(DependencyMaterialConfig.new(CaseInsensitiveString.new("dep"),CaseInsensitiveString.new("up"),CaseInsensitiveString.new("stage")))
 
-    render "admin/materials/index.html"
+    render
 
-    response.body.should have_tag("table.list_table tr") do
-      with_tag(".delete_icon_disabled[title=?]", "Cannot delete this material since it is used in a fetch artifact task.")
+    Capybara.string(response.body).all('table.list_table tr').tap do |trs|
+      expect(trs[3]).to have_selector(".delete_icon_disabled[title='Cannot delete this material since it is used in a fetch artifact task.']")
     end
   end
 
@@ -93,10 +93,10 @@ describe "admin/materials index.html.erb" do
 
     materialConfigs = @pipeline_config.materialConfigs()
 
-    render "admin/materials/index.html"
+    render
 
-    response.body.should have_tag("table.list_table tr") do
-      with_tag(".delete_icon_disabled[title=?]", "Cannot delete this material as the material name is used in this pipeline's label template")
+    Capybara.string(response.body).all('table.list_table tr').tap do |trs|
+      expect(trs[3].find('.delete_icon_disabled')['title']).to eq("Cannot delete this material as the material name is used in this pipeline's label template")
     end
   end
 
@@ -106,55 +106,62 @@ describe "admin/materials index.html.erb" do
     material_config = HgMaterialConfig.new("url", nil)
     @pipeline_config.addMaterialConfig(material_config)
 
-    render "admin/materials/index.html"
+    render
 
-    response.body.should have_tag("div.light_box_content") do
-      with_tag("div.warnings", "In order to configure multiple materials for this pipeline, each of its material needs have to a ‘Destination Directory’ specified. Please edit the existing material and specify a ‘Destination Directory’ in order to proceed with this operation.")
-      with_tag("button.right.close_modalbox_control")
+    Capybara.string(response.body).find('div.light_box_content', :visible => false).tap do |div|
+      expect(div).to have_selector("div.warnings", :visible => false, :text => "In order to configure multiple materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.")
+      expect(div).to have_selector("button.right.close_modalbox_control", :visible => false)
     end
-    response.body.should have_tag("div.enhanced_dropdown ul") do
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Subversion'})")
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Git'})")
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Mercurial'})")
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Perforce'})")
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Team Foundation Server'})")
+    Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
+      ul.all("li a[href='#']").tap do |lis|
+        expect(lis[0]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Subversion'})")
+        expect(lis[1]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Git'})")
+        expect(lis[2]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Mercurial'})")
+        expect(lis[3]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Perforce'})")
+        expect(lis[4]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Team Foundation Server'})")
+      end
     end
   end
 
   it "should not have new material warning div when scm material has dest set" do
     @pipeline_config.setMaterialConfigs(MaterialConfigs.new([@pipeline_config.materialConfigs().get(0)].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)))
 
-    render "admin/materials/index.html"
+    render
 
-    response.body.should_not have_tag("div.light_box_content")
-    response.body.should_not have_tag("div.warning")
+    expect(response.body).not_to have_selector("div.light_box_content")
+    expect(response.body).not_to have_selector("div.warning")
   end
 
   describe "material name in the listing with the link to edit" do
     it "should display material name in the listing with the link to edit for svn" do
-      render "admin/materials/index.html"
+      render
+
       pipeline_name = @pipeline_config.name()
       material_fingerprint = @pipeline_config.materialConfigs().get(0).getPipelineUniqueFingerprint()
-      response.body.should have_tag("td a[href='#'][class='material_name'][onclick=?]", "Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/svn/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Subversion'}, function(text){return text})")
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[0]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/svn/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Subversion'}, function(text){return text})")
     end
     
     it "should display material name in the listing with the link to edit for package material" do
-      render "admin/materials/index.html"
+      render
+
       pipeline_name = @pipeline_config.name()
       material_fingerprint = @pipeline_config.materialConfigs().get(1).getPipelineUniqueFingerprint()
       material_type = "package"
-      response.body.should have_tag("td a[href='#'][class='material_name'][onclick=?]", "Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[1]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
     end
   end
 
   describe :package_material do
-  it "should list package material in the add new material dropdown" do
-    render "admin/materials/index.html"
-    response.body.should have_tag("div.enhanced_dropdown ul") do
-      with_tag("li a[href='#'][onclick=?]", "Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})", "Package")
-    end
+    it "should list package material in the add new material dropdown" do
+      render
+
+      Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
+        ul.all("li a[href='#']").tap do |lis|
+          expect(lis[6]['onclick']).to eq("Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})")
+          expect(lis[6].text).to eq("Package")
+        end
+      end
     end
   end
-
 
 end

@@ -35,14 +35,14 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    response.body.should have_tag("input[type='hidden'][name='current_tab'][value=?]", "materials")
-    response.body.should have_tag(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{HgMaterialConfig::URL}]'][value='hg://foo']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{ScmMaterialConfig::FOLDER}]'][value='dest']")
-    response.body.should have_tag(".popup_form input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
-    response.body.should have_tag(".popup_form textarea[name='material[#{ScmMaterialConfig::FILTER}]']", "/sugar,/jaggery")
-    response.body.should have_tag(".form_buttons button[type='submit'] span", "FOO")    
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{HgMaterialConfig::URL}]'][value='hg://foo']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{ScmMaterialConfig::FOLDER}]'][value='dest']")
+    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+    expect(response.body).to have_selector(".popup_form textarea[name='material[#{ScmMaterialConfig::FILTER}]']", :text => "/sugar,/jaggery")
+    expect(response.body).to have_selector(".form_buttons button[type='submit'] span", :text => "FOO")
   end
 
   it "should display check connection button" do
@@ -50,8 +50,8 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    response.body.should have_tag(".popup_form button#check_connection_hg", "CHECK CONNECTION")
-    response.body.should have_tag(".popup_form #vcsconnection-message_hg", "")
+    expect(response.body).to have_selector(".popup_form button#check_connection_hg", :text => "CHECK CONNECTION")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_hg", :text => "")
   end
 
   it "should display new hg material view with errors" do
@@ -67,20 +67,21 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    response.body.should have_tag(".popup_form") do
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
-      with_tag("div.form_error", "Material Name is so wrong")
+    Capybara.string(response.body).find('.popup_form').tap do |popup_form|
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Material Name is so wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{HgMaterialConfig::URL}]'][value='hg://foo']")
-      with_tag("div.form_error", "Url is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{HgMaterialConfig::URL}]'][value='hg://foo']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Url is wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{ScmMaterialConfig::FOLDER}]'][value='dest']")
-      with_tag("div.form_error", "Folder is wrong")
-      with_tag("div.fieldWithErrors input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
-      with_tag("div.form_error", "AUTO_UPDATE is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{ScmMaterialConfig::FOLDER}]'][value='dest']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Folder is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+      expect(popup_form).to have_selector("div.form_error", :text => "AUTO_UPDATE is wrong")
+
       #Have skipped asserting on the div fieldWithError thats rendered around the text area , since the keys mismatch (pattern vs filter). Div around the actual text area is currently
       #not affecting functionality in any way.
-      with_tag("div.form_error", "Filter is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
     end
   end
 end

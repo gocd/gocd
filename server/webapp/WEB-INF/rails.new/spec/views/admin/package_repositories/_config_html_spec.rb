@@ -24,24 +24,24 @@ describe "config.html.erb" do
       metadata.addConfiguration(PackageConfiguration.new("key2").with(PackageConfiguration::REQUIRED, false).with(PackageConfiguration::SECURE, true).with(PackageConfiguration::DISPLAY_NAME, "Key 2"))
       repository = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("key1", false, "v1"), ConfigurationPropertyMother.create("key2", true, "v2")].to_java(ConfigurationProperty)))
 
-
       config = RepoViewModel.new metadata, repository, nil
+
       render :partial => "admin/package_repositories/config.html", :locals => {:scope => {:repository_configuration => config, :plugin_id => "yum", :isNewRepo => false}}
 
-      response.body.should have_tag("fieldset legend span", "YUM Repository Configuration")
-      response.body.should have_tag(".field label", "Key 1*")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
-      response.body.should have_tag(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
+      expect(response.body).to have_selector("fieldset legend span", :text => "YUM Repository Configuration")
+      expect(response.body).to have_selector(".field label", :text => "Key 1*")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
+      expect(response.body).to have_selector(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
 
-      response.body.should have_tag(".field label", "Key 2")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
-      response.body.should have_tag(".field input[type='password'][readonly='readonly'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
-      response.body.should have_tag(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
-      response.body.should have_tag(".field label[for='checkbox_field_1']")
+      expect(response.body).to have_selector(".field label", :text => "Key 2")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
+      expect(response.body).to have_selector(".field input[type='password'][readonly='readonly'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
+      expect(response.body).to have_selector(".field label[for='checkbox_field_1']")
 
-      response.body.should have_tag("button.submit span", "CHECK CONNECTION")
-      response.body.should have_tag("span#repository_connection_message")
+      expect(response.body).to have_selector("button.submit span", :text => "CHECK CONNECTION")
+      expect(response.body).to have_selector("span#repository_connection_message")
     end
 
     it "should render repo configurations for new repo" do
@@ -50,26 +50,26 @@ describe "config.html.erb" do
       metadata.addConfiguration(PackageConfiguration.new("key2").with(PackageConfiguration::REQUIRED, false).with(PackageConfiguration::SECURE, true).with(PackageConfiguration::DISPLAY_NAME, "Key 2"))
       repository = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("key1", false, "v1"), ConfigurationPropertyMother.create("key2", true, "v2")].to_java(ConfigurationProperty)))
 
-
       config = RepoViewModel.new metadata, repository, nil
+
       render :partial => "admin/package_repositories/config.html", :locals => {:scope => {:repository_configuration => config, :plugin_id => "yum", :isNewRepo => true}}
 
-      response.body.should have_tag("fieldset legend span", "YUM Repository Configuration")
-      response.body.should have_tag(".field label", "Key 1*")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
-      response.body.should have_tag(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
+      expect(response.body).to have_selector("fieldset legend span", :text => "YUM Repository Configuration")
+      expect(response.body).to have_selector(".field label", :text => "Key 1*")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][0][configurationKey][name]'][value='key1']")
+      expect(response.body).to have_selector(".field input[type='text'][name='package_repository[configuration][0][configurationValue][value]'][value='v1']")
 
-      response.body.should have_tag(".field label", "Key 2")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
-      response.body.should have_tag(".field input[type='password'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
-      response.body.should have_tag(".field input[type='hidden'][name='package_repository[configuration][1][isChanged]'][value='1']")
+      expect(response.body).to have_selector(".field label", :text => "Key 2")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][configurationKey][name]'][value='key2']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='password'][name='package_repository[configuration][1][configurationValue][value]'][value='2AmGllf3Wbc=']")
+      expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][isChanged]'][value='1']")
 
-      response.body.should_not have_tag(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
-      response.body.should_not have_tag(".field label[for='checkbox_field_1']")
+      expect(response.body).not_to have_selector(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
+      expect(response.body).not_to have_selector(".field label[for='checkbox_field_1']")
 
-      response.body.should have_tag("button.submit span", "CHECK CONNECTION")
-      response.body.should have_tag("span#repository_connection_message")
+      expect(response.body).to have_selector("button.submit span", :text => "CHECK CONNECTION")
+      expect(response.body).to have_selector("span#repository_connection_message")
     end
   end
 end

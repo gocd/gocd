@@ -34,11 +34,11 @@ describe "admin/pipelines/clone.html.erb" do
 
     render
 
-    response.body.should have_tag("form[method='post']") do
-      with_tag("label[for='pipeline_group_pipeline_name']", "New Pipeline Name*")
-      with_tag("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
-      with_tag("label[for='pipeline_group_group']", "Pipeline Group Name")
-      with_tag("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
+    Capybara.string(response.body).find("form[method='post']").tap do |form|
+      expect(form).to have_selector("label[for='pipeline_group_pipeline_name']", :text => "New Pipeline Name*")
+      expect(form).to have_selector("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
+      expect(form).to have_selector("label[for='pipeline_group_group']", :text => "Pipeline Group Name")
+      expect(form).to have_selector("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
     end
   end
 

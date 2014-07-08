@@ -62,11 +62,12 @@ describe "admin/pipeline_groups/index.html.erb" do
 
     render
 
-    response.body.should have_tag("div.group_pipelines") do
-      with_tag("div.group") do
-        with_tag("h2.group_name", "group")
-        with_tag("div.information", "No pipelines associated with this group")
-        without_tag("table")
+    Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+      div.find("div.group") do |group|
+        expect(group).to have_selector("h2.group_name", :text => "group")
+        expect(group).to have_selector("div.information", :text => "No pipelines associated with this group")
+
+        expect(group).not_to have_selector("table")
       end
     end
   end
@@ -78,8 +79,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag(".group_pipelines") do
-        without_tag("a[href='#'][class='add_link']", "Add New Pipeline Group")
+      Capybara.string(response.body).find('.group_pipelines').tap do |div|
+        expect(div).not_to have_selector("a[href='#'][class='add_link']", :text => "Add New Pipeline Group")
       end
     end
   end
@@ -87,30 +88,30 @@ describe "admin/pipeline_groups/index.html.erb" do
   it "should display all pipelines with delete link" do
     render
 
-    response.body.should have_tag("div.group_pipelines") do
-      with_tag("div.group") do
-        with_tag("h2.group_name", "group_foo")
-        with_tag("a[href=?]", pipeline_group_edit_path(:group_name => "group_foo"))
-        with_tag("table") do
-          with_tag("thead tr.pipeline") do
-            with_tag("th.name", "Pipeline")
-            with_tag("th.actions", "Actions")
+    Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+      div.all("div.group") do |groups|
+        expect(groups[0]).to have_selector("h2.group_name", :text => "group_foo")
+        expect(groups[0]).to have_selector("a[href='#{pipeline_group_edit_path(:group_name => "group_foo")}']")
+        groups[0].find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th.name", :text => "Pipeline")
+            expect(tr).to have_selector("th.actions", :text => "Actions")
           end
-          with_tag("tbody") do
-            with_tag("tr.pipeline") do
-              with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
-              with_tag("td.actions") do
-                with_tag("ul") do
-                  with_tag("li span.delete_parent")
+          table.find("tbody") do |tbody|
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
+              tr.find("td.actions") do |td|
+                td.find("ul") do |ul|
+                  expect(ul).to have_selector("li span.delete_parent")
                 end
               end
             end
 
-            with_tag("tr.pipeline") do
-              with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
-              with_tag("td.actions") do
-                with_tag("ul") do
-                  with_tag("li span.delete_parent")
+            table.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
+              tr.find("td.actions") do |td|
+                td.find("ul") do |ul|
+                  expect(ul).to have_selector("li span.delete_parent")
                 end
               end
             end
@@ -125,14 +126,14 @@ describe "admin/pipeline_groups/index.html.erb" do
       assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       render
 
-      response.body.should have_tag("div.group_pipelines") do
-        with_tag("div.group") do
-          with_tag("h2.group_name", "empty_group")
-          with_tag("form[id='delete_group_empty_group'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'empty_group')}'][title=?]", "Delete this pipeline group") do
-            with_tag("input[name='_method'][value='delete']")
-            with_tag("span#trigger_delete_group_empty_group")
-            with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_group_empty_group #warning_prompt'\)/)
-            with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the pipeline group 'empty_group' \?/)
+      Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+        div.find("div.group") do |group|
+          expect(group).to have_selector("h2.group_name", :text => "empty_group")
+          group.find("form[id='delete_group_empty_group'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'empty_group')}'][title='Delete this pipeline group']") do |form|
+            expect(form).to have_selector("input[name='_method'][value='delete']")
+            expect(form).to have_selector("span#trigger_delete_group_empty_group")
+            expect(form).to have_selector("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_group_empty_group #warning_prompt'\)/)
+            expect(form).to have_selector("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the pipeline group 'empty_group' \?/)
           end
         end
       end
@@ -144,18 +145,19 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should_not have_tag("form#delete_group_empty_group")
-      response.body.should_not have_tag("span.icon_cannot_remove")
+      expect(response.body).not_to have_selector("form#delete_group_empty_group")
+      expect(response.body).not_to have_selector("span.icon_cannot_remove")
     end
 
     it "should display disabled delete link next to a non-empty pipeline group" do
-      render 'admin/pipeline_groups/index.html'
+      render
 
-      response.body.should have_tag("div.group_pipelines") do
-        with_tag("div.group") do
-          with_tag("h2.group_name", "group_foo")
-          with_tag("span.delete_icon_disabled[title=?]", "Move or Delete all pipelines within this group in order to delete it.")
-          without_tag("form[id='delete_group_group_foo'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'group_foo')}']")
+      Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+        div.all("div.group") do |groups|
+          expect(groups[0]).to have_selector("h2.group_name", :text => "group_foo")
+          expect(groups[0]).to have_selector("span.delete_icon_disabled[title='Move or Delete all pipelines within this group in order to delete it.']")
+
+          expect(groups[0]).not_to have_selector("form[id='delete_group_group_foo'][method='post'][action='#{pipeline_group_delete_path(:group_name => 'group_foo')}']")
         end
       end
     end
@@ -165,49 +167,47 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][id='some_random_id_form']") do
-        with_tag("span#trigger_some_random_id")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_foo'][id='some_random_id_form']").tap do |form|
+        expect(form).to have_selector("span#trigger_some_random_id")
       end
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_foo'][id='some_random_id_form']") do
-        with_tag("span#trigger_some_random_id")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_foo'][id='some_random_id_form']").tap do |form|
+        expect(form).to have_selector("span#trigger_some_random_id")
       end
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_bar'][id='some_random_id_form']") do
-        with_tag("span#trigger_some_random_id")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_bar'][id='some_random_id_form']").tap do |form|
+        expect(form).to have_selector("span#trigger_some_random_id")
       end
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_bar'][id='some_random_id_form']") do
-        with_tag("span#trigger_some_random_id")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_bar'][id='some_random_id_form']").tap do |form|
+        expect(form).to have_selector("span#trigger_some_random_id")
       end
     end
 
     it "should display all pipelines with delete link" do
       render
 
-      response.body.should have_tag("div.group_pipelines") do
-        with_tag("div.group") do
-          with_tag("h2.group_name", "group_foo")
-          with_tag("a[href=?]", pipeline_group_edit_path(:group_name => "group_foo"))
-          with_tag("table") do
-            with_tag("thead tr.pipeline") do
-              with_tag("th.name", "Pipeline")
-              with_tag("th.actions", "Actions")
+      Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+        div.all("div.group") do |groups|
+          expect(groups[0]).to have_selector("h2.group_name", "group_foo")
+          expect(groups[0]).to have_selector("a[href='#{pipeline_group_edit_path(:group_name => "group_foo")}']")
+          groups[0].find("table") do |table|
+            table.find("thead tr.pipeline") do |tr|
+              expect(tr).to have_selector("th.name", :text => "Pipeline")
+              expect(tr).to have_selector("th.actions", :text => "Actions")
             end
-            with_tag("tbody") do
-              with_tag("tr.pipeline") do
-                with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
-                with_tag("td.actions") do
-                  with_tag("ul") do
-                    with_tag("li span.delete_parent")
-
+            table.find("tbody") do |tbody|
+              tbody.find("tr.pipeline") do |tr|
+                expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']", "pipeline_in_group_foo")
+                tr.find("td.actions") do |td|
+                  td.find("ul") do |ul|
+                    expect(ul).to have_selector("li span.delete_parent")
                   end
                 end
               end
 
-              with_tag("tr.pipeline") do
-                with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
-                with_tag("td.actions") do
-                  with_tag("ul") do
-                    with_tag("li span.delete_parent")
-                    
+              tbody.find("tr.pipeline") do |tr|
+                expect(tr).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']", "pipeline_2_in_group_foo")
+                tr.find("td.actions") do |td|
+                  td.find("ul") do |ul|
+                    expect(ul).to have_selector("li span.delete_parent")
                   end
                 end
               end
@@ -215,22 +215,22 @@ describe "admin/pipeline_groups/index.html.erb" do
           end
         end
 
-        with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']", "pipeline_in_group_bar")
-        with_tag("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']", "pipeline_2_in_group_bar")
+        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']", "pipeline_in_group_bar")
+        expect(div).to have_selector("td.name a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']", "pipeline_2_in_group_bar")
       end
     end
 
     it "should wire delete action" do
       render
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']") do
-        with_tag("span.delete_parent")
-        with_tag("input[name='_method'][value='delete']")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']").tap do |form|
+        expect(form).to have_selector("span.delete_parent")
+        expect(form).to have_selector("input[name='_method'][value='delete']")
       end
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_foo'] span.delete_parent")
+      expect(response.body).to have_selector("form[action='/admin/pipelines/pipeline_2_in_group_foo'] span.delete_parent")
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_bar'] span.delete_parent")
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_bar'] span.delete_parent")
+      expect(response.body).to have_selector("form[action='/admin/pipelines/pipeline_in_group_bar'] span.delete_parent")
+      expect(response.body).to have_selector("form[action='/admin/pipelines/pipeline_2_in_group_bar'] span.delete_parent")
     end
 
     it "should not show delete action if the pipeline cannot be deleted" do
@@ -247,20 +247,20 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']") do
-        with_tag("span.delete_icon_disabled[title=?]", "Cannot delete pipeline 'pipeline_in_group_foo' as it is present in environment 'env'")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_foo'][method='post']").tap do |form|
+        expect(form.find("span.delete_icon_disabled")['title']).to eq("Cannot delete pipeline 'pipeline_in_group_foo' as it is present in environment 'env'")
       end
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_in_group_bar'][method='post']") do
-        with_tag("span.delete_icon_disabled[title=?]", "Cannot delete pipeline 'pipeline_in_group_bar' as pipeline 'pipeline_in_group_foo' depends on it")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_in_group_bar'][method='post']").tap do |form|
+        expect(form.find("span.delete_icon_disabled")['title']).to eq("Cannot delete pipeline 'pipeline_in_group_bar' as pipeline 'pipeline_in_group_foo' depends on it")
       end
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_foo'][method='post']") do
-        with_tag("span.delete_icon[title=?]", "Delete this pipeline")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_foo'][method='post']").tap do |form|
+        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline")
       end
 
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline_2_in_group_bar'][method='post']") do
-        with_tag("span.delete_icon[title=?]", "Delete this pipeline")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline_2_in_group_bar'][method='post']").tap do |form|
+        expect(form.find("span.delete_icon")['title']).to eq("Delete this pipeline")
       end
     end
   end
@@ -270,9 +270,9 @@ describe "admin/pipeline_groups/index.html.erb" do
 
     render
 
-    response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
+    expect(response.body).not_to have_selector(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
 
-    response.body.should_not have_tag"li form[action='#{move_pipeline_to_group_path(:pipeline_name => 'pipeline_in_group_foo')}'][method='post']"
+    expect(response.body).not_to have_selector"li form[action='#{move_pipeline_to_group_path(:pipeline_name => 'pipeline_in_group_foo')}'][method='post']"
   end
 
   describe "move pipeline" do
@@ -281,9 +281,9 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should_not have_tag(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
+      expect(response.body).not_to have_selector(".hidden#move_pipeline_from_group_group_foo_pipeline_in_group_foo")
 
-      response.body.should_not have_tag "li form[action='#{move_pipeline_to_group_path(:pipeline_name => 'pipeline_in_group_foo')}'][method='post']"
+      expect(response.body).not_to have_selector "li form[action='#{move_pipeline_to_group_path(:pipeline_name => 'pipeline_in_group_foo')}'][method='post']"
     end
   end
 
@@ -294,8 +294,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("div.group_pipelines") do
-        with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "group_foo"))
+      Capybara.string(response.body).find('div.group_pipelines').tap do |div|
+        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{pipeline_new_path(:group => "group_foo")}']")
       end
     end
 
@@ -304,8 +304,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("div.add_first_pipeline_in_group") do
-        with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "some-group"))
+      Capybara.string(response.body).find('div.add_first_pipeline_in_group').tap do |div|
+        expect(div).to have_selector("a.add_link.add_pipeline_to_group[href='#{pipeline_new_path(:group => "some-group")}']")
       end
     end
 
@@ -314,8 +314,8 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("span.title_secondary_info") do
-        with_tag("a.add_link.add_pipeline_to_group[href=?]", pipeline_new_path(:group => "defaultGroup"))
+      Capybara.string(response.body).find('span.title_secondary_info').tap do |span|
+        expect(span).to have_selector("a.add_link.add_pipeline_to_group[href='#{pipeline_new_path(:group => "defaultGroup")}']")
       end
     end
 
@@ -327,12 +327,14 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_bar', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_quux', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
-      response.body.should have_tag("li a[href='#'][class='add_link'][onclick=?]", "Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_quux', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+      Capybara.string(response.body).all("li a[href='#'][class='add_link']").tap do |lis|
+        expect(lis[0]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+        expect(lis[1]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_foo', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+        expect(lis[2]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_bar', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+        expect(lis[3]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_bar', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+        expect(lis[4]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_in_group_quux', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+        expect(lis[5]['onclick']).to eq("Util.ajax_modal('/admin/templates/new?pipelineToExtractFrom=pipeline_2_in_group_quux', {overlayClose: false, title: 'Extract Template'}, function(text){return text})")
+      end
     end
 
     it "should not show extract template link if user is not admin" do
@@ -340,43 +342,43 @@ describe "admin/pipeline_groups/index.html.erb" do
 
       render
 
-      response.body.should_not have_tag("li a[class='add_link']", "Extract Template")
-      response.body.should_not have_tag("span[class='action_icon add_icon_disabled']", "Extract Template")
+      expect(response.body).not_to have_selector("li a[class='add_link']", :text => "Extract Template")
+      expect(response.body).not_to have_selector("span[class='action_icon add_icon_disabled']", :text => "Extract Template")
     end
 
     it "should disable extract template button for pipeline already using a template" do
       render
 
-      response.body.should have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_foo", "Extract Template")
-      response.body.should have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_bar", "Extract Template")
-      response.body.should have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_quux", "Extract Template")
-      response.body.should.should_not have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_in_group_foo", "Extract Template")
-      response.body.should.should_not have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_2_in_group_bar", "Extract Template")
-      response.body.should.should_not have_tag("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_in_group_quux", "Extract Template")
+      expect(response.body).to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_foo", :text => "Extract Template")
+      expect(response.body).to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_bar", :text => "Extract Template")
+      expect(response.body).to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_with_template_in_group_quux", :text => "Extract Template")
+      expect(response.body).not_to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_in_group_foo", :text => "Extract Template")
+      expect(response.body).not_to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_2_in_group_bar", :text => "Extract Template")
+      expect(response.body).not_to have_selector("li span.add_icon_disabled.extract_template_for_pipeline_pipeline_in_group_quux", :text => "Extract Template")
     end
   end
 
   it "should wire edit button" do
     render
 
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']")
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']")
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']")
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']")
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_quux", :current_tab => "general")}']")
-    response.body.should have_tag("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_quux", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_bar", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_bar", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_foo", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_foo", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_in_group_quux", :current_tab => "general")}']")
+    expect(response.body).to have_selector("li a[href='#{pipeline_edit_path(:pipeline_name => "pipeline_2_in_group_quux", :current_tab => "general")}']")
 
   end
 
   it "should wire clone button" do
     render
 
-    response.body.should have_tag("li a.clone_button_for_pipeline_in_group_bar")
-    response.body.should have_tag("li a.clone_button_for_pipeline_2_in_group_bar")
-    response.body.should have_tag("li a.clone_button_for_pipeline_in_group_foo")
-    response.body.should have_tag("li a.clone_button_for_pipeline_2_in_group_foo")
-    response.body.should have_tag("li a.clone_button_for_pipeline_in_group_quux")
-    response.body.should have_tag("li a.clone_button_for_pipeline_2_in_group_quux")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_in_group_bar")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_2_in_group_bar")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_in_group_foo")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_2_in_group_foo")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_in_group_quux")
+    expect(response.body).to have_selector("li a.clone_button_for_pipeline_2_in_group_quux")
   end
 
 end

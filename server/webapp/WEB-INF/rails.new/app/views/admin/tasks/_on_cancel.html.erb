@@ -21,7 +21,7 @@
             %>
                 <div class="hidden task_entry <%= task_class_name -%>">
                     <%= on_cancel_config.fields_for oncancel_task.getTaskType() + "OnCancel", oncancel_task do |task_form| %>
-                        <%= render_pluggable_form_template(oncancel_task_vm, form_name_provider(task_form), {:scope => {:form => task_form, :task => oncancel_task}}) -%>
+                        <%== render_pluggable_form_template(oncancel_task_vm, form_name_provider(task_form), {:scope => {:form => task_form, :task => oncancel_task}}) -%>
                     <% end %>
                 </div>
             <% end %>

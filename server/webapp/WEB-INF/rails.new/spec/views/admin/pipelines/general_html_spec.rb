@@ -33,31 +33,31 @@ describe "admin/pipelines/general.html.erb" do
   it "should render new form" do
     render
 
-    response.body.should have_tag("#pipeline_edit_form") do
-      with_tag("input[type='hidden'][name='config_md5'][value='abc']")
+    Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
 
-      with_tag("div[class='contextual_help has_go_tip_right']")
-      with_tag("input[type='checkbox'][name='pipeline[#{PipelineConfig::LOCK}]']")
-      with_tag("input[type='text'][name='pipeline[#{PipelineConfig::NAME}]'][value='pipeline-name']")
+      expect(form).to have_selector("div[class='contextual_help has_go_tip_right']")
+      expect(form).to have_selector("input[type='checkbox'][name='pipeline[#{PipelineConfig::LOCK}]']")
+      expect(form).to have_selector("input[type='text'][name='pipeline[#{PipelineConfig::NAME}]'][value='pipeline-name']")
 
-      with_tag("input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='${COUNT}']")
+      expect(form).to have_selector("input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='${COUNT}']")
 
-      with_tag("input[type='text'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_SPEC}]'][value='1 1 1 1 1 1 1']")
+      expect(form).to have_selector("input[type='text'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_SPEC}]'][value='1 1 1 1 1 1 1']")
 
-      with_tag("input[type='checkbox'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_ONLY_ON_CHANGES}]']")
+      expect(form).to have_selector("input[type='checkbox'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_ONLY_ON_CHANGES}]']")
     end
-    response.body.should_not have_tag(".fieldWithErrors")
-    response.body.should_not have_tag(".form_error")
+    expect(response.body).not_to have_selector(".field_with_errors")
+    expect(response.body).not_to have_selector(".form_error")
   end
 
   it "should render form with approval type auto of the first stage" do
     render
 
-    response.body.should have_tag("#pipeline_edit_form") do
-      with_tag("input[type='hidden'][name='pipeline[approval][type]'][value=?]", "manual")
-      with_tag("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked'][value=?]", "success")
-      with_tag("label[for='pipeline_approval_type']", "Automatic pipeline scheduling")
-      with_tag("div.contextual_help.has_go_tip_right[title=?]", "If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.")
+    Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']")
+      expect(form).to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked'][value='success']")
+      expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
+      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
     end
   end
 
@@ -68,12 +68,13 @@ describe "admin/pipelines/general.html.erb" do
 
     render
 
-    response.body.should have_tag("#pipeline_edit_form") do
-      without_tag("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked']")
-      with_tag("input[type='hidden'][name='pipeline[approval][type]'][value=?]", "manual")
-      with_tag("input[type='checkbox'][name='pipeline[approval][type]'][value=?]", "success")
-      with_tag("label[for='pipeline_approval_type']", "Automatic pipeline scheduling")
-      with_tag("div.contextual_help.has_go_tip_right[title=?]", "If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.")
+    Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
+      expect(form).not_to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][checked='checked']")
+
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[approval][type]'][value='manual']")
+      expect(form).to have_selector("input[type='checkbox'][name='pipeline[approval][type]'][value='success']")
+      expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
+      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
     end
   end
 
@@ -85,11 +86,11 @@ describe "admin/pipelines/general.html.erb" do
 
     render
 
-    response.body.should have_tag("#pipeline_edit_form") do
-      with_tag("input[type='checkbox'][name='not_to_be_submitted'][checked='checked'][disabled='disabled']")
-      with_tag("label[for='pipeline_approval_type']", "Automatic pipeline scheduling")
-      with_tag("div.inline_instruction", "Since this pipeline is based on a template, automatic/manual behaviour is determined by the template (first stage)")
-      with_tag("div.contextual_help.has_go_tip_right[title=?]", "If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.")
+    Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
+      expect(form).to have_selector("input[type='checkbox'][name='not_to_be_submitted'][checked='checked'][disabled='disabled']")
+      expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
+      expect(form).to have_selector("div.inline_instruction", :text => "Since this pipeline is based on a template, automatic/manual behaviour is determined by the template (first stage)")
+      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
     end
   end
 
@@ -103,15 +104,15 @@ describe "admin/pipelines/general.html.erb" do
 
     render
 
-    response.body.should have_tag("#pipeline_edit_form") do
-      with_tag("div.fieldWithErrors input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='bad-label-template']")
-      with_tag("div.form_error", "Invalid label template")
+    Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
+      expect(form).to have_selector("div.field_with_errors input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='bad-label-template']")
+      expect(form).to have_selector("div.form_error", :text => "Invalid label template")
       
-      with_tag("div.fieldWithErrors input[type='checkbox'][name='pipeline[#{PipelineConfig::LOCK}]']")
-      with_tag("div.form_error", "Lock has a bad value")
+      expect(form).to have_selector("div.field_with_errors input[type='checkbox'][name='pipeline[#{PipelineConfig::LOCK}]']")
+      expect(form).to have_selector("div.form_error", :text => "Lock has a bad value")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_SPEC}]'][value='1 1 1 1 1 1 1']")
-      with_tag("div.form_error", "Invalid timer spec")
+      expect(form).to have_selector("div.field_with_errors input[type='text'][name='pipeline[#{PipelineConfig::TIMER_CONFIG}][#{TimerConfig::TIMER_SPEC}]'][value='1 1 1 1 1 1 1']")
+      expect(form).to have_selector("div.form_error", :text => "Invalid timer spec")
     end
   end
 

@@ -117,7 +117,7 @@ describe Admin::TasksController do
       assigns[:pipeline].should == @pipeline
       assigns[:stage].should == @pipeline.get(0)
       assigns[:job].should == @pipeline.get(0).getJobs().get(0)
-      assigns[:tasks].should == Tasks.new([@example_task].to_java(Task))
+      assigns[:tasks].should == com.thoughtworks.go.config.Tasks.new([@example_task].to_java(Task))
       assigns[:task_view_models].should == tasks
       assert_template "index"
       assert_template layout: "pipelines/job"

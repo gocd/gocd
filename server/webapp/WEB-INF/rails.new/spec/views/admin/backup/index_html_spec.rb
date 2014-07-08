@@ -40,7 +40,7 @@ describe "admin/backup/index.html.erb" do
     render
 
     Capybara.string(response.body).find('div.should_perform_backup_content').tap do |div|
-      expect(div).to have_selector("div.warning_message", "Jobs that are building may get rescheduled if the backup process takes a long time. Proceed with backup?")
+      expect(div).to have_selector("div.warning_message", :text => "Jobs that are building may get rescheduled if the backup process takes a long time. Proceed with backup?")
       div.find("form[id='backup_server_form'][method='post'][action='perform_backup_url']") do |form|
         form.find("button[type='submit']") do |submit_button|
           expect(submit_button).to have_selector("span", :text => 'PROCEED')

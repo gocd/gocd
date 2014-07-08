@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/pipelines/new.html.erb" do
+describe "admin/pipelines/template_form.html.erb" do
 
   before(:each) do
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
@@ -36,35 +36,36 @@ describe "admin/pipelines/new.html.erb" do
 
     render :partial => "admin/pipelines/template_form.html", :locals => {:scope => {:pipeline => @pipeline, :template_list => @templates, :form => @form}}
 
-    response.body.should have_tag("div#select_template_container") do
-      with_tag("select[name='pipeline_group[pipeline][templateName]']") do
-        with_tag("option[value='template.name']", "template.name")
-        with_tag("option[value='template.name.2']", "template.name.2")
+    Capybara.string(response.body).find('div#select_template_container').tap do |div|
+      div.find("select[name='pipeline_group[pipeline][templateName]']").tap do |select|
+        expect(select).to have_selector("option[value='template.name']", :text => "template.name")
+        expect(select).to have_selector("option[value='template.name.2']", :text => "template.name.2")
       end
-      with_tag("a.view_template_link", "View")
+      expect(div).to have_selector("a.view_template_link", :text => "View")
     end
   end
 
   it "should have a hidden section of parameters for a template" do
     scope = {:pipeline => @pipeline, :template_list => @templates, :form => @form}
+
     render :partial => "admin/pipelines/template_form.html", :locals => {:scope => scope}
 
-    with_tag("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name")]}") do
-      with_tag("label", "Define Parameters")
-      with_tag("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value=?]", "foo")
-      with_tag("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value=?]", "bar")
-      with_tag("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value=?]", "blah")
-      with_tag("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
-      with_tag("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
-      with_tag("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
-    end
-    with_tag("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name.2")]}") do
-      with_tag("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value=?]", "foo2")
-      with_tag("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
-    end
+    textarea_content = Capybara.string(response.body).find("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name")]}").text
 
-    response.body.should_not have_tag("div.information");
+    expect(textarea_content).to have_selector("label", :text => "Define Parameters")
+    expect(textarea_content).to have_selector("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value='foo']")
+    expect(textarea_content).to have_selector("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value='bar']")
+    expect(textarea_content).to have_selector("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value='blah']")
+    expect(textarea_content).to have_selector("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
+    expect(textarea_content).to have_selector("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
+    expect(textarea_content).to have_selector("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
 
+    textarea_content = Capybara.string(response.body).find("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name.2")]}").text
+
+    expect(textarea_content).to have_selector("input[readonly='readonly'][name='pipeline_group[pipeline][params][][name]'][value='foo2']")
+    expect(textarea_content).to have_selector("input[name='pipeline_group[pipeline][params][][valueForDisplay]']")
+
+    expect(response.body).not_to have_selector("div.information");
   end
 
   it "should have empty hidden section when no parameters for a template" do
@@ -74,15 +75,16 @@ describe "admin/pipelines/new.html.erb" do
 
     render :partial => "admin/pipelines/template_form.html", :locals => {:scope => scope}
 
-    with_tag("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name")]}",/\s*/)
+    expect(response.body).to have_selector("textarea##{scope[:name_body_map][CaseInsensitiveString.new("template.name")]}", /\s*/)
   end
 
   it "should provide message when no templates are available" do
     render :partial => "admin/pipelines/template_form.html", :locals => {:scope => {:pipeline => @pipeline, :template_list =>TemplatesConfig.new(), :form => @form}}
-    response.body.should have_tag("div#select_template_container") do
-      with_tag("div.information", "There are no templates configured")
+
+    Capybara.string(response.body).find("div#select_template_container").tap do |div|
+      expect(div).to have_selector("div.information", :text => "There are no templates configured")
     end
-    response.body.should_not have_tag("div.fieldset");
+    expect(response.body).not_to have_selector("div.fieldset");
   end
 
 end

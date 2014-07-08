@@ -40,16 +40,16 @@ describe "admin/jobs/tabs.html.erb" do
   it "should populate env vars for the pipeline" do
     render
 
-    response.body.should have_tag("form") do
-      with_tag("input[name='job[tabs][][name]'][value='tab1']")
-      with_tag("input[name='job[tabs][][original_name]'][value='tab1']")
-      with_tag("input[name='job[tabs][][path]'][value='path1']")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("input[name='job[tabs][][name]'][value='tab1']")
+      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab1']")
+      expect(form).to have_selector("input[name='job[tabs][][path]'][value='path1']")
 
-      with_tag("input[name='job[tabs][][name]'][value='tab2']")
-      with_tag("input[name='job[tabs][][original_name]'][value='tab2']")
-      with_tag("input[name='job[tabs][][path]'][value='path2']")
+      expect(form).to have_selector("input[name='job[tabs][][name]'][value='tab2']")
+      expect(form).to have_selector("input[name='job[tabs][][original_name]'][value='tab2']")
+      expect(form).to have_selector("input[name='job[tabs][][path]'][value='path2']")
 
-      with_tag("input[name='default_as_empty_list[]'][value='job>tabs']")
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='job>tabs']")
     end
   end
 
@@ -59,11 +59,11 @@ describe "admin/jobs/tabs.html.erb" do
 #
 #    render
 #
-#    response.body.should have_tag("form") do
-#      with_tag("div.fieldWithErrors input[name='job[variables][][name]'][value='env-name']")
-#      with_tag("div.name_value_error", "bad env var name")
-#      with_tag("div.fieldWithErrors input[name='job[variables][][value]'][value='env-val']")
-#      with_tag("div.name_value_error", "bad value")
+#    Capybara.string(response.body).find('form').tap do |form|
+#      expect(form).to have_selector("div.field_with_errors input[name='job[variables][][name]'][value='env-name']")
+#      expect(form).to have_selector("div.name_value_error", :text => "bad env var name")
+#      expect(form).to have_selector("div.field_with_errors input[name='job[variables][][value]'][value='env-val']")
+#      expect(form).to have_selector("div.name_value_error", :text => "bad value")
 #    end
 #  end
   

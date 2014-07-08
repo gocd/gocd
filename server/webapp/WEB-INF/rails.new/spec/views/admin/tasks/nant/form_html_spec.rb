@@ -31,24 +31,25 @@ describe "admin/tasks/nant/new.html.erb" do
 
   it "should render a simple nant task for new" do
     task = NantTask.new
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'new')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
-    response.body.should have_tag("form[action=?]", "task_create_path") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Build file")
-        with_tag("input[name='task[buildFile]']")
-        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
-        with_tag("label", "Target")
-        with_tag("input[name='task[target]']")
-        with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
-        with_tag("label", "Working directory")
-        with_tag("input[name='task[workingDirectory]']")
-        with_tag("div[class='contextual_help has_go_tip_right working_directory'][title=?]", "The directory from where NAnt is invoked.")
-        with_tag("label", "Nant path")
-        with_tag("input[name='task[nantPath]']")
-        with_tag("div[class='contextual_help has_go_tip_right nant_path'][title=?]", "Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.")
+    render :template => "admin/tasks/plugin/new.html.erb"
+
+    Capybara.string(response.body).find("form[action='task_create_path']").tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Build file")
+        expect(divs[0]).to have_selector("input[name='task[buildFile]']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title='Relative path to a NAnt build file. If not specified, the path defaults to &#39;default.build'.&#39;]")
+        expect(divs[0]).to have_selector("label", :text => "Target")
+        expect(divs[0]).to have_selector("input[name='task[target]']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right target'][title='NAnt target(s) to run. If not specified, defaults to the default target of the build file.']")
+        expect(divs[0]).to have_selector("label", :text => "Working directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right working_directory'][title='The directory from where NAnt is invoked.']")
+        expect(divs[0]).to have_selector("label", :text => "Nant path")
+        expect(divs[0]).to have_selector("input[name='task[nantPath]']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right nant_path'][title='Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.']")
       end
     end
   end
@@ -56,24 +57,25 @@ describe "admin/tasks/nant/new.html.erb" do
   it "should render a simple nant task for edit" do
     task = nant_task
     task.setNantPath(File.dirname(__FILE__))
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
-    response.body.should have_tag("form[action=?]", "task_update_path") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Build file")
-        with_tag("input[name='task[buildFile]'][value=?]", task.getBuildFile())
-        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
-        with_tag("label", "Target")
-        with_tag("input[name='task[target]'][value=?]", task.getTarget())
-        with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
-        with_tag("label", "Working directory")
-        with_tag("input[name='task[workingDirectory]'][value=?]", task.workingDirectory())
-        with_tag("div[class='contextual_help has_go_tip_right working_directory'][title=?]", "The directory from where NAnt is invoked.")
-        with_tag("label", "Nant path")
-        with_tag("input[name='task[nantPath]'][value=?]", task.getNantPath())
-        with_tag("div[class='contextual_help has_go_tip_right nant_path'][title=?]", "Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.")
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
+    Capybara.string(response.body).find("form[action='task_update_path']").tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Build file")
+        expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{task.getBuildFile()}']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right build_file'][title='Relative path to a NAnt build file. If not specified, the path defaults to &#39;default.build&#39;.']")
+        expect(divs[0]).to have_selector("label", :text => "Target")
+        expect(divs[0]).to have_selector("input[name='task[target]'][value='#{task.getTarget()}']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right target'][title='NAnt target(s) to run. If not specified, defaults to the default target of the build file.']")
+        expect(divs[0]).to have_selector("label", :text => "Working directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]'][value='#{task.workingDirectory()}']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right working_directory'][title='The directory from where NAnt is invoked.']")
+        expect(divs[0]).to have_selector("label", :text => "Nant path")
+        expect(divs[0]).to have_selector("input[name='task[nantPath]'][value='#{task.getNantPath()}']")
+        expect(divs[0]).to have_selector("div[class='contextual_help has_go_tip_right nant_path'][title='Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.']")
       end
     end
   end
@@ -87,17 +89,18 @@ describe "admin/tasks/nant/new.html.erb" do
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
-    response.body.should have_tag("form[action=?]", "task_create_path") do
-      with_tag("div.fieldset") do
-        with_tag("div.fieldWithErrors input[type='text'][name='task[buildFile]']")
-        with_tag("div.form_error", "build file error")
-        with_tag("div.fieldWithErrors input[type='text'][name='task[target]']")
-        with_tag("div.form_error", "target error")
-        with_tag("div.fieldWithErrors input[type='text'][name='task[workingDirectory]']")
-        with_tag("div.form_error", "working directory error")
-        with_tag("div.fieldWithErrors input[type='text'][name='task[nantPath]']")
-        with_tag("div.form_error", "nant path error")
+    render :template => "admin/tasks/plugin/new.html.erb"
+
+    Capybara.string(response.body).find("form[action='task_create_path']").tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[buildFile]']")
+        expect(divs[0]).to have_selector("div.form_error", :text => "build file error")
+        expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[target]']")
+        expect(divs[0]).to have_selector("div.form_error", :text => "target error")
+        expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[workingDirectory]']")
+        expect(divs[0]).to have_selector("div.form_error", :text => "working directory error")
+        expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[nantPath]']")
+        expect(divs[0]).to have_selector("div.form_error", :text => "nant path error")
       end
     end
   end
@@ -109,25 +112,26 @@ describe "admin/tasks/nant/new.html.erb" do
     oncancel.setNantPath(File.dirname(__FILE__))
     task.setCancelTask(oncancel)
 
-    assigns[:on_cancel_task_vms] = @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(task.cancelTask()), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel))
-    assigns[:task] = task
-    assigns[:task_view_model] = Spring.bean("taskViewService").getViewModel(task, 'edit')
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(task.cancelTask()), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:task, task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
-    response.body.should have_tag("form[action=?]", "task_update_path") do
-      with_tag("option[selected='selected'][value=?]", "nant")
-      with_tag("label", "Build file")
-      with_tag("input[name='task[onCancelConfig][nantOnCancel][buildFile]'][value=?]", oncancel.getBuildFile())
-      with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
-      with_tag("label", "Target")
-      with_tag("input[name='task[onCancelConfig][nantOnCancel][target]'][value=?]", oncancel.getTarget())
-      with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
-      with_tag("label", "Working directory")
-      with_tag("input[name='task[onCancelConfig][nantOnCancel][workingDirectory]'][value=?]", oncancel.workingDirectory())
-      with_tag("div[class='contextual_help has_go_tip_right working_directory'][title=?]", "The directory from where NAnt is invoked.")
-      with_tag("label", "Nant path")
-      with_tag("input[name='task[onCancelConfig][nantOnCancel][nantPath]'][value=?]", java.io.File.new(File.dirname(__FILE__)).to_s)
-      with_tag("div[class='contextual_help has_go_tip_right nant_path'][title=?]", "Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.")
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
+    Capybara.string(response.body).find("form[action='task_update_path']").tap do |form|
+      expect(form).to have_selector("option[selected='selected'][value='nant']")
+      expect(form).to have_selector("label", :text => "Build file")
+      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][buildFile]'][value='#{oncancel.getBuildFile()}']")
+      expect(form.all("div[class='contextual_help has_go_tip_right build_file']")[0]['title']).to eq("Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.")
+      expect(form).to have_selector("label", :text => "Target")
+      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][target]'][value='#{oncancel.getTarget()}']")
+      expect(form.all("div[class='contextual_help has_go_tip_right target']")[0]['title']).to eq("NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
+      expect(form).to have_selector("label", :text => "Working directory")
+      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][workingDirectory]'][value='#{oncancel.workingDirectory()}']")
+      expect(form.all("div[class='contextual_help has_go_tip_right working_directory']")[0]['title']).to eq("The directory from where NAnt is invoked.")
+      expect(form).to have_selector("label", :text => "Nant path")
+      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][nantPath]'][value='#{java.io.File.new(File.dirname(__FILE__)).to_s}']")
+      expect(form.all("div[class='contextual_help has_go_tip_right nant_path']")[0]['title']).to eq("Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.")
     end
   end
 end

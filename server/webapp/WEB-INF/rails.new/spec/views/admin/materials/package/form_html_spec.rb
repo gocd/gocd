@@ -39,17 +39,17 @@ describe "_form.html.erb" do
     in_params(:pipeline_name => "pipeline-name")
     render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-    response.body.should have_tag("input[type='hidden'][name='current_tab'][value=?]", "materials")
-    response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked=?]", "checked")
-    response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
-    response.body.should have_tag(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
-    response.body.should have_tag("select[name='material[package_definition[repositoryId]]']") do
-      without_tag("option")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
+    expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+    Capybara.string(response.body).find("select[name='material[package_definition[repositoryId]]']").tap do |select|
+      expect(select).not_to have_selector("option")
     end
-    response.body.should have_tag("select[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']") do
-      without_tag("option")
+    Capybara.string(response.body).find("select[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']").tap do |select|
+      expect(select).not_to have_selector("option")
     end
-    response.body.should have_tag(".form_buttons button[type='submit'] span", "SAVE")
+    expect(response.body).to have_selector(".form_buttons button[type='submit'] span", :text => "SAVE")
   end
 
   it "should pre-select repo and package for the material" do
@@ -58,17 +58,17 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-    response.body.should have_tag("input[type='hidden'][name='current_tab'][value=?]", "materials")
-    response.body.should have_tag(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
-    response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
-    response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked=?]", "checked")
-    response.body.should have_tag("select[name='material[package_definition[repositoryId]]']") do
-      without_tag("option")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+    expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
+    expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
+    Capybara.string(response.body).find("select[name='material[package_definition[repositoryId]]']").tap do |select|
+      expect(select).not_to have_selector("option")
     end
-    response.body.should have_tag("select[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']") do
-      without_tag("option")
+    Capybara.string(response.body).find("select[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']").tap do |select|
+      expect(select).not_to have_selector("option")
     end
-    response.body.should have_tag(".form_buttons button[type='submit'] span", "SAVE")
+    expect(response.body).to have_selector(".form_buttons button[type='submit'] span", :text => "SAVE")
   end
 
   describe "render package definition" do
@@ -83,54 +83,65 @@ describe "_form.html.erb" do
       p2 = ConfigurationProperty.new(ConfigurationKey.new("key2"), ConfigurationValue.new("value2"), nil, nil)
       p3_secure = ConfigurationProperty.new(ConfigurationKey.new("key3_secure"), nil, EncryptedConfigurationValue.new("secure"), nil)
       @package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2, p3_secure].to_java(ConfigurationProperty)))
-      assign(:package_configuration, PackageViewModel.new(@metadata, @package))
+      @package_view_model_new = PackageViewModel.new(@metadata, @package)
+      assign(:package_configuration, @package_view_model_new)
     end
 
     it "should render show_package_definition with check connection if the form was opened for associating a existing package definition" do
       in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
 
-      @controller.template.should_receive(:render).with(:partial => 'admin/package_definitions/show_package_definition', :locals => {:scope => {:package_configuration => assigns[:package_configuration]}})
+      stub_template "admin/package_definitions/show_package_definition" => "show package definition"
+
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
+
+      assert_template partial: "admin/package_definitions/show_package_definition", :locals => {:scope => {:package_configuration => @package_view_model_new}}
     end
 
     it "should render new package definition with check connection if the form was opened to create a new package definition" do
       in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "create"})
 
-      @controller.template.should_receive(:render).with(:partial => 'admin/package_definitions/form', :locals => {:scope => {:package_configuration => assigns[:package_configuration]}})
+      stub_template "admin/package_definitions/form" => "package definitions form"
+
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
+
+      assert_template partial: "admin/package_definitions/form", :locals => {:scope => {:package_configuration => @package_view_model_new}}
     end
 
     it "should render check connection when a form is opened for creating a new package definition" do
       in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "create"})
+
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-      response.body.should have_tag(".new_form_content") do
-        with_tag(".field.no-label-element") do
-          with_tag("button.submit#check_package span", "CHECK PACKAGE")
-          with_tag("span#package_check_message")
+      Capybara.string(response.body).find(".new_form_content").tap do |new_form_content|
+        new_form_content.find(".field.no-label-element") do |no_label_element|
+          expect(no_label_element).to have_selector("button.submit#check_package span", :text => "CHECK PACKAGE")
+          expect(no_label_element).to have_selector("span#package_check_message")
         end
       end
     end
 
     it "should render check connection when a form is opened for associating an existing package definition" do
       in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
+
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-      response.body.should have_tag(".new_form_content") do
-        with_tag(".field.no-label-element") do
-          with_tag("button.submit#check_package span", "CHECK PACKAGE")
-          with_tag("span#package_check_message")
+      Capybara.string(response.body).find(".new_form_content").tap do |new_form_content|
+        new_form_content.find(".field.no-label-element") do |no_label_element|
+          expect(no_label_element).to have_selector("button.submit#check_package span", :text => "CHECK PACKAGE")
+          expect(no_label_element).to have_selector("span#package_check_message")
         end
       end
     end
 
     it "should render warning if no repositories exist" do
-      assigns[:original_cruise_config].setPackageRepositories(PackageRepositories.new)
+      @cruise_config.setPackageRepositories(PackageRepositories.new)
+
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-      response.body.should have_tag(".new_form_content") do
-          with_tag("p.warnings", "No repositories found. Please add a package repository first.") do
-            with_tag("a[href='#{package_repositories_new_path}']", "add a package repository")
+      Capybara.string(response.body).find(".new_form_content").tap do |new_form_content|
+          expect(new_form_content).to have_selector("p.warnings", :text => "No repositories found. Please add a package repository first.")
+          new_form_content.find("p.warnings") do |warnings|
+            expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
           end
       end
     end
@@ -142,8 +153,8 @@ describe "_form.html.erb" do
 
       render :partial => "admin/materials/package/form.html", :locals => {:scope => {:material => @material, :url => "url", :submit_label => "save"}}
 
-      response.body.should_not have_tag("#check_package span")
-      response.body.should_not have_tag("span#package_check_message")
+      expect(response.body).not_to have_selector("#check_package span")
+      expect(response.body).not_to have_selector("span#package_check_message")
     end
   end
 end

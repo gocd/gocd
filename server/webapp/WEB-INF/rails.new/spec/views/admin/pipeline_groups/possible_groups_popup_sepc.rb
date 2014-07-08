@@ -26,10 +26,10 @@ describe "possible_groups_popup" do
 
     render :partial => "admin/pipeline_groups/possible_groups_popup", :locals => {:scope => {:possible_groups => ['group1','group2'], :pipeline_name => 'pipeline1', :md5_match => true}}
 
-    response.body.should have_tag("form") do
-      with_tag('ul') do
-        with_tag('li', 'group1')
-        with_tag('li', 'group2')
+    Capybara.string(response.body).find('form').tap do |form|
+      form.find("ul") do |ul|
+        expect(ul).to have_selector('li', :text => 'group1')
+        expect(ul).to have_selector('li', :text => 'group2')
       end
     end
   end
@@ -41,7 +41,6 @@ describe "possible_groups_popup" do
 
     render :partial => "admin/pipeline_groups/possible_groups_popup", :locals => {:scope => {:possible_groups => ['group1','group2'], :pipeline_name => 'pipeline1', :md5_match => false}}
 
-    response.body.should have_tag("p", "Failed to load groups. Configuration file has been modified by someone else. Please reload the page")
-
+    expect(response.body).to have_selector("p", :text => "Failed to load groups. Configuration file has been modified by someone else. Please reload the page")
   end
 end

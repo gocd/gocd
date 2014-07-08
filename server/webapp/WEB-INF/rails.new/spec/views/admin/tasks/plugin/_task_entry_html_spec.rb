@@ -37,8 +37,10 @@ describe "/admin/tasks/plugin/_task_entry.html.erb" do
     template.stub!(:render_pluggable_template) do |r, options|
       options[:modify_onclick_callback].inspect
     end
+
     render :partial => "admin/tasks/plugin/task_entry.html.erb",:locals => {:scope => {:tvm => @tvm, :tvm_of_cancel_task => @tvm_of_cancel_task,
                                                                                     :task_config_index => @task_config_index, :task_config => @task_config}}
+
     response.body.should include("title: 'Edit Some Type For Display task'")
   end
 end

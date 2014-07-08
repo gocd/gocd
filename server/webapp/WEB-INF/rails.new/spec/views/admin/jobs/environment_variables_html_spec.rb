@@ -21,7 +21,10 @@ describe "admin/jobs/environment_variables.html.erb" do
   include GoUtil, ReflectiveUtil, FormUI
 
   before(:each) do
-    set_variables
+    @variables = EnvironmentVariablesConfig.new()
+    @variables.add("env-name", "env-val")
+    @variables.add("env-name2", "env-val2")
+
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))
     stage = pipeline.get(0)
     @job = stage.getJobs().get(0)
@@ -35,9 +38,9 @@ describe "admin/jobs/environment_variables.html.erb" do
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")
 
-    @view_file = "admin/jobs/environment_variables.html"
+    @view_file = "admin/jobs/environment_variables.html.erb"
     @object_name = 'job'
   end
 
-  it_should_behave_like 'environment_variables_form'
+  it_should_behave_like :environment_variables_form
 end

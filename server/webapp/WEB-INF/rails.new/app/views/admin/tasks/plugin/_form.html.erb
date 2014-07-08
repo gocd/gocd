@@ -7,7 +7,7 @@
         <h3><%= l.string("BASIC_SETTINGS") %></h3>
         <div id="task">
             <div class="task fieldset">
-                <%= render_pluggable_form_template(scope[:tvm], form_name_provider(f), { :scope => {:task => scope[:task], :form => f}}) -%>
+                <%== render_pluggable_form_template(scope[:tvm], form_name_provider(f), { :scope => {:task => scope[:task], :form => f}}) -%>
                 <% unless scope[:hide_runif] %>
                     <div class="form_item required">
                         <%= render :partial => "admin/tasks/runif.html", :locals => {:scope => {:form => f, :on_cancel => false, :run_if => true, :runif_container => random_dom_id('run_if_options_')}} %>

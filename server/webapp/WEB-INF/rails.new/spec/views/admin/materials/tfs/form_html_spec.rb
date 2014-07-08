@@ -36,38 +36,40 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    response.body.should have_tag("input[type='hidden'][name='current_tab'][value=?]", "materials")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Tfs Material Name']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]'][value='http://10.4.4.101:8080/tfs/Sample']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]'][value='loser']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN}]'][value='domain']")
-    response.body.should have_tag(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
-    response.body.should have_tag(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::ENCRYPTED_PASSWORD}]'][value='#{@material_config.getEncryptedPassword()}']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='boulder']")
-    response.body.should have_tag(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'][value='walk_this_path']")
-    response.body.should have_tag(".popup_form textarea[name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FILTER}]']", "/sugar,/jaggery")
-    response.body.should have_tag(".form_buttons button[type='submit'] span", "FOO")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Tfs Material Name']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]'][value='http://10.4.4.101:8080/tfs/Sample']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]'][value='loser']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN}]'][value='domain']")
+    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::ENCRYPTED_PASSWORD}]'][value='#{@material_config.getEncryptedPassword()}']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='boulder']")
+    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'][value='walk_this_path']")
+    expect(response.body).to have_selector(".popup_form textarea[name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FILTER}]']", :text => "/sugar,/jaggery")
+    expect(response.body).to have_selector(".form_buttons button[type='submit'] span", :text => "FOO")
 
-    response.body.should_not have_tag(".popup_form input[type='text'][name='material[workspaceOwner]']")
-    response.body.should_not have_tag(".popup_form input[type='text'][name='material[workspace]']")
+    expect(response.body).not_to have_selector(".popup_form input[type='text'][name='material[workspaceOwner]']")
+    expect(response.body).not_to have_selector(".popup_form input[type='text'][name='material[workspace]']")
   end
 
   it "should display the password field disabled in edit mode" do
     in_params(:pipeline_name => "pipeline_name")
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO", :edit_mode => true}}
-    response.body.should have_tag(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
-    response.body.should have_tag(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD_CHANGED}]']")
+
+    expect(response.body).to have_selector(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
+    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD_CHANGED}]']")
   end
 
   it "should display the password field as textbox in new mode" do
     in_params(:pipeline_name => "pipeline_name")
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO", :edit_mode => false}}
-    response.body.should have_tag(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PASSWORD}]']")
-    response.body.should have_tag(".popup_form  div[class='hidden']") do
-      with_tag("input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PASSWORD_CHANGED}]'][value=?][checked='checked']", "1")
+
+    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PASSWORD}]']")
+    Capybara.string(response.body).find(".popup_form  div[class='hidden']").tap do |popup_form|
+      expect(popup_form).to have_selector("input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PASSWORD_CHANGED}]'][value='1'][checked='checked']")
     end
   end
 
@@ -76,11 +78,11 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
-    response.body.should have_tag(".popup_form button#check_connection_tfs", "CHECK CONNECTION")
-    response.body.should have_tag(".popup_form #vcsconnection-message_tfs", "")
-    response.body.should have_tag(".url")
-    response.body.should have_tag(".username")
-    response.body.should have_tag(".password")
+    expect(response.body).to have_selector(".popup_form button#check_connection_tfs", :text => "CHECK CONNECTION")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_tfs", :text => "")
+    expect(response.body).to have_selector(".url")
+    expect(response.body).to have_selector(".username")
+    expect(response.body).to have_selector(".password")
   end
 
   it "should display new tfs material view with errors" do
@@ -98,35 +100,34 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    response.body.should have_tag(".popup_form") do
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Tfs Material Name']")
-      with_tag("div.form_error", "Material Name is so wrong")
+    Capybara.string(response.body).find('.popup_form').tap do |popup_form|
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME}]'][value='Tfs Material Name']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Material Name is so wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]'][value='http://10.4.4.101:8080/tfs/Sample']")
-      with_tag("div.form_error", "Url is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]'][value='http://10.4.4.101:8080/tfs/Sample']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Url is wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]'][value='loser']")
-      with_tag("div.form_error", "Username is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]'][value='loser']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Username is wrong")
 
-      with_tag("div.fieldWithErrors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
-      with_tag("div.form_error", "Password is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Password is wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='boulder']")
-      with_tag("div.form_error", "Folder is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER}]'][value='boulder']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Folder is wrong")
 
-      with_tag("div.fieldWithErrors input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
-      with_tag("div.form_error", "AUTO_UPDATE is wrong")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+      expect(popup_form).to have_selector("div.form_error", :text => "AUTO_UPDATE is wrong")
 
-
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'][value='walk_this_path']")
-      with_tag("div.form_error", "path you talk and path you walk are different.")
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'][value='walk_this_path']")
+      expect(popup_form).to have_selector("div.form_error", :text => "path you talk and path you walk are different.")
 
       #Have skipped asserting on the div fieldWithError thats rendered around the text area , since the keys mismatch (pattern vs filter). Div around the actual text area is currently
       #not affecting functionality in any way.
-      with_tag("div.form_error", "Filter is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
 
-      without_tag("div.fieldWithErrors input[type='text'][name='material[workspaceOwner]'][value='m1cr050f7']")
-      without_tag("div.fieldWithErrors input[type='text'][name='material[workspace]'][value='work_in_space']")
+      expect(popup_form).not_to have_selector("div.field_with_errors input[type='text'][name='material[workspaceOwner]'][value='m1cr050f7']")
+      expect(popup_form).not_to have_selector("div.field_with_errors input[type='text'][name='material[workspace]'][value='work_in_space']")
     end
   end
 end

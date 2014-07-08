@@ -36,11 +36,12 @@ describe "admin/jobs/index.html.erb" do
 
   it "should show appropriate headers in table" do
     render
-    response.body.should have_tag("table.list_table") do
-      with_tag("th", "Job")
-      with_tag("th", "Resources")
-      with_tag("th", "Run on all")
-      with_tag("th", "Remove")
+
+    Capybara.string(response.body).find('table.list_table').tap do |table|
+      expect(table).to have_selector("th", :text => "Job")
+      expect(table).to have_selector("th", :text => "Resources")
+      expect(table).to have_selector("th", :text => "Run on all")
+      expect(table).to have_selector("th", :text => "Remove")
     end
   end
 
@@ -49,39 +50,43 @@ describe "admin/jobs/index.html.erb" do
 
     render
 
-    response.body.should have_tag("table.list_table") do
-      with_tag("tr") do
-        with_tag("td", "job-1") do
-          with_tag("a[href=?]", admin_tasks_listing_path(:job_name => "job-1", :current_tab => "tasks"))
+    Capybara.string(response.body).find('table.list_table').tap do |table|
+      table.all("tr") do |trs|
+        expect(trs[0]).to have_selector("td", :text => "job-1")
+        trs[0].find("td") do |td|
+          expect(td).to have_selector("a[href='#{admin_tasks_listing_path(:job_name => "job-1", :current_tab => "tasks")}']")
         end
-        with_tag("td", "resource-1, resource-2")
-        with_tag("td", "Yes")
-        with_tag("td span.icon_remove[id=?]", 'trigger_delete_job_random_id')
-        with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
-        with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the job 'job-1' \?/)
+        expect(trs[0]).to have_selector("td", :text => "resource-1, resource-2")
+        expect(trs[0]).to have_selector("td", :text => "Yes")
+        expect(trs[0]).to have_selector("td span.icon_remove[id='trigger_delete_job_random_id']")
+        expect(trs[0]).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
+        expect(trs[0]).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the job 'job-1' \?/)
       end
-      with_tag("tr") do
-        with_tag("td", "job-2") do
-          with_tag("a[href=?]", admin_tasks_listing_path(:job_name => "job-2", :current_tab => "tasks"))
+      table.all("tr") do |trs|
+        expect(trs[1]).to have_selector("td", :text => "job-2")
+        trs[1].find("td") do |td|
+          expect(td).to have_selector("a[href='#{admin_tasks_listing_path(:job_name => "job-2", :current_tab => "tasks")}']")
         end
-        with_tag("td", "")
-        with_tag("td", "No")
-        with_tag("td span.icon_remove[id=?]", 'trigger_delete_job_random_id')
-        with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
-        with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the job 'job-2' \?/)
+        expect(trs[1]).to have_selector("td", :text => "")
+        expect(trs[1]).to have_selector("td", :text => "No")
+        expect(trs[1]).to have_selector("td span.icon_remove[id='trigger_delete_job_random_id']")
+        expect(trs[1]).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
+        expect(trs[1]).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the job 'job-2' \?/)
       end
-      with_tag("tr") do
-        with_tag("td", "job-3")do
-          with_tag("a[href=?]", admin_tasks_listing_path(:job_name => "job-3", :current_tab => "tasks"))
+      table.all("tr") do |trs|
+        expect(trs[2]).to have_selector("td", :text => "job-3")
+        trs[2].find("td") do |td|
+          expect(td).to have_selector("a[href='#{admin_tasks_listing_path(:job_name => "job-3", :current_tab => "tasks")}']")
         end
-        with_tag("td", "")
-        with_tag("td", "No")
-        with_tag("td span.icon_remove[id=?]", 'trigger_delete_job_random_id')
-        with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
-        with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the job 'job-3' \?/)
+        expect(trs[2]).to have_selector("td", :text => "")
+        expect(trs[2]).to have_selector("td", :text => "No")
+        expect(trs[2]).to have_selector("td span.icon_remove[id='trigger_delete_job_random_id']")
+        expect(trs[2]).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_job_random_id #warning_prompt'\)/)
+        expect(trs[2]).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the job 'job-3' \?/)
       end
     end
-    response.body.should_not have_tag(".fieldWithErrors")
-    response.body.should_not have_tag(".form_error")
+
+    expect(response.body).not_to have_selector(".field_with_errors")
+    expect(response.body).not_to have_selector(".form_error")
   end
 end

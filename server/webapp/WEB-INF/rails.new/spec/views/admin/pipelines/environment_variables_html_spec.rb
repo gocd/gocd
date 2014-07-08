@@ -21,7 +21,10 @@ describe "admin/pipelines/environment_variables.html.erb" do
   include GoUtil, ReflectiveUtil, FormUI
 
   before(:each) do
-    set_variables
+    @variables = EnvironmentVariablesConfig.new()
+    @variables.add("env-name", "env-val")
+    @variables.add("env-name2", "env-val2")
+
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")
 
     variables = EnvironmentVariablesConfig.new
@@ -37,54 +40,54 @@ describe "admin/pipelines/environment_variables.html.erb" do
 
     in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/pipelines")
 
-    @view_file = "admin/pipelines/environment_variables.html"
+    @view_file = "admin/pipelines/environment_variables.html.erb"
     @object_name = 'pipeline'
   end
   
-  it_should_behave_like 'environment_variables_form'
+  it_should_behave_like :environment_variables_form
 
   describe "encrypted_environment_variables" do
 
     it "should display the secure variables section" do
-      render @view_file
+      render :template => @view_file
 
-      response.body.should have_tag("h3", "Secure Variables");
+      expect(response.body).to have_selector("h3", :text => "Secure Variables");
     end
 
     it "should populate secure env vars for the pipeline" do
-      render @view_file
+      render :template => @view_file
 
-      response.body.should have_tag("form") do
-        with_tag("input[name='#{@object_name}[variables][][name]'][value='password']")
-        with_tag("input[name='#{@object_name}[variables][][original_name]'][value='password']")
-        with_tag("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password']")
-        with_tag("input[name='#{@object_name}[variables][][secure]'][value='true']")
+      Capybara.string(response.body).find('form').tap do |form|
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='password']")
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='password']")
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password']")
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][secure]'][value='true']")
 
-        with_tag("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
+        expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
       end
     end
 
     it "should have correct row templates for secure section" do
-      render @view_file
+      render :template => @view_file
 
-      response.body.should have_tag("form") do
-        with_tag("textarea#variables_secure_variables_template") do
-          with_tag("input[name='pipeline[variables][][valueForDisplay]'][type='password']")
-          with_tag("input#pipeline_variables__secure")
-          with_tag("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='true']")
-        end
+      Capybara.string(response.body).find('form').tap do |form|
+        textarea_content = form.find("textarea#variables_secure_variables_template").text
+
+        expect(textarea_content).to have_selector("input[name='pipeline[variables][][valueForDisplay]'][type='password']")
+        expect(textarea_content).to have_selector("input#pipeline_variables__secure")
+        expect(textarea_content).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='true']")
       end
     end
 
     it "should show edit link" do
-      render @view_file
+      render :template => @view_file
 
-      response.body.should have_tag("form") do
-        with_tag("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password'][readonly='readonly']")
-        with_tag("input[name='#{@object_name}[variables][][originalValue]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='hidden']")
-        with_tag("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='false']")
-        with_tag("a.edit.skip_dirty_stop", "Edit")
-        with_tag("a.reset.hidden.skip_dirty_stop", "Reset")
+      Capybara.string(response.body).find('form').tap do |form|
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password'][readonly='readonly']")
+        expect(form).to have_selector("input[name='#{@object_name}[variables][][originalValue]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='hidden']")
+        expect(form).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='false']")
+        expect(form).to have_selector("a.edit.skip_dirty_stop", :text => "Edit")
+        expect(form).to have_selector("a.reset.hidden.skip_dirty_stop", :text => "Reset")
       end
     end
   end

@@ -28,7 +28,7 @@ describe "admin/pipelines_snippet/show.html.erb" do
     render
 
     Capybara.string(response.body).find('div#view_group').tap do |div|
-      expect(div).to have_selector("pre#content_container", "&lt;foo&gt;&lt;/foo&gt;")
+      expect(div).to have_selector("pre#content_container", :text => "<foo></foo>") # user sees <foo></foo>
       expect(div).to have_selector("a.edit[href='#{pipelines_snippet_edit_path(:group_name => 'foo')}']", :text => 'Edit')
     end
     Capybara.string(response.body).find('div#modifiable_groups').tap do |div|

@@ -54,26 +54,26 @@ describe "admin/pipelines/new.html.erb" do
   it "should have a page title and view title" do
     render
 
-    assigns[:view_title].should == "Add Pipeline"
-    assigns[:page_header].should have_tag("h1#page-title", "Add Pipeline")
+    assigns(:view_title).should == "Add Pipeline"
+    assigns(:page_header).should have_selector("h1#page-title", :text => "Add Pipeline")
   end
 
   it "should show wizard steps and the steps should be disabled" do
     render
 
-    response.body.should have_tag("div.steps_wrapper") do
-      with_tag("ul.tabs") do
-        with_tag("li#step1_link.disabled") do
-          with_tag("a[href='#']", "Step 1:Basic Settings")
-          with_tag("a.tab_button_body_match_text[href='#']", "basic-settings")
+    Capybara.string(response.body).find('div.steps_wrapper').tap do |div|
+      div.find("ul.tabs") do |ul|
+        ul.find("li#step1_link.disabled") do |li|
+          expect(li).to have_selector("a[href='#']", :text => "Step 1:Basic Settings")
+          expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "basic-settings")
         end
-        with_tag("li#step2_link.disabled") do
-          with_tag("a[href='#']", "Step 2:Materials")
-          with_tag("a.tab_button_body_match_text[href='#']", "materials")
+        ul.find("li#step2_link.disabled") do |li|
+          expect(li).to have_selector("a[href='#']", :text => "Step 2:Materials")
+          expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "materials")
         end
-        with_tag("li#step3_link.disabled") do
-          with_tag("a[href='#']", "Step 3:Stage/Job")
-          with_tag("a.tab_button_body_match_text[href='#']", "stage-and-job")
+        ul.find("li#step3_link.disabled") do |li|
+          expect(li).to have_selector("a[href='#']", :text => "Step 3:Stage/Job")
+          expect(li).to have_selector("a.tab_button_body_match_text[href='#']", :text => "stage-and-job")
         end
       end
     end
@@ -86,12 +86,12 @@ describe "admin/pipelines/new.html.erb" do
 
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
-          with_tag("label[for='pipeline_group_pipeline_name']", "Pipeline Name*")
-          with_tag("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
-          with_tag("label[for='pipeline_group_group']", "Pipeline Group Name")
-          with_tag("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do |div|
+          expect(div).to have_selector("label[for='pipeline_group_pipeline_name']", :text => "Pipeline Name*")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
+          expect(div).to have_selector("label[for='pipeline_group_group']", :text => "Pipeline Group Name")
+          expect(div).to have_selector("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
         end
       end
     end
@@ -101,12 +101,12 @@ describe "admin/pipelines/new.html.erb" do
 
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
-          with_tag("label[for='pipeline_group_pipeline_name']", "Pipeline Name*")
-          with_tag("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
-          with_tag("label[for='pipeline_group_group']", "Pipeline Group Name")
-          with_tag("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value=?]", "foo.bar")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do |div|
+          expect(div).to have_selector("label[for='pipeline_group_pipeline_name']", :text => "Pipeline Name*")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]']")
+          expect(div).to have_selector("label[for='pipeline_group_group']", :text => "Pipeline Group Name")
+          expect(div).to have_selector("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='foo.bar']")
         end
       end
     end
@@ -117,13 +117,14 @@ describe "admin/pipelines/new.html.erb" do
       
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
-          with_tag("label[for='pipeline_group_group']", "Pipeline Group Name")
-          without_tag("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
-          with_tag("select[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]']") do
-            with_tag("option[value='foo.bar']", "foo.bar")
-            with_tag("option[value='some_other_group']", "some_other_group")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do |div|
+          expect(div).to have_selector("label[for='pipeline_group_group']", :text => "Pipeline Group Name")
+          expect(div).not_to have_selector("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][value='']")
+
+          form.find("select[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]']") do |select|
+            expect(select).to have_selector("option[value='foo.bar']", :text => "foo.bar")
+            expect(select).to have_selector("option[value='some_other_group']", :text => "some_other_group")
           end
         end
       end
@@ -132,9 +133,9 @@ describe "admin/pipelines/new.html.erb" do
     it "should have section title" do
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings") do
-          with_tag("h2.section_title", "Step 1: Basic Settings")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings") do |div|
+          expect(div).to have_selector("h2.section_title", :text => "Step 1: Basic Settings")
         end
       end
     end
@@ -142,27 +143,29 @@ describe "admin/pipelines/new.html.erb" do
     it "should have form buttons" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings") do
-        with_tag("button.cancel_button", "Cancel")
-        with_tag("button#next_to_settings", "Next")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings').tap do |div|
+        expect(div).to have_selector("button.cancel_button", :text => "Cancel")
+        expect(div).to have_selector("button#next_to_settings", :text => "Next")
       end
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials") do
-        with_tag("button.cancel_button", "Cancel")
-        with_tag("button#next_to_materials", "Next")
-        with_tag("button#prev_to_materials", "Previous")
+
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-materials').tap do |div|
+        expect(div).to have_selector("button.cancel_button", :text => "Cancel")
+        expect(div).to have_selector("button#next_to_materials", :text => "Next")
+        expect(div).to have_selector("button#prev_to_materials", :text => "Previous")
       end
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("button.cancel_button", "Cancel")
-        with_tag("button.finish", "FINISH")
-        with_tag("button#prev_to_stage_and_job", "Previous")
+
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector("button.cancel_button", :text => "Cancel")
+        expect(div).to have_selector("button.finish", :text => "FINISH")
+        expect(div).to have_selector("button#prev_to_stage_and_job", :text => "Previous")
       end
     end
 
     it "should have config md5 hidden field" do
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("input[type='hidden'][name='config_md5'][value='abc']")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
       end
     end
   end
@@ -172,14 +175,14 @@ describe "admin/pipelines/new.html.erb" do
     it "should have material section " do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials") do
-        with_tag("h2.section_title", "Step 2: Materials")
-        with_tag("label","Material Type*")
-        with_tag("select[name='pipeline_group[pipeline][materials][materialType]']") do
-          with_tag("option[value='SvnMaterial']", "Subversion")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-materials').tap do |div|
+        expect(div).to have_selector("h2.section_title", :text => "Step 2: Materials")
+        expect(div).to have_selector("label", :text => "Material Type*")
+        div.find("select[name='pipeline_group[pipeline][materials][materialType]']") do |select|
+          expect(select).to have_selector("option[value='SvnMaterial']", :text => "Subversion")
         end
-        with_tag("button.cancel_button", "Cancel")
-        with_tag("button#next_to_materials", "Next")
+        expect(div).to have_selector("button.cancel_button", :text => "Cancel")
+        expect(div).to have_selector("button#next_to_materials", :text => "Next")
       end
     end
 
@@ -190,32 +193,32 @@ describe "admin/pipelines/new.html.erb" do
 
         render
 
-        response.body.should have_tag("div#tab-content-of-materials div.form_content") do
-          with_tag("label", "URL*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]']")
+        Capybara.string(response.body).find('div#tab-content-of-materials div.form_content').tap do |div|
+          expect(div).to have_selector("label", :text => "URL*")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]']")
 
-          with_tag("label", "Username")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
+          expect(div).to have_selector("label", :text => "Username")
+          expect(div).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
 
-          with_tag("label", "Password")
-          with_tag("input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
+          expect(div).to have_selector("label", :text => "Password")
+          expect(div).to have_selector("input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
         end
       end
 
       it "should display check connection button" do
         render
 
-        response.body.should have_tag("button#check_connection_svn", "CHECK CONNECTION")
-        response.body.should have_tag("#vcsconnection-message_svn", "")
+        expect(response.body).to have_selector("button#check_connection_svn", :text => "CHECK CONNECTION")
+        expect(response.body).to have_selector("#vcsconnection-message_svn", :text => "")
 
-        response.body.should have_tag("button#check_connection_hg", "CHECK CONNECTION")
-        response.body.should have_tag("#vcsconnection-message_hg", "")
+        expect(response.body).to have_selector("button#check_connection_hg", :text => "CHECK CONNECTION")
+        expect(response.body).to have_selector("#vcsconnection-message_hg", :text => "")
 
-        response.body.should have_tag("button#check_connection_git", "CHECK CONNECTION")
-        response.body.should have_tag("#vcsconnection-message_git", "")
+        expect(response.body).to have_selector("button#check_connection_git", :text => "CHECK CONNECTION")
+        expect(response.body).to have_selector("#vcsconnection-message_git", :text => "")
 
-        response.body.should have_tag("button#check_connection_p4", "CHECK CONNECTION")
-        response.body.should have_tag("#vcsconnection-message_p4", "")
+        expect(response.body).to have_selector("button#check_connection_p4", :text => "CHECK CONNECTION")
+        expect(response.body).to have_selector("#vcsconnection-message_p4", :text => "")
       end
 
       it "should display new svn material view with errors" do
@@ -227,16 +230,16 @@ describe "admin/pipelines/new.html.erb" do
 
         render
 
-        response.body.should have_tag("form[method='post'][action='create_path']") do
-          with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do
-            with_tag("div.fieldWithErrors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'][value='svn://foo']")
-            with_tag("div.form_error", "Url is wrong")
+        Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+          form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do |div|
+            expect(div).to have_selector("div.field_with_errors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'][value='svn://foo']")
+            expect(div).to have_selector("div.form_error", :text => "Url is wrong")
 
-            with_tag("div.fieldWithErrors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
-            with_tag("div.form_error", "Username is wrong")
+            expect(div).to have_selector("div.field_with_errors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
+            expect(div).to have_selector("div.form_error", :text => "Username is wrong")
 
-            with_tag("div.fieldWithErrors input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
-            with_tag("div.form_error", "Password is wrong")
+            expect(div).to have_selector("div.field_with_errors input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
+            expect(div).to have_selector("div.form_error", :text => "Password is wrong")
           end
         end
       end
@@ -249,28 +252,28 @@ describe "admin/pipelines/new.html.erb" do
     it "should have the title Stage/Job" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("h2.section_title", "Step 3: Stage/Job")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector("h2.section_title", :text => "Step 3: Stage/Job")
       end
     end
 
     it "should not have next button on the stage step" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        without_tag("button.next")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).not_to have_selector("button.next")
       end
     end
 
     it "should have configuration type" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("label", "Configuration Type")
-        with_tag("label[for='pipeline_configurationType_stages']", "Define Stages")
-        with_tag("input#pipeline_configurationType_stages[type='radio'][checked='checked']")
-        with_tag("label[for='pipeline_configurationType_template']", "Use Template")
-        with_tag("input#pipeline_configurationType_template[type='radio']")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector("label", :text => "Configuration Type")
+        expect(div).to have_selector("label[for='pipeline_configurationType_stages']", :text => "Define Stages")
+        expect(div).to have_selector("input#pipeline_configurationType_stages[type='radio'][checked='checked']")
+        expect(div).to have_selector("label[for='pipeline_configurationType_template']", :text => "Use Template")
+        expect(div).to have_selector("input#pipeline_configurationType_template[type='radio']")
       end
     end
 
@@ -280,40 +283,40 @@ describe "admin/pipelines/new.html.erb" do
 
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag(".define_or_template label", "Configuration Type")
-        with_tag("label[for='pipeline_configurationType_stages']", "Define Stages")
-        with_tag("input#pipeline_configurationType_stages[type='radio']")
-        without_tag("input#pipeline_configurationType_stages[type='radio'][checked='checked']")
-        with_tag("label[for='pipeline_configurationType_template']", "Use Template")
-        with_tag("input#pipeline_configurationType_template[type='radio'][checked='checked']")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector(".define_or_template label", :text => "Configuration Type")
+        expect(div).to have_selector("label[for='pipeline_configurationType_stages']", :text => "Define Stages")
+        expect(div).to have_selector("input#pipeline_configurationType_stages[type='radio']")
+        expect(div).not_to have_selector("input#pipeline_configurationType_stages[type='radio'][checked='checked']")
+        expect(div).to have_selector("label[for='pipeline_configurationType_template']", :text => "Use Template")
+        expect(div).to have_selector("input#pipeline_configurationType_template[type='radio'][checked='checked']")
       end
     end
 
     it "should be able to see stage information" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("input[name='pipeline_group[pipeline][stage][name]'][value=?]", "defaultStage")
-        with_tag("input[name='pipeline_group[pipeline][stage][approval][type]'][type='radio'][value='success']")
-        with_tag("input[name='pipeline_group[pipeline][stage][approval][type]'][type='radio'][value='manual']")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][name]'][value='defaultStage']")
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][approval][type]'][type='radio'][value='success']")
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][approval][type]'][type='radio'][value='manual']")
       end
     end
 
     it "should be able to see basic job information" do
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("input[name='pipeline_group[pipeline][stage][jobs][][name]'][value=?]", "defaultJob")
-        with_tag("select[name='pipeline_group[pipeline][stage][jobs][][tasks][taskOptions]']") do
-          with_tag("option[value='exec']", "More...")
-          with_tag("option[value='rake']", "Rake")
-          with_tag("option[value='ant']", "Ant")
-          with_tag("option[value='nant']", "NAnt")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][name]'][value='defaultJob']")
+        div.find("select[name='pipeline_group[pipeline][stage][jobs][][tasks][taskOptions]']") do |select|
+          expect(select).to have_selector("option[value='exec']", :text => "More...")
+          expect(select).to have_selector("option[value='rake']", :text => "Rake")
+          expect(select).to have_selector("option[value='ant']", :text => "Ant")
+          expect(select).to have_selector("option[value='nant']", :text => "NAnt")
         end
-        with_tag("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][command]']")
-        with_tag("textarea[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][argListString]']")
-        with_tag("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][workingDirectory]']")
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][command]']")
+        expect(div).to have_selector("textarea[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][argListString]']")
+        expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][workingDirectory]']")
       end
     end
 
@@ -322,11 +325,11 @@ describe "admin/pipelines/new.html.erb" do
 
       render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-        with_tag("div#select_template_container") do
-          with_tag("select[name='pipeline_group[pipeline][templateName]']") do
-            with_tag("option[value='foo']", "foo")
-            with_tag("option[value='bar_template_name']", "bar_template_name")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job').tap do |div|
+        div.find("div#select_template_container") do |select_template_container|
+          select_template_container.find("select[name='pipeline_group[pipeline][templateName]']") do |select|
+            expect(select).to have_selector("option[value='foo']", :text => "foo")
+            expect(select).to have_selector("option[value='bar_template_name']", :text => "bar_template_name")
           end
         end
       end
@@ -337,10 +340,10 @@ describe "admin/pipelines/new.html.erb" do
     it "Basic Settings Tab validation" do
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do
-          with_tag("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]'][class='required pattern_match uniquePipelineName']")
-          with_tag("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][class='required pattern_match']")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-basic-settings div.form_content") do |div|
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][#{com.thoughtworks.go.config.PipelineConfig::NAME}]'][class='required pattern_match uniquePipelineName']")
+          expect(div).to have_selector("input[name='pipeline_group[#{com.thoughtworks.go.config.PipelineConfigs::GROUP}]'][class='required pattern_match']")
         end
       end
     end
@@ -348,15 +351,15 @@ describe "admin/pipelines/new.html.erb" do
     it "Materials Tab validation" do
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'].required")
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL}]'].required")
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL}]'].required")
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT}]'].required")
-          with_tag("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]'].required")
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'].required")
-          with_tag("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'].required")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-materials div.form_content") do |div|
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'].required")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL}]'].required")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL}]'].required")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT}]'].required")
+          expect(div).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]'].required")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'].required")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]'].required")
         end
       end
     end
@@ -364,11 +367,11 @@ describe "admin/pipelines/new.html.erb" do
     it "Stage-Job Tab validation" do
       render
 
-      response.body.should have_tag("form[method='post'][action='create_path']") do
-        with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do
-          with_tag("input[name='pipeline_group[pipeline][stage][name]'].required.pattern_match")
-          with_tag("input[name='pipeline_group[pipeline][stage][jobs][][name]'].required.pattern_match")
-          with_tag("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][#{com.thoughtworks.go.config.ExecTask::COMMAND}]'].required")
+      Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+        form.find("div.steps_panes.sub_tab_container_content div#tab-content-of-stage-and-job") do |div|
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][name]'].required.pattern_match")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][name]'].required.pattern_match")
+          expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][tasks][exec][#{com.thoughtworks.go.config.ExecTask::COMMAND}]'].required")
         end
       end
     end

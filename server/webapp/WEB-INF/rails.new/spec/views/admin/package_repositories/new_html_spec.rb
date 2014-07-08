@@ -34,48 +34,48 @@ describe "admin/package_repositories/new.html.erb" do
     it "should have a page title and view title" do
       render
 
-      assigns[:view_title].should == "Administration"
+      assigns(:view_title).should == "Administration"
     end
 
     it "should have package repository listing panel" do
       render
 
-      response.body.should have_tag("div#package-repositories") do
-        with_tag ".navigation"
-        with_tag("a.add", "Add New Repository")
+      Capybara.string(response.body).find('div#package-repositories').tap do |div|
+        expect(div).to have_selector ".navigation"
+        expect(div).to have_selector("a.add", :text => "Add New Repository")
       end
     end
     
     it "should have ajax_form_submit_errors div" do
       render
 
-      response.body.should have_tag("div#package-repositories") do
-        with_tag("#ajax_form_submit_errors.form_submit_errors")
+      Capybara.string(response.body).find("div#package-repositories").tap do |div|
+        expect(div).to have_selector("#ajax_form_submit_errors.form_submit_errors")
       end
     end
-
 
     it "should have add package repository form" do
       template.stub(:package_material_plugins).and_return([["[Select]", ""], "pluginid"])
 
       render
 
-      response.body.should have_tag("h2","Add Package RepositoryWhat is a Package Repository?")
-      response.body.should have_tag("div#package-repositories form[method='post']") do
-        with_tag "label[for='package_repository_name']"
-        with_tag "input#package_repository_name[name='package_repository[name]']"
+      expect(response.body).to have_selector("h2", :text => "Add Package RepositoryWhat is a Package Repository?")
 
-        with_tag "label[for='package_repository_pluginConfiguration_id']"
-        with_tag "select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']" do
-          with_tag("option[value='']","[Select]")
-          with_tag("option[value='pluginid']","pluginid")
+      Capybara.string(response.body).find("div#package-repositories form[method='post']").tap do |form|
+        expect(form).to have_selector "label[for='package_repository_name']"
+        expect(form).to have_selector "input#package_repository_name[name='package_repository[name]']"
+
+        expect(form).to have_selector "label[for='package_repository_pluginConfiguration_id']"
+        form.find("select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']") do |select|
+          expect(select).not_to have_selector("option[value='']", :text => "[Select]")
+          expect(select).not_to have_selector("option[value='pluginid']", :text => "pluginid")
         end
-        without_tag("div .information", "No plugins found. To configure a package repository you must have plugin(s) installed.")
+        expect(form).not_to have_selector("div .information", :text => "No plugins found. To configure a package repository you must have plugin(s) installed.")
 
-        with_tag("p.required","* indicates a required field")
+        expect(form).to have_selector("p.required", :text => "* indicates a required field")
 
-        with_tag("button span","SAVE")
-        with_tag("button span","RESET")
+        expect(form).to have_selector("button span", :text => "SAVE")
+        expect(form).to have_selector("button span", :text => "RESET")
       end
     end
 
@@ -84,10 +84,11 @@ describe "admin/package_repositories/new.html.erb" do
 
       render
 
-      with_tag "select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']" do
-        with_tag("option[value='']","[Select]")
+      Capybara.string(response.body).find("select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']").tap do |select|
+        expect(select).to have_selector("option[value='']", :text => "[Select]")
       end
-      with_tag("div .information", "No plugins found. To configure a package repository you must have plugin(s) installed.")
+
+      expect(response.body).to have_selector("div .information", :text => "No plugins found. To configure a package repository you must have plugin(s) installed.")
     end
   end
 end

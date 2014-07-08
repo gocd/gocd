@@ -370,11 +370,12 @@ module ApplicationHelper
 
   def required_label(form, name, text)
     text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
-    form.label(name, text)
+    form.label(name, text.html_safe)
   end
 
   def required_label_text(text)
-    text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text.html_safe
   end
 
   def label_with_hint(form, name, text, hint, required)

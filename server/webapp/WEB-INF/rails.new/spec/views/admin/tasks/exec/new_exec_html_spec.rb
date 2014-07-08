@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "../../../../spec_helper")
 
-describe "admin/tasks/new_exec.html.erb" do
+describe "admin/tasks/plugin/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
@@ -32,17 +32,18 @@ describe "admin/tasks/new_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
+    render
 
-    response.body.should have_tag("form[action=?]", 'task_create_path')
-    response.body.should have_tag("form") do
-      with_tag("div.fieldset" ) do
-        with_tag("label", "Command*")
-        with_tag("input[name='task[command]']")
-        with_tag("label", "Arguments")
-        with_tag("input[type='text'][name='task[args]']")
-        with_tag("label", "Working Directory")
-        with_tag("input[name='task[workingDirectory]']")
+    expect(response.body).to have_selector("form[action='task_create_path']")
+
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Command*")
+        expect(divs[0]).to have_selector("input[name='task[command]']")
+        expect(divs[0]).to have_selector("label", :text => "Arguments")
+        expect(divs[0]).to have_selector("input[type='text'][name='task[args]']")
+        expect(divs[0]).to have_selector("label", :text => "Working Directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]']")
       end
     end
   end
@@ -51,11 +52,11 @@ describe "admin/tasks/new_exec.html.erb" do
     task = assign(:task, simple_exec_task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
+    render
 
-    response.body.should have_tag("div.gist_panel") do
-      with_tag("div.gist_lookup")
-      without_tag("div.gist_lookup .gist_based_auto_complete")
+    Capybara.string(response.body).all('div.gist_panel').tap do |divs|
+      expect(divs[0]).to have_selector("div.gist_lookup")
+      expect(divs[0]).not_to have_selector("div.gist_lookup .gist_based_auto_complete")
     end
   end
 end

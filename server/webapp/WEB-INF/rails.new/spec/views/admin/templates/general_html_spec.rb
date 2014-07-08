@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/templates/edit.html.erb" do
+describe "admin/templates/general.html.erb" do
 
   include ReflectiveUtil
   include GoUtil
@@ -32,10 +32,10 @@ describe "admin/templates/edit.html.erb" do
   it "should have form element to edit template name" do
     render
 
-    response.body.should have_tag("form[action=?][method='post'][id='template_edit_form']", template_update_path(:pipeline_name => 'template1', :current_tab => "general", :stage_parent => "templates")) do
-      with_tag("input[name='_method'][type='hidden'][value='put']")
-      with_tag("input[name='config_md5'][value=?]", "abc")
-      with_tag("input[name='template[name]'][value=?][readonly='readonly'][disabled='disabled']", "template1")
+    Capybara.string(response.body).find("form[action='#{template_update_path(:pipeline_name => 'template1', :current_tab => "general", :stage_parent => "templates")}'][method='post'][id='template_edit_form']").tap do |form|
+      expect(form).to have_selector("input[name='_method'][type='hidden'][value='put']")
+      expect(form).to have_selector("input[name='config_md5'][value='abc']")
+      expect(form).to have_selector("input[name='template[name]'][value='template1'][readonly='readonly'][disabled='disabled']")
     end
 
   end

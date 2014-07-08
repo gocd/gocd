@@ -30,9 +30,9 @@ module Admin
 
     def tab_aware_job_link(pipeline_name, stage_name, job_name, tab_name)
       if (navigating_from_another_jobs_page_with_a_non_tasks_tab(tab_name))
-        admin_job_edit_path(:pipeline_name => pipeline_name, :stage_name => stage_name, :job_name => job_name, :current_tab=> tab_name)  # Retain the current tab selected on the Job edit page
+        admin_job_edit_path(:stage_parent => "pipelines", :pipeline_name => pipeline_name, :stage_name => stage_name, :job_name => job_name, :current_tab=> tab_name)  # Retain the current tab selected on the Job edit page
       else
-        admin_tasks_listing_path(:pipeline_name => pipeline_name, :stage_name => stage_name, :job_name => job_name, :current_tab=>"tasks") # Defaults to the task listing page when from a non job page
+        admin_tasks_listing_path(:stage_parent => "pipelines", :pipeline_name => pipeline_name, :stage_name => stage_name, :job_name => job_name, :current_tab=>"tasks") # Defaults to the task listing page when from a non job page
       end
     end
 
@@ -43,12 +43,12 @@ module Admin
     def tab_aware_stage_link(pipeline_name, stage_name, tab_name)
       if (navigating_from_another_stages_page && tab_name)
         if (navigating_from_job_listing(tab_name))
-          admin_job_listing_path(:pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain job listing as current tab on stage edit
+          admin_job_listing_path(:stage_parent => "pipelines", :pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain job listing as current tab on stage edit
         else
-          admin_stage_edit_path(:pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain tab other than job listing as current tab on stage edit
+          admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain tab other than job listing as current tab on stage edit
         end
       else
-        admin_stage_edit_path(:pipeline_name =>pipeline_name, :stage_name => stage_name, :current_tab=>"settings") # Default to stage settings for stage edit when from a non stage page
+        admin_stage_edit_path(:stage_parent => "pipelines", :pipeline_name =>pipeline_name, :stage_name => stage_name, :current_tab=>"settings") # Default to stage settings for stage edit when from a non stage page
       end
     end
 

@@ -41,7 +41,7 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
+    expect(response.body).to have_selector("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
   end
 
   it "should render job name and hidden current tab field" do
@@ -49,14 +49,15 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[method='post'][action='url_for_new_job']") do
-      with_tag("input[type='hidden'][name='current_tab'][value=?]", "jobs")
+    Capybara.string(response.body).find("form[method='post'][action='url_for_new_job']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='jobs']")
     end
 
-    response.body.should have_tag("#new_job_container .form_item_block") do
-      with_tag("label", "Job Name*")
-      with_tag("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::NAME}]']")
-      without_tag("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::NAME}]'][readonly='readonly']")
+    Capybara.string(response.body).all("#new_job_container .form_item_block").tap do |blocks|
+      expect(blocks[0]).to have_selector("label", :text => "Job Name*")
+      expect(blocks[0]).to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::NAME}]']")
+
+      expect(blocks[0]).not_to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::NAME}]'][readonly='readonly']")
     end
   end
 
@@ -66,17 +67,17 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_job_container .form_item") do
-      with_tag("label", "Use default (42 minute(s))")
-      with_tag("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout'][checked='checked']")
-      with_tag("label", "Cancel after")
-      with_tag("label", "minute(s) of inactivity")
-      with_tag("input[type='radio'][name='job[timeoutType]'][value='overrideTimeout']")
-      with_tag("label", "Never")
-      with_tag("input[type='radio'][name='job[timeoutType]'][value='neverTimeout']")
-      with_tag("label", "Job Timeout")
-      with_tag("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::TIMEOUT}]']")
-      with_tag("div.contextual_help[title=?]", "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
+    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+      expect(blocks[0]).to have_selector("label", :text => "Use default (42 minute(s))")
+      expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout'][checked='checked']")
+      expect(blocks[0]).to have_selector("label", :text => "Cancel after")
+      expect(blocks[0]).to have_selector("label", :text => "minute(s) of inactivity")
+      expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='overrideTimeout']")
+      expect(blocks[0]).to have_selector("label", :text => "Never")
+      expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='neverTimeout']")
+      expect(blocks[0]).to have_selector("label", :text => "Job Timeout")
+      expect(blocks[0]).to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::TIMEOUT}]']")
+      expect(blocks[0]).to have_selector("div.contextual_help[title='If this job is inactive for more than the specified period (in minutes), Go will cancel it.']")
     end
   end
 
@@ -86,9 +87,9 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_job_container .form_item") do
-      with_tag("label", "Use default (Never)")
-      with_tag("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout']")
+    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+      expect(blocks[0]).to have_selector("label", :text => "Use default (Never)")
+      expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout']")
     end
   end
 
@@ -97,12 +98,12 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_job_container .form_item_block") do
-      with_tag("label", "Resources")
-      with_tag("input[type='text'][class='resources_auto_complete'][name='job[#{com.thoughtworks.go.config.JobConfig::RESOURCES}]']")
+    Capybara.string(response.body).all("#new_job_container .form_item_block").tap do |blocks|
+      expect(blocks[1]).to have_selector("label", :text => "Resources")
+      expect(blocks[1]).to have_selector("input[type='text'][class='resources_auto_complete'][name='job[#{com.thoughtworks.go.config.JobConfig::RESOURCES}]']")
 
-      with_tag("label", "Run on all agents")
-      with_tag("input[type='checkbox'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS}]']")
+      expect(blocks[2]).to have_selector("label", :text => "Run on all agents")
+      expect(blocks[2]).to have_selector("input[type='checkbox'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS}]']")
     end
   end
 
@@ -112,17 +113,18 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_job_container .form_item_block") do
-      with_tag("div.fieldWithErrors input[type='text'][name='job[#{JobConfig::NAME}]']")
-      with_tag("div.form_error", "Name cannot be duplicated")
+    Capybara.string(response.body).all("#new_job_container .form_item_block").tap do |blocks|
+      expect(blocks[0]).to have_selector("div.field_with_errors input[type='text'][name='job[#{JobConfig::NAME}]']")
+      expect(blocks[0]).to have_selector("div.form_error", :text => "Name cannot be duplicated")
     end
   end
 
   it "should render job tasks" do
     assign(:job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([ExecTask.new].to_java(com.thoughtworks.go.domain.Task))))
-    template.should_receive(:render).with(:partial => "admin/shared/job_tasks.html", :locals => instance_of(Hash))
 
     render
+
+    response.should render_template(:partial => 'admin/shared/_job_tasks.html')
   end
 
   it "should render job task instructions" do
@@ -130,8 +132,8 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_job_container") do
-      with_tag("div.instructions", "This job requires at least one task. You can add more tasks once this job has been created")
+    Capybara.string(response.body).find("#new_job_container").tap do |new_job_container|
+      expect(new_job_container).to have_selector("div.instructions", :text => "This job requires at least one task. You can add more tasks once this job has been created")
     end
   end
 end

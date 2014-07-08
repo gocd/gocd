@@ -42,96 +42,99 @@ describe "admin/tasks/index.html.erb" do
   it "should show tasks" do
     render
 
-    response.body.should have_tag("table.list_table") do
-      with_tag("tr") do
-        with_tag("th", "Order")
-        with_tag("th", "Task Type")
-        with_tag("th", "Run If Conditions")
-        with_tag("th", "Properties")
-        with_tag("th", "On Cancel")
-        with_tag("th", "Remove")
+    Capybara.string(response.body).find('table.list_table').tap do |table|
+      table.all("tr").tap do |trs|
+        expect(trs[0]).to have_selector("th", :text => "Order")
+        expect(trs[0]).to have_selector("th", :text => "Task Type")
+        expect(trs[0]).to have_selector("th", :text => "Run If Conditions")
+        expect(trs[0]).to have_selector("th", :text => "Properties")
+        expect(trs[0]).to have_selector("th", :text => "On Cancel")
+        expect(trs[0]).to have_selector("th", :text => "Remove")
       end
-      with_tag("tr") do
-        without_tag("td form[method='post'][action=?]", admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 0))
-        with_tag("td form[method='post'][action=?]", admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 0)) do
-          with_tag("button[title=?]", "Move Down") do
-            with_tag("div.promote_down")  
+      table.all("tr").tap do |trs|
+        expect(trs[1]).not_to have_selector("td form[method='post'][action='#{admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 0)}']")
+        trs[1].find("td form[method='post'][action='#{admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 0)}']") do |form|
+          form.find("button[title='Move Down']") do |button|
+            expect(button).to have_selector("div.promote_down")
           end
         end
-        with_tag("td a[href='#']", "Custom Command")
-        with_tag("td.run_ifs", "Passed")
-        with_tag("td.properties ul") do
-          with_tag("li.command") do
-            with_tag("span.name", "Command:")
-            with_tag("span.value", "ls")
+        expect(trs[1]).to have_selector("td a[href='#']", :text => "Custom Command")
+        expect(trs[1]).to have_selector("td.run_ifs", :text => "Passed")
+        trs[1].find("td.properties ul") do |ul|
+          ul.find("li.command") do |li|
+            expect(li).to have_selector("span.name", :text => "Command:")
+            expect(li).to have_selector("span.value", :text => "ls")
           end
-          with_tag("li.arguments") do
-            with_tag("span.name", "Arguments:")
-            with_tag("span.value", "-la")
+          ul.find("li.arguments") do |li|
+            expect(li).to have_selector("span.name", :text => "Arguments:")
+            expect(li).to have_selector("span.value", :text => "-la")
           end
-          with_tag("li.working_dir") do
-            with_tag("span.name", "Working Directory:")
-            with_tag("span.value", "hero/ka/directory")
+          ul.find("li.working_dir") do |li|
+            expect(li).to have_selector("span.name", :text => "Working Directory:")
+            expect(li).to have_selector("span.value", :text => "hero/ka/directory")
           end
         end
-        with_tag("td.has_on_cancel", "Custom Command")
-        assert_has_delete_button_for_task "0"
+        expect(table).to have_selector("td.has_on_cancel", :text => "Custom Command")
+
+        assert_has_delete_button_for_task trs[1], "0"
       end
-      with_tag("tr") do
-        with_tag("td form[method='post'][action=?]", admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 1)) do
-          with_tag("button[title=?]", "Move Up") do
-            with_tag("div.promote_up")
+      table.all("tr").tap do |trs|
+        trs[2].find("td form[method='post'][action='#{admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 1)}']") do |form|
+          form.find("button[title='Move Up']") do |button|
+            expect(button).to have_selector("div.promote_up")
           end
         end
-        with_tag("td form[method='post'][action=?]", admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 1)) do
-          with_tag("button[title=?]", "Move Down") do
-            with_tag("div.promote_down")
+        trs[2].find("td form[method='post'][action='#{admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 1)}']") do |form|
+          form.find("button[title='Move Down']") do |button|
+            expect(button).to have_selector("div.promote_down")
           end
         end
-        with_tag("td a[href='#']", "Ant")
-        with_tag("td.run_ifs", "Passed")
-        with_tag("td.properties ul") do
-          with_tag("li.target") do
-            with_tag("span.name", "Target:")
-            with_tag("span.value", "compile")
+        expect(trs[2]).to have_selector("td a[href='#']", :text => "Ant")
+        expect(trs[2]).to have_selector("td.run_ifs", :text => "Passed")
+        trs[2].find("td.properties ul") do |ul|
+          ul.find("li.target") do |li|
+            expect(li).to have_selector("span.name", :text => "Target:")
+            expect(li).to have_selector("span.value", :text => "compile")
           end
-          with_tag("li.buildfile") do
-            with_tag("span.name", "Build File:")
-            with_tag("span.value", "build.xml")
+          ul.find("li.buildfile") do |li|
+            expect(li).to have_selector("span.name", :text => "Build File:")
+            expect(li).to have_selector("span.value", :text => "build.xml")
           end
-          with_tag("li.workingdirectory") do
-            with_tag("span.name", "Working Directory:")
-            with_tag("span.value", "default/wd")
+          ul.find("li.workingdirectory") do |li|
+            expect(li).to have_selector("span.name", :text => "Working Directory:")
+            expect(li).to have_selector("span.value", :text => "default/wd")
           end
         end
-        with_tag("td.has_on_cancel", "No")
-        assert_has_delete_button_for_task "1"
+        expect(trs[2]).to have_selector("td.has_on_cancel", :text => "No")
+
+        assert_has_delete_button_for_task trs[2], "1"
       end
-      with_tag("tr") do
-        with_tag("td form[method='post'][action=?]", admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3)) do
-          with_tag("button[title=?]", "Move Up") do
-            with_tag("div.promote_up")  
+      table.all("tr").tap do |trs|
+        trs[4].find("td form[method='post'][action='#{admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3)}']") do |form|
+          form.find("button[title='Move Up']") do |button|
+            expect(button).to have_selector("div.promote_up")
           end
         end
-        without_tag("td form[method='post'][action=?]", admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3))
-        with_tag("td a[href='#']", "NAnt")
-        with_tag("td.run_ifs", "Passed")
-        with_tag("td.properties ul") do
-          with_tag("li.target") do
-            with_tag("span.name", "Target:")
-            with_tag("span.value", "compile")
+        expect(trs[4]).not_to have_selector("td form[method='post'][action='#{admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3)}']")
+        expect(trs[4]).to have_selector("td a[href='#']", :text => "NAnt")
+        expect(trs[4]).to have_selector("td.run_ifs", :text => "Passed")
+        trs[4].find("td.properties ul") do |ul|
+          ul.find("li.target") do |li|
+            expect(li).to have_selector("span.name", :text => "Target:")
+            expect(li).to have_selector("span.value", :text => "compile")
           end
-          with_tag("li.buildfile") do
-            with_tag("span.name", "Build File:")
-            with_tag("span.value", "default.build")
+          ul.find("li.buildfile") do |li|
+            expect(li).to have_selector("span.name", :text => "Build File:")
+            expect(li).to have_selector("span.value", :text => "default.build")
           end
-          with_tag("li.workingdirectory") do
-            with_tag("span.name", "Working Directory:")
-            with_tag("span.value", "default/wd")
+          ul.find("li.workingdirectory") do |li|
+            expect(li).to have_selector("span.name", :text => "Working Directory:")
+            expect(li).to have_selector("span.value", :text => "default/wd")
           end
         end
-        with_tag("td.has_on_cancel", "No")
-        assert_has_delete_button_for_task "1"
+        expect(trs[4]).to have_selector("td.has_on_cancel", :text => "No")
+
+        assert_has_delete_button_for_task trs[4], "3"
       end
     end
   end
@@ -147,12 +150,12 @@ describe "admin/tasks/index.html.erb" do
 
       render
 
-      response.body.should have_tag("#new_task_popup ul") do
-        with_tag("li a[href='#']", "More...")
-        with_tag("li a[href='#']", "Rake")
-        with_tag("li a[href='#']", "NAnt")
-        with_tag("li a[href='#']", "Ant")
-        with_tag("li a[href='#']", "Fetch Artifact")
+      Capybara.string(response.body).find('#new_task_popup ul').tap do |ul|
+        expect(ul).to have_selector("li a[href='#']", :text => "More...")
+        expect(ul).to have_selector("li a[href='#']", :text => "Rake")
+        expect(ul).to have_selector("li a[href='#']", :text => "NAnt")
+        expect(ul).to have_selector("li a[href='#']", :text => "Ant")
+        expect(ul).to have_selector("li a[href='#']", :text => "Fetch Artifact")
       end
     end
 
@@ -171,9 +174,9 @@ describe "admin/tasks/index.html.erb" do
 
       render
 
-      response.body.should have_tag("#new_task_popup ul") do
-        with_tag("li a.foo", "More...")
-        with_tag("li a[class=?]", "")
+      Capybara.string(response.body).find('#new_task_popup ul').tap do |ul|
+        expect(ul).to have_selector("li a.foo", :text => "More...")
+        expect(ul).to have_selector("li a[class='']")
       end
     end
   end
@@ -207,10 +210,10 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag("table.list_table") do
-          with_tag("tr") do
-            with_tag("td a[href='#']", "CURL")
-            with_tag("td.has_on_cancel", "No")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.all("tr").tap do |trs|
+            expect(trs[1]).to have_selector("td a[href='#']", :text => "CURL")
+            expect(trs[1]).to have_selector("td.has_on_cancel", :text => "No")
           end
         end
       end
@@ -224,9 +227,9 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag("table.list_table") do
-          with_tag("tr") do
-            with_tag("td.has_on_cancel", "MAVEN")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.all("tr").tap do |trs|
+            expect(trs[1]).to have_selector("td.has_on_cancel", :text => "MAVEN")
           end
         end
       end
@@ -238,9 +241,9 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag("table.list_table") do
-          with_tag("tr.missing_plugin") do
-            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.find("tr.missing_plugin").tap do |tr|
+            expect(tr.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
           end
         end
       end
@@ -253,9 +256,9 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag('table.list_table') do
-          with_tag("td.has_on_cancel") do
-            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.find("td.has_on_cancel") do |td|
+            expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin &#39;MISSING&#39; not found. Please contact the Go admin to install the plugin.")
           end
         end
       end
@@ -268,11 +271,11 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag('table.list_table') do
-          with_tag("tr.missing_plugin") do
-            with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
-            with_tag("td.has_on_cancel") do
-              with_tag("label.missing_plugin_link[title=?]", "Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.find("tr.missing_plugin").tap do |tr|
+            expect(tr.all("label.missing_plugin_link")[0]['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
+            tr.find("td.has_on_cancel") do |td|
+              expect(td.find("label.missing_plugin_link")['title']).to eq("Associated plugin 'MISSING' not found. Please contact the Go admin to install the plugin.")
             end
           end
         end
@@ -286,10 +289,10 @@ describe "admin/tasks/index.html.erb" do
 
         render
 
-        response.body.should have_tag("table.list_table") do
-          with_tag("tr") do
-            with_tag("td a[href='#']", "Ant")
-            with_tag("td.has_on_cancel", "MAVEN")
+        Capybara.string(response.body).find('table.list_table').tap do |table|
+          table.all("tr").tap do |trs|
+            expect(trs[1]).to have_selector("td a[href='#']", :text => "Ant")
+            expect(trs[1]).to have_selector("td.has_on_cancel", :text => "MAVEN")
           end
         end
       end
@@ -312,12 +315,12 @@ describe "admin/tasks/index.html.erb" do
     MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", com.thoughtworks.go.plugins.presentation.Renderer::ERB
   end
 
-  def assert_has_delete_button_for_task index
-    with_tag("td form[action='/admin/pipelines/foo-pipeline/stages/bar-stage/job/baz-job/tasks/#{index}'][method='post']") do
-      with_tag("span#trigger_delete_task_#{index}.icon_remove.delete_parent")
-      with_tag("input[type='hidden'][name='config_md5'][value='abcd1234']")
-      with_tag("input[type='hidden'][name='_method'][value='delete']")
-      with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the task at index '#{index.to_i + 1}' \?/)
+  def assert_has_delete_button_for_task tr, index
+    tr.find("td form[action='/admin/pipelines/foo-pipeline/stages/bar-stage/job/baz-job/tasks/#{index}'][method='post']") do |form|
+      expect(form).to have_selector("span#trigger_delete_task_#{index}.icon_remove.delete_parent")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']")
+      expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the task at index '#{index.to_i + 1}' \?/)
     end
   end
 end

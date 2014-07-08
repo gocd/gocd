@@ -55,12 +55,12 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      response.body.should have_tag("table[class='list_table']") do
-        with_tag("tr") do
-          with_tag("td") do
-            with_tag("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
+        table.all("tr") do |trs|
+          trs[0].find("td") do |td|
+            expect(td).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
           end
-          with_tag("td",@group_one.getGroup())
+          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
         end
       end
     end
@@ -70,12 +70,12 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      response.body.should have_tag("table[class='list_table']") do
-        with_tag("tr") do
-          with_tag("td") do
-            with_tag("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
+      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
+        table.all("tr") do |trs|
+          trs[0].find("td") do |td|
+            expect(td).to have_selector("a[href='#{admin_material_index_path(:pipeline_name => @pipeline_config.name()) }']")
           end
-          with_tag("td",@group_one.getGroup())
+          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
         end
       end
     end
@@ -85,13 +85,13 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
 
       render
 
-      response.body.should have_tag("table[class='list_table']") do
-        with_tag("tr") do
-          with_tag("td",@pipeline_config.name().toString())
-          with_tag("td",@group_one.getGroup())
+      Capybara.string(response.body).find("table[class='list_table']").tap do |table|
+        table.all("tr") do |trs|
+          expect(trs[0]).to have_selector("td", :text => @pipeline_config.name().toString())
+          expect(trs[1]).to have_selector("td", :text => @group_one.getGroup())
         end
       end
-      response.body.should_not have_tag("a")
+      expect(response.body).not_to have_selector("a")
     end
   end
 end

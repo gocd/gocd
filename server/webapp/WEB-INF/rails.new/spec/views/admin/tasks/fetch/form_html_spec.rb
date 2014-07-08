@@ -39,7 +39,8 @@ describe "admin/tasks/fetch/new.html.erb" do
     task = assign(:task, FetchTask.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1"), CaseInsensitiveString.new("job"), "src", "dest"))
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
     assert_response_body
   end
 
@@ -47,25 +48,25 @@ describe "admin/tasks/fetch/new.html.erb" do
     task = assign(:task, FetchTask.new)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
+    render :template => "/admin/tasks/plugin/new.html.erb"
+
     assert_response_body
   end
 
   def assert_response_body
-    response.body.should have_tag("form") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Pipeline")
-        with_tag("input[name='task[pipelineName]']")
-        with_tag("label", "Stage*")
-        with_tag("input[name='task[stage]']")
-        with_tag("label", "Job*")
-        with_tag("input[name='task[job]']")
-        with_tag("label", "Source*")
-        with_tag("input[name='task[src]']")
-        with_tag("label", "Destination")
-        with_tag("input[name='task[dest]']")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Pipeline")
+        expect(divs[0]).to have_selector("input[name='task[pipelineName]']")
+        expect(divs[0]).to have_selector("label", :text => "Stage*")
+        expect(divs[0]).to have_selector("input[name='task[stage]']")
+        expect(divs[0]).to have_selector("label", :text => "Job*")
+        expect(divs[0]).to have_selector("input[name='task[job]']")
+        expect(divs[0]).to have_selector("label", :text => "Source*")
+        expect(divs[0]).to have_selector("input[name='task[src]']")
+        expect(divs[0]).to have_selector("label", :text => "Destination")
+        expect(divs[0]).to have_selector("input[name='task[dest]']")
       end
     end
   end
-
 end

@@ -20,8 +20,10 @@ describe "global errors on popups" do
   it "should escape error message" do
       configErrors = ConfigErrors.new
       configErrors.add("some field", "<h2>")
-      assigns[:errors] = configErrors.getAll()
+      assign(:errors, configErrors.getAll())
+
       render :partial => "admin/shared/global_errors.html.erb"
-      response.should have_tag("li.error", h("<h2>"))
+
+      expect(response.body).to have_selector("li.error", :text => "<h2>") #<h2> is visible to user.
   end
 end

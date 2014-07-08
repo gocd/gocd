@@ -34,16 +34,18 @@ describe "admin/tasks/ant/new.html.erb" do
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
-    render "/admin/tasks/plugin/new"
+    render :template => "admin/tasks/plugin/new.html.erb"
 
-    response.body.should have_tag("form[action=?]", "task_create_path") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Build file")
-        with_tag("input[name='task[buildFile]']")
-        with_tag("label", "Target")
-        with_tag("input[name='task[target]']")
-        with_tag("label", "Working directory")
-        with_tag("input[name='task[workingDirectory]']")
+    expect(response.body).to have_selector("form[action='task_create_path']")
+
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset").tap do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Build file")
+        expect(divs[0]).to have_selector("input[name='task[buildFile]']")
+        expect(divs[0]).to have_selector("label", :text => "Target")
+        expect(divs[0]).to have_selector("input[name='task[target]']")
+        expect(divs[0]).to have_selector("label", :text => "Working directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]']")
       end
     end
   end
@@ -56,15 +58,18 @@ describe "admin/tasks/ant/new.html.erb" do
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
-    response.body.should have_tag("form[action=?]", "task_update_path") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Build file")
-        with_tag("input[name='task[buildFile]'][value=?]", task.getBuildFile())
-        with_tag("label", "Target")
-        with_tag("input[name='task[target]'][value=?]", task.getTarget())
-        with_tag("label", "Working directory")
-        with_tag("input[name='task[workingDirectory]'][value=?]", task.workingDirectory())
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
+    expect(response.body).to have_selector("form[action='task_update_path']")
+
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset").tap do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Build file")
+        expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{task.getBuildFile()}']")
+        expect(divs[0]).to have_selector("label", :text => "Target")
+        expect(divs[0]).to have_selector("input[name='task[target]'][value='#{task.getTarget()}']")
+        expect(divs[0]).to have_selector("label", :text => "Working directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]'][value='#{task.workingDirectory()}']")
       end
     end
   end
@@ -75,17 +80,20 @@ describe "admin/tasks/ant/new.html.erb" do
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
-    response.body.should have_tag("form[action=?]", "task_update_path") do
-      with_tag("div.fieldset") do
-        with_tag("label", "Build file")
-        with_tag("input[name='task[buildFile]'][value=?]", task.getBuildFile())
-        with_tag("label", "Target")
-        with_tag("input[name='task[target]'][value=?]", task.getTarget())
-        with_tag("label", "Working directory")
-        with_tag("input[name='task[workingDirectory]'][value=?]", task.workingDirectory())
-        with_tag("div.fieldWithErrors input[type='text'][name='task[workingDirectory]']")
-        with_tag("div.form_error", "working directory error")
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
+    expect(response.body).to have_selector("form[action='task_update_path']")
+
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset").tap do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Build file")
+        expect(divs[0]).to have_selector("input[name='task[buildFile]'][value='#{task.getBuildFile()}']")
+        expect(divs[0]).to have_selector("label", :text => "Target")
+        expect(divs[0]).to have_selector("input[name='task[target]'][value='#{task.getTarget()}']")
+        expect(divs[0]).to have_selector("label", :text => "Working directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]'][value='#{task.workingDirectory()}']")
+        expect(divs[0]).to have_selector("div.field_with_errors input[type='text'][name='task[workingDirectory]']")
+        expect(divs[0]).to have_selector("div.form_error", :text => "working directory error")
       end
     end
   end
@@ -99,9 +107,12 @@ describe "admin/tasks/ant/new.html.erb" do
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
-    response.body.should have_tag("form[action=?]", "task_update_path") do
-      with_tag("option[selected='selected'][value=?]", "ant")
+    render :template => "admin/tasks/plugin/edit.html.erb"
+
+    expect(response.body).to have_selector("form[action='task_update_path']")
+
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("option[selected='selected'][value='ant']")
     end
   end
 end

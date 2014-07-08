@@ -34,7 +34,7 @@ describe "admin/pipelines_snippet/edit.html.erb" do
         expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='md5']")
         expect(form).to have_selector("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", 'Cancel')
         form.find("button.submit[id='save_config'][disabled='disabled']").tap do |button|
-          expect(button).to have_selector("span", "SAVE")
+          expect(button).to have_selector("span", :text => "SAVE")
         end
         expect(form).to have_selector("textarea#content_container_for_edit", "&lt;foo&gt;&lt;/foo&gt;")
       end
@@ -58,8 +58,8 @@ describe "admin/pipelines_snippet/edit.html.erb" do
 
     Capybara.string(response.body).find('div.form_submit_errors').tap do |div|
       div.find("div.errors").tap do |form|
-        expect(form).to have_selector("li", "error1")
-        expect(form).to have_selector("li", "error2")
+        expect(form).to have_selector("li", :text => "error1")
+        expect(form).to have_selector("li", :text => "error2")
       end
     end
   end

@@ -30,38 +30,38 @@ describe "/admin/tasks/plugin/edit.html.erb" do
   end
 
   it "should render what the rendering service returns" do
-    render "admin/tasks/plugin/edit.html.erb"
+    render
 
-    response.body.should have_tag("form[action=?][method='post']", 'task_update_path') do
-        with_tag("input[type='hidden'][name='_method'][value='PUT']")
-        with_tag("label", "Command*")
-        with_tag("input[name='task[#{com.thoughtworks.go.config.ExecTask::COMMAND}]'][value='ls']")
+    Capybara.string(response.body).find("form[action='task_update_path'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']")
+      expect(form).to have_selector("label", :text => "Command*")
+      expect(form).to have_selector("input[name='task[#{com.thoughtworks.go.config.ExecTask::COMMAND}]'][value='ls']")
     end
   end
 
   it "should render the config md5, form buttons and flash message" do
-    render "admin/tasks/plugin/edit.html.erb"
+    render
 
-    response.body.should have_tag("#message_pane")
+    expect(response.body).to have_selector("#message_pane")
 
-    response.body.should have_tag("form") do
-        with_tag("input[id='config_md5'][type='hidden'][value='abcd1234']")
-        with_tag("button[type='submit']", "SAVE")
-        with_tag("button", "Cancel")
+    Capybara.string(response.body).find("form").tap do |form|
+      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='abcd1234']")
+      expect(form).to have_selector("button[type='submit']", :text => "SAVE")
+      expect(form).to have_selector("button", :text => "Cancel")
     end
   end
 
   it "should render the config conflict message" do
     assign(:config_file_conflict, true)
 
-    render "admin/tasks/plugin/edit.html.erb"
+    render
 
-    response.body.should have_tag("#config_save_actions")
+    expect(response.body).to have_selector("#config_save_actions")
   end
 
   it "should render the required message" do
-    render "admin/tasks/plugin/edit.html.erb"
+    render
 
-    response.body.should have_tag(".required .asterisk")
+    expect(response.body).to have_selector(".required .asterisk")
   end
 end

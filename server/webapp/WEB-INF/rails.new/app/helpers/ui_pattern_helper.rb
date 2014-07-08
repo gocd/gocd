@@ -96,6 +96,6 @@ module UiPatternHelper
     end
     icon_html += "</#{icon_dom}>"
     
-    return icon_html
+    return icon_html.html_safe
   end
 end

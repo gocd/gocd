@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/pipelines/_material_form.html.erb" do
+describe "admin/pipelines/new.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
   include Admin::ConfigContextHelper
   include MockRegistryModule
@@ -61,20 +61,20 @@ describe "admin/pipelines/_material_form.html.erb" do
   describe "Materials" do
 
     it "should have material section " do
-      render "admin/pipelines/new"
+      render
 
-      response.body.should have_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials") do
-        with_tag("h2.section_title", "Step 2: Materials")
-        with_tag("label","Material Type*")
-        with_tag("select[name='pipeline_group[pipeline][materials][materialType]']") do
-          with_tag("option[value='SvnMaterial']", "Subversion")
-          with_tag("option[value='GitMaterial']", "Git")
-          with_tag("option[value='HgMaterial']", "Mercurial")
-          with_tag("option[value='P4Material']", "Perforce")
-          with_tag("option[value='DependencyMaterial']", "Pipeline")
+      Capybara.string(response.body).find('div.steps_panes.sub_tab_container_content div#tab-content-of-materials').tap do |tab|
+        expect(tab).to have_selector("h2.section_title", :text => "Step 2: Materials")
+        expect(tab).to have_selector("label", :text => "Material Type*")
+        tab.find("select[name='pipeline_group[pipeline][materials][materialType]']") do |select|
+          expect(select).to have_selector("option[value='SvnMaterial']", :text => "Subversion")
+          expect(select).to have_selector("option[value='GitMaterial']", :text => "Git")
+          expect(select).to have_selector("option[value='HgMaterial']", :text => "Mercurial")
+          expect(select).to have_selector("option[value='P4Material']", :text => "Perforce")
+          expect(select).to have_selector("option[value='DependencyMaterial']", :text => "Pipeline")
         end
-        with_tag("button.cancel_button", "Cancel")
-        with_tag("button#next_to_materials", "Next")
+        expect(tab).to have_selector("button.cancel_button", :text => "Cancel")
+        expect(tab).to have_selector("button#next_to_materials", :text => "Next")
       end
     end
 
@@ -83,30 +83,30 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all svn material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .SvnMaterial") do
-          with_tag("label", "URL*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]']")
+        Capybara.string(response.body).find('div#tab-content-of-materials #material_forms .SvnMaterial').tap do |form|
+          expect(form).to have_selector("label", :text => "URL*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]']")
 
-          with_tag("label", "Username")
-          with_tag("input.svn_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
+          expect(form).to have_selector("label", :text => "Username")
+          expect(form).to have_selector("input.svn_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
 
-          with_tag("label", "Password")
-          with_tag("input.svn_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
+          expect(form).to have_selector("label", :text => "Password")
+          expect(form).to have_selector("input.svn_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]']")
 
-          with_tag("div.hidden input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD_CHANGED}]'][value='1'][checked='checked']")
+          expect(form).to have_selector("div.hidden input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD_CHANGED}]'][value='1'][checked='checked']")
 
-          with_tag("label", "Poll for new changes")
-          with_tag("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("label", :text => "Poll for new changes")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
         end
       end
 
       it "should display check connection button" do
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("button#check_connection_svn", "CHECK CONNECTION")
-        response.body.should have_tag("#vcsconnection-message_svn", "")
+        expect(response.body).to have_selector("button#check_connection_svn", :text => "CHECK CONNECTION")
+        expect(response.body).to have_selector("#vcsconnection-message_svn", :text => "")
       end
 
       it "should display new svn material view with errors" do
@@ -116,18 +116,18 @@ describe "admin/pipelines/_material_form.html.erb" do
 
         set(@material_config, "errors", error)
 
-        render "admin/pipelines/new.html"
+        render
 
-        response.body.should have_tag("form[method='post'][action='create_path']") do
-          with_tag("div.steps_panes.sub_tab_container_content div#tab-content-of-materials #material_forms .SvnMaterial") do
-            with_tag("div.fieldWithErrors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'][value='svn://foo']")
-            with_tag("div.form_error", "Url is wrong")
+        Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|
+          Capybara.string(response.body).find("div.steps_panes.sub_tab_container_content div#tab-content-of-materials #material_forms .SvnMaterial").tap do |svn|
+            expect(svn).to have_selector("div.field_with_errors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL}]'][value='svn://foo']")
+            expect(svn).to have_selector("div.form_error", :text => "Url is wrong")
 
-            with_tag("div.fieldWithErrors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
-            with_tag("div.form_error", "Username is wrong")
+            expect(svn).to have_selector("div.field_with_errors input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]'][value='loser']")
+            expect(svn).to have_selector("div.form_error", :text => "Username is wrong")
 
-            with_tag("div.fieldWithErrors input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
-            with_tag("div.form_error", "Password is wrong")
+            expect(svn).to have_selector("div.field_with_errors input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='secret']")
+            expect(svn).to have_selector("div.form_error", :text => "Password is wrong")
           end
         end
       end
@@ -137,17 +137,17 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all git material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .GitMaterial") do
-          with_tag("label", "URL*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .GitMaterial").tap do |form|
+          expect(form).to have_selector("label", :text => "URL*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL}]']")
 
-          with_tag("label", "Branch")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH}]']")
+          expect(form).to have_selector("label", :text => "Branch")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH}]']")
 
-          with_tag("label", "Poll for new changes")
-          with_tag("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("label", :text => "Poll for new changes")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
         end
       end
     end
@@ -156,14 +156,14 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all hg material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .HgMaterial") do
-          with_tag("label", "URL*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .HgMaterial").tap do |form|
+          expect(form).to have_selector("label", :text => "URL*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL}]']")
 
-          with_tag("label", "Poll for new changes")
-          with_tag("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("label", :text => "Poll for new changes")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
         end
       end
     end
@@ -172,20 +172,20 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all tfs material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .TfsMaterial") do
-          with_tag("label", "URL*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]']")
-          with_tag("input.tfs_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]']")
-          with_tag("input.tfs_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]']")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .TfsMaterial").tap do |form|
+          expect(form).to have_selector("label", :text => "URL*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::URL}]']")
+          expect(form).to have_selector("input.tfs_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME}]']")
+          expect(form).to have_selector("input.tfs_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]']")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH}]']")
 
-          with_tag("label", "Poll for new changes")
-          with_tag("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("label", :text => "Poll for new changes")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
 
-          without_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspaceOwner]']")
-          without_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspace]']")
+          expect(form).not_to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspaceOwner]']")
+          expect(form).not_to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::TYPE}][workspace]']")
         end
       end
     end
@@ -194,26 +194,26 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all P4 material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .P4Material") do
-          with_tag("label", "Server and Port*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .P4Material").tap do |form|
+          expect(form).to have_selector("label", :text => "Server and Port*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT}]']")
 
-          with_tag("label", "Username")
-          with_tag("input.p4_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME}]']")
+          expect(form).to have_selector("label", :text => "Username")
+          expect(form).to have_selector("input.p4_username[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME}]']")
 
-          with_tag("label", "Password")
-          with_tag("input.p4_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::PASSWORD}]']")
+          expect(form).to have_selector("label", :text => "Password")
+          expect(form).to have_selector("input.p4_password[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::PASSWORD}]']")
 
-          with_tag("label", "View*")
-          with_tag("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]']")
+          expect(form).to have_selector("label", :text => "View*")
+          expect(form).to have_selector("textarea[name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]']")
 
-          with_tag("label[for='material_useTickets']", "Use tickets")
-          with_tag("input[id='material_useTickets'][type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS}]']")
+          expect(form).to have_selector("label[for='material_useTickets']", :text => "Use tickets")
+          expect(form).to have_selector("input[id='material_useTickets'][type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USE_TICKETS}]']")
 
-          with_tag("label", "Poll for new changes")
-          with_tag("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+          expect(form).to have_selector("label", :text => "Poll for new changes")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
         end
       end
     end
@@ -222,11 +222,11 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all Dependency material attributes" do
         in_params(:pipeline_name => "pipeline_name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials .DependencyMaterial") do
-          with_tag("label", "Pipeline [Stage]*")
-          with_tag("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME}]']")
+        Capybara.string(response.body).find("div#tab-content-of-materials .DependencyMaterial").tap do |form|
+          expect(form).to have_selector("label", :text => "Pipeline [Stage]*")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig::PIPELINE_STAGE_NAME}]']")
         end
       end
     end
@@ -250,17 +250,17 @@ describe "admin/pipelines/_material_form.html.erb" do
       it "should render all material attributes" do
         in_params(:pipeline_name => "pipeline-name")
 
-        render "admin/pipelines/new"
+        render
 
-        response.body.should have_tag("div#tab-content-of-materials #material_forms .PackageMaterial") do
-          with_tag("input[type='hidden'][name='material_type'][value='#{com.thoughtworks.go.config.materials.PackageMaterialConfig::TYPE}']")
-          with_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked=?]", "checked")
-          with_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
-          with_tag("select.required[name='material[package_definition[repositoryId]]']") do
-            without_tag("option")
+        Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .PackageMaterial").tap do |form|
+          expect(form).to have_selector("input[type='hidden'][name='material_type'][value='#{com.thoughtworks.go.config.materials.PackageMaterialConfig::TYPE}']")
+          expect(form).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
+          expect(form).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
+          form.find("select.required[name='material[package_definition[repositoryId]]']") do |select|
+            expect(select).not_to have_selector("option")
           end
-          with_tag("select.required[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']") do
-            without_tag("option")
+          form.find("select.required[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']") do |select|
+            expect(select).not_to have_selector("option")
           end
         end
       end
@@ -271,14 +271,15 @@ describe "admin/pipelines/_material_form.html.erb" do
 
         render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-        response.body.should have_tag("input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
-        response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
-        response.body.should have_tag("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked=?]", "checked")
-        response.body.should have_tag("select.required[name='material[package_definition[repositoryId]]']") do
-          without_tag("option")
+        expect(response.body).to have_selector("input[type='hidden'][name='material_type'][value='#{@material.getType()}']")
+        expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='create']")
+        expect(response.body).to have_selector("input[type='radio'][name='material[create_or_associate_pkg_def]'][value='associate'][checked='checked']")
+
+        Capybara.string(response.body).find("select.required[name='material[package_definition[repositoryId]]']").tap do |select|
+          expect(select).not_to have_selector("option")
         end
-        response.body.should have_tag("select.required[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']") do
-          without_tag("option")
+        Capybara.string(response.body).find("select.required[name='material[#{PackageMaterialConfig::PACKAGE_ID}]']").tap do |select|
+          expect(select).not_to have_selector("option")
         end
       end
 
@@ -294,43 +295,52 @@ describe "admin/pipelines/_material_form.html.erb" do
           p2 = ConfigurationProperty.new(ConfigurationKey.new("key2"), ConfigurationValue.new("value2"), nil, nil)
           p3_secure = ConfigurationProperty.new(ConfigurationKey.new("key3_secure"), nil, EncryptedConfigurationValue.new("secure"), nil)
           @package = PackageDefinition.new("go", "package-name", Configuration.new([p1, p2, p3_secure].to_java(ConfigurationProperty)))
-          assign(:package_configuration, PackageViewModel.new(@metadata, @package))
+          @package_view_model_new = PackageViewModel.new(@metadata, @package)
+          assign(:package_configuration, @package_view_model_new)
         end
 
         it "should render show_package_definition with check connection if the form was opened for associating a existing package definition" do
           in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
 
-          @controller.template.should_receive(:render).with(:partial => 'admin/package_definitions/show_package_definition_for_new_pipeline_wizard', :locals => {:scope => {:package_configuration => assigns[:package_configuration]}})
+          stub_template "admin/package_definitions/show_package_definition_for_new_pipeline_wizard" => "show package definition for new pipeline wizard"
+
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
+
+          assert_template partial: "admin/package_definitions/show_package_definition_for_new_pipeline_wizard", :locals => {:scope => {:package_configuration => @package_view_model_new}}
         end
 
         it "should render new package definition with check connection if the form was opened to create a new package definition" do
           in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "create"})
 
-          @controller.template.should_receive(:render).with(:partial => 'admin/package_definitions/form_for_new_pipeline_wizard', :locals => {:scope => {:package_configuration => assigns[:package_configuration]}})
+          stub_template "admin/package_definitions/form_for_new_pipeline_wizard" => "form for new pipeline wizard"
+
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
+
+          assert_template partial: "admin/package_definitions/form_for_new_pipeline_wizard", :locals => {:scope => {:package_configuration => @package_view_model_new}}
         end
 
         it "should render check connection when a form is opened for creating a new package definition" do
           in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "create"})
+
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-          response.body.should have_tag(".new_form_content") do
-            with_tag(".field.no-label-element") do
-              with_tag("button.submit#check_package span", "CHECK PACKAGE")
-              with_tag("span#package_check_message")
+          Capybara.string(response.body).find('.new_form_content').tap do |form|
+            form.find(".field.no-label-element") do |field|
+              expect(field).to have_selector("button.submit#check_package span", :text => "CHECK PACKAGE")
+              expect(field).to have_selector("span#package_check_message")
             end
           end
         end
 
         it "should render check connection when a form is opened for associating an existing package definition" do
           in_params(:pipeline_name => "pipeline-name", :finger_print => "foo", :material => {:create_or_associate_pkg_def => "associate"})
+
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-          response.body.should have_tag(".new_form_content") do
-            with_tag(".field.no-label-element") do
-              with_tag("button.submit#check_package span", "CHECK PACKAGE")
-              with_tag("span#package_check_message")
+          Capybara.string(response.body).find('.new_form_content').tap do |form|
+            form.find(".field.no-label-element") do |field|
+              expect(field).to have_selector("button.submit#check_package span", :text => "CHECK PACKAGE")
+              expect(field).to have_selector("span#package_check_message")
             end
           end
         end
@@ -341,21 +351,22 @@ describe "admin/pipelines/_material_form.html.erb" do
 
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-          response.body.should_not have_tag("#check_package span")
-          response.body.should_not have_tag("span#package_check_message")
+          expect(response.body).not_to have_selector("#check_package span")
+          expect(response.body).not_to have_selector("span#package_check_message")
         end
 
         it "should render warning if no repositories exist" do
-          assigns[:original_cruise_config].setPackageRepositories(PackageRepositories.new)
+          @cruise_config.setPackageRepositories(PackageRepositories.new)
+
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
-          response.body.should have_tag(".new_form_content") do
-            with_tag("p.warnings", "No repositories found. Please add a package repository first.") do
-              with_tag("a[href='#{package_repositories_new_path}']", "add a package repository")
-            end
+          Capybara.string(response.body).find('.new_form_content').tap do |div|
+              expect(div).to have_selector("p.warnings", :text => "No repositories found. Please add a package repository first.")
+              div.find("p.warnings") do |warnings|
+                expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
+              end
           end
         end
-
       end
     end
   end

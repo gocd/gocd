@@ -13,7 +13,7 @@
 
             <div class="fieldset">
                 <div class="form_item_block required">
-                    <%= f.label com.thoughtworks.go.config.PipelineConfigs::GROUP, l.string("PIPELINE_GROUP_NAME")+"<span class=\"asterisk\">*</span>" %>
+                    <%= f.label com.thoughtworks.go.config.PipelineConfigs::GROUP, required_label_text(l.string("PIPELINE_GROUP_NAME")) %>
                     <%= f.text_field com.thoughtworks.go.config.PipelineConfigs::GROUP %>
                     <%= error_message_on(RailsFormModelWrapper.new(@group), com.thoughtworks.go.config.PipelineConfigs::GROUP, :css_class => "form_error") %>
                 </div>

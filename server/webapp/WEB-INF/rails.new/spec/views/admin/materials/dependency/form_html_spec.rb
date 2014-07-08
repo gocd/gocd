@@ -32,9 +32,9 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/dependency/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    response.body.should have_tag("input[type='hidden'][name='current_tab'][value=?]", "materials")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Dependency Material Name']")
-    response.body.should have_tag(".popup_form input[type='text'][name='material[#{DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'][value='up-pipeline \[up-stage\]']")
+    expect(response.body).to have_selector("input[type='hidden'][name='current_tab'][value='materials']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Dependency Material Name']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'][value='up-pipeline \[up-stage\]']")
   end
 
   it "should display new dependency material view with errors" do
@@ -46,13 +46,12 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/dependency/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    response.body.should have_tag(".popup_form") do
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Dependency Material Name']")
-      with_tag("div.form_error", "Material Name is so wrong")
+    Capybara.string(response.body).find('.popup_form').tap do |popup_form|
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Dependency Material Name']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Material Name is so wrong")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='material[#{DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'][value='up-pipeline \[up-stage\]']")
-      with_tag("div.form_error", "Pipeline stage name is wrong")
-
+      expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{DependencyMaterialConfig::PIPELINE_STAGE_NAME}]'][value='up-pipeline \[up-stage\]']")
+      expect(popup_form).to have_selector("div.form_error", :text => "Pipeline stage name is wrong")
     end
   end
 end

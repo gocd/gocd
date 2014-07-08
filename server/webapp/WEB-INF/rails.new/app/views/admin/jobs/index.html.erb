@@ -20,7 +20,7 @@
             <td class="remove">
                 <% if @jobs.size() > 1 %>
                     <% unique_delete_job_id = random_dom_id("delete_job_") %>
-                    <%= form_for job_config, :url => {:action => "destroy", :job_name => job_config.name()},
+                    <%= form_for job_config, :as => '', :url => {:action => "destroy", :job_name => job_config.name()},
                                 :html => {:id => "#{unique_delete_job_id}", :method => :delete} do |f| %>
                         <%= md5_field %>
                         <span class="icon_remove delete_parent" id="trigger_<%= unique_delete_job_id %>">

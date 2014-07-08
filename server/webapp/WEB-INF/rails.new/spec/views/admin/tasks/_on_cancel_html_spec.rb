@@ -31,24 +31,24 @@ describe "admin/tasks/_on_cancel.html.erb" do
     end
     @store.stub(:preferenceFor).with("curl.plugin").and_return(nil)
 
-
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
-    response.body.should have_tag("div.on_cancel") do
 
-      with_tag("div#plugin_missing_error .warning", "On Cancel task is not available because associated plugin 'curl.plugin' is missing. Please contact Go admin to verify or re-install plugin. Click on ‘Save’ will replace the current On Cancel task.")
+    Capybara.string(response.body).find('div.on_cancel').tap do |div|
+      expect(div).to have_selector("div#plugin_missing_error .warning", :text => "On Cancel task is not available because associated plugin 'curl.plugin' is missing. Please contact Go admin to verify or re-install plugin. Click on Save will replace the current On Cancel task.")
     end
   end
 
   it "should not display error message when the on cancel is a regular task like rake" do
     @task = task_with_on_cancel_task
-    assigns[:on_cancel_task_vms] = []
+    assign(:on_cancel_task_vms, [])
     fields_for(:task, @task) do |f|
       @form = f
     end
 
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
-    response.body.should have_tag("div.on_cancel") do
-      without_tag("div#plugin_missing_error")
+
+    Capybara.string(response.body).find('div.on_cancel').tap do |div|
+      expect(div).not_to have_selector("div#plugin_missing_error")
     end
   end
 
@@ -59,9 +59,11 @@ describe "admin/tasks/_on_cancel.html.erb" do
     end
     @task = simple_task_with_pluggable_on_cancel_task
     @store.stub(:preferenceFor).with("curl.plugin").and_return(stub(:Preference))
+
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
-    response.body.should have_tag("div.on_cancel") do
-      without_tag("div#plugin_missing_error", "Associated plugin 'curl.plugin' not found. Please contact the Go admin to install the plugin.")
+
+    Capybara.string(response.body).find('div.on_cancel').tap do |div|
+      expect(div).not_to have_selector("div#plugin_missing_error", :text => "Associated plugin &#39;curl.plugin&#39; not found. Please contact the Go admin to install the plugin.")
     end
   end
 end

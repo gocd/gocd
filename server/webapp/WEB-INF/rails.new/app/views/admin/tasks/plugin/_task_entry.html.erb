@@ -20,7 +20,7 @@
         <% end %>
     </td>
     <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {overlayClose: false, title: '#{l.string("EDIT_TASK_OF_TYPE", [scope[:tvm].getTypeForDisplay()])}'}, function(text){return text}, true)" -%>
-    <%= render_pluggable_template(scope[:tvm], { :scope => scope, :modify_onclick_callback => js_frag}) -%>
+    <%== render_pluggable_template(scope[:tvm], { :scope => scope, :modify_onclick_callback => js_frag}) -%>
     <td class="">
         <%= form_tag admin_task_delete_path(:task_index => scope[:task_config_index]), {:method => :delete, :id => "delete_task_#{scope[:task_config_index]}"} %>
         <%= md5_field %>

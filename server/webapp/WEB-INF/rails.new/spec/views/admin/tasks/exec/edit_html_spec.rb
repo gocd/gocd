@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "../../../../spec_helper")
 
-describe "admin/tasks/edit_exec.html.erb" do
+describe "admin/tasks/plugin/edit.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
@@ -32,16 +32,16 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag("div.fieldset" ) do
-        with_tag("label", "Command*")
-        with_tag("input[name='task[command]']")
-        with_tag("label", "Arguments")
-        with_tag("input[type='text'][name='task[args]']")
-        with_tag("label", "Working Directory")
-        with_tag("input[name='task[workingDirectory]']")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Command*")
+        expect(divs[0]).to have_selector("input[name='task[command]']")
+        expect(divs[0]).to have_selector("label", :text => "Arguments")
+        expect(divs[0]).to have_selector("input[type='text'][name='task[args]']")
+        expect(divs[0]).to have_selector("label", :text => "Working Directory")
+        expect(divs[0]).to have_selector("input[name='task[workingDirectory]']")
       end
     end
   end
@@ -51,12 +51,12 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag("div.fieldset" ) do
-        with_tag("label", "Arguments")
-        with_tag("textarea[name='task[argListString]']", "-l\n-a")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.all("div.fieldset") do |divs|
+        expect(divs[0]).to have_selector("label", :text => "Arguments")
+        expect(divs[0]).to have_selector("textarea[name='task[argListString]']", "-l\n-a")
       end
     end
   end
@@ -66,26 +66,26 @@ describe "admin/tasks/edit_exec.html.erb" do
     assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag("h3", "Advanced Options")
-      with_tag(".on_cancel" ) do
-        with_tag("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do
-          with_tag("option", "More...")
-          with_tag("option", "Rake")
-          with_tag("option", "NAnt")
-          with_tag("option", "Ant")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("h3", :text => "Advanced Options")
+      form.find(".on_cancel") do |on_cancel|
+        on_cancel.find("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do |select|
+          expect(select).to have_selector("option", :text => "More...")
+          expect(select).to have_selector("option", :text => "Rake")
+          expect(select).to have_selector("option", :text => "NAnt")
+          expect(select).to have_selector("option", :text => "Ant")
         end
 
         #All the exec attributes
-        with_tag("label", "Command*")
-        with_tag("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][command]'][value='echo']")
-        with_tag("label", "Arguments")
-        with_tag("input[type='text'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][args]'][value=?]", "'failing'")
-        with_tag("label", "Working Directory")
-        with_tag("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][workingDirectory]'][value='oncancel_working_dir']")
-        end
+        expect(on_cancel).to have_selector("label", :text => "Command*")
+        expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][command]'][value='echo']")
+        expect(on_cancel).to have_selector("label", :text => "Arguments")
+        expect(on_cancel).to have_selector("input[type='text'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][args]'][value=?]", "'failing'")
+        expect(on_cancel).to have_selector("label", :text => "Working Directory")
+        expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][workingDirectory]'][value='oncancel_working_dir']")
+      end
     end
   end
 
@@ -94,14 +94,15 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag("h3", "Advanced Options")
-      with_tag(".on_cancel") do
-        with_tag("select.on_cancel_type")
-        with_tag("input[type='checkbox'][name='task[hasCancelTask]']")
-        without_tag("input[type='checkbox'][name='task[hasCancelTask]'][checked='checked']")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("h3", :text => "Advanced Options")
+      form.find(".on_cancel") do |on_cancel|
+        expect(on_cancel).to have_selector("select.on_cancel_type")
+        expect(on_cancel).to have_selector("input[type='checkbox'][name='task[hasCancelTask]']")
+
+        expect(on_cancel).not_to have_selector("input[type='checkbox'][name='task[hasCancelTask]'][checked='checked']")
       end
     end
   end
@@ -113,13 +114,13 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag(".on_cancel") do
-        with_tag("input[type='checkbox'][name='task[hasCancelTask]'][checked='checked'][value='1']")
-        with_tag("select")
-        with_tag(".on_cancel_task .exec.hidden")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.find(".on_cancel") do |on_cancel|
+        expect(on_cancel).to have_selector("input[type='checkbox'][name='task[hasCancelTask]'][checked='checked'][value='1']")
+        expect(on_cancel).to have_selector("select")
+        expect(on_cancel).to have_selector(".on_cancel_task .exec.hidden")
       end
     end
   end
@@ -130,11 +131,11 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag(".on_cancel") do
-        with_tag(".on_cancel_task.hidden")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.find(".on_cancel") do |on_cancel|
+        expect(on_cancel).to have_selector(".on_cancel_task.hidden")
       end
     end
   end
@@ -145,14 +146,14 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag(".on_cancel") do
-        with_tag(".exec.hidden")
-        with_tag(".ant.hidden")
-        with_tag(".nant.hidden")
-        with_tag(".rake.hidden")
+    Capybara.string(response.body).find('form').tap do |form|
+      form.find(".on_cancel") do |on_cancel|
+        expect(on_cancel).to have_selector(".exec.hidden")
+        expect(on_cancel).to have_selector(".ant.hidden")
+        expect(on_cancel).to have_selector(".nant.hidden")
+        expect(on_cancel).to have_selector(".rake.hidden")
       end
     end
   end
@@ -162,33 +163,35 @@ describe "admin/tasks/edit_exec.html.erb" do
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    render "/admin/tasks/plugin/edit"
+    render
 
-    response.body.should have_tag("form") do
-      with_tag("label", "Run if conditions*")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("label", "Run if conditions*")
       id = ''
-      with_tag("div.form_item_block" ) do
-        with_tag("label[for=?]", /runif_passed_[a-f0-9-]{36}/) do |tags|
+      form.all("div.form_item_block") do |divs|
+        expect(divs[0]).to have_selector("label[for='?']", /runif_passed_[a-f0-9-]{36}/)
+        divs[0].find("label") do |tags|
           label = tags[0]
           label.children[0].to_s.should == "Passed"
           id = label.attributes['for']
         end
-        with_tag("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_PASSED}]'][id='#{id}']")
+        expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_PASSED}]'][id='#{id}']")
 
-        with_tag("label[for=?]", /runif_failed_[a-f0-9-]{36}/) do |tags|
+        expect(divs[0]).to have_selector("label[for='?']", /runif_failed_[a-f0-9-]{36}/)
+        divs[0].find("label") do |tags|
           label = tags[0]
           label.children[0].to_s.should == "Failed"
           id = label.attributes['for']
         end
-        with_tag("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_FAILED}]'][id='#{id}']")
+        expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_FAILED}]'][id='#{id}']")
 
-        with_tag("label[for=?]", /runif_any_[a-f0-9-]{36}/) do |tags|
+        expect(divs[0]).to have_selector("label[for='?']", /runif_any_[a-f0-9-]{36}/)
+        divs[0].find("label") do |tags|
           label = tags[0]
           label.children[0].to_s.should == "Any"
           id = label.attributes['for']
         end
-        with_tag("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_ANY}]'][id='#{id}']")
-
+        expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_ANY}]'][id='#{id}']")
       end
     end
   end

@@ -27,13 +27,13 @@ describe "admin/tasks/pluggable_task/edit.html.erb" do
     formNameProvider.stub(:css_id_for).with("angular_pluggable_task_curl_plugin").and_return("angular_plugin_name")
     formNameProvider.stub(:css_id_for).with("data_pluggable_task_curl_plugin").and_return("plugin_data")
 
-    render "admin/tasks/pluggable_task/edit", :locals => {
+    render :template => "admin/tasks/pluggable_task/edit.html.erb", :locals => {
             :scope => {:task => task},
             :local_assigns => {"formNameProvider" => formNameProvider, "template" => "PLUGIN TEMPLATE 1", "data" => "PLUGIN DATA 1"}}
 
-    response.body.should have_tag("div.plugged_task#angular_plugin_name") do
-      with_tag("div.plugged_task_template", "PLUGIN TEMPLATE 1")
-      with_tag("span.plugged_task_data", "PLUGIN DATA 1")
+    Capybara.string(response.body).find('div.plugged_task#angular_plugin_name').tap do |div|
+      expect(div).to have_selector("div.plugged_task_template", :text => "PLUGIN TEMPLATE 1")
+      expect(div).to have_selector("span.plugged_task_data", :text => "PLUGIN DATA 1")
     end
   end
 end

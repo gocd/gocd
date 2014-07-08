@@ -22,54 +22,61 @@ describe "admin/tasks/pluggable_task/list_entry.html.erb" do
   it "should list pluggable task in the listing of tasks with plugin name" do
     task = plugin_task "curl.plugin", [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", true, "encrypted_value")]
 
-    render "admin/tasks/pluggable_task/_list_entry", :locals => {:scope => {:task_config => task, :tvm => tvm_for(task), :tvm_of_cancel_task => nil}, :modify_onclick_callback => "on-click-callback"}
+    render :partial => "admin/tasks/pluggable_task/list_entry.html", :locals => {:scope => {:task_config => task, :tvm => tvm_for(task), :tvm_of_cancel_task => nil}, :modify_onclick_callback => "on-click-callback"}
+    capybara_response = "<table><tr>" + response.body + "</tr></table>" # to help Capybara parse html
 
-    response.body.should have_tag("td a[href='#']", "Curl - Download")
-    response.body.should_not have_tag("td a.missing_plugin_link")
-    response.body.should have_tag("td.run_ifs", "Passed")
-    response.body.should have_tag("td.properties") do
-      with_tag("ul") do
-        with_tag("li.task_property.key1") do
-          with_tag("span.name", "KEY1:")
-          with_tag("span.value", "value1")
+    expect(capybara_response).to have_selector("td a[href='#']", :text => "Curl - Download")
+    expect(capybara_response).not_to have_selector("td a.missing_plugin_link")
+    expect(capybara_response).to have_selector("td.run_ifs", :text => "Passed")
+
+    Capybara.string(capybara_response).find('td.properties').tap do |td|
+      td.find("ul").tap do |ul|
+        ul.find("li.task_property.key1").tap do |li|
+          expect(li).to have_selector("span.name", :text => "KEY1:")
+          expect(li).to have_selector("span.value", :text => "value1")
         end
 
-        with_tag("li.task_property.key2") do
-          with_tag("span.name", "key2:")
-          with_tag("span.value", "****")
+        ul.find("li.task_property.key2").tap do |li|
+          expect(li).to have_selector("span.name", :text => "key2:")
+          expect(li).to have_selector("span.value", :text => "****")
         end
       end
     end
-    response.body.should have_tag("td.has_on_cancel", "No")
-  end
 
+    expect(capybara_response).to have_selector("td.has_on_cancel", :text => "No")
+  end
 
   it "should display a missing icon if the associated plugin for a task is missing" do
     pluginId = "missing.plugin"
     task = plugin_task pluginId, [ConfigurationPropertyMother.create("KEY1", false, "value1")]
 
-    render "admin/tasks/pluggable_task/_list_entry", :locals => {:scope => {:task_config => task, :tvm => tvm_for_missing_plugin(task), :tvm_of_cancel_task => nil}, :modify_onclick_callback => "on-click-callback"}
+    render :partial => "admin/tasks/pluggable_task/list_entry.html", :locals => {:scope => {:task_config => task, :tvm => tvm_for_missing_plugin(task), :tvm_of_cancel_task => nil}, :modify_onclick_callback => "on-click-callback"}
+    capybara_response = "<table><tr>" + response.body + "</tr></table>" # to help Capybara parse html
 
-    response.body.should have_tag("td label", pluginId)
-    response.body.should have_tag("td label.missing_plugin_link", pluginId)
-    response.body.should have_tag("td.properties") do
-      with_tag("ul") do
-        with_tag("li.task_property.key1") do
-          with_tag("span.name", "KEY1:")
-          with_tag("span.value", "value1")
+    Capybara.string(capybara_response).all('td').tap do |tds|
+      expect(tds[0]).to have_selector("label.missing_plugin_link", :text => pluginId)
+    end
+
+    Capybara.string(capybara_response).find('td.properties').tap do |td|
+      td.find("ul").tap do |ul|
+        ul.find("li.task_property.key1").tap do |li|
+          expect(li).to have_selector("span.name", :text => "KEY1:")
+          expect(li).to have_selector("span.value", :text => "value1")
         end
       end
     end
-    response.body.should have_tag("td.has_on_cancel", "No")
+
+    expect(capybara_response).to have_selector("td.has_on_cancel", :text => "No")
   end
 
   it "should list pluggable task, which has on-cancel task" do
     task_plugin = simple_task_plugin_with_on_cancel_config
     tvm_of_cancel_task = TaskViewModel.new(task_plugin.cancelTask(), "list-entry", "erb")
 
-    render "admin/tasks/pluggable_task/_list_entry", :locals => {:scope => {:task_config => task_plugin, :tvm => tvm_for(task_plugin), :tvm_of_cancel_task => tvm_of_cancel_task}, :modify_onclick_callback => "on-click-callback"}
+    render :partial => "admin/tasks/pluggable_task/list_entry.html", :locals => {:scope => {:task_config => task_plugin, :tvm => tvm_for(task_plugin), :tvm_of_cancel_task => tvm_of_cancel_task}, :modify_onclick_callback => "on-click-callback"}
+    capybara_response = "<table><tr>" + response.body + "</tr></table>" # to help Capybara parse html
 
-    response.body.should have_tag("td.has_on_cancel", "Custom Command")
+    expect(capybara_response).to have_selector("td.has_on_cancel", :text => "Custom Command")
   end
 
   def tvm_for(task)

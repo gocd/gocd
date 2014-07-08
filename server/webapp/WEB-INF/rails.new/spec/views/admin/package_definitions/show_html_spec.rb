@@ -32,12 +32,13 @@ describe "admin/package_definitions/show.html.erb" do
 
     render
 
-    response.body.should have_tag(".new_form_item_block label", "Package Name")
-    response.body.should have_tag(".new_form_item_block input[type='text'][disabled='disabled'][value='package-name']")
-    response.body.should have_tag(".new_form_item label", "Key 1")
-    response.body.should have_tag(".new_form_item input[type='text'][disabled='disabled'][value='value1']")
-    response.body.should have_tag(".new_form_item label", "Key 2")
-    response.body.should have_tag(".new_form_item input[type='text'][disabled='disabled'][value='value2']")
-    response.body.should_not have_tag(".error_message")
+    expect(response.body).to have_selector(".new_form_item_block label", :text => "Package Name")
+    expect(response.body).to have_selector(".new_form_item_block input[type='text'][disabled='disabled'][value='package-name']")
+    expect(response.body).to have_selector(".new_form_item label", :text => "Key 1")
+    expect(response.body).to have_selector(".new_form_item input[type='text'][disabled='disabled'][value='value1']")
+    expect(response.body).to have_selector(".new_form_item label", :text => "Key 2")
+    expect(response.body).to have_selector(".new_form_item input[type='text'][disabled='disabled'][value='value2']")
+
+    expect(response.body).not_to have_selector(".error_message")
   end
 end

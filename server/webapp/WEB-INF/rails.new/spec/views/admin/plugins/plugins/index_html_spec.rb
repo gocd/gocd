@@ -91,7 +91,7 @@ describe "admin/plugins/plugins/index.html.erb" do
       plugins_listing.find("ul.plugins").tap do |ul|
         ul.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
           li.find("span.plugin-author").tap do |span|
-            expect(span).to have_selector("span.key", "Author")
+            expect(span).to have_selector("span.key", :text => "Author")
             span.find("span.value").tap do |value|
               expect(value).to have_selector("a[href='http://url/for/plugin/1'][target='_blank']", :text => "ThoughtWorks Go Team - Plugin 1")
             end

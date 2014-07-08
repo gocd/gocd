@@ -40,13 +40,12 @@ describe "admin/stages/settings.html.erb" do
     it "should have manual, success and custom approval options" do
       render
 
-      response.body.should have_tag("form") do
-        with_tag("label[for='auto']", "On Success")
-        with_tag("input#auto[type='radio'][name='stage[approval][type]'][value='success']")
-        with_tag("label[for='manual']", "Manual")
-        with_tag("input#manual[type='radio'][name='stage[approval][type]'][value='manual']")
+      Capybara.string(response.body).find('form').tap do |form|
+        expect(form).to have_selector("label[for='auto']", :text => "On Success")
+        expect(form).to have_selector("input#auto[type='radio'][name='stage[approval][type]'][value='success']")
+        expect(form).to have_selector("label[for='manual']", :text => "Manual")
+        expect(form).to have_selector("input#manual[type='radio'][name='stage[approval][type]'][value='manual']")
       end
     end
   end
-
 end

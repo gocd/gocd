@@ -15,51 +15,45 @@
 ##########################GO-LICENSE-END##################################
 
 shared_examples_for :environment_variables_form do
-  def set_variables
-    @variables = EnvironmentVariablesConfig.new()
-    @variables.add("env-name", "env-val")
-    @variables.add("env-name2", "env-val2")
-  end
-
   before do
     set(@cruise_config, "md5", "abc")
   end
 
   it "should populate plain text env vars for the pipeline" do
-    render @view_file
+    render :template => @view_file
 
-    response.body.should have_tag("form") do
-      with_tag("input[name='#{@object_name}[variables][][name]'][value='env-name']")
-      with_tag("input[name='#{@object_name}[variables][][original_name]'][value='env-name']")
-      with_tag("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val']")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='env-name']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val']")
 
-      with_tag("input[name='#{@object_name}[variables][][name]'][value='env-name2']")
-      with_tag("input[name='#{@object_name}[variables][][original_name]'][value='env-name2']")
-      with_tag("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val2']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='env-name2']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='env-name2']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val2']")
 
-      with_tag("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
     end
   end
 
   it "should have correct row templates" do
-    render @view_file
+    render :template => @view_file
 
-    with_tag("textarea#variables_variables_template") do
-      with_tag("input[name='#{@object_name}[variables][][valueForDisplay]']")
-    end
+    textarea_content = Capybara.string(response.body).find('textarea#variables_variables_template').text
+
+    expect(textarea_content).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]']")
   end
 
   it "should show errors" do
     errors = config_errors([EnvironmentVariableConfig::NAME, "bad env var name"], [EnvironmentVariableConfig::VALUE, "bad value"])
     set(@variables.get(0), "configErrors", errors)
 
-    render @view_file
+    render :template => @view_file
 
-    response.body.should have_tag("form") do
-      with_tag("div.fieldWithErrors input[name='#{@object_name}[variables][][name]'][value='env-name']")
-      with_tag("div.name_value_error", "bad env var name")
-      with_tag("div.fieldWithErrors input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val']")
-      with_tag("div.name_value_error", "bad value")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("div.field_with_errors input[name='#{@object_name}[variables][][name]'][value='env-name']")
+      expect(form).to have_selector("div.name_value_error", :text => "bad env var name")
+      expect(form).to have_selector("div.field_with_errors input[name='#{@object_name}[variables][][valueForDisplay]'][value='env-val']")
+      expect(form).to have_selector("div.name_value_error", :text => "bad value")
     end
   end
 end

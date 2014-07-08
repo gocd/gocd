@@ -43,81 +43,77 @@ describe "list.html.erb" do
     @packageToPipelineMap.put("pid1",packageOnePipelines)
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 
-    assign(:cruise_config, @cruise_config = mock("cruise config"))
-    @cruise_config.should_receive(:canDeletePackageRepository).any_number_of_times.with(anything).and_return(true)
-    @cruise_config.should_receive(:getMd5).any_number_of_times.and_return("abc")
-
+    assign(:cruise_config, @cruise_config = double("cruise config"))
+    @cruise_config.stub(:canDeletePackageRepository).with(anything).and_return(true)
+    @cruise_config.stub(:getMd5).and_return("abc")
   end
 
   describe "list.html" do
 
     it "should render repository list when available" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
-
+      Capybara.string(response.body).find('ul.repositories').tap do |ul|
         # assertions for repo one
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id1")}']", "name1")
+        ul.all("li") do |lis|
+          expect(lis[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
         end
 
         # assertions for repo two
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id2")}']", "name2")
+        ul.all("li") do |lis|
+          expect(lis[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
         end
       end
-      response.body.should_not have_tag("div.no-repo-message")
+
+      expect(response.body).not_to have_selector("div.no-repo-message")
     end
 
     it "should select current repository" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:current_repo => 'name1', :package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
-
+      Capybara.string(response.body).find('ul.repositories').tap do |ul|
         # assertions for repo one
-        with_tag("li.selected") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id1")}']", "name1")
+        ul.find("li.selected") do |li|
+          expect(li).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
         end
 
         # assertions for repo two
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id2")}']", "name2")
+        ul.all("li") do |lis|
+          expect(lis[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
         end
       end
-      response.body.should_not have_tag("ul.repositories li.selected a#id2")
 
+      expect(response.body).not_to have_selector("ul.repositories li.selected a#id2")
     end
 
-
     it "should render package list" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
+      Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
         #assertions for repo one
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id1")}']", "name1")
-          with_tag("ul.packages") do
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']",'pname1')
+        ul_1.all("li") do |li_1s|
+          expect(li_1s[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
+
+          li_1s[0].find("ul.packages") do |ul_2|
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']", :text => 'pname1')
             end
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']",'pname2')
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
             end
           end
         end
 
         # assertions for repo two
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id2")}']", "name2")
-          with_tag("ul.packages") do
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']",'pname3')
+        ul_1.all("li") do |li_1s|
+          expect(li_1s[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+
+          li_1s[1].find("ul.packages") do |ul_2|
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
             end
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']",'pname4')
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
             end
           end
         end
@@ -125,50 +121,49 @@ describe "list.html.erb" do
     end
 
     it "should select current package under repository" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_id => 'pid1', :current_repo => "name1",:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
+      Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
         #assertions for repo one
-        with_tag("li.grey_selected") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id1")}']", "name1")
-          with_tag("ul.packages") do
-            with_tag("li.selected") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']",'pname1')
+        ul_1.find("li.grey_selected") do |li_1|
+          expect(li_1).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
+
+          li_1.find("ul.packages") do |ul_2|
+            ul_2.find("li.selected") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid1')}']", :text => 'pname1')
             end
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']",'pname2')
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id1', :package_id => 'pid2')}']", :text => 'pname2')
             end
           end
         end
 
         # assertions for repo two
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id2")}']", "name2")
-          with_tag("ul.packages") do
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']",'pname3')
+        ul_1.all("li") do |li_1s|
+          expect(li_1s[1]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id2")}']", :text => "name2")
+
+          li_1s[1].find("ul.packages") do |ul_2|
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid3')}']", :text => 'pname3')
             end
-            with_tag("li") do
-              with_tag("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']",'pname4')
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("a[href='#{package_definitions_show_with_repository_list_path(:repo_id => 'id2', :package_id => 'pid4')}']", :text => 'pname4')
             end
           end
         end
       end
     end
 
-
-
     it "should render disabled remove button when package is used by pipelines" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
-        with_tag("li") do
-          with_tag("a[href='#{package_repositories_edit_path(:id => "id1")}']", "name1")
-          with_tag("ul.packages") do
-            with_tag("li") do
-              with_tag("form button[title='This package is being used in one or more pipeline(s), cannot delete the package'][disabled='disabled']")
+      Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
+        ul_1.all("li") do |li_1s|
+          expect(li_1s[0]).to have_selector("a[href='#{package_repositories_edit_path(:id => "id1")}']", :text => "name1")
+
+          li_1s[0].find("ul.packages") do |ul_2|
+            ul_2.find("li") do |li_2|
+              expect(li_2).to have_selector("form button[title='This package is being used in one or more pipeline(s), cannot delete the package'][disabled='disabled']")
             end
           end
         end
@@ -176,20 +171,19 @@ describe "list.html.erb" do
     end
 
     it "should render remove button with prompt when not used by any pipeline" do
-
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => @repos , :package_to_pipeline_map => @packageToPipelineMap}}
 
-      response.body.should have_tag("ul.repositories") do
-        with_tag("li") do
-          with_tag("ul.packages") do
-            with_tag("li") do
-              with_tag("form[action='#{package_definition_delete_path(:repo_id => 'id2', :package_id => 'pid4')}'][id='delete_package_pid4'][method='post']") do
-                with_tag("input[name='_method'][type='hidden'][value='delete']")
-                with_tag("input[name='config_md5'][type='hidden'][value='abc']")
-                with_tag("span[id='package_delete_from_tree_pid4']") do
-                  with_tag("button[id='delete_button_from_tree_pid4']")
-                  with_tag("div[id='warning_prompt']") do
-                    with_tag("p","You are about to delete package pname4")
+      Capybara.string(response.body).find('ul.repositories').tap do |ul_1|
+        ul_1.all("li") do |li_1s|
+          li_1s[0].find("ul.packages") do |ul_2|
+            ul_2.find("li") do |li_2|
+              li_2.find("form[action='#{package_definition_delete_path(:repo_id => 'id2', :package_id => 'pid4')}'][id='delete_package_pid4'][method='post']") do |form|
+                expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']")
+                expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']")
+                form.find("span[id='package_delete_from_tree_pid4']") do |span|
+                  expect(span).to have_selector("button[id='delete_button_from_tree_pid4']")
+                  span.find("div[id='warning_prompt']") do |div|
+                    expect(div).to have_selector("p","You are about to delete package pname4")
                   end
                 end
               end
@@ -199,11 +193,11 @@ describe "list.html.erb" do
       end
     end
 
-
     it "should not render repository list" do
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => PackageRepositories.new}}
-      response.body.should have_tag("#no-items","No repository found.")
-      response.body.should_not have_tag("ul.repositories")
+
+      expect(response.body).to have_selector("#no-items", :text => "No repository found.")
+      expect(response.body).not_to have_selector("ul.repositories")
     end
 
     it "should render repository list with delete enabled only for deletable repositories" do
@@ -214,11 +208,13 @@ describe "list.html.erb" do
       cruise_config.should_receive(:canDeletePackageRepository).with(repo2).and_return(false)
       cruise_config.should_receive(:getMd5).and_return("abc")
       assign(:cruise_config, cruise_config)
+
       render :partial => "admin/package_repositories/list.html", :locals => {:scope => {:package_repositories => [repo1, repo2]}}
 
-      response.body.should have_tag("form#delete_repository_repo1")
-      response.body.should have_tag("form#delete_repository_repo2") do
-        with_tag("button#delete_repository_button_repo2[disabled='disabled'][title='One or more packages in this repository are being used by pipeline(s). Cannot delete repository.']")
+      expect(response.body).to have_selector("form#delete_repository_repo1")
+
+      Capybara.string(response.body).find('form#delete_repository_repo2').tap do |form|
+        expect(form).to have_selector("button#delete_repository_button_repo2[disabled='disabled'][title='One or more packages in this repository are being used by pipeline(s). Cannot delete repository.']")
       end
     end
   end
@@ -231,5 +227,4 @@ describe "list.html.erb" do
     repo1.should_receive(:getName).any_number_of_times.and_return(repoId)
     repo1
   end
-
 end

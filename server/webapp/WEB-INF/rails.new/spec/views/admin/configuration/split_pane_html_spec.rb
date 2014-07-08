@@ -61,7 +61,7 @@ describe "admin/configuration/split_pane.html.erb" do
         current_content.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |conflicted_content|
           expect(current_content).to have_selector("input[name='_method'][value='put']")
           current_content.find("div.form_heading").tap do |form_heading|
-            expect(form_heading).to have_selector("div.config_change_timestamp", "Last modified: over #{difference} years ago by Ali")
+            expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: over #{difference} years ago by Ali")
             expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: over #{difference} years ago by Ali']")
             form_heading.find("div.buttons-group").tap do |buttons_group|
               expect(buttons_group).to have_selector("input#save_config[class='link_as_button primary'][type='submit'][value='SAVE'][disabled='disabled']")

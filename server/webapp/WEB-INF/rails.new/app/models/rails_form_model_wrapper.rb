@@ -4,7 +4,11 @@ class RailsFormErrorWrapper
   end
 
   def [](name)
-    @model_with_errors.errors.getAllOn(name)
+    if(@model_with_errors.respond_to?(:errors))
+      @model_with_errors.errors.getAllOn(name)
+    else
+      return []
+    end
   end
 end
 

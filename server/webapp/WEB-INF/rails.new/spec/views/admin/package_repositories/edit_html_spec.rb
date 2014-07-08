@@ -41,15 +41,15 @@ describe "admin/package_repositories/edit.html.erb" do
     it "should have a page title and view title" do
       render
 
-      assigns[:view_title].should == "Administration"
+      assigns(:view_title).should == "Administration"
     end
 
     it "should have package repository listing panel" do
       render
 
-      response.body.should have_tag("div#package-repositories") do
-        with_tag(".navigation") do
-          with_tag("a.add", "Add New Repository")
+      Capybara.string(response.body).find("div#package-repositories").tap do |div|
+        div.find(".navigation") do |navigation|
+          expect(navigation).to have_selector("a.add", :text => "Add New Repository")
         end
       end
     end
@@ -57,8 +57,8 @@ describe "admin/package_repositories/edit.html.erb" do
     it "should have ajax_form_submit_errors div" do
       render
 
-      response.body.should have_tag("div#package-repositories") do
-        with_tag("#ajax_form_submit_errors.form_submit_errors")
+      Capybara.string(response.body).find("div#package-repositories").tap do |div|
+        expect(div).to have_selector("#ajax_form_submit_errors.form_submit_errors")
       end
     end
 
@@ -67,25 +67,25 @@ describe "admin/package_repositories/edit.html.erb" do
 
       render
 
-      response.body.should have_tag("h2","Edit Package RepositoryWhat is a Package Repository?")
-      response.body.should have_tag("div#package-repositories form") do
+      expect(response.body).to have_selector("h2", :text => "Edit Package RepositoryWhat is a Package Repository?")
 
-        with_tag "input#package_repository_repoId[name='package_repository[repoId]'][type='hidden'][value='1']"
+      Capybara.string(response.body).find("div#package-repositories").tap do |div|
+        expect(div).to have_selector "input#package_repository_repoId[name='package_repository[repoId]'][type='hidden'][value='1']"
 
-        with_tag "label[for='package_repository_name']"
-        with_tag "input#package_repository_name[name='package_repository[name]'][value='name']"
+        expect(div).to have_selector "label[for='package_repository_name']"
+        expect(div).to have_selector "input#package_repository_name[name='package_repository[name]'][value='name']"
 
-        with_tag "label[for='package_repository_pluginConfiguration_id']"
-        with_tag "select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']" do
-          with_tag("option[value='']", "[Select]")
-          with_tag("option[value='apt-get']", "apt-get")
-          with_tag("option[value='yum'][selected='selected']", "yum")
+        expect(div).to have_selector "label[for='package_repository_pluginConfiguration_id']"
+        div.find("select#package_repository_pluginConfiguration_id[name='package_repository[pluginConfiguration][id]']") do |select|
+          expect(select).to have_selector("option[value='']", :text => "[Select]")
+          expect(select).to have_selector("option[value='apt-get']", :text => "apt-get")
+          expect(select).to have_selector("option[value='yum'][selected='selected']", :text => "yum")
         end
 
-        with_tag("p.required","* indicates a required field")
+        expect(div).to have_selector("p.required", :text => "* indicates a required field")
 
-        with_tag("button span","SAVE")
-        with_tag("button span","RESET")
+        expect(div).to have_selector("button span", :text => "SAVE")
+        expect(div).to have_selector("button span", :text => "RESET")
       end
     end
 

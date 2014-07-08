@@ -36,36 +36,36 @@ describe "admin/templates/edit_permissions.html.erb" do
   it "should render template edit permissions form with grid for users" do
     render
 
-    response.body.should have_tag("form[action='/admin/templates/some_template/permissions'][method='post']") do
-      with_tag("input[type='hidden'][name='config_md5'][value='abcd1234']")
+    Capybara.string(response.body).find("form[action='/admin/templates/some_template/permissions'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
 
-      with_tag("label[for='template_name']", "Template Name")
-      with_tag("input[type='text'][name='template[name]'][value='some_template'][id='template_name']")
+      expect(form).to have_selector("label[for='template_name']", :text => "Template Name")
+      expect(form).to have_selector("input[type='text'][name='template[name]'][value='some_template'][id='template_name']")
 
-      match_hidden_row("", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
+      match_hidden_row(form, "", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
 
-      match_row("new-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
-      match_row("old-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
+      match_row(form, "new-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
+      match_row(form, "old-admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON)
 
-      with_tag("a[href='/admin/templates/some_template/permissions']")
+      expect(form).to have_selector("a[href='/admin/templates/some_template/permissions']")
     end
   end
 
-  def match_hidden_row name, type, admin
-    with_tag("textarea#USER_users_and_roles_template") do
-      match_inputs name, type, admin
+  def match_hidden_row form, name, type, admin
+    form.find("textarea#USER_users_and_roles_template") do |textarea|
+      match_inputs textarea, name, type, admin
     end
   end
 
-  def match_row name, type, admin
-    with_tag("tr##{type}_#{name}") do
-      match_inputs name, type, admin
+  def match_row form, name, type, admin
+    form.find("tr##{type}_#{name}") do |tr|
+      match_inputs tr, name, type, admin
     end
   end
 
-  def match_inputs name, type, admin
-    with_tag("input[type='text'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
-    with_tag("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
-    with_tag("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::ADMIN_PRIVILEGE}]'][value='#{admin}']")
+  def match_inputs element, name, type, admin
+    expect(element).to have_selector("input[type='text'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
+    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
+    expect(element).to have_selector("input[type='hidden'][name='template[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{Authorization::PresentationElement::ADMIN_PRIVILEGE}]'][value='#{admin}']")
   end
 end

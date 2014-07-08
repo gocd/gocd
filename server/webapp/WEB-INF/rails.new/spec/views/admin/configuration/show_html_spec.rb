@@ -50,8 +50,8 @@ describe "admin/configuration/show.html.erb" do
       div.find("div#tab-content-of-source-xml").tap do |tab|
         tab.find(".admin_holder").tap do |admin|
           admin.find("div.form_heading").tap do |form_heading|
-            expect(form_heading).to have_selector("div.config_change_timestamp", "Last modified: over #{difference} years ago by Ali")
-            expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: over #{difference} years ago by Ali']", )
+            expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: over #{difference} years ago by Ali")
+            expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: over #{difference} years ago by Ali']")
             admin.find("div.buttons-group").tap do |buttons_group|
               expect(buttons_group).to have_selector("a#edit_config[class='link_as_button primary'][href='config_edit_path']", :text => "Edit")
             end

@@ -16,7 +16,7 @@
 
 require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
 
-describe "/admin/tasks/plugin/new.html.erb" do
+describe "admin/tasks/plugin/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
@@ -31,60 +31,61 @@ describe "/admin/tasks/plugin/new.html.erb" do
 
   it "should render what the rendering service returns" do
     assign(:task, @task = ExecTask.new("", "", ""))
-    render "admin/tasks/plugin/new.html.erb"
 
-    response.body.should have_tag("form[action=?][method='post']", 'task_create_path') do
-      with_tag("label", "Command*")
-      with_tag("input[name='task[#{com.thoughtworks.go.config.ExecTask::COMMAND}]'][value='']")
+    render
+
+    Capybara.string(response.body).find("form[action='task_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("label", :text => "Command*")
+      expect(form).to have_selector("input[name='task[#{com.thoughtworks.go.config.ExecTask::COMMAND}]'][value='']")
     end
   end
 
   it "should render the config md5, form buttons and flash message" do
-    render "admin/tasks/plugin/new.html.erb"
+    render
 
-    response.body.should have_tag("#message_pane")
+    expect(response.body).to have_selector("#message_pane")
 
-    response.body.should have_tag("form") do
-        with_tag("input[id='config_md5'][type='hidden'][value='abcd1234']")
-        with_tag("button[type='submit']", "SAVE")
-        with_tag("button", "Cancel")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='abcd1234']")
+      expect(form).to have_selector("button[type='submit']", :text => "SAVE")
+      expect(form).to have_selector("button", :text => "Cancel")
     end
   end
 
   it "should render the config conflict message" do
     assign(:config_file_conflict, true)
 
-    render "admin/tasks/plugin/new.html.erb"
+    render
 
-    response.body.should have_tag("#config_save_actions")
+    expect(response.body).to have_selector("#config_save_actions")
   end
 
   it "should render the required message" do
-    render "admin/tasks/plugin/new.html.erb"
+    render
 
-    response.body.should have_tag(".required .asterisk")
+    expect(response.body).to have_selector(".required .asterisk")
   end
 
   it "should render the oncancel" do
-    render "admin/tasks/plugin/new.html.erb"
+    render
 
-     response.body.should have_tag("form") do
-      with_tag("h3", "Advanced Options")
-      with_tag(".on_cancel" ) do
-        with_tag("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do
-          with_tag("option", "More...")
-          with_tag("option", "Rake")
-          with_tag("option", "NAnt")
-          with_tag("option", "Ant")
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("h3", "Advanced Options")
+      form.find(".on_cancel") do |on_cancel|
+        on_cancel.find("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do |select|
+          expect(select).to have_selector("option", :text => "More...")
+          expect(select).to have_selector("option", :text => "Rake")
+          expect(select).to have_selector("option", :text => "NAnt")
+          expect(select).to have_selector("option", :text => "Ant")
         end
 
         #All the exec attributes
-        with_tag("label", "Command*")
-        with_tag("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][command]'][value='rm']")
-        with_tag("label", "Arguments")
-        with_tag("textarea[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][argListString]']")
-        with_tag("label", "Working Directory")
-        with_tag("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][workingDirectory]']")
+        expect(on_cancel).to have_selector("label", :text => "Command*")
+        expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][command]'][value='rm']")
+        expect(on_cancel).to have_selector("label", :text => "Arguments")
+        expect(on_cancel).to have_selector("textarea[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][argListString]']")
+        expect(on_cancel).to have_selector("label", :text => "Working Directory")
+        expect(on_cancel).to have_selector("input[name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::EXEC_ON_CANCEL}][workingDirectory]']")
       end
     end
   end

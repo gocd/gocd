@@ -34,9 +34,9 @@ describe "admin/templates/new.html.erb" do
     
     render
 
-    response.body.should have_tag("form[action='template_create_path'][method='post']") do
-      with_tag("input[name='config_md5'][value='abcd1234']")
-      with_tag("input[name='pipeline[template][name]']")
+    Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("input[name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[name='pipeline[template][name]']")
     end
   end
 
@@ -47,20 +47,21 @@ describe "admin/templates/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[action='template_create_path'][method='post']") do
-      with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]']")
-      with_tag("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
-      with_tag("label[for='pipeline_useExistingPipeline']", "Extract From Pipeline")
-      without_tag("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled=disabled]")
-      without_tag("label[for='pipeline_useExistingPipeline'][class='disabled']", "Extract From Pipeline")
+    Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
+      expect(form).to have_selector("label[for='pipeline_useExistingPipeline']", :text => "Extract From Pipeline")
 
-      with_tag("div.contextual_help.has_go_tip_right[title='If a pipeline is not selected, a template with a default stage and default job is created. If a pipeline is selected, the template will use the stages from the pipeline and the pipeline itself will start using this template.']")
+      expect(form).not_to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled=disabled]")
+      expect(form).not_to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
 
-      with_tag("#pipelines_to_extract_from.hidden") do
-        with_tag("select[name='pipeline[selectedPipelineName]']") do
-          with_tag("option[value='pipeline1']", "pipeline1")
-          with_tag("option[value='pipeline.2']", "pipeline.2")
-          with_tag("option[value='Foo']", "Foo")
+      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If a pipeline is not selected, a template with a default stage and default job is created. If a pipeline is selected, the template will use the stages from the pipeline and the pipeline itself will start using this template.']")
+
+      form.find("#pipelines_to_extract_from.hidden") do |pipelines_to_extract_from|
+        pipelines_to_extract_from.find("select[name='pipeline[selectedPipelineName]']") do |select|
+          expect(select).to have_selector("option[value='pipeline1']", :text => "pipeline1")
+          expect(select).to have_selector("option[value='pipeline.2']", :text => "pipeline.2")
+          expect(select).to have_selector("option[value='Foo']", :text => "Foo")
         end
       end
     end
@@ -73,13 +74,14 @@ describe "admin/templates/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[action='template_create_path'][method='post']") do
-      with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]']")
-      with_tag("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
-      with_tag("label[for='pipeline_useExistingPipeline']", "Extract From Pipeline")
+    Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector']")
+      expect(form).to have_selector("label[for='pipeline_useExistingPipeline']", :text => "Extract From Pipeline")
 
-      without_tag("#pipelines_to_extract_from.hidden")
-      with_tag("#pipelines_to_extract_from")
+      expect(form).not_to have_selector("#pipelines_to_extract_from.hidden")
+
+      expect(form).to have_selector("#pipelines_to_extract_from")
     end
   end
 
@@ -89,14 +91,14 @@ describe "admin/templates/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[action='template_create_path'][method='post']") do
-      with_tag("div.contextual_help.has_go_tip_right[title='No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.']")
+    Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.']")
 
-      with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]']")
-      with_tag("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
-      with_tag("label[for='pipeline_useExistingPipeline'][class='disabled']", "Extract From Pipeline")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]']")
+      expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
+      expect(form).to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
     end
-    end
+  end
 
   it "should disable the pipelines selection and checkbox if pipeline to extract is pegged" do
     template.stub(:allow_pipeline_selection?).and_return(false)
@@ -105,13 +107,13 @@ describe "admin/templates/new.html.erb" do
 
     render
 
-    response.body.should have_tag("form[action='template_create_path'][method='post']") do
-      with_tag("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='1']")
-      with_tag("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
-      with_tag("label[for='pipeline_useExistingPipeline'][class='disabled']", "Extract From Pipeline")
+    Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='0']")
+      expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
+      expect(form).to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
 
-      with_tag("select[disabled='disabled'][name='pipeline[pipelineNames]'][id='pipeline_pipelineNames']")
-      with_tag("input#pipeline_selectedPipelineName[type='hidden'][value='pipeline1'][name='pipeline[selectedPipelineName]']")
+      expect(form).to have_selector("select[disabled='disabled'][name='pipeline[pipelineNames]'][id='pipeline_pipelineNames']")
+      expect(form).to have_selector("input#pipeline_selectedPipelineName[type='hidden'][value='pipeline1'][name='pipeline[selectedPipelineName]']")
     end
   end
 end

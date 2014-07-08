@@ -32,15 +32,15 @@ describe "admin/pipeline_groups/edit.html.erb" do
   end
 
   it "should render pipeline group edit form" do
-    render "admin/pipeline_groups/edit.html"
+    render
 
-    response.body.should have_tag("form[action='/admin/pipeline_group/group1'][method='post']") do
-      with_tag("input[type='hidden'][name='_method'][value='PUT']")
+    Capybara.string(response.body).find("form[action='/admin/pipeline_group/group1'][method='post']").tap do |form|
+      expect(form).to have_selector("input[type='hidden'][name='_method'][value='PUT']")
 
-      with_tag("input[type='hidden'][name='config_md5'][value='abcd1234']")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abcd1234']")
 
-      with_tag("label[for='group_group']", "Pipeline Group Name*")
-      with_tag("input[type='text'][name='group[group]'][value='group1'][id='group_group']")
+      expect(form).to have_selector("label[for='group_group']", :text => "Pipeline Group Name*")
+      expect(form).to have_selector("input[type='text'][name='group[group]'][value='group1'][id='group_group']")
     end
   end
 
@@ -53,39 +53,39 @@ describe "admin/pipeline_groups/edit.html.erb" do
     @group.getAuthorization().getAdminsConfig().add(AdminRole.new(CaseInsensitiveString.new("gang_of_losers")))
     @group.getAuthorization().getOperationConfig().add(AdminRole.new(CaseInsensitiveString.new("group_of_boozers")))
 
-    render "admin/pipeline_groups/edit.html"
+    render
 
-    response.body.should have_tag("form[action='/admin/pipeline_group/group1'][method='post']") do
-      match_row("loser", Authorization::UserType::USER, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::ON)
-      match_row("boozer", Authorization::UserType::USER, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::OFF)
-      match_row("admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED, Authorization::PrivilegeState::DISABLED)
+    Capybara.string(response.body).find("form[action='/admin/pipeline_group/group1'][method='post']").tap do |form|
+      match_row(form, "loser", Authorization::UserType::USER, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::ON)
+      match_row(form, "boozer", Authorization::UserType::USER, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::OFF)
+      match_row(form, "admin", Authorization::UserType::USER, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED, Authorization::PrivilegeState::DISABLED)
 
-      match_row("gang_of_losers", Authorization::UserType::ROLE, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED, Authorization::PrivilegeState::DISABLED)
-      match_row("group_of_boozers", Authorization::UserType::ROLE, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::OFF)
+      match_row(form, "gang_of_losers", Authorization::UserType::ROLE, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::DISABLED, Authorization::PrivilegeState::DISABLED)
+      match_row(form, "group_of_boozers", Authorization::UserType::ROLE, Authorization::PrivilegeState::OFF, Authorization::PrivilegeState::ON, Authorization::PrivilegeState::OFF)
     end
   end
 
   it "should have tooltips on view, operate and admin checkboxes" do
+    render
 
-    render "admin/pipeline_groups/edit.html"
-
-    response.body.should have_tag("input[type='checkbox'][name='view'][title=?]", "Allows users to view pipelines in this group.")
-    response.body.should have_tag("input[type='checkbox'][name='operate'][title=?]", "Allows users to operate (trigger) pipelines in this group.")
-    response.body.should have_tag("input[type='checkbox'][name='admin'][title=?]", "Allows users to administer this group. This includes the ability to configure pipelines in this group and the ability to grant other users access. This permission automatically gives the user view and operate permissions.")
+    expect(response.body).to have_selector("input[type='checkbox'][name='view'][title='Allows users to view pipelines in this group.']")
+    expect(response.body).to have_selector("input[type='checkbox'][name='operate'][title='Allows users to operate (trigger) pipelines in this group.']")
+    expect(response.body).to have_selector("input[type='checkbox'][name='admin'][title='Allows users to administer this group. This includes the ability to configure pipelines in this group and the ability to grant other users access. This permission automatically gives the user view and operate permissions.']")
   end
 
-  def match_row name, type, admin, operate, view
-    with_tag("tr##{type}_#{name}") do
-      with_tag("input[type='text'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
-      with_tag("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
-      match_privilege admin, Authorization::PresentationElement::ADMIN_PRIVILEGE
-      match_privilege operate, Authorization::PresentationElement::OPERATE_PRIVILEGE
-      match_privilege view, Authorization::PresentationElement::VIEW_PRIVILEGE
+  def match_row form, name, type, admin, operate, view
+    form.find("tr##{type}_#{name}") do |tr|
+      expect(tr).to have_selector("input[type='text'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::NAME}]'][value='#{name}']")
+      expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PresentationElement::TYPE}]'][value='#{type}']")
+
+      match_privilege tr, admin, Authorization::PresentationElement::ADMIN_PRIVILEGE
+      match_privilege tr, operate, Authorization::PresentationElement::OPERATE_PRIVILEGE
+      match_privilege tr, view, Authorization::PresentationElement::VIEW_PRIVILEGE
     end
   end
 
-  def match_privilege privilege_state, privilege_type
-    with_tag("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{privilege_type}]'][value='#{privilege_state}']")
-    with_tag("input[type='checkbox'][name='#{privilege_type}']")
+  def match_privilege tr, privilege_state, privilege_type
+    expect(tr).to have_selector("input[type='hidden'][name='group[#{PipelineConfigs::AUTHORIZATION}][][#{Authorization::PRIVILEGES}][][#{privilege_type}]'][value='#{privilege_state}']")
+    expect(tr).to have_selector("input[type='checkbox'][name='#{privilege_type}']")
   end
 end

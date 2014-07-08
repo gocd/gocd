@@ -16,11 +16,11 @@
 
 require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
-describe "admin/stages new.html.erb" do
+describe "admin/stages/new.html.erb" do
   include GoUtil, FormUI
 
   before(:each) do
-    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
+    @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
     @stage = StageConfig.new(CaseInsensitiveString.new("stage-name"), JobConfigs.new([@new_job].to_java(JobConfig)))
 
     assign(:stage, @stage)
@@ -42,42 +42,42 @@ describe "admin/stages new.html.erb" do
   it "should render form with name and id for angular binding" do
     render
 
-    response.body.should have_tag("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
+    expect(response.body).to have_selector("form[name='pipeline_edit_form'][id='pipeline_edit_form']")
   end
 
   it "should render new form" do
     render
 
-    response.body.should have_tag("#new_stage_container form") do
-      with_tag("h3", "Stage Information")
-      with_tag("input[type='hidden'][name='config_md5'][value='abc']")
-      with_tag("input[type='hidden'][name='current_tab'][value=?]", "stages")
-      with_tag(".instructions", "You can add more jobs and tasks to this stage once the stage has been created.")
+    Capybara.string(response.body).find('#new_stage_container form').tap do |form|
+      expect(form).to have_selector("h3", :text => "Stage Information")
+      expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']")
+      expect(form).to have_selector("input[type='hidden'][name='current_tab'][value='stages']")
+      expect(form).to have_selector(".instructions", :text => "You can add more jobs and tasks to this stage once the stage has been created.")
 
-      with_tag("input[type='text'][name='stage[#{StageConfig::NAME}]'][value='stage-name']")
+      expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::NAME}]'][value='stage-name']")
 
-      with_tag("label[for='auto']", "On Success")
-      with_tag("input#auto[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}']")
-      with_tag("label[for='manual']", "Manual")
-      with_tag("input#manual[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
-      with_tag("span.stage_approval.contextual_help.has_go_tip_right[title=?]", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually
-                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
+      expect(form).to have_selector("label[for='auto']", :text => "On Success")
+      expect(form).to have_selector("input#auto[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}']")
+      expect(form).to have_selector("label[for='manual']", :text => "Manual")
+      expect(form).to have_selector("input#manual[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
+      expect(form.find("span.stage_approval.contextual_help.has_go_tip_right")['title']).to eq("'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
 
-      with_tag("input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
+      expect(form).to have_selector("input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
 
-      with_tag("select[name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][#{Tasks::TASK_OPTIONS}]']") do
-        with_tag("option[value='exec'][selected]")
-        with_tag("option[value='ant']")
-        with_tag("option[value='nant']")
-        with_tag("option[value='rake']")
+      form.find("select[name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][#{com.thoughtworks.go.config.Tasks::TASK_OPTIONS}]']") do |select|
+        expect(select).to have_selector("option[value='exec'][selected]")
+        expect(select).to have_selector("option[value='ant']")
+        expect(select).to have_selector("option[value='nant']")
+        expect(select).to have_selector("option[value='rake']")
       end
 
-      with_tag("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::COMMAND}]'][value='ls']")
-      with_tag("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::ARGS}]'][value='-la']")
-      with_tag("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::WORKING_DIR}]'][value='my_work_dir']")
+      expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::COMMAND}]'][value='ls']")
+      expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::ARGS}]'][value='-la']")
+      expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::WORKING_DIR}]'][value='my_work_dir']")
     end
-    response.body.should_not have_tag(".fieldWithErrors")
-    response.body.should_not have_tag(".form_error")
+
+    expect(response.body).not_to have_selector(".field_with_errors")
+    expect(response.body).not_to have_selector(".form_error")
   end
 
   it "should render errors" do
@@ -96,23 +96,23 @@ describe "admin/stages new.html.erb" do
 
     render
 
-    response.body.should have_tag("#new_stage_container form") do
-      with_tag("div.fieldWithErrors input[type='text'][name='stage[#{StageConfig::NAME}]']")
-      with_tag("div.form_error", "The name cannot be duplicated")
+    Capybara.string(response.body).find('#new_stage_container form').tap do |form|
+      expect(form).to have_selector("div.field_with_errors input[type='text'][name='stage[#{StageConfig::NAME}]']")
+      expect(form).to have_selector("div.form_error", :text => "The name cannot be duplicated")
 
-      with_tag("div.fieldWithErrors input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}']")
-      with_tag("div.fieldWithErrors input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
-      with_tag("div.form_error", "Bad approval")
+      expect(form).to have_selector("div.field_with_errors input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}']")
+      expect(form).to have_selector("div.field_with_errors input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
+      expect(form).to have_selector("div.form_error", :text => "Bad approval")
 
-      with_tag("div.fieldWithErrors input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
-      with_tag("div.form_error", "Job name is duplicated")
+      expect(form).to have_selector("div.field_with_errors input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
+      expect(form).to have_selector("div.form_error", :text => "Job name is duplicated")
 
-      with_tag("div.fieldWithErrors input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::COMMAND}]'][value='ls']")
-      with_tag("div.form_error", "Does not have a command")
-      with_tag("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::ARGS}]'][value='abc']")
-      with_tag("div.form_error", "what horrible args?")
-      with_tag("div.fieldWithErrors input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::WORKING_DIR}]'][value='my_work_dir']")
-      with_tag("div.form_error", "really?")
+      expect(form).to have_selector("div.field_with_errors input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::COMMAND}]'][value='ls']")
+      expect(form).to have_selector("div.form_error", :text => "Does not have a command")
+      expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::ARGS}]'][value='abc']")
+      expect(form).to have_selector("div.form_error", :text => "what horrible args?")
+      expect(form).to have_selector("div.field_with_errors input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::WORKING_DIR}]'][value='my_work_dir']")
+      expect(form).to have_selector("div.form_error", :text => "really?")
     end
   end
 
@@ -121,14 +121,14 @@ describe "admin/stages new.html.erb" do
 
     render
 
-    response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
-    response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
+    expect(response.body).to have_selector("#config_save_actions button.reload_config#reload_config", :text => "Reload")
+    expect(response.body).to have_selector("#config_save_actions label", :text => "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
     render
 
-    response.body.should_not have_tag("#config_save_actions")
+    expect(response.body).not_to have_selector("#config_save_actions")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
@@ -136,14 +136,14 @@ describe "admin/stages new.html.erb" do
 
     render
 
-    response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
-    response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
+    expect(response.body).to have_selector("#config_save_actions button.reload_config#reload_config", :text => "Reload")
+    expect(response.body).to have_selector("#config_save_actions label", :text => "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
     render
 
-    response.body.should_not have_tag("#config_save_actions")
+    expect(response.body).not_to have_selector("#config_save_actions")
   end
 
   it "should render reload option when the config file MD5 has changed under the message" do
@@ -151,13 +151,13 @@ describe "admin/stages new.html.erb" do
 
     render
 
-    response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
-    response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
+    expect(response.body).to have_selector("#config_save_actions button.reload_config#reload_config", :text => "Reload")
+    expect(response.body).to have_selector("#config_save_actions label", :text => "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
     render
 
-    response.body.should_not have_tag("#config_save_actions")
+    expect(response.body).not_to have_selector("#config_save_actions")
   end
 end

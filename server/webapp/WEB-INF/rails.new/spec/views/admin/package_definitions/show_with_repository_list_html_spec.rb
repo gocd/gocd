@@ -63,13 +63,14 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
 
       render
 
-      response.body.should have_tag(".field label", "Package Name")
-      response.body.should have_tag(".field input[type='text'][value='package-name']")
-      response.body.should have_tag(".field label", "Key 1")
-      response.body.should have_tag(".field input[type='text'][value='value1']")
-      response.body.should have_tag(".field label", "Key 2")
-      response.body.should have_tag(".field input[type='text'][value='value2']")
-      response.body.should_not have_tag(".error_message")
+      expect(response.body).to have_selector(".field label", :text => "Package Name")
+      expect(response.body).to have_selector(".field input[type='text'][value='package-name']")
+      expect(response.body).to have_selector(".field label", :text => "Key 1")
+      expect(response.body).to have_selector(".field input[type='text'][value='value1']")
+      expect(response.body).to have_selector(".field label", :text => "Key 2")
+      expect(response.body).to have_selector(".field input[type='text'][value='value2']")
+
+      expect(response.body).not_to have_selector(".error_message")
     end
 
     it "should render pipelines used link with delete button disabled when package is used by pipelines" do
@@ -78,26 +79,24 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
 
       render
 
-      response.body.should have_tag("a[id='show_pipelines_used_in']","Show pipelines using this package")
-      response.body.should have_tag("button[id='delete_package'][disabled='disabled'][title='This package is being used in one or more pipeline(s), cannot delete the package']","Delete")
+      expect(response.body).to have_selector("a[id='show_pipelines_used_in']", :text => "Show pipelines using this package")
+      expect(response.body).to have_selector("button[id='delete_package'][disabled='disabled'][title='This package is being used in one or more pipeline(s), cannot delete the package']", :text => "Delete")
     end
 
     it "should render delete button with prompt when package is not used by any pipeline" do
-
       in_params(:repo_id => "id1",:package_id => "pid2")
 
       render
 
-      response.body.should have_tag("div.information","No Pipelines currently use this package")
+      expect(response.body).to have_selector("div.information", :text => "No Pipelines currently use this package")
 
-      response.body do
-        with_tag("form[action='#{package_definition_delete_path(:repo_id => 'id1', :package_id => 'pid2')}'][id='delete_package_form'][method='post']") do
-          with_tag("input[name='_method'][type='hidden'][value='delete']")
-          with_tag("input[name='config_md5'][type='hidden'][value='abc']")
-          with_tag("span[id='trigger_package_delete_pid2']") do
-            with_tag("button[id='delete_button_pid2']")
-            with_tag("div[id='warning_prompt']") do
-              with_tag("p", "You are about to delete package pname4")
+      Capybara.string(response.body).find("form[action='#{package_definition_delete_path(:repo_id => 'id1', :package_id => 'pid2')}'][id='delete_package_form'][method='post']").tap do |form|
+        expect(form).to have_selector("input[name='_method'][type='hidden'][value='delete']")
+        expect(form).to have_selector("input[name='config_md5'][type='hidden'][value='abc']")
+        form.find("span[id='trigger_package_delete_pid2']") do |span|
+          span.find("button[id='delete_button_pid2']") do |button|
+            button.find("div[id='warning_prompt']") do |div|
+              expect(div).to have_selector("p", :text => "You are about to delete package pname4")
             end
           end
         end

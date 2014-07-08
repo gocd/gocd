@@ -30,45 +30,17 @@ describe "admin/materials/hg/new.html.erb" do
     assign(:config_file_conflict, true)
     in_params(:pipeline_name => "pipeline_name")
 
-    render "admin/materials/hg/new.html"
-    response.body.should have_tag("#config_save_actions button.reload_config#reload_config", "Reload")
-    response.body.should have_tag("#config_save_actions label", "This will refresh the page and you will lose your changes on this page.")
-  end
+    render
 
-  it "should render help links next to flash message" do
-    assign(:flash_message, 'flash_key')
-    flash = mock('flash')
-    flash.should_receive(:flashClass).and_return('error')
-    flash.should_receive(:to_s).and_return('some random message')
-    template.stub(:load_flash_message).with('flash_key').and_return(flash)
-    assign(:flash_help_link, "<a href='foo'>Foo</a>")
-
-    render "shared/_flash_message.html"
-
-    response.body.should have_tag("p.error") do
-      with_tag("a[href='foo']", "Foo")
-    end
-  end
-
-  it "should not bomb when no help link exists" do
-    assign(:flash_message, 'flash_key')
-    flash = mock('flash')
-    flash.should_receive(:flashClass).and_return('error')
-    flash.should_receive(:to_s).and_return('some random message')
-    template.stub(:load_flash_message).with('flash_key').and_return(flash)
-    assign(:flash_help_link, nil)
-
-    render "shared/_flash_message.html"
-
-    response.body.should have_tag("p.error") do
-      without_tag("a[href='foo']", "Foo")
-    end
+    expect(response.body).to have_selector("#config_save_actions button.reload_config#reload_config", :text => "Reload")
+    expect(response.body).to have_selector("#config_save_actions label", :text => "This will refresh the page and you will lose your changes on this page.")
   end
 
   it "should not render reload option when the config file has not conflicted" do
     in_params(:pipeline_name => "pipeline_name")
 
-    render "admin/materials/hg/new.html"
-    response.body.should_not have_tag("#config_save_actions")
+    render
+
+    expect(response.body).to have_selector("#config_save_actions")
   end
 end

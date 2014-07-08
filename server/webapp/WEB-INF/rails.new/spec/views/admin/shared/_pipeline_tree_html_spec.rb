@@ -32,7 +32,7 @@ describe "template_tree" do
     StageConfigMother.custom(stage_name, ["dev"].to_java(java.lang.String))
   end
 
-  it_should_behave_like 'stage_parent_tree'
+  it_should_behave_like :stage_parent_tree
 end
 
 
@@ -58,9 +58,9 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template")
-      with_tag("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      expect(ul_1).to have_selector("ul.template li", :text => "new-template")
+      expect(ul_1).to have_selector("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
     end
   end
 
@@ -76,9 +76,9 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template")
-      with_tag("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      expect(ul_1).to have_selector("ul.template li", :text => "new-template")
+      expect(ul_1).to have_selector("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
     end
   end
 
@@ -92,9 +92,9 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template")
-      without_tag("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      expect(ul_1).to have_selector("ul.template li", :text => "new-template")
+      expect(ul_1).not_to have_selector("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
     end
   end
 
@@ -108,12 +108,12 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template") do
-        with_tag("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      ul_1.find("ul.template li", "new-template") do |li_1|
+        expect(li_1).to have_selector("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
       end
 
-      without_tag("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+      expect(ul_1).not_to have_selector("ul.template li a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
     end
   end
 
@@ -126,10 +126,10 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template") do
-        with_tag("a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
-        with_tag("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      ul_1.find("ul.template li", "new-template") do |li_1|
+        expect(li_1).to have_selector("a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+        expect(li_1).to have_selector("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
       end
     end
   end
@@ -146,14 +146,14 @@ describe "pipeline_tree" do
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
-    response.body.should have_tag("ul.pipeline") do
-      with_tag("ul.template li", "new-template") do
-        with_tag("a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
-        with_tag("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
+    Capybara.string(response.body).find('ul.pipeline').tap do |ul_1|
+      ul_1.find("ul.template li", "new-template") do |li_1|
+        expect(li_1).to have_selector("a[href='#{template_edit_path(:pipeline_name => "new-template", :stage_parent => "templates", :current_tab => 'general')}']")
+        expect(li_1).to have_selector("a.preview_icon_wobg.action_icon.skip_dirty_stop.view_template_tree_link[href='new-template']")
       end
     end
   end
 
 
-  it_should_behave_like 'stage_parent_tree'
+  it_should_behave_like :stage_parent_tree
 end

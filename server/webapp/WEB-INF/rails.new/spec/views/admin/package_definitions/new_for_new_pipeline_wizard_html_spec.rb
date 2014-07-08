@@ -33,17 +33,17 @@ describe "admin/package_definitions/new_for_new_pipeline_wizard.html.erb" do
 
     render
 
-    response.body.should have_tag(".information", "The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.")
+    expect(response.body).to have_selector(".information", :text => "The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.")
 
-    response.body.should have_tag(".new_form_item_block label", "Package Name*")
-    response.body.should have_tag(".new_form_item_block input.required[type='text'][name='material[package_definition[name]]']")
+    expect(response.body).to have_selector(".new_form_item_block label", :text => "Package Name*")
+    expect(response.body).to have_selector(".new_form_item_block input.required[type='text'][name='material[package_definition[name]]']")
 
-    response.body.should have_tag(".new_form_item input[type='hidden'][name='material[package_definition[configuration][0][configurationKey][name]]'][value='key1']")
-    response.body.should have_tag(".new_form_item label", "Key 1*")
-    response.body.should have_tag(".new_form_item input.required[type='text'][name='material[package_definition[configuration][0][configurationValue][value]]'][value='value1']")
+    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][0][configurationKey][name]]'][value='key1']")
+    expect(response.body).to have_selector(".new_form_item label", :text => "Key 1*")
+    expect(response.body).to have_selector(".new_form_item input.required[type='text'][name='material[package_definition[configuration][0][configurationValue][value]]'][value='value1']")
 
-    response.body.should have_tag(".new_form_item input[type='hidden'][name='material[package_definition[configuration][1][configurationKey][name]]'][value='key2']")
-    response.body.should have_tag(".new_form_item label", "Key 2")
-    response.body.should have_tag(".new_form_item input[type='password'][name='material[package_definition[configuration][1][configurationValue][value]]'][value='value2']")
+    expect(response.body).to have_selector(".new_form_item input[type='hidden'][name='material[package_definition[configuration][1][configurationKey][name]]'][value='key2']")
+    expect(response.body).to have_selector(".new_form_item label", :text => "Key 2")
+    expect(response.body).to have_selector(".new_form_item input[type='password'][name='material[package_definition[configuration][1][configurationValue][value]]'][value='value2']")
   end
 end

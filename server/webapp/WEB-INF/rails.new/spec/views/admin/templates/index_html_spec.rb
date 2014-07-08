@@ -40,48 +40,48 @@ describe "admin/templates/index.html.erb" do
   it "should display the list of all the templates and the pipelines in it" do
     render
 
-    assigns[:tab_name].should == "templates"
+    assigns(:tab_name).should == "templates"
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "template1")
-        with_tag("table") do
-          with_tag("thead tr.pipeline") do
-            with_tag("th", "Pipeline")
-            with_tag("th", "Actions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "template1")
+        template.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
           end
-          with_tag("tbody") do
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']", "pipeline1")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
+          table.find("tbody") do |tbody|
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']", :text => "pipeline1")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
               end
             end
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}']", "pipeline2")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
-              end
-            end
-          end
-        end
-      end
-      with_tag(".template") do
-        with_tag("h2", "template2")
-        with_tag("table") do
-          with_tag("tbody") do
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}']", "pipeline3")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}']", :text => "pipeline2")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
               end
             end
           end
         end
       end
-      with_tag(".template") do
-        with_tag("h2", "template3")
-        with_tag(".information", "No pipelines associated with this template")
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", "template2")
+        template.find("table") do |table|
+          table.find("tbody") do |tbody|
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}']", :text => "pipeline3")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
+              end
+            end
+          end
+        end
+      end
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "template3")
+        expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
       end
     end
   end
@@ -92,48 +92,48 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns[:tab_name].should == "templates"
+    assigns(:tab_name).should == "templates"
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "template1")
-        with_tag("table") do
-          with_tag("thead tr.pipeline") do
-            with_tag("th", "Pipeline")
-            with_tag("th", "Actions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "template1")
+        template.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
           end
-          with_tag("tbody") do
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']", "pipeline1")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
+          table.find("tbody") do |tbody|
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}']", :text => "pipeline1")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
               end
             end
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}']", "pipeline2")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
-              end
-            end
-          end
-        end
-      end
-      with_tag(".template") do
-        with_tag("h2", "template2")
-        with_tag("table") do
-          with_tag("tbody") do
-            with_tag("tr.pipeline") do
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}']", "pipeline3")
-              with_tag("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do
-                with_tag("span", "Edit")
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}']", :text => "pipeline2")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
               end
             end
           end
         end
       end
-      with_tag(".template") do
-        with_tag("h2", "template3")
-        with_tag(".information", "No pipelines associated with this template")
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", "template2")
+        template.find("table") do |table|
+          table.find("tbody") do |tbody|
+            tbody.find("tr.pipeline") do |tr|
+              expect(tr).to have_selector("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}']", :text => "pipeline3")
+              tr.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do |td|
+                expect(td).to have_selector("span", :text => "Edit")
+              end
+            end
+          end
+        end
+      end
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "template3")
+        expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
       end
     end
   end
@@ -144,33 +144,33 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns[:tab_name].should == "templates"
+    assigns(:tab_name).should == "templates"
 
-    response.body.should have_tag(".templates") do
-      with_tag("#template_container_template1") do
-        with_tag("h2", "template1")
-        with_tag("table") do
-          with_tag("thead tr.pipeline") do
-            with_tag("th", "Pipeline")
-            with_tag("th", "Actions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find("#template_container_template1") do |template_container|
+        expect(template_container).to have_selector("h2", :text => "template1")
+        template_container.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
           end
-          with_tag("tbody") do
-            with_tag("tr") do
-              with_tag("td span", "This template is used in 2 pipelines.")
+          table.find("tbody") do |tbody|
+            tbody.find("tr") do |tr|
+              expect(tr).to have_selector("td span", :text => "This template is used in 2 pipelines.")
             end
           end
         end
       end
-      with_tag("#template_container_template2") do
-        with_tag("h2", "template2")
-        with_tag("table") do
-          with_tag("thead tr.pipeline") do
-            with_tag("th", "Pipeline")
-            with_tag("th", "Actions")
+      templates.find("#template_container_template2") do |template_container|
+        expect(template_container).to have_selector("h2", :text => "template2")
+        template_container.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
           end
-          with_tag("tbody") do
-            with_tag("tr") do
-              with_tag("td span", "This template is used in 1 pipeline.")
+          table.find("tbody") do |tbody|
+            tbody.find("tr") do |tr|
+              expect(tr).to have_selector("td span", :text => "This template is used in 1 pipeline.")
             end
           end
         end
@@ -183,9 +183,9 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".information", "There are no templates configured")
-      without_tag(".template")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      expect(templates).to have_selector(".information", :text => "There are no templates configured")
+      expect(templates).not_to have_selector(".template")
     end
   end
 
@@ -195,8 +195,8 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag("a[href='#'][class='add_link']", "Add New Template")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
     end
   end
 
@@ -207,8 +207,8 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag("span[title=?]", "You are unauthorized to perform this operation. Please contact a Go System Administrator to create a template.")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      expect(templates).to have_selector("span[title='You are unauthorized to perform this operation. Please contact a Go System Administrator to create a template.']")
     end
   end
 
@@ -219,8 +219,8 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag("a[href='#'][class='add_link']", "Add New Template")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
     end
   end
 
@@ -229,8 +229,8 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag("a[href='#'][class='add_link']", "Add New Template")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
     end
   end
 
@@ -240,11 +240,11 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "unused_template")
-        with_tag("a[href='#{edit_template_permissions_path(:template_name => "unused_template")}'][class='action_icon lock_icon']") do
-          with_tag("span", "Permissions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.all(".template") do |template_list|
+        expect(template_list[0]).to have_selector("h2", :text => "unused_template")
+        template_list[0].find("a[href='#{edit_template_permissions_path(:template_name => "unused_template")}'][class='action_icon lock_icon']") do |a|
+          expect(a).to have_selector("span", :text => "Permissions")
         end
       end
     end
@@ -255,20 +255,20 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "unused_template")
-        with_tag(".information", "No pipelines associated with this template")
-        with_tag("form#delete_template_unused_template[action='#{delete_template_path(:pipeline_name => "unused_template")}'][method='post']") do
-          with_tag("input[type='hidden'][name='_method'][value='delete']")
-          with_tag("span#trigger_delete_unused_template.delete_parent[title=?]", "Delete this template")
-          with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_unused_template #warning_prompt'\)/)
-          with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the template 'unused_template' \?/)
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.all(".template") do |template_list|
+        expect(template_list[0]).to have_selector("h2", :text => "unused_template")
+        expect(template_list[0]).to have_selector(".information", :text => "No pipelines associated with this template")
+        template_list[0].find("form#delete_template_unused_template[action='#{delete_template_path(:pipeline_name => "unused_template")}'][method='post']") do |form|
+          expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']")
+          expect(form).to have_selector("span#trigger_delete_unused_template.delete_parent[title='Delete this template']")
+          expect(form).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_unused_template #warning_prompt'\)/)
+          expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the template 'unused_template' \?/)
         end
       end
-      with_tag(".template") do
-        with_tag("h2", "used_template")
-        with_tag("span.delete_icon_disabled[title=?]", "Cannot delete this template as it is used by at least one pipeline")
+      templates.all(".template") do |template_list|
+        expect(template_list[1]).to have_selector("h2", :text => "used_template")
+        expect(template_list[1]).to have_selector("span.delete_icon_disabled[title='Cannot delete this template as it is used by at least one pipeline']")
       end
     end
   end
@@ -280,10 +280,10 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "used_template")
-        with_tag("span.delete_icon_disabled[title=?]", "You are unauthorized to perform this operation. Please contact a Go System Administrator to delete this template.")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "used_template")
+        expect(template).to have_selector("span.delete_icon_disabled[title='You are unauthorized to perform this operation. Please contact a Go System Administrator to delete this template.']")
       end
     end
   end
@@ -296,20 +296,20 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "unused_template")
-        with_tag(".information", "No pipelines associated with this template")
-        with_tag("form#delete_template_unused_template[action='#{delete_template_path(:pipeline_name => "unused_template")}'][method='post']") do
-          with_tag("input[type='hidden'][name='_method'][value='delete']")
-          with_tag("span#trigger_delete_unused_template.delete_parent[title=?]", "Delete this template")
-          with_tag("script[type='text/javascript']", /Util.escapeDotsFromId\('trigger_delete_unused_template #warning_prompt'\)/)
-          with_tag("div#warning_prompt[style='display:none;']", /Are you sure you want to delete the template 'unused_template' \?/)
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.all(".template") do |template_list|
+        expect(template_list[0]).to have_selector("h2", :text => "unused_template")
+        expect(template_list[0]).to have_selector(".information", :text => "No pipelines associated with this template")
+        template_list[0].find("form#delete_template_unused_template[action='#{delete_template_path(:pipeline_name => "unused_template")}'][method='post']") do |form|
+          expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']")
+          expect(form).to have_selector("span#trigger_delete_unused_template.delete_parent[title='Delete this template']")
+          expect(form).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_unused_template #warning_prompt'\)/)
+          expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the template 'unused_template' \?/)
         end
       end
-      with_tag(".template") do
-        with_tag("h2", "used_template")
-        with_tag("span.delete_icon_disabled[title=?]", "Cannot delete this template as it is used by at least one pipeline")
+      templates.all(".template") do |template_list|
+        expect(template_list[1]).to have_selector("h2", :text => "used_template")
+        expect(template_list[1]).to have_selector("span.delete_icon_disabled[title='Cannot delete this template as it is used by at least one pipeline']")
       end
     end
   end
@@ -322,10 +322,10 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "used_template")
-        with_tag("span.lock_icon_disabled[title=?]", "You are unauthorized to perform this operation. Please contact a Go System Administrator to add/remove a template admin.", "Permissions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "used_template")
+        expect(template).to have_selector("span.lock_icon_disabled[title='You are unauthorized to perform this operation. Please contact a Go System Administrator to add/remove a template admin.']", :text => "Permissions")
       end
     end
   end
@@ -338,11 +338,11 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "used_template")
-        with_tag("a[href='#{edit_template_permissions_path(:template_name => "used_template")}'][class='action_icon lock_icon']") do
-          with_tag("span", "Permissions")
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "used_template")
+        template.find("a[href='#{edit_template_permissions_path(:template_name => "used_template")}'][class='action_icon lock_icon']") do |a|
+          expect(a).to have_selector("span", "Permissions")
         end
       end
     end
@@ -353,10 +353,10 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    response.body.should have_tag(".templates") do
-      with_tag(".template") do
-        with_tag("h2", "unused_template")
-        with_tag("a[href=?]", template_edit_path(:pipeline_name => "unused_template", :current_tab => "general", :stage_parent => "templates"))
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.all(".template") do |template_list|
+        expect(template_list[0]).to have_selector("h2", :text => "unused_template")
+        expect(template_list[0]).to have_selector("a[href='#{template_edit_path(:pipeline_name => "unused_template", :current_tab => "general", :stage_parent => "templates")}']")
       end
     end
   end

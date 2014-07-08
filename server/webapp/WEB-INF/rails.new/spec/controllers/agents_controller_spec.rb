@@ -34,36 +34,34 @@ describe AgentsController do
 
     it "should filter agents based on parameters" do
       get :index, {:filter => 'resource:filtering_resource'}
-      assigns[:agents].size.should == 1
+      expect(assigns(:agents).size).to eq(1)
     end
-
 
     it "should set current tab" do
      get :index
-     assigns[:current_tab_name].should == "agents"
+     expect(assigns(:current_tab_name)).to eq("agents")
     end
-
 
     it "should show all agents" do
       get 'index'
 
       response.should be_success
-      assigns[:agents].size.should == 6
-      controller.class.read_inheritable_attribute(:layout).should == "application"
+      expect(assigns(:agents).size).to eq(6)
+      assert_template layout: :application
     end
 
     it "should sortBy DESC on fields" do
       get "index", :column => 'hostname', :order => 'DESC'
-      assigns[:agents].inject(nil) do |previous, agent|
-        previous.getHostname().should > agent.getHostname() if previous
+      assigns(:agents).inject(nil) do |previous, agent|
+        expect(previous.getHostname()).to be > agent.getHostname() if previous
         agent
       end
     end
 
     it "should sortBy ASC on fields" do
       get "index", :column => "ip_address", :order => "ASC"
-      assigns[:agents].inject(nil) do |previous, agent|
-        previous.getIpAddress().should < agent.getIpAddress() if previous
+      assigns(:agents).inject(nil) do |previous, agent|
+        expect(previous.getIpAddress()).to be < agent.getIpAddress() if previous
         agent
       end
     end
@@ -77,7 +75,7 @@ describe AgentsController do
       agents.stub(:enabledCount).and_return(10)
       agents.stub(:pendingCount).and_return(0)
       get "index"
-      assigns[:agents].should == []
+      expect(assigns(:agents)).to eq []
     end
 
     describe :apply_default_sort_unless_sorted do
@@ -86,16 +84,16 @@ describe AgentsController do
       end
       it "should apply default sort if not sorted" do
         controller.send(:apply_default_sort_unless_sorted)
-        @params[:column].should == "status"
-        @params[:order].should == "ASC"
+        expect(@params[:column]).to eq "status"
+        expect(@params[:order]).to eq("ASC")
       end
 
       it "should not override applied sort" do
         @params[:column] = "foo"
         @params[:order] = "DESC"
         controller.send(:apply_default_sort_unless_sorted)
-        @params[:column].should == "foo"
-        @params[:order].should == "DESC"
+        expect(@params[:column]).to eq("foo")
+        expect(@params[:order]).to eq("DESC")
       end
 
       it "should be applied on GET index" do
@@ -113,21 +111,20 @@ describe AgentsController do
       agents.stub(:sortBy).and_return([])
       agents.should_receive(:filter).with(nil).and_return([])
       get :index
-      assigns[:agents_disabled].should == 9
-      assigns[:agents_pending].should == 8
-      assigns[:agents_enabled].should == 10
+      expect(assigns(:agents_disabled)).to eq 9
+      expect(assigns(:agents_pending)).to eq 8
+      expect(assigns(:agents_enabled)).to eq 10
     end
 
   end
 
   describe :edit_agents do
 
-    it "should resolve as /api/agents/bulk_edit" do
-      params_from(:post, "/api/agents/edit_agents").should == {:controller => 'api/agents', :action => 'edit_agents', :no_layout => true}
-    end
-
-    it "should answer for /agents.json" do
-      route_for(:controller => "agents", :action => "index", "format"=>"json").should == "/agents.json"
+    it "should answer for /agents" do
+      expect(:get => "/agents").to route_to({:controller => "agents", :action => 'index',:format => "html"})
+      expect(:get => "/agents.html").to route_to({:controller => "agents", :action => 'index', :format => "html"})
+      expect(:get => "/agents.json").to route_to({:controller => "agents", :action => 'index', :format => "json"})
+      expect(controller.send(:agents_path)).to eq("/agents")
     end
 
     it "should redirect to :index maintaining sort" do
@@ -137,9 +134,7 @@ describe AgentsController do
       bulk_edit_result.stub(:message).and_return("successfuly managed to edit")
       bulk_edit_result.stub(:canContinue).and_return(false)
       get :edit_agents, :column => "foo", :order => "bar"
-      matcher = redirect_to("agents page with sort on right column") #this is done because rspec is too retarted to understand paths(it only gets urls)
-      matcher.stub(:expected_url).and_return("/agents?column=foo&order=bar")
-      response.should matcher
+      expect(response).to redirect_to("/agents?column=foo&order=bar")
     end
   end
 
@@ -150,29 +145,28 @@ describe AgentsController do
       @agent_service.stub(:getResourceSelections)
     end
 
+    it "should resolve routes" do
+      expect(controller.send(:agent_grouping_data_path, {:action => "resource_selector"})).to eq("/agents/resource_selector")
+      expect(:post => "/agents/resource_selector").to route_to({:controller => "agents", :action => 'resource_selector'})
+    end
+
     it "should load all resources" do
       @agent_service.should_receive(:getResourceSelections).with(["UUID1", "UUID2"]).and_return(@resources)
       post :resource_selector, :selected => ["UUID1", "UUID2"]
-      assigns[:selections].should == @resources
+      expect(assigns(:selections)).to eq(@resources)
     end
 
     it "should default selected UUIDS to empty list" do
       @agent_service.should_receive(:getResourceSelections).with([]).and_return(@resources)
       post :resource_selector
-      assigns[:selections].should == @resources
+      expect(assigns(:selections)).to eq(@resources)
     end
 
     it "should render partial resource_selector" do
-      controller.should_receive(:render).with(:partial => 'shared/selectors', :locals => {:scope => {}})
       post :resource_selector, :selected => ["UUID1", "UUID2"]
-    end
-
-    it "should resolve POST to /agents/resource_selector as a call" do
-      params_from(:post, "/agents/resource_selector").should == {:controller => 'agents', :action => 'resource_selector'}
+      expect(response).to render_template("resource_selector")
     end
   end
-
-
 
   describe :environments_selector do
     before(:each) do
@@ -181,26 +175,26 @@ describe AgentsController do
       @agent_service.stub(:getEnvironmentSelections)
     end
 
+    it "should resolve routes" do
+      expect(controller.send(:agent_grouping_data_path, {:action => "environment_selector"})).to eq("/agents/environment_selector")
+      expect(:post => "/agents/environment_selector").to route_to({:controller => "agents", :action => 'environment_selector'})
+    end
+
     it "should load all environments" do
       @agent_service.should_receive(:getEnvironmentSelections).with(["UUID1", "UUID2"]).and_return(@environments)
       post :environment_selector, :selected => ["UUID1", "UUID2"]
-      assigns[:selections].should == @environments
+      expect(assigns(:selections)).to eq @environments
     end
 
     it "should default selected UUIDS to empty list" do
       @agent_service.should_receive(:getEnvironmentSelections).with([]).and_return(@resources)
       post :environment_selector
-      assigns[:selections].should == @resources
+      expect(assigns(:selections)).to eq @resources
     end
 
     it "should render partial selectors" do
-      controller.should_receive(:render).with(:partial => 'shared/selectors', :locals => {:scope => {}})
       post :environment_selector, :selected => ["UUID1", "UUID2"]
-    end
-
-    it "should resolve POST to /agents/resource_selector as a call" do
-      params_from(:post, "/agents/environment_selector").should == {:controller => 'agents', :action => 'environment_selector'}
+      expect(response).to render_template("environment_selector")
     end
   end
-
 end

@@ -52,18 +52,16 @@ class AgentsController < ApplicationController
 
   def resource_selector
     @selections = agent_service.getResourceSelections(params[:selected] || [])
-    render :partial => 'shared/selectors', :locals => {:scope => {}}
   end
 
   def environment_selector
     @selections = agent_service.getEnvironmentSelections(params[:selected] || [])
-    render :partial => 'shared/selectors', :locals => {:scope => {}}
   end
 
   def edit_agents
     result = bulk_edit
     session[LISTING_MESSAGE_KEY] = FlashMessageModel.new(result.message(), result.canContinue() ? 'success' : 'error')
-    redirect_to :action => "index", :params => params.only(:column, :order)
+    redirect_to action: "index"
   end
 
   private
@@ -88,7 +86,7 @@ class AgentsController < ApplicationController
 
   helper_method :default_url_options
   def default_url_options(options = nil)
-    super.reverse_merge(params.only(:filter, :order, :column))
+    super.reverse_merge(params.only(:filter, :order, :column).symbolize_keys)
   end
 
   def set_tab_name

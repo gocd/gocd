@@ -15,7 +15,7 @@
             </div>
             <div class="fieldset required">
                 <div class="form_item_block">
-                    <% f.fields_for com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::TEMPLATE, @pipeline.templateConfig() do |t| %>
+                    <%= f.fields_for com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::TEMPLATE, @pipeline.templateConfig() do |t| %>
                         <%= required_label(t, com.thoughtworks.go.config.PipelineTemplateConfig::NAME, l.string("TEMPLATE_NAME")) -%>
                         <%= t.text_field com.thoughtworks.go.config.PipelineTemplateConfig::NAME %>
                         <%= error_message_on(RailsFormModelWrapper.new(@pipeline.templateConfig()), com.thoughtworks.go.config.PipelineTemplateConfig::NAME, :css_class => "form_error") %>

@@ -26,12 +26,12 @@
                         <%= label_with_hint f, com.thoughtworks.go.domain.packagerepository.PackageRepository::NAME, l.string("NAME"), "Enter a globally unique name", "required" %>
                         <%= f.text_field com.thoughtworks.go.domain.packagerepository.PackageRepository::NAME, :class => 'important' -%>
                     </div>
-                    <%- f.fields_for com.thoughtworks.go.domain.packagerepository.PackageRepository::PLUGIN_CONFIGURATION, scope[:package_repository].getPluginConfiguration() do |plugin_configuration_form| -%>
+                    <%= f.fields_for com.thoughtworks.go.domain.packagerepository.PackageRepository::PLUGIN_CONFIGURATION, scope[:package_repository].getPluginConfiguration() do |plugin_configuration_form| %>
                         <div class="field required">
                             <%= label_with_hint plugin_configuration_form, com.thoughtworks.go.domain.config.PluginConfiguration::ID, l.string("TYPE"), "Choose from available plugins", "required" -%>
                             <%= plugin_configuration_form.select com.thoughtworks.go.domain.config.PluginConfiguration::ID, package_material_plugins, {:selected => scope[:package_repository].getPluginConfiguration().getId()}, {} -%>
                         </div>
-                    <%- end -%>
+                    <% end %>
                 </fieldset>
                 <div id="pluginConfigurations">
                      <%= render :partial => 'config', :locals => {:scope => {:repository_configuration => @repository_configuration, :plugin_id => scope[:package_repository].getPluginConfiguration().getId(), :isNewRepo => scope[:iSNewRepo]}} %>

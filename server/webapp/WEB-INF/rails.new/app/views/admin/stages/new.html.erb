@@ -24,7 +24,7 @@
                 <div class="form_item checkbox_row">
                     <label><%= l.string('STAGE_TRIGGER_TYPE:') -%></label>
                     <span class="stage_approval contextual_help has_go_tip_right" title="<%= l.string("RADIO_BUTTON_TITLE_APPROVAL") -%>">&nbsp;</span>
-                    <% f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
+                    <%= f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
                         <div class="checkbox_row">
                             <%= approval.radio_button com.thoughtworks.go.config.Approval::TYPE, com.thoughtworks.go.config.Approval::SUCCESS, :id => "auto" %>
                             <label for="auto"><%= l.string('AUTO') -%></label>
@@ -48,14 +48,14 @@
             <div class="instructions"><%= l.string('INSTRUCTION_JOB_AND_TASK') -%></div>
             <div class="fieldset has_nested_fieldset">
                 <% @stage.getJobs().each do |job| -%>
-                    <%- f.fields_for com.thoughtworks.go.config.StageConfig::JOBS, job, :index => "" do |job_form| -%>
+                    <%= f.fields_for com.thoughtworks.go.config.StageConfig::JOBS, job, :index => "" do |job_form| %>
                         <div class="form_item required">
                             <%= label_tag job_name_id = random_dom_id("job_name_"), required_label_text(l.string('JOB_NAME')) %>
                             <%= job_form.text_field(com.thoughtworks.go.config.JobConfig::NAME, :id => job_name_id) %>
                             <%= error_message_on(RailsFormModelWrapper.new(job), com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
                         </div>
                         <%= render :partial => "admin/shared/job_tasks.html", :locals => { :scope => { :job => job, :job_form => job_form}} -%>
-                    <%- end -%>
+                    <% end %>
                 <%- end -%>
             </div>
         </div>

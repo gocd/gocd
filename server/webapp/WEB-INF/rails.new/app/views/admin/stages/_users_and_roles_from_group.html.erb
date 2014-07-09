@@ -3,13 +3,13 @@
     <table class="users_and_roles">
         <tbody>
         <%- scope[:pipeline_group].getOperateUsers().each do |permission| -%>
-            <%- scope[:form].fields_for com.thoughtworks.go.config.StageConfig::OPERATE_USERS, permission, :index => "" do |permissions_form| -%>
+            <%= scope[:form].fields_for com.thoughtworks.go.config.StageConfig::OPERATE_USERS, permission, :index => "" do |permissions_form| %>
                 <tr>
                     <td class="name_cell">
                         <%= permissions_form.text_field :name, :class => "form_input user_role_name", :omit_id_generation => true, :disabled => "disabled" -%>
                     </td>
                 </tr>
-            <%- end -%>
+            <% end %>
         <%- end -%>
         </tbody>
     </table>
@@ -19,13 +19,13 @@
     <table class="users_and_roles">
         <tbody>
         <%- scope[:pipeline_group].getOperateRoles().each do |permission| -%>
-            <%- scope[:form].fields_for com.thoughtworks.go.config.StageConfig::OPERATE_ROLES, permission, :index => "" do |permissions_form| -%>
+            <%= scope[:form].fields_for com.thoughtworks.go.config.StageConfig::OPERATE_ROLES, permission, :index => "" do |permissions_form| %>
                 <tr>
                     <td class="name_cell">
                         <%= permissions_form.text_field :name, :class => "form_input user_role_name", :omit_id_generation => true, :disabled => "disabled" -%>
                     </td>
                 </tr>
-            <%- end -%>
+            <% end %>
         <%- end -%>
         </tbody>
     </table>

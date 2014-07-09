@@ -1,7 +1,7 @@
 <div class="form_content">
     <div class="artifacts_plan_section popup_form">
         <textarea id="artifact_template" class="template">
-            <%- scope[:form].fields_for :artifactPlans, :index => "" do |var_form| -%>
+            <%= scope[:form].fields_for :artifactPlans, :index => "" do |var_form| %>
                 <td class="name_value_cell">
                     <%= var_form.text_field :src, :class => "form_input artifact_source", :omit_id_generation => true -%>
                 </td>
@@ -14,7 +14,7 @@
                 <td class="name_value_cell">
                     <span class="icon_remove delete_parent"></span>
                 </td>
-            <%- end -%>
+            <% end %>
         </textarea>
 
         <table class="artifact">
@@ -34,7 +34,7 @@
             </thead>
             <tbody class="artifact">
             <% scope[:collection].each do |variable| -%>
-                <%- scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_PLANS, variable, :index => "" do |var_form| -%>
+                <%= scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_PLANS, variable, :index => "" do |var_form| %>
                     <tr>
                         <td class="name_value_cell">
                             <%= var_form.text_field com.thoughtworks.go.config.ArtifactPlan::SRC, :class => "form_input artifact_source", :omit_id_generation => true-%>
@@ -51,7 +51,7 @@
                             <span class="icon_remove delete_parent"></span>
                         </td>
                     </tr>
-                <%- end -%>
+                <% end %>
             <%- end -%>
             </tbody>
         </table>

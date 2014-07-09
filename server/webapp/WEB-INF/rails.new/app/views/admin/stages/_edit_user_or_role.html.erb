@@ -1,19 +1,19 @@
 <div class="form_content">
     <div class="user_permissions_section popup_form">
         <textarea id="<%= scope[:id_prefix] %>_users_and_roles_template" class="template">
-            <%- scope[:form].fields_for scope[:field_name], :index => "" do |permissions_form| -%>
+            <%= scope[:form].fields_for scope[:field_name], :index => "" do |permissions_form| %>
                 <td class="name_cell">
                     <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :omit_id_generation => true -%>
                 </td>
                 <td class="name_cell">
                     <span class="icon_remove delete_parent"></span>
                 </td>
-            <%- end -%>
+            <% end %>
         </textarea>
         <table class="users_and_roles">
             <tbody class="<%= scope[:id_prefix] %>_users_and_roles">
             <%- scope[:collection].each do |permission| -%>
-                <%- scope[:form].fields_for scope[:field_name], permission, :index => "" do |permissions_form| -%>
+                <%= scope[:form].fields_for scope[:field_name], permission, :index => "" do |permissions_form| %>
                     <tr>
                         <td class="name_cell">
                             <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :omit_id_generation => true -%>
@@ -23,7 +23,7 @@
                             <span class="icon_remove delete_parent"></span>
                         </td>
                     </tr>
-                <%- end -%>
+                <% end %>
             <%- end -%>
             </tbody>
         </table>

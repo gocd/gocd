@@ -18,7 +18,7 @@
         <div class="form_item checkbox_row">
             <label><%= l.string('STAGE_TYPE') -%></label>
             <span class="stage_approval contextual_help has_go_tip_right"  title="<%= l.string("RADIO_BUTTON_TITLE_APPROVAL") -%>">&nbsp;</span>
-            <% f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
+            <%= f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
                 <div class="checkbox_row">
                     <%= approval.radio_button com.thoughtworks.go.config.Approval::TYPE, com.thoughtworks.go.config.Approval::SUCCESS, :id => "auto" %>
                     <label for="auto"><%= l.string('AUTO') -%></label>

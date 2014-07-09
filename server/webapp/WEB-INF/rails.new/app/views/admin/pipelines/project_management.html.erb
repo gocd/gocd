@@ -13,7 +13,7 @@
             <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL, l.string("CUSTOM") %>
         </div>
         <div id="tracking_tool_container">
-            <% f.fields_for com.thoughtworks.go.config.PipelineConfig::TRACKING_TOOL, @pipeline.trackingTool do |t| %>
+            <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::TRACKING_TOOL, @pipeline.trackingTool do |t| %>
                 <div class="form_item">
                     <div class="form_item_block required">
                         <%= required_label(t, :regex, l.string('TRACKING_TOOL_REGEX'))-%>
@@ -33,7 +33,7 @@
         </div>
         <div id="mingle_config_container">
 
-            <% f.fields_for com.thoughtworks.go.config.PipelineConfig::MINGLE_CONFIG, @pipeline.mingleConfig do |m| %>
+            <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::MINGLE_CONFIG, @pipeline.mingleConfig do |m| %>
                 <div class="form_item">
                     <div class="form_item_block required">
                         <%= required_label(m, com.thoughtworks.go.config.MingleConfig::BASE_URL, l.string("MINGLE_URL"))-%>
@@ -47,7 +47,7 @@
                         <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MINGLE_PROJECT_IDENTIFIER") -%>"></div>
                         <%= error_message_on(RailsFormModelWrapper.new(@pipeline.mingleConfig), com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, :css_class => "form_error") %>
                     </div>
-                    <% m.fields_for com.thoughtworks.go.config.MingleConfig::MQL_GROUPING_CONDITIONS, @pipeline.mingleConfig.mqlCriteria do |mQ| %>
+                    <%= m.fields_for com.thoughtworks.go.config.MingleConfig::MQL_GROUPING_CONDITIONS, @pipeline.mingleConfig.mqlCriteria do |mQ| %>
                         <div class="form_item_block">
                             <%= mQ.label com.thoughtworks.go.config.MqlCriteria::MQL, l.string("MQL_GROUPING_CONDITIONS") %>
                             <div>

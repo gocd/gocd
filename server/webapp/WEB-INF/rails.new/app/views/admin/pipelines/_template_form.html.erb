@@ -19,7 +19,7 @@
                         <label><%= l.string("DEFINE_PARAMETERS") %></label>
                         <%- template.referredParams().each do |param| -%>
                             <div>
-                                <%- scope[:form].fields_for "params", param, :index => "" do |form| -%>
+                                <%= scope[:form].fields_for "params", param, :index => "" do |form| %>
                                     <%= form.text_field :name, :class => "", :omit_id_generation => true, :readonly => true -%>
                                     <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
                                     <%= form.text_field :valueForDisplay, :class => "", :omit_id_generation => true -%>

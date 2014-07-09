@@ -1,11 +1,11 @@
 <textarea id="<%= scope[:permission_type] %>_users_and_roles_template" class="template">
     <% empty_permission = com.thoughtworks.go.config.Authorization::PresentationElement.new("", scope[:permission_type]) %>
-    <%- scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, empty_permission, :index => "" do |permission_form| -%>
+    <%= scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, empty_permission, :index => "" do |permission_form| %>
         <td>
             <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :class => "form_input permissions_#{scope[:permission_type]}_name", :omit_id_generation => true %>
             <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :omit_id_generation => true %>
         </td>
-        <% permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
+        <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
             <td>
                 <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, 1, true,
                                   :id => "viewPrivilege_#{scope[:permission_type]}_name", :title => l.string("TOOLTIP_PIPELINE_GROUP_VIEW_PRIVILEGE") %>
@@ -25,7 +25,7 @@
 				<%= action_icon({:type => "remove", :class => "delete_parent"}) %>
             </td>
         <% end %>
-    <%- end -%>
+    <% end %>
 </textarea>
 <table class="group_permissions_table users_and_roles list_table">
 
@@ -41,14 +41,14 @@
     <tbody class="<%= scope[:permission_type] %>_users_and_roles">
 
     <% scope[:permissions].each do |permission| %>
-        <% scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, permission, :index => "" do |permission_form| %>
+        <%= scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, permission, :index => "" do |permission_form| %>
             <tr id="<%= "#{scope[:permission_type]}_#{permission.getName()}" -%>">
                 <td>
                     <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME,  :class => "form_input permissions_#{scope[:permission_type]}_name", :omit_id_generation => true %>
                     <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :omit_id_generation => true %>
                     <%= error_message_on(RailsFormModelWrapper.new(permission), com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :css_class => "name_value_error") %>
                 </td>
-                <% permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, permission, :index => "" do |privileges_form| %>
+                <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, permission, :index => "" do |privileges_form| %>
                     <td>
                         <%= check_box_tag com.thoughtworks.go.config.Authorization::PresentationElement::VIEW_PRIVILEGE, 0, false,
                                           :id => "viewPrivilege_#{scope[:permission_type]}_#{permission.getName()}", :title => l.string("TOOLTIP_PIPELINE_GROUP_VIEW_PRIVILEGE") %>

@@ -1,7 +1,7 @@
 <div class="form_content">
     <div class="job_tabs_section popup_form">
         <textarea id="<%= scope[:collection_name] -%>_template" class="template">
-            <%- scope[:form].fields_for scope[:collection_name], :index => "" do |tab_form| -%>
+            <%= scope[:form].fields_for scope[:collection_name], :index => "" do |tab_form| %>
                 <td class="name_value_cell name">
                     <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
                 </td>
@@ -15,7 +15,7 @@
                     <span class="icon_remove delete_parent"></span>
                 </td>
                 
-            <%- end -%>
+            <% end %>
         </textarea>
         <table class="<%= scope[:collection_name] -%>">
             <thead>
@@ -31,7 +31,7 @@
             </thead>
             <tbody class="<%= scope[:collection_name] -%>">
             <% scope[:collection].each do |tab| -%>
-                <%- scope[:form].fields_for scope[:collection_name], tab, :index => "" do |tab_form| -%>
+                <%= scope[:form].fields_for scope[:collection_name], tab, :index => "" do |tab_form| %>
                     <tr>
                         <td class="name_value_cell name">
                             <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
@@ -48,7 +48,7 @@
                             <span class="icon_remove delete_parent"></span>
                         </td>
                     </tr>
-                <%- end -%>
+                <% end %>
             <%- end -%>
             </tbody>
         </table>

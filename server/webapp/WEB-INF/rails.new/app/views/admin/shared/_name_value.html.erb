@@ -2,7 +2,7 @@
     <div class="environment_variables_section popup_form">
         <% template_row_id_prefix = scope[:collection_name].to_s + (scope[:secure] ? "_secure" : "") %>
         <textarea id="<%=template_row_id_prefix-%>_variables_template" class="template">
-            <%- scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| -%>
+            <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
                 <td class="name_value_cell">
                     <%= var_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
                 </td>
@@ -24,7 +24,7 @@
                 <td class="name_value_cell">
                     <span class="icon_remove delete_parent"></span>
                 </td>
-            <%- end -%>
+            <% end %>
         </textarea>
         <table class="<%= scope[:collection_name] -%>">
             <thead>
@@ -37,7 +37,7 @@
             </thead>
             <tbody class="<%= scope[:collection_name] -%>" id="<%=template_row_id_prefix-%>">
             <% scope[:collection].each do |variable| -%>
-                <%- scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| -%>
+                <%= scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| %>
                     <tr>
                         <td class="name_value_cell">
                             <%= var_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>

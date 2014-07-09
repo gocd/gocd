@@ -21,7 +21,6 @@
 	<screenshot alttext="Server Details Page" src="resources/images/cruise/ServerDetails.png"/>
 	<subsection title="Key">
 		<steps>
-			<item>Administrators can update and save the Go server license by changing the <strong>User</strong> and <strong>License Key</strong> fields.</item>
 			<item>This box lists all the server Information.</item>
 		</steps>
 	</subsection>

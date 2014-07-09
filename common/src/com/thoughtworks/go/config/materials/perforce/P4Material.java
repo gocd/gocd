@@ -152,7 +152,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return p4;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateToInternal(ProcessOutputStreamConsumer outputConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         boolean cleaned = cleanDirectoryIfRepoChanged(workingdir(baseDir), outputConsumer);
         try {
             outputConsumer.stdOutput(

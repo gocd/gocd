@@ -121,7 +121,7 @@ public class SvnTestRepo extends TestRepo {
         InMemoryStreamConsumer consumer = inMemoryConsumer();
 
 
-        svnMaterial.updateTo(consumer, getLatestRevision(svnMaterial), workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(consumer, getLatestRevision(svnMaterial), workingCopy, new TestSubprocessExecutionContext());
 
 
         File newFileToAdd = new File(workingCopy, filename);
@@ -149,7 +149,7 @@ public class SvnTestRepo extends TestRepo {
 
         ProcessOutputStreamConsumer consumer = inMemoryConsumer();
 
-        svnMaterial.updateTo(consumer, latestRevision(svnMaterial, baseDir, new TestSubprocessExecutionContext()), baseDir, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(consumer, latestRevision(svnMaterial, baseDir, new TestSubprocessExecutionContext()), baseDir, new TestSubprocessExecutionContext());
 
         File workingDir = new File(baseDir, svnMaterial.getFolder());
         File newFileToAdd = new File(workingDir, fileName);

@@ -129,7 +129,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
         String stdout = outputStreamConsumer.getStdOut();
         assertThat(stdout, containsString(
                 String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
@@ -156,7 +156,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
         assertThat(workingCopy.exists(), is(false));
     }
 
@@ -170,7 +170,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
         assertThat(workingCopy.exists(), is(false));
     }
 
@@ -185,7 +185,7 @@ public class SvnMaterialTest {
                 one(subversion).updateTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateToInternal(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
     }
 
     @Test

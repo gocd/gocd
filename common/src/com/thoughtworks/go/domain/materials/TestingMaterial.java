@@ -81,7 +81,7 @@ public class TestingMaterial extends ScmMaterial {
         return new TestingMaterialInstance(url, "FLYWEIGHTNAME");
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateToInternal(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
     }
 
     public void setUrl(String url) {

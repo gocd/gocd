@@ -40,7 +40,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands a source control repository and its configuration
  */
 public abstract class ScmMaterialConfig extends AbstractMaterialConfig implements ParamsAttributeAware {
-
+    public static final int DEFAULT_NUMBER_OF_ATTEMPTS = 1;
+    public static final int DEFAULT_RETRY_INTERVAL = 10;
     public static final String URL = "url";
     public static final String USERNAME = "username";
 
@@ -53,6 +54,12 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     @ConfigAttribute(value = "autoUpdate", optional = true)
     private boolean autoUpdate = true;
 
+    @ConfigAttribute(value = "numAttempts", optional = true)
+    private int numAttempts = DEFAULT_NUMBER_OF_ATTEMPTS;
+
+    @ConfigAttribute(value = "retryInterval", optional = true)
+    private int retryIntervalInSeconds = DEFAULT_RETRY_INTERVAL;
+
     public static final String PASSWORD = "password";
     public static final String ENCRYPTED_PASSWORD = "encryptedPassword";
     public static final String PASSWORD_CHANGED = "passwordChanged";
@@ -60,6 +67,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public static final String FOLDER = "folder";
     public static final String FILTER = "filterAsString";
+    public static final String ATTEMPTS = "numAttempts";
+    public static final String RETRY_INTERVAL = "retryInterval";
 
     public ScmMaterialConfig(String typeName) {
         super(typeName);
@@ -153,6 +162,22 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         autoUpdate = value;
     }
 
+    public int getNumAttempts() {
+        return numAttempts;
+    }
+
+    public void setNumAttempts(int numAttempts) {
+        this.numAttempts = numAttempts;
+    }
+
+    public int getRetryIntervalInSeconds() {
+        return retryIntervalInSeconds;
+    }
+
+    public void setRetryIntervalInSeconds(int retryIntervalInSeconds) {
+        this.retryIntervalInSeconds = retryIntervalInSeconds;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -210,6 +235,12 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             this.folder = folder;
         }
         this.setAutoUpdate("true".equals(map.get(AUTO_UPDATE)));
+        if(map.containsKey(ATTEMPTS)) {
+            this.setNumAttempts(Integer.valueOf(map.get(ATTEMPTS).toString()));
+        }
+        if(map.containsKey(RETRY_INTERVAL)) {
+            this.setRetryIntervalInSeconds(Integer.valueOf(map.get(RETRY_INTERVAL).toString()));
+        }
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
             if (!StringUtil.isBlank(pattern)) {

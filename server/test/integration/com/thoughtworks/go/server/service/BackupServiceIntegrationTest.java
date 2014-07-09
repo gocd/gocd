@@ -201,7 +201,7 @@ public class BackupServiceIntegrationTest {
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
         String latestChangeRev = modifications.get(0).getRevision();
         assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), greaterThan(0));
-        git.updateTo(new InMemoryStreamConsumer(), new StringRevision(latestChangeRev + "~1"), cloneDir, subprocessExecutionContext);
+        git.updateToInternal(new InMemoryStreamConsumer(), new StringRevision(latestChangeRev + "~1"), cloneDir, subprocessExecutionContext);
         assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), is(-1));
     }
 

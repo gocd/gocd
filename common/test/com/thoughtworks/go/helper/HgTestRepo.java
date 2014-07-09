@@ -130,7 +130,7 @@ public class HgTestRepo extends TestRepo {
         File baseDir = TestFileUtil.createUniqueTempFolder("working-dir");
         HgMaterial material = material();
         Revision tip = latestRevision(material, baseDir, new TestSubprocessExecutionContext());
-        material.updateTo(ProcessOutputStreamConsumer.inMemoryConsumer(), tip, baseDir, new TestSubprocessExecutionContext());
+        material.updateToInternal(ProcessOutputStreamConsumer.inMemoryConsumer(), tip, baseDir, new TestSubprocessExecutionContext());
 
         File file = new File(baseDir, fileName);
         file.createNewFile();

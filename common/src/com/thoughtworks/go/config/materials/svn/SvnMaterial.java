@@ -141,7 +141,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         parameters.put("checkExternals", checkExternals);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateToInternal(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         File workingDir = workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Updating to revision: " + revision + " in workingdirectory " + workingDir);

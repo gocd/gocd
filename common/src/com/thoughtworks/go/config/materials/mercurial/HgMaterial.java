@@ -126,7 +126,7 @@ public class HgMaterial extends ScmMaterial {
         return hgCommand;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateToInternal(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         try {
             outputStreamConsumer.stdOutput(
                     format("\n[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(),

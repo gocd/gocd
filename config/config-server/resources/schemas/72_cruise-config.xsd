@@ -68,7 +68,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="73"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="72"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -712,7 +712,7 @@
     </xsd:attributeGroup>
     <xsd:simpleType name="commandType">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="\S+(.*\S+)*"/>
+            <xsd:pattern value=".*[\S]+.*"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:complexType name="dependsType">

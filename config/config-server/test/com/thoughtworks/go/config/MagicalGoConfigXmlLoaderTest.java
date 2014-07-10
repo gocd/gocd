@@ -712,6 +712,66 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    public void shouldThrowExceptionWhenCommandsContainTrailingSpaces() throws Exception {
+        String configXml =
+            "<cruise schemaVersion='73'>" +
+                "  <pipelines group='first'>" +
+                "    <pipeline name='Test'>" +
+                "      <materials>" +
+                "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                "      </materials>" +
+                "      <stage name='Functional'>" +
+                "        <jobs>" +
+                "          <job name='Functional'>" +
+                "            <tasks>" +
+                "              <exec command='bundle  ' args='arguments' />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </pipelines>" +
+                "</cruise>";
+        try {
+            ConfigMigrator.loadWithMigration(configXml);
+
+            fail("Should not allow command with trailing spaces");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("Command is invalid. \"bundle  \" should conform to the pattern - \\S+(.*\\S+)*"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCommandsContainLeadingSpaces() throws Exception {
+        String configXml =
+            "<cruise schemaVersion='73'>" +
+                "  <pipelines group='first'>" +
+                "    <pipeline name='Test'>" +
+                "      <materials>" +
+                "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                "      </materials>" +
+                "      <stage name='Functional'>" +
+                "        <jobs>" +
+                "          <job name='Functional'>" +
+                "            <tasks>" +
+                "              <exec command='    bundle' args='arguments' />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </pipelines>" +
+                "</cruise>";
+        try {
+            ConfigMigrator.loadWithMigration(configXml);
+
+            fail("Should not allow command with trailing spaces");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("Command is invalid. \"    bundle\" should conform to the pattern - \\S+(.*\\S+)*"));
+        }
+    }
+
+    @Test
     public void shouldSupportCommandWithWhiteSpace() throws Exception {
         String jobWithCommand =
                 "<job name=\"functional\">\n"

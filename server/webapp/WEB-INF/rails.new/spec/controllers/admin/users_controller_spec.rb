@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe UsersController do
+describe Admin::UsersController do
   include MockRegistryModule
   before :each do
-    @user_service = mock('user_service')
+    @user_service = double('user_service')
     controller.stub(:user_service).and_return(@user_service)
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("root")))
     controller.stub(:current_user_entity_id).and_return(@user_id = 1)
@@ -28,7 +28,7 @@ describe UsersController do
 
   describe "users" do
     before do
-      @licence_service = mock('licence_service')
+      @licence_service = double('licence_service')
       controller.stub(:go_license_service).and_return(@licence_service)
 
     end
@@ -39,7 +39,7 @@ describe UsersController do
       @user_service.should_receive(:disabledUserCount).and_return(1)
       @licence_service.should_receive(:maximumUsersAllowed).with().and_return(12)
       get :users
-
+      assert_template layout: :admin
       assigns[:users].should == ['user', 'loser']
       assigns[:total_enabled_users].should == 1
       assigns[:total_disabled_users].should == 1
@@ -58,25 +58,22 @@ describe UsersController do
       assigns[:total_disabled_users].should == 1
       assigns[:permitted_users].should == 12
     end
-
-    it "should use admin layout" do
-      controller.class.inheritable_attributes[:layout].should == "admin"
-    end
-
   end
 
   describe "new" do
 
     it "should match /admin/users/new to" do
-      params_from(:get, "/admin/users/new").should == {:controller => "users", :action => 'new', :no_layout => true}
+      expect(:get => "/admin/users/new").to route_to({:controller => "admin/users", :action => 'new', :no_layout=>true})
+      expect(controller.send(:users_new_path)).to eq("/admin/users/new")
     end
   end
 
   describe "operate" do
-    integrate_views
+    render_views
     
     it "should match /admin/users/operate to" do
-      params_from(:post, "/admin/users/operate").should == {:controller => "users", :action => 'operate'}
+      expect(:post => "/admin/users/operate").to route_to({:controller => "admin/users", :action => 'operate'})
+      expect(controller.send(:user_operate_path)).to eq("/admin/users/operate")
     end
 
     it "should enable users through UserService and redirect to user listing" do
@@ -135,7 +132,8 @@ describe UsersController do
     end
 
     it "should match /admin/users/roles to" do
-      params_from(:post, "/admin/users/roles").should == {:controller => "users", :action => 'roles', :no_layout => true}
+      expect(:post => "/admin/users/roles").to route_to({:controller => "admin/users", :action => 'roles', :no_layout=>true})
+      expect(controller.send(:user_roles_path)).to eq("/admin/users/roles")
     end
 
     it "should disallow unknown operations" do
@@ -167,16 +165,17 @@ describe UsersController do
       @result = HttpLocalizedOperationResult.new
 
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
-      controller.stub!(:user_search_service).and_return(@user_search_service)
+      controller.stub(:user_search_service).and_return(@user_search_service)
     end
 
     it "should match /users/search to" do
-      params_from(:post, "/admin/users/search").should == {:controller => "users", :action => 'search', :no_layout => true}
+      expect(:post => "/admin/users/search").to route_to({:controller => "admin/users", :action => 'search', :no_layout=>true})
+      expect(controller.send(:users_search_path)).to eq("/admin/users/search")
     end
 
     it "should search for a user" do
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub!(:current_user).and_return(current_user_name)
+      controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
@@ -190,7 +189,7 @@ describe UsersController do
 
     it "should search for a user" do
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub!(:current_user).and_return(current_user_name)
+      controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
@@ -206,7 +205,7 @@ describe UsersController do
       @result.conflict(LocalizedMessage.string("LDAP_ERROR"))
 
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub!(:current_user).and_return(current_user_name)
+      controller.stub(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
@@ -221,13 +220,14 @@ describe UsersController do
 
   describe "create" do
     it "should match /users/create to" do
-      params_from(:post, "/admin/users/create").should == {:controller => "users", :action => 'create', :no_layout => true}
+      expect(:post => "/admin/users/create").to route_to({:controller => "admin/users", :action => 'create', :no_layout=>true})
+      expect(controller.send(:users_create_path)).to eq("/admin/users/create")
     end
 
     it "should create a new user" do
-      user_service = mock('user_service')
-      controller.stub!(:user_service).and_return(user_service)
-      controller.stub!(:go_license_service).and_return(mock_license_service = mock("license_service"))
+      user_service = double('user_service')
+      controller.stub(:user_service).and_return(user_service)
+      controller.stub(:go_license_service).and_return(mock_license_service = double("license_service"))
       mock_license_service.should_receive(:maximumUsersAllowed).and_return(10)
 
       params_selections = [{"name"=>"foo", "full_name"=>"Mr Foo", "email"=>"foo@cruise.com"},{"name"=>"Bar", "full_name"=>"Mr Bar", "email"=>"bar@cruise.com"}]
@@ -242,14 +242,16 @@ describe UsersController do
       user_service.should_receive(:disabledUserCount).and_return(1)
       result.should_receive(:isSuccessful).and_return(true)
 
-      controller.should_receive(:render).with(:action => "users")
+      #controller.should_receive(:render).with(:action => "users")
 
       post :create, :no_layout => true, :selections => params_selections
+
+      assert_template   "users"
     end
 
     it "should handle no user selections" do
       user_service = Object.new
-      controller.stub!(:user_service).and_return(user_service)
+      controller.stub(:user_service).and_return(user_service)
 
       result = Object.new
       HttpLocalizedOperationResult.stub(:new).and_return(result)
@@ -268,7 +270,7 @@ describe UsersController do
 
     it "should render error message when user is not created" do
       user_service = Object.new
-      controller.stub!(:user_service).and_return(user_service)
+      controller.stub(:user_service).and_return(user_service)
 
       params_selections = []
       user_search_models = []
@@ -291,11 +293,12 @@ describe UsersController do
 
   describe "delete_all" do
     before do
-      controller.stub!(:user_service).and_return(@user_service = mock("user_service"))
+      controller.stub(:user_service).and_return(@user_service = double("user_service"))
     end
 
     it "should match /users/delete_all to" do
-      params_from(:delete, "/admin/users/delete_all").should == {:controller => "users", :action => 'delete_all', :no_layout => true}
+      expect(:delete => "/admin/users/delete_all").to route_to({:controller => "admin/users", :action => 'delete_all', :no_layout=>true})
+      expect(controller.send(:users_delete_path)).to eq("/admin/users/delete_all")
     end
 
     it "should delete all users" do
@@ -304,18 +307,17 @@ describe UsersController do
     end
 
     it "should render success message" do
-      @user_service.stub!(:deleteAll)
-      controller.should_receive(:render).with(:text => "Deleted")
+      @user_service.stub(:deleteAll)
       delete :delete_all, :no_layout => true
+      expect(response.body).to eq("Deleted")
     end
   end
 
   describe "dismiss_license_expiry_warning" do
 
     it "should resolve routes" do
-      params_from(:post, "/users/dismiss_license_expiry_warning").should == {:controller => "users", :action => 'dismiss_license_expiry_warning', :no_layout => true}
-      route_for(:controller => "users", :action => "dismiss_license_expiry_warning", :no_layout => true).should == "/users/dismiss_license_expiry_warning"
-      dismiss_license_expiry_warning_path.should == "/users/dismiss_license_expiry_warning"
+      expect(:post => "/users/dismiss_license_expiry_warning").to route_to({:controller => "admin/users", :action => 'dismiss_license_expiry_warning', :no_layout=>true})
+      expect(controller.send(:dismiss_license_expiry_warning_path)).to eq("/users/dismiss_license_expiry_warning")
     end
 
     it "should disable the warning popup for the current user" do
@@ -324,7 +326,7 @@ describe UsersController do
       post :dismiss_license_expiry_warning, :no_layout => true
 
       response.body.should == "Disabled successfully"
-      response.status.should == "200 OK"
+      response.status.should ==200
     end
   end
 end

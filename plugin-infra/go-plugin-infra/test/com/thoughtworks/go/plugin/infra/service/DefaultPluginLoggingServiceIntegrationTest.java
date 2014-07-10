@@ -127,7 +127,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
         pluginLoggingService.error(pluginID(1), "LoggingClass", "error", throwable);
 
-        assertMessageInLog(pluginLog(1), "ERROR", "LoggingClass", "error", "java\\.lang\\.RuntimeException: oops\n\tat class\\.method\\(field:20\\)\\s?$");
+        assertMessageInLog(pluginLog(1), "ERROR", "LoggingClass", "error", "java\\.lang\\.RuntimeException:\\soops[\\s\\S]*at\\sclass\\.method\\(field:20\\)[\\s\\S]*$");
     }
 
     @Test
@@ -216,7 +216,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws Exception {
         String fileContent = FileUtils.readFileToString(pluginLogFile);
-        if (fileContent.matches(String.format("^.*%s \\[main\\] %s:.* - %s\n%s", loggingLevel, loggerName, message, stackTracePattern))) {
+        if (fileContent.matches(String.format("^.*%s\\s\\[main\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, loggerName, message, stackTracePattern))) {
             return;
         }
         fail(String.format("Message not found in log file. File content is: %s", fileContent));

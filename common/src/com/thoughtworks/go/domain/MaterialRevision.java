@@ -317,6 +317,4 @@ public class MaterialRevision implements Serializable {
         }
         return cardNumbers;
     }
-
-
 }

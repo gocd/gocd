@@ -16,23 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullPipeline;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
@@ -48,6 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Queue;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
@@ -237,7 +229,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
         final MaterialRevisions computedRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
         fillUpNonOverridableRevisions(actualRevisions, computedRevisions);
-        return restoreOriginalOrderUsingFingerprint(actualRevisions, computedRevisions);
+        return restoreOriginalMaterialConfigAndMaterialOrderUsingFingerprint(actualRevisions, computedRevisions);
     }
 
     //This whole method is repeated for reporting and it does not use actual revisions for determining final revisions
@@ -266,10 +258,12 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, pipelineCounter);
     }
 
-    private MaterialRevisions restoreOriginalOrderUsingFingerprint(MaterialRevisions actualRevisions, MaterialRevisions computedRevisions) {
+    private MaterialRevisions restoreOriginalMaterialConfigAndMaterialOrderUsingFingerprint(MaterialRevisions actualRevisions, MaterialRevisions computedRevisions) {
         MaterialRevisions orderedComputedRevisions = new MaterialRevisions();
         for (MaterialRevision actualRevision : actualRevisions) {
-            orderedComputedRevisions.addRevision(computedRevisions.findRevisionUsingMaterialFingerprintFor(actualRevision.getMaterial()));
+            MaterialRevision revisionForMaterial = computedRevisions.findRevisionUsingMaterialFingerprintFor(actualRevision.getMaterial());
+            MaterialRevision materialRevisionWithRestoredMaterialConfig = new MaterialRevision(actualRevision.getMaterial(), revisionForMaterial.isChanged(), revisionForMaterial.getModifications());
+            orderedComputedRevisions.addRevision(materialRevisionWithRestoredMaterialConfig);
         }
         return orderedComputedRevisions;
     }

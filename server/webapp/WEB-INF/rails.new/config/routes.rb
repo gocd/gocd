@@ -98,6 +98,12 @@ Go::Application.routes.draw do
   get "admin/garage" => "admin/garage#index", as: :garage_index
   post "admin/garage/gc" => "admin/garage#gc", as: :garage_gc
 
+  get "admin/config/server" => "admin/server#index", as: :edit_server_config
+  post "admin/config/server/update" => "admin/server#update", as: :update_server_config
+  get "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params
+  post "admin/config/server/test_email" => "admin/server#test_email", as: :send_test_email
+  post "admin/config/server/validate_ldap" => "admin/server#validate_ldap", as: :validate_ldap_settings
+
   get "admin/pipelines" => "admin/pipeline_groups#index", as: :pipeline_groups
   get "admin/pipeline_group/new" => "admin/pipeline_groups#new", as: :pipeline_group_new
   post "admin/pipeline_group" => "admin/pipeline_groups#create", as: :pipeline_group_create
@@ -108,6 +114,15 @@ Go::Application.routes.draw do
   put "admin/pipeline_group/:group_name" => "admin/pipeline_groups#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_update
   delete "admin/pipeline_group/:group_name" => "admin/pipeline_groups#destroy_group", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipeline_group_delete
   get "/admin/pipelines/possible_groups/:pipeline_name/:config_md5" => "admin/pipeline_groups#possible_groups", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :possible_groups
+
+  get "admin/templates" => "admin/templates#index", as: :templates
+  get "admin/templates/new" => "admin/templates#new", as: :template_new
+  post "admin/templates/create" => "admin/templates#create", as: :template_create
+  delete "admin/templates/:pipeline_name" => "admin/templates#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :delete_template
+  get "admin/templates/:template_name/permissions" => "admin/templates#edit_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :edit_template_permissions
+  post "admin/templates/:template_name/permissions" => "admin/templates#update_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :update_template_permissions
+  get "admin/templates/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_edit
+  put "admin/templates/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_update
 
   get "admin/package_definitions/:repo_id/new" => "admin/package_definitions#new", as: :package_definitions_new
   get "admin/package_definitions/:repo_id/new_for_new_pipeline_wizard" => "admin/package_definitions#new_for_new_pipeline_wizard", as: :package_definitions_new_for_new_pipeline_wizard
@@ -224,18 +239,20 @@ Go::Application.routes.draw do
     end
   end
 
+  resources :agents, :only =>  [:index], :defaults => {:format => "html"}
+  post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
+  post "agents/:action" , :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+
+
   # dummy mappings. for specs to pass
-  get '/admin/templates' => 'test/test#index', as: :templates
   get '/server/messages.json' => 'test/test#index', as: :global_message
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  get '/agents' => 'agents#index', as: :agents_for_test
   get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
-  get 'test' => 'test/test#index', as: :edit_server_config
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients
   get 'test' => 'test/test#index', as: :user_listing
   get 'test' => 'test/test#index', as: :oauth_clients

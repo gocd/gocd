@@ -105,7 +105,7 @@ module ApplicationHelper
     on_click_lambda = ''
     if options.has_key? :onclick_lambda
       options.reverse_merge!(:id => random_dom_id)
-      on_click_lambda = "<script type='text/javascript'> Util.on_load(function() { Event.observe($('#{options[:id]}'), 'click', function(evt) { #{options.delete(:onclick_lambda)}(evt); }); }); </script>"
+      on_click_lambda = "<script type='text/javascript'> Util.on_load(function() { Event.observe($('#{options[:id]}'), 'click', function(evt) { #{options.delete(:onclick_lambda)}(evt); }); }); </script>".html_safe
     end
     [on_click_lambda, options]
   end

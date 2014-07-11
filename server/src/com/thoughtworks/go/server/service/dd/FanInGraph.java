@@ -407,5 +407,4 @@ public class FanInGraph {
         }
         return updatedRevisions;
     }
-
 }

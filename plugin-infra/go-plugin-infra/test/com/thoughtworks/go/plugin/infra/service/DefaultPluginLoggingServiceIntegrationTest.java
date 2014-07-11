@@ -121,6 +121,16 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
+    public void shouldLogThrowableDetailsAlongwithMessage() throws Exception {
+        Throwable throwable = new RuntimeException("oops");
+        throwable.setStackTrace(new StackTraceElement[]{new StackTraceElement("class", "method", "field", 20)});
+
+        pluginLoggingService.error(pluginID(1), "LoggingClass", "error", throwable);
+
+        assertMessageInLog(pluginLog(1), "ERROR", "LoggingClass", "error", "java\\.lang\\.RuntimeException:\\soops[\\s\\S]*at\\sclass\\.method\\(field:20\\)[\\s\\S]*$");
+    }
+
+    @Test
     public void shouldUsePluginLogFileForAllLogMessagesOfASinglePlugin() throws Exception {
         pluginLoggingService.info(pluginID(1), "LoggingClass", "info1");
         pluginLoggingService.warn(pluginID(1), "SomeOtherClass", "info2");
@@ -202,6 +212,15 @@ public class DefaultPluginLoggingServiceIntegrationTest {
             }
         }
         fail(String.format("None of the lines matched level:%s message:'%s'. Lines were: %s", expectedLoggingLevel, expectedLogMessage, linesInLog));
+    }
+
+    private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws Exception {
+        String fileContent = FileUtils.readFileToString(pluginLogFile);
+        if (fileContent.matches(String.format("^.*%s\\s\\[main\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, loggerName, message, stackTracePattern))) {
+            return;
+        }
+        fail(String.format("Message not found in log file. File content is: %s", fileContent));
+
     }
 
     private void assertNumberOfMessagesInLog(File pluginLogFile, int size) throws Exception {

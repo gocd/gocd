@@ -73,7 +73,7 @@ Util.on_load(function() {
         <tr class='agent_instance <%= get_agent_status_class(scope[:show_only_disabled],agent_in_agent_table.getStatus()) %>' id='<%= agent_in_agent_table.getUuid() %>'>
             <% agent_uuid = agent_in_agent_table.getUuid()-%>
             <% if has_operate_permission_for_agents? %>
-                <%= agent_selector(agent_uuid, scope[:selector_name], scope[:selected]) %>
+                <%== agent_selector(agent_uuid, scope[:selector_name], scope[:selected]) %>
             <% end %>
             <% unless scope[:exclude_columns].include?('hostname') -%>
 
@@ -91,31 +91,31 @@ Util.on_load(function() {
 
             <% unless scope[:exclude_columns].include?('location') -%>
                 <% display_value = smart_word_breaker(agent_in_agent_table.getLocation())%>
-                <%= cell_with_title( display_value, 'location', agent_in_agent_table.getLocation()) %>
+                <%== cell_with_title( display_value, 'location', agent_in_agent_table.getLocation()) %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('operating_system') -%>
-                <%= cell_with_title( agent_in_agent_table.getOperatingSystem(), 'operating_system') %>
+                <%== cell_with_title( agent_in_agent_table.getOperatingSystem(), 'operating_system') %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('ip_address') -%>
-                <%= cell_with_title( agent_in_agent_table.getIpAddress(), 'ip_address') %>
+                <%== cell_with_title( agent_in_agent_table.getIpAddress(), 'ip_address') %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('status') -%>
-                <%= agent_status_cell(agent_in_agent_table) %>
+                <%== agent_status_cell(agent_in_agent_table) %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('usable_space') -%>
-                <%= cell_with_title( agent_in_agent_table.freeDiskSpace(), 'usable_space') %>
+                <%== cell_with_title( agent_in_agent_table.freeDiskSpace(), 'usable_space') %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('resources') -%>
-                <%= piped_cell(agent_in_agent_table.getResources(), l.string("NO_RESOURCES_SPECIFIED"), "resources") %>
+                <%== piped_cell(agent_in_agent_table.getResources(), l.string("NO_RESOURCES_SPECIFIED"), "resources") %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('environments') -%>
-                <%= piped_cell(agent_in_agent_table.getEnvironments(), l.string("NO_ENVIRONMENTS_SPECIFIED"), "environments") %>
+                <%== piped_cell(agent_in_agent_table.getEnvironments(), l.string("NO_ENVIRONMENTS_SPECIFIED"), "environments") %>
             <% end -%>
 
 

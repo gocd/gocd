@@ -12,19 +12,19 @@
     </h1>
 
     <div id="users_table" class='users_table'>
-        <%= form_tag(user_operate_path(:params => params.slice(:column, :order)), :id => 'users_form') -%>
+        <%== form_tag(user_operate_path(:params => params.slice(:column, :order)), :id => 'users_form') -%>
         <input id="operation" type="hidden" name="operation" />
         <div class="fixed_wrapper">&nbsp;</div>
         <div class="edit_panel" id="dd_users_ajax_float">
             <div class="add_new_users">
                 <% title = l.string("ADD_USERS") %>
-                <%= link_to_remote title, {:method => :get, :url => users_new_path,
+                <%== link_to title, {:remote=> true, :method => :get, :url => users_new_path,
                                            :success => "Modalbox.show(request.responseText, { title: '#{title}', overlayClose: false, width: 850, slideDownDuration: 0, overlayDuration: 0});"}, {:class => "link_as_button"} %>
             </div>
-            <%= submit_button("Enable", :onclick_lambda => "Util.set_value('operation', 'Enable')") %>
-            <%= submit_button("Disable", :onclick_lambda => "Util.set_value('operation', 'Disable')") %>
+            <%== submit_button("Enable", :onclick_lambda => "Util.set_value('operation', 'Enable')") %>
+            <%== submit_button("Disable", :onclick_lambda => "Util.set_value('operation', 'Disable')") %>
 
-            <%= submit_button("Roles", :id => "show_roles_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
+            <%== submit_button("Roles", :id => "show_roles_panel", :class => "show_panel", :type => "select", :text_color => "dark") %>
 
             <div id="roles_panel" class="hidden resources_panel agent_edit_popup enhanced_dropdown">
                 <div class='resources_selector scrollable_panel'>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="add_panel hidden">
                     <input type="text" name="new_role" class='new_role new_field'/>
-                    <%= submit_button("Add", :class => "apply_resources apply_button submit_small primary", :name => "role_operation") %>
+                    <%== submit_button("Add", :class => "apply_resources apply_button submit_small primary", :name => "role_operation") %>
 
                     <div class="validation_message error hidden">Invalid character. Please use a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe.</div>
                 </div>
@@ -52,20 +52,20 @@
                     <th class='enabled'><%= column_header "Enabled", 'enabled' %></th>
                 </tr>
                 <% @users.each do |user_model| %>
-                    <tr class='user<%=  user_model.isEnabled() ? "" : " Disabled" %>'>
+                    <tr class='user<%==  user_model.isEnabled() ? "" : " Disabled" %>'>
                         <td class='selector'>
                             <input type='checkbox' name='selected[]' value='<%= user_model.getUser().getName()-%>' class='agent_select'/>
                         </td>
-                        <%= cell_with_title( user_model.getUser().getName(), 'username') %>
-                        <%= piped_cell(user_model.getRoles(), '', 'roles') %>
-                        <%= piped_cell(user_model.getUser().getMatchers(), '', 'aliases') %>
-                        <%= cell_with_title( user_model.isAdmin() ? "Yes" : "No", 'is_admin') %>
-                        <%= cell_with_title( user_model.getUser().getEmail(), 'email') %>
-                        <%= cell_with_title( user_model.isEnabled() ? "Yes" : "No", 'enabled') %>
+                        <%== cell_with_title( user_model.getUser().getName(), 'username') %>
+                        <%== piped_cell(user_model.getRoles(), '', 'roles') %>
+                        <%== piped_cell(user_model.getUser().getMatchers(), '', 'aliases') %>
+                        <%== cell_with_title( user_model.isAdmin() ? "Yes" : "No", 'is_admin') %>
+                        <%== cell_with_title( user_model.getUser().getEmail(), 'email') %>
+                        <%== cell_with_title( user_model.isEnabled() ? "Yes" : "No", 'enabled') %>
                     </tr>
                 <% end %>
             </table>
-        <%= end_form_tag %>
+        <%== end_form_tag %>
     </div>
 </div>
 

@@ -22,14 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigErrors implements Serializable {
-    private Map<String, List<String>> fieldErrors = new HashMap<String, List<String>>();
-
+public class ConfigErrors extends HashMap<String, List<String>> implements Serializable {
     public void add(String fieldName, String msg) {
-        List<String> msgList = fieldErrors.get(fieldName);
+        List<String> msgList = get(fieldName);
         if (msgList == null) {
             msgList = new ArrayList<String>();
-            fieldErrors.put(fieldName, msgList);
+            put(fieldName, msgList);
         }
         if (!msgList.contains(msg)) {
             msgList.add(msg);
@@ -38,14 +36,14 @@ public class ConfigErrors implements Serializable {
 
     public List<String> getAll() {
         ArrayList<String> allErrors = new ArrayList<String>();
-        for (List<String> errorOnAnAttribute : fieldErrors.values()) {
+        for (List<String> errorOnAnAttribute : values()) {
             allErrors.addAll(errorOnAnAttribute);
         }
         return allErrors;
     }
 
     public List<String> getAllOn(String fieldName) {
-        return fieldErrors.get(fieldName);
+        return get(fieldName);
     }
 
     /**
@@ -56,60 +54,25 @@ public class ConfigErrors implements Serializable {
     }
 
     private String getFirstOn(String fieldName) {
-        List<String> errors = fieldErrors.get(fieldName);
+        List<String> errors = get(fieldName);
         if (errors != null && !errors.isEmpty()) {
             return errors.get(0);
         }
         return null;
     }
 
-    public boolean isEmpty() {
-        return fieldErrors.isEmpty();
-    }
-
     public String firstError() {
-        for (Map.Entry<String, List<String>> fieldToErrors : fieldErrors.entrySet()) {
+        for (Map.Entry<String, List<String>> fieldToErrors : entrySet()) {
             return getFirstOn(fieldToErrors.getKey());
         }
         return null;
     }
 
-    @Override
-    public String toString() {
-        return "ConfigErrors{" +
-                "fieldErrors=" + fieldErrors +
-                '}';
-    }
-
     public void addAll(ConfigErrors configErrors) {
-        for (String fieldName : configErrors.fieldErrors.keySet()) {
-            for (String value : configErrors.fieldErrors.get(fieldName)) {
+        for (String fieldName : configErrors.keySet()) {
+            for (String value : configErrors.get(fieldName)) {
                 this.add(fieldName, value);
             }
         }
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ConfigErrors that = (ConfigErrors) o;
-
-        if (fieldErrors != null ? !fieldErrors.equals(that.fieldErrors) : that.fieldErrors != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return fieldErrors != null ? fieldErrors.hashCode() : 0;
-    }
-
 }

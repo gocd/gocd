@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 
 public class FreemarkerRendererTest {
 
+    @org.junit.Ignore  
     @Test
     public void shouldRenderIfFor_oneArgPredicate() throws Exception {
         ExecTask task = new ExecTask();

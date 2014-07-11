@@ -22,7 +22,7 @@ describe "admin/package_repositories/edit.html.erb" do
   include MockRegistryModule
 
   before(:each) do
-    template.stub(:package_repositories_update_path).and_return("package_repositories_update_path")
+    view.stub(:package_repositories_update_path).and_return("package_repositories_update_path")
     assign(:cruise_config, @cruise_config = CruiseConfig.new)
     set(@cruise_config, "md5", "abc")
 
@@ -63,7 +63,7 @@ describe "admin/package_repositories/edit.html.erb" do
     end
 
     it "should have add package repository form" do
-      template.stub(:package_material_plugins).and_return([["[Select]", ""], "apt-get", "yum"])
+      view.stub(:package_material_plugins).and_return([["[Select]", ""], "apt-get", "yum"])
 
       render
 

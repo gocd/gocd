@@ -142,11 +142,11 @@ describe "admin/tasks/index.html.erb" do
   describe "Add new task" do
 
     it "should list all the tasks that can be added" do
-      template.should_receive(:admin_task_new_path).with(:type => FetchTask.new.getTaskType())
-      template.should_receive(:admin_task_new_path).with(:type => ExecTask.new.getTaskType())
-      template.should_receive(:admin_task_new_path).with(:type => RakeTask.new.getTaskType())
-      template.should_receive(:admin_task_new_path).with(:type => AntTask.new.getTaskType())
-      template.should_receive(:admin_task_new_path).with(:type => NantTask.new.getTaskType())
+      view.should_receive(:admin_task_new_path).with(:type => FetchTask.new.getTaskType())
+      view.should_receive(:admin_task_new_path).with(:type => ExecTask.new.getTaskType())
+      view.should_receive(:admin_task_new_path).with(:type => RakeTask.new.getTaskType())
+      view.should_receive(:admin_task_new_path).with(:type => AntTask.new.getTaskType())
+      view.should_receive(:admin_task_new_path).with(:type => NantTask.new.getTaskType())
 
       render
 
@@ -160,17 +160,17 @@ describe "admin/tasks/index.html.erb" do
     end
 
     it "should add a lookup icon next to custom command" do
-      template.should_receive(:admin_task_new_path).with(:type => "fetch")
-      template.should_receive(:admin_task_new_path).with(:type => "exec")
-      template.should_receive(:admin_task_new_path).with(:type => "rake")
-      template.should_receive(:admin_task_new_path).with(:type => "ant")
-      template.should_receive(:admin_task_new_path).with(:type => "nant")
+      view.should_receive(:admin_task_new_path).with(:type => "fetch")
+      view.should_receive(:admin_task_new_path).with(:type => "exec")
+      view.should_receive(:admin_task_new_path).with(:type => "rake")
+      view.should_receive(:admin_task_new_path).with(:type => "ant")
+      view.should_receive(:admin_task_new_path).with(:type => "nant")
 
-      template.should_receive(:task_css_class).with("exec").and_return("foo")
-      template.should_receive(:task_css_class).with("fetch").and_return("")
-      template.should_receive(:task_css_class).with("rake").and_return("")
-      template.should_receive(:task_css_class).with("ant").and_return("")
-      template.should_receive(:task_css_class).with("nant").and_return("")
+      view.should_receive(:task_css_class).with("exec").and_return("foo")
+      view.should_receive(:task_css_class).with("fetch").and_return("")
+      view.should_receive(:task_css_class).with("rake").and_return("")
+      view.should_receive(:task_css_class).with("ant").and_return("")
+      view.should_receive(:task_css_class).with("nant").and_return("")
 
       render
 
@@ -195,8 +195,8 @@ describe "admin/tasks/index.html.erb" do
         @tvm_3 = pluggable_tvm_for_missing(@task_3)
         @builtin_tvm_1 = tvm_for_list_entry(@builtin_task_1)
 
-        fake_task_view_service = mock("task_view_service")
-        template.stub(:task_view_service).and_return(fake_task_view_service)
+        fake_task_view_service = double("task_view_service")
+        view.stub(:task_view_service).and_return(fake_task_view_service)
 
         fake_task_view_service.stub(:getViewModel).with(@task_1, "list-entry").and_return(@tvm_1)
         fake_task_view_service.stub(:getViewModel).with(@task_2, "list-entry").and_return(@tvm_2)

@@ -21,7 +21,7 @@ describe "admin/stages/index.html.erb" do
   include FormUI
 
   before(:each) do
-    template.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
     assign(:pipeline, @pipeline)
 
@@ -122,7 +122,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should submit a form on deletion and prompt on deletion" do
-    template.stub(:random_dom_id).and_return("delete_stage_random_id")
+    view.stub(:random_dom_id).and_return("delete_stage_random_id")
 
     render
 

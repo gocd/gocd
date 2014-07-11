@@ -20,7 +20,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
   include TaskMother
 
   before(:each) do
-    @store = stub(:PluggableTaskConfigStore)
+    @store = double(:PluggableTaskConfigStore)
   end
 
   it "should display error message when the on cancel task plugin is missing" do
@@ -58,7 +58,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
       @form = f
     end
     @task = simple_task_with_pluggable_on_cancel_task
-    @store.stub(:preferenceFor).with("curl.plugin").and_return(stub(:Preference))
+    @store.stub(:preferenceFor).with("curl.plugin").and_return(double(:Preference))
 
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
 

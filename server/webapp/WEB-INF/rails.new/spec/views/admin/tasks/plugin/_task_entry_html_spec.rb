@@ -19,22 +19,22 @@ require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
 describe "/admin/tasks/plugin/_task_entry.html.erb" do
 
   before(:each) do
-    @tvm = mock("tvm")
-    @tvm_of_cancel_task = mock("tvm for cancel")
+    @tvm = double("tvm")
+    @tvm_of_cancel_task = double("tvm for cancel")
     @task_config_index = 1
-    @task_config = mock("config")
-    template.stub!(:admin_task_decrement_index_path).and_return('admin_task_decrement_index_path')
-    template.stub!(:admin_task_increment_index_path).and_return('admin_task_increment_index_path')
-    template.stub!(:admin_task_edit_path).and_return('admin_task_edit_path')
-    template.stub!(:admin_task_delete_path).and_return('admin_task_delete_path')
-    template.stub!(:md5_field).and_return('md5')
+    @task_config = double("config")
+    view.stub(:admin_task_decrement_index_path).and_return('admin_task_decrement_index_path')
+    view.stub(:admin_task_increment_index_path).and_return('admin_task_increment_index_path')
+    view.stub(:admin_task_edit_path).and_return('admin_task_edit_path')
+    view.stub(:admin_task_delete_path).and_return('admin_task_delete_path')
+    view.stub(:md5_field).and_return('md5')
     assign(:tasks, [])
   end
 
   it 'should display plugin name in the header' do
     @tvm.should_receive(:getTaskType).and_return("getTaskType")
     @tvm.should_receive(:getTypeForDisplay).and_return("Some Type For Display")
-    template.stub!(:render_pluggable_template) do |r, options|
+    view.stub(:render_pluggable_template) do |r, options|
       options[:modify_onclick_callback].inspect
     end
 

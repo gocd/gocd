@@ -21,7 +21,7 @@ describe "admin/stages/permissions.html.erb" do
   include FormUI
 
   before :each do
-    template.stub(:url_for).and_return("go_url")
+    view.stub(:url_for).and_return("go_url")
 
     assign(:pipeline, @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string)))
     assign(:stage, @stage = @pipeline.get(0))

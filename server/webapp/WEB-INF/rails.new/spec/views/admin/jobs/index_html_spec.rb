@@ -46,7 +46,7 @@ describe "admin/jobs/index.html.erb" do
   end
 
   it "should show job listing" do
-    template.stub(:random_dom_id).and_return("delete_job_random_id")
+    view.stub(:random_dom_id).and_return("delete_job_random_id")
 
     render
 

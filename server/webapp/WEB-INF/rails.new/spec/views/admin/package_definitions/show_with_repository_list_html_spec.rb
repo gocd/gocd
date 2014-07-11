@@ -39,9 +39,9 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 
     #md5 setup
-    assign(:cruise_config, @cruise_config = mock("cruise config"))
-    @cruise_config.should_receive(:canDeletePackageRepository).any_number_of_times.with(anything).and_return(true)
-    @cruise_config.should_receive(:getMd5).any_number_of_times.and_return("abc")
+    assign(:cruise_config, @cruise_config = double("cruise config"))
+    @cruise_config.should_receive(:canDeletePackageRepository).at_least(:once).with(anything).and_return(true)
+    @cruise_config.should_receive(:getMd5).at_least(:once).and_return("abc")
 
     # metadata setup
     metadata = PackageConfigurations.new

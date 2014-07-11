@@ -45,8 +45,8 @@ describe "pipeline_tree" do
     @stage_parent = "pipelines"
     @stage_parent_edit_path = pipeline_edit_path(:pipeline_name => "pipeline", :current_tab => "general")
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline", ["stage1", "stage2", "stage3"].to_java(java.lang.String))
-    @security_service = mock("security_service")
-    template.stub!(:security_service).and_return(@security_service)
+    @security_service = double("security_service")
+    view.stub(:security_service).and_return(@security_service)
   end
 
   it "should show link for template if the pipeline uses template and the user is admin" do
@@ -54,7 +54,7 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     assign(:user, Username.new(CaseInsensitiveString.new("admin")))
-    template.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
@@ -70,8 +70,8 @@ describe "pipeline_tree" do
     in_params(:current_tab=>"general")
     template_admin = Username.new(CaseInsensitiveString.new("template-admin"))
     assign(:user, template_admin)
-    template.stub(:is_user_an_admin?).and_return(false)
-    template.stub(:current_user).and_return(template_admin)
+    view.stub(:is_user_an_admin?).and_return(false)
+    view.stub(:current_user).and_return(template_admin)
     @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
@@ -87,8 +87,8 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     assign(:user, Username.new(CaseInsensitiveString.new("admin")))
-    template.stub(:is_user_an_admin?).and_return(false)
-    template.stub(:is_user_a_template_admin_for_template?).and_return(false)
+    view.stub(:is_user_an_admin?).and_return(false)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(false)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
@@ -103,8 +103,8 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     assign(:user, Username.new(CaseInsensitiveString.new("user")))
-    template.stub(:is_user_an_admin?).and_return(false)
-    template.stub(:is_user_a_template_admin_for_template?).and_return(false)
+    view.stub(:is_user_an_admin?).and_return(false)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(false)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
@@ -122,7 +122,7 @@ describe "pipeline_tree" do
     in_params(:stage_parent => @stage_parent)
     in_params(:current_tab=>"general")
     assign(:user, Username.new(CaseInsensitiveString.new("admin")))
-    template.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}
 
@@ -140,8 +140,8 @@ describe "pipeline_tree" do
     in_params(:current_tab=>"general")
     template_admin = Username.new(CaseInsensitiveString.new("template-admin"))
     assign(:user, template_admin)
-    template.stub(:is_user_an_admin?).and_return(false)
-    template.stub(:current_user).and_return(template_admin)
+    view.stub(:is_user_an_admin?).and_return(false)
+    view.stub(:current_user).and_return(template_admin)
     @security_service.should_receive(:isAuthorizedToEditTemplate).with("new-template", template_admin).and_return(true)
 
     render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => pipeline_with_template, :stage_parent => @stage_parent}}

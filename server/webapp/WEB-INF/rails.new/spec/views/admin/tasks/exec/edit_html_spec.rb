@@ -24,7 +24,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     set(config, "md5", "abcd1234")
 
     assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
-    template.stub(:admin_task_update_path).and_return("task_edit_path")
+    view.stub(:admin_task_update_path).and_return("task_edit_path")
   end
 
   it "should render a simple exec task for edit" do

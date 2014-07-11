@@ -22,7 +22,7 @@ describe "admin/tasks/pluggable_task/edit.html.erb" do
   it "should render plugin template and data for existing pluggable task" do
     task = plugin_task "curl.plugin", [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", true, "encrypted_value")]
 
-    formNameProvider = mock("formNameProvider")
+    formNameProvider = double("formNameProvider")
     formNameProvider.stub(:form_name_prefix).and_return("form_prefix")
     formNameProvider.stub(:css_id_for).with("angular_pluggable_task_curl_plugin").and_return("angular_plugin_name")
     formNameProvider.stub(:css_id_for).with("data_pluggable_task_curl_plugin").and_return("plugin_data")

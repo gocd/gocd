@@ -22,7 +22,7 @@ describe "admin/pipelines/new.html.erb" do
   include MockRegistryModule
 
   before(:each) do
-    template.stub(:pipeline_create_path).and_return("create_path")
+    view.stub(:pipeline_create_path).and_return("create_path")
 
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
     @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")
@@ -45,10 +45,10 @@ describe "admin/pipelines/new.html.erb" do
     assign(:cruise_config, @cruise_config)
     assign(:original_cruise_config, @cruise_config)
     set(@cruise_config, "md5", "abc")
-    template.stub(:is_user_a_group_admin?).and_return(false)
+    view.stub(:is_user_a_group_admin?).and_return(false)
     job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"))].to_java(JobConfig))
     stage_config = StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
-    template.stub(:default_stage_config).and_return(stage_config)
+    view.stub(:default_stage_config).and_return(stage_config)
   end
 
   it "should have a page title and view title" do
@@ -113,7 +113,7 @@ describe "admin/pipelines/new.html.erb" do
 
     it "should show dropdown for group name if user is a group admin" do
       assign(:groups_list, ["foo.bar", "some_other_group"])
-      template.stub(:is_user_a_group_admin?).and_return(true)
+      view.stub(:is_user_a_group_admin?).and_return(true)
       
       render
 

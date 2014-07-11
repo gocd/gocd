@@ -19,7 +19,7 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 describe "admin/configuration/show.html.erb" do
 
   before :each do
-    template.stub(:config_edit_path).and_return('config_edit_path')
+    view.stub(:config_edit_path).and_return('config_edit_path')
   end
 
   it "should render heading" do
@@ -39,7 +39,7 @@ describe "admin/configuration/show.html.erb" do
     date = java.util.Date.new(1366866649)
     current_date = java.util.Date.new()
     difference = current_date.getYear() - date.getYear()
-    cruise_config_revision = mock("cruise config revision")
+    cruise_config_revision = double("cruise config revision")
     cruise_config_revision.should_receive(:getTime).and_return(date)
     cruise_config_revision.should_receive(:getUsername).and_return("Ali")
     assign(:go_config_revision, cruise_config_revision)

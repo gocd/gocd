@@ -203,7 +203,7 @@ describe "list.html.erb" do
     it "should render repository list with delete enabled only for deletable repositories" do
       repo1 = mock_repo('repo1')
       repo2 = mock_repo('repo2')
-      cruise_config = mock('cruise_config')
+      cruise_config = double('cruise_config')
       cruise_config.should_receive(:canDeletePackageRepository).with(repo1).and_return(true)
       cruise_config.should_receive(:canDeletePackageRepository).with(repo2).and_return(false)
       cruise_config.should_receive(:getMd5).and_return("abc")
@@ -221,10 +221,10 @@ describe "list.html.erb" do
 
   private
   def mock_repo(repoId, packages = Packages.new())
-    repo1 = mock(repoId)
-    repo1.should_receive(:getPackages).any_number_of_times.and_return(packages)
-    repo1.should_receive(:getId).any_number_of_times.and_return(repoId)
-    repo1.should_receive(:getName).any_number_of_times.and_return(repoId)
+    repo1 = double(repoId)
+    repo1.should_receive(:getPackages).at_least(:once).and_return(packages)
+    repo1.should_receive(:getId).at_least(:once).and_return(repoId)
+    repo1.should_receive(:getName).at_least(:once).and_return(repoId)
     repo1
   end
 end

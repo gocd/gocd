@@ -18,8 +18,8 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
 describe "admin/garage/index.html.erb" do
   before :each do
-    @garage_data = mock('garage data')
-    template.should_receive(:garage_gc_path).and_return('garage_gc_path')
+    @garage_data = double('garage data')
+    view.should_receive(:garage_gc_path).and_return('garage_gc_path')
   end
 
   it 'should show config.git details' do
@@ -43,7 +43,7 @@ describe "admin/garage/index.html.erb" do
     @garage_data.should_receive(:getConfigRepositorySize).and_return(size)
     assign(:garage_data, @garage_data)
     flash = {:notice => {:gc => "notice"}, :error => {:gc => "error"}}
-    template.should_receive(:flash).any_number_of_times.and_return(flash)
+    view.should_receive(:flash).at_least(:once).and_return(flash)
 
     render
 

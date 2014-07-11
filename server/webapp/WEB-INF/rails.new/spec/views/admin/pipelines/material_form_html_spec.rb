@@ -22,7 +22,7 @@ describe "admin/pipelines/new.html.erb" do
   include MockRegistryModule
 
   before(:each) do
-    template.stub(:pipeline_create_path).and_return("create_path")
+    view.stub(:pipeline_create_path).and_return("create_path")
 
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
     @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")
@@ -53,9 +53,9 @@ describe "admin/pipelines/new.html.erb" do
     @cruise_config.setPackageRepositories(repos)
     assign(:cruise_config, @cruise_config)
     assign(:original_cruise_config, @cruise_config)
-    template.stub(:is_user_a_group_admin?).and_return(false)
+    view.stub(:is_user_a_group_admin?).and_return(false)
     set(@cruise_config, "md5", "abc")
-    template.stub(:render_pluggable_form_template).and_return("template")
+    view.stub(:render_pluggable_form_template).and_return("template")
   end
 
   describe "Materials" do

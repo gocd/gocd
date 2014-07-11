@@ -19,13 +19,13 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 describe 'admin/pipelines/pause_info.json.erb' do
 
   it "should create json with 'pause_info_and_control' partial" do
-    pause_info = mock('some pause info')
+    pause_info = double('some pause info')
     assign(:pause_info, pause_info)
-    pipeline = mock('pipeline')
+    pipeline = double('pipeline')
     pipeline.should_receive(:name).and_return('mingle')
     assign(:pipeline, pipeline)
 
-    template.should_receive(:render_json).with(:partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => pause_info, :pipeline_name => 'mingle'}}).and_return("\"pause_fragment\"")
+    view.should_receive(:render_json).with(:partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => pause_info, :pipeline_name => 'mingle'}}).and_return("\"pause_fragment\"")
 
     render
 

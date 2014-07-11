@@ -47,7 +47,7 @@
             <div class="new_form_label"></div>
             <div class="new_form_control">
                 <%= f.select com.thoughtworks.go.config.materials.PackageMaterialConfig::PACKAGE_ID, [], {}, {:id => "package"} -%>
-                <%= error_message_on(RailsFormModelWrapper.new(scope[:material]), com.thoughtworks.go.config.materials.PackageMaterialConfig::PACKAGE_ID, :css_class => "form_error") %>
+                <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.PackageMaterialConfig::PACKAGE_ID, :css_class => "form_error") %>
             </div>
         </div>
 

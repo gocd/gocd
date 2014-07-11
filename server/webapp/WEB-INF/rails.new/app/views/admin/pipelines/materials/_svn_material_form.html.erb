@@ -3,12 +3,12 @@
     <div class="form_item_block required">
         <%= required_label(scope[:form], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, l.string('URL')) -%>
         <%= scope[:form].text_field com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, {:class => "form_input required svn_url", :omit_id_generation => true} -%>
-        <%= error_message_on(RailsFormModelWrapper.new(scope[:material]), com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, :css_class => "form_error url") %>
+        <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::URL, :css_class => "form_error url") %>
     </div>
     <div class="form_item_block">
         <label><%= l.string('USERNAME') -%></label>
         <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:include_blank => true, :class => "form_input svn_username", :omit_id_generation => true}) -%>
-        <%= error_message_on(RailsFormModelWrapper.new(scope[:material]), com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
+        <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
     </div>
 
     <%= render :partial => 'admin/materials/shared/plain_password', :locals => {:scope => {:form => scope[:form], :password_class => 'svn_password'}} %>

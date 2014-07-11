@@ -7,14 +7,14 @@
             <div class="form_item_block required">
                 <%= required_label(f, com.thoughtworks.go.config.PipelineConfig::NAME, l.string('PIPELINE_NAME')) -%>
                 <%= f.text_field com.thoughtworks.go.config.PipelineConfig::NAME, :readonly => :readonly, :disabled=> :disabled -%>
-                <%= error_message_on(RailsFormModelWrapper.new(@pipeline), com.thoughtworks.go.config.PipelineConfig::NAME, :css_class => "form_error") %>
+                <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::NAME, :css_class => "form_error") %>
             </div>
 
             <div class="form_item_block required">
                 <%= required_label(f, com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, l.string('LABEL_TEMPLATE')) -%>
                 <%= f.text_field com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE -%>
                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_LABEL_TEMPLATE") -%>"></div>
-                <%= error_message_on(RailsFormModelWrapper.new(@pipeline), com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, :css_class => "form_error") %>
+                <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, :css_class => "form_error") %>
             </div>
 
             <div class="form_item_block checkbox_row">
@@ -23,7 +23,7 @@
                     <%= f.label com.thoughtworks.go.config.PipelineConfig::LOCK, l.string('AUTOMATIC_PIPELINE_LOCKING') -%>
                 </div>
                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_PIPELINE_LOCKING") -%>"></div>
-                <%= error_message_on(RailsFormModelWrapper.new(@pipeline), com.thoughtworks.go.config.PipelineConfig::LOCK, :css_class => "form_error") %>
+                <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LOCK, :css_class => "form_error") %>
             </div>
 
             <% if @pipeline.hasTemplate() -%>
@@ -60,7 +60,7 @@
                     <%= t.label com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, l.string('CRON_TIMER_SPECIFICATION') -%>
                     <%= t.text_field com.thoughtworks.go.config.TimerConfig::TIMER_SPEC -%>
                     <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_CRON_TIMER_SPECIFICATION") -%>"></div>
-                    <%= error_message_on(RailsFormModelWrapper.new(@pipeline.getTimer()), com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, :css_class => "form_error") %>
+                    <%= error_message_on(@pipeline.getTimer(), com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, :css_class => "form_error") %>
                 </div>
                 <div class="form_item_block checkbox_row">
                     <div class="checkbox_label_wrapper">

@@ -4,7 +4,7 @@
             <%= required_label(scope[:form], :name, l.string("JOB_NAME")) %>
             <div>
                 <%= scope[:form].text_field :name %>
-                <%= error_message_on(RailsFormModelWrapper.new(scope[:job]), com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
+                <%= error_message_on(scope[:job], com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
             </div>
         </div>
         <div class="form_item_block">
@@ -13,7 +13,7 @@
                 <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RESOURCES, :class => "resources_auto_complete", :value => scope[:job].resources().exportToCsv() %>
                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RESOURCES") -%>"></div>
                 <%- scope[:job].resources().each do |resource| -%>
-                    <%= error_message_on(RailsFormModelWrapper.new(resource), com.thoughtworks.go.config.JobConfig::RESOURCES, :css_class => "form_error") -%>
+                    <%= error_message_on(resource, com.thoughtworks.go.config.JobConfig::RESOURCES, :css_class => "form_error") -%>
                 <%- end -%>
             </div>
             <div class="inline_instruction">
@@ -45,7 +45,7 @@
         <div class="form_item_block checkbox_row run_on_all_agents">
             <%= scope[:form].check_box :runOnAllAgents, :title => "#{l.string("TOOLTIP_RUN_ON_ALL")}" %>
             <label for="job_runOnAllAgents" title="<%= l.string("TOOLTIP_RUN_ON_ALL") %>"><%= l.string('RUN_ON_ALL_AGENTS') -%></label>
-            <%= error_message_on(RailsFormModelWrapper.new(scope[:job].isRunOnAllAgents()), "type", :css_class => "form_error") %>
+            <%= error_message_on(scope[:job].isRunOnAllAgents(), "type", :css_class => "form_error") %>
         </div>
     </div>
     <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>

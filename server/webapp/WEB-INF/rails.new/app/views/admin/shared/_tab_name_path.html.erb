@@ -35,13 +35,13 @@
                     <tr>
                         <td class="name_value_cell name">
                             <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
-                            <%= error_message_on(RailsFormModelWrapper.new(tab), com.thoughtworks.go.config.Tab::NAME, :css_class => "name_value_error") %>
+                            <%= error_message_on(tab, com.thoughtworks.go.config.Tab::NAME, :css_class => "name_value_error") %>
                             <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", tab.getName() %>
                         </td>
                         <td class="name_value_cell path">
                             <div>
                                 <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
-                                <%= error_message_on(RailsFormModelWrapper.new(tab), com.thoughtworks.go.config.Tab::PATH, :css_class => "name_value_error") %>
+                                <%= error_message_on(tab, com.thoughtworks.go.config.Tab::PATH, :css_class => "name_value_error") %>
                             </div>
                         </td>
                         <td class="name_value_cell">

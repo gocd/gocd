@@ -239,10 +239,14 @@ Go::Application.routes.draw do
     end
   end
 
+  resources :agents, :only =>  [:index], :defaults => {:format => "html"}
+  post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
+  post "agents/:action" , :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+
+
   # dummy mappings. for specs to pass
   get '/server/messages.json' => 'test/test#index', as: :global_message
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  get '/agents' => 'agents#index', as: :agents_for_test
   get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}

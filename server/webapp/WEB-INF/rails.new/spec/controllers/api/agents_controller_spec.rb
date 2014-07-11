@@ -108,6 +108,11 @@ describe Api::AgentsController do
   end
 
   describe :edit_agents do
+
+    it "should resolve routes" do
+      expect(:post => "/api/agents/edit_agents").to route_to({:controller => 'api/agents', :action => 'edit_agents', :no_layout => true})
+    end
+
     it "should show message if there is a problem" do
       @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1", "UUID2"]) do |user, result, uuids|
         result.notAcceptable("Error message", HealthStateType.general(HealthStateScope::GLOBAL))

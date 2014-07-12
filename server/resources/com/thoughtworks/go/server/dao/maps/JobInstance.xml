@@ -141,7 +141,6 @@
         <result property="agentUuid" column="agentUuid"/>
         <result property="fetchMaterials" column="fetchMaterials"/>
         <result property="cleanWorkingDir" column="cleanWorkingDir"/>
-        <result property="plans" column="buildId" select="select-artifacts"/>
         <result property="generators" column="buildId" select="select-generators"/>
         <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>
         <result property="pipelineId" column="pipelineId"/>

@@ -46,10 +46,6 @@
             callback="com.thoughtworks.go.server.dao.handlers.BuildCauseHandlerCallback"/>
 
     <typeHandler
-            javaType="com.thoughtworks.go.domain.ArtifactType"
-            callback="com.thoughtworks.go.server.dao.handlers.ArtifactTypeHandlerCallback"/>
-
-    <typeHandler
             javaType="java.io.File"
             callback="com.thoughtworks.go.server.dao.handlers.FileTypeHandlerCallback"/>
 
@@ -61,7 +57,6 @@
             javaType="com.thoughtworks.go.domain.StageEvent"
             callback="com.thoughtworks.go.server.dao.handlers.StageEventTypeHandlerCallback"/>
 
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/ArtifactPlan.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/ArtifactPropertiesGenerator.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>

@@ -194,8 +194,6 @@ public class ScmMaterialTest {
         when(mockMaterialConfig.getNumAttempts()).thenReturn(3);
         when(mockMaterial.config()).thenReturn(mockMaterialConfig);
         when(mockMaterial.getType()).thenReturn("SCM Mock");
-        when(mockMaterial.getRetryIntervalInSeconds()).thenReturn(1);
-
         doCallRealMethod().when(mockMaterial).updateTo(eq(inMemoryStreamConsumer), any(StringRevision.class), any(File.class), eq(testSubprocessExecutionContext));
         return mockMaterial;
     }

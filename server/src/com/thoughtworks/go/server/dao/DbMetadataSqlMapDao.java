@@ -16,24 +16,29 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
-import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
-import com.thoughtworks.go.util.SystemEnvironment;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DbMetadataSqlMapDao extends SqlMapClientDaoSupport implements DbMetadataDao {
+public class DbMetadataSqlMapDao extends HibernateDaoSupport implements DbMetadataDao {
+
 
     @Autowired
-    public DbMetadataSqlMapDao(GoCache goCache, SqlMapClient sqlMapClient, SystemEnvironment systemEnvironment, Database database) {
-        super(goCache, sqlMapClient, systemEnvironment, database);
+    public DbMetadataSqlMapDao(SessionFactory sessionFactory) {
+        setSessionFactory(sessionFactory);
     }
 
     public int getSchemaVersion() throws DataAccessException {
-        return (Integer) getSqlMapClientTemplate().queryForObject("getSchemaVersion");
+
+        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                return session.createSQLQuery("select max(change_number) from changelog").uniqueResult();
+            }
+        });
     }
 }

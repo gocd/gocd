@@ -61,7 +61,6 @@
             javaType="com.thoughtworks.go.domain.StageEvent"
             callback="com.thoughtworks.go.server.dao.handlers.StageEventTypeHandlerCallback"/>
 
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/DbMetadata.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/ArtifactPlan.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/ArtifactPropertiesGenerator.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>

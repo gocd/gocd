@@ -350,7 +350,7 @@ describe "/agents/index.html.erb" do
       first.children.each do |node|
         html.concat(node.to_s)
       end
-      assert_fixture_equal("micro_content_on_agents_test.html", html)
+      assert_fixture_equal("micro_content_on_agents_test_rails_new.html", html)
     end
 
     it "should have resource validation message set" do

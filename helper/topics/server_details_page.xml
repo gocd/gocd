@@ -19,11 +19,6 @@
 <topic title="Server Details">
 	<p>The Server Details page describes the Go server version and environment.</p>
 	<screenshot alttext="Server Details Page" src="resources/images/cruise/ServerDetails.png"/>
-	<subsection title="Key">
-		<steps>
-			<item>This box lists all the server Information.</item>
-		</steps>
-	</subsection>
 	<bullets title="Also see...">
 		<item><cref topic="welcome_to_go">Go overview</cref></item>
 	</bullets>

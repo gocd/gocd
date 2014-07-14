@@ -32,6 +32,7 @@ describe StagesController do
     controller.stub(:populate_health_messages) do
       stub_server_health_messages
     end
+    controller.go_cache.clear
     @stage_service = mock('stage service')
     @shine_dao = mock('shine dao')
     @material_service = mock('material service')
@@ -79,13 +80,14 @@ describe StagesController do
       end
       it "should render overview tab by default" do
         get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        params[:action].should == "overview"
+        expect(controller.params[:action]).to eq "overview"
       end
+
       it "should assign appropriate tab" do
         @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(true)
         @go_config_service.should_receive(:stageHasTests).with("pipeline", "stage").and_return(false)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        params[:action].should == "tests"
+        expect(controller.params[:action]).to eq "tests"
       end
 
     end
@@ -100,7 +102,7 @@ describe StagesController do
 
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
 
-      assigns[:stage].should == @stage_summary_model
+      expect(assigns(:stage)).to eq @stage_summary_model
     end
 
     describe :rerun_jobs do
@@ -115,16 +117,16 @@ describe StagesController do
         new_stage = StageMother.scheduledStage("pipeline_foo", 10, "stage_bar", 2, "con_job")
         @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :tab => 'jobs'
-        response.status.should == "302 Found"
-        response.location.should == "http://test.host/pipelines/pipeline_foo/10/stage_bar/2/jobs"
+        expect(response.status).to eq 302
+        expect(response.location).to eq "http://test.host/pipelines/pipeline_foo/10/stage_bar/2/jobs"
       end
       
       it "should rerun jobs and redirect to overview tab when tab name not given" do
         new_stage = StageMother.scheduledStage("pipeline_foo", 10, "stage_bar", 2, "con_job")
         @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        response.status.should == "302 Found"
-        response.location.should == "http://test.host/pipelines/pipeline_foo/10/stage_bar/2"
+        expect(response.status).to eq 302
+        expect(response.location).to eq "http://test.host/pipelines/pipeline_foo/10/stage_bar/2"
       end
 
       it "should display error when rerun job fails" do
@@ -135,12 +137,12 @@ describe StagesController do
         end
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :tab => "jobs"
         response.location.should =~ /\/pipelines\/pipeline\/2\/stage\/3\/jobs\?fm=.+/
-        response.status.should == "302 Found"
+        expect(response.status).to eq 302
       end
     end
 
     it "should resolve url with dots in pipline and stage name" do
-      params_from(:get, "/pipelines/blah.pipe-line/1/_blah.stage/1").should == {:controller=>"stages", :action=>"overview", :pipeline_name=>"blah.pipe-line", :pipeline_counter=>"1", :stage_name=>"_blah.stage", :stage_counter=>"1"}
+      expect(:get => "/pipelines/blah.pipe-line/1/_blah.stage/1").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "blah.pipe-line", :stage_name => "_blah.stage", :pipeline_counter => "1", :stage_counter => "1"})
     end
 
     it "should render response code returned by the api result" do
@@ -151,7 +153,7 @@ describe StagesController do
       @localized_result.stub!(:httpCode).and_return(401)
       @localized_result.stub!(:message).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      response.status.should == "401 Unauthorized"
+      expect(response.status).to eq 401
     end
 
     it "should render response code returned by the api result" do
@@ -163,50 +165,50 @@ describe StagesController do
       @status.should_receive(:httpCode).and_return(404)
       
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      response.status.should == "404 Not Found"
+      expect(response.status).to eq 404
     end
 
     it "should resolve piplines/stage-locator to the stage action" do
-      params_from(:get, "/pipelines/pipeline_name/10/stage_name/2").should == {:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2"}
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2"})
     end
 
     it "should json url for stage" do
-      params_from(:post, "/pipelines/pipeline_name/10/stage_name/2.json").should == {:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format=>"json"}
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.json").to route_to ({:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format=>"json"})
     end
 
     it "should resolve 'rerun jobs' action" do
-      params_from(:post, "/pipelines/pipeline_name/10/stage_name/2/rerun-jobs").should == {:controller => "stages", :action => "rerun_jobs", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2"}
-    end
-    
-    it "should generate 'rerun jobs' action" do
-      rerun_jobs_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2).should == "/pipelines/pipeline_name/10/stage_name/2/rerun-jobs"
+      expect(:post => "/pipelines/pipeline_name/10/stage_name/2/rerun-jobs").to route_to ({:controller => "stages", :action => "rerun_jobs", :pipeline_name => "pipeline_name", :pipeline_counter => "10", :stage_name => "stage_name", :stage_counter => "2"})
+      expect(controller.send(:rerun_jobs_path, {:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2})).to eq("/pipelines/pipeline_name/10/stage_name/2/rerun-jobs")
     end
 
     it "should generate stage details url" do
-      stage_detail_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2).should == "/pipelines/pipeline_name/10/stage_name/2"
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2)).to eq("/pipelines/pipeline_name/10/stage_name/2")
     end
 
     it "should generate stage details url for a tab" do
-      stage_detail_tab_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'jobs').should == "/pipelines/pipeline_name/10/stage_name/2/jobs"
-      stage_detail_tab_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview').should == "/pipelines/pipeline_name/10/stage_name/2"
-      stage_detail_tab_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview', :format => 'json').should == "/pipelines/pipeline_name/10/stage_name/2?format=json"
-      params_from(:get, "/pipelines/pipeline_name/10/stage_name/5/jobs").should ==
-              {:controller=>"stages", :action=>"stage", :pipeline_name=>"pipeline_name", :pipeline_counter=>"10", :stage_name=>"stage_name", :stage_counter=>"5", :action=>"jobs"}
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'jobs')).to eq("/pipelines/pipeline_name/10/stage_name/2/jobs")
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview')).to eq("/pipelines/pipeline_name/10/stage_name/2")
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview', :format => 'json')).to eq("/pipelines/pipeline_name/10/stage_name/2.json")
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.json").to route_to ({:controller=>"stages", :action => 'overview', :pipeline_name => "pipeline_name", :pipeline_counter => 10, :stage_name => "stage_name", :stage_counter => 2, :format => 'json'})
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2?format=json").to route_to ({:controller=>"stages", :action => 'overview', :pipeline_name => "pipeline_name", :pipeline_counter => 10, :stage_name => "stage_name", :stage_counter => 2, :format => 'json'})
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/5/jobs").to route_to ({:controller=>"stages", :pipeline_name=>"pipeline_name", :pipeline_counter=>"10", :stage_name=>"stage_name", :stage_counter=>"5", :action=>"jobs"})
     end
 
     it "should render action api/stages/index for :format xml" do
       stub_current_config
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-      controller.should_receive(:redirect_to).with("/api/stages/#{@stage_summary_model.getId()}.xml")
+
       @status.stub!(:canContinue).and_return(true)
       @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
       @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
       @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => 'xml'
+
+      expect(response).to redirect_to "/api/stages/#{@stage_summary_model.getId()}.xml"
     end
 
     it "should resolve piplines/stage-locator to the stage action" do
-      params_from(:get, "/pipelines/pipeline_name/10/stage_name/2.xml").should == {:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml"}
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.xml").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml"})
     end
 
     it "should load pipline instance " do
@@ -224,8 +226,8 @@ describe StagesController do
       @localized_result.should_receive(:isSuccessful).and_return(true)
 
       get :overview, :pipeline_name => "blah-pipeline-name", :pipeline_counter => "12", :stage_name => "stage-0", :stage_counter => "3", :format => 'xml'
-      assigns[:stage].should == stage_summary_model
-      assigns[:pipeline].should  == pim
+      expect(assigns(:stage)).to eq stage_summary_model
+      expect(assigns(:pipeline)).to eq pim
     end
 
 
@@ -234,7 +236,7 @@ describe StagesController do
       @status.stub!(:httpCode).and_return(401)
       @status.stub!(:detailedMessage).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      response.status.should == "401 Unauthorized"
+      expect(response.status).to eq 401
     end
 
     it "should assign locked instance" do
@@ -245,7 +247,7 @@ describe StagesController do
       @status.stub(:canContinue).and_return(true)
 
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-      assigns[:lockedPipeline].should == @pipeline_identifier
+      expect(assigns(:lockedPipeline)).to eq @pipeline_identifier
     end
 
     describe "overview tab" do
@@ -254,7 +256,7 @@ describe StagesController do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         @stage_service.should_receive(:findStageHistoryPage).with(@stage_summary_model.getStage(), StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(2))
         get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:stage_history_page].should == stage_history
+        expect(assigns(:stage_history_page)).to eq stage_history
       end
 
       it "should honour page number" do
@@ -262,7 +264,7 @@ describe StagesController do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         @stage_service.should_receive(:findStageHistoryPageByNumber).with("pipeline", "stage", 5, StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(4))
         get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", "stage-history-page" => "5"
-        assigns[:stage_history_page].should == stage_history
+        expect(assigns(:stage_history_page)).to eq stage_history
       end
     end
 
@@ -282,7 +284,7 @@ describe StagesController do
         @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:jobs].should == model
+        expect(assigns(:jobs)).to eq model
       end
       
       it "should return true if user has operate permission on the stage" do
@@ -295,8 +297,8 @@ describe StagesController do
         @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:jobs].should == model
-        assigns[:has_operate_permissions].should == true
+        expect(assigns(:jobs)).to eq model
+        expect(assigns(:has_operate_permissions)).to eq true
       end
 
       it "should return false if user has no operate permission on the stage" do
@@ -309,8 +311,8 @@ describe StagesController do
         @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(false)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:jobs].should == model
-        assigns[:has_operate_permissions].should == false
+        expect(assigns(:jobs)).to eq model
+        expect(assigns(:has_operate_permissions)).to eq false
       end
     end
 
@@ -322,7 +324,7 @@ describe StagesController do
         graph = PipelineDependencyGraphOld.new(@pim, PipelineInstanceModels.createPipelineInstanceModels([down1, down2]))
         @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99,  @user, @status).and_return(graph)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
-        assigns[:graph].should == graph
+        expect(assigns(:graph)).to eq graph
       end
 
       it "should render op result if graph retrival fails" do
@@ -333,7 +335,7 @@ describe StagesController do
         result.stub!(:detailedMessage).and_return("no view permission")
         result.stub!(:httpCode).and_return(401)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
-        response.status.should == "401 Unauthorized"
+        expect(response.status).to eq 401
       end
     end
 
@@ -349,7 +351,7 @@ describe StagesController do
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
         @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:failing_tests_error_message].should == "Test Results will be generated when the stage completes."
+        expect(assigns(:failing_tests_error_message)).to eq "Test Results will be generated when the stage completes."
       end
 
       it "should assign fbh when stage is completed" do
@@ -359,7 +361,7 @@ describe StagesController do
         @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(true)
         @go_config_service.should_receive(:stageHasTests).with("pipeline", "stage").and_return(true)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:failing_tests].should == failing_tests
+        expect(assigns(:failing_tests)).to eq failing_tests
       end
 
       it "should assign fbh when stage does not exist in config" do
@@ -367,7 +369,7 @@ describe StagesController do
         @shine_dao.should_receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(:failing_tests)
         @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(false)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
-        assigns[:failing_tests].should == :failing_tests
+        expect(assigns(:failing_tests)).to eq :failing_tests
       end
 
       it "should skip fetching failing tests if fragment already cached" do
@@ -380,8 +382,8 @@ describe StagesController do
           ActionController::Base.cache_store.write(controller.view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), "fbh", :subkey => controller.view_cache_key.forFailedBuildHistoryStage(stage, "junk"))
           @go_config_service.should_receive(:stageHasTests).never
           get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => "junk"
-          assigns[:failing_tests_error_message].should be_nil
-          assigns[:failing_tests].should be_nil
+          expect(assigns(:failing_tests_error_message)).to be_nil
+          expect(assigns(:failing_tests)).to be_nil
         end
       end
 
@@ -399,26 +401,25 @@ describe StagesController do
       @stage_service.should_receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
       @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
       get :history, :page => "3", :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => 10, :stage_counter => 5, :tab => 'jobs'
-      assigns[:stage_history_page].should == :stage_history_page
-      assigns[:pipeline].should == pim
+      expect(assigns(:stage_history_page)).to eq :stage_history_page
+      expect(assigns(:pipeline)).to eq pim
     end
 
-    it "should render stage history partial in response" do
+    it "should render stage history in response" do
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
       pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)
-      controller.should_receive(:render).with(:partial => "stage_history", :locals => {:scope => {:stage_history_page => :stage_history_page, :tab=> 'tests', :current_stage_pipeline => pim, :current_config_version => @cruise_config.md5()}})
       @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
       get :history, :page => "3", :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => 10, :stage_counter => 5, :tab => 'tests'
+
+      assert_template "history"
     end
 
     it "should route to action" do
-      params_from(:get, "/history/stage/pipeline_name/10/stage_name/5?page=3").should ==
-              {:controller => "stages", :action => "history", :pipeline_name => "pipeline_name", :pipeline_counter => "10", :stage_name => "stage_name", :stage_counter => "5", :page => "3"}
+      expect(:get => "/history/stage/pipeline_name/10/stage_name/5?page=3").to route_to({:controller => "stages", :action => "history", :pipeline_name => "pipeline_name", :pipeline_counter => "10", :stage_name => "stage_name", :stage_counter => "5", :page => "3"})
     end
 
     it "should generate the correct route" do
-      stage_history_path(:pipeline_name => "pipeline_name", :pipeline_counter => 4, :stage_name => "stage_name", :stage_counter => 2, :page => "4").should ==
-              "/history/stage/pipeline_name/4/stage_name/2?page=4"
+      expect(controller.send(:stage_history_path, {:pipeline_name => "pipeline_name", :pipeline_counter => 4, :stage_name => "stage_name", :stage_counter => 2, :page => "4"})).to eq("/history/stage/pipeline_name/4/stage_name/2?page=4")
     end
 
   end
@@ -426,18 +427,18 @@ describe StagesController do
   describe :config_change do
 
     it "should route to action" do
-      params_from(:get, "/config_change/between/md5_value_2/and/md5_value_1").should == {:controller => "stages", :action => "config_change", :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"}
+      expect(:get => "/config_change/between/md5_value_2/and/md5_value_1").to route_to({:controller => "stages", :action => "config_change", :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"})
     end
 
     it "should generate the correct route" do
-      config_change_path(:later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1").should == "/config_change/between/md5_value_2/and/md5_value_1"
+      expect(controller.send(:config_change_path, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1")).to eq("/config_change/between/md5_value_2/and/md5_value_1")
     end
 
     it "should assign config changes for given md5" do
       result = HttpLocalizedOperationResult.new
       @go_config_service.should_receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return("changes_string")
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
-      assigns[:changes].should == "changes_string"
+      expect(assigns(:changes)).to eq "changes_string"
     end
 
     it "should assign error message if getting config changes for given md5 fails" do
@@ -447,7 +448,7 @@ describe StagesController do
       result.stub!(:httpCode).and_return(400)
       result.stub!(:message).and_return("no config version found")
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
-      assigns[:config_change_error_message].should == "no config version found"
+      expect(assigns(:config_change_error_message)).to eq "no config version found"
     end
 
     it "should assign message if config changes is nil because given md5 is the first revision in repo" do
@@ -455,7 +456,7 @@ describe StagesController do
       @go_config_service.should_receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return(nil)
       result.should_receive(:isSuccessful).and_return(true)
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
-      assigns[:config_change_error_message].should == "This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run."
+      expect(assigns(:config_change_error_message)).to eq "This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run."
     end
   end
 
@@ -485,14 +486,14 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2, stage_summary_model3)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:chart_stage_duration_passed].should == [{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs","x" => 1, "key"=> "1_10", "y"=>10}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x"=>2, "key"=> "2_20",  "y" => 20}].to_json
-      assigns[:chart_tooltip_data_passed].should == {"1_10" => ["00:00:10","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
-      assigns[:chart_stage_duration_failed].should == [{"link"=> "/pipelines/pipeline-name/3/stage/1/jobs","x" => 3, "key"=> "3_30", "y"=>30}].to_json
-      assigns[:chart_tooltip_data_failed].should == {"3_30" => ["00:00:30","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-3"]}.to_json
-      assigns[:chart_scale].should == "secs"
-      assigns[:pagination].should == Pagination.pageStartingAt(12,200,10)
-      assigns[:start_end_dates].should == ["22 Feb 2008", "22 Feb 2008"]
-       assigns[:no_chart_to_render].should == false
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs","x" => 1, "key"=> "1_10", "y"=>10}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x"=>2, "key"=> "2_20",  "y" => 20}]).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_10" => ["00:00:10","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link"=> "/pipelines/pipeline-name/3/stage/1/jobs","x" => 3, "key"=> "3_30", "y"=>30}]).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"3_30" => ["00:00:30","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-3"]}).to_json
+      expect(assigns(:chart_scale)).to eq "secs"
+      expect(assigns(:pagination)).to eq Pagination.pageStartingAt(12,200,10)
+      expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
+       expect(assigns(:no_chart_to_render)).to eq false
     end
 
     it "should load the duration of last 10 stages in minutes" do
@@ -507,10 +508,10 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:chart_stage_duration_passed].should == [{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}].to_json
-      assigns[:chart_tooltip_data_passed].should == {"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
-      assigns[:chart_scale].should == "mins"
-      assigns[:start_end_dates].should == ["22 Feb 2008", "22 Feb 2008"]
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}]).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_scale)).to eq "mins"
+      expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end
 
     it "should load data in ascending order of pipeline counters" do
@@ -529,9 +530,9 @@ describe StagesController do
 
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:chart_stage_duration_passed].should == [{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0},
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0},
                                                        {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0},
-                                                       {"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key"=> "3_1200", "y"=>20.0}].to_json
+                                                       {"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key"=> "3_1200", "y"=>20.0}]).to_json
     end
 
     it "should load the correct pipeline label depending on stage run" do
@@ -546,7 +547,7 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:chart_tooltip_data_passed].should == {"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}.to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}).to_json
     end
 
     it "should set the message when there is no stage history" do
@@ -563,7 +564,7 @@ describe StagesController do
 
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:no_chart_to_render].should == true
+      expect(assigns(:no_chart_to_render)).to eq true
     end
 
     it "should deal with stages when there are only failed stages" do
@@ -578,12 +579,12 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      assigns[:chart_stage_duration_passed].should == [].to_json
-      assigns[:chart_tooltip_data_passed].should == {}.to_json
-      assigns[:chart_stage_duration_failed].should == [{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}].to_json
-      assigns[:chart_tooltip_data_failed].should == {"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
-      assigns[:chart_scale].should == "mins"
-      assigns[:start_end_dates].should == ["22 Feb 2008", "22 Feb 2008"]
+      expect(assigns(:chart_stage_duration_passed)).to eq [].to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({}).to_json
+      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}]).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_scale)).to eq "mins"
+      expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end
 
     def setup_stubs(*stage_summary_models)
@@ -613,10 +614,10 @@ describe StagesController do
     end
 
     it "should get config for the particular stage instance" do
-      get :config, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1"
+      get :stage_config, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1"
 
-      assigns[:stage].should == @stage_summary_model
-      assigns[:ran_with_config_revision].should == :some_cruise_config_revision
+      expect(assigns(:stage)).to eq @stage_summary_model
+      expect(assigns(:ran_with_config_revision)).to eq :some_cruise_config_revision
     end
 
     def setup_stubs(stage_summary_model)

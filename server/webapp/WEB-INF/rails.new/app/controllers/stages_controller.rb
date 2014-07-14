@@ -15,7 +15,9 @@
 ##########################GO-LICENSE-END##################################
 
 class StagesController < ApplicationController
-  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :tests, :rerun_jobs, :stats, :config]
+  include ApplicationHelper
+
+  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :tests, :rerun_jobs, :stats, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
@@ -28,7 +30,6 @@ class StagesController < ApplicationController
 
   def history
     load_stage_history_for_page params[:page]
-    render :partial => "stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => params[:tab], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}}
   end
 
   def overview
@@ -55,9 +56,8 @@ class StagesController < ApplicationController
     render_stage
   end
 
-  def config
+  def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656
     @ran_with_config_revision = go_config_service.getConfigAtVersion(@stage.getStage().getConfigVersion())
-
     render_stage
   end
 
@@ -149,15 +149,9 @@ class StagesController < ApplicationController
 
   def render_stage(status = 200)
     respond_to do |format|
-      format.html do
-        render 'stage.html', :status => status
-      end
-      format.json do
-        render 'stage.json', :status => status
-      end
-      format.xml do
-        redirect_to stage_path(:id => @stage.getId())
-      end
+      format.html { render action: 'stage', status: status }
+      format.json { render action: 'stage', status: status }
+      format.xml { redirect_to stage_path(:id => @stage.getId())}
     end
   end
 

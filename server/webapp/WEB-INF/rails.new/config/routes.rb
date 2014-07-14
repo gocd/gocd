@@ -245,7 +245,13 @@ Go::Application.routes.draw do
         post 'jobs/:id.xml' => 'jobs#index'
       end
     end
-  end
+end
+
+post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
+get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)(.:format)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
+#get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'stages#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
+get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
+get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
 
   resources :agents, :only =>  [:index], :defaults => {:format => "html"}
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
@@ -276,6 +282,11 @@ Go::Application.routes.draw do
   # dummy mappings. for specs to pass
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
+  get '/server/messages.json' => 'test/test#index', as: :global_message
+  get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
+  get "agents/:uuid" => "test/test#index", as: :agent_detail
+  get '/environments' => 'environments#index', as: :environments_for_test
+  get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
   get 'test' => 'test/test#index', as: :gadget_rendering
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients

@@ -41,12 +41,12 @@ function resource_validator(value) {
     return /.*?X.*/.test(value);
 }
 
-Event.observe(window, 'load', function() {
+Event.observe(window, 'load', function () {
     resource_popup_handler = new EditPopupHandler.AddEditHandler('http://foo/bar', $('agents_form'), Util.are_any_rows_selected('.agents .agent_select'), resource_validator, 'agent_edit_operation', 'Apply_Resource', 'Add_Resource');
     resources_widget = new MicroContentPopup($('resources_panel'), resource_popup_handler);
     resources_widget_shower = new MicroContentPopup.ClickShower(resources_widget);
     resources_widget_shower.bindShowButton($('show_resources_panel'));
-    resource_popup_handler.setDefaultText($$('.new_resource')[0], "my default text");
+    resource_popup_handler.setDefaultText(jQuery('.new_resource')[0], "my default text");
 
     environment_widget = new MicroContentPopup($('environments_panel'), new EditPopupHandler.AddOnlyHandler('http://foo/baz', $('agents_form'), Util.are_any_rows_selected('.agents .agent_select')));
     environment_widget_shower = new MicroContentPopup.ClickShower(environment_widget);
@@ -93,7 +93,7 @@ function setUp() {
     fire_event($(document.body), 'click');
     header = $('ajax_agents_header').innerHTML;
     content = $('ajax_agents_table').innerHTML;
-    $$('.new_resource.new_field').each(function (input) {
+    jQuery('.new_resource.new_field').each(function (input) {
         input.value = "my default text";
     });
 
@@ -120,18 +120,19 @@ function tearDown() {
     Ajax.PeriodicalUpdater = actual_periodical_updater;
     jQuery.ajax = actual_ajax_request;
     AjaxRefreshers.clear();
-    $$('.agent_select').each(function (check_box) {
+    jQuery('.agent_select').each(function (check_box) {
         check_box.checked = false;
     });
     $('ajax_agents_header').innerHTML = header;
     $('ajax_agents_table').innerHTML = content;
-    $$("#uuid3 .selector input").checked = false;
+    jQuery("#uuid3 .selector input").checked = false;
+    jQuery('.new_resource.new_field').val("");
 }
 
 function test_looks_up_resource_panel_given_a_child_element() {
-    var env_handler = MicroContentPopup.lookupHandler($$('.no_environments_error')[0]);
+    var env_handler = MicroContentPopup.lookupHandler(jQuery('.no_environments_error')[0]);
     assertTrue(environment_widget.callback_handler == env_handler);
-    var resource_handler = MicroContentPopup.lookupHandler($$('.new_resource')[0]);
+    var resource_handler = MicroContentPopup.lookupHandler(jQuery('.new_resource')[0]);
     assertTrue(resources_widget.callback_handler == resource_handler);
     var no_handler = MicroContentPopup.lookupHandler($('agents_form'));
     assertEquals("must return null when no parent popup can be found", null, no_handler);
@@ -139,13 +140,13 @@ function test_looks_up_resource_panel_given_a_child_element() {
 
 function test_validates_new_resource_using_passed_in_validator_function() {
     fire_event($("show_resources_panel"), 'click');
-    var new_field = $$('.new_resource.new_field')[0];
+    var new_field = jQuery('.new_resource.new_field')[0];
     new_field.value = "foo";
     fire_event(new_field, 'keyup');
-    assertFalse("validation message should have been shown for invalid new value", $$('.validation_message')[0].hasClassName('hidden'));
+    assertFalse("validation message should have been shown for invalid new value", jQuery('.validation_message')[0].hasClassName('hidden'));
     new_field.value = "bXr";
     fire_event(new_field, 'keyup');
-    assertTrue("validation message should NOT have been shown for valid new value", $$('.validation_message')[0].hasClassName('hidden'));
+    assertTrue("validation message should NOT have been shown for valid new value", jQuery('.validation_message')[0].hasClassName('hidden'));
 }
 
 function should_still_show_popup_when_no_add_field_registered() {
@@ -177,7 +178,7 @@ function test_should_not_show_resource_popup_by_default() {
 
 function test_should_have_loading_when_page_loaded_or_when_resource_panel_is_opened() {
     var chk_box = jQuery('#ajax_agents_table .agent_select').get(1);
-    chk_box.checked = true;
+    jQuery(chk_box).attr("checked", "checked");
     fire_event(chk_box, 'change');
     var selector_pane = $$('.resources_selector').first();
     assertEquals('loading', jQuery(selector_pane.innerHTML).select('div')[0].className);
@@ -197,7 +198,7 @@ function test_should_hide_resource_popup_when_anything_outside_of_the_popup_is_c
 function test_should_NOT_hide_resource_popup_when_anything_inside_the_popup_is_clicked() {
     var show_button = $("show_resources_panel");
     fire_event(show_button, 'click');
-    fire_event($$('.new_resource').first(), 'click');
+    fire_event(jQuery('.new_resource')[0], 'click');
     assertFalse("resources_panel should be visible.", $("resources_panel").hasClassName('hidden'));
 }
 
@@ -213,7 +214,7 @@ function test_shows_NO_AGENTS_SELECTED_message() {
     var add_panel = $("resources_panel").getElementsBySelector('.add_panel')[0];
     var edit_panel = $("resources_panel").getElementsBySelector('.scrollable_panel')[0];
     var no_agents_message = $("resources_panel").getElementsBySelector('.no_selection_error')[0];
-    var selector_pane = $$('.resources_selector').first();
+    var selector_pane = jQuery('.resources_selector').first();
     selector_pane.innerHTML = "foo";// was dirty
     var show_button = $("show_resources_panel");
     fire_event(show_button, 'click');
@@ -225,7 +226,7 @@ function test_shows_NO_AGENTS_SELECTED_message() {
 
     fire_event(show_button, 'click'); //hide
     $(document.body).getElementsBySelector("input[type='checkbox']").each(function (checkbox) {
-        checkbox.checked = true;
+        jQuery(checkbox).attr("checked", "checked");
     });
     fire_event(show_button, 'click'); //show again
     assertFalse("add panel should be shown", add_panel.hasClassName('hidden'));
@@ -236,7 +237,7 @@ function test_shows_NO_AGENTS_SELECTED_message() {
 
 function test_should_fire_ajax_request_to_load_resource_selection_list() {
     var agent_check_box = jQuery('#ajax_agents_table .agent_select').get(1);
-    agent_check_box.checked = true;
+    jQuery(agent_check_box).attr("checked", "checked");
     fire_event(agent_check_box, 'change');
     var show_button = $("show_resources_panel");
     fire_event(show_button, 'click');
@@ -249,14 +250,14 @@ function test_should_fire_ajax_request_to_load_resource_selection_list() {
 }
 
 function test_switches_to_add_mode_on_show() {
-    $$('.agent_select')[0].checked = true;
+    jQuery('.agent_select').first().attr("checked", "checked");
     var show_button = $("show_resources_panel");
     fire_event(show_button, 'click');
     resource_popup_handler.tristate_clicked();
     fire_event(show_button, 'click');//hide it
     fire_event(show_button, 'click');
-    var new_field = $$(".new_resource")[0];
-    var apply_resources_button = $$(".apply_resources")[0];
+    var new_field = jQuery(".new_resource")[0];
+    var apply_resources_button = jQuery(".apply_resources")[0];
     assertFalse("add resource field should be shown on re-show", new_field.hasClassName('hidden'));
     assertEquals("has add button on re-show", "Add", apply_resources_button.value);
 }
@@ -281,7 +282,7 @@ function test_update_page_keeps_the_current_selections() {
     refresher.stopRefresh();
     refresher.restartRefresh();
 
-    chkbox.checked = true;
+    jQuery(chkbox).attr("checked", "checked");
     fire_event(chkbox, 'change');
     periodical_opts.success({ajax_agents_header: {html: "counts"}, ajax_agents_table: {html: table}});
     periodical_opts.complete(xhr);
@@ -296,20 +297,21 @@ function test_agent_resource_name_validator() {
 function test_add_should_clear_default_text_model() {
     resource_popup_handler = new EditPopupHandler.AddEditHandler('http://foo/bar', $('agents_form'), Util.are_any_rows_selected('.agents .agent_select'), resource_validator, 'agent_edit_operation', 'Apply_Resource', 'Add_Resource');
     resources_widget = new MicroContentPopup($('resources_panel'), resource_popup_handler);
-    resource_popup_handler.setDefaultText($$('.new_resource')[0], "my default text");
+    resource_popup_handler.setDefaultText(jQuery('.new_resource')[0], "my default text");
     var form = $('agents_form');
     var new_resource_value = null;
-    var apply_resource_button = $$(".apply_resources")[0];
+    var apply_resource_button = jQuery(".apply_resources")[0];
     fire_event(apply_resource_button, "click");
     new_resource_value = form.serialize();
+    console.log(new_resource_value);
     assertEquals(1, new_resource_value.match(/\badd_resource=(?:$|&)/).length);
 }
 
 function test_understand_modify_mode() {
     var show_button = $("show_resources_panel");
     fire_event(show_button, 'click');
-    var new_field = $$(".new_resource")[0];
-    var apply_resources_button = $$(".apply_resources")[0];
+    var new_field = jQuery(".new_resource")[0];
+    var apply_resources_button = jQuery(".apply_resources")[0];
     assertFalse("add resource field should be shown on load", new_field.hasClassName('hidden'));
     assertEquals("operation should be add resource", "Add_Resource", $('agent_edit_operation').value);
     resource_popup_handler.tristate_clicked();
@@ -320,11 +322,11 @@ function test_understand_modify_mode() {
 }
 
 function test_should_show_error_when_there_are_no_environments() {
-    $$("#UUID_host5 .selector input").first().checked = true;
+    jQuery("#UUID_host5 .selector input").first().attr("checked", "checked");
     fire_event($("show_environments_panel"), 'click');
     resource_selection_request_option.onComplete(xhr);
-    assertTrue($$("#environments_panel .add_panel")[0].hasClassName("hidden"));
-    assertFalse($$("#environments_panel .no_environments_error")[0].hasClassName("hidden"));
+    assertTrue(jQuery("#environments_panel .add_panel")[0].hasClassName("hidden"));
+    assertFalse(jQuery("#environments_panel .no_environments_error")[0].hasClassName("hidden"));
 }
 
 function test_should_show_error_when_there_are_environments() {
@@ -332,10 +334,10 @@ function test_should_show_error_when_there_are_environments() {
         container.update("<div class='selectors'>checkboxes here</div>");
         options.onComplete(xhr);
     };
-    $$("#UUID_host5 .selector input").first().checked = true;
+    jQuery("#UUID_host5 .selector input").first().attr("checked", "checked");
     fire_event($("show_environments_panel"), 'click');
-    assertFalse($$("#environments_panel .add_panel")[0].hasClassName("hidden"));
-    assertTrue($$("#environments_panel .no_environments_error")[0].hasClassName("hidden"));
+    assertFalse(jQuery("#environments_panel .add_panel")[0].hasClassName("hidden"));
+    assertTrue(jQuery("#environments_panel .no_environments_error")[0].hasClassName("hidden"));
 }
 
 function test_should_call_after_close_callback_handler() {
@@ -368,20 +370,15 @@ function test_should_call_after_close_callback_handler() {
                 <div class='filter_help_instructions'><p class='heading'>Available tags</p>
 
                     <div><p>name:</p>
-
                         <p>os:</p>
-
                         <p>ip:</p>
-
                         <p>status:</p>
-
                         <p>resource:</p>
-
                         <p>environment:</p></div>
                     <p class='heading'>Values</p>
 
                     <div><p>Put filter values in quotes for exact match</p></div>
-                    <p> &lt;a class=&#39;&#39; href=&#39;/go/help/agents_page.html#filter_agents&#39; target=&#39;_blank&#39;&gt;More...&lt;/a&gt; </p>
+                    <p><a class='' href='/go/help/agents_page.html#filter_agents' target='_blank'>More...</a></p>
                 </div>
             </div>
             <input id='filter_text' name='filter' placeholder='tag: value' type='text'/>
@@ -393,33 +390,56 @@ function test_should_call_after_close_callback_handler() {
             <div style='margin:0;padding:0;display:inline'><input name='utf8' type='hidden' value='&#x2713;'/></div>
             <input id='agent_edit_operation' name='operation' type='hidden'/>
 
-            <div id='actual_agent_selectors' style='display: none'><input class='agent_select' name='selected[]'
-                                                                          type='checkbox' value='UUID_host1'/>
-                <input class='agent_select' name='selected[]' type='checkbox' value='uuid4'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='uuid3'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host4'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host5'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host6'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host7'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host8'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host9'/></div>
+            <div id='actual_agent_selectors' style='display: none'>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host1'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='uuid4'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='uuid3'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host4'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host5'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host6'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host7'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host8'/>
+                <input class='agent_select' name='selected[]' type='checkbox' value='UUID_host9'/></div>
             <button class='submit' id='UUID' name='Enable' type='submit' value='Enable'><span>ENABLE</span></button>
+            <script type='text/javascript'>
+                Util.on_load(function () {
+                    Event.observe($('UUID'), 'click',
+                            function (evt) {
+                                Util.set_value('agent_edit_operation', 'Enable')(evt);
+                            });
+                });
+            </script>
+
             <button class='submit' id='UUID' name='Disable' type='submit' value='Disable'><span>DISABLE</span>
             </button>
+            <script type='text/javascript'>
+                Util.on_load(function () {
+                    Event.observe($('UUID'), 'click',
+                            function (evt) {
+                                Util.set_value('agent_edit_operation', 'Disable')(evt);
+                            });
+                });
+            </script>
             <button class='submit' id='UUID' name='Delete' type='submit' value='Delete'><span>DELETE</span></button>
+            <script type='text/javascript'>
+                Util.on_load(function () {
+                    Event.observe($('UUID'), 'click',
+                            function (evt) {
+                                Util.set_value('agent_edit_operation', 'Delete')(evt);
+                            });
+                });
+            </script>
             <button class='show_panel select submit button' id='show_resources_panel' text_color='dark'
                     type='button' value='Resources'><span> RESOURCES <img
                     src='/images/g9/button_select_icon_dark.png'/> </span></button>
             <div class='hidden resources_panel agent_edit_popup enhanced_dropdown' id='resources_panel'>
                 <div class='resources_selector scrollable_panel'>
-                    <div class='loading'/>
+                    <div class='loading'></div>
                 </div>
-                <div class='add_panel hidden'><input class='new_resource new_field' name='add_resource'
-                                                     type='text'/>
-                    <button class='apply_resources apply_button submit_small primary submit'
-                            name='resource_operation' type='submit' value='Add'><span>ADD</span></button>
-                    <div class='validation_message error hidden'> Invalid character. Please use a-z, A-Z, 0-9,
-                        fullstop, underscore, hyphen and pipe.
+                <div class='add_panel hidden'>
+                    <input class='new_resource new_field' name='add_resource' type='text'/>
+                    <button class='apply_resources apply_button submit_small primary submit' name='resource_operation' type='submit' value='Add'><span>ADD</span></button>
+                    <div class='validation_message error hidden'> Invalid character. Please use a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe.
                     </div>
                 </div>
                 <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
@@ -429,11 +449,20 @@ function test_should_call_after_close_callback_handler() {
                     src='/images/g9/button_select_icon_dark.png'/> </span></button>
             <div class='hidden environments_panel agent_edit_popup enhanced_dropdown' id='environments_panel'>
                 <div class='environments_selector scrollable_panel'>
-                    <div class='loading'/>
+                    <div class='loading'></div>
                 </div>
                 <div class='add_panel hidden'>
-                    <button class='submit_small primary apply_button submit' id='UUID' name='Apply' type='submit'
+                    <button class='submit_small primary apply_button submit' id='1e9de87d-55ac-4ac1-9bdd-93ff8725821e'
+                            name='Apply' type='submit'
                             value='Apply'><span>APPLY</span></button>
+                    <script type='text/javascript'>
+                        Util.on_load(function () {
+                            Event.observe($('1e9de87d-55ac-4ac1-9bdd-93ff8725821e'), 'click',
+                                    function (evt) {
+                                        Util.set_value('agent_edit_operation', 'Apply_Environment')(evt);
+                                    });
+                        });
+                    </script>
                 </div>
                 <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
                 <div class='no_environments_error error hidden'>No environments are defined.</div>
@@ -446,9 +475,9 @@ function test_should_call_after_close_callback_handler() {
         <div id='agents_form_container'>
             <div class='clear_float' id='ajax_agents_header'>
                 <ul class='agent_counts list_aggregation clear_float'>
-                    <li class='pending'>Pending: </li>
-                    <li class='enabled'>Enabled: </li>
-                    <li class='disabled'>Disabled: </li>
+                    <li class='pending'>Pending:</li>
+                    <li class='enabled'>Enabled:</li>
+                    <li class='disabled'>Disabled:</li>
                 </ul>
             </div>
         </div>

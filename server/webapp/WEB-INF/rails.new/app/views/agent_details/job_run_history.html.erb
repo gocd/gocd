@@ -16,12 +16,12 @@
         <table class="jobs list_table sortable_table">
             <thead>
             <tr class="header">
-                <th class="pipeline"><%= column_header(l.string("PIPELINE"), "pipeline") -%></th>
-                <th class="stage"><%= column_header(l.string("STAGE"), "stage") -%></th>
-                <th class="job"><%= column_header(l.string("JOB"), "job") -%></th>
-                <th class="result"><%= column_header(l.string("RESULT"), "result") -%></th>
-                <th class="completed"><%= column_header(l.string("COMPLETED"), "completed") -%></th>
-                <th class="duration"><%= l.string("DURATION_HEADER") -%></th>
+                <th class="pipeline"><%== column_header(l.string("PIPELINE"), "pipeline") -%></th>
+                <th class="stage"><%== column_header(l.string("STAGE"), "stage") -%></th>
+                <th class="job"><%== column_header(l.string("JOB"), "job") -%></th>
+                <th class="result"><%== column_header(l.string("RESULT"), "result") -%></th>
+                <th class="completed"><%== column_header(l.string("COMPLETED"), "completed") -%></th>
+                <th class="duration"><%== l.string("DURATION_HEADER") -%></th>
             </tr>
             </thead>
             <tbody>
@@ -31,7 +31,7 @@
                     <td class="stage"><%= job_instance.getStageName() -%></td>
                     <td class="job">
                         <%- if job_instance.isPipelineStillConfigured() -%>
-                            <%= build_link(job_instance.getIdentifier().buildLocator(), job_instance.getName()) -%>
+                            <%== build_link(job_instance.getIdentifier().buildLocator(), job_instance.getName()) -%>
                         <%- else -%>
                             <span title="<%= l.string("PIPELINE_FOR_JOB_DOESNT_EXIST") -%>"><%= job_instance.getName() -%></span>
                         <%- end -%>

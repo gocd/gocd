@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper')
 
-describe "Showing job level details while viewing templates" do
+describe "config_view/templates/_job_view.html.erb" do
   include TaskMother
 
   it "should render job settings" do
@@ -25,30 +25,27 @@ describe "Showing job level details while viewing templates" do
     job.addResource('ruby')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".summary") do
-        with_tag("fieldset.job_summary ul") do
-          with_tag("li.field.resources") do
-            with_tag("label") do
-              with_tag("span.key", "Resources")
-              with_tag("span.hint", "Agent resources that this job requires to run")
-            end
-            with_tag("span.value", "buildr | ruby")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.resources").tap do |resources|
+          resources.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Resources")
+            expect(label).to have_selector("span.hint", :text => "Agent resources that this job requires to run")
           end
-          with_tag("li.field.job_timeout") do
-            with_tag("label") do
-              with_tag("span.key", "Job Timeout")
-              with_tag("span.hint", "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
-            end
-            with_tag("span.value", "Use default")
+          expect(resources).to have_selector("span.value", :text => "buildr | ruby")
+        end
+        list.find("li.field.job_timeout").tap do |timeout|
+          timeout.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Job Timeout")
+            expect(label).to have_selector("span.hint", :text => "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
           end
-          with_tag("li.field.run_on_all_agents") do
-            with_tag("label") do
-              with_tag("span.key", "Run on all agents")
-            end
-            with_tag("span.value", "No")
+          expect(timeout).to have_selector("span.value", :text => "Use default")
+        end
+        list.find("li.field.run_on_all_agents").tap do |run|
+          run.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Run on all agents")
           end
+          expect(run).to have_selector("span.value", :text => "No")
         end
       end
     end
@@ -57,19 +54,15 @@ describe "Showing job level details while viewing templates" do
   it "should render resources as none when no resources are configured" do
     job = JobConfig.new('build_job')
     job.addTask(ant_task)
-
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".summary") do
-        with_tag("fieldset.job_summary ul") do
-          with_tag("li.field.resources") do
-            with_tag("label") do
-              with_tag("span.key", "Resources")
-              with_tag("span.hint", "Agent resources that this job requires to run")
-            end
-            with_tag("span.value", "None")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.resources").tap do |item|
+          item.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Resources")
+            expect(label).to have_selector("span.hint", :text => "Agent resources that this job requires to run")
           end
+          expect(item).to have_selector("span.value", :text => "None")
         end
       end
     end
@@ -80,17 +73,14 @@ describe "Showing job level details while viewing templates" do
     job.setTimeout('0')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".summary") do
-        with_tag("fieldset.job_summary ul") do
-          with_tag("li.field.job_timeout") do
-            with_tag("label") do
-              with_tag("span.key", "Job Timeout")
-              with_tag("span.hint", "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
-            end
-            with_tag("span.value", "Never")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.job_timeout").tap do |item|
+          item.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Job Timeout")
+            expect(label).to have_selector("span.hint", :text => "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
           end
+          expect(item).to have_selector("span.value", :text => "Never")
         end
       end
     end
@@ -101,17 +91,14 @@ describe "Showing job level details while viewing templates" do
     job.setTimeout('30')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".summary") do
-        with_tag("fieldset.job_summary ul") do
-          with_tag("li.field.job_timeout") do
-            with_tag("label") do
-              with_tag("span.key", "Job Timeout")
-              with_tag("span.hint", "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
-            end
-            with_tag("span.value", "Cancel after '30' minute(s) of inactivity")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.job_timeout").tap do |item|
+          item.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Job Timeout")
+            expect(label).to have_selector("span.hint", :text => "If this job is inactive for more than the specified period (in minutes), Go will cancel it.")
           end
+          expect(item).to have_selector("span.value", :text => "Cancel after '30' minute(s) of inactivity")
         end
       end
     end
@@ -122,16 +109,13 @@ describe "Showing job level details while viewing templates" do
     job.setRunOnAllAgents(true)
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".summary") do
-        with_tag("fieldset.job_summary ul") do
-          with_tag("li.field.run_on_all_agents") do
-            with_tag("label") do
-              with_tag("span.key", "Run on all agents")
-            end
-            with_tag("span.value", "Yes")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.run_on_all_agents").tap do |item|
+          item.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Run on all agents")
           end
+          expect(item).to have_selector("span.value", :text => "Yes")
         end
       end
     end
@@ -141,20 +125,15 @@ describe "Showing job level details while viewing templates" do
     job = JobConfig.new('build_job')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag("ul.nav.nav-tabs") do
-        with_tag("li.active") do
-          with_tag("a[href='#tasks_stage_id_job_1'][data-toggle='tab']", "Tasks")
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find("ul.nav.nav-tabs").tap do |list|
+        list.find("li.active").tap do |active_item|
+          expect(active_item).to have_selector("a[href='#tasks_stage_id_job_1'][data-toggle='tab']", :text => "Tasks")
         end
-        with_tag("li") do
-          with_tag("a[href='#artifacts_stage_id_job_1'][data-toggle='tab']", "Artifacts")
-        end
-        with_tag("li") do
-          with_tag("a[href='#environment_variables_stage_id_job_1'][data-toggle='tab']", "Environment Variables")
-        end
-        with_tag("li") do
-          with_tag("a[href='#custom_tabs_stage_id_job_1'][data-toggle='tab']", "Custom Tabs")
+        list.all("li:not(.active)").tap do |items|
+          expect(items[0]).to have_selector("a[href='#artifacts_stage_id_job_1'][data-toggle='tab']", :text => "Artifacts")
+          expect(items[1]).to have_selector("a[href='#environment_variables_stage_id_job_1'][data-toggle='tab']", :text => "Environment Variables")
+          expect(items[2]).to have_selector("a[href='#custom_tabs_stage_id_job_1'][data-toggle='tab']", :text => "Custom Tabs")
         end
       end
     end
@@ -169,60 +148,46 @@ describe "Showing job level details while viewing templates" do
     artifact_plans.add(test_artifact)
     job = JobConfig.new(CaseInsensitiveString.new("jobName"), Resources.new(), artifact_plans)
     job.addTask(ant_task)
-
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#artifacts_stage_id_job_1.tab-pane") do
-          with_tag("table.artifacts.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Source")
-                with_tag("th", "Destination")
-                with_tag("th", "Type")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "build-result")
-                with_tag("td.name_value_cell", "build-output")
-                with_tag("td.name_value_cell", "Build Artifact")
-              end
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "test-result")
-                with_tag("td.name_value_cell", "test-output")
-                with_tag("td.name_value_cell", "Test Artifact")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane table.artifacts.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Source")
+            expect(row).to have_selector("th", :text => "Destination")
+            expect(row).to have_selector("th", :text => "Type")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.all("tr").tap do |rows|
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "build-result")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "build-output")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "Build Artifact")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "test-result")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "test-output")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "Test Artifact")
           end
         end
       end
     end
-
   end
 
   it "should render artifacts tab when not configured for a job" do
     job = JobConfig.new('job1')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#artifacts_stage_id_job_1.tab-pane") do
-          with_tag("table.artifacts.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Source")
-                with_tag("th", "Destination")
-                with_tag("th", "Type")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell[align='center'][colspan='3']", "No artifacts have been configured")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane table.artifacts.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Source")
+            expect(row).to have_selector("th", :text => "Destination")
+            expect(row).to have_selector("th", :text => "Type")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.find("tr").tap do |row|
+            expect(row).to have_selector("td.name_value_cell[align='center'][colspan='3']", :text => "No artifacts have been configured")
           end
         end
       end
@@ -234,29 +199,21 @@ describe "Showing job level details while viewing templates" do
     job.addVariable('env1', 'value1')
     job.addVariable('env2', 'value2')
     job.addTask(ant_task)
-
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#environment_variables_stage_id_job_1.tab-pane") do
-          with_tag("table.variables.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Name")
-                with_tag("th", "Value")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "env1")
-                with_tag("td.name_value_cell", "value1")
-              end
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "env2")
-                with_tag("td.name_value_cell", "value2")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #environment_variables_stage_id_job_1.tab-pane table.variables.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Name")
+            expect(row).to have_selector("th", :text => "Value")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.all("tr").tap do |rows|
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "env1")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "value1")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "env2")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "value2")
           end
         end
       end
@@ -267,22 +224,17 @@ describe "Showing job level details while viewing templates" do
     job = JobConfig.new('job1')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#environment_variables_stage_id_job_1.tab-pane") do
-          with_tag("table.variables.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Name")
-                with_tag("th", "Value")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell[align='center'][colspan='2']", "No environment variables have been configured")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #environment_variables_stage_id_job_1.tab-pane table.variables.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Name")
+            expect(row).to have_selector("th", :text => "Value")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.find("tr").tap do |row|
+            expect(row).to have_selector("td.name_value_cell[align='center'][colspan='2']", :text => "No environment variables have been configured")
           end
         end
       end
@@ -295,27 +247,20 @@ describe "Showing job level details while viewing templates" do
     job.addTab('cobertura', 'reports/code-coverage')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#custom_tabs_stage_id_job_1.tab-pane") do
-          with_tag("table.custom_tabs.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Tab Name")
-                with_tag("th", "Path")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "test-reports")
-                with_tag("td.name_value_cell", "reports/rspec")
-              end
-              with_tag("tr") do
-                with_tag("td.name_value_cell", "cobertura")
-                with_tag("td.name_value_cell", "reports/code-coverage")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #custom_tabs_stage_id_job_1.tab-pane table.custom_tabs.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Tab Name")
+            expect(row).to have_selector("th", :text => "Path")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.all("tr").tap do |rows|
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "test-reports")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "reports/rspec")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "cobertura")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "reports/code-coverage")
           end
         end
       end
@@ -326,22 +271,17 @@ describe "Showing job level details while viewing templates" do
     job = JobConfig.new('job1')
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-    response.body.should have_tag("#stage_id_job_1") do
-      with_tag(".tab-content") do
-        with_tag("#custom_tabs_stage_id_job_1.tab-pane") do
-          with_tag("table.custom_tabs.list_table") do
-            with_tag("thead") do
-              with_tag("tr") do
-                with_tag("th", "Tab Name")
-                with_tag("th", "Path")
-              end
-            end
-            with_tag("tbody") do
-              with_tag("tr") do
-                with_tag("td.name_value_cell[align='center'][colspan='2']", "No custom tabs have been configured")
-              end
-            end
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #custom_tabs_stage_id_job_1.tab-pane table.custom_tabs.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Tab Name")
+            expect(row).to have_selector("th", :text => "Path")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.find("tr").tap do |row|
+            expect(row).to have_selector("td.name_value_cell[align='center'][colspan='2']", :text => "No custom tabs have been configured")
           end
         end
       end
@@ -354,27 +294,24 @@ describe "Showing job level details while viewing templates" do
       job = JobConfig.new('job1')
       job.addTask(ant_task)
       job.addTask(simple_exec_task)
-
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li') do
-                with_tag('span') do
-                  with_tag('span.working_dir', 'default/wd$')
-                  with_tag('span.command', 'ant')
-                  with_tag('span.arguments', '-f "build.xml" compile')
-                end
-                with_tag('span.condition', 'Run if Passed')
-                without_tag('ul li span.on_cancel')
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1").tap do |tasks|
+          tasks.find("ul.tasks_view_list").tap do |list|
+            list.all("li").tap do |items|
+              items[0].find("code").tap do |code|
+                expect(code).to have_selector("span.working_dir", :text => "default/wd$")
+                expect(code).to have_selector("span.command", :text => "ant")
+                expect(code).to have_selector("span.arguments", :text => "-f \"build.xml\" compile")
               end
-              with_tag('li') do
-                with_tag('span.working_dir', 'hero/ka/directory$')
-                with_tag('span.command', 'ls')
-                with_tag('span.arguments', '-la')
+              expect(items[0]).to have_selector("span.condition", :text => "Run if Passed")
+              expect(items[0]).to_not have_selector("ul li span.on_cancel")
+              items[1].find("code").tap do |code|
+                expect(code).to have_selector("span.working_dir", :text => "hero/ka/directory$")
+                expect(code).to have_selector("span.command", :text => "ls")
+                expect(code).to have_selector("span.arguments", :text => "-la")
               end
+              expect(items[1]).to have_selector("span.condition", :text => "Run if Passed")
             end
           end
         end
@@ -385,26 +322,20 @@ describe "Showing job level details while viewing templates" do
       job = JobConfig.new('job1')
       job.addTask(fetch_task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li.fetch') do
-                with_tag('span', "#{"Fetch Artifact"} -")
-
-                with_tag('span') do
-                  with_tag("span[title=#{"Pipeline Name"}]", "pipeline")
-                  with_tag("span.path_separator", ">")
-                  with_tag("span[title=#{"Stage Name"}]", "stage")
-                  with_tag("span.path_separator", ">")
-                  with_tag("span[title=#{"Job Name"}]", "job")
-                  with_tag("span.delimiter", ':')
-                  with_tag("span[title=#{"Source"}]", "src")
-                  with_tag("span.direction_arrow", "->")
-                  with_tag("span[title=#{"Destination"}]", "dest")
-                end
-              end
-            end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.all("li.fetch code").tap do |items|
+            item = items[0]
+            expect(item).to have_selector("span", :text => "Fetch Artifact -")
+            expect(item).to have_selector("span[title='Pipeline Name']", :text => "pipeline")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Stage Name']", :text => "stage")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Job Name']", :text => "job")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span[title='Source']", :text => "src")
+            expect(item).to have_selector("span.direction_arrow", :text => "->")
+            expect(item).to have_selector("span[title='Destination']", :text => "dest")
           end
         end
       end
@@ -415,27 +346,20 @@ describe "Showing job level details while viewing templates" do
       task = fetch_task(nil)
       job.addTask(task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li.fetch') do
-                with_tag('span', "#{"Fetch Artifact"} -")
-
-                with_tag('span') do
-                  with_tag("span[title=#{"Pipeline Name"}]", "[#{"Current pipeline"}]")
-                  with_tag("span.path_separator", ">")
-                  with_tag("span[title=#{"Stage Name"}]", "stage")
-                  with_tag("span.path_separator", ">")
-                  with_tag("span[title=#{"Job Name"}]", "job")
-                  with_tag("span.delimiter", ':')
-                  with_tag("span[title=#{"Source"}]", "src")
-                  with_tag("span.direction_arrow", "->")
-                  with_tag("span[title=#{"Destination"}]", "dest")
-                end
-              end
-            end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.all("li.fetch code").tap do |items|
+            item = items[0]
+            expect(item).to have_selector("span", :text => "Fetch Artifact -")
+            expect(item).to have_selector("span[title='Pipeline Name']", :text => "Current pipeline")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Stage Name']", :text => "stage")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Job Name']", :text => "job")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span[title='Source']", :text => "src")
+            expect(item).to have_selector("span.direction_arrow", :text => "->")
+            expect(item).to have_selector("span[title='Destination']", :text => "dest")
           end
         end
       end
@@ -448,15 +372,10 @@ describe "Showing job level details while viewing templates" do
       task.getConditions().add(com.thoughtworks.go.config.RunIfConfig::FAILED)
       job.addTask(task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li') do
-                with_tag('span.condition', 'Run if Passed, Failed')
-              end
-            end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul").tap do |list|
+          list.find("li").tap do |item|
+            expect(item).to have_selector("span.condition", :text => "Run if Passed, Failed")
           end
         end
       end
@@ -468,15 +387,10 @@ describe "Showing job level details while viewing templates" do
       task.getConditions().add(com.thoughtworks.go.config.RunIfConfig::ANY)
       job.addTask(task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li') do
-                with_tag('span.condition', 'Run if Failed, Passed')
-              end
-            end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul").tap do |list|
+          list.find("li").tap do |item|
+            expect(item).to have_selector("span.condition", :text => "Run if Failed, Passed")
           end
         end
       end
@@ -488,27 +402,23 @@ describe "Showing job level details while viewing templates" do
       task.setCancelTask(nant_task)
       job.addTask(task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag('#stage_id_job_1') do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag('ul') do
-              with_tag('li') do
-                with_tag('span') do
-                  with_tag('span.working_dir', 'default/wd$')
-                  with_tag('span.command', 'ant')
-                  with_tag('span.arguments', '-f "build.xml" compile')
-                end
-                with_tag('span.condition', 'Run if Passed')
-                with_tag('ul') do
-                  with_tag('li') do
-                    with_tag('span') do
-                      with_tag('span.on_cancel', "On Cancel")
-                      with_tag('span.working_dir', 'default/wd$')
-                      with_tag('span.command', 'nant')
-                      with_tag('span.arguments', '-buildfile:"default.build" compile')
-                    end
-                  end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.find("li.ant").tap do |item|
+            expect(item).to have_selector("span.condition", :text => "Run if Passed")
+            item.all("code").tap do |codes|
+              code = codes[0]
+              expect(code).to have_selector("span.working_dir", :text => "default/wd$")
+              expect(code).to have_selector("span.command", :text => "ant")
+              expect(code).to have_selector("span.arguments", :text => "-f \"build.xml\" compile")
+            end
+            item.find("ul").tap do |list2|
+              list2.find("li").tap do |item2|
+                item2.find("code").tap do |code2|
+                  expect(code2).to have_selector("span.on_cancel", :text => "On Cancel")
+                  expect(code2).to have_selector("span.working_dir", :text => "default/wd$")
+                  expect(code2).to have_selector("span.command", :text => "nant")
+                  expect(code2).to have_selector("span.arguments", :text => "-buildfile:\"default.build\" compile")
                 end
               end
             end
@@ -520,14 +430,12 @@ describe "Showing job level details while viewing templates" do
     it "should display message saying that no tasks have been configured when there are none" do
       job = JobConfig.new('job1')
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
-
-      response.body.should have_tag("#stage_id_job_1") do
-        with_tag(".tab-content") do
-          with_tag('#tasks_stage_id_job_1') do
-            with_tag("span", "No tasks have been configured")
-          end
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1").tap do |tasks|
+          expect(tasks).to have_selector("span", :text => "No tasks have been configured")
         end
       end
     end
+
   end
 end

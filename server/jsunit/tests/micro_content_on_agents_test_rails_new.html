@@ -303,7 +303,6 @@ function test_add_should_clear_default_text_model() {
     var apply_resource_button = jQuery(".apply_resources")[0];
     fire_event(apply_resource_button, "click");
     new_resource_value = form.serialize();
-    console.log(new_resource_value);
     assertEquals(1, new_resource_value.match(/\badd_resource=(?:$|&)/).length);
 }
 

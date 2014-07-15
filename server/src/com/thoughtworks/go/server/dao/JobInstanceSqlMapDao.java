@@ -28,14 +28,9 @@ import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.JobStateTransition;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.persistence.ResourceRepository;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -64,16 +59,18 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private TransactionTemplate transactionTemplate;
     private EnvironmentVariableDao environmentVariableDao;
     private Cloner cloner = new Cloner();
+    private ResourceRepository resourceRepository;
 
     @Autowired
     public JobInstanceSqlMapDao(EnvironmentVariableDao environmentVariableDao, GoCache goCache, TransactionTemplate transactionTemplate, SqlMapClient sqlMapClient, Cache cache,
-                                TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database) {
+                                TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database, ResourceRepository resourceRepository) {
         super(goCache, sqlMapClient, systemEnvironment, database);
         this.environmentVariableDao = environmentVariableDao;
         this.goCache = goCache;
         this.transactionTemplate = transactionTemplate;
         this.cache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
+        this.resourceRepository = resourceRepository;
     }
 
     public JobInstance buildByIdWithTransitions(long buildInstanceId) {
@@ -180,7 +177,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public void save(long jobId, JobPlan plan) {
         for (Resource resource : plan.getResources()) {
             resource.setBuildId(jobId);
-            getSqlMapClientTemplate().insert("insertResource", resource);
+            resourceRepository.save(resource);
         }
         for (ArtifactPropertiesGenerator generator : plan.getPropertyGenerators()) {
             generator.setJobId(jobId);
@@ -194,12 +191,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     public JobPlan loadPlan(long jobId) {
-        JobPlan plan = (JobPlan) getSqlMapClientTemplate().queryForObject("select-job-plan", jobId);
-        loadVariables(plan);
+        DefaultJobPlan plan = (DefaultJobPlan) getSqlMapClientTemplate().queryForObject("select-job-plan", jobId);
+        loadVariablesAndResources(plan);
         return plan;
     }
 
-    private void loadVariables(JobPlan plan) {
+    private void loadVariablesAndResources(DefaultJobPlan plan) {
+        plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
     }
@@ -389,11 +387,11 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private JobPlan _loadJobPlan(Long jobId) {
-        JobPlan jobPlan = (JobPlan) getSqlMapClientTemplate().queryForObject("scheduledPlan", arguments("id", jobId).asMap());
+        DefaultJobPlan jobPlan = (DefaultJobPlan) getSqlMapClientTemplate().queryForObject("scheduledPlan", arguments("id", jobId).asMap());
         if (jobPlan == null) {
             return null;
         }
-        loadVariables(jobPlan);
+        loadVariablesAndResources(jobPlan);
         return jobPlan;
     }
 

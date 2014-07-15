@@ -73,10 +73,6 @@
         <result property="transitions" resultMap="BuildStateTransition.build-transition"/>
     </resultMap>
 
-    <resultMap id="select-resources" class="com.thoughtworks.go.config.Resource">
-        <result property="name" column="resourceName"/>
-    </resultMap>
-
     <parameterMap id="insert-build-param" class="com.thoughtworks.go.domain.JobInstance">
         <parameter property="name"/>
         <parameter property="scheduledDate" javaType="date" jdbcType="TIMESTAMP"/>
@@ -147,7 +143,6 @@
         <result property="cleanWorkingDir" column="cleanWorkingDir"/>
         <result property="plans" column="buildId" select="select-artifacts"/>
         <result property="generators" column="buildId" select="select-generators"/>
-        <result property="resources" column="buildId" select="getResourcesByBuildInstanceId"/>
         <result property="identifier" resultMap="BuildInstance.jobIdentifier"/>
         <result property="pipelineId" column="pipelineId"/>
     </resultMap>

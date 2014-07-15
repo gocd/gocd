@@ -63,51 +63,47 @@ var resource_selection_url;
 var resource_selection_request_option;
 
 var periodical_opts = null;
-var header = null, content = null;
+var header = null,content = null;
 var ajax_request_for_tri_state_boxes_fired = false;
 var otherAjax = null;
 
 var replicator = null;
 var replicated_checkbox_parents = ['ajax_agents_table', 'actual_agent_selectors'];
-var replicated_checkbox_id_reader = function (chk_bx) {
+var replicated_checkbox_id_reader = function(chk_bx) {
     return chk_bx.value;
 };
 
 function setUp() {
     ajax_request_for_tri_state_boxes_fired = false;
-    Ajax.Updater = function (container, url, options) {
+    Ajax.Updater = function(container, url, options) {
         response_pane = container;
         resource_selection_url = url;
         resource_selection_request_option = options;
         ajax_request_for_tri_state_boxes_fired = true;
     };
 
-    jQuery.ajax = function (options) {
+    jQuery.ajax = function(options) {
         periodical_opts = options;
     };
-    AjaxRefreshers.addRefresher(otherAjax = {stopRefresh: function () {
-        this.stopped = true;
-    }, restartRefresh: function () {
-        this.started = true;
-    }});
+    AjaxRefreshers.addRefresher(otherAjax = {stopRefresh: function(){this.stopped=true;},restartRefresh: function(){this.started=true;}});
     fire_event($(document.body), 'click');
     header = $('ajax_agents_header').innerHTML;
     content = $('ajax_agents_table').innerHTML;
-    $$('.new_resource.new_field').each(function (input) {
-        input.value = "my default text";
+    $$('.new_resource.new_field').each(function(input) {
+       input.value = "my default text";
     });
 
     replicator = new FieldStateReplicator();
 
-    for (var i = 0; i < replicated_checkbox_parents.length; i++) {
+    for(var i = 0; i < replicated_checkbox_parents.length; i++) {
         replicator.register_all_matching($(replicated_checkbox_parents[i]), '.agent_select', replicated_checkbox_id_reader);
     }
     util_load_page_fn = Util.loadPage;
-    Util.loadPage = function (url) {
+    Util.loadPage = function(url) {
         newPageUrl = url;
     };
     xhr = {
-        getResponseHeader: function (name) {
+        getResponseHeader: function(name) {
             return "holy_cow_new_url_is_sooooo_cool!!!";
         }
     };
@@ -120,7 +116,7 @@ function tearDown() {
     Ajax.PeriodicalUpdater = actual_periodical_updater;
     jQuery.ajax = actual_ajax_request;
     AjaxRefreshers.clear();
-    $$('.agent_select').each(function (check_box) {
+    $$('.agent_select').each(function(check_box) {
         check_box.checked = false;
     });
     $('ajax_agents_header').innerHTML = header;
@@ -224,7 +220,7 @@ function test_shows_NO_AGENTS_SELECTED_message() {
 
 
     fire_event(show_button, 'click'); //hide
-    $(document.body).getElementsBySelector("input[type='checkbox']").each(function (checkbox) {
+    $(document.body).getElementsBySelector("input[type='checkbox']").each(function(checkbox) {
         checkbox.checked = true;
     });
     fire_event(show_button, 'click'); //show again
@@ -262,12 +258,12 @@ function test_switches_to_add_mode_on_show() {
 }
 
 function test_update_page() {
-    var refresher = new AgentsAjaxRefresher('http://blah/refresh', "foo", replicator, replicated_checkbox_parents, replicated_checkbox_id_reader, 0);
+    var refresher = new AgentsAjaxRefresher('http://blah/refresh',"foo", replicator, replicated_checkbox_parents, replicated_checkbox_id_reader, 0);
     AjaxRefreshers.addRefresher(refresher);
     refresher.stopRefresh();
     refresher.restartRefresh();
 
-    periodical_opts.success({ajax_agents_header: {html: "counts"}, ajax_agents_table: {html: "tablecontent"}});
+    periodical_opts.success({ajax_agents_header:{html:"counts"},ajax_agents_table: {html:"tablecontent"}});
     periodical_opts.complete(xhr);
     assertEquals("counts", $('ajax_agents_header').innerHTML);
     assertEquals("tablecontent", $('ajax_agents_table').innerHTML);
@@ -283,7 +279,7 @@ function test_update_page_keeps_the_current_selections() {
 
     chkbox.checked = true;
     fire_event(chkbox, 'change');
-    periodical_opts.success({ajax_agents_header: {html: "counts"}, ajax_agents_table: {html: table}});
+    periodical_opts.success({ajax_agents_header:{html:"counts"},ajax_agents_table: {html: table}});
     periodical_opts.complete(xhr);
     assertTrue(jQuery("#uuid3 .selector input")[0].checked);
 }
@@ -302,7 +298,7 @@ function test_add_should_clear_default_text_model() {
     var apply_resource_button = $$(".apply_resources")[0];
     fire_event(apply_resource_button, "click");
     new_resource_value = form.serialize();
-    assertEquals(1, new_resource_value.match(/\badd_resource=(?:$|&)/).length);
+    assertEquals(1,new_resource_value.match(/\badd_resource=(?:$|&)/).length);
 }
 
 function test_understand_modify_mode() {
@@ -313,7 +309,7 @@ function test_understand_modify_mode() {
     assertFalse("add resource field should be shown on load", new_field.hasClassName('hidden'));
     assertEquals("operation should be add resource", "Add_Resource", $('agent_edit_operation').value);
     resource_popup_handler.tristate_clicked();
-    fire_event(apply_resources_button, "click");
+    fire_event(apply_resources_button,"click");
     assertEquals("operation should be apply resource", "Apply_Resource", $('agent_edit_operation').value);
     assertTrue("add resource field should not be shown in modified mode", new_field.hasClassName('hidden'));
 
@@ -328,7 +324,7 @@ function test_should_show_error_when_there_are_no_environments() {
 }
 
 function test_should_show_error_when_there_are_environments() {
-    Ajax.Updater = function (container, url, options) {
+    Ajax.Updater = function(container, url, options) {
         container.update("<div class='selectors'>checkboxes here</div>");
         options.onComplete(xhr);
     };
@@ -338,17 +334,15 @@ function test_should_show_error_when_there_are_environments() {
     assertTrue($$("#environments_panel .no_environments_error")[0].hasClassName("hidden"));
 }
 
-function test_should_call_after_close_callback_handler() {
+function test_should_call_after_close_callback_handler(){
     var called = false;
     var handler = new MicroContentPopup.NoOpHandler();
-    handler.after_close = function () {
-        called = true;
-    }
+    handler.after_close = function(){called=true;}
     var microContentPopup = new MicroContentPopup($('resources_panel'), handler);
     var microContentPopupShower = new MicroContentPopup.ClickShower(microContentPopup);
     var showButton = $('show_resources_panel');
     microContentPopupShower.bindShowButton(showButton);
-    fire_event(showButton, "click")
+    fire_event(showButton,"click")
     microContentPopup.close()
     assertTrue(called);
 }
@@ -359,258 +353,438 @@ function test_should_call_after_close_callback_handler() {
 <body>
 <!-- NOTE: The html under test must match EXACTLY what is generated in the specs for this page.-->
 <div class='under_test'>
-<div class='page_header' style='overflow:inherit;'><h1 class='entity_title'>Agents</h1>
-
-    <div class='filter_agents'>
-        <form accept-charset='UTF-8' action='/agents' id='agents_filter_form' method='get'>
-            <div style='margin:0;padding:0;display:inline'><input name='utf8' type='hidden' value='&#x2713;'/></div>
-            <div class='enhanced_dropdown hidden' id='filter_help'>
-                <div class='filter_help_instructions'><p class='heading'>Available tags</p>
-
-                    <div><p>name:</p>
-
+  <div class='page_header' style="overflow:inherit;">
+      <h1 class='entity_title'>Agents</h1>
+        <div class='filter_agents'>
+            <form action='/agents' id='agents_filter_form' method='get'>
+          <div id='filter_help' class='enhanced_dropdown hidden'>
+              <div class='filter_help_instructions'>
+                    <p class='heading'>Available tags</p>
+                    <div>
+                        <p>name:</p>
                         <p>os:</p>
-
                         <p>ip:</p>
-
                         <p>status:</p>
-
                         <p>resource:</p>
-
-                        <p>environment:</p></div>
-                    <p class='heading'>Values</p>
-
-                    <div><p>Put filter values in quotes for exact match</p></div>
-                    <p> &lt;a class=&#39;&#39; href=&#39;/go/help/agents_page.html#filter_agents&#39; target=&#39;_blank&#39;&gt;More...&lt;/a&gt; </p>
-                </div>
-            </div>
-            <input id='filter_text' name='filter' placeholder='tag: value' type='text'/>
-            <button class='submit primary' type='submit'>Filter</button>
-            <a class='link_as_button' href='/agents?filter=' id='clear_filter'>Clear</a></form>
-    </div>
-    <div class='edit_panel' id='dd_ajax_float' style='float:right;'>
-        <form accept-charset='UTF-8' action='/agents/edit_agents' id='agents_form' method='post'>
-            <div style='margin:0;padding:0;display:inline'><input name='utf8' type='hidden' value='&#x2713;'/></div>
-            <input id='agent_edit_operation' name='operation' type='hidden'/>
-
-            <div id='actual_agent_selectors' style='display: none'><input class='agent_select' name='selected[]'
-                                                                          type='checkbox' value='UUID_host1'/>
-                <input class='agent_select' name='selected[]' type='checkbox' value='uuid4'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='uuid3'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host4'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host5'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host6'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host7'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host8'/> <input
-                        class='agent_select' name='selected[]' type='checkbox' value='UUID_host9'/></div>
-            <button class='submit' id='UUID' name='Enable' type='submit' value='Enable'><span>ENABLE</span></button>
-            <button class='submit' id='UUID' name='Disable' type='submit' value='Disable'><span>DISABLE</span>
-            </button>
-            <button class='submit' id='UUID' name='Delete' type='submit' value='Delete'><span>DELETE</span></button>
-            <button class='show_panel select submit button' id='show_resources_panel' text_color='dark'
-                    type='button' value='Resources'><span> RESOURCES <img
-                    src='/images/g9/button_select_icon_dark.png'/> </span></button>
-            <div class='hidden resources_panel agent_edit_popup enhanced_dropdown' id='resources_panel'>
-                <div class='resources_selector scrollable_panel'>
-                    <div class='loading'/>
-                </div>
-                <div class='add_panel hidden'><input class='new_resource new_field' name='add_resource'
-                                                     type='text'/>
-                    <button class='apply_resources apply_button submit_small primary submit'
-                            name='resource_operation' type='submit' value='Add'><span>ADD</span></button>
-                    <div class='validation_message error hidden'> Invalid character. Please use a-z, A-Z, 0-9,
-                        fullstop, underscore, hyphen and pipe.
+                        <p>environment:</p>
                     </div>
-                </div>
-                <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
-            </div>
-            <button class='show_panel select submit button' id='show_environments_panel' text_color='dark'
-                    type='button' value='Environments'><span> ENVIRONMENTS <img
-                    src='/images/g9/button_select_icon_dark.png'/> </span></button>
-            <div class='hidden environments_panel agent_edit_popup enhanced_dropdown' id='environments_panel'>
-                <div class='environments_selector scrollable_panel'>
-                    <div class='loading'/>
-                </div>
-                <div class='add_panel hidden'>
-                    <button class='submit_small primary apply_button submit' id='UUID' name='Apply' type='submit'
-                            value='Apply'><span>APPLY</span></button>
-                </div>
-                <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
-                <div class='no_environments_error error hidden'>No environments are defined.</div>
-            </div>
-        </form>
-    </div>
-</div>
-<div class='content_wrapper_outer'>
-    <div class='content_wrapper_inner'>
-        <div id='agents_form_container'>
-            <div class='clear_float' id='ajax_agents_header'>
-                <ul class='agent_counts list_aggregation clear_float'>
-                    <li class='pending'>Pending: </li>
-                    <li class='enabled'>Enabled: </li>
-                    <li class='disabled'>Disabled: </li>
-                </ul>
-            </div>
+                    <p class='heading'>Values</p>
+                    <div>
+                        <p>Put filter values in quotes for exact match</p>
+                    </div>
+                  <p><a class='' href='/go/help/agents_page.html#filter_agents' target='_blank'>More...</a></p>
+              </div>
+          </div>
+          <input id='filter_text' name='filter' placeholder='tag: value' type='text'/>
+          <button type='submit' class='submit primary'>Filter</button>
+                <a href='/agents?filter=' class='link_as_button' id='clear_filter'>Clear</a>
+                </form>
         </div>
-        <div class='agents_table' id='ajax_agents_table'>
-            <table class='agents list_table sortable_table selectable_table' id='agent_details'>
-                <thead>
-                <tr class='agent_header'>
-                    <th class='selector'><input class='agent_select' id='select_all_agents' name='accept'
-                                                type='checkbox' value=''/></th>
-                    <th class='hostname'><a href='/agents?column=hostname&amp;order=ASC'> <span>Agent Name</span>
-                    </a></th>
-                    <th class='location'><a href='/agents?column=location&amp;order=ASC'> <span>Sandbox</span> </a>
-                    </th>
-                    <th class='operating_system'><a href='/agents?column=operating_system&amp;order=ASC'>
-                        <span>OS</span> </a></th>
-                    <th class='ip_address'><a href='/agents?column=ip_address&amp;order=ASC'>
-                        <span>IP Address</span> </a></th>
-                    <th class='status'><a href='/agents?column=status&amp;order=ASC'> <span>Status</span> </a></th>
-                    <th class='usable_space'><a href='/agents?column=usable_space&amp;order=ASC'>
-                        <span>Free Space</span> </a></th>
-                    <th class='resources'><a href='/agents?column=resources&amp;order=ASC'> <span>Resources</span>
-                    </a></th>
-                    <th class='environments'><a href='/agents?column=environments&amp;order=ASC'>
-                        <span>Environments</span> </a></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class='agent_instance Idle' id='UUID_host1'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host1'/></td>
-                    <td class='hostname' title='host1'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host1'>host1</a> </span>
-                    </td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='OPERATING SYSTEM'><span>OPERATING SYSTEM</span></td>
-                    <td class='ip_address' title='10.18.5.1'><span>10.18.5.1</span></td>
-                    <td class='status' title='idle'><span>idle</span></td>
-                    <td class='usable_space' title='10.0 KB'><span>10.0 KB</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance Pending' id='uuid4'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='uuid4'/></td>
-                    <td class='hostname' title='CCeDev03'><span class='agent_hostname'>CCeDev03</span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='linux'><span>linux</span></td>
-                    <td class='ip_address' title='127.0.0.1'><span>127.0.0.1</span></td>
-                    <td class='status' title='pending'><span>pending</span></td>
-                    <td class='usable_space' title='0 bytes'><span>0 bytes</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance Idle' id='uuid3'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='uuid3'/></td>
-                    <td class='hostname' title='CCeDev01'><span class='agent_hostname'> <a
-                            href='/agents/uuid3'>CCeDev01</a> </span>
-                    </td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='linux'><span>linux</span></td>
-                    <td class='ip_address' title='10.6.6.6'><span>10.6.6.6</span></td>
-                    <td class='status' title='idle'><span>idle</span></td>
-                    <td class='usable_space' title='10.0 GB'><span>10.0 GB</span></td>
-                    <td class='resources' title='db | dbSync'><span>db | dbSync</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance Building' id='UUID_host4'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host4'/></td>
-                    <td class='hostname' title='CCeDev01'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host4'>CCeDev01</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='OPERATING SYSTEM'><span>OPERATING SYSTEM</span></td>
-                    <td class='ip_address' title='10.18.5.1'><span>10.18.5.1</span></td>
-                    <td class='status' title='blue/2/stage/3/job/'><span> <a
-                            href='/go/tab/build/detail/blue/2/stage/3/job/'>building</a> </span></td>
-                    <td class='usable_space' title='0 bytes'><span>0 bytes</span></td>
-                    <td class='resources' title='java'><span>java</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance Idle' id='UUID_host5'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host5'/></td>
-                    <td class='hostname' title='foo_baz_host'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host5'>foo_baz_host</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='Windows'><span>Windows</span></td>
-                    <td class='ip_address' title='10.18.5.1'><span>10.18.5.1</span></td>
-                    <td class='status' title='idle'><span>idle</span></td>
-                    <td class='usable_space' title='12.0 GB'><span>12.0 GB</span></td>
-                    <td class='resources' title='nant | vs.net'><span>nant | vs.net</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance Missing' id='UUID_host6'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host6'/></td>
-                    <td class='hostname' title='foo_bar_host'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host6'>foo_bar_host</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title=''><span/></td>
-                    <td class='ip_address' title='192.168.0.1'><span>192.168.0.1</span></td>
-                    <td class='status' title='missing'><span>missing</span></td>
-                    <td class='usable_space' title='Unknown'><span>Unknown</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='uat | blah'><span>uat | blah</span></td>
-                </tr>
-                <tr class='agent_instance Cancelled' id='UUID_host7'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host7'/></td>
-                    <td class='hostname' title='CCeDev01'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host7'>CCeDev01</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title='OPERATING SYSTEM'><span>OPERATING SYSTEM</span></td>
-                    <td class='ip_address' title='10.18.5.1'><span>10.18.5.1</span></td>
-                    <td class='status' title='pink/2/stage/3/job/'><span> <a
-                            href='/go/tab/build/detail/pink/2/stage/3/job/'>building (cancelled)</a> </span></td>
-                    <td class='usable_space' title='0 bytes'><span>0 bytes</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance LostContact' id='UUID_host8'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host8'/></td>
-                    <td class='hostname' title='localhost'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host8'>localhost</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title=''><span/></td>
-                    <td class='ip_address' title='192.168.0.1'><span>192.168.0.1</span></td>
-                    <td class='status'
-                        title='lost contact at REPLACED_DATE while building french/2/stage/3/job/: job rescheduled'>
-                        <span> <a href='/go/tab/build/detail/french/2/stage/3/job/'>lost contact</a> </span></td>
-                    <td class='usable_space' title='Unknown'><span>Unknown</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                <tr class='agent_instance LostContact' id='UUID_host9'>
-                    <td class='selector'><input class='agent_select' name='selected[]' type='checkbox'
-                                                value='UUID_host9'/></td>
-                    <td class='hostname' title='localhost'><span class='agent_hostname'> <a
-                            href='/agents/UUID_host9'>localhost</a> </span></td>
-                    <td class='location' title='LOCATION'><span>LOCATION</span></td>
-                    <td class='operating_system' title=''><span/></td>
-                    <td class='ip_address' title='192.168.0.1'><span>192.168.0.1</span></td>
-                    <td class='status' title='lost contact at REPLACED_DATE'><span>lost contact</span></td>
-                    <td class='usable_space' title='Unknown'><span>Unknown</span></td>
-                    <td class='resources' title='no resources specified'><span>no resources specified</span></td>
-                    <td class='environments' title='no environments specified'>
-                        <span>no environments specified</span></td>
-                </tr>
-                </tbody>
-            </table>
+
+      <div class='edit_panel' id='dd_ajax_float' style="float:right;">
+
+      <form action='/agents/edit_agents' id='agents_form' method='post'>
+      <input id="agent_edit_operation" type="hidden" name="operation" />
+      <div style='display: none' id='actual_agent_selectors'>
+          <input type='checkbox' name='selected[]' value='UUID_host1' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='uuid4' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='uuid3' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host4' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host5' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host6' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host7' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host8' class='agent_select'/>
+          <input type='checkbox' name='selected[]' value='UUID_host9' class='agent_select'/>
+      </div>
+      <button class='submit' id="UUID" name='Enable' type='submit' value='Enable'><span>ENABLE</span></button>
+      <script type='text/javascript'>
+          Util.on_load(function() { Event.observe($('UUID'), 'click',
+                  function(evt) { Util.set_value('agent_edit_operation', 'Enable')(evt); });
+          });
+      </script>
+      <button class='submit' id="UUID" name='Disable' type='submit' value='Disable'><span>DISABLE</span></button>
+      <script type='text/javascript'>
+        Util.on_load(function() { Event.observe($('UUID'), 'click',
+                function(evt) { Util.set_value('agent_edit_operation', 'Disable')(evt); });
+        });
+      </script>
+      <button class='submit' id="UUID" name='Delete' type='submit' value='Delete'><span>DELETE</span></button>
+      <script type='text/javascript'>
+          Util.on_load(function() { Event.observe($('UUID'), 'click',
+                  function(evt) { Util.set_value('agent_edit_operation', 'Delete')(evt); });
+          });
+      </script>
+      <button class='show_panel select submit button' id='show_resources_panel' text_color='dark' type='button' value='Resources'>
+          <span>RESOURCES<img src='/images/g9/button_select_icon_dark.png?N/A'></img></span>
+      </button>
+      <div id='resources_panel' class='hidden resources_panel agent_edit_popup enhanced_dropdown'>
+        <div class='resources_selector scrollable_panel'>
+          <div class='loading'></div>
         </div>
+        <div class='add_panel hidden'>
+          <input type='text' name='add_resource' class='new_resource new_field'/>
+         <button class="apply_resources apply_button submit_small primary submit" name="resource_operation" type="submit" value="Add">
+             <span>ADD</span>
+         </button>
+          <div class="validation_message error hidden">Invalid character. Please use a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe.</div>
+        </div>
+        <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
+      </div>
+      <button class='show_panel select submit button' id='show_environments_panel' text_color='dark' type='button' value='Environments'>
+          <span>ENVIRONMENTS<img src='/images/g9/button_select_icon_dark.png?N/A'></img></span>
+      </button>
+      <div id='environments_panel' class='hidden environments_panel agent_edit_popup enhanced_dropdown'>
+        <div class='environments_selector scrollable_panel'>
+          <div class='loading'></div>
+        </div>
+        <div class='add_panel hidden'>
+          <button class="submit_small primary apply_button submit" id="1e9de87d-55ac-4ac1-9bdd-93ff8725821e" name="Apply" type="submit" value="Apply">
+              <span>APPLY</span>
+          </button>
+            <script type='text/javascript'>
+                Util.on_load(function() { Event.observe($('1e9de87d-55ac-4ac1-9bdd-93ff8725821e'), 'click',
+                        function(evt) { Util.set_value('agent_edit_operation', 'Apply_Environment')(evt); });
+                });
+            </script>
+        </div>
+        <div class='no_selection_error error hidden'>Please select one or more agents first.</div>
+        <div class='no_environments_error error hidden'>No environments are defined.</div>
+      </div>
+      </form>
+      </div>
+  </div>
+  <div class='content_wrapper_outer'> <div class='content_wrapper_inner'>
+  <div id='agents_form_container'>
+        <div id='ajax_agents_header' class='clear_float'>
+          <ul class='agent_counts list_aggregation clear_float'>
+              <li class='pending'>Pending: </li>
+              <li class='enabled'>Enabled: </li>
+              <li class='disabled'>Disabled: </li>
+          </ul>
     </div>
-</div>
+   </div>
+    <div id='ajax_agents_table' class='agents_table'>
+      <table id='agent_details' class='agents list_table sortable_table selectable_table'>
+      <thead>
+        <tr class='agent_header'>
+          <th class="selector">
+                <input class='agent_select' id='select_all_agents' name='accept' type='checkbox' value=''/>
+            </th>
+          <th class='hostname'>
+            <a href='/agents?column=hostname&amp;order=ASC'>
+              <span>Agent Name</span>
+            </a>
+          </th>
+          <th class='location'>
+            <a href='/agents?column=location&amp;order=ASC'>
+              <span>Sandbox</span>
+            </a>
+          </th>
+          <th class='operating_system'>
+            <a href='/agents?column=operating_system&amp;order=ASC'>
+              <span>OS</span>
+            </a>
+          </th>
+          <th class='ip_address'>
+            <a href='/agents?column=ip_address&amp;order=ASC'>
+              <span>IP Address</span>
+            </a>
+          </th>
+          <th class='status'>
+            <a href='/agents?column=status&amp;order=ASC'>
+              <span>Status</span>
+            </a>
+          </th>
+          <th class='usable_space'>
+            <a href='/agents?column=usable_space&amp;order=ASC'>
+              <span>Free Space</span>
+            </a>
+          </th>
+          <th class='resources'>
+            <a href='/agents?column=resources&amp;order=ASC'>
+              <span>Resources</span>
+            </a>
+          </th>
+          <th class='environments'>
+            <a href='/agents?column=environments&amp;order=ASC'>
+              <span>Environments</span>
+            </a>
+          </th>
+        </tr>
+        </thead>
+      <tbody>
+        <tr class='agent_instance Idle' id='UUID_host1'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host1' class='agent_select'/>
+          </td>
+          <td class='hostname' title='host1'>
+            <span class="agent_hostname"><a href="/agents/UUID_host1">host1</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='Linux'>
+            <span>Linux</span>
+          </td>
+          <td class='ip_address' title='10.18.5.1'>
+            <span>10.18.5.1</span>
+          </td>
+          <td class='status' title='idle'>
+            <span>idle</span>
+          </td>
+          <td class='usable_space' title='10.0 KB'>
+            <span>10.0 KB</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Pending' id='uuid4'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='uuid4' class='agent_select'/>
+          </td>
+          <td class='hostname' title='CCeDev03'>
+            <span class="agent_hostname">CCeDev03</span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='linux'>
+            <span>linux</span>
+          </td>
+          <td class='ip_address' title='127.0.0.1'>
+            <span>127.0.0.1</span>
+          </td>
+          <td class='status' title='pending'>
+            <span>pending</span>
+          </td>
+          <td class='usable_space' title='0 bytes'>
+            <span>0 bytes</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Idle' id='uuid3'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='uuid3' class='agent_select'/>
+          </td>
+          <td class='hostname' title='CCeDev01'>
+            <span class="agent_hostname"><a href="/agents/uuid3">CCeDev01</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='linux'>
+            <span>linux</span>
+          </td>
+          <td class='ip_address' title='10.6.6.6'>
+            <span>10.6.6.6</span>
+          </td>
+          <td class='status' title='idle'>
+            <span>idle</span>
+          </td>
+          <td class='usable_space' title='10.0 GB'>
+            <span>10.0 GB</span>
+          </td>
+          <td class='resources' title='db | dbSync'>
+            <span>db | dbSync</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Building' id='UUID_host4'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host4' class='agent_select'/>
+          </td>
+          <td class='hostname' title='CCeDev01'>
+            <span class="agent_hostname"><a href="/agents/UUID_host4">CCeDev01</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='Linux'>
+            <span>Linux</span>
+          </td>
+          <td class='ip_address' title='10.18.5.1'>
+            <span>10.18.5.1</span>
+          </td>
+          <td class='status' title='blue/2/stage/3/job/'>
+            <span>
+              <a href='/go/tab/build/detail/blue/2/stage/3/job/'>building</a>
+            </span>
+          </td>
+          <td class='usable_space' title='0 bytes'>
+            <span>0 bytes</span>
+          </td>
+          <td class='resources' title='java'>
+            <span>java</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Idle' id='UUID_host5'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host5' class='agent_select'/>
+          </td>
+          <td class='hostname' title='foo_baz_host'>
+            <span class="agent_hostname"><a href="/agents/UUID_host5">foo_baz_host</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='Windows'>
+            <span>Windows</span>
+          </td>
+          <td class='ip_address' title='10.18.5.1'>
+            <span>10.18.5.1</span>
+          </td>
+          <td class='status' title='idle'>
+            <span>idle</span>
+          </td>
+          <td class='usable_space' title='12.0 GB'>
+            <span>12.0 GB</span>
+          </td>
+          <td class='resources' title='nant | vs.net'>
+            <span>nant | vs.net</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Missing' id='UUID_host6'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host6' class='agent_select'/>
+          </td>
+          <td class='hostname' title='foo_bar_host'>
+            <span class="agent_hostname"><a href="/agents/UUID_host6">foo_bar_host</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title=''>
+            <span></span>
+          </td>
+          <td class='ip_address' title='192.168.0.1'>
+            <span>192.168.0.1</span>
+          </td>
+          <td class='status' title='missing'>
+            <span>missing</span>
+          </td>
+          <td class='usable_space' title='Unknown'>
+            <span>Unknown</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='uat | blah'>
+            <span>uat | blah</span>
+          </td>
+        </tr>
+        <tr class='agent_instance Cancelled' id='UUID_host7'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host7' class='agent_select'/>
+          </td>
+          <td class='hostname' title='CCeDev01'>
+            <span class="agent_hostname"><a href="/agents/UUID_host7">CCeDev01</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title='Linux'>
+            <span>Linux</span>
+          </td>
+          <td class='ip_address' title='10.18.5.1'>
+            <span>10.18.5.1</span>
+          </td>
+          <td class='status' title='pink/2/stage/3/job/'>
+            <span>
+              <a href='/go/tab/build/detail/pink/2/stage/3/job/'>building (cancelled)</a>
+            </span>
+          </td>
+          <td class='usable_space' title='0 bytes'>
+            <span>0 bytes</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance LostContact' id='UUID_host8'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host8' class='agent_select'/>
+          </td>
+          <td class='hostname' title='localhost'>
+            <span class="agent_hostname"><a href="/agents/UUID_host8">localhost</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title=''>
+            <span></span>
+          </td>
+          <td class='ip_address' title='192.168.0.1'>
+            <span>192.168.0.1</span>
+          </td>
+          <td class='status' title='lost contact at REPLACED_DATE while building french/2/stage/3/job/: job rescheduled'>
+            <span>
+              <a href='/go/tab/build/detail/french/2/stage/3/job/'>lost contact</a>
+            </span>
+          </td>
+          <td class='usable_space' title='Unknown'>
+            <span>Unknown</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+        <tr class='agent_instance LostContact' id='UUID_host9'>
+          <td class='selector'>
+            <input type='checkbox' name='selected[]' value='UUID_host9' class='agent_select'/>
+          </td>
+          <td class='hostname' title='localhost'>
+            <span class="agent_hostname"><a href="/agents/UUID_host9">localhost</a></span>
+          </td>
+          <td class='location' title='LOCATION'>
+            <span>LOCATION</span>
+          </td>
+          <td class='operating_system' title=''>
+            <span></span>
+          </td>
+          <td class='ip_address' title='192.168.0.1'>
+            <span>192.168.0.1</span>
+          </td>
+          <td class='status' title='lost contact at REPLACED_DATE'>
+            <span>lost contact</span>
+          </td>
+          <td class='usable_space' title='Unknown'>
+            <span>Unknown</span>
+          </td>
+          <td class='resources' title='no resources specified'>
+            <span>no resources specified</span>
+          </td>
+          <td class='environments' title='no environments specified'>
+            <span>no environments specified</span>
+          </td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
 </div>
 </body>
 </html>

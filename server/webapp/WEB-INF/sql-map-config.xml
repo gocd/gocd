@@ -66,7 +66,6 @@
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/JobInstance.xml"/>
-    <sqlMap resource="com/thoughtworks/go/server/dao/maps/Resource.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/BuildStateTransition.xml"/>
     <sqlMap resource="com/thoughtworks/go/server/dao/maps/Property.xml"/>
 </sqlMapConfig>

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<!--[if lt IE 7]> <html xmlns="http://www.w3.org/1999/xhtml" lang="en" class="no-js ie6 oldie"> <![endif]-->
+<!--[if IE 7]> <html xmlns="http://www.w3.org/1999/xhtml" lang="en" class="no-js ie7 oldie"> <![endif]-->
+<!--[if IE 8]> <html xmlns="http://www.w3.org/1999/xhtml" lang="en" class="no-js ie8 oldie"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang='en'>
+<!--<![endif]-->
+
+
+<head>
+    <%= render :partial => "shared/head" %>
+</head>
+<body id="<%= page_name %>" class="<%= page_name %>">
+    <div id="body_bg" class="vsm">
+        <div id="header">
+            <%= render :partial => "shared/header", :locals => {:scope => {:admin_tab_url => '/tab/admin'}} %>
+        </div>
+
+        <div id='body_content'>
+            <%= yield %>
+        </div>
+
+        <div class='pan' style='display: none;'>
+            <div class="constrainer">
+                <div class='knob'></div>
+            </div>
+            <canvas id='canvas'></canvas>
+        </div>
+
+        <div id='footer'>
+            <%= render :partial => "shared/footer" %>
+        </div>
+    </div>
+
+    <div id='pre-loader-overlay'>
+        <div class='loading'></div>
+    </div>
+</body>
+</html>
+

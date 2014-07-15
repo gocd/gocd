@@ -38,7 +38,7 @@ class ValueStreamMapController < ApplicationController
     vsm = value_stream_map_service.getValueStreamMap(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
     vsm_path_partial = proc do |name, counter| vsm_show_path(name, counter) end
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
-      return stage_detail_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
+       stage_detail_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
     end
     ValueStreamMapModel.new(vsm, result.message(localizer), localizer, vsm_path_partial, stage_detail_path_partial).to_json
   end

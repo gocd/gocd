@@ -19,8 +19,7 @@ module Admin
     include UsersHelper
     include ApplicationHelper
 
-    layout nil, :except => [:users, :operate]
-    layout 'admin', :only => [:users, :operate]
+    layout :determine_layout
 
     def new
     end
@@ -97,6 +96,10 @@ module Admin
     def dismiss_license_expiry_warning
       user_service.disableLicenseExpiryWarning(current_user_entity_id)
       render :text => "Disabled successfully"
+    end
+
+    def determine_layout
+      %w(users).include?(action_name) || %w(operate).include?(action_name) ? "admin" : false
     end
   end
 end

@@ -17,7 +17,7 @@
                     <%- scope[:email_field] = random_dom_id("email_user_#{scope[:user].getName()}") -%>
                     <input type="radio" id="<%= scope[:selection_field] -%>" name="selection"/>
                     <script type="text/javascript">
-                        jQuery('#<%= scope[:selection_field] -%>').change(Util.disable_or_enable_submittable_fields(<%= [scope[:name_field], scope[:full_name_field], scope[:email_field]].to_json -%>));
+                        jQuery('#<%== scope[:selection_field] -%>').change(Util.disable_or_enable_submittable_fields(<%== [scope[:name_field], scope[:full_name_field], scope[:email_field]].to_json -%>));
                     </script>
                     <input type="hidden"
                            id="<%= scope[:name_field] -%>"

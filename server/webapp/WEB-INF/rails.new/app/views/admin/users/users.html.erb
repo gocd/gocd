@@ -18,7 +18,7 @@
         <div class="edit_panel" id="dd_users_ajax_float">
             <div class="add_new_users">
                 <% title = l.string("ADD_USERS") %>
-                <%== link_to title, {:remote=> true, :method => :get, :url => users_new_path,
+                <%== link_to_remote_new title, {:method => :get, :url => users_new_path,
                                            :success => "Modalbox.show(request.responseText, { title: '#{title}', overlayClose: false, width: 850, slideDownDuration: 0, overlayDuration: 0});"}, {:class => "link_as_button"} %>
             </div>
             <%== submit_button("Enable", :onclick_lambda => "Util.set_value('operation', 'Enable')") %>

@@ -1,4 +1,4 @@
-<%== form_remote_tag(:url => users_search_path, :update => {
+<%== form_remote_tag_new(:url => users_search_path, :update => {
         :success => "search_results_container"
 }, :before => "jQuery('#search_id').addClass('ac_loading');",
                     :complete => "jQuery('#search_id').removeClass('ac_loading');"
@@ -11,7 +11,7 @@
     </p>
 </div>
 <%== end_form_tag %>
-<%== form_remote_tag(:url => users_create_path,
+<%== form_remote_tag_new(:url => users_create_path,
                     :update => {
                             :success => "tab-content-of-user-listing"
                     },

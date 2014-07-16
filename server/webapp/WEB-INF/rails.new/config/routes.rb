@@ -168,6 +168,10 @@ Go::Application.routes.draw do
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
 
+  scope 'config_view' do
+    get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
+  end
+
   defaults :no_layout => true do
     get 'materials/:id.xml' => 'application#unresolved', as: :material
     get 'materials/:materialId/changeset/:modificationId.xml' => 'application#unresolved', as: :modification

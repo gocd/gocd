@@ -114,10 +114,15 @@ CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_versio
 task :copy_files do
   safe_cp "webapp", "target"
 
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-1.2.8", true)
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-rails-1.2.7.1", true)
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true) if ENV['USE_NEW_RAILS'] != "Y"
+  if ENV['USE_NEW_RAILS'] == "Y"
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails", true)
+  else
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true)
+
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-1.2.8", true)
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-rails-1.2.7.1", true)
+  end
 
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
@@ -270,8 +275,11 @@ task "version-image-urls-in-css" do
 end
 
 # inline partials
-RAILS_VIEWS_SRC = "target/webapp/WEB-INF/rails/app/views"
+RAILS_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "rails.new" : "rails"
+RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
+RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"
+USER_CONTROLLER_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "WEB-INF/#{RAILS_DIR}/app/controllers/admin" : "WEB-INF/#{RAILS_DIR}/app/controllers"
 
 def inline_partials dir = RAILS_INTERPOLATED_VIEWS
   Dir[File.join(dir, "*")].each do |path|
@@ -386,7 +394,7 @@ end
 
 task :copy_inlined_erbs_to_webapp do
   FileUtils.remove_dir(RAILS_VIEWS_SRC, true)
-  safe_cp RAILS_INTERPOLATED_VIEWS, "target/webapp/WEB-INF/rails/app"
+  safe_cp RAILS_INTERPOLATED_VIEWS, RAILS_ROOT + "/app"
 end
 
 # misc
@@ -406,7 +414,7 @@ class NotInProduction
   end
 end
 
-SANITIZE_FOR_PRODUCTION = NotInProduction.new('target/webapp', {'WEB-INF/rails/config' => 'routes.rb', 'WEB-INF/rails/app/controllers' => ['users_controller.rb'], 'WEB-INF/rails/app/controllers/admin' => 'backup_controller.rb'})
+SANITIZE_FOR_PRODUCTION = NotInProduction.new('target/webapp', {"WEB-INF/#{RAILS_DIR}/config" => 'routes.rb', USER_CONTROLLER_DIR => ['users_controller.rb'], "WEB-INF/#{RAILS_DIR}/app/controllers/admin" => 'backup_controller.rb'})
 
 task :change_rails_env_to_production do
   replace_content_in_file("target/webapp/WEB-INF/web.xml", "<param-value>development</param-value>", "<param-value>production</param-value>")

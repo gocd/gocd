@@ -57,8 +57,8 @@ Go::Application.routes.draw do
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
-  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
-  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
+  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
+  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
 
   get "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_listing
   put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :defaults => {:stage_parent => "pipelines"}, as: :admin_stage_use_template
@@ -121,8 +121,8 @@ Go::Application.routes.draw do
   delete "admin/templates/:pipeline_name" => "admin/templates#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :delete_template
   get "admin/templates/:template_name/permissions" => "admin/templates#edit_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :edit_template_permissions
   post "admin/templates/:template_name/permissions" => "admin/templates#update_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :update_template_permissions
-  get "admin/templates/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_edit
-  put "admin/templates/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_update
+  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_edit
+  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_update
 
   get "admin/package_definitions/:repo_id/new" => "admin/package_definitions#new", as: :package_definitions_new
   get "admin/package_definitions/:repo_id/new_for_new_pipeline_wizard" => "admin/package_definitions#new_for_new_pipeline_wizard", as: :package_definitions_new_for_new_pipeline_wizard

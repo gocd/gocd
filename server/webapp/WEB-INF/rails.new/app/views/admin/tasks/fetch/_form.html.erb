@@ -42,8 +42,8 @@
 
 <script type="text/javascript">
     Util.on_load(function() {
-        var pipelines = <%= @pipeline_json -%>;
-        var currentPipelineName = '<%=@pipeline.name() -%>';
+        var pipelines = <%== @pipeline_json %>;
+        var currentPipelineName = '<%= @pipeline.name() %>';
         var fetchTaskEditor = new TaskEditor.FetchTaskEditor();
         fetchTaskEditor.wireInAutocomplete(jQuery("#task_pipelineName"), jQuery("#task_stage"), jQuery("#task_job"), pipelines, currentPipelineName);
     });

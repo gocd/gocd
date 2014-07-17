@@ -35,7 +35,7 @@
 <script type="text/javascript">
     Util.on_load(function() {
         function hookupPermissionsAutoComplete() {
-            jQuery(<%="\".permissions_#{scope[:id_prefix]}_name\"" -%>).autocomplete(<%= scope[:autocomplete_suggestions] -%>, {
+            jQuery(<%=="\".permissions_#{scope[:id_prefix]}_name\""%>).autocomplete(<%= scope[:autocomplete_suggestions] -%>, {
                 minChars: 0,
                 width: 400,
                 matchContains: "word",

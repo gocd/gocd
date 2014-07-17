@@ -67,7 +67,7 @@
                                         <script type="text/javascript">
                                             Util.on_load(function() {
                                                 jQuery("#<%=pipeline_random_id_for_clone-%>").live('click',function() {
-                                                    var titleText = <%= "#{l.string("CLONE_PIPELINE")} - #{pipeline.name()}".to_json -%>;
+                                                    var titleText = <%== "#{l.string("CLONE_PIPELINE")} - #{pipeline.name()}".to_json %>;
                                                     Util.ajax_modal("<%= pipeline_clone_path(:pipeline_name => pipeline.name(), :group => group.getGroup()) -%>", {width: 805, title: titleText}, function(text){return text});
                                                 });
                                             });

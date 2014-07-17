@@ -35,7 +35,7 @@
         </div>
         <script type="text/javascript">
             Util.on_load(function () {
-                var callback = Util.domUpdatingCallback(<%= scope[:name_body_map].to_json -%>, jQuery('#used_params'), function () {
+                var callback = Util.domUpdatingCallback(<%== scope[:name_body_map].to_json %>, jQuery('#used_params'), function () {
                     return this.value;
                 });
                 var template_selector = jQuery('#select_template');

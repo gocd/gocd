@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    var pipelines = <%= scope[:pipeline_stages_json]-%>;
+    var pipelines = <%== scope[:pipeline_stages_json] %>;
 
     jQuery("<%= scope[:selector] -%>").autocomplete(pipelines, {
         minChars: 0,

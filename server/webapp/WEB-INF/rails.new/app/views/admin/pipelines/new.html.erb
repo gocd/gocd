@@ -54,7 +54,7 @@
           var tab_manager = new TabsManager('basic-settings', 'materials', 'stage-and-job');
           var wizard = new TabsWizard.NewPipelineWizard(tab_manager);
 
-          wizard.addExtraValidations(<%= @all_pipelines.map{|item| item.downcase}.to_json %>);
+          wizard.addExtraValidations(<%== @all_pipelines.map{|item| item.downcase}.to_json %>);
           wizard.wireButtonsWithValidations([{next_to_settings: "materials"}, {next_to_materials: "stage-and-job"}]);
           wizard.wireButtons({prev_to_materials: "basic-settings", prev_to_stage_and_job: "materials" });
           wizard.hookupFinishValidations();

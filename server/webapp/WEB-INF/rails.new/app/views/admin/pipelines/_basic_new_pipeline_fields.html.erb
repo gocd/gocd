@@ -18,7 +18,7 @@
 </div>
 
 <script type="text/javascript">
-    var groups = <%= @groups_json %>
+    var groups = <%== @groups_json %>
     jQuery("#pipeline_group_name_text_field").autocomplete(groups, {
         minChars: 0,
         width: 400,

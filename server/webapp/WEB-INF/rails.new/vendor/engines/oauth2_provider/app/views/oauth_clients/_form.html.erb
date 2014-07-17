@@ -1,0 +1,27 @@
+<% form_for(@oauth_client, :html => {:id => 'oauth_client_edit_form', :class => nil}) do |f| %>
+
+  <div class="form_item">
+    <label for='name'>
+        Name:
+        <span class="notes">
+          (The name of the client which will be accessing data from this server.)
+        </span>
+    </label>
+    <%= f.text_field :name, :class => 'width-large' %>
+  </div>
+  
+  <div class="form_item">
+    <label for='redirect_uri'>
+        OAuth Redirect URI:
+        <span class="notes">
+          (The redirect URI provided by the client.)
+        </span>
+    </label>
+    <%= f.text_field :redirect_uri, :class => 'width-large' %>
+  </div>
+  
+  <div class="action-bar">
+    <%= link_to_function 'Submit', 'document.getElementById("oauth_client_edit_form").submit()', {:class => 'link_as_button primary', :href => 'javascript:void(0)'} %>
+    <%= link_to 'Cancel', {:controller => 'oauth_clients'}, {:class => 'link_as_button back_link'} %>
+  </div>
+<% end %>

@@ -1,0 +1,12 @@
+Description:
+    Generates configuration and migrations necessary to configure
+    and run this plugin!
+
+Example:
+    ./script/generate oauth2_provider
+
+    This will create:
+        config/initializers/oauth2_provider.rb
+        db/migrate/TIMESTAMP_create_oauth_authorizations.rb
+        db/migrate/TIMESTAMP_create_oauth_clients.rb
+        db/migrate/TIMESTAMP_create_oauth_tokens.rb

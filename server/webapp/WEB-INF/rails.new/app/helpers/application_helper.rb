@@ -314,7 +314,7 @@ module ApplicationHelper
       i+=1
       new_txt.insert(i*break_at_length, "<wbr/>")
     end
-    return new_txt
+    return new_txt.html_safe
   end
 
   def selections
@@ -352,7 +352,7 @@ module ApplicationHelper
       splitTxt[i] = segment
       i+=1
     end
-    return splitTxt.join("-<wbr/>")
+    return splitTxt.join("-<wbr/>").html_safe
   end
 
   def make_https url
@@ -383,7 +383,7 @@ module ApplicationHelper
       text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
     end
     text = text + "<span class='hint'>"+hint+"</span>"
-    form.label(name, text)
+    form.label(name, text.html_safe)
   end
 
   def render_pluggable_template(task_view_model, options = {})

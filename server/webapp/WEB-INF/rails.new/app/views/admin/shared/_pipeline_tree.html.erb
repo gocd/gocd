@@ -26,10 +26,10 @@
                     %>
                     <li class="<%= stage_class -%>">
                         <div class="hitarea expandable-hitarea"></div>
-                        <%= link_to(stage.name(), tab_aware_stage_link(scope[:pipeline].name(), stage.name(), params[:current_tab]), :class => is_stage_parent ? "parent_selected" : current_stage ? "selected" : "", :title => stage.name()) -%>
+                        <%= link_to(stage.name(), tab_aware_stage_link(params[:stage_parent], scope[:pipeline].name(), stage.name(), params[:current_tab]), :class => is_stage_parent ? "parent_selected" : current_stage ? "selected" : "", :title => stage.name()) -%>
                         <ul class="jobs<%= " hidden" unless current_stage %>">
                             <% stage.getJobs().each do |job| %>
-                                <li><%= link_to(job.name(), tab_aware_job_link(scope[:pipeline].name(), stage.name(), job.name(), params[:current_tab]), :class => current_stage && job.name().to_s == params[:job_name] ? "selected" : "", :title => job.name()) -%></li>
+                                <li><%= link_to(job.name(), tab_aware_job_link(params[:stage_parent], scope[:pipeline].name(), stage.name(), job.name(), params[:current_tab]), :class => current_stage && job.name().to_s == params[:job_name] ? "selected" : "", :title => job.name()) -%></li>
                             <% end %>
                         </ul>
                     </li>

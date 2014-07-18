@@ -189,7 +189,7 @@ describe Admin::StagesController do
         actual_stage.should == new_stage
         actual_stage.getJobs().get(0).tasks().first.should == AntTask.new
         assigns[:task_view_models] = @tvms
-        assert_template layout: "admin"
+        assert_template layout: false
       end
     end
 

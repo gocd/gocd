@@ -80,7 +80,7 @@
 
     Util.on_load(function() {
          function hookupPermissionsAutoComplete() {
-            jQuery(<%=="\".permissions_#{scope[:permission_type]}_name\""%>).autocomplete(<%= scope[:autocomplete_suggestions] -%>, {
+            jQuery(<%=="\".permissions_#{scope[:permission_type]}_name\""%>).autocomplete(<%== scope[:autocomplete_suggestions] %>, {
                 minChars: 0,
                 width: 248,
                 matchContains: "word",

@@ -184,7 +184,7 @@
                 <div class="checkbox_row">
                     <%= form.radio_button :purgeArtifacts, "Size", :id => "select_artifact_purge_size" %>
 
-                    <span class="checkbox_label"><%= l.string("WHEN_AVAILABLE_DISK_SPACE_SIZE_IS_LESS_THAN_AND_KEEP_DELETING_UNTIL",
+                    <span class="checkbox_label"><%== l.string("WHEN_AVAILABLE_DISK_SPACE_SIZE_IS_LESS_THAN_AND_KEEP_DELETING_UNTIL",
                                                               form.text_field(:purgeStart, :size => 30, :maxLength => 64, :class => "small_text_field"),
                                                               form.text_field(:purgeUpto, :size => 30, :maxLength => 64, :class => "small_text_field")) -%></span>
                 </div>

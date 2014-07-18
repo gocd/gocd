@@ -676,6 +676,7 @@ describe Admin::PipelinesController do
         assigns[:group_name].should == "group1"
         assigns[:groups_list].should == ["group1", "group2"]
         assigns[:groups_json].should == [{"group" => "group1"}, {"group" => "group2"}].to_json
+        assert_template layout: false
       end
     end
 
@@ -731,11 +732,11 @@ describe Admin::PipelinesController do
   end
 
   describe "clone with error" do
-   it "should render error if pipeline to be cloned does not exist" do
+    it "should render error if pipeline to be cloned does not exist" do
+      get :clone, :pipeline_name => "doesNotExist", :config_md5 => "1234abcd", :group => "group1"
 
-        get :clone, :pipeline_name => "doesNotExist", :config_md5 => "1234abcd", :group => "group1"
-
-        response.response_code.should == 404
-      end
+      response.response_code.should == 404
+      assert_template layout: "application"
+    end
   end
 end

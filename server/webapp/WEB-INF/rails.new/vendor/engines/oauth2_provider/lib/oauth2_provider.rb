@@ -13,7 +13,7 @@ require 'ext/validatable_ext'
 module Oauth2Provider
   Oauth2::Provider::ModelBase.datasource = ENV["OAUTH2_PROVIDER_DATASOURCE"]
 
-  Dir[File.join(File.dirname(__FILE__), "..", "app", "**", '*.rb')].each do |rb_file|
+  Dir[File.join(File.dirname(__FILE__), "..", "..", "app", "**", '*.rb')].each do |rb_file|
     require File.expand_path(rb_file)
   end
 end

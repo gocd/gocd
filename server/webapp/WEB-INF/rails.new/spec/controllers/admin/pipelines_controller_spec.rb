@@ -87,7 +87,6 @@ describe Admin::PipelinesController do
     end
 
     it "should load pause_info for json" do
-
       get :pause_info, :pipeline_name => "HelloWorld", :format => "json"
 
       assigns[:pipeline].should_not be_nil
@@ -109,7 +108,6 @@ describe Admin::PipelinesController do
       @go_config_service.should_receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(pipeline_config_for_edit)
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
-
     end
 
     describe "for authorized user" do
@@ -125,6 +123,7 @@ describe Admin::PipelinesController do
           assigns[:pipeline].name().should == CaseInsensitiveString.new("HelloWorld")
           assigns[:pipeline].getLabelTemplate().should == "some_label_template"
           assigns[:pause_info].should == @pause_info
+          assert_template layout: "pipelines/details"
         end
       end
 
@@ -151,7 +150,9 @@ describe Admin::PipelinesController do
 
       it "should error out when user is unauthorized" do
         @result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["HelloWorld"].to_java), HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+
         get :edit, :pipeline_name => "HelloWorld", :current_tab => 'general', :stage_parent=>"pipelines"
+
         assigns[:pipeline].should be_nil
         response.body.should have_tag("h3", "Unauthorized to edit HelloWorld pipeline.")
       end
@@ -181,7 +182,9 @@ describe Admin::PipelinesController do
 
       it "should set config attributes on pipeline when updating" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline => {"labelTemplate" => "${COUNT}-something"}, :config_md5 => "md5", :stage_parent=>"pipelines"
+
         assigns[:pipeline].should == @pipeline
         @pipeline.getLabelTemplate().should == "${COUNT}-something"
         assigns[:pause_info].should == @pause_info
@@ -192,12 +195,15 @@ describe Admin::PipelinesController do
         @pipeline.variables().add("key1", "value1")
 
         put :update, :pipeline_name => "pipeline-name", :current_tab => 'general', :config_md5 => "md5", :default_as_empty_list => ["pipeline>variables"], :stage_parent=>"pipelines"
+
         assigns[:pipeline].variables().isEmpty().should == true
 
         @pipeline.addParam(ParamConfig.new("param1", "value1"))
 
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :current_tab => 'general', :config_md5 => "md5", :default_as_empty_list => ["pipeline>params"], :stage_parent=>"pipelines"
+
         assigns[:pipeline].getParams().isEmpty().should == true
         assigns[:pause_info].should == @pause_info
       end
@@ -207,9 +213,12 @@ describe Admin::PipelinesController do
           node.addError("labelTemplate", "invalid-label")
           result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
         end
+
         put :update, :pipeline_name => "pipeline-name", :current_tab => 'general', :pipeline => {"labelTemplate" => "${COUNT}-#junk"}, :config_md5 => "md5", :stage_parent=>"pipelines"
+
         assigns[:errors].size.should == 0
         assigns[:pause_info].should == @pause_info
+        assert_template layout: "pipelines/details"
       end
 
       describe "params" do
@@ -297,12 +306,14 @@ describe Admin::PipelinesController do
       assigns[:all_pipelines].should == java.util.ArrayList.new
       assigns[:cruise_config].should == @cruise_config
       assigns[:original_cruise_config].should == @cruise_config
+      assert_template layout: "application"
     end
 
     it "should populate group name if adding to an existing group and get all existing pipelines as list of string" do
       cruise_config_mother = GoConfigMother.new
       cruise_config_mother.addPipeline(@cruise_config, "new_pipeline", "stageName", ["jobname"].to_java(java.lang.String))
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+
       get :new, :group => "foo.bar"
 
       assigns[:group_name].should == "foo.bar"
@@ -331,6 +342,7 @@ describe Admin::PipelinesController do
       @cruise_config_mother.addPipeline(cruise_config_interpolated, "someTemplatePipeline", "templateStage", ["templateJob"].to_java(java.lang.String))
 
       @go_config_service.should_receive(:getCurrentConfig).and_return(cruise_config_interpolated)
+
       get :new
 
       assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"someTemplatePipeline\",\"stage\":\"templateStage\"}]"
@@ -347,6 +359,7 @@ describe Admin::PipelinesController do
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+
       get :new
 
       assigns[:groups_json].should == [{"group" => "group1"}, {"group" => "group2"}].to_json
@@ -725,5 +738,4 @@ describe Admin::PipelinesController do
         response.response_code.should == 404
       end
   end
-
 end

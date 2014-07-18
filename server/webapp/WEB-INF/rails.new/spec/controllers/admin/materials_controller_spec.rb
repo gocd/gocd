@@ -54,7 +54,9 @@ describe Admin::MaterialsController do
 
     it "should set current tab param" do
       get :index, {:pipeline_name => @pipeline_name}
+
       controller.params[:current_tab].should == 'materials'
+      assert_template layout: "pipelines/details"
     end
   end
 
@@ -107,6 +109,7 @@ describe Admin::MaterialsController do
 
       @cruise_config.getAllErrors().size.should == 1
       response.status.should == 400
+      assert_template layout: "pipelines/details"
     end
   end
 end

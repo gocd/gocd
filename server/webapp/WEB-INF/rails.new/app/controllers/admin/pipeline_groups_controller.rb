@@ -25,6 +25,7 @@ class Admin::PipelineGroupsController < AdminController
 
   def new
     assert_load :group, PipelineConfigs.new
+    render layout: false
   end
 
   def show
@@ -54,7 +55,7 @@ class Admin::PipelineGroupsController < AdminController
         @group.setConfigAttributes(params[:group])
         cruise_config.getGroups().add(@group)
       end
-    end.new(params, current_user, security_service, @group), {:action => :new}) do
+    end.new(params, current_user, security_service, @group), {:action => :new, :layout => false}) do
       assert_load :group, @subject
     end
   end

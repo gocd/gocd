@@ -70,6 +70,7 @@ describe Admin::TasksController do
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
 
       stub_save_for_success
+
       post :decrement_index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks"
 
       @tasks.size().should == 4

@@ -30,6 +30,7 @@ module Admin
     def new
       load_new_material(@cruise_config)
       load_other_form_objects(@processed_cruise_config)
+      render layout: false
     end
 
     def create
@@ -45,6 +46,7 @@ module Admin
     def edit
       get_material_from_pipeline
       load_other_form_objects(@processed_cruise_config)
+      render layout: false
     end
 
     def update

@@ -93,11 +93,14 @@ describe Admin::PackageRepositoriesController do
       it "should render form for addition of package repository" do
         package_repositories = PackageRepositories.new
         @cruise_config.setPackageRepositories(package_repositories)
+
         get :new
+
         assigns[:tab_name].should == "package-repositories"
         assigns[:package_repository].should_not be_nil
         assigns[:package_repositories].should == package_repositories
         assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        assert_template layout: "admin"
       end
     end
 
@@ -113,11 +116,14 @@ describe Admin::PackageRepositoriesController do
       it "should render page for package repository list" do
         package_repositories = PackageRepositories.new
         @cruise_config.setPackageRepositories(package_repositories)
+
         get :list
+
         assigns[:tab_name].should == "package-repositories"
         assigns[:package_repository].should_not be_nil
         assigns[:package_repositories].should == package_repositories
         assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        assert_template layout: "admin"
       end
     end
 
@@ -126,7 +132,6 @@ describe Admin::PackageRepositoriesController do
         @cruise_config = CruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
-
 
         repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
         repos = PackageRepositories.new
@@ -146,6 +151,7 @@ describe Admin::PackageRepositoriesController do
         assigns[:repository_configuration].properties[0].value.should == nil
         assigns[:plugin_id].should == "pluginid"
         assigns[:isNewRepo].should == true
+        assert_template layout: false
       end
 
       it "should get the configuration properties with values for a given repo-id associated with package material plugin" do
@@ -157,6 +163,7 @@ describe Admin::PackageRepositoriesController do
         assigns[:repository_configuration].properties[0].value.should == "v1"
         assigns[:plugin_id].should == "pluginid"
         assigns[:isNewRepo].should == false
+        assert_template layout: false
       end
     end
 
@@ -175,7 +182,9 @@ describe Admin::PackageRepositoriesController do
         package_repository.setId("repo-id")
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("repo-id", 200,  "success"))
+
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+
         response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"repo-id\",\"redirectUrl\":\"/admin/package_repositories/repo-id/edit\"}"
         flash[:success].should == "success"
         response.response_code.should == 200
@@ -186,7 +195,9 @@ describe Admin::PackageRepositoriesController do
         package_repository = PackageRepository.new
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::failure(nil, 500, "failed", nil, nil));
+
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+
         flash[:success].should == nil
         response.response_code.should == 500
         response.headers["Go-Config-Error"].should == "failed"
@@ -214,6 +225,7 @@ describe Admin::PackageRepositoriesController do
 
       it "should render form for editing  package repository" do
         get :edit, :id => "abcd-1234"
+
         assigns[:package_repository].should == @repository1
         assigns[:repository_configuration].should_not be_nil
         assigns[:repository_configuration].properties.size.should == 1
@@ -222,10 +234,12 @@ describe Admin::PackageRepositoriesController do
         assigns[:package_repositories].should == @cruise_config.getPackageRepositories()
         assigns[:tab_name].should == "package-repositories"
         assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        assert_template layout: "admin"
       end
 
       it "should render error if plugin is missing package repository" do
         get :edit, :id => "with-missing-plugin"
+
         assigns[:package_repository].should == @repository2
         assigns[:repository_configuration].should_not be_nil
         assigns[:repository_configuration].properties.size.should == 0
@@ -237,6 +251,7 @@ describe Admin::PackageRepositoriesController do
 
       it "should render 404 page when repo is missing" do
         get :edit, :id => "missing-repo-id"
+
         response.response_code.should == 404
         assigns[:message].should == "Could not find the repository with id 'missing-repo-id'. It might have been deleted."
         assigns[:status].should == 404
@@ -256,7 +271,9 @@ describe Admin::PackageRepositoriesController do
         package_repository = PackageRepository.new
         PackageRepository.stub(:new).and_return(package_repository)
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("id", 200, "success"))
+
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+
         response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\",\"redirectUrl\":\"/admin/package_repositories/id/edit\"}"
         flash[:success].should == "success"
         response.response_code.should == 200
@@ -273,7 +290,9 @@ describe Admin::PackageRepositoriesController do
         ajax_response = ConfigUpdateAjaxResponse::failure("id", 500, "failed", fieldErrors, Arrays.asList(["global1", "global2"].to_java(java.lang.String)))
 
         @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ajax_response)
+
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
+
         flash[:notice].should == nil
         response.body.should == "{\"fieldErrors\":{\"field2\":[\"error 2\"],\"field1\":[\"error 1\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"
         flash[:success].should == nil
@@ -370,6 +389,7 @@ describe Admin::PackageRepositoriesController do
         assert_template "edit"
         assert_template layout: "admin"
         response.status.should == 400
+        assert_template layout: "admin"
       end
     end
   end

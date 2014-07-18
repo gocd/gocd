@@ -95,6 +95,7 @@ describe Admin::TemplatesController do
         get :index
 
         assigns[:template_to_pipelines].should == @template_to_pipelines
+        assert_template layout: "admin"
       end
     end
 
@@ -124,6 +125,7 @@ describe Admin::TemplatesController do
 
         assigns[:pipeline].should == @pipeline
         response.should render_template("edit_permissions")
+        assert_template layout: "admin"
       end
 
       it "should assign users for autocomplete" do
@@ -168,6 +170,7 @@ describe Admin::TemplatesController do
         response.status.should == 400
         assigns[:pipeline].should == @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template'))
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
+        assert_template layout: "admin"
       end
     end
 
@@ -216,7 +219,7 @@ describe Admin::TemplatesController do
 
         assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "", expected)
         assert_template "new"
-        assert_template layout: []
+        assert_template layout: false
       end
 
       it "should create an empty template when pipelineToExtractFrom is set" do
@@ -232,7 +235,7 @@ describe Admin::TemplatesController do
 
         assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "pipeline1", expected)
         assert_template "new"
-        assert_template layout: []
+        assert_template layout: false
       end
 
     end
@@ -326,6 +329,7 @@ describe Admin::TemplatesController do
         assert_save_arguments "abcd1234"
         assert_template "new"
         response.status.should == 400
+        assert_template layout: false
       end
     end
   end

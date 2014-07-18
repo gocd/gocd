@@ -97,7 +97,9 @@ describe Admin::JobsController do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+
         get :index, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines"
+
         assigns[:pipeline].should == @pipeline
         assigns[:stage].should == @pipeline.get(0)
         assigns[:jobs].should_not == nil
@@ -105,6 +107,7 @@ describe Admin::JobsController do
         assigns[:jobs].get(0).name().should == CaseInsensitiveString.new("job-1")
         assigns[:jobs].get(1).name().should == CaseInsensitiveString.new("job-2")
         assigns[:jobs].get(2).name().should == CaseInsensitiveString.new("job-3")
+        assert_template layout: "pipelines/stage"
       end
     end
 
@@ -130,6 +133,7 @@ describe Admin::JobsController do
         actual_job_assigned = assigns[:job]
         actual_job_assigned.should == JobConfig.new(CaseInsensitiveString.new(""), nil, nil, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         actual_job_assigned.tasks().first.should == AntTask.new
+        assert_template layout: false
       end
     end
 
@@ -141,7 +145,9 @@ describe Admin::JobsController do
       it "should delete the given job" do
         stub_save_for_success
         stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
+
         delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines"
+
         jobs = @pipeline.get(0).getJobs()
         jobs.size().should == 2
         jobs.get(0).name().should == CaseInsensitiveString.new("job-2")
@@ -154,11 +160,14 @@ describe Admin::JobsController do
         stub_save_for_validation_error do |result, *_|
           result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
+
         delete :destroy, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :config_md5 => "1234abcd", :stage_parent => "pipelines"
+
         jobs = @pipeline.get(0).getJobs()
         jobs.size().should == 2
         jobs.get(0).name().should == CaseInsensitiveString.new("job-2")
         jobs.get(1).name().should == CaseInsensitiveString.new("job-3")
+        assert_template layout: "pipelines/stage"
       end
     end
 
@@ -174,9 +183,11 @@ describe Admin::JobsController do
         add_resource("job-2", "Foo")
 
         get :edit, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines"
+
         assigns[:jobs].should_not == nil
         assigns[:job].should == @pipeline.get(0).getJobs().get(0)
-        assigns[:autocomplete_resources].should == ["Foo","anything","fluff","solaris","windows-xp"].to_json        
+        assigns[:autocomplete_resources].should == ["Foo","anything","fluff","solaris","windows-xp"].to_json
+        assert_template layout: "pipelines/job"
       end
     end
 
@@ -187,8 +198,10 @@ describe Admin::JobsController do
 
       it "should update job name and redirect to the new job" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
                     :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"}, :stage_parent => "pipelines"
+
         response.location.should =~ /admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/renamed_job\/settings?.*?fm=(.+)/
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
@@ -204,7 +217,7 @@ describe Admin::JobsController do
 
         response.location.should be_nil
         assert_template "settings"
-        assert_template layout: nil
+        assert_template layout: false
         response.status.should == 401
       end
 
@@ -238,7 +251,9 @@ describe Admin::JobsController do
 
       it "should update environment variables" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines"
+
         variable = assigns[:job].variables().get(0)
         variable.name.should == "key"
         variable.value.should == "value"
@@ -248,23 +263,28 @@ describe Admin::JobsController do
       end
 
      it "should update custom tabs" do
-          stub_save_for_success
-          put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"
-          assigns[:job].getTabs().get(0).name.should == "tab1"
-          assigns[:job].getTabs().get(0).path.should == "path1"
-          response.location.should =~ /admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/tabs?.*?fm=(.+)/
-          assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+        stub_save_for_success
+
+        put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"
+
+        assigns[:job].getTabs().get(0).name.should == "tab1"
+        assigns[:job].getTabs().get(0).path.should == "path1"
+        response.location.should =~ /admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/tabs?.*?fm=(.+)/
+        assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
      end
         
       it "should clear environment variables" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines"
+
         assigns[:job].variables().isEmpty.should == true
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
 
       it "should update resources" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"
 
         assigns[:job].resources().exportToCsv().should == "a, b, c, d, "
@@ -273,7 +293,9 @@ describe Admin::JobsController do
 
       it "should populate an empty artifactPlans when params is nil" do
         stub_save_for_success
+
         put :update, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1", :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactPlans"], :stage_parent => "pipelines"
+
         assigns[:job].artifactPlans().size().should == 0
         assert_update_command ::ConfigUpdate::JobNode, ::ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
@@ -346,7 +368,8 @@ describe Admin::JobsController do
         stub_save_for_success
 
         post :create, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job => { :name => "new_job" },  :config_md5 => "1234abcd", :stage_parent => "pipelines"
-        assigns[:node].last.should == JobConfig.new("new_job") 
+
+        assigns[:node].last.should == JobConfig.new("new_job")
         assigns[:job].should == JobConfig.new("new_job")
         assert_update_command ::ConfigUpdate::JobsNode, ::ConfigUpdate::RefsAsUpdatedRefs
       end

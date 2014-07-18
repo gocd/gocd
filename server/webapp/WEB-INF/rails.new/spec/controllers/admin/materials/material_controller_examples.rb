@@ -45,7 +45,7 @@ shared_examples_for :material_controller do
     end
 
     it "delete" do
-      {:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}.should route_to(:controller => "admin/materials", :action => "destroy", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
+      {:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}.should route_to(:controller => "admin/materials", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
       send("admin_material_delete_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/finger_print"
     end
   end

@@ -35,7 +35,7 @@ module Admin
 
     def create
       load_new_material(@cruise_config)
-      save_popup(params[:config_md5], get_create_command, {:action => :new, :layout => false}, {:controller => '/admin/materials', :current_tab => params[:current_tab]}) do
+      save_popup(params[:config_md5], get_create_command, {:action => :new, :layout => false}, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
         assert_load :pipeline, get_node_for_create
         assert_load :material, @subject
         load_pause_info
@@ -50,7 +50,7 @@ module Admin
     end
 
     def update
-      save_popup(params[:config_md5], get_update_command, {:action => :edit, :layout => false}, {:controller => '/admin/materials', :current_tab => params[:current_tab]}) do
+      save_popup(params[:config_md5], get_update_command, {:action => :edit, :layout => false}, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
         assert_load :pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline(@cruise_config)
         assert_load :material, @subject unless @subject.nil?
         load_other_form_objects(@cruise_config)

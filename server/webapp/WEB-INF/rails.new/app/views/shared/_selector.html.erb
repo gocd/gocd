@@ -4,7 +4,7 @@
    scope[:selection_field_name] ||= "selections" %>
 <div class='selectors'>
     <span id="<%= scope[:view_id] %>" class='selector'><%= scope[:selection].getValue() %></span>
-    <select name="<%= scope[:selection_field_name] -%>[<%= scope[:selection].getValue() %>]" id="<%= scope[:field_id] %>" class='hidden' <%= scope[:selection].isEnabled() ? '' : "disabled='disabled'" %>>
+    <select name="<%= scope[:selection_field_name] -%>[<%= scope[:selection].getValue() %>]" id="<%= scope[:field_id] %>" class='hidden' <%== scope[:selection].isEnabled() ? '' : "disabled='disabled'" %>>
         <option value='add'
                 <% if scope[:selection].getAction() == TriStateSelection::Action.add %>selected='true'
                 <% end %>>add

@@ -284,6 +284,13 @@ module ApplicationHelper
     %Q|<a href="#" onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
   end
 
+  def link_to_remote_new(name, options = {}, html_options = nil)
+    raise "Expected link name. Didn't find it." unless name
+    [:method, :url].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
+
+    %Q|<a href="#" #{tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
+  end
+
   def end_form_tag
     "</form>".html_safe
   end
@@ -413,6 +420,10 @@ module ApplicationHelper
     "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>".html_safe
   end
 
+  def form_remote_tag_new(options = {})
+    form_remote_tag(options)
+  end
+
   private
   def form_remote_tag(options = {})
     options[:form] = true
@@ -427,10 +438,18 @@ module ApplicationHelper
 
   # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
   def remote_function options
+    update =  options[:update]
+    url = escape_javascript(url_for(options[:url]))
     retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
     success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
-    url = escape_javascript(url_for(options[:url]))
+    complete_section = options.key?(:complete)? "onComplete:function(request){#{options[:complete]}}, "  : ""
+    failure_section = options.key?(:failure)? "onFailure:function(request){#{options[:failure]}}, "  : ""
+    before_section = options.key?(:before)? "#{options[:before]} "  : ""
+    if update.nil? || update.empty? then
+      %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
+    else
+      %Q|#{before_section}new Ajax.Updater({success:'#{options[:update][:success]}'}, '#{url}', {asynchronous:true, evalScripts:true, #{failure_section}#{complete_section}#{success_section}parameters:Form.serialize(this)})|
 
-    %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
+    end
   end
 end

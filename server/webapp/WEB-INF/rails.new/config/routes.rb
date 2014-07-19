@@ -247,6 +247,21 @@ Go::Application.routes.draw do
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
   post "agents/:action" , :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
 
+  scope 'admin/users', module:'admin' do
+    defaults :no_layout => true do
+      get 'new' => 'users#new', as: :users_new
+      post 'create' =>   'users#create', as: :users_create
+      post 'search' => 'users#search', as: :users_search
+      post 'roles' => 'users#roles', as: :user_roles
+      delete 'delete_all' => 'users#delete_all', as: :users_delete  #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+    end
+    post 'operate'  => 'users#operate', as: :user_operate
+    get ''=>'users#users', as: :user_listing
+  end
+
+  defaults :no_layout => true do
+    post '/users/dismiss_license_expiry_warning' => 'admin/users#dismiss_license_expiry_warning', as: :dismiss_license_expiry_warning
+  end
 
   # dummy mappings. for specs to pass
   get '/server/messages.json' => 'test/test#index', as: :global_message
@@ -258,9 +273,7 @@ Go::Application.routes.draw do
   get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients
-  get 'test' => 'test/test#index', as: :user_listing
   get 'test' => 'test/test#index', as: :oauth_clients
-  get 'test' => 'test/test#index', as: :dismiss_license_expiry_warning
 
   # catch all route
   match '*url', via: :all, to: 'application#unresolved'

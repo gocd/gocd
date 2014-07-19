@@ -479,4 +479,73 @@ describe ApplicationHelper do
       is_user_a_template_admin?.should == true
     end
   end
+
+  describe :link_to_remote_new do
+    it 'should return anchor tag with on success function' do
+      expected = %q|<a href="#"  class="link_as_button" onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){Modalbox.show(alert('hi')}}); return false;">link name</a>|
+      actual = link_to_remote_new('link name',{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
+      expect(actual).to eq(expected)
+    end
+
+    it 'should return anchor tag without optional params' do
+      expected = %q|<a href="#"  onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){}}); return false;">link name</a>|
+      actual = link_to_remote_new('link name',{:method=>:get, :url => "url"})
+      expect(actual).to eq(expected)
+    end
+
+    it 'should raise exception when link name not provided' do
+      begin
+        link_to_remote_new(nil,{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
+        fail "should have raised exception"
+      rescue => e
+        expect(e.message).to eq("Expected link name. Didn't find it.")
+      end
+    end
+
+    it 'should raise exception when method not provided in options' do
+      begin
+        link_to_remote_new("link name",{ :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
+        fail "should have raised exception"
+      rescue => e
+        expect(e.message).to eq("Expected key: method. Didn't find it. Found: [:url, :success]")
+      end
+    end
+
+    it 'should raise exception when method not provided in options' do
+      begin
+        link_to_remote_new("link name",{:method=> :url, :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
+        fail "should have raised exception"
+      rescue => e
+        expect(e.message).to eq("Expected key: url. Didn't find it. Found: [:method, :success]")
+      end
+    end
+
+  end
+
+  describe :form_remote_tag_new do
+
+   it 'should generate form tag with on complete for ajax update' do
+     expected = %q|<form accept-charset="UTF-8" action="/admin/users/search" method="post" onsubmit="jQuery('#search_id').addClass('ac_loading'); new Ajax.Updater({success:'search_results_container'}, '/admin/users/search', {asynchronous:true, evalScripts:true, onComplete:function(request){jQuery('#search_id').removeClass('ac_loading');}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+     actual = form_remote_tag_new(
+         :url => users_search_path,
+         :update => {:success => "search_results_container"},
+         :before => "jQuery('#search_id').addClass('ac_loading');",
+         :complete => "jQuery('#search_id').removeClass('ac_loading');"
+     )
+     expect(actual).to eq(expected)
+   end
+
+   it 'should generate form tag with on success and failure for ajax update' do
+     expected = %q|<form accept-charset="UTF-8" action="/admin/users/create" method="post" onsubmit="new Ajax.Updater({success:'tab-content-of-user-listing'}, '/admin/users/create', {asynchronous:true, evalScripts:true, onFailure:function(request){Util.refresh_child_text('add_error_message', request.responseText, 'error');}, onSuccess:function(request){Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');}, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>|
+     actual = form_remote_tag_new(
+         :url => users_create_path,
+         :update => {:success => "tab-content-of-user-listing"},
+         :failure => "Util.refresh_child_text('add_error_message', request.responseText, 'error');",
+         :success => "Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');"
+     )
+     expect(actual).to eq(expected)
+   end
+
+  end
+
 end

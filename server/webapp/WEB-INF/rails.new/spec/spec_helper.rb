@@ -47,7 +47,7 @@ RSpec.configure do |config|
     com.thoughtworks.go.server.web.FlashMessageService.useFlash(com.thoughtworks.go.server.web.FlashMessageService::Flash.new)
   end
 
-  config.after(:all) do
+  config.after(:each) do
     ServiceCacheStrategy.instance.clear_services
   end
 end

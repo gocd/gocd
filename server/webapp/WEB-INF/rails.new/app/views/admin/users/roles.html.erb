@@ -1,0 +1,4 @@
+<div class="hilighted">
+    <%= render :partial => 'shared/selector', :locals => {:scope => {:selection => @admin_selection, :selection_field_name => "admin", :disabled_message => l.string("ADMIN_PRIVILEGE_SWITCHING_DISABLED_AS_GROUP_PRIVILEGES_ARE_USED")}} %>
+</div>
+<%= render :partial => 'shared/selectors', :locals => {:scope => {:selections=>@selections}} %>

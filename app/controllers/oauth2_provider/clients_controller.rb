@@ -11,8 +11,7 @@ module Oauth2Provider
 
 
     def index
-      raise 'HELL'
-      @oauth_clients = Oauth2Provider::OauthClient.all.sort{|a, b| a.name.casecmp(b.name)}
+      @oauth_clients = Client.all.sort{|a, b| a.name.casecmp(b.name)}
       respond_to do |format|
         format.html
         format.xml  { render :xml => @oauth_clients.to_xml(:root => 'oauth_clients', :dasherize => false) }

@@ -11,7 +11,8 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'ext', 'validat
 
 module Oauth2Provider
   class Engine < ::Rails::Engine
-    # isolate_namespace Oauth2Provider
+    isolate_namespace Oauth2Provider
+    engine_name 'oauth_engine'
     
     Oauth2Provider::ModelBase.datasource = ENV["OAUTH2_PROVIDER_DATASOURCE"]
     Dir[File.join(File.dirname(__FILE__), "..", "..", "app", "**", '*.rb')].each do |rb_file|

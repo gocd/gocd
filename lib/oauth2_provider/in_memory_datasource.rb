@@ -29,35 +29,35 @@ module Oauth2Provider
       @@oauth_authorizations = []
     end
     
-    def find_oauth_client_by_id(id)
+    def find_client_by_id(id)
       @@oauth_clients.find{|i| i.id.to_s == id.to_s}
     end
 
-    def find_oauth_client_by_client_id(client_id)
+    def find_client_by_client_id(client_id)
       @@oauth_clients.find{|i| i.client_id.to_s == client_id.to_s}
     end
     
-    def find_oauth_client_by_name(name)
+    def find_client_by_name(name)
       @@oauth_clients.find{|i| i.name == name}
     end
 
-    def find_oauth_client_by_redirect_uri(redirect_uri)
+    def find_client_by_redirect_uri(redirect_uri)
       @@oauth_clients.find{|i| i.redirect_uri == redirect_uri}
     end
 
-    def find_all_oauth_client
+    def find_all_client
       @@oauth_clients
     end
 
-    def save_oauth_client(attrs)
+    def save_client(attrs)
       save(@@oauth_clients, attrs)
     end
 
-    def delete_oauth_client(id)
+    def delete_client(id)
       @@oauth_clients.delete_if {|i| i.id.to_s == id.to_s}
     end
 
-    def find_all_oauth_authorization_by_oauth_client_id(client_id)
+    def find_all_oauth_authorization_by_client_id(client_id)
       @@oauth_authorizations.select {|i| i.oauth_client_id.to_s == client_id.to_s}
     end
 
@@ -81,7 +81,7 @@ module Oauth2Provider
       @@oauth_tokens.find{|i| i.id.to_s == id.to_s}
     end
 
-    def find_all_oauth_token_by_oauth_client_id(client_id)
+    def find_all_oauth_token_by_client_id(client_id)
       @@oauth_tokens.select {|i| i.oauth_client_id.to_s == client_id.to_s}
     end
 

@@ -1,4 +1,6 @@
-# Rails.application.routes.draw do # Cannot be "Oauth2Provider::Engine.routes.draw" because we want these routes to be used from the main application
-Oauth2Provider::Engine.routes.draw do  
-  resources :clients
+Oauth2Provider::Engine.routes.draw do
+  root to: "clients#index"
+
+  get "clients" => "clients#index", as: :clients
+  get "clients/new" => "clients#new", as: :clients_new
 end

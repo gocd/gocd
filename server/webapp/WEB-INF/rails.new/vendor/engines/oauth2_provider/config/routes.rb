@@ -2,14 +2,8 @@
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
 
 Rails.application.routes.draw do
-  admin_prefix= ENV['ADMIN_OAUTH_URL_PREFIX']
-  user_prefix= ENV['USER_OAUTH_URL_PREFIX']
-
-  admin_prefix = "" if admin_prefix.blank?
-  user_prefix = "" if user_prefix.blank?
-
-  admin_prefix = admin_prefix.gsub(%r{^/}, '').gsub(%r{/$}, '')
-  user_prefix = user_prefix.gsub(%r{^/}, '').gsub(%r{/$}, '')
+  admin_prefix= (ENV['ADMIN_OAUTH_URL_PREFIX'] || "").gsub(%r{^/}, '').gsub(%r{/$}, '')
+  user_prefix= (ENV['USER_OAUTH_URL_PREFIX'] || "").gsub(%r{^/}, '').gsub(%r{/$}, '')
 
   delete "#{admin_prefix}/oauth/user_tokens/revoke_by_admin" => "oauth_user_tokens#revoke_by_admin"
   post "#{user_prefix}/oauth/authorize" => "oauth_authorize#authorize"

@@ -1,4 +1,2 @@
-module Oauth2Provider
-  class ApplicationController < ActionController::Base
-  end
+class Oauth2Provider::ApplicationController < ActionController::Base
 end

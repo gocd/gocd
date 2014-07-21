@@ -16,51 +16,58 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "value_stream_map/show.html.erb" do
+
+describe "/value_stream_map/show.html.erb" do
+  before do
+    stub_server_health_messages
+  end
   include GoUtil
 
   before(:each)  do
     in_params :pipeline_name => 'P1', :pipeline_counter => "1"
-    template.stub!(:url_for_pipeline).with('P1').and_return('link_for_P1')
+    allow(view).to receive(:url_for_pipeline).with('P1').and_return('link_for_P1')
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
 
   describe "render html" do
     it "should render pipeline label for VSM page breadcrumb when it is available" do
-      pipeline = mock('pipeline instance')
+      pipeline = double('pipeline instance')
       pipeline.should_receive(:getLabel).and_return('test')
-      assigns[:pipeline] = pipeline
+      assign(:pipeline, pipeline)
 
-      render "value_stream_map/show.html.erb"
+      render
 
-      response.body.should have_tag("ul.entity_title") do
-        with_tag("li.name") do
-          with_tag("a[href='link_for_P1']", "P1")
+      Capybara.string(response.body).find("ul.entity_title").tap do |div|
+        div.find("li.name").tap do |li|
+          expect(li).to have_selector("a[href='link_for_P1']", :text=> "P1")
         end
-        with_tag("li.last") do
-          with_tag("h1", "test")
+        div.find("li.last").tap do |li|
+          expect(li).to have_selector("h1", :text=> "test")
         end
       end
     end
 
     it "should render pipeline counter for VSM page breadcrumb when pipeline label is not available" do
-      assigns[:pipeline] = nil
+      assign(:pipeline, nil)
 
-      render "value_stream_map/show.html.erb"
+      render
 
-      response.body.should have_tag("ul.entity_title") do
-        with_tag("li.name") do
-          with_tag("a[href='link_for_P1']", "P1")
+      Capybara.string(response.body).find("ul.entity_title").tap do |div|
+        div.find("li.name").tap do |li|
+          expect(li).to have_selector("a[href='link_for_P1']", :text=> "P1")
         end
-        with_tag("li.last") do
-          with_tag("h1", "1")
+        div.find("li.last").tap do |li|
+          expect(li).to have_selector("h1", :text=> "1")
         end
       end
     end
 
     it "should give VSM page a title with VSM of pipelineName" do
-      render "value_stream_map/show.html.erb"
-
-      assigns[:view_title].should == "Value Stream Map of P1"
+      assign(:user, double('username', :anonymous? => true))
+      render :template => "value_stream_map/show.html.erb", :layout => 'layouts/value_stream_map'
+      page = Capybara::Node::Simple.new(response.body)
+      expect(page.title).to include("Value Stream Map of P1")
     end
 
   end

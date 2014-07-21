@@ -24,15 +24,12 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<validatable>, ["= 1.6.7"])
       s.add_development_dependency(%q<saikuro_treemap>, [">= 0"])
-      s.add_development_dependency(%q<rcov>, ["= 0.9.8"])
     else
       s.add_dependency(%q<validatable>, ["= 1.6.7"])
       s.add_dependency(%q<saikuro_treemap>, [">= 0"])
-      s.add_dependency(%q<rcov>, ["= 0.9.8"])
     end
   else
     s.add_dependency(%q<validatable>, ["= 1.6.7"])
     s.add_dependency(%q<saikuro_treemap>, [">= 0"])
-    s.add_dependency(%q<rcov>, ["= 0.9.8"])
   end
 end

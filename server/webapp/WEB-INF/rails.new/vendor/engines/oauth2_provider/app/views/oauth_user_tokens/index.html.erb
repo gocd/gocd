@@ -1,0 +1,28 @@
+<div id="oauth_page">
+    <%= render_help_link('OAuth 2.0 User Token', :class => 'page-help-at-action-bar') if defined?(render_help_link)  %>
+
+<div class="clear_float"><h1 class="entity_title"><%=l.string("OAUTH_ACCESS_TOKENS")-%></h1></div>
+
+<div class="content_wrapper_outer">
+    <div class="content_wrapper_inner">
+<% if @tokens.empty? %>
+  <div class="info-box"><%= l.string("NO_OAUTH_TOKEN_MESSAGE")-%></div>
+<% else %>
+  <table id="oauth_user_token_table" class="list_table">
+    <tr>
+      <th><%= l.string("CLIENTS_ALLOWED_TO_ACCESS_GO") -%></th>
+      <th>Action</th>
+    </tr>
+    <% @tokens.each do |token| -%>
+      <tr>
+        <td><%= h(token.oauth_client.name) %></td>
+        <td><%= link_to '<span>Delete</span>',
+            {:action => :revoke, :token_id => token.id, :controller => 'oauth_user_tokens'},
+            {:confirm => 'Are you sure?', :method => :delete,  :class => 'delete_link', :title => 'Click to revoke this token'}%></td>
+      </tr>
+    <% end -%>
+  </table>
+<% end %>
+</div>
+</div>
+</div>

@@ -1,0 +1,45 @@
+h1. Hacking on the OAuth2 Provider
+
+This plugin is tested with:
+* Rails v2.3.4
+* MRI 1.8.7 and JRuby 1.5.1
+
+Dependencies:
+* See the gemspec in "https://github.com/ThoughtWorksStudios/oauth2_provider/blob/master/provider/vendor/plugins/oauth2_provider/tasks/gem.rake":gem.rake a list of known dependencies
+
+h2. Getting up and running
+
+ $ git clone git://github.com/ThoughtWorksStudios/oauth2_provider.git
+
+For MRI:
+
+ $ [sudo] gem install rcov saikuro_treemap validatable --no-rdoc --no-ri
+
+For JRuby, nothing more is needed, JRuby 1.5.1 and all necessary gems
+are bundled in the /tools directory
+
+h2. Structure of the code
+
+ /tools - contains JRuby + dependency gems
+ /provider - a sample rails app containing the plugin
+ /provider/test - contains the unit+functional tests
+ /provider/vendor/plugins/oauth2_provider - the actual plugin
+
+h2. Hacking on code
+
+ $ cd provider
+ $ # muck around with code
+ $ rake #using MRI
+ $ script/jruby -S rake #using the bundled JRuby
+
+h2. Metrics
+
+ $ cd provider
+ $ rake test:coverage
+ $ rake metrics:saikuro_treemap
+
+h2. Pushing out gems
+
+ $ cd provider
+ $ script/jruby -S rake release:push        # follow the instructions printed by the task
+ $ script/jruby -S gem push pkg/oauth2_provider-VERSION.gem

@@ -2,6 +2,15 @@ PATH
   remote: vendor/engines/gadgets
   specs:
     gadgets (0.0.1)
+      rails (~> 4.0.4)
+      validatable (>= 1.6.0)
+
+PATH
+  remote: vendor/engines/oauth2_provider
+  specs:
+    oauth2_provider (0.2.0)
+      rails (~> 4.0.4)
+      validatable (= 1.6.7)
 
 GEM
   remote: https://rubygems.org/
@@ -34,14 +43,14 @@ GEM
     builder (3.1.4)
     erubis (2.7.0)
     hike (1.2.3)
-    i18n (0.6.9)
+    i18n (0.6.11)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
     minitest (4.7.5)
-    multi_json (1.10.0)
-    polyglot (0.3.4)
+    multi_json (1.10.1)
+    polyglot (0.3.5)
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -58,7 +67,7 @@ GEM
       activesupport (= 4.0.4)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (10.3.1)
+    rake (10.3.2)
     sprockets (2.12.1)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -69,19 +78,21 @@ GEM
       activesupport (>= 3.0)
       sprockets (~> 2.8)
     thor (0.19.1)
-    thread_safe (0.3.3)
-    thread_safe (0.3.3-java)
+    thread_safe (0.3.4)
+    thread_safe (0.3.4-java)
     tilt (1.4.1)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    tzinfo (0.3.39)
+    tzinfo (0.3.40)
     validatable (1.6.7)
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   gadgets (= 0.0.1)!
+  oauth2_provider (= 0.2.0)!
   rails (= 4.0.4)
   validatable (>= 1.6.0)

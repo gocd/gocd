@@ -1,6 +1,0 @@
-h2. List of 3rd party dependencies and their licenses
-
-This project depends on the following 3rd party code:
-
-| *Name*      | *What it does*        | *Version* | *Authors*   | *URL*                             | *License*    | *License URL*                            |
-| validatable | Validation of inputs  | 1.6.7     | Jay Fields  | http://validatable.rubyforge.org  | Ruby License | http://www.ruby-lang.org/en/LICENSE.txt  |

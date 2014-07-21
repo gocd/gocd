@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="73">
-  <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
+  <server artifactsdir="logs" siteUrl="http://localhost:8153" secureSiteUrl="https://localhost:8154" commandRepositoryLocation="default" serverId="dev-id">
     <security>
       <passwordFile path="../manual-testing/ant_hg/password.properties" />
       <roles>

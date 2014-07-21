@@ -26,6 +26,8 @@ Go::Application.routes.draw do
     CONSTANTS = true
   end
 
+  mount Oauth2Provider::Engine => '/admin/oauth', :as => :oauth_engine
+
   root 'welcome#index' # put to get root_path. '/' is handled by java.
 
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet

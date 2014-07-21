@@ -263,14 +263,15 @@ Go::Application.routes.draw do
     post '/users/dismiss_license_expiry_warning' => 'admin/users#dismiss_license_expiry_warning', as: :dismiss_license_expiry_warning
   end
 
+  get "agents/:uuid" => 'agent_details#show', as: :agent_detail
+  get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent
+
   # dummy mappings. for specs to pass
   get '/server/messages.json' => 'test/test#index', as: :global_message
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
-  get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients
   get 'test' => 'test/test#index', as: :oauth_clients

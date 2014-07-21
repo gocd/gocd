@@ -18,8 +18,14 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
 describe "admin/package_repositories/plugin_config_for_repo.html.erb" do
   it "should render _config.html.erb" do
+    @repository_configuration = RepoViewModel.new PackageConfigurations.new, nil, nil
+    @plugin_id = "yum"
+    @isNewRepo = false
+
+    stub_template "config" => "config"
+
     render
 
-    response.should render_template(:partial => '_config')
+    assert_template partial: "config", :locals => {:scope => {:repository_configuration => @repository_configuration, :plugin_id => @plugin_id, :isNewRepo => @isNewRepo}}
   end
 end

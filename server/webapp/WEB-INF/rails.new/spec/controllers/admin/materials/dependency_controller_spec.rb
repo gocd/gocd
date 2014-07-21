@@ -143,7 +143,6 @@ describe Admin::Materials::DependencyController do
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-
       get :new, :pipeline_name => "pipeline-name"
 
       assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
@@ -155,7 +154,6 @@ describe Admin::Materials::DependencyController do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-
 
       get :edit, :pipeline_name => "pipeline-name", :finger_print => "fingerPrint"
 

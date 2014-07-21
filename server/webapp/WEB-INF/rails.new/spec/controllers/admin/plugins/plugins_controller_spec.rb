@@ -38,28 +38,37 @@ describe Admin::Plugins::PluginsController do
 
     it "should populate the tab name" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
+
       get :index
+
       assigns[:tab_name].should == "plugins-listing"
+      assert_template layout: "admin"
     end
 
     it "should populate the current list of plugins and the external plugins path" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
       controller.should_receive(:system_environment).and_return(@system_environment = double("system_environment"))
       @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
+
       get :index
+
       assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_2)]
       assigns[:external_plugin_location].should == "some_path"
     end
 
     it "should populate the current list of plugins in case insensitive alphabetical order when plugin names are given" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4])
+
       get :index
+
       assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)]
     end
 
     it "should populate the current list of plugins in case insensitive alphabetical order when plugin names are not given" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2, @plugin_3, @plugin_4, @plugin_5, @plugin_6])
+
       get :index
+
       assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_5), plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_6), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)]
     end
 

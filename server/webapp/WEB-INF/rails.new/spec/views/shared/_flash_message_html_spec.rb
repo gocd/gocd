@@ -37,5 +37,35 @@ describe "/shared/_flash_message.html.erb" do
       expect(response.body).to have_selector("div#message_pane p", "&lt;h2&gt;")
     end
 
+    it "should render help links next to flash message" do
+      assign(:flash_message, 'flash_key')
+      flash = mock('flash')
+      flash.should_receive(:flashClass).and_return('error')
+      flash.should_receive(:to_s).and_return('some random message')
+      template.stub(:load_flash_message).with('flash_key').and_return(flash)
+      assign(:flash_help_link, "<a href='foo'>Foo</a>")
+
+      render :partial => "shared/flash_message.html.erb"
+
+      Capybara.string(response.body).find("p.error").tap do |error|
+        expect(error).to have_selector("a[href='foo']", :text => "Foo")
+      end
+    end
+
+    it "should not bomb when no help link exists" do
+      assign(:flash_message, 'flash_key')
+      flash = mock('flash')
+      flash.should_receive(:flashClass).and_return('error')
+      flash.should_receive(:to_s).and_return('some random message')
+      template.stub(:load_flash_message).with('flash_key').and_return(flash)
+      assign(:flash_help_link, nil)
+
+      render :partial => "shared/flash_message.html.erb"
+
+      Capybara.string(response.body).find("p.error").tap do |error|
+        expect(error).not_to have_selector("a[href='foo']", :text => "Foo")
+      end
+    end
+
   end
 end

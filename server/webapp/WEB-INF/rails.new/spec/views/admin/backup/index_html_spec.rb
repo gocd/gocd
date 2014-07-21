@@ -31,7 +31,7 @@ describe "admin/backup/index.html.erb" do
 
     Capybara.string(response.body).find('div.backup_server').tap do |div|
       div.find("button#backup_server").tap do |button|
-        expect(button).to have_selector("span", 'PERFORM BACKUP')
+        expect(button).to have_selector("span", :text => 'PERFORM BACKUP')
       end
     end
   end
@@ -40,13 +40,13 @@ describe "admin/backup/index.html.erb" do
     render
 
     Capybara.string(response.body).find('div.should_perform_backup_content').tap do |div|
-      expect(div).to have_selector("div.warning_message", "Jobs that are building may get rescheduled if the backup process takes a long time. Proceed with backup?")
+      expect(div).to have_selector("div.warning_message", :text => "Jobs that are building may get rescheduled if the backup process takes a long time. Proceed with backup?")
       div.find("form[id='backup_server_form'][method='post'][action='perform_backup_url']") do |form|
         form.find("button[type='submit']") do |submit_button|
-          expect(submit_button).to have_selector("span", 'PROCEED')
+          expect(submit_button).to have_selector("span", :text => 'PROCEED')
         end
         form.find("button") do |cancel_button|
-          expect(cancel_button).to have_selector("span", 'Cancel')
+          expect(cancel_button).to have_selector("span", :text => 'Cancel')
         end
       end
     end
@@ -58,8 +58,8 @@ describe "admin/backup/index.html.erb" do
 
     render
 
-    expect(response.body).to have_selector(".backup_storage_message.information span.info", "Backups are stored in #{location}")
-    expect(response.body).to have_selector(".backup_storage_message.information span.info strong", location)
+    expect(response.body).to have_selector(".backup_storage_message.information span.info", :text => "Backups are stored in #{location}")
+    expect(response.body).to have_selector(".backup_storage_message.information span.info strong", :text => location)
   end
 
   it "should show the last performed backup time" do
@@ -67,7 +67,7 @@ describe "admin/backup/index.html.erb" do
     render
 
     Capybara.string(response.body).find('.last_backup').tap do |div|
-      expect(div).to have_selector("span","Last backup was taken by 'loser' on #{@last_backup_time.iso8601}")
+      expect(div).to have_selector("span", :text => "Last backup was taken by 'loser' on #{@last_backup_time.iso8601}")
     end
   end
 
@@ -77,7 +77,7 @@ describe "admin/backup/index.html.erb" do
     render
 
     Capybara.string(response.body).find('.last_backup').tap do |div|
-      expect(div).to have_selector("span", "Go has not performed a backup yet.")
+      expect(div).to have_selector("span", :text => "Go has not performed a backup yet.")
     end
   end
 end

@@ -387,8 +387,7 @@
     <entry key="ARTIFACTS">Artifacts</entry>
     <entry key="RELOAD">Reload</entry>
     <entry key="NO_OAUTH_TOKEN_MESSAGE">There are no tokens.</entry>
-    <entry key="RADIO_BUTTON_TITLE_APPROVAL">'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually
-                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.</entry>
+    <entry key="RADIO_BUTTON_TITLE_APPROVAL">'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.</entry>
     <entry key="YES">Yes</entry>
     <entry key="NO">No</entry>
     <entry key="TRIGGER_TYPE">Trigger Type</entry>
@@ -430,14 +429,14 @@
     <entry key="TOOLTIP_TASK_COMMAND">The command or script to be executed, relative to the working directory</entry>
     <entry key="EXEC_ARGUMENT_LIST_INSTRUCTION">Enter each argument on a new line</entry>
     <entry key="TOOLTIP_TASK_WORKING_DIRECTORY">The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials.</entry>
-    <entry key="TOOLTIP_ANT_BUILD_FILE">Path to Ant build file. If not specified, the path defaults to ‘build.xml’.</entry>
-    <entry key="TOOLTIP_ANT_TARGET">Ant target(s) to run. If not specified, the target defaults to ‘default’.</entry>
+    <entry key="TOOLTIP_ANT_BUILD_FILE">Path to Ant build file. If not specified, the path defaults to 'build.xml'.</entry>
+    <entry key="TOOLTIP_ANT_TARGET">Ant target(s) to run. If not specified, the target defaults to 'default'.</entry>
     <entry key="TOOLTIP_ANT_WORKING_DIRECTORY">The directory from where Ant is invoked</entry>
-    <entry key="TOOLTIP_NANT_BUILD_FILE">Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.</entry>
+    <entry key="TOOLTIP_NANT_BUILD_FILE">Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.</entry>
     <entry key="TOOLTIP_NANT_TARGET">NAnt target(s) to run. If not specified, defaults to the default target of the build file.</entry>
     <entry key="TOOLTIP_NANT_WORKING_DIRECTORY">The directory from where NAnt is invoked.</entry>
     <entry key="TOOLTIP_NANT_NANT_PATH">Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.</entry>
-    <entry key="TOOLTIP_RAKE_BUILD_FILE">Path to Rake file. If not specified, the path defaults to ‘rakefile’.</entry>
+    <entry key="TOOLTIP_RAKE_BUILD_FILE">Path to Rake file. If not specified, the path defaults to 'rakefile'.</entry>
     <entry key="TOOLTIP_RAKE_TARGET">Rake target(s) to run. If not specified, defaults to the default target of the build file.</entry>
     <entry key="TOOLTIP_RAKE_WORKING_DIRECTORY">The directory from where Rake is invoked.</entry>
     <entry key="TOOLTIP_FETCH_TASK_PIPELINE">The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material. Defaults to current pipeline if not specified.</entry>
@@ -546,7 +545,7 @@
     <entry key="CONFIGURATION_TYPE">Configuration Type</entry>
     <entry key="DEFINE_STAGES">Define Stages</entry>
     <entry key="USE_TEMPLATE">Use Template</entry>
-    <entry key="TOOLTIP_DEFINE_STAGES_DISABLED">Once a pipeline is associated with a template, it cannot be reverted to this mode via the UI. To disassociate this pipeline from a template, please configure it via the ‘Config XML’ tab from the Admin screen.</entry>
+    <entry key="TOOLTIP_DEFINE_STAGES_DISABLED">Once a pipeline is associated with a template, it cannot be reverted to this mode via the UI. To disassociate this pipeline from a template, please configure it via the 'Config XML' tab from the Admin screen.</entry>
     <entry key="SELECT_TEMPLATE">Template</entry>
     <entry key="CONFIRM_SAVE">Confirm Save</entry>
     <entry key="CONFIRM_DELETION">Confirm Deletion</entry>
@@ -565,7 +564,7 @@
     <entry key="REMOVE_THIS_MATERIAL">Remove this material</entry>
     <entry key="GLOBAL_ERRORS_MESSAGE">The following error(s) need to be resolved in order to perform this action:</entry>
     <entry key="REQUIRED_FIELD_MESSAGE"> indicates a required field</entry>
-    <entry key="WARNING_DESTINATION_DIRECTORY_NEEDED">In order to configure multiple materials for this pipeline, each of its material needs have to a ‘Destination Directory’ specified. Please edit the existing material and specify a ‘Destination Directory’ in order to proceed with this operation.</entry>
+    <entry key="WARNING_DESTINATION_DIRECTORY_NEEDED">In order to configure multiple materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.</entry>
     <entry key="TAB_NAME">Tab Name</entry>
     <entry key="PATH">Path</entry>
     <entry key="STARTED_AT">Started At</entry>
@@ -745,7 +744,7 @@
     <entry key="CURRENT_PIPELINE">Current pipeline</entry>
     <entry key="NO_TASKS_CONFIGURED">No tasks have been configured</entry>
     <entry key="ASSOCIATED_PLUGIN_NOT_FOUND">Associated plugin ''{0}'' not found. Please contact the Go admin to install the plugin.</entry>
-	<entry key="ASSOCIATED_PLUGIN_NOT_FOUND_SAVE">On Cancel task is not available because associated plugin ''{0}'' is missing. Please contact Go admin to verify or re-install plugin. Click on ‘Save’ will replace the current On Cancel task.</entry>
+	<entry key="ASSOCIATED_PLUGIN_NOT_FOUND_SAVE">On Cancel task is not available because associated plugin ''{0}'' is missing. Please contact Go admin to verify or re-install plugin. Click on 'Save' will replace the current On Cancel task.</entry>
 	<entry key="NEW_GLOBAL_PACKAGE_WARNING">The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.</entry>
     <entry key="PACKAGE_REPOSITORY_NOT_FOUND">Could not find the repository with id ''{0}''. It might have been deleted.</entry>
     <entry key="CONNECTION_OK">Connection OK. {0}</entry>

@@ -1,0 +1,4 @@
+<ul>
+    <li id="general"><%= link_to l.string('GENERAL_OPTIONS'), template_edit_path(:current_tab => "general") %></li>
+    <li id="stages"><%= link_to l.string('STAGES'), admin_stage_listing_path(:current_tab => "stages", :stage_parent => 'templates') %></li>
+</ul>

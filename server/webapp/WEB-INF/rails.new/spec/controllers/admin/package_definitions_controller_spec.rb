@@ -84,22 +84,27 @@ describe Admin::PackageDefinitionsController do
     describe :show do
       it "should show package definition details" do
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         get :show, :repo_id => "repo1", :package_id => "pkg3"
+
         assigns[:package_configuration].properties.size.should == 1
         assigns[:package_configuration].properties[0].display_name.should == "Key 2"
         assigns[:package_configuration].properties[0].value.should == "p3v2"
         controller.should render_template("show")
+        assert_template layout: false
       end
 
       it "should render error for invalid plugin" do
         @package_metadata_store.should_receive(:getMetadata).with("invalid-pluginid").and_return(nil)
 
         get :show, :repo_id => "repo2", :package_id => "pkg4"
+
         assigns[:errors].should == "Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin."
       end
 
       it "should render error if repository not found" do
         get :show, :repo_id => "deleted-repo", :package_id => "pkg4"
+
         assigns[:errors].should == "Could not find the repository with id 'deleted-repo'. It might have been deleted."
       end
     end
@@ -107,22 +112,27 @@ describe Admin::PackageDefinitionsController do
     describe :show_for_new_pipeline_wizard do
       it "should show package definition details" do
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         get :show_for_new_pipeline_wizard, :repo_id => "repo1", :package_id => "pkg3"
+
         assigns[:package_configuration].properties.size.should == 1
         assigns[:package_configuration].properties[0].display_name.should == "Key 2"
         assigns[:package_configuration].properties[0].value.should == "p3v2"
         controller.should render_template("show_for_new_pipeline_wizard")
+        assert_template layout: false
       end
 
       it "should render error for invalid plugin" do
         @package_metadata_store.should_receive(:getMetadata).with("invalid-pluginid").and_return(nil)
 
         get :show_for_new_pipeline_wizard, :repo_id => "repo2", :package_id => "pkg4"
+
         assigns[:errors].should == "Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin."
       end
 
       it "should render error if repository not found" do
         get :show_for_new_pipeline_wizard, :repo_id => "deleted-repo", :package_id => "pkg4"
+
         assigns[:errors].should == "Could not find the repository with id 'deleted-repo'. It might have been deleted."
       end
     end
@@ -130,18 +140,23 @@ describe Admin::PackageDefinitionsController do
     describe :show_wih_repository_list do
       it "should show package definition details along with package repository listing" do
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         get :show_with_repository_list, :repo_id => "repo1", :package_id => "pkg3"
+
         assigns[:package_configuration].properties.size.should == 1
         assigns[:package_configuration].properties[0].display_name.should == "Key 2"
         assigns[:package_configuration].properties[0].value.should == "p3v2"
         assigns[:package_repositories].should == @package_repositories
         assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
         controller.should render_template("show_with_repository_list")
+        assert_template layout: "admin"
       end
 
       it "should render error for invalid plugin" do
         @package_metadata_store.should_receive(:getMetadata).with("invalid-pluginid").and_return(nil)
+
         get :show_with_repository_list, :repo_id => "repo2", :package_id => "pkg4"
+
         assigns[:errors].should == "Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin."
       end
 
@@ -189,6 +204,7 @@ describe Admin::PackageDefinitionsController do
         assigns[:pipelines_with_group].get(0).first.should == p1;
         assigns[:pipelines_with_group].get(0).last.should == groupOne;
         controller.should render_template("pipelines_used_in")
+        assert_template layout: false
       end
     end
 
@@ -196,24 +212,29 @@ describe Admin::PackageDefinitionsController do
     describe :new do
       it "should render template for new package definition" do
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         get :new, :repo_id => "repo1"
+
         assigns[:package_configuration].properties.size.should == 2
         assigns[:package_configuration].properties[0].display_name.should == "Key 2"
         assigns[:package_configuration].properties[0].value.should == nil
         assigns[:package_configuration].properties[1].display_name.should == "Key 3"
         assigns[:package_configuration].properties[1].value.should == nil
         response.should render_template "new"
+        assert_template layout: false
       end
 
       it "should render error for invalid plugin" do
         @package_metadata_store.should_receive(:getMetadata).with("invalid-pluginid").and_return(nil)
 
         get :new, :repo_id => "repo2"
+
         assigns[:errors].should == "Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin."
       end
 
       it "should render error if repository not found" do
         get :new, :repo_id => "deleted-repo"
+
         assigns[:errors].should == "Could not find the repository with id 'deleted-repo'. It might have been deleted."
       end
     end
@@ -221,24 +242,29 @@ describe Admin::PackageDefinitionsController do
     describe :new_for_new_pipeline_wizard do
       it "should render template for new package definition" do
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         get :new_for_new_pipeline_wizard, :repo_id => "repo1"
+
         assigns[:package_configuration].properties.size.should == 2
         assigns[:package_configuration].properties[0].display_name.should == "Key 2"
         assigns[:package_configuration].properties[0].value.should == nil
         assigns[:package_configuration].properties[1].display_name.should == "Key 3"
         assigns[:package_configuration].properties[1].value.should == nil
         response.should render_template "new_for_new_pipeline_wizard"
+        assert_template layout: false
       end
 
       it "should render error for invalid plugin" do
         @package_metadata_store.should_receive(:getMetadata).with("invalid-pluginid").and_return(nil)
 
         get :new_for_new_pipeline_wizard, :repo_id => "repo2"
+
         assigns[:errors].should == "Associated plugin 'invalid-pluginid' not found. Please contact the Go admin to install the plugin."
       end
 
       it "should render error if repository not found" do
         get :new_for_new_pipeline_wizard, :repo_id => "deleted-repo"
+
         assigns[:errors].should == "Could not find the repository with id 'deleted-repo'. It might have been deleted."
       end
     end
@@ -248,9 +274,12 @@ describe Admin::PackageDefinitionsController do
         stub_save_for_success
         stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
         @package_metadata_store.should_receive(:getMetadata).with("pluginid").and_return(@package_configurations)
+
         delete :destroy, :repo_id => "repo1", :package_id => "pkg3", :config_md5 => "1234abcd"
+
         @cruise_config.getPackageRepositories.find("repo1").getPackages.size.should ==0
         assert_update_command ::ConfigUpdate::SaveAsGroupAdmin, ConfigUpdate::CheckIsGroupAdmin
+        assert_template layout: false
       end
     end
 

@@ -118,6 +118,7 @@ describe Admin::PipelineGroupsController do
         get :new
 
         assigns[:group].should == PipelineConfigs.new
+        assert_template layout: false
       end
     end
 
@@ -142,7 +143,9 @@ describe Admin::PipelineGroupsController do
         end
 
         post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
+
         response.status.should == 400
+        assert_template layout: false
       end
 
     end
@@ -162,6 +165,7 @@ describe Admin::PipelineGroupsController do
 
       it "should load all groups" do
         get :index
+
         assigns[:groups].should == @groups.to_a
         assigns[:pipeline_to_can_delete].should == {
                 "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -171,10 +175,12 @@ describe Admin::PipelineGroupsController do
                 "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                 "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
         }
+        assert_template layout: "admin"
       end
 
       it "should load cruise_config" do
         get :index
+
         assigns[:cruise_config].should == @config
       end
 
@@ -184,6 +190,7 @@ describe Admin::PipelineGroupsController do
         @security_service.should_receive(:isUserAdminOfGroup).with(@user.getUsername(), "group3").and_return(true)
 
         get :index
+
         assigns[:groups].should == [@groups.get(0), @groups.get(2)]
       end
     end
@@ -207,6 +214,7 @@ describe Admin::PipelineGroupsController do
         stub_save_for_success(@config)
 
         delete :destroy, :pipeline_name => @pipeline.name().to_s, :group_name => "group1", :config_md5 => "1234abcd"
+
         assigns[:groups].should == @groups.to_a
         assigns[:pipeline_to_can_delete].should == {
                 "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -235,6 +243,7 @@ describe Admin::PipelineGroupsController do
                 "pipeline_5" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                 "pipeline_6" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
         }
+        assert_template layout: "admin"
       end
     end
 
@@ -248,15 +257,14 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should load a pipeline group for editing" do
-
         get :edit, :group_name => "group1"
 
         assigns[:group].should == @group
         assigns[:cruise_config].should == @config
+        assert_template layout: "admin"
       end
 
       it "should assign users and roles for autocomplete" do
-
         get :edit, :group_name => "group1"
 
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
@@ -274,7 +282,6 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should load a pipeline group for editing" do
-
         get :show, :group_name => "group1"
 
         assigns[:group].should == @group
@@ -283,7 +290,6 @@ describe Admin::PipelineGroupsController do
       end
 
       it "should assign users and roles for autocomplete" do
-
         get :show, :group_name => "group1"
 
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
@@ -300,6 +306,7 @@ describe Admin::PipelineGroupsController do
       it "should save a pipeline_group" do
         stub_save_for_success(@config)
         stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-message-uuid")
+
         put :update, :group_name => "group1", :config_md5 => "1234abcd", :group => {PipelineConfigs::GROUP => "new_group_name"}
 
         response.status.should == 302
@@ -319,6 +326,7 @@ describe Admin::PipelineGroupsController do
         assigns[:group].getGroup().should == "new_group_name"
         assert_template "edit"
         response.status.should == 404
+        assert_template layout: "admin"
       end
     end
 
@@ -340,6 +348,7 @@ describe Admin::PipelineGroupsController do
 
       it "should move a pipeline" do
         stub_save_for_success(@config)
+
         put :move, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"
 
         assigns[:groups].should == @groups.to_a
@@ -374,6 +383,7 @@ describe Admin::PipelineGroupsController do
         stub_save_for_success(@destroy_group_config)
 
         delete :destroy_group, :group_name => "empty_group", :config_md5 => "1234abcd"
+
         assigns[:groups].size().should == 0
       end
 
@@ -390,6 +400,7 @@ describe Admin::PipelineGroupsController do
         assigns[:pipeline_name].should == "pipeline_1"
         assigns[:md5_match].should == true
         assert_template "possible_groups"
+        assert_template layout: false
       end
     end
 

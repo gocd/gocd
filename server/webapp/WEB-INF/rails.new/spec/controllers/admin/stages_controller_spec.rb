@@ -135,27 +135,35 @@ describe Admin::StagesController do
 
       it "should set current tab param" do
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+
         controller.params[:current_tab].should == 'stages'
+        assert_template layout: "pipelines/details"
       end
 
       it "should populate stage_usage map with stages that are currently referenced in materials" do
         upstream_stage = @pipeline.getStage(CaseInsensitiveString.new("stage-name"))
         downstream = PipelineConfigMother.pipelineConfig("downstream", MaterialConfigsMother.dependencyMaterialConfig("pipeline-name", "stage-name"), JobConfigs.new)
         @cruise_config.addPipeline("defaultGroup", downstream)
+
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+
         assigns[:stage_usage].contains(upstream_stage).should == true
       end
 
       it "should assign templates" do
         @cruise_config.addTemplate(PipelineTemplateConfig.new(CaseInsensitiveString.new("foo"), [StageConfigMother.stageWithTasks("stage_one")].to_java(StageConfig)))
+
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+
         assigns[:template_list][0].should == CaseInsensitiveString.new("foo")
         assigns[:template_list][1].should == CaseInsensitiveString.new("template-name")
       end
 
       it "should not bomb when there are no templates" do
         @cruise_config.getTemplates().removeTemplateNamed(CaseInsensitiveString.new("template-name"))
+
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
+
         assigns[:template_list].should == []
       end
     end
@@ -172,13 +180,16 @@ describe Admin::StagesController do
 
       it "should load a blank exec task in a blank job" do
         @go_config_service.stub(:registry)
+
         get :new, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
-        new_job = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, Tasks.new([AntTask.new].to_java(Task)))
+
+        new_job = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
         new_stage = StageConfig.new(CaseInsensitiveString.new(""), JobConfigs.new([new_job].to_java(JobConfig)))
         actual_stage = assigns[:stage]
         actual_stage.should == new_stage
         actual_stage.getJobs().get(0).tasks().first.should == AntTask.new
         assigns[:task_view_models] = @tvms
+        assert_template layout: false
       end
     end
 
@@ -235,7 +246,6 @@ describe Admin::StagesController do
 
         job = {:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:key => "value"}}}
         stage = {:name => "stage", :jobs => [job]}
-
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => stage
 
         task_to_be_saved = assigns[:pipeline].last().getJobs().first().getTasks().first()
@@ -251,6 +261,7 @@ describe Admin::StagesController do
         stub_save_for_validation_error do |result, config, node|
           result.conflict(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
+
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
         post :create, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}
 
@@ -387,7 +398,9 @@ describe Admin::StagesController do
 
       it "should update stage instance with form fields and save it" do
         stub_save_for_success
+
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}
+
         assigns[:stage].getApproval().getType().should == "manual"
         environment_variable = assigns[:stage].variables().get(0)
         environment_variable.name.should == "key"
@@ -402,7 +415,9 @@ describe Admin::StagesController do
 
       it "should redirect to edit form for the new stage-name when name is changed" do
         stub_save_for_success
+
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}
+
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::StageNode, ConfigUpdate::NodeAsSubject
         response.location.should =~ /\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/
         response.status.should == 200
@@ -417,6 +432,7 @@ describe Admin::StagesController do
         stub_save_for_success
 
         put :update, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name", :config_md5 => "1234abcd", :current_tab => "settings", :stage => {:name => "g", :approval => {:type => "manual"}}, :default_as_empty_list => ["stage>variables"]
+
         assigns[:stage].variables().isEmpty().should == true
         assert_save_arguments
       end
@@ -443,7 +459,7 @@ describe Admin::StagesController do
 
         response.location.should be_nil
         assert_template "permissions"
-        assert_template layout: nil
+        assert_template layout: false
         response.status.should == 409
       end
     end
@@ -509,6 +525,5 @@ describe Admin::StagesController do
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::PipelineNode, ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
       end
     end
-
   end
 end

@@ -155,12 +155,6 @@ class ApplicationController < ActionController::Base
     do_param_defaulting(sub_map[nested_keys.first], nested_keys[1..-1])
   end
 
-  def register_defaultable_list nested_name
-    "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>"
-  end
-
-  helper_method :register_defaultable_list
-
   def cruise_config_md5
     raise "md5 for config file has not been loaded yet" if @cruise_config_md5.nil?
     @cruise_config_md5

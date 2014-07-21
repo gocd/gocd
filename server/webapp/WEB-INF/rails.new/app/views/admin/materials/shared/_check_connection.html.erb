@@ -1,0 +1,9 @@
+<% check_connection_button_id = "check_connection_" + scope[:type] -%>
+<%= submit_button(l.string("CHECK_CONNECTION"), :type => "button", :id => check_connection_button_id) -%>
+<div id="vcsconnection-message_<%=scope[:type]-%>"></div>
+<script type="text/javascript">
+    Util.on_load(function() {
+        new CheckConnection().hookupCheckConnection("#<%=check_connection_button_id-%>", "<%=params[:pipeline_name]-%>", "<%= scope[:type] %>", "<%=scope[:url]-%>", "<%=scope[:username]-%>",
+                "<%=scope[:password]-%>", "<%=scope[:encrypted_password]-%>", "<%=scope[:password_changed]-%>", "<%= scope[:project_path] -%>", "<%= scope[:domain] -%>", "<%= scope[:view] -%>");
+    });
+</script>

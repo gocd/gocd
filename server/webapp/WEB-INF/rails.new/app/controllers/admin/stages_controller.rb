@@ -32,6 +32,7 @@ module Admin
     def new
       assert_load :task_view_models, task_view_service.getTaskViewModels()
       assert_load :stage, new_stage
+      render layout: false
     end
 
     def create

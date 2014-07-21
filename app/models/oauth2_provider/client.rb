@@ -1,4 +1,4 @@
-module Oauth2Provider::Oauth
+module Oauth2Provider
   class Client < Oauth2Provider::ModelBase
     validates_presence_of :name, :redirect_uri
     validates_format_of :redirect_uri, :with => Regexp.new("^(https|http)://.+$"), :if => proc { |client| !client.redirect_uri.blank? }

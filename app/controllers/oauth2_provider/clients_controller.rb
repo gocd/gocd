@@ -1,8 +1,8 @@
 # Copyright (c) 2010 ThoughtWorks Inc. (http://thoughtworks.com)
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
 
-module Oauth2Provider::Oauth
-  class ClientsController < Oauth2Provider::ApplicationController
+module Oauth2Provider
+  class ClientsController < ApplicationController
 
     include Oauth2Provider::SslHelper
     include Oauth2Provider::TransactionHelper
@@ -11,6 +11,7 @@ module Oauth2Provider::Oauth
 
 
     def index
+      raise 'HELL'
       @oauth_clients = Oauth2Provider::OauthClient.all.sort{|a, b| a.name.casecmp(b.name)}
       respond_to do |format|
         format.html

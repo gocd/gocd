@@ -1,0 +1,7 @@
+<div id="oauth_page">
+  <%= render_help_link('OAuth 2.0 Application', :class => 'page-help-at-action-bar') if defined?(render_help_link)  %>
+
+  <h1>Edit OAuth client</h1>
+
+  <%= render :partial => "form", :locals => { :oauth_client => @oauth_client } %>
+</div>

@@ -272,9 +272,6 @@ Go::Application.routes.draw do
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
 
-  get 'test' => 'test/test#index', as: :gadgets_oauth_clients
-  get 'test' => 'test/test#index', as: :oauth_clients
-
   # catch all route
   match '*url', via: :all, to: 'application#unresolved'
 

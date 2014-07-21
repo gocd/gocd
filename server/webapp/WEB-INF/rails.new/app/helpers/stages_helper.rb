@@ -52,7 +52,7 @@ module StagesHelper
 
   def link_with_current_tab(link_name, action)
     class_name = action == params[:action] ? ' class="current"' : ''
-    "<li#{class_name}>#{link_to(link_name, stage_detail_tab_path(:action => action))}</li>"
+    "<li#{class_name}>#{link_to(link_name, stage_detail_tab_path(:action => action))}</li>".html_safe
   end
 
   def stage_bar_options sim

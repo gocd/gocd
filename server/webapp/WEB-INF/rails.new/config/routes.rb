@@ -249,9 +249,11 @@ end
 
 post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
 get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)(.:format)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
-#get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'stages#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
+get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'stages#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
 get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
 get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
+
+get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
   resources :agents, :only =>  [:index], :defaults => {:format => "html"}
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
@@ -287,6 +289,8 @@ get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change
   get "agents/:uuid" => "test/test#index", as: :agent_detail
   get '/environments' => 'environments#index', as: :environments_for_test
   get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
+  get "failures/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name/:suite_name/:test_name" => 'test/test#index', as: :failure_details_internal
+
 
   get 'test' => 'test/test#index', as: :gadget_rendering
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients

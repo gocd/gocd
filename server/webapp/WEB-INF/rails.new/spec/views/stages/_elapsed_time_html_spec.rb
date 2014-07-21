@@ -14,20 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-describe "_elapsed_time.html.erb" do
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+
+describe "stages/_elapsed_time.html.erb" do
   include StageModelMother
 
   it "should display elapsed time for jobs with no history or not started yet" do
     render :partial => "stages/elapsed_time", :locals=>{:scope => {:job => stage_with_5_jobs.inProgressJobs().get(0), :show_elapsed  => true}}
-    response.should have_tag ".elapsed_time", /^Elapsed:\s+2 minutes/
+    expect(response).to have_selector ".elapsed_time", :text => /^[\s\S]*Elapsed:[\s\S]*2 minutes[\s\S]*$/
   end
 
   it "should display elapsed time for jobs if they go longer than before" do
     in_progress = stage_with_5_jobs.inProgressJobs()
     in_progress[0].stub(:getPercentComplete).and_return(100)
     render :partial => "stages/elapsed_time", :locals=>{:scope => {:job => in_progress.get(0), :show_elapsed  => true}}
-    response.should have_tag ".elapsed_time", /^Elapsed:\s+2 minutes/
-
+    expect(response).to have_selector ".elapsed_time", :text => /^[\s\S]*Elapsed:[\s\S]*2 minutes[\s\S]*/
     end
 
   it "should not display elapsed: if time is empty" do
@@ -35,21 +36,21 @@ describe "_elapsed_time.html.erb" do
     in_progress[0].stub(:getPercentComplete).and_return(100)
     in_progress[0].stub(:getElapsedTime).and_return(Duration.new(0))
     render :partial => "stages/elapsed_time", :locals=>{:scope => {:job => in_progress.get(0), :show_elapsed  => true}}
-    response.should have_tag ".elapsed_time", ""
+    expect(response).to have_selector ".elapsed_time", :text => ""
   end
 
   it "should display progress bar when percent complete is between 0 and 100" do
     in_progress = stage_with_5_jobs.inProgressJobs()
     in_progress[0].stub(:getPercentComplete).and_return(75)
     render :partial => "stages/elapsed_time", :locals=>{:scope => {:job => in_progress.get(0)}}
-    response.should have_tag(".progress_bar_container div.progress_bar[style=?]", "width: 75%;")
+    expect(response).to have_selector(".progress_bar_container div.progress_bar[style='width: 75%;']")
   end
 
   it "should display elapsed time for jobs if they are completed irrespective of percent complete" do
     non_passed_jobs = stage_with_5_jobs.nonPassedJobs()
     non_passed_jobs[0].stub(:getPercentComplete).and_return(98)
     render :partial => "stages/elapsed_time", :locals=>{:scope => {:job => non_passed_jobs.get(0), :show_elapsed  => true}}
-    response.should_not have_tag(".progress_bar_container div.progress_bar[style=?]", "width: 98%;")
-    response.should have_tag ".elapsed_time", /^Elapsed:\s+2 minutes/
+    expect(response).to_not have_selector(".progress_bar_container div.progress_bar[style='width: 98%;']")
+    expect(response).to have_selector ".elapsed_time", :text => /^[\s\S]*Elapsed:[\s\S]*2 minutes[\s\S]*/
   end
 end

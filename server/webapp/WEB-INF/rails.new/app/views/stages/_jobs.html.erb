@@ -1,6 +1,6 @@
 <%- stage_state = scope[:stage].getState()
     if stage_state.completed() -%>
-    <%= form_tag rerun_jobs_path(:tab => params[:action]) %>
+    <%== form_tag rerun_jobs_path(:tab => params[:action]) %>
 <%- end -%>
 
 <div id="job_actions">

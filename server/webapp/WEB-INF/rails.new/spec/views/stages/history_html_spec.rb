@@ -14,13 +14,18 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
 
-describe "stages/_jobs_breakdown.html.erb" do
-  include StageModelMother
+describe 'stages/history.html.erb' do
+  it "should render partial stage history with scope populated" do
+    params[:tab] = "tab"
+    @stage_history_page = double("stage_history_page")
+    @pipeline = double("current_stage_pipeline")
+    @current_config_version = double("current_config_version")
+    stub_template "_stage_history.html.erb" => "STAGE HISTORY HTML"
 
-  it "should display job links" do
-    render :partial => "stages/jobs_breakdown", :locals=>{:scope => {:message => "PASSED_JOBS", :jobs => stage_with_5_jobs.passedJobs(), :parent_id=>"jobs_passed"}}
-    expect(response).to have_selector ".job a[href='/tab/build/detail/pipeline/1/stage/1/third']", :text => "third"
+    render
+    assert_template partial: "stage_history.html", locals: {scope: {stage_history_page: @stage_history_page, tab: params[:tab], current_stage_pipeline: @pipeline, current_config_version: @current_config_version}}
+    expect(rendered).to eq("STAGE HISTORY HTML")
   end
 end

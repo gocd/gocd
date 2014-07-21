@@ -156,7 +156,6 @@ describe 'stages/stage.html.erb' do
 
         it "should show the schedule info" do
           render 'stages/stage.html.erb', :layout => "pipelines.html.erb"
-#          puts response.body
           status_bar = response.capture(:status_bar)
           status_bar.should have_tag(".schedule_info") do
             with_tag(".label", "Automatically triggered")

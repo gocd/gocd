@@ -76,7 +76,7 @@
                                         <td class="test_name">
                                             <span class="name"><%= test_in_non_passing_tests.getName() %></span>
                                                 <span class="jobs">
-                                                    (<%= test_in_non_passing_tests.getJobs().map do |job_identifier_in_non_passing_tests|
+                                                    (<%== test_in_non_passing_tests.getJobs().map do |job_identifier_in_non_passing_tests|
                                                         fbh_failure_detail_popup_id_for_failure(job_identifier_in_non_passing_tests, suite_in_non_passing_tests.fullName(), test_in_non_passing_tests.getName())
                                                         link_to(job_identifier_in_non_passing_tests.getBuildName(), url_for_job_identifier(job_identifier_in_non_passing_tests)) + failure_details_link(job_identifier_in_non_passing_tests, suite_in_non_passing_tests.fullName(), test_in_non_passing_tests.getName())
                                                      end.join(",") %>)

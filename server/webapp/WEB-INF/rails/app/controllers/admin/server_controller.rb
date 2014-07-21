@@ -17,7 +17,7 @@
 require 'pp'
 require 'server_configuration_form'
 
-class Config::ServerController < AdminController
+class Admin::ServerController < AdminController
   include ApplicationHelper
 
   before_filter :set_tab_name, :only => [:index, :update]

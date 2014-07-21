@@ -255,11 +255,11 @@ ActionController::Routing::Routes.draw do |map|
     garage.garage_gc "admin/garage/gc", :action => "gc", :conditions => {:method => :post}
   end
 
-  map.edit_server_config "admin/config/server", :controller => "config/server", :action => "index"
-  map.update_server_config "admin/config/server/update", :controller => "config/server", :action => "update", :conditions => {:method => :post}
-  map.validate_server_config_params "admin/config/server/validate", :controller => "config/server", :action => "validate", :conditions => {:method => :get}
-  map.send_test_email "admin/config/server/test_email", :controller => "config/server", :action => "test_email", :conditions => {:method => :post}
-  map.validate_ldap_settings "admin/config/server/validate_ldap", :controller => "config/server", :action => "validate_ldap", :conditions => {:method => :post}
+  map.edit_server_config "admin/config/server", :controller => "admin/server", :action => "index"
+  map.update_server_config "admin/config/server/update", :controller => "admin/server", :action => "update", :conditions => {:method => :post}
+  map.validate_server_config_params "admin/config/server/validate", :controller => "admin/server", :action => "validate", :conditions => {:method => :get}
+  map.send_test_email "admin/config/server/test_email", :controller => "admin/server", :action => "test_email", :conditions => {:method => :post}
+  map.validate_ldap_settings "admin/config/server/validate_ldap", :controller => "admin/server", :action => "validate_ldap", :conditions => {:method => :post}
 
   map.with_options(:controller => "admin/pipeline_groups") do |groups|
     groups.pipeline_groups "admin/pipelines", :action => "index"

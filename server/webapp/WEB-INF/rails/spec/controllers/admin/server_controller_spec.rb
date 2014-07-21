@@ -16,11 +16,12 @@
 
 require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
 
-describe Config::ServerController do
+describe Admin::ServerController do
   include MockRegistryModule
-before do
-  controller.stub(:populate_health_messages)
-  controller.stub(:set_current_user)
+
+  before do
+    controller.stub(:populate_health_messages)
+    controller.stub(:set_current_user)
   end
 
   before(:each) do
@@ -69,7 +70,7 @@ before do
 
   describe "validate_ldap" do
     it "should resolve /admin/config/server/validate_ldap" do
-      params_from(:post, "/admin/config/server/validate_ldap").should == {:controller => "config/server", :action => 'validate_ldap'}
+      params_from(:post, "/admin/config/server/validate_ldap").should == {:controller => "admin/server", :action => 'validate_ldap'}
     end
 
     it "should return error if validate ldap fails" do
@@ -111,7 +112,7 @@ before do
 
   describe "index" do
     it "should resolve route to server config" do
-      params_from(:get, "/admin/config/server").should == {:controller => "config/server", :action => 'index'}
+      params_from(:get, "/admin/config/server").should == {:controller => "admin/server", :action => 'index'}
     end
 
     it "should assign server config details" do
@@ -180,7 +181,7 @@ before do
     end
 
     it "should resolve route to server config" do
-      params_from(:post, "/admin/config/server/update").should == {:controller => "config/server", :action => 'update'}
+      params_from(:post, "/admin/config/server/update").should == {:controller => "admin/server", :action => 'update'}
     end
 
     it "should render success message returned by service while updating server config" do
@@ -325,7 +326,7 @@ before do
     end
 
     it "should resolve /admin/config/server/validate" do
-      params_from(:get, "/admin/config/server/validate").should == {:controller => "config/server", :action => 'validate'}
+      params_from(:get, "/admin/config/server/validate").should == {:controller => "admin/server", :action => 'validate'}
     end
 
     it "should validate email" do
@@ -377,7 +378,7 @@ before do
   describe "test_email" do
 
     it "should resolve admin/config/server/test_email" do
-      params_from(:post, "/admin/config/server/test_email").should == {:controller => "config/server", :action => "test_email"}
+      params_from(:post, "/admin/config/server/test_email").should == {:controller => "admin/server", :action => "test_email"}
     end
 
     it "should return error if sendTestEmail fails" do

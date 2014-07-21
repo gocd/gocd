@@ -89,9 +89,7 @@ module Admin
     def delete_all #NOT_IN_PRODUCTION
       user_service.deleteAll() #NOT_IN_PRODUCTION
       render :text => 'Deleted' #NOT_IN_PRODUCTION
-    end
-
-    #NOT_IN_PRODUCTION
+    end #NOT_IN_PRODUCTION
 
     def dismiss_license_expiry_warning
       user_service.disableLicenseExpiryWarning(current_user_entity_id)

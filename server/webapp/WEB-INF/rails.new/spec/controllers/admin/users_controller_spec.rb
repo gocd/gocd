@@ -242,8 +242,6 @@ describe Admin::UsersController do
       user_service.should_receive(:disabledUserCount).and_return(1)
       result.should_receive(:isSuccessful).and_return(true)
 
-      #controller.should_receive(:render).with(:action => "users")
-
       post :create, :no_layout => true, :selections => params_selections
 
       assert_template   "users"

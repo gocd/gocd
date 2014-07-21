@@ -65,7 +65,7 @@ describe "Showing template definition" do
             with_tag("li.stage_type.field") do
               with_tag("label") do
                 with_tag("span.key", "Stage Type")
-                with_tag("span.hint", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually\n                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
+                with_tag("span.hint", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
               end
               with_tag("span.value", "On Success")
             end
@@ -99,7 +99,7 @@ describe "Showing template definition" do
             with_tag("li.stage_type.field") do
               with_tag("label") do
                 with_tag("span.key", "Stage Type")
-                with_tag("span.hint", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually\n                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
+                with_tag("span.hint", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
               end
               with_tag("span.value", "Manual")
             end

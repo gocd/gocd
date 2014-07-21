@@ -39,7 +39,7 @@ describe "admin/tasks/nant/new.html.erb" do
       with_tag("div.fieldset") do
         with_tag("label", "Build file")
         with_tag("input[name='task[buildFile]']")
-        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
+        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.")
         with_tag("label", "Target")
         with_tag("input[name='task[target]']")
         with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
@@ -64,7 +64,7 @@ describe "admin/tasks/nant/new.html.erb" do
       with_tag("div.fieldset") do
         with_tag("label", "Build file")
         with_tag("input[name='task[buildFile]'][value=?]", task.getBuildFile())
-        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
+        with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.")
         with_tag("label", "Target")
         with_tag("input[name='task[target]'][value=?]", task.getTarget())
         with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")
@@ -118,7 +118,7 @@ describe "admin/tasks/nant/new.html.erb" do
       with_tag("option[selected='selected'][value=?]", "nant")
       with_tag("label", "Build file")
       with_tag("input[name='task[onCancelConfig][nantOnCancel][buildFile]'][value=?]", oncancel.getBuildFile())
-      with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to ‘default.build’.")
+      with_tag("div[class='contextual_help has_go_tip_right build_file'][title=?]", "Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.")
       with_tag("label", "Target")
       with_tag("input[name='task[onCancelConfig][nantOnCancel][target]'][value=?]", oncancel.getTarget())
       with_tag("div[class='contextual_help has_go_tip_right target'][title=?]", "NAnt target(s) to run. If not specified, defaults to the default target of the build file.")

@@ -30,7 +30,7 @@ describe "config/server/index.html.erb" do
 
   describe "artifacts management" do
     it "should show artifacts section" do
-      render 'config/server/index.html.erb'
+      render 'admin/server/index.html.erb'
 
       response.body.should have_tag("div#pipeline_management") do
         with_tag("h2.legend", "Pipeline Management")
@@ -59,7 +59,7 @@ describe "config/server/index.html.erb" do
 
   describe "pipeline management" do
     it "should show hung job timeout options" do
-      render 'config/server/index.html.erb'
+      render 'admin/server/index.html.erb'
       response.body.should have_tag("div#pipeline_management") do
         with_tag("h2.legend", "Pipeline Management")
 
@@ -79,7 +79,7 @@ describe "config/server/index.html.erb" do
   describe "command repository management" do
     it "should show lookup command repository location field" do
       assigns[:command_repository_base_dir_location] = "/home/cruise/db/command_repository"
-      render 'config/server/index.html.erb'
+      render 'admin/server/index.html.erb'
       response.body.should have_tag("div#command_repository_management") do
           with_tag("#lookup-command-repo-location") do
             with_tag("label", "Location")
@@ -91,7 +91,7 @@ describe "config/server/index.html.erb" do
 
     it "should show command repository cache reload button" do
       assigns[:command_repository_base_dir_location] = "/home/cruise/db/command_repository"
-      render 'config/server/index.html.erb'
+      render 'admin/server/index.html.erb'
       response.body.should have_tag("div#command_repository_management") do
           with_tag("#lookup-command-reload") do
             with_tag("button#reloadCommandRepoCache", "Reload cache")
@@ -103,7 +103,7 @@ describe "config/server/index.html.erb" do
 
   describe "server management" do
     it "should show server management section" do
-      render 'config/server/index.html.erb'
+      render 'admin/server/index.html.erb'
       response.body.should have_tag("div#server_management") do
         with_tag("h2.legend", "Server Management")
         with_tag(".fieldset") do
@@ -122,7 +122,7 @@ describe "config/server/index.html.erb" do
     it "should have a text area for search bases" do
       server_config_form = ServerConfigurationForm.new({:ldap_search_base => "foo\\nbar\\nbaz,goo"})
       assigns[:server_configuration_form] = server_config_form
-      render "config/server/index.html"
+      render "admin/server/index.html"
 
       response.body.should have_tag("#user_management") do
         with_tag("label[for='server_configuration_form_ldap_search_base']", "Search Base*")

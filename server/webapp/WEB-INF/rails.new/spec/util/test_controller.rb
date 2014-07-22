@@ -16,7 +16,7 @@
 
 unless defined? NonApiController
   def draw_test_controller_route
-    Go::Application.routes.draw do
+    test_routes = Proc.new do
       match 'rails/foo', via: :all, to: 'api/test#not_found_action'
       match 'rails/bar', via: :all, to: 'api/test#unauthorized_action'
       match 'rails/baz', via: :all, to: 'api/test#another_not_found_action'
@@ -32,10 +32,10 @@ unless defined? NonApiController
       match 'rails/double_render', via: :all, to: 'non_api#double_render'
       match 'rails/render_and_redirect', via: :all, to: 'non_api#redirect_after_render'
       match 'rails/double_render_without_error', via: :all, to: 'non_api#double_render_without_error'
-
       match 'rails/encoded_param_user', via: :all, to: 'non_api#encoded_param_user_action'
       match 'rails/non_encoded_param_user', via: :all, to: 'non_api#non_encoded_param_user_action'
     end
+    Go::Application.routes.eval_block(test_routes)
   end
 end
 
@@ -84,10 +84,12 @@ class NonApiController < ApplicationController
 
   def encoded_param_user_action
     @decodable_param = params[:decodable_param]
+    render :text => ""
   end
 
   def non_encoded_param_user_action
     @decodable_param = params[:decodable_param]
+    render :text => ""
   end
 end
 

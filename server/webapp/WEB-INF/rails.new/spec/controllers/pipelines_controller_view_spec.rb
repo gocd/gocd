@@ -18,17 +18,17 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe PipelinesController do
 
-  integrate_views
+  render_views
 
   before(:each) do
     controller.stub(:populate_health_messages) do
-      stub_server_health_messages
+      controller.instance_variable_set(:@current_server_health_states,com.thoughtworks.go.serverhealth.ServerHealthStates.new)
     end
     @user = Username.new(CaseInsensitiveString.new("foo"))
-    controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
-    controller.stub!(:go_config_service).and_return(@go_config_service=mock())
-    controller.stub(:pipeline_lock_service).and_return(@pipeline_lock_service=mock())
-    controller.stub!(:current_user).and_return(@user)
+    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
+    controller.stub(:go_config_service).and_return(@go_config_service=double())
+    controller.stub(:pipeline_lock_service).and_return(@pipeline_lock_service=double())
+    controller.stub(:current_user).and_return(@user)
     @go_config_service.stub(:isSecurityEnabled).and_return(false)
     controller.stub(:populate_config_validity)
   end
@@ -56,7 +56,7 @@ describe PipelinesController do
       material_configs = revisions.getMaterials().convertToConfigs()
 
       svn_material_config = material_configs.get(0)
-      svn_material_config.setConfigAttributes({SvnMaterialConfig::FOLDER, "Folder", SvnMaterialConfig::CHECK_EXTERNALS, "true"})
+      svn_material_config.setConfigAttributes({SvnMaterialConfig::FOLDER => "Folder", SvnMaterialConfig::CHECK_EXTERNALS=> "true"})
       svn_material_config.setName(CaseInsensitiveString.new("SvnName"))
 
       pim.setMaterialRevisionsOnBuildCause(revisions)
@@ -64,10 +64,11 @@ describe PipelinesController do
 
       @pipeline_history_service.should_receive(:latest).with('pipeline-name', @user).and_return(pim)
       @go_config_service.should_receive(:variablesFor).with("pipeline-name").and_return(EnvironmentVariablesConfig.new())
+
       post 'show_for_trigger', :pipeline_name => 'pipeline-name', "pegged_revisions" =>{svn_material_config.getPipelineUniqueFingerprint() => "hello_world"}
-      response.should have_tag(".material_summary #material-number-0.updated[title='hello_world']", "hello_world")
-      response.should have_tag("#material-number-0-pegged[title='hello_world']")
-      response.should_not have_tag(".material_details #material-number-0-autocomplete")
+      expect(response.body).to have_selector(".material_summary #material-number-0.updated[title='hello_world']", :text=>"hello_world")
+      expect(response.body).to have_selector("#material-number-0-pegged[title='hello_world']")
+      expect(response.body).to have_selector(".material_details #material-number-0-autocomplete-content")
     end
   end
 

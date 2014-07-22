@@ -16,10 +16,11 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
+
 describe Admin::JobsController, "view" do
   include GoUtil
   describe "actions" do
-    integrate_views
+    render_views
 
 
     before do
@@ -35,9 +36,9 @@ describe Admin::JobsController, "view" do
       @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact2)
 
       controller.should_receive(:load_pipeline) do
-          controller.instance_variable_set('@processed_cruise_config', @cruise_config)
-          controller.instance_variable_set('@cruise_config', @cruise_config)
-          controller.instance_variable_set('@pipeline', @pipeline)
+        controller.instance_variable_set('@processed_cruise_config', @cruise_config)
+        controller.instance_variable_set('@cruise_config', @cruise_config)
+        controller.instance_variable_set('@pipeline', @pipeline)
       end
 
     end
@@ -45,8 +46,8 @@ describe Admin::JobsController, "view" do
     describe "edit settings" do
       it "should display 'Job Name' " do
         get :edit, :stage_parent=> "pipelines", :current_tab => "settings", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
-        response.status.should == "200 OK"
-        response.body.should have_tag("input[name='job[name]']")
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("input[name='job[name]']")
       end
     end
 
@@ -55,17 +56,18 @@ describe Admin::JobsController, "view" do
 
       it "should display artifacts title, instruction and list of artifacts" do
         get :edit,:stage_parent=> "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
-        response.status.should == "200 OK"
-        response.body.should have_tag("h3", "Artifacts")
-        response.body.should have_tag("table[class='artifact']") do
-            with_tag("input[class='form_input artifact_source'][value=?]", "src")
-            with_tag("input[class='form_input artifact_destination'][value=?]", "dest")
-            with_tag("input[class='form_input artifact_source'][value=?]", "src2")
-            with_tag("input[class='form_input artifact_destination'][value=?]", "dest2")
-            with_tag("select[class='small']") do
-              with_tag("option", "Test Artifact")
-              with_tag("option", "Build Artifact")
-            end
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("h3", :text=>"Artifacts")
+
+        Capybara.string(response.body).find("table[class='artifact']").tap do |table|
+          expect(table).to have_selector("input[class='form_input artifact_source'][value='src']")
+          expect(table).to have_selector("input[class='form_input artifact_destination'][value='dest']")
+          expect(table).to have_selector("input[class='form_input artifact_source'][value='src2']")
+          expect(table).to have_selector("input[class='form_input artifact_destination'][value='dest2']")
+          table.all("select[class='small']").tap do |select|
+            expect(select[0]).to have_selector("option",:text=>"Test Artifact")
+            expect(select[0]).to have_selector("option",:text=>"Build Artifact")
+          end
         end
       end
 
@@ -76,13 +78,13 @@ describe Admin::JobsController, "view" do
 
         get :edit, :stage_parent=> "pipelines", :current_tab => :artifacts, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
 
-        response.status.should == "200 OK"
-        response.body.should have_tag("h3", "Artifacts")
-        response.body.should have_tag("table[class='artifact']") do
-            with_tag("div.fieldWithErrors input[class='form_input artifact_source'][value=?]", "src")
-            with_tag("div.form_error", "Source is wrong")
-            with_tag("div.fieldWithErrors input[class='form_input artifact_destination'][value=?]", "dest")
-            with_tag("div.form_error", "Dest is wrong")
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("h3", :text=>"Artifacts")
+        Capybara.string(response.body).find("table[class='artifact']").tap do |table|
+          expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_source'][value='src']")
+          expect(table).to have_selector("div.form_error", :text=>"Source is wrong")
+          expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_destination'][value='dest']")
+          expect(table).to have_selector("div.form_error", :text=>"Dest is wrong")
         end
       end
     end

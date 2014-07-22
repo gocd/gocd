@@ -17,14 +17,15 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Admin::StagesController, "view" do
+  include GoUtil
   include ConfigSaveStubbing
   include MockRegistryModule
   describe "actions" do
-    integrate_views
+    render_views
 
     before do
       controller.stub(:populate_health_messages) do
-        stub_server_health_messages
+        controller.instance_variable_set(:@current_server_health_states,com.thoughtworks.go.serverhealth.ServerHealthStates.new)
       end
       controller.stub(:populate_config_validity)
       controller.stub(:checkConfigFileValid)
@@ -52,19 +53,19 @@ describe Admin::StagesController, "view" do
 
       it "should display 'fetch materials' & 'clean working directory' checkbox" do
         get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s
-        response.status.should == "200 OK"
-        response.body.should have_tag("div[class='form_item checkbox_row fetch_materials']")
-        response.body.should have_tag("div[class='form_item checkbox_row clean_working_dir']")
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("div[class='form_item checkbox_row fetch_materials']")
+        expect(response.body).to have_selector("div[class='form_item checkbox_row clean_working_dir']")
       end
 
-       it "should display 'on success' & 'manual' radio buttons" do
+      it "should display 'on success' & 'manual' radio buttons" do
         get :edit, :stage_parent=> "pipelines",  :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s
-        response.status.should == "200 OK"
-        response.body.should have_tag("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
-        response.body.should have_tag("label[for='auto']", 'On Success')
-        response.body.should have_tag("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
-        response.body.should have_tag("label[for='manual']", 'Manual')
-       end
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
+        expect(response.body).to have_selector("label[for='auto']", :text=>"On Success")
+        expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
+        expect(response.body).to have_selector("label[for='manual']", :text=>"Manual")
+      end
 
     end
 
@@ -78,38 +79,40 @@ describe Admin::StagesController, "view" do
 
       it "should render stages for pipeline" do
         get :index, :stage_parent=> "pipelines",  :pipeline_name => "pipeline"
-        assigns[:pipeline].should == @pipeline
-        assigns[:cruise_config].should == @cruise_config
+        expect(assigns(:pipeline)).to eq(@pipeline)
+        expect(assigns(:cruise_config)).to eq(@cruise_config)
 
-        response.body.should have_tag("tr") do
-          with_tag("td", "stage-name")
-          with_tag("td", "1")
-          with_tag("td", "On Success")
-        end
-        response.body.should have_tag("tr") do
-          with_tag("td", "stage-second")
-          with_tag("td", "2")
-          with_tag("td", "Manual")
+        Capybara.string(response.body).find("table.stages_listing").tap do |table|
+          table.find("tr.stage_stage-name").tap do |tr|
+            expect(tr).to have_selector("td.stage_name", :text=>"stage-name")
+            expect(tr).to have_selector("td.number_of_jobs", :text=>"1")
+            expect(tr).to have_selector("td.approval_type", :text=>"On Success")
+          end
+          table.find("tr.stage_stage-second").tap do |tr|
+            expect(tr).to have_selector("td.stage_name", :text=>"stage-second")
+            expect(tr).to have_selector("td.number_of_jobs", :text=>"2")
+            expect(tr).to have_selector("td.approval_type", :text=>"Manual")
+          end
         end
       end
     end
 
     describe "foo" do
-     before(:each) do
+      before(:each) do
         controller.should_receive(:load_pipeline) do
           controller.instance_variable_set('@cruise_config', @cruise_config)
           controller.instance_variable_set('@pipeline', @pipeline)
         end
-     end
+      end
 
-       it "should display 'on success' & 'manual' radio buttons" do
-         get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => "pipeline", :stage_name => "stage-name"
-         response.status.should == "200 OK"
-         response.body.should have_tag("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
-         response.body.should have_tag("label[for='auto']", 'On Success')
-         response.body.should have_tag("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
-         response.body.should have_tag("label[for='manual']", 'Manual')
-       end
+      it "should display 'on success' & 'manual' radio buttons" do
+        get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => "pipeline", :stage_name => "stage-name"
+        expect(response.status).to eq(200)
+        expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}'][checked='checked']")
+        expect(response.body).to have_selector("label[for='auto']", :text=>"On Success")
+        expect(response.body).to have_selector("input[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
+        expect(response.body).to have_selector("label[for='manual']", :text=>"Manual")
+      end
 
     end
 
@@ -117,17 +120,17 @@ describe Admin::StagesController, "view" do
       before(:each) do
         ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
         controller.should_receive(:load_pipeline) do
-          assigns[:cruise_config] = @cruise_config
-          assigns[:pipeline] = @pipeline
+          controller.instance_variable_set('@cruise_config', @cruise_config)
+          controller.instance_variable_set('@pipeline', @pipeline)
         end
         controller.should_receive(:load_pause_info) do
-          assigns[:pause_info] = PipelinePauseInfo.paused("just for fun", "loser")
+          controller.instance_variable_set('@pause_info', PipelinePauseInfo.paused("just for fun", "loser"))
         end
       end
 
       it "should load form for new stage" do
         get :new, :stage_parent=> "pipelines", :pipeline_name => "pipeline-name"
-        assigns[:cruise_config].should == @cruise_config
+        expect(assigns(:cruise_config)).to eq(@cruise_config)
         assert_has_new_form
       end
     end
@@ -155,17 +158,17 @@ describe Admin::StagesController, "view" do
           post :create, :stage_parent=> "pipelines", :pipeline_name => "pipeline-name", :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"
           @cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo")).should_not be_nil
 
-          response.status.should == "200 OK"
-          response.body.should have_text("Saved successfully")
-          response.location.should =~ %r{/admin/pipelines/pipeline-name/stages?}
+          expect(response.status).to eq(200)
+          expect(response.body).to have_content("Saved successfully")
+          expect(response.location).to have_content(%r{/admin/pipelines/pipeline-name/stages?})
         end
       end
     end
 
     def assert_has_new_form
-      response.body.should have_tag("form[action='/admin/pipelines/pipeline-name/stages']") do
-        with_tag("input[type='text'][name='stage[name]']")
-        with_tag("input[type='hidden'][name='config_md5'][id='config_md5'][value='1234abcd']")
+      Capybara.string(response.body).find("form[action='/admin/pipelines/pipeline-name/stages']").tap do |form|
+        expect(form).to have_selector("input[type='text'][name='stage[name]']")
+        expect(form).to have_selector("input[type='hidden'][name='config_md5'][id='config_md5'][value='1234abcd']")
       end
     end
   end

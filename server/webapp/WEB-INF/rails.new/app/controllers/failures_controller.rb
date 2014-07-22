@@ -17,7 +17,7 @@
 class FailuresController < ApplicationController
   include ParamEncoder
 
-  layout nil
+  layout false
   decode_params :suite_name, :test_name, :only => 'show'
 
   def show

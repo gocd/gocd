@@ -27,26 +27,28 @@ describe FailuresController do
   end
 
   it "should resolve the route to show action" do
-    params_from(:get, "/failures/foo_pipeline/10/bar_stage/5/baz_job/quux_suite/bang_test").should == {:controller => "failures", :action => "show", :pipeline_name => "foo_pipeline",
-                                                                                                             :pipeline_counter => "10", :stage_name => "bar_stage", :stage_counter => "5",
-                                                                                                             :job_name => "baz_job", :suite_name => "quux_suite", :test_name => "bang_test",
-                                                                                                             :no_layout => true}
+    expect({:get => "/failures/foo_pipeline/10/bar_stage/5/baz_job/quux_suite/bang_test"}).to route_to(:controller => "failures", :action => "show", :pipeline_name => "foo_pipeline", :pipeline_counter => "10", :stage_name => "bar_stage", :stage_counter => "5", :job_name => "baz_job", :suite_name => "quux_suite", :test_name => "bang_test", :no_layout => true)
   end
 
   it "should load failure message and stack trace" do
     @failure_service.should_receive(:failureDetailsFor).with(@job_id, 'suite_name', 'test_name', @user, an_instance_of(HttpLocalizedOperationResult)).and_return(@failure_details)
     #suite_name and test_name are ParamEncode#enc'ed because they can potentially have special characters like dot(.) or slash(/) etc.
+
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "c3VpdGVfbmFtZQ%3D%3D%0A", :test_name => "dGVzdF9uYW1l%0A", :no_layout => true
+
     assigns[:failure_details].should == @failure_details
+    assert_template layout: false
   end
 
   it "should render error message when fails" do
     @failure_service.should_receive(:failureDetailsFor) do |_, _, _, _, result|
       result.connectionError(LocalizedMessage.string("ON"))
     end
+
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "suite_name", :test_name => "test_name", :no_layout => true
+    
     assigns[:failure_details].should be_nil
-    response.status.should == "400 Bad Request"
+    response.status.should == 400
     response.body.should == "on\n"
   end
 end

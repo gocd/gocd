@@ -1,7 +1,7 @@
 module Oauth2Provider
-  class Client < Oauth2Provider::ModelBase
+  class Client < Oauth2Provider::ModelBase    
     validates_presence_of :name, :redirect_uri
-    validates_format_of :redirect_uri, :with => Regexp.new("^(https|http)://.+$"), :if => proc { |client| !client.redirect_uri.blank? }
+    validates_format_of :redirect_uri, :with => Regexp.new("^(https|http)://.+$"), :multiline => true, :if => proc { |client| !client.redirect_uri.blank? }
     validates_uniqueness_of :name
 
     columns :name, :client_id, :client_secret, :redirect_uri
@@ -15,10 +15,6 @@ module Oauth2Provider
         authorization.destroy if authorization.user_id == user_id
       end
       OauthAuthorization.create!(:user_id => user_id, :oauth_client_id => id)
-    end
-
-    def self.model_name
-      ActiveSupport::ModelName.new('OauthClient')
     end
 
     def oauth_tokens

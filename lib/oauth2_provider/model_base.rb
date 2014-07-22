@@ -1,6 +1,7 @@
 # Copyright (c) 2010 ThoughtWorks Inc. (http://thoughtworks.com)
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
 require 'validatable'
+require 'active_model'
 
 module Oauth2Provider
   class NotFoundException < StandardError
@@ -11,6 +12,8 @@ module Oauth2Provider
 
   class ModelBase
     include Validatable
+    include ActiveModel::Model
+    
     CONVERTORS =  {
           :integer => Proc.new { |v| v ? v.to_i : nil },
           :string  => Proc.new { |v| v.to_s }

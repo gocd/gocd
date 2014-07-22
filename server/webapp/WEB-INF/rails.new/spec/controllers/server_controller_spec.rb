@@ -22,7 +22,7 @@ describe ServerController do
   end
 
   it "should resolve json url for messages" do
-    params_from(:post, "/server/messages.json").should == {:controller => "server", :action => "messages", :format=>"json"}
+    expect({:get => "/server/messages.json"}).to route_to(:controller => "server", :action => "messages", :format => "json")
   end
 
   it "should obtain the error and warning counts" do
@@ -32,15 +32,16 @@ describe ServerController do
     states = ServerHealthStates.new([first, second, third])
     config = CruiseConfig.new()
 
-    @server_health_service = mock('server health service')
-    @go_config_service = mock('go config service')
-    controller.stub!(:server_health_service).and_return(@server_health_service)
-    controller.stub!(:go_config_service).and_return(@go_config_service)
+    @server_health_service = double('server health service')
+    @go_config_service = double('go config service')
+    controller.stub(:server_health_service).and_return(@server_health_service)
+    controller.stub(:go_config_service).and_return(@go_config_service)
 
     @go_config_service.should_receive(:getCurrentConfig).and_return(config)
     @server_health_service.should_receive(:getAllValidLogs).with(config).and_return(states)
 
     get 'messages', :format => 'json'
-    assigns[:current_server_health_states] == states
+
+    assigns[:current_server_health_states].should == states
   end
 end

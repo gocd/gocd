@@ -20,7 +20,7 @@ module Oauth2Provider
     end
 
     def show
-      @oauth_client = Oauth2Provider::OauthClient.find(params[:id])
+      @oauth_client = Client.find(params[:id])
       respond_to do |format|
         format.html
         format.xml  { render :xml => @oauth_client.to_xml(:dasherize => false) }
@@ -28,15 +28,15 @@ module Oauth2Provider
     end
 
     def new
-      @oauth_client = Oauth2Provider::OauthClient.new
+      @oauth_client = Client.new
     end
 
     def edit
-      @oauth_client = Oauth2Provider::OauthClient.find(params[:id])
+      @oauth_client = Client.find(params[:id])
     end
 
     def create
-      @oauth_client = Oauth2Provider::OauthClient.new(params[:oauth_client])
+      @oauth_client = Client.new(params[:oauth_client])
 
       respond_to do |format|
         if @oauth_client.save
@@ -52,7 +52,7 @@ module Oauth2Provider
     end
 
     def update
-      @oauth_client = Oauth2Provider::OauthClient.find(params[:id])
+      @oauth_client = Client.find(params[:id])
 
       respond_to do |format|
         if @oauth_client.update_attributes(params[:oauth_client])
@@ -69,7 +69,7 @@ module Oauth2Provider
     end
 
     def destroy
-      @oauth_client = Oauth2Provider::OauthClient.find(params[:id])
+      @oauth_client = Client.find(params[:id])
       @oauth_client.destroy
 
       respond_to do |format|

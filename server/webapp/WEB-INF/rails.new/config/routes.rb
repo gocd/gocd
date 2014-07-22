@@ -274,11 +274,10 @@ Go::Application.routes.draw do
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
 
   # dummy mappings. for specs to pass
-  get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  get '/environments' => 'environments#index', as: :environments_for_test
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
 
+  get 'test' => 'test/test#index', as: :gadget_rendering
   get 'test' => 'test/test#index', as: :gadgets_oauth_clients
   get 'test' => 'test/test#index', as: :oauth_clients
 

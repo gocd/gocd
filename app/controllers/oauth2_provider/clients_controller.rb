@@ -6,6 +6,7 @@ module Oauth2Provider
 
     include Oauth2Provider::SslHelper
     include Oauth2Provider::TransactionHelper
+    include Oauth2Provider::Engine.routes.url_helpers
 
     transaction_actions :create, :update, :destroy
 

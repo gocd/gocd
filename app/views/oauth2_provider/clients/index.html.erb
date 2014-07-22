@@ -48,6 +48,6 @@
   <% end %>
 
   <div class="table_actions">
-    <%= link_to 'Add client', "admin/oauth/clients/new", :html => {:class => 'link_as_button primary', :id => 'new_oauth_client_button'} -%>
+    <%= link_to 'Add client', oauth_engine.clients_new_path, :html => {:class => 'link_as_button primary', :id => 'new_oauth_client_button'} -%>
   </div>
 </div>

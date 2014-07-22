@@ -122,13 +122,13 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
 
     capybara_string = Capybara.string(response.body)
 
-    capybara_string.find("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
+    capybara_string.find("a[href='#{stage_detail_tab_path(:pipeline_name => 'some_pipeline',
                                                       :pipeline_counter => 19151,
                                                       :stage_name => 'dev',
                                                       :stage_counter => 35)}']").tap do |link|
       expect(link).to have_selector("div[class='stage_bar Passed'][title='dev (Passed)']")
     end
-    capybara_string.find("a[href='#{stage_detail_path(:pipeline_name => 'some_pipeline',
+    capybara_string.find("a[href='#{stage_detail_tab_path(:pipeline_name => 'some_pipeline',
                                                       :pipeline_counter => 19151,
                                                       :stage_name => 'prod',
                                                       :stage_counter => 35)}']").tap do |link|

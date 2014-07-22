@@ -8,7 +8,7 @@
         <%= link_with_current_tab l.string("MATERIALS"), "materials" %>
         <%= link_with_current_tab l.string("JOBS"), "jobs" %>
         <%= link_with_current_tab l.string("TESTS"), "tests" %>
-        <%= link_with_current_tab l.string("CONFIG"), "config" %>
+        <%= link_with_current_tab l.string("CONFIG"), "stage_config" %>
         <%= link_with_current_tab l.string("GRAPHS"), "stats" %>
     </ul>
 </div>
@@ -52,7 +52,7 @@
                                                                    :chart_stage_duration_passed => @chart_stage_duration_passed, :chart_tooltip_data_passed => @chart_tooltip_data_passed,
                                                                    :chart_stage_duration_failed => @chart_stage_duration_failed, :chart_tooltip_data_failed => @chart_tooltip_data_failed}} %>
         </div>
-    <% when 'config' %>
+    <% when 'stage_config' %>
         <div id="ran_with_config">
             <%= render :partial => "config.html", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>
         </div>

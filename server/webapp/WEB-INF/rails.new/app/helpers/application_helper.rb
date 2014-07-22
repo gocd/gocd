@@ -52,7 +52,7 @@ module ApplicationHelper
 
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
-    stage_detail_path :pipeline_name => stage_identifier.getPipelineName(),
+    stage_detail_tab_path :pipeline_name => stage_identifier.getPipelineName(),
                       :pipeline_counter => stage_identifier.getPipelineCounter(),
                       :stage_name => stage_identifier.getStageName(),
                       :stage_counter => stage_identifier.getStageCounter()

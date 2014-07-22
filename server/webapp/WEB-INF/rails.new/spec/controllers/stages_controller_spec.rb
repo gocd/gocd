@@ -181,16 +181,11 @@ describe StagesController do
       expect(controller.send(:rerun_jobs_path, {:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2})).to eq("/pipelines/pipeline_name/10/stage_name/2/rerun-jobs")
     end
 
-    it "should generate stage details url" do
-      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2)).to eq("/pipelines/pipeline_name/10/stage_name/2")
-    end
-
     it "should generate stage details url for a tab" do
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'jobs')).to eq("/pipelines/pipeline_name/10/stage_name/2/jobs")
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'jobs', :format => 'json')).to eq("/pipelines/pipeline_name/10/stage_name/2/jobs.json")
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview')).to eq("/pipelines/pipeline_name/10/stage_name/2")
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview', :format => 'json')).to eq("/pipelines/pipeline_name/10/stage_name/2.json")
-      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.json").to route_to ({:controller=>"stages", :action => 'overview', :pipeline_name => "pipeline_name", :pipeline_counter => 10, :stage_name => "stage_name", :stage_counter => 2, :format => 'json'})
-      expect(:get => "/pipelines/pipeline_name/10/stage_name/2?format=json").to route_to ({:controller=>"stages", :action => 'overview', :pipeline_name => "pipeline_name", :pipeline_counter => 10, :stage_name => "stage_name", :stage_counter => 2, :format => 'json'})
       expect(:get => "/pipelines/pipeline_name/10/stage_name/5/jobs").to route_to ({:controller=>"stages", :pipeline_name=>"pipeline_name", :pipeline_counter=>"10", :stage_name=>"stage_name", :stage_counter=>"5", :action=>"jobs"})
     end
 

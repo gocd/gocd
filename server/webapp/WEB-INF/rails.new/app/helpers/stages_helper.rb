@@ -28,7 +28,7 @@ module StagesHelper
   end
 
   def stage_detail_path_for_identifier(identifier, options = {})
-    stage_detail_path(options.merge(:pipeline_name => identifier.getPipelineName(),
+    stage_detail_tab_path(options.merge(:pipeline_name => identifier.getPipelineName(),
                                     :pipeline_counter => identifier.getPipelineCounter(),
                                     :stage_name => identifier.getStageName(),
                                     :stage_counter => identifier.getStageCounter()))

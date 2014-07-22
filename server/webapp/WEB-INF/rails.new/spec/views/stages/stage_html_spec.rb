@@ -73,7 +73,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_path)
+        view.stub(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
@@ -197,7 +197,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_path)
+        view.stub(:stage_detail_tab_path)
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
         assign(:stage, stage_with_all_jobs_passed())
       end
@@ -221,7 +221,7 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_path)
+        view.stub(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -247,7 +247,7 @@ describe 'stages/stage.html.erb' do
         view.stub(:stage_detail_tab_path).with({:action=>"jobs"}).and_return("jobs_link")
         view.stub(:stage_detail_tab_path).with({:action=>"materials"}).and_return("materials_link")
         view.stub(:stage_detail_tab_path).with({:action=>"tests"}).and_return("fbh_link")
-        view.stub(:stage_detail_tab_path).with({:action=>"config"}).and_return("config_link")
+        view.stub(:stage_detail_tab_path).with({:action=>"stage_config"}).and_return("config_link")
         view.should_receive(:stage_detail_tab_path).with(:format => 'json', :action=>'jobs').and_return("link_to_json")
         in_params :action => 'jobs'
         assign :jobs, []
@@ -275,7 +275,7 @@ describe 'stages/stage.html.erb' do
 
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        view.stub(:stage_detail_path)
+        view.stub(:stage_detail_tab_path)
 
         assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
@@ -671,7 +671,7 @@ describe 'stages/stage.html.erb' do
 
     describe "config tab" do
       before(:each) do
-        params[:action] = "config"
+        params[:action] = "stage_config"
         assign :ran_with_config_revision,  GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", com.thoughtworks.go.licensing.Edition::Enterprise, TimeProvider.new);
         view.stub(:is_user_an_admin?).and_return(true)
       end

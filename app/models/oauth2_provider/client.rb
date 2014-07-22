@@ -26,8 +26,8 @@ module Oauth2Provider
     end
 
     def before_create
-      self.client_id = ActiveSupport::SecureRandom.hex(32)
-      self.client_secret = ActiveSupport::SecureRandom.hex(32)
+      self.client_id = SecureRandom.hex(32)
+      self.client_secret = SecureRandom.hex(32)
     end
 
     def before_destroy

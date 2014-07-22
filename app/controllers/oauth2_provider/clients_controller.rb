@@ -36,7 +36,7 @@ module Oauth2Provider
     end
 
     def create
-      @oauth_client = Client.new(params[:oauth_client])
+      @oauth_client = Client.new(params[:client])
 
       respond_to do |format|
         if @oauth_client.save

@@ -270,6 +270,9 @@ Go::Application.routes.draw do
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent
 
+  get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
+  get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
+
   # dummy mappings. for specs to pass
   get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
   get '/environments' => 'environments#index', as: :environments_for_test

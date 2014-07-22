@@ -18,7 +18,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe FailuresController do
   before do
-    @failure_service = mock("failure_service")
+    @failure_service = double("failure_service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
     controller.stub(:failure_service).and_return(@failure_service)
     controller.stub(:current_user).and_return(@user)
@@ -46,7 +46,7 @@ describe FailuresController do
     end
 
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "suite_name", :test_name => "test_name", :no_layout => true
-    
+
     assigns[:failure_details].should be_nil
     response.status.should == 400
     response.body.should == "on\n"

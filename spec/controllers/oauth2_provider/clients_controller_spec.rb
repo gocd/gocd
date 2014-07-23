@@ -10,15 +10,26 @@ module Oauth2Provider
       end
     end
     
-    it "should foo" do
+    it "should return all associated clients" do
       expected_clients = []
       (1..5).each do
         expected_clients << create(Oauth2Provider::Client)
       end
       get 'index', { use_route: :oauth_engine }
       clients = assigns[:oauth_clients]
-      clients.size.should == 5
-      clients.map(&:name) == expected_clients.map(&:name)
+      expect(clients.size).to eq(5)
+      expect(clients.map(&:name)).to match_array(expected_clients.map(&:name))
+    end
+    
+    it "should respond to xml route" do
+      expected_clients = []
+      (1..5).each do
+        expected_clients << create(Oauth2Provider::Client)
+      end
+      get 'index', { use_route: :oauth_engine, :format => :xml }
+      output = Hash.from_xml(response.body)
+      actual = output['oauth_clients'].map {|c| c['name']}
+      expect(actual).to match_array(expected_clients.map(&:name))
     end
   end
 end

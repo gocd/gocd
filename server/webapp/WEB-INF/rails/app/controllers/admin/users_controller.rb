@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class UsersController < AdminController
+class Admin::UsersController < AdminController
   include UsersHelper
   include ApplicationHelper
 

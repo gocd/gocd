@@ -135,16 +135,16 @@ ActionController::Routing::Routes.draw do |map|
   end
 
   map.with_options(:no_layout=>true) do |no_layout|
-    no_layout.users_new "admin/users/new", :controller => 'users', :action => 'new', :conditions => {:method => :get}
-    no_layout.users_create "admin/users/create", :controller => 'users', :action => 'create', :conditions => {:method => :post}
-    no_layout.users_search"admin/users/search", :controller => 'users', :action => 'search', :conditions => {:method => :post}
-    no_layout.user_roles "admin/users/roles", :controller => "users", :action => "roles", :conditions => {:method => :post}
-    no_layout.users_delete "admin/users/delete_all", :controller => 'users', :action => 'delete_all', :conditions => {:method => :delete} #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+    no_layout.users_new "admin/users/new", :controller => 'admin/users', :action => 'new', :conditions => {:method => :get}
+    no_layout.users_create "admin/users/create", :controller => 'admin/users', :action => 'create', :conditions => {:method => :post}
+    no_layout.users_search"admin/users/search", :controller => 'admin/users', :action => 'search', :conditions => {:method => :post}
+    no_layout.user_roles "admin/users/roles", :controller => "admin/users", :action => "roles", :conditions => {:method => :post}
+    no_layout.users_delete "admin/users/delete_all", :controller => 'admin/users', :action => 'delete_all', :conditions => {:method => :delete} #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
   end
 
-  map.user_operate "admin/users/operate", :controller => "users", :action => "operate", :conditions => {:method => :post}
+  map.user_operate "admin/users/operate", :controller => "admin/users", :action => "operate", :conditions => {:method => :post}
 
-  map.with_options(:controller => "users") do |admin|
+  map.with_options(:controller => "admin/users") do |admin|
     admin.user_listing "admin/users", :action => "users"
   end
 
@@ -316,7 +316,7 @@ ActionController::Routing::Routes.draw do |map|
     config_view_templates.config_view_templates_show "/config_view/templates/:name", :action => "show", :requirements =>  { :name => PIPELINE_NAME_FORMAT }, :conditions => { :method => :get }
   end
 
-  map.dismiss_license_expiry_warning "/users/dismiss_license_expiry_warning", :controller => :users, :action => "dismiss_license_expiry_warning", :no_layout => true
+  map.dismiss_license_expiry_warning "/users/dismiss_license_expiry_warning", :controller => "admin/users", :action => "dismiss_license_expiry_warning", :no_layout => true
   map.user_disabled_cas_error '/cas_errors/user_disabled', :controller => :cas_errors, :action => 'user_disabled'
   map.user_unknown_cas_error '/cas_errors/user_unknown', :controller => :cas_errors, :action => 'user_unknown'
 

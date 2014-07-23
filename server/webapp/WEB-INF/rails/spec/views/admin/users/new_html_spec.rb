@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
 describe "users/new.html" do
 
   it "should render the add user page with the search text box" do
-    render "users/new.html"
+    render "admin/users/new.html"
     body = response.body
     body.should have_tag("form[action='#{users_search_path}']")
     body.should have_tag("div.user_search_box.form_item") do
@@ -29,7 +29,7 @@ describe "users/new.html" do
   end
 
   it "should render the search button in a form" do
-    render "users/new.html"
+    render "admin/users/new.html"
     body = response.body
     body.should have_tag("#search_user_submit", "SEARCH")
     body.should have_tag("div#search_results_container ") do
@@ -39,7 +39,7 @@ describe "users/new.html" do
   end
 
   it "should render the submit and close buttons in a form" do
-    render "users/new.html"
+    render "admin/users/new.html"
 
     body = response.body
     body.should have_tag("form[action='#{users_create_path}']")

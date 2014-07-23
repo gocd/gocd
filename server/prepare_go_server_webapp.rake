@@ -279,7 +279,6 @@ RAILS_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "rails.new" : "rails"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
 RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"
-USER_CONTROLLER_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "WEB-INF/#{RAILS_DIR}/app/controllers/admin" : "WEB-INF/#{RAILS_DIR}/app/controllers"
 
 def inline_partials dir = RAILS_INTERPOLATED_VIEWS
   Dir[File.join(dir, "*")].each do |path|
@@ -414,7 +413,7 @@ class NotInProduction
   end
 end
 
-SANITIZE_FOR_PRODUCTION = NotInProduction.new('target/webapp', {"WEB-INF/#{RAILS_DIR}/config" => 'routes.rb', USER_CONTROLLER_DIR => ['users_controller.rb'], "WEB-INF/#{RAILS_DIR}/app/controllers/admin" => 'backup_controller.rb'})
+SANITIZE_FOR_PRODUCTION = NotInProduction.new('target/webapp', {"WEB-INF/#{RAILS_DIR}/config" => 'routes.rb', "WEB-INF/#{RAILS_DIR}/app/controllers/admin" => ['users_controller.rb'], "WEB-INF/#{RAILS_DIR}/app/controllers/admin" => 'backup_controller.rb'})
 
 task :change_rails_env_to_production do
   replace_content_in_file("target/webapp/WEB-INF/web.xml", "<param-value>development</param-value>", "<param-value>production</param-value>")

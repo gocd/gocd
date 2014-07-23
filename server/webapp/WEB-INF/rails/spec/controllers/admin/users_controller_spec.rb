@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe UsersController do
+describe Admin::UsersController do
   include MockRegistryModule
   before :each do
     @user_service = mock('user_service')
@@ -68,7 +68,7 @@ describe UsersController do
   describe "new" do
 
     it "should match /admin/users/new to" do
-      params_from(:get, "/admin/users/new").should == {:controller => "users", :action => 'new', :no_layout => true}
+      params_from(:get, "/admin/users/new").should == {:controller => "admin/users", :action => 'new', :no_layout => true}
     end
   end
 
@@ -76,7 +76,7 @@ describe UsersController do
     integrate_views
     
     it "should match /admin/users/operate to" do
-      params_from(:post, "/admin/users/operate").should == {:controller => "users", :action => 'operate'}
+      params_from(:post, "/admin/users/operate").should == {:controller => "admin/users", :action => 'operate'}
     end
 
     it "should enable users through UserService and redirect to user listing" do
@@ -135,7 +135,7 @@ describe UsersController do
     end
 
     it "should match /admin/users/roles to" do
-      params_from(:post, "/admin/users/roles").should == {:controller => "users", :action => 'roles', :no_layout => true}
+      params_from(:post, "/admin/users/roles").should == {:controller => "admin/users", :action => 'roles', :no_layout => true}
     end
 
     it "should disallow unknown operations" do
@@ -171,7 +171,7 @@ describe UsersController do
     end
 
     it "should match /users/search to" do
-      params_from(:post, "/admin/users/search").should == {:controller => "users", :action => 'search', :no_layout => true}
+      params_from(:post, "/admin/users/search").should == {:controller => "admin/users", :action => 'search', :no_layout => true}
     end
 
     it "should search for a user" do
@@ -221,7 +221,7 @@ describe UsersController do
 
   describe "create" do
     it "should match /users/create to" do
-      params_from(:post, "/admin/users/create").should == {:controller => "users", :action => 'create', :no_layout => true}
+      params_from(:post, "/admin/users/create").should == {:controller => "admin/users", :action => 'create', :no_layout => true}
     end
 
     it "should create a new user" do
@@ -295,7 +295,7 @@ describe UsersController do
     end
 
     it "should match /users/delete_all to" do
-      params_from(:delete, "/admin/users/delete_all").should == {:controller => "users", :action => 'delete_all', :no_layout => true}
+      params_from(:delete, "/admin/users/delete_all").should == {:controller => "admin/users", :action => 'delete_all', :no_layout => true}
     end
 
     it "should delete all users" do
@@ -313,8 +313,8 @@ describe UsersController do
   describe "dismiss_license_expiry_warning" do
 
     it "should resolve routes" do
-      params_from(:post, "/users/dismiss_license_expiry_warning").should == {:controller => "users", :action => 'dismiss_license_expiry_warning', :no_layout => true}
-      route_for(:controller => "users", :action => "dismiss_license_expiry_warning", :no_layout => true).should == "/users/dismiss_license_expiry_warning"
+      params_from(:post, "/users/dismiss_license_expiry_warning").should == {:controller => "admin/users", :action => 'dismiss_license_expiry_warning', :no_layout => true}
+      route_for(:controller => "admin/users", :action => "dismiss_license_expiry_warning", :no_layout => true).should == "/users/dismiss_license_expiry_warning"
       dismiss_license_expiry_warning_path.should == "/users/dismiss_license_expiry_warning"
     end
 

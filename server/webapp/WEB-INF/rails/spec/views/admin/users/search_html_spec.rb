@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
 describe "users/search.html" do
   it "should have the error message container" do
    assigns[:users] = []
-   render "users/search.html"
+   render "admin/users/search.html"
 
    response.body.should have_tag("span#add_error_message")
  end
@@ -28,7 +28,7 @@ describe "users/search.html" do
     assigns[:users] = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go"), UserSourceType::LDAP),
                        UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PASSWORD_FILE)]
 
-    render 'users/search.html'
+    render 'admin/users/search.html'
 
     response.should have_tag("table[class='list_table']") do
       with_tag("tr[class='user']") do

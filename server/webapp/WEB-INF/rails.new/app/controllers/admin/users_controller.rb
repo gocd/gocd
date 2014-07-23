@@ -21,6 +21,8 @@ module Admin
 
     layout :determine_layout
 
+    protect_from_forgery :except => :delete_all #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+
     def new
     end
 

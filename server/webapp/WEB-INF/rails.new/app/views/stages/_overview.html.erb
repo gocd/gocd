@@ -1,0 +1,17 @@
+<div class="jobs overview_widget" id="jobs">
+    <h3><%= l.string("JOBS_CAPS") %></h3>
+
+    <div id="jobs_failed" class="job_grouping jobs_failed <%= "hidereveal_collapsed" unless @stage.nonPassedJobs().size() > 0 %>">
+        <%= render :partial => "jobs_breakdown", :locals=> {:scope => {:message => "FAILED_JOBS", :jobs => @stage.nonPassedJobs(), :parent_id=>"jobs_failed"}} %>
+    </div>  
+    <div id="jobs_in_progress" class="job_grouping jobs_in_progress <%= "hidereveal_collapsed" unless @stage.inProgressJobs().size() > 0 %>">
+        <%= render :partial => "jobs_breakdown", :locals=> {:scope => {:message => "IN_PROGRESS_JOBS", :jobs => @stage.inProgressJobs(), :parent_id=>"jobs_in_progress"}} %>
+    </div>
+    <div id="jobs_passed" class="job_grouping jobs_passed <%= "hidereveal_collapsed" unless (@stage.nonPassedJobs().size()==0 && @stage.inProgressJobs().size()==0) %>">
+        <%= render :partial => "jobs_breakdown", :locals=> {:scope => {:message => "PASSED_JOBS", :jobs => @stage.passedJobs(), :parent_id=>"jobs_passed"}} %>
+    </div>
+</div>
+
+<div class="materials_overview_wrapper">
+    <%= render :partial => 'shared/build_cause.html', :locals => { :scope => {:overview => true, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => false, :pipeline_name => @pipeline.getName(), :show_latest_only => true}} -%>
+</div>

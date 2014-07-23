@@ -18,6 +18,7 @@
 module ApplicationHelper
   include Services
   include RailsLocalizer
+  include PrototypeHelper
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
@@ -51,7 +52,7 @@ module ApplicationHelper
 
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
-    stage_detail_path :pipeline_name => stage_identifier.getPipelineName(),
+    stage_detail_tab_path :pipeline_name => stage_identifier.getPipelineName(),
                       :pipeline_counter => stage_identifier.getPipelineCounter(),
                       :stage_name => stage_identifier.getStageName(),
                       :stage_counter => stage_identifier.getStageCounter()
@@ -278,10 +279,16 @@ module ApplicationHelper
     link_to_remote(name, options, html_options)
   end
 
+  def blocking_link_to_remote_jyoti(name, options = {}, html_options = nil)
+    merge_block_options(options)
+    link_to_remote(name, options, html_options)
+  end
+
   def blocking_link_to_remote_new(options = {})
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
-    %Q|<a href="#" onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
+    tag_options = tag_options(options[:html], true)
+    %Q|<a href="#" #{tag_options} onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
   end
 
   def link_to_remote_new(name, options = {}, html_options = nil)
@@ -302,7 +309,7 @@ module ApplicationHelper
     else
       contents = ""
     end
-    return contents
+    return contents.html_safe
   end
 
   def content_wrapper_tag(options={})

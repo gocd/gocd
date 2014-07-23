@@ -23,21 +23,21 @@ describe PipelinesHelper do
     @now = org.joda.time.DateTime.new
   end
 
-  #describe :stage_bar_url do
-  #  before do
-  #    @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
-  #    @stages.add(NullStageHistoryItem.new('blah-stage'))
-  #    @request.path_parameters.reverse_merge!(params)
-  #  end
-  #
-  #  it "should have url with action when action is set" do
-  #    stage_bar_url(@stages[0], 'overview').should == "/pipelines/pipeline/1/stage-0/1"
-  #  end
-  #
-  #  it "should not link to stage not scheduled" do
-  #    stage_bar_url(@stages[1], 'history').should == "#"
-  #  end
-  #end
+  describe :stage_bar_url do
+    before do
+      @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
+      @stages.add(NullStageHistoryItem.new('blah-stage'))
+      @request.path_parameters.reverse_merge!(params)
+    end
+
+    it "should have url with action when action is set" do
+      expect(stage_bar_url(@stages[0], 'overview')).to eq "/pipelines/pipeline/1/stage-0/1"
+    end
+
+    it "should not link to stage not scheduled" do
+      expect(stage_bar_url(@stages[1], 'history')).to eq "#"
+    end
+  end
 
   #describe :run_stage_label do
   #  it "should show Rerun for scheduled stage" do
@@ -119,16 +119,16 @@ describe PipelinesHelper do
   #  end
   #end
 
-  #it "should return the type of the material" do
-  #  material_type(MaterialsMother.hgMaterial()).should == "scm"
-  #  material_type(MaterialsMother.svnMaterial("url", "folder")).should == "scm"
-  #  material_type(MaterialsMother.dependencyMaterial("blah_pipeline", "blah_stage")).should == "dependency"
-  #end
-  #
-  #it "should return the url for given pipeline instance" do
-  #    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-  #    url_for_pipeline_instance(pim).should == "/pipelines/blah-pipeline/5/cruise/10/pipeline"
-  #end
+  it "should return the type of the material" do
+    expect(material_type(MaterialsMother.hgMaterial())).to eq "scm"
+    expect(material_type(MaterialsMother.svnMaterial("url", "folder"))).to eq "scm"
+    expect(material_type(MaterialsMother.dependencyMaterial("blah_pipeline", "blah_stage"))).to eq "dependency"
+  end
+
+  it "should return the url for given pipeline instance" do
+     pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+     expect(url_for_pipeline_instance(pim)).to eq "/pipelines/blah-pipeline/5/cruise/10/pipeline"
+  end
 
   it "should return the url for value stream map of given pipeline instance" do
     pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
@@ -159,20 +159,20 @@ describe PipelinesHelper do
     expect(pipeline_build_cause_popup_id(pim)).to eq("changes_blah-pipeline_5")
   end
 
-  #describe "revision_for" do
-  #  it "should return short revision for scm material" do
-  #    revision = ModificationsMother.createHgMaterialRevisions().getRevisions().get(0)
-  #    revision_for(revision).should == revision.getLatestShortRevision()
-  #  end
-  #
-  #  it "should return pipeline identifier for pipeline material" do
-  #    revision = ModificationsMother.createPipelineMaterialRevision("p1/2/s2/1")
-  #    revision_for(revision).should == "p1/2"
-  #  end
-  #
-  #  it "should return package revision when material type is package" do
-  #    revision = ModificationsMother.createPackageMaterialRevision("go-agent-13.1.noarch.rpm")
-  #    revision_for(revision).should == "go-agent-13.1.noarch.rpm"
-  #  end
-  #end
+  describe "revision_for" do
+    it "should return short revision for scm material" do
+      revision = ModificationsMother.createHgMaterialRevisions().getRevisions().get(0)
+      revision_for(revision).should == revision.getLatestShortRevision()
+    end
+
+    it "should return pipeline identifier for pipeline material" do
+      revision = ModificationsMother.createPipelineMaterialRevision("p1/2/s2/1")
+      revision_for(revision).should == "p1/2"
+    end
+
+    it "should return package revision when material type is package" do
+      revision = ModificationsMother.createPackageMaterialRevision("go-agent-13.1.noarch.rpm")
+      revision_for(revision).should == "go-agent-13.1.noarch.rpm"
+    end
+  end
 end

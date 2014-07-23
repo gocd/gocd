@@ -143,7 +143,7 @@ describe Admin::PipelinesController do
 
       before do
         controller.stub(:populate_health_messages) do
-          stub_server_health_messages
+          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
         end
         @go_config_service.stub(:isSecurityEnabled).and_return(false)
       end
@@ -154,7 +154,7 @@ describe Admin::PipelinesController do
         get :edit, :pipeline_name => "HelloWorld", :current_tab => 'general', :stage_parent=>"pipelines"
 
         assigns[:pipeline].should be_nil
-        response.body.should have_tag("h3", "Unauthorized to edit HelloWorld pipeline.")
+        expect(response.body).to have_selector("h3", :text => "Unauthorized to edit HelloWorld pipeline.")
       end
     end
   end

@@ -87,6 +87,17 @@ def uuid_pattern
   "#{hex}{8}-#{hex}{4}-#{hex}{4}-#{hex}{4}-#{hex}{12}"
 end
 
+def with_caching(perform_caching)
+  old_perform_caching = ActionController::Base.perform_caching
+  begin
+    ActionController::Base.perform_caching = perform_caching
+    yield
+  ensure
+    ActionController::Base.perform_caching = old_perform_caching
+  end
+end
+
+
 include SporkConfig
 include JavaImports
 include JavaSpecImports

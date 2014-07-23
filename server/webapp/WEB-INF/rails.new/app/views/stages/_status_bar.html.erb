@@ -1,0 +1,34 @@
+<div class="run_results section">
+    <div class="run">
+        <span class="label"><%= l.string("Run:") %></span>
+        <span id="current_stage_run">
+            <%= render :partial => "stages/current_stage_run.html", :locals => {:scope => {}} %>
+        </span>
+
+        <div class="hidden enhanced_dropdown" id="other_stage_runs">
+            <%= render :partial => "stages/other_stage_runs.html", :locals => {:scope => {}} %>
+        </div>
+    </div>
+
+    <div class="result" id="stage_result">
+        <%= render :partial=> "stages/stage_result.html", :locals=>{:scope => {:state => @stage.getState()}}%>
+    </div>
+</div>
+
+<div class="run_details section" id="stage_run_details">
+    <%= render :partial => "stages/run_details.html", :locals => {:scope => {} } %>
+</div>
+
+<script type="text/javascript">
+    var other_stages_popup_shower = null;
+    function wire_up_stage_runs_popup() {
+        other_stages_popup_shower.cleanup_buttons();
+        $('show_other_stage_runs') && other_stages_popup_shower.bindShowButton($('show_other_stage_runs'));
+    }
+    
+    Util.on_load(function() {
+        var other_stages_popup = new MicroContentPopup($('other_stage_runs'), new MicroContentPopup.NoOpHandler());
+        other_stages_popup_shower = new MicroContentPopup.ClickShower(other_stages_popup);
+        wire_up_stage_runs_popup();
+    });
+</script>

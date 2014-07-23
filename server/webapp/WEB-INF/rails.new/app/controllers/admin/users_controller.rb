@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
-module Admin
 
+module Admin
   class UsersController < AdminController
     include UsersHelper
     include ApplicationHelper

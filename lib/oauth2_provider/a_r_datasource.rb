@@ -6,15 +6,15 @@ if defined?(ActiveRecord)
     class ARDatasource
 
       class OauthClientDto < ActiveRecord::Base
-        set_table_name :oauth_clients
+        self.table_name = :oauth_clients
       end
 
       class OauthAuthorizationDto < ActiveRecord::Base
-        set_table_name :oauth_authorizations
+        self.table_name = :oauth_authorizations
       end
 
       class OauthTokenDto < ActiveRecord::Base
-        set_table_name :oauth_tokens
+        self.table_name = :oauth_tokens
       end
 
       # used in tests, use it to clear datasource

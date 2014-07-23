@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.description = "This engine implements v09 of the OAuth2 draft spec http://tools.ietf.org/html/draft-ietf-oauth-v2-09."
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.test_files = Dir["test/**/*"]
   s.extra_rdoc_files = ["README.textile", "MIT-LICENSE", "NOTICE.textile"]
   s.require_paths = ["lib"]
 
@@ -23,13 +24,12 @@ Gem::Specification.new do |s|
     s.specification_version = 3
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<validatable>, ["= 1.6.7"])
-      s.add_development_dependency(%q<saikuro_treemap>, [">= 0"])
     else
       s.add_dependency(%q<validatable>, ["= 1.6.7"])
-      s.add_dependency(%q<saikuro_treemap>, [">= 0"])
     end
   else
     s.add_dependency(%q<validatable>, ["= 1.6.7"])
-    s.add_dependency(%q<saikuro_treemap>, [">= 0"])
   end
+  
+  s.add_development_dependency "sqlite3"
 end

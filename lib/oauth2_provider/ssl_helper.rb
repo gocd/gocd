@@ -25,11 +25,11 @@ module Oauth2Provider
     private
 
     def ssl_base_url_as_url_options
-      Oauth2::Provider::Configuration.ssl_base_url_as_url_options
+      Oauth2Provider::Configuration.ssl_base_url_as_url_options
     end
 
     def ssl_base_url
-      Oauth2::Provider::Configuration.ssl_base_url
+      Oauth2Provider::Configuration.ssl_base_url
     end
 
     def ssl_enabled?

@@ -10,7 +10,6 @@ module Oauth2Provider
     
     transaction_actions :create, :update, :destroy
 
-
     def index
       @oauth_clients = Client.all.sort{|a, b| a.name.casecmp(b.name)}
       respond_to do |format|

@@ -42,7 +42,7 @@ if defined?(ActiveRecord)
         OauthClientDto.find_by_redirect_uri(redirect_uri)
       end
 
-      def find_all_oauth_client
+      def find_all_client
         OauthClientDto.all
       end
 

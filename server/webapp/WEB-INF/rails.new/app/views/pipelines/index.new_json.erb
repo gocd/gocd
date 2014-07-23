@@ -4,12 +4,14 @@
   {
     "name": <%== pipeline_group.getName().to_json %>,
 
+    <%-# ====== ====== EVERY PIPELINE IN THIS GROUP ====== ====== -%>
     "pipelines": [
       <%- pipeline_group.getPipelineModels().each_with_index do |pipeline_model, pipeline_index| -%>
       <%- is_last_pipeline = pipeline_index == pipeline_group.getPipelineModels().count - 1 -%>
       {
         "name": <%== pipeline_model.getName().to_json %>,
 
+        <%-# ====== ====== EVERY CURRENTLY RUNNING INSTANCE OF THIS PIPELINE ====== ====== -%>
         "instances": [
           <%- pipeline_model.getActivePipelineInstances().each_with_index do |active_instance, instance_index| -%>
           <%- is_last_instance = instance_index == pipeline_model.getActivePipelineInstances().count - 1 -%>
@@ -29,6 +31,7 @@
             "latest_stage_name": <%== latest_stage.getName().to_json() %>,
             "latest_stage_state": <%== latest_stage.getState().to_s.to_json() %>,
 
+            <%-# ====== ====== EVERY STAGE IN THIS PIPELINE INSTANCE ====== ====== -%>
             "stages": [
               <%- active_instance.getStageHistory().each_with_index do |stage, stage_index| -%>
               <%- is_last_stage = stage_index == active_instance.getStageHistory().count - 1 -%>
@@ -49,6 +52,8 @@
           <%- end -%>
         ],
 
+
+        <%-# ====== ====== PREVIOUS RUN INFO (TO SHOW WHETHER THIS STAGE FAILED BEFORE ...) ====== ====== -%>
         <%- if pipeline_model.getLatestPipelineInstance().isAnyStageActive() -%>
         <%- active_stage = pipeline_model.getLatestPipelineInstance().activeStage() -%>
         <%- if active_stage.hasPreviousStage() -%>
@@ -60,6 +65,8 @@
         <%- end -%>
         <%- end -%>
 
+
+        <%-# ====== ====== OPERATIONS (TRIGGER, PAUSE ...) ====== ====== -%>
         <%- is_paused = pipeline_model.getPausedInfo().isPaused() -%>
         "available_operations": [
         <%- if pipeline_model.canOperate() -%>
@@ -85,6 +92,8 @@
         <%- end -%>
         ],
 
+
+        <%-# ====== ====== PAUSE INFORMATION (MESSAGE, PAUSED_BY ...) ====== ====== -%>
         "pause_info": {
           "is_paused": <%== is_paused.to_json() + (is_paused ? "," : "") %>
           <%- if is_paused -%>

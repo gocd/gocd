@@ -20,13 +20,13 @@
         <user>operate</user>
       </admins>
     </authorization>
-    <pipeline name="tw.qa">
+    <pipeline name="up42">
       <materials>
-        <git url="/Users/jyoti/git" dest="dest_dir" />
+        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" />
       </materials>
-      <stage name="versions">
+      <stage name="up42_stage">
         <jobs>
-          <job name="versions">
+          <job name="up42_job">
             <tasks>
               <exec command="ls" />
             </tasks>
@@ -35,23 +35,8 @@
       </stage>
     </pipeline>
   </pipelines>
-  <environments>
-    <environment name="tw.deploy">
-      <environmentvariables>
-        <variable name="OS_USERNAME">
-          <value>rackcloud0081</value>
-        </variable>
-      </environmentvariables>
-      <agents>
-        <physical uuid="af02a9b4-bbf2-44b8-b762-e5498bdd6b9d" />
-      </agents>
-      <pipelines>
-        <pipeline name="tw.qa" />
-      </pipelines>
-    </environment>
-  </environments>
   <agents>
-    <agent hostname="jyoti" ipaddress="127.0.0.1" uuid="af02a9b4-bbf2-44b8-b762-e5498bdd6b9d" />
+    <agent hostname="blrstdcrspair02" ipaddress="10.4.7.202" uuid="f6a76eaa-96ac-43a2-8255-7c898236ba22" />
   </agents>
 </cruise>
 

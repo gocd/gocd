@@ -15,24 +15,48 @@
 ##########################GO-LICENSE-END##################################
 
 require File.expand_path(File.dirname(__FILE__) + '/stage_model_mother')
-module PipelineModelMother  
+module PipelineModelMother
   include StageModelMother
 
   def pipeline_model(pipeline_name, label_name, no_history=false, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false)
-    stages = StageInstanceModels.new
     if no_history
-      stages.addFutureStage("cruise-in-future", false)
-      pipeline = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipeline_name, BuildCause.createNeverRun(), stages)
+      pipeline = pipeline_instance_model_empty pipeline_name, "cruise-in-future"
     else
-      stages.add(stage = stage_model("cruise", "10"))
-      stage.setApprovedBy("Anonymous")
-      pipeline = PipelineInstanceModel.createPipeline(pipeline_name, -1, label_name, BuildCause.createManualForced(), stages)
-      pipeline.setCounter(5)
+      pipeline = pipeline_instance_model({:name => pipeline_name, :label => label_name, :counter => 5, :stages => [{:name => "cruise", :counter => "10", :approved_by => "Anonymous"}]})
     end
-    pipeline_model = PipelineModel.new(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo::paused(pause_cause,"raghu"):PipelinePauseInfo::notPaused())
-    pipeline_model.addPipelineInstance(pipeline)
+
+    pipeline_model_with_instances [pipeline], pipeline_name, can_force, pause_cause, can_operate, revisions, can_administer
+  end
+
+  def pipeline_model_with_instances instances, pipeline_name, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false
+    pipeline_model = PipelineModel.new(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo::paused(pause_cause,"raghu") : PipelinePauseInfo::notPaused())
+    instances.each do |instance| pipeline_model.addPipelineInstance(instance) end
     pipeline_model.getLatestPipelineInstance().setMaterialRevisionsOnBuildCause(revisions)
     pipeline_model.updateAdministrability(can_administer)
     pipeline_model
+  end
+
+  def pipeline_instance_model_empty pipeline_name, *stage_names
+    stages = StageInstanceModels.new
+    stage_names.each do |stage_name| stages.addFutureStage(stage_name, false) end
+    PipelineInstanceModel.createEmptyPipelineInstanceModel pipeline_name, BuildCause.createNeverRun(), stages
+  end
+
+  def pipeline_instance_model options = {:name => "pipeline1", :label => "label1", :counter => 1, :stages => [{:name => "stage1", :counter => "1", :approved_by => "Anonymous"}]}
+    stages = StageInstanceModels.new
+    options[:stages].each do |stage_detail|
+      stage = stage_model stage_detail[:name], stage_detail[:counter]
+
+      # Sigh. The stage_model call above uses Time.now. If this is not done, two stages might have
+      # the same scheduled time causing tests to become unpredictable.
+      sleep 0.1
+
+      stage.setApprovedBy stage_detail[:approved_by]
+      stages.add stage
+    end
+
+    pipeline = PipelineInstanceModel.createPipeline options[:name], -1, options[:label], BuildCause.createManualForced(), stages
+    pipeline.setCounter options[:counter]
+    pipeline
   end
 end

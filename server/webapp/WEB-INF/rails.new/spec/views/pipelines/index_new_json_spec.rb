@@ -20,7 +20,7 @@ describe "/pipelines/index.new_json.erb" do
   include PipelineModelMother
   include PipelinesHelper
 
-  context 'in JSON of one pipeline group with one pipeline and one active instance' do
+  context 'in JSON of one pipeline group with one pipeline and one active instance,' do
     let(:group_name) { 'first' }
     let(:pipeline_name) { 'pip1' }
     let(:pipeline_label) { '1' }
@@ -31,10 +31,7 @@ describe "/pipelines/index.new_json.erb" do
       pipeline = pipeline_model(pipeline_name, pipeline_label)
       group.add(pipeline)
 
-      assign(:pipeline_groups, [group])
-      render
-
-      @json = JSON.parse(response.body)
+      render_json_for group
     }
 
     it 'should have only one group with one pipeline' do
@@ -70,7 +67,7 @@ describe "/pipelines/index.new_json.erb" do
     end
   end
 
-  context 'in JSON of multiple pipeline groups and pipelines' do
+  context 'in JSON of multiple pipeline groups and pipelines,' do
     let(:group1_name) { "g1" }
     let(:group1_pipeline1_name) { "g1_p1" }
     let(:group1_pipeline2_name) { "g1_p2" }
@@ -96,10 +93,7 @@ describe "/pipelines/index.new_json.erb" do
       group3 = PipelineGroupModel.new(group3_name)
       group3.add(pipeline_model(group3_pipeline1_name, "#{group3_pipeline1_name}_label"))
 
-      assign(:pipeline_groups, [group1, group2, group3])
-      render
-
-      @json = JSON.parse(response.body)
+      render_json_for group1, group2, group3
     }
 
     it 'should have multiple groups with the right number of pipelines' do
@@ -141,7 +135,7 @@ describe "/pipelines/index.new_json.erb" do
     end
   end
 
-  context 'in JSON of multiple instances and stages' do
+  context 'in JSON of multiple instances and stages,' do
     let(:group_name) { "g1" }
     let(:pipeline_name) { "g1_p1" }
     let(:pipeline_label) { "g1_p1_label" }
@@ -157,12 +151,8 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model_with_instances([instance1, instance2], pipeline_name))
-      @group = group
 
-      assign(:pipeline_groups, [group])
-      render
-
-      @json = JSON.parse(response.body)
+      render_json_for group
     }
 
     it 'should have no instance details for the instance with no history' do
@@ -196,6 +186,105 @@ describe "/pipelines/index.new_json.erb" do
       expect(the_second_stage["details_path"]).to eq("/pipelines/#{pipeline_name}/#{pipeline_counter}/p1_stage2/12")
     end
   end
+
+  context 'in JSON where some operations are not possible,' do
+    let(:group_name) { 'first' }
+    let(:pipeline_name) { 'pip1' }
+    let(:pipeline_label) { '1' }
+
+    it 'should have no operations when user has no operate permission' do
+      can_operate = false
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, can_operate))
+      render_json_for group
+
+      operations = @json[0]["pipelines"][0]["available_operations"]
+      expect(operations.length).to eq(0)
+    end
+
+    it 'should have trigger, trigger-with-options and pause operations when pipeline is NOT paused, and user has operate permissions' do
+      can_operate = true
+      pause_cause = nil
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
+      render_json_for group
+
+      operations = @json[0]["pipelines"][0]["available_operations"]
+      expect(operations.length).to eq(3)
+
+      expect(operations[0]["operation"]).to eq("trigger")
+      expect(operations[0]["operation_path"]).to eq("/api/pipelines/pip1/schedule")
+
+      expect(operations[1]["operation"]).to eq("trigger_with_options")
+      expect(operations[1]["operation_path"]).to eq("/pipelines/show_for_trigger")
+
+      expect(operations[2]["operation"]).to eq("pause")
+      expect(operations[2]["operation_path"]).to eq("/api/pipelines/pip1/pause")
+    end
+
+    it 'should have trigger, trigger-with-options and unpause operations when pipeline IS paused, and user has operate permissions' do
+      can_operate = true
+      pause_cause = "Wait for it"
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
+      render_json_for group
+
+      operations = @json[0]["pipelines"][0]["available_operations"]
+      expect(operations.length).to eq(3)
+
+      expect(operations[0]["operation"]).to eq("trigger")
+      expect(operations[0]["operation_path"]).to eq("/api/pipelines/pip1/schedule")
+
+      expect(operations[1]["operation"]).to eq("trigger_with_options")
+      expect(operations[1]["operation_path"]).to eq("/pipelines/show_for_trigger")
+
+      expect(operations[2]["operation"]).to eq("unpause")
+      expect(operations[2]["operation_path"]).to eq("/api/pipelines/pip1/unpause")
+    end
+  end
+
+  context 'in JSON, information about pause,' do
+    let(:group_name) { 'first' }
+    let(:pipeline_name) { 'pip1' }
+    let(:pipeline_label) { '1' }
+
+    it 'should have no pause message and paused_by when pipeline is not paused' do
+      can_operate = true
+      pause_cause = nil
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
+      render_json_for group
+
+      pause_info = @json[0]["pipelines"][0]["pause_info"]
+      expect(pause_info["is_paused"]).to eq(false)
+      expect(pause_info.include? "paused_by").to be_false
+      expect(pause_info.include? "message").to be_false
+    end
+
+    it 'should have pause message and paused_by when pipeline is paused' do
+      can_operate = true
+      pause_cause = "Wait for it"
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
+      render_json_for group
+
+      pause_info = @json[0]["pipelines"][0]["pause_info"]
+      expect(pause_info["is_paused"]).to eq(true)
+      expect(pause_info["paused_by"]).to eq("raghu")
+      expect(pause_info["message"]).to eq(pause_cause)
+    end
+  end
+end
+
+def render_json_for(*groups)
+  assign(:pipeline_groups, groups)
+  render
+  @json = JSON.parse(response.body)
 end
 
 def assert_pipeline_details the_pipeline, name, expected_number_of_instances

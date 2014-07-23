@@ -29,7 +29,7 @@ module PipelineModelMother
   end
 
   def pipeline_model_with_instances instances, pipeline_name, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false
-    pipeline_model = PipelineModel.new(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo::paused(pause_cause,"raghu") : PipelinePauseInfo::notPaused())
+    pipeline_model = PipelineModel.new(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo::paused(pause_cause, "raghu") : PipelinePauseInfo::notPaused())
     instances.each do |instance| pipeline_model.addPipelineInstance(instance) end
     pipeline_model.getLatestPipelineInstance().setMaterialRevisionsOnBuildCause(revisions)
     pipeline_model.updateAdministrability(can_administer)

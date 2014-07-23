@@ -25,7 +25,9 @@
             "build_cause_path": <%== build_cause_path(:pipeline_name => active_instance.getName(), :pipeline_counter => active_instance.getCounter()).to_json() %>,
             <%-# TODO: As in pipelines_helper.rb#trigger_message, check the pim type against PreparingToScheduleInstance? -%>
             "triggered_by": <%== active_instance.getApprovedBy().to_json() %>,
-            "latest_stage_state": <%== active_instance.getPipelineStatusMessage().to_json() %>, <%# TODO: Separate the message and status. Now, it is: "Passed: stage-1". %>
+            <%- latest_stage = active_instance.latestStage() -%>
+            "latest_stage_name": <%== latest_stage.getName().to_json() %>,
+            "latest_stage_state": <%== latest_stage.getState().to_s.to_json() %>,
 
             "stages": [
               <%- active_instance.getStageHistory().each_with_index do |stage, stage_index| -%>

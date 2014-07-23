@@ -167,7 +167,7 @@ describe "/pipelines/index.new_json.erb" do
       expect(@json[0]["pipelines"][0]["instances"].length).to eq(2)
 
       the_instance = @json[0]["pipelines"][0]["instances"][1]
-      assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, "Passed: p1_stage2"
+      assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, "p1_stage2", "Passed"
     end
 
     it 'should have details for all stages of the instance with history' do
@@ -292,7 +292,7 @@ def assert_pipeline_details the_pipeline, name, expected_number_of_instances
   expect(the_pipeline["instances"].length).to eq(expected_number_of_instances)
 end
 
-def assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, latest_stage_state = "Passed: cruise"
+def assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, latest_stage_name = "cruise", latest_stage_state = "Passed"
   expect(the_instance["has_history"]).to eq("true")
   expect(the_instance["label"]).to eq(pipeline_label)
   expect(is_time_within_minutes(6, the_instance["scheduled_time"])).to be_true
@@ -302,6 +302,7 @@ def assert_instance_details the_instance, pipeline_name, pipeline_label, pipelin
   expect(the_instance["compare_path"]).to eq("/compare/#{pipeline_name}/#{pipeline_counter - 1}/with/#{pipeline_counter}")
   expect(the_instance["build_cause_path"]).to eq("/pipelines/#{pipeline_name}/#{pipeline_counter}/build_cause")
   expect(the_instance["triggered_by"]).to eq("Anonymous")
+  expect(the_instance["latest_stage_name"]).to eq(latest_stage_name)
   expect(the_instance["latest_stage_state"]).to eq(latest_stage_state)
 end
 

@@ -18,5 +18,8 @@ module Oauth2Provider
     Dir[File.join(File.dirname(__FILE__), "..", "..", "app", "**", '*.rb')].each do |rb_file|
       require File.expand_path(rb_file)
     end
+    config.generators do |g|
+      g.test_framework :rspec
+    end
   end
 end

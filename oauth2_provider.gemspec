@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "This engine implements v09 of the OAuth2 draft spec http://tools.ietf.org/html/draft-ietf-oauth-v2-09."
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.test_files = Dir["test/**/*"]
+  s.test_files = Dir["spec/**/*"]
   s.extra_rdoc_files = ["README.textile", "MIT-LICENSE", "NOTICE.textile"]
   s.require_paths = ["lib"]
 
@@ -32,4 +32,5 @@ Gem::Specification.new do |s|
   end
   
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency "rspec-rails"
 end

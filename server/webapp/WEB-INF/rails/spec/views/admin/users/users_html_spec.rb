@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
 describe '/admin/users.html.erb' do
   include GoUtil
@@ -34,7 +34,7 @@ describe '/admin/users.html.erb' do
   end
   
   it "should have the aggregrates on the page header" do
-    render 'users/users.html'
+    render 'admin/users/users.html'
     response.should have_tag("h1", /User Summary/)
     response.should have_tag("div ul.user_counts") do
         with_tag("li.enabled", "Enabled: 20")
@@ -44,12 +44,12 @@ describe '/admin/users.html.erb' do
   end
 
   it "should have title" do
-    render 'users/users.html'
+    render 'admin/users/users.html'
     template.instance_variable_get('@view_title').should == "Administration"
   end
 
   it "should render user details" do
-    render 'users/users.html'
+    render 'admin/users/users.html'
     response.should have_tag("table[class='list_table sortable_table']") do
       with_tag("tr[class='user']") do
         with_tag("td[class='username'][title='foo'] span", "foo")
@@ -74,7 +74,7 @@ describe '/admin/users.html.erb' do
   it "should show sort links" do
       params[:column] = 'username'
       params[:order] = 'ASC'
-      render 'users/users.html'
+      render 'admin/users/users.html'
       response.should have_tag('table.list_table.sortable_table tr.user_header') do
         with_tag('th.username a[href=/admin/users?column=username&order=DESC]')
         with_tag('th.roles a[href=/admin/users?column=roles&order=ASC]')
@@ -86,12 +86,12 @@ describe '/admin/users.html.erb' do
   end
 
   it "should show 'Add Users' button" do
-    render 'users/users.html'
+    render 'admin/users/users.html'
     response.should have_tag('.add_new_users a.link_as_button', "Add User")
   end
 
   it "should have a hidden field for operation for IE7 fix" do
-    render 'users/users.html'
+    render 'admin/users/users.html'
     response.body.should have_tag("form#users_form") do
       with_tag("input#operation[name='operation']")
     end

@@ -14,16 +14,16 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
 
-describe "users/_user_results_table.html.erb" do
+describe "admin/users/_user_results_table.html.erb" do
   it "should replace . in username with _dot_" do
     user_search_model = mock('user_search_model')
     user = User.new("username.with.dot", "display.name.with.dot", "email.with.dot@dot.com")
     user_search_model.should_receive(:getUser).at_least(:once).and_return(user)
     user_search_model.should_receive(:getUserSourceType).and_return(com.thoughtworks.go.presentation.UserSourceType::LDAP)
 
-    render :partial => "users/user_results_table.html", :locals => {:scope => { :users => [user_search_model]}}
+    render :partial => "admin/users/user_results_table.html", :locals => {:scope => { :users => [user_search_model]}}
 
     assigns[:selection_field] = user
     response.body.should have_tag("input[type='radio'][name='selection'][id*='selection_button_user_username_dot_with_dot_dot']")

@@ -31,7 +31,7 @@ describe "/pipelines/index.new_json.erb" do
       pipeline = pipeline_model(pipeline_name, pipeline_label)
       group.add(pipeline)
 
-      render_json_for group
+      @json = render_json_for group
     }
 
     it 'should have only one group with one pipeline' do
@@ -93,7 +93,7 @@ describe "/pipelines/index.new_json.erb" do
       group3 = PipelineGroupModel.new(group3_name)
       group3.add(pipeline_model(group3_pipeline1_name, "#{group3_pipeline1_name}_label"))
 
-      render_json_for group1, group2, group3
+      @json = render_json_for group1, group2, group3
     }
 
     it 'should have multiple groups with the right number of pipelines' do
@@ -152,7 +152,7 @@ describe "/pipelines/index.new_json.erb" do
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model_with_instances([instance1, instance2], pipeline_name))
 
-      render_json_for group
+      @json = render_json_for group
     }
 
     it 'should have no instance details for the instance with no history' do
@@ -197,9 +197,9 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, can_operate))
-      render_json_for group
+      groups_json = render_json_for group
 
-      operations = @json[0]["pipelines"][0]["available_operations"]
+      operations = groups_json[0]["pipelines"][0]["available_operations"]
       expect(operations.length).to eq(0)
     end
 
@@ -209,9 +209,9 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
-      render_json_for group
+      groups_json = render_json_for group
 
-      operations = @json[0]["pipelines"][0]["available_operations"]
+      operations = groups_json[0]["pipelines"][0]["available_operations"]
       expect(operations.length).to eq(3)
 
       expect(operations[0]["operation"]).to eq("trigger")
@@ -230,9 +230,9 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
-      render_json_for group
+      groups_json = render_json_for group
 
-      operations = @json[0]["pipelines"][0]["available_operations"]
+      operations = groups_json[0]["pipelines"][0]["available_operations"]
       expect(operations.length).to eq(3)
 
       expect(operations[0]["operation"]).to eq("trigger")
@@ -257,9 +257,9 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
-      render_json_for group
+      groups_json = render_json_for group
 
-      pause_info = @json[0]["pipelines"][0]["pause_info"]
+      pause_info = groups_json[0]["pipelines"][0]["pause_info"]
       expect(pause_info["is_paused"]).to eq(false)
       expect(pause_info.include? "paused_by").to be_false
       expect(pause_info.include? "message").to be_false
@@ -271,20 +271,86 @@ describe "/pipelines/index.new_json.erb" do
 
       group = PipelineGroupModel.new(group_name)
       group.add(pipeline_model(pipeline_name, pipeline_label, false, true, pause_cause, can_operate))
-      render_json_for group
+      groups_json = render_json_for group
 
-      pause_info = @json[0]["pipelines"][0]["pause_info"]
+      pause_info = groups_json[0]["pipelines"][0]["pause_info"]
       expect(pause_info["is_paused"]).to eq(true)
       expect(pause_info["paused_by"]).to eq("raghu")
       expect(pause_info["message"]).to eq(pause_cause)
     end
   end
+
+  context 'in JSON, information about previous stage status,' do
+    let(:group_name) { 'first' }
+    let(:pipeline_name) { 'pip1' }
+    let(:pipeline_label) { '1' }
+    let(:pipeline_counter) { 4 }
+
+    it 'should have no previous run information when no stage is active in current pipeline' do
+      group = PipelineGroupModel.new(group_name)
+      pipeline_model = pipeline_model(pipeline_name, pipeline_label)
+      group.add(pipeline_model)
+
+      expect(pipeline_model.getLatestPipelineInstance().isAnyStageActive()).to be_false
+
+      groups_json = render_json_for group
+
+      expect(groups_json[0]["pipelines"][0].include? "previous_instance").to be_false
+    end
+
+    it 'should have no previous run information when a stage is active but it has no previous stage' do
+      running_instance = pipeline_instance_model(
+          {:name => pipeline_name, :label => pipeline_label, :counter => pipeline_counter,
+           :stages => [
+               {:name => "p1_stage1", :counter => "10", :approved_by => "Anonymous", :job_state => JobState::Completed, :job_result => JobResult::Passed},
+               {:name => "p1_stage2", :counter => "12", :approved_by => "SomeOne", :job_state => JobState::Building, :job_result => JobResult::Unknown}]})
+
+      pipeline_with_active_instance = pipeline_model_with_instances([running_instance], pipeline_name)
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_with_active_instance)
+
+      expect(pipeline_with_active_instance.getLatestPipelineInstance().isAnyStageActive()).to be_true
+      expect(pipeline_with_active_instance.getLatestPipelineInstance().activeStage().hasPreviousStage()).to be_false
+
+      groups_json = render_json_for group
+
+      expect(groups_json[0]["pipelines"][0].include? "previous_instance").to be_false
+    end
+
+    it 'should have previous run information when a stage is active and has previous stage' do
+      previous_stage = stage_model_with_result "p1_stage2", "11", StageResult::Failed, JobState::Completed, JobResult::Failed
+      previous_stage.getIdentifier().setPipelineLabel("SOME_PIPELINE_LABEL")
+
+      running_instance = pipeline_instance_model(
+          {:name => pipeline_name, :label => pipeline_label, :counter => pipeline_counter,
+           :stages => [
+               {:name => "p1_stage1", :counter => "10", :approved_by => "Anonymous", :job_state => JobState::Completed, :job_result => JobResult::Passed},
+               {:name => "p1_stage2", :counter => "12", :approved_by => "SomeOne", :job_state => JobState::Building, :job_result => JobResult::Unknown}]})
+
+      running_instance.getStageHistory().last().setPreviousStage(previous_stage)
+
+      pipeline_with_active_instance = pipeline_model_with_instances([running_instance], pipeline_name)
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_with_active_instance)
+
+      expect(running_instance.isAnyStageActive()).to be_true
+      expect(running_instance.activeStage().hasPreviousStage()).to be_true
+
+      groups_json = render_json_for group
+
+      previous_instance = groups_json[0]["pipelines"][0]["previous_instance"]
+      expect(previous_instance["result"]).to eq("Failed")
+      expect(previous_instance["details_path"]).to eq("/pipelines/cruise/10/p1_stage2/11")
+      expect(previous_instance["pipeline_label"]).to eq("SOME_PIPELINE_LABEL")
+    end
+  end
+
 end
 
 def render_json_for(*groups)
   assign(:pipeline_groups, groups)
   render
-  @json = JSON.parse(response.body)
+  JSON.parse(response.body)
 end
 
 def assert_pipeline_details the_pipeline, name, expected_number_of_instances

@@ -49,11 +49,16 @@
           <%- end -%>
         ],
 
+        <%- if pipeline_model.getLatestPipelineInstance().isAnyStageActive() -%>
+        <%- active_stage = pipeline_model.getLatestPipelineInstance().activeStage() -%>
+        <%- if active_stage.hasPreviousStage() -%>
         "previous_instance": { <%# TODO: Handle previously blurb. %>
-          "status": "NOT_DONE",
-          "details_path": "NOT_DONE",
-          "title": "NOT_DONE"
+          "result": <%== active_stage.getPreviousStage().getResult().to_s.to_json() %>,
+          "details_path": <%== stage_detail_path_for_identifier(active_stage.getPreviousStage().getIdentifier()).to_s.to_json() %>,
+          "pipeline_label": <%== active_stage.getPreviousStage().getIdentifier().getPipelineLabel().to_json() %>
         },
+        <%- end -%>
+        <%- end -%>
 
         <%- is_paused = pipeline_model.getPausedInfo().isPaused() -%>
         "available_operations": [

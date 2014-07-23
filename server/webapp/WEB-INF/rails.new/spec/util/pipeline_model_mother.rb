@@ -20,12 +20,12 @@ module PipelineModelMother
 
   def pipeline_model(pipeline_name, label_name, no_history=false, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false)
     if no_history
-      pipeline = pipeline_instance_model_empty pipeline_name, "cruise-in-future"
+      instance = pipeline_instance_model_empty pipeline_name, "cruise-in-future"
     else
-      pipeline = pipeline_instance_model({:name => pipeline_name, :label => label_name, :counter => 5, :stages => [{:name => "cruise", :counter => "10", :approved_by => "Anonymous"}]})
+      instance = pipeline_instance_model({:name => pipeline_name, :label => label_name, :counter => 5, :stages => [{:name => "cruise", :counter => "10", :approved_by => "Anonymous"}]})
     end
 
-    pipeline_model_with_instances [pipeline], pipeline_name, can_force, pause_cause, can_operate, revisions, can_administer
+    pipeline_model_with_instances [instance], pipeline_name, can_force, pause_cause, can_operate, revisions, can_administer
   end
 
   def pipeline_model_with_instances instances, pipeline_name, can_force=true, pause_cause=nil, can_operate = true, revisions = MaterialRevisions.new([].to_java(MaterialRevision)), can_administer = false
@@ -42,10 +42,12 @@ module PipelineModelMother
     PipelineInstanceModel.createEmptyPipelineInstanceModel pipeline_name, BuildCause.createNeverRun(), stages
   end
 
-  def pipeline_instance_model options = {:name => "pipeline1", :label => "label1", :counter => 1, :stages => [{:name => "stage1", :counter => "1", :approved_by => "Anonymous"}]}
+  def pipeline_instance_model(options = {:name => "pipeline1", :label => "label1", :counter => 1,
+                                         :stages => [{:name => "stage1", :counter => "1", :approved_by => "Anonymous",
+                                                      :job_state => JobState::Completed, :job_result => JobResult::Passed}]})
     stages = StageInstanceModels.new
     options[:stages].each do |stage_detail|
-      stage = stage_model stage_detail[:name], stage_detail[:counter]
+      stage = stage_model stage_detail[:name], stage_detail[:counter], stage_detail[:job_state] || JobState::Completed, stage_detail[:job_result] || JobResult::Passed
 
       # Sigh. The stage_model call above uses Time.now. If this is not done, two stages might have
       # the same scheduled time causing tests to become unpredictable.

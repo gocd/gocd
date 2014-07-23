@@ -39,18 +39,18 @@ describe PipelinesHelper do
     end
   end
 
-  #describe :run_stage_label do
-  #  it "should show Rerun for scheduled stage" do
-  #    stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
-  #    stage = stages.get(0)
-  #    run_stage_label(stage).should == "rerun"
-  #  end
-  #
-  #  it "should show Trigger for stage not yet scheduled" do
-  #    stage = NullStageHistoryItem.new("stage_name")
-  #    run_stage_label(stage).should == "trigger"
-  #  end
-  #end
+  describe :run_stage_label do
+    it "should show Rerun for scheduled stage" do
+       stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
+       stage = stages.get(0)
+       run_stage_label(stage).should == "rerun"
+    end
+
+    it "should show Trigger for stage not yet scheduled" do
+       stage = NullStageHistoryItem.new("stage_name")
+       run_stage_label(stage).should == "trigger"
+    end
+  end
 
   #describe :stage_status_for_ui do
   #

@@ -31,9 +31,9 @@ module PipelinesHelper
     stage.isScheduled() ? stage_detail_tab_path(:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter(), :action => action) : "#"
   end
 
-  #def run_stage_label stage
-  #  (stage.isScheduled() ? "rerun" : "trigger")
-  #end
+  def run_stage_label stage
+    (stage.isScheduled() ? "rerun" : "trigger")
+  end
 
   def trigger_message(actual_date_time, pim)
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance

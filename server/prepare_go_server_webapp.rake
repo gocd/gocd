@@ -60,6 +60,12 @@ VERSION_NUMBER = ENV["VERSION_NUMBER"]
 RELEASE_COMMIT = ENV["RELEASE_COMMIT"]
 
 task :prepare_webapp do
+  if ENV['SKIP_WAR'] == 'Y'
+    safe_cp "test-resources/web.xml", "target/webapp/WEB-INF"
+    puts "INFO: skipping war packaging"
+    next
+  end
+
   #prepare help docs
   task('generate_help_documents').invoke unless ENV['BUILD_DOC'] == 'no'
 

@@ -3,7 +3,7 @@
     serverConfiguration = new ServerConfiguration("<%=validate_server_config_params_path%>");
 </script>
 <div id="server_configuration">
-<%= form_for @server_configuration_form, :as => :server_configuration_form, :url => {:action => :update}, :html => {:method => 'post'} do |form| %>
+<% form_for :server_configuration_form, @server_configuration_form, :url => {:action => :update}, :html => {:method => 'post'} do |form| %>
     <%= config_md5_field %>
     <div id="server_management">
         <h2 class="legend"><%= l.string("SERVER_MANAGEMENT") -%></h2>

@@ -344,7 +344,6 @@ describe "/pipelines/index.new_json.erb" do
       expect(previous_instance["pipeline_label"]).to eq("SOME_PIPELINE_LABEL")
     end
   end
-
 end
 
 def render_json_for(*groups)

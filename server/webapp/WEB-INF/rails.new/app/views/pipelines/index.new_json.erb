@@ -78,17 +78,10 @@
             "operation": "trigger_with_options",
             "operation_path": <%== pipeline_show_with_option_path.to_json() %>
           },
-          <%- if is_paused -%>
           {
-            "operation": "unpause",
-            "operation_path": <%== unpause_pipeline_path(pipeline_model.getName()).to_json() %>
+            "operation": <%== (is_paused ? "unpause" : "pause").to_json() %>,
+            "operation_path": <%== (is_paused ? unpause_pipeline_path(pipeline_model.getName()) : pause_pipeline_path(pipeline_model.getName())).to_json() %>
           }
-          <%- else -%>
-          {
-            "operation": "pause",
-            "operation_path": <%== pause_pipeline_path(pipeline_model.getName()).to_json() %>
-          }
-          <%- end -%>
         <%- end -%>
         ],
 

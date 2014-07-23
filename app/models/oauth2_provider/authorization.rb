@@ -5,6 +5,8 @@ module Oauth2Provider
   class Authorization < Oauth2Provider::ModelBase
 
     EXPIRY_TIME = 1.hour
+    
+    self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
     columns :user_id, :oauth_client_id, :code, :expires_at => :integer
 
     def oauth_client

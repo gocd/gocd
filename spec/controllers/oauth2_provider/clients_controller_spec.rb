@@ -11,14 +11,14 @@ module Oauth2Provider
     end
     
     it "should foo" do
+      expected_clients = []
       (1..5).each do
-        c = create(Oauth2Provider::Client)
-        puts c.inpect
+        expected_clients << create(Oauth2Provider::Client)
       end
       get 'index', { use_route: :oauth_engine }
-      puts "*"*80
-      puts response.body
-      puts "*"*80
+      clients = assigns[:oauth_clients]
+      clients.size.should == 5
+      clients.map(&:name) == expected_clients.map(&:name)
     end
   end
 end

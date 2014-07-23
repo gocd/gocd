@@ -3,7 +3,6 @@ PATH
   specs:
     oauth2_provider (0.0.1)
       rails (~> 4.0.4)
-      validatable (= 1.6.7)
 
 GEM
   remote: https://rubygems.org/
@@ -109,7 +108,6 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.40)
-    validatable (1.6.7)
     xpath (2.0.0)
       nokogiri (~> 1.3)
 

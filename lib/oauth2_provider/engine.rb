@@ -7,7 +7,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'model_base'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'ssl_helper'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'transaction_helper'))
 require File.expand_path(File.join(File.dirname(__FILE__), 'url_parser'))
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'ext', 'validatable_ext'))
+# require File.expand_path(File.join(File.dirname(__FILE__), '..', 'ext', 'validatable_ext'))
 
 module Oauth2Provider
   class Engine < ::Rails::Engine

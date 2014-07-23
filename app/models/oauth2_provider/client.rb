@@ -1,28 +1,32 @@
+# Copyright (c) 2010 ThoughtWorks Inc. (http://thoughtworks.com)
+# Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
+
 module Oauth2Provider
   class Client < Oauth2Provider::ModelBase    
-    validates_presence_of :name, :redirect_uri
     validates_format_of :redirect_uri, :with => Regexp.new("^(https|http)://.+$"), :multiline => true, :if => proc { |client| !client.redirect_uri.blank? }
-    validates_uniqueness_of :name
+    validates :redirect_uri, presence: true
+    validates :name, presence: true
 
+    self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
     columns :name, :client_id, :client_secret, :redirect_uri
 
     def create_token_for_user_id(user_id)
-      OauthToken.create!(:user_id => user_id, :oauth_client_id => id)
+      Token.create!(:user_id => user_id, :oauth_client_id => id)
     end
 
     def create_authorization_for_user_id(user_id)
       oauth_authorizations.each do |authorization|
         authorization.destroy if authorization.user_id == user_id
       end
-      OauthAuthorization.create!(:user_id => user_id, :oauth_client_id => id)
+      Authorization.create!(:user_id => user_id, :oauth_client_id => id)
     end
 
     def oauth_tokens
-      OauthToken.find_all_with(:oauth_client_id, id)
+      Token.find_all_with(:oauth_client_id, id)
     end
 
     def oauth_authorizations
-      OauthAuthorization.find_all_with(:oauth_client_id, id)
+      Authorization.find_all_with(:oauth_client_id, id)
     end
 
     def before_create

@@ -1,6 +1,7 @@
 # Copyright (c) 2010 ThoughtWorks Inc. (http://thoughtworks.com)
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
-require 'validatable'
+
+# require 'validatable'
 require 'active_model'
 
 module Oauth2Provider
@@ -11,8 +12,10 @@ module Oauth2Provider
   end
 
   class ModelBase
-    include Validatable
     include ActiveModel::Model
+    include ActiveModel::Validations
+    include ActiveModel::Conversion
+    extend ActiveModel::Naming
     
     CONVERTORS =  {
           :integer => Proc.new { |v| v ? v.to_i : nil },
@@ -175,7 +178,7 @@ module Oauth2Provider
         result[column_name] = read_attribute(column_name)
         result
       end
-
+      
       if self.valid?
         dto = datasource.send("save_#{self.class.compact_name}", attrs.with_indifferent_access)
         update_from_dto(dto)

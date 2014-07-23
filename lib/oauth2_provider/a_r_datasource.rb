@@ -5,8 +5,11 @@ if defined?(ActiveRecord)
   module Oauth2Provider
     class ARDatasource
 
-      class OauthClientDto < ActiveRecord::Base
+      class ClientDto < ActiveRecord::Base
         self.table_name = :oauth_clients
+        alias_attribute :client_id, :clientid
+        alias_attribute :client_secret, :clientsecret
+        alias_attribute :redirect_uri, :redirecturi
       end
 
       class OauthAuthorizationDto < ActiveRecord::Base
@@ -43,11 +46,11 @@ if defined?(ActiveRecord)
       end
 
       def find_all_client
-        OauthClientDto.all
+        ClientDto.all
       end
 
-      def save_oauth_client(attrs)
-        save(OauthClientDto, attrs)
+      def save_client(attrs)
+        save(ClientDto, attrs)
       end
 
       def delete_oauth_client(id)

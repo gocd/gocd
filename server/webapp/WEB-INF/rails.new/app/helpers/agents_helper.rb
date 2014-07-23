@@ -98,7 +98,7 @@ module AgentsHelper
   end
 
   def build_locator_url locator
-    "#{servlet_request.getContextPath()}/tab/build/detail/#{locator}"
+    "#{java.servlet_request.getContextPath()}/tab/build/detail/#{locator}"
   end
 
   def job_on_agent_page_handler page

@@ -4,7 +4,7 @@ module MiscSpecExtensions
   end
 
   def stub_server_health_messages
-    assigns[:current_server_health_states] = com.thoughtworks.go.serverhealth.ServerHealthStates.new
+    assign(:current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new)
   end
 
   def stub_server_health_messages_for_controllers

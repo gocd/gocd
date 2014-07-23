@@ -157,11 +157,11 @@ describe Admin::ServerController do
 
       before do
         controller.stub(:populate_health_messages) do
-          stub_server_health_messages
+          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
         end
         user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("foo"))
         controller.stub(:set_current_user) do
-          assigns[:user] = user
+          controller.instance_variable_set :@user, user
         end
         controller.stub(:current_user).and_return(user)
         controller.stub(:security_service).and_return(@security_service = Object.new)
@@ -175,7 +175,7 @@ describe Admin::ServerController do
 
         get :index
 
-        response.body.should have_tag("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
       end
     end
   end

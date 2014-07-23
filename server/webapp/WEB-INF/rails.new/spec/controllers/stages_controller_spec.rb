@@ -30,7 +30,7 @@ describe StagesController do
 
   before(:each) do
     controller.stub(:populate_health_messages) do
-      stub_server_health_messages
+      stub_server_health_messages_for_controllers
     end
     controller.go_cache.clear
     @stage_service = double('stage service')

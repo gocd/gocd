@@ -6,18 +6,27 @@ if defined?(ActiveRecord)
     class ARDatasource
 
       class ClientDto < ActiveRecord::Base
-        self.table_name = :oauth_clients
+        self.table_name = :oauthclients
         alias_attribute :client_id, :clientid
         alias_attribute :client_secret, :clientsecret
         alias_attribute :redirect_uri, :redirecturi
       end
 
-      class OauthAuthorizationDto < ActiveRecord::Base
-        self.table_name = :oauth_authorizations
+      class AuthorizationDto < ActiveRecord::Base
+        self.table_name = :oauthauthorizations
+        alias_attribute :user_id, :userid
+        alias_attribute :client_id, :oauthclientid
+        alias_attribute :code, :code
+        alias_attribute :expires_at, :expiresat
       end
 
-      class OauthTokenDto < ActiveRecord::Base
-        self.table_name = :oauth_tokens
+      class TokenDto < ActiveRecord::Base
+        self.table_name = :oauthtokens
+        alias_attribute :user_id, :userid
+        alias_attribute :client_id, :oauthclientid
+        alias_attribute :access_token, :accesstoken
+        alias_attribute :refresh_token, :refreshtoken
+        alias_attribute :expires_at, :expiresat
       end
 
       # used in tests, use it to clear datasource
@@ -29,20 +38,20 @@ if defined?(ActiveRecord)
         ActiveRecord::Base.transaction(&block)
       end
 
-      def find_oauth_client_by_id(id)
-        OauthClientDto.find_by_id(id)
+      def find_client_by_id(id)
+        ClientDto.find_by_id(id)
       end
 
-      def find_oauth_client_by_client_id(client_id)
-        OauthClientDto.find_by_client_id(client_id)
+      def find_client_by_client_id(client_id)
+        ClientDto.find_by_client_id(client_id)
       end
       
-      def find_oauth_client_by_name(name)
-        OauthClientDto.find_by_name(name)
+      def find_client_by_name(name)
+        ClientDto.find_by_name(name)
       end
       
-      def find_oauth_client_by_redirect_uri(redirect_uri)
-        OauthClientDto.find_by_redirect_uri(redirect_uri)
+      def find_client_by_redirect_uri(redirect_uri)
+        ClientDto.find_by_redirect_uri(redirect_uri)
       end
 
       def find_all_client
@@ -53,56 +62,56 @@ if defined?(ActiveRecord)
         save(ClientDto, attrs)
       end
 
-      def delete_oauth_client(id)
-        OauthClientDto.delete(id)
+      def delete_client(id)
+        ClientDto.delete(id)
       end
 
-      def find_all_oauth_authorization_by_oauth_client_id(client_id)
-        OauthAuthorizationDto.find_all_by_oauth_client_id(client_id)
+      def find_all_authorization_by_client_id(client_id)
+        AuthorizationDto.find_all_by_client_id(client_id)
       end
 
-      def find_oauth_authorization_by_id(id)
-        OauthAuthorizationDto.find_by_id(id)
+      def find_authorization_by_id(id)
+        AuthorizationDto.find_by_id(id)
       end
 
-      def find_oauth_authorization_by_code(code)
-        OauthAuthorizationDto.find_by_code(code)
+      def find_authorization_by_code(code)
+        AuthorizationDto.find_by_code(code)
       end
 
-      def save_oauth_authorization(attrs)
-        save(OauthAuthorizationDto, attrs)
+      def save_authorization(attrs)
+        save(AuthorizationDto, attrs)
       end
 
-      def delete_oauth_authorization(id)
-        OauthAuthorizationDto.delete(id)
+      def delete_authorization(id)
+        AuthorizationDto.delete(id)
       end
 
-      def find_oauth_token_by_id(id)
-        OauthTokenDto.find_by_id(id)
+      def find_token_by_id(id)
+        TokenDto.find_by_id(id)
       end
 
-      def find_all_oauth_token_by_oauth_client_id(client_id)
-        OauthTokenDto.find_all_by_oauth_client_id(client_id)
+      def find_all_token_by_client_id(client_id)
+        TokenDto.find_all_by_client_id(client_id)
       end
 
-      def find_all_oauth_token_by_user_id(user_id)
-        OauthTokenDto.find_all_by_user_id(user_id)
+      def find_all_token_by_user_id(user_id)
+        TokenDto.find_all_by_user_id(user_id)
       end
 
-      def find_oauth_token_by_access_token(access_token)
-        OauthTokenDto.find_by_access_token(access_token)
+      def find_token_by_access_token(access_token)
+        TokenDto.find_by_access_token(access_token)
       end
 
-      def find_oauth_token_by_refresh_token(refresh_token)
-        OauthTokenDto.find_by_refresh_token(refresh_token)
+      def find_token_by_refresh_token(refresh_token)
+        TokenDto.find_by_refresh_token(refresh_token)
       end
 
-      def save_oauth_token(attrs)
-        save(OauthTokenDto, attrs)
+      def save_token(attrs)
+        save(TokenDto, attrs)
       end
 
-      def delete_oauth_token(id)
-        OauthTokenDto.delete(id)
+      def delete_token(id)
+        TokenDto.delete(id)
       end
 
       private

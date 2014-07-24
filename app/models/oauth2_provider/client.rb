@@ -8,7 +8,7 @@ module Oauth2Provider
     validates :name, presence: true
 
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
-    columns :name, :client_id, :client_secret, :redirect_uri
+    columns :id, :name, :client_id, :client_secret, :redirect_uri
 
     def create_token_for_user_id(user_id)
       Token.create!(:user_id => user_id, :oauth_client_id => id)
@@ -21,12 +21,12 @@ module Oauth2Provider
       Authorization.create!(:user_id => user_id, :oauth_client_id => id)
     end
 
-    def oauth_tokens
-      Token.find_all_with(:oauth_client_id, id)
+    def tokens
+      Token.find_all_with(:client_id, id)
     end
 
-    def oauth_authorizations
-      Authorization.find_all_with(:oauth_client_id, id)
+    def authorizations
+      Authorization.find_all_with(:client_id, id)
     end
 
     def before_create
@@ -35,8 +35,8 @@ module Oauth2Provider
     end
 
     def before_destroy
-      oauth_tokens.each(&:destroy)
-      oauth_authorizations.each(&:destroy)
+      tokens.each(&:destroy)
+      authorizations.each(&:destroy)
     end
 
     def before_save

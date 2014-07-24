@@ -54,9 +54,9 @@ module Oauth2Provider
       @oauth_client = Client.find(params[:id])
 
       respond_to do |format|
-        if @oauth_client.update_attributes(params[:oauth_client])
+        if @oauth_client.update_attributes(params[:client])
           flash[:notice] = 'OAuth client was successfully updated.'
-          format.html { redirect_to :action => 'index' }
+          format.html { redirect_to oauth_engine.clients_path }
           format.xml  { head :ok }
         else
           flash.now[:error] = @oauth_client.errors.full_messages
@@ -73,7 +73,7 @@ module Oauth2Provider
 
       respond_to do |format|
         flash[:notice] = 'OAuth client was successfully deleted.'
-        format.html { redirect_to(oauth_clients_url) }
+        format.html { redirect_to oauth_engine.clients_path }
         format.xml  { head :ok }
       end
     end

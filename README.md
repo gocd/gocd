@@ -1,4 +1,4 @@
-= Oauth2Provider for #gocd
+# Oauth2Provider for #gocd
 
 [![Build Status](https://snap-ci.com/sachinsudheendra/gocd_oauth2_provider_engine/branch/master/build_image)](https://snap-ci.com/sachinsudheendra/gocd_oauth2_provider_engine/branch/master)
 

@@ -45,7 +45,7 @@ module Oauth2Provider
         render :text => "You did not specify the 'redirect_uri' parameter!", :status => :bad_request
         return false
       end
-      @client = Oauth2::Provider::OauthClient.find_one(:client_id, params[:client_id])
+      @client = Oauth2Provider::Client.find_by_id(params[:client_id])
       if @client.nil?
         redirect_to "#{params[:redirect_uri]}?error=invalid-client-id"
         return false

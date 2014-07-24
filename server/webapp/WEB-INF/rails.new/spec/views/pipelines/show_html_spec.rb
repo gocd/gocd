@@ -41,14 +41,16 @@ describe "/pipelines/show.html.erb" do
 
     @not_run_with_history_material = MaterialsMother.hgMaterial("not-run-with-history")
 
-    assigns[:pipeline] = @pim
-    assigns[:variables] = @variables = EnvironmentVariablesConfig.new
+    assign(:pipeline, @pim)
+    assign(:variables, @variables = EnvironmentVariablesConfig.new)
   end
 
   it "should have the same contents as the jsunit fixture" do
     @variables.add("foo","foo_value")
     @variables.add("bar","bar_value")
+
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
+
     assert_fixture_equal("pipeline_deploy_test.html", response.body)
   end
 
@@ -59,21 +61,22 @@ describe "/pipelines/show.html.erb" do
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
-    response.body.should have_tag("div.change_materials") do
-      with_tag(".revision_number[title=1234]", "1234")
-      with_tag(".date[title='#{@yesterday.iso8601}']", "1 day ago")
-      with_tag(".material_name", "SvnName")
-      with_tag(".user", "username")
-      with_tag(".comment", "I changed something")
-      with_tag(".folder", "Folder")
-      with_tag("input[name='material_fingerprint[#{latest_hg_rev.getMaterial().getPipelineUniqueFingerprint()}]']")
+    Capybara.string(response.body).find("div.change_materials").tap do |div|
+      expect(div).to have_selector(".revision_number[title='1234']", :text => "1234")
+      expect(div).to have_selector(".date[title='#{@yesterday.iso8601}']", :text => "1 day ago")
+      expect(div).to have_selector(".material_name", :text => "SvnName")
+      expect(div).to have_selector(".user", :text => "username")
+      expect(div).to have_selector(".comment", :text => "I changed something")
+      expect(div).to have_selector(".folder", :text => "Folder")
+      expect(div).to have_selector("input[name='material_fingerprint[#{latest_hg_rev.getMaterial().getPipelineUniqueFingerprint()}]']")
     end
 
-    response.body.should have_tag("div.change_materials .folder.not_set", "not-set")
-    response.body.should have_tag("button[type='submit'][value='Deploy Changes']")
-    response.body.should have_tag("div.change_materials .material_summary") do
-      with_tag(".revision_number[title=#{latest_hg_rev.getLatestRevisionString()}]", latest_hg_rev.getLatestShortRevision())
-      with_tag(".material_name", "named_hg_material")
+    expect(response.body).to have_selector("div.change_materials .folder.not_set", "not-set")
+    expect(response.body).to have_selector("button[type='submit'][value='Deploy Changes']")
+
+    Capybara.string(response.body).all("div.change_materials .material_summary").tap do |divs|
+      expect(divs[1]).to have_selector(".revision_number[title='#{latest_hg_rev.getLatestRevisionString()}']", :text => latest_hg_rev.getLatestShortRevision())
+      expect(divs[1]).to have_selector(".material_name", :text => "named_hg_material")
     end
   end
 
@@ -81,29 +84,33 @@ describe "/pipelines/show.html.erb" do
     @pim.getMaterials().get(1).setName(CaseInsensitiveString.new("foo_bar_baz_quuz_ban_pavan"))
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
-    response.should have_tag(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", "foo_bar_ba..._ban_pavan")
+
+    expect(response.body).to have_selector(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", :text => "foo_bar_ba..._ban_pavan")
   end
 
   it "should disable deploy button when preparing to schedule" do
     @pim.setCanRun(false)
+
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
-    response.body.should have_tag("button[type='submit'][disabled='disabled']")
+
+    expect(response.body).to have_selector("button[type='submit'][disabled='disabled']")
   end
 
   it "should include hidden input field of original revisions" do
     svn_material = @material_revisions.getMaterialRevision(0).getMaterial()
+
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
-    response.body.should have_tag(".material_detail") do
-      with_tag(".revision_number[title=1234]", "1234")
-      with_tag(".date[title='#{@yesterday.iso8601}']", "1 day ago")
-      with_tag(".material_name", "SvnName")
-      with_tag(".user", "username")
-      with_tag(".comment", "I changed something")
-      with_tag(".folder", "Folder")
-      with_tag("input.autocomplete-input[name=?]", "material_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]")
-      with_tag("input.original-revision[name=?]", "original_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]")
-      with_tag("input.original-revision[value=?]", '1234')
+    Capybara.string(response.body).all(".material_detail").tap do |divs|
+      expect(divs[0]).to have_selector(".revision_number[title='1234']", :text => "1234")
+      expect(divs[0]).to have_selector(".date[title='#{@yesterday.iso8601}']", :text => "1 day ago")
+      expect(divs[0]).to have_selector(".material_name", :text => "SvnName")
+      expect(divs[0]).to have_selector(".user", :text => "username")
+      expect(divs[0]).to have_selector(".comment", :text => "I changed something")
+      expect(divs[0]).to have_selector(".folder", :text => "Folder")
+      expect(divs[0]).to have_selector("input.autocomplete-input[name='material_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
+      expect(divs[0]).to have_selector("input.original-revision[name='original_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
+      expect(divs[0]).to have_selector("input.original-revision[value='1234']")
     end
   end
 
@@ -113,48 +120,45 @@ describe "/pipelines/show.html.erb" do
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
-    response.body.should have_tag(".material_summary") do
-      with_tag(".material_name", "not-run")
-      with_tag(".revision_number[title='Latest Available Revision'].updated", "latest")
+    Capybara.string(response.body).all(".material_summary").tap do |divs|
+      expect(divs[0]).to have_selector(".material_name", :text => "not-run")
+      expect(divs[0]).to have_selector(".revision_number[title='Latest Available Revision'].updated", :text => "latest")
     end
 
-    response.should have_tag(".material_detail") do
-      with_tag(".revision_number[title='N/A']", "N/A")
-      with_tag(".date[title='N/A']", "N/A")
-      with_tag(".material_name", "not-run")
-      with_tag(".user", "N/A")
-      with_tag(".comment", "N/A")
-      with_tag(".folder", "not-set")
-      with_tag("#material-number-0-latest[title='Latest Available Revision']", "latest")
+    Capybara.string(response.body).all(".material_detail").tap do |divs|
+      expect(divs[0]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[0]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[0]).to have_selector(".material_name", :text => "not-run")
+      expect(divs[0]).to have_selector(".user", :text => "N/A")
+      expect(divs[0]).to have_selector(".comment", :text => "N/A")
+      expect(divs[0]).to have_selector(".folder", :text => "not-set")
+      expect(divs[0]).to have_selector("#material-number-0-latest[title='Latest Available Revision']", :text => "latest")
     end
 
-    response.body.should have_tag(".material_detail") do
-      with_tag(".revision_number[title='N/A']", "N/A")
-      with_tag(".date[title='N/A']", "N/A")
-      with_tag(".material_name", "not-run")
-      with_tag(".user", "N/A")
-      with_tag(".comment", "N/A")
-      with_tag(".folder", "not-set")
-      with_tag("#material-number-0-latest[title='Latest Available Revision']", "latest")
+    Capybara.string(response.body).all(".material_detail").tap do |divs|
+      expect(divs[1]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run")
+      expect(divs[1]).to have_selector(".user", :text => "N/A")
+      expect(divs[1]).to have_selector(".comment", :text => "N/A")
+      expect(divs[1]).to have_selector(".folder", :text => "not-set")
+      expect(divs[1]).to have_selector("#material-number-1-latest[title='Latest Available Revision']", :text => "latest")
     end
   end
 
   it "should include the labels" do
     svn_material = @material_revisions.getMaterialRevision(0).getMaterial()
+
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
-    response.body.should have_tag(".material_detail dt") do |dt|
-      text_for(dt[0]).should == "Subversion"
-      text_for(dt[1]).should == "Dest:"
-      text_for(dt[2]).should == "Date:"
-      text_for(dt[3]).should == "User:"
-      text_for(dt[4]).should == "Comment:"
-      text_for(dt[5]).should == "Currently Deployed:"
-      text_for(dt[6]).should == "Revision to Deploy:"
+    Capybara.string(response.body).all(".material_detail dt") do |dts|
+      dts[0].text.should == "Subversion"
+      dts[1].text.should == "Dest:"
+      dts[2].text.should == "Date:"
+      dts[3].text.should == "User:"
+      dts[4].text.should == "Comment:"
+      dts[5].text.should == "Currently Deployed:"
+      dts[6].text.should == "Revision to Deploy:"
     end
-  end
-
-  def text_for(dt)
-    dt.children[0].to_s
   end
 end

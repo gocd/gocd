@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "/pipelines/material_search.html.erb" do
+describe "pipelines/material_search.html.erb" do
   describe "for scm & dependency material" do
     before(:each)  do
       @material_type = 'GitMaterial'
@@ -27,23 +27,24 @@ describe "/pipelines/material_search.html.erb" do
     end
 
     it "should display revision number, time and material name/url" do
-      assigns[:matched_revisions] = [@match1, @match2]
-      render 'pipelines/material_search'
+      assign(:matched_revisions, [@match1, @match2])
 
-      response.body.should have_tag('ul li#matched-revision-0') do
-        with_tag('div.revision', 'rev-1')
-        with_tag('div.revision[title=?]', 'rev-1-long')
-        with_tag('div.user', 'user1')
-        with_tag('div.date', @commit_date1.display_time.to_s)
-        with_tag('div.comment', 'comment1')
+      render
+
+      Capybara.string(response.body).find('ul li#matched-revision-0').tap do |li|
+        expect(li).to have_selector('div.revision', 'rev-1')
+        expect(li).to have_selector("div.revision[title='rev-1-long']")
+        expect(li).to have_selector('div.user', 'user1')
+        expect(li).to have_selector('div.date', @commit_date1.display_time.to_s)
+        expect(li).to have_selector('div.comment', 'comment1')
       end
 
-      response.body.should have_tag('ul li#matched-revision-1') do
-        with_tag('div.revision', 'rev-2')
-        with_tag('div.revision[title=?]', 'rev-2-long')
-        with_tag('div.user', 'user2')
-        with_tag('div.date', @commit_date2.display_time.to_s)
-        with_tag('div.comment', 'comment2')
+      Capybara.string(response.body).find('ul li#matched-revision-1').tap do |li|
+        expect(li).to have_selector('div.revision', 'rev-2')
+        expect(li).to have_selector("div.revision[title='rev-2-long']")
+        expect(li).to have_selector('div.user', 'user2')
+        expect(li).to have_selector('div.date', @commit_date2.display_time.to_s)
+        expect(li).to have_selector('div.comment', 'comment2')
       end
     end
   end
@@ -58,25 +59,25 @@ describe "/pipelines/material_search.html.erb" do
     end
 
     it "should display revision number, time and material name/url" do
-      assigns[:material_type] = @material_type
-      assigns[:matched_revisions] = [@match1, @match2]
-      render 'pipelines/material_search'
+      assign(:material_type, @material_type)
+      assign(:matched_revisions, [@match1, @match2])
 
-      response.body.should have_tag('ul li#matched-revision-0') do
-        with_tag('div.revision', 'rev-1')
-        with_tag('div.revision[title=?]', 'rev-1-long')
-        with_tag('div.user', 'user1')
-        with_tag('div.date', @commit_date1.display_time.to_s)
-        with_tag('div.comment', "Trackback: http://foo")
+      render
+
+      Capybara.string(response.body).find('ul li#matched-revision-0').tap do |li|
+        expect(li).to have_selector('div.revision', 'rev-1')
+        expect(li).to have_selector("div.revision[title='rev-1-long']")
+        expect(li).to have_selector('div.user', 'user1')
+        expect(li).to have_selector('div.date', @commit_date1.display_time.to_s)
+        expect(li).to have_selector('div.comment', "Trackback: http://foo")
       end
 
-      response.body.should have_tag('ul li#matched-revision-1') do
-        with_tag('div.revision', 'rev-2')
-        with_tag('div.revision[title=?]', 'rev-2-long')
-        with_tag('div.user', 'anonymous')
-        with_tag('div.date', @commit_date2.display_time.to_s)
-        with_tag('div.comment', 'Built on blrstdgobgr03.') do
-        end
+      Capybara.string(response.body).find('ul li#matched-revision-1').tap do |li|
+        expect(li).to have_selector('div.revision', 'rev-2')
+        expect(li).to have_selector("div.revision[title='rev-2-long']")
+        expect(li).to have_selector('div.user', 'anonymous')
+        expect(li).to have_selector('div.date', @commit_date2.display_time.to_s)
+        expect(li).to have_selector('div.comment', 'Built on blrstdgobgr03.')
       end
     end
   end

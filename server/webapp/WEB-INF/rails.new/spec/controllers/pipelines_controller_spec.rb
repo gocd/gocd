@@ -192,8 +192,7 @@ describe PipelinesController do
     end
   end
 
-  it "should resolve get AND post to /pipelines/material_search as a call" do
-    expect({:post => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
+  it "should resolve get to /pipelines/material_search as a call" do
     expect({:get => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
   end
 
@@ -216,7 +215,7 @@ describe PipelinesController do
     assert_template layout: false
   end
 
-  it "should set up the matched revisions" do
+  it "should get matched revisions during material_search" do
     revisions = [MatchedRevision.new('search', '1', '1', 'me', java.util.Date.new, 'comment')]
     @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()).and_return(revisions)
     pkg_config = MaterialConfigsMother.packageMaterialConfig()
@@ -226,19 +225,6 @@ describe PipelinesController do
 
     expect(response).to be_success
     assert_template layout: false
-    expect(assigns[:matched_revisions]).to eq(revisions)
-    expect(assigns[:material_type]).to eq("PackageMaterial")
-  end
-
-  it "should set up the matched revisions - with POST" do
-    revisions = [MatchedRevision.new('search', '1', '1', 'me', java.util.Date.new, 'comment')]
-    @material_service.should_receive(:searchRevisions).with('pipeline', 'sha', 'search', @user, anything()).and_return(revisions)
-    pkg_config = MaterialConfigsMother.packageMaterialConfig()
-    @go_config_service.should_receive(:materialForPipelineWithFingerprint).with('pipeline', 'sha').and_return(pkg_config)
-
-    post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
-
-    expect(response).to be_success
     expect(assigns[:matched_revisions]).to eq(revisions)
     expect(assigns[:material_type]).to eq("PackageMaterial")
   end

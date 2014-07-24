@@ -36,10 +36,8 @@ describe 'pipelines/_pipeline_stage_bar.html.erb' do
     @sim.stub(:getApprovedBy).and_return("admin")
     @sim.stub(:isAutoApproved).and_return(true)
 
-    render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name', :update_opts => {}}}
-    puts response.body
+    render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name'}}
     Capybara.string(response.body).find("#operate_stage_name").tap do |f|
-      puts f.text
       expect(f).to have_selector("a[onclick=\"AjaxRefreshers.disableAjax();spinny('operate_stage_name'); new Ajax.Request('/api/stages/42/cancel', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;\"]")
     end
   end

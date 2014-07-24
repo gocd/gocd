@@ -279,15 +279,16 @@ module ApplicationHelper
     link_to_remote(name, options, html_options)
   end
 
-  def blocking_link_to_remote_jyoti(name, options = {}, html_options = nil)
-    merge_block_options(options)
-    link_to_remote(name, options, html_options)
-  end
-
   def blocking_link_to_remote_new(options = {})
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
     tag_options = tag_options(options[:html], true)
+    %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
+  end
+
+  def remote_function_new(options)
+    javascript_options = options_for_ajax(options)
+
     update = ''
     if options[:update] && options[:update].is_a?(Hash)
       update  = []
@@ -298,7 +299,21 @@ module ApplicationHelper
       update << "'#{options[:update]}'"
     end
 
-    %Q|<a href="#" #{tag_options} onclick="#{options[:before]}; new Ajax.Updater(#{update}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
+    function = update.empty? ?
+        "new Ajax.Request(" :
+        "new Ajax.Updater(#{update}, "
+
+    url_options = options[:url]
+    url_options = url_options.merge(:escape => false) if url_options.is_a?(Hash)
+    function << "'#{escape_javascript(url_for(url_options))}'"
+    function << ", #{javascript_options})"
+
+    function = "#{options[:before]}; #{function}" if options[:before]
+    function = "#{function}; #{options[:after]}"  if options[:after]
+    function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
+    function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
+
+    return function
   end
 
   def link_to_remote_new(name, options = {}, html_options = nil)

@@ -288,7 +288,17 @@ module ApplicationHelper
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
     tag_options = tag_options(options[:html], true)
-    %Q|<a href="#" #{tag_options} onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
+    update = ''
+    if options[:update] && options[:update].is_a?(Hash)
+      update  = []
+      update << "success:'#{options[:update][:success]}'" if options[:update][:success]
+      update << "failure:'#{options[:update][:failure]}'" if options[:update][:failure]
+      update  = '{' + update.join(',') + '}'
+    elsif options[:update]
+      update << "'#{options[:update]}'"
+    end
+
+    %Q|<a href="#" #{tag_options} onclick="#{options[:before]}; new Ajax.Updater(#{update}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
   end
 
   def link_to_remote_new(name, options = {}, html_options = nil)

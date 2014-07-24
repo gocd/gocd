@@ -17,21 +17,23 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
+
 describe "/layouts/pipeline_admin" do
-before do
-stub_server_health_messages
-end
   before do
-    @layout_name = "pipeline_admin"
+    stub_server_health_messages
+  end
+  before do
+    @layout_name = "layouts/pipeline_admin"
     @admin_url = "/admin/pipelines"
-    assigns[:user] = @user = Object.new
-    assigns[:error_count] = 0
-    assigns[:warning_count] = 0
+    assign(:user,@user = Object.new)
+    assign(:error_count,0)
+    assign(:warning_count,0)
     @user.stub(:anonymous?).and_return(true)
 
-    template.stub!(:can_view_admin_page?).and_return(true)
-    template.stub!(:is_user_an_admin?).and_return(true)
-    class << template
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+
+    class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
       end
@@ -39,27 +41,27 @@ end
       alias_method_chain :url_for, :stub
     end
 
-    assigns[:pipeline] = PipelineConfigMother.pipelineConfig("mingle")
-    assigns[:pause_info] = PipelinePauseInfo.paused("need to have fun", "loser")
+    assign(:pipeline, PipelineConfigMother.pipelineConfig("mingle"))
+    assign(:pause_info, PipelinePauseInfo.paused("need to have fun", "loser"))
   end
 
-  it_should_behave_like "layout"
+  it_should_behave_like :layout
 
   it "should wire-up ajax_refresher for pause_info" do
     render :inline => 'body', :layout => @layout_name
-    response.should have_tag('script', /AjaxRefreshers.addRefresher\(new AjaxRefresher\("\/admin\/pipelines\/mingle\/pause_info.json"\), true\)/)
+    expect(response.body).to have_selector("script",:text=>/AjaxRefreshers.addRefresher\(new AjaxRefresher\("\/admin\/pipelines\/mingle\/pause_info.json"\), true\)/, :visible => false)
   end
 
   it "should display pause-info section" do
     render :inline => 'body', :layout => @layout_name
-    response.should have_tag("#pause_info_and_controls") do
-      with_tag("form[action=?]", "/api/pipelines/mingle/unpause") do
-        with_tag("button[title='Unpause'][value='Unpause']") do
-          with_tag("span[title='Unpause']")
+    Capybara.string(response.body).find('#pause_info_and_controls').tap do |block|
+      block.find("form[action='/api/pipelines/mingle/unpause']").tap do |form|
+        form.find("button[title='Unpause'][value='Unpause']").tap do |button|
+          expect(button).to have_selector("span[title='Unpause']")
         end
       end
-      with_tag(".pause_description.paused_by", "Paused by loser")
-      with_tag(".pause_description.pause_message", "(need to have fun)")
+      expect(block).to have_selector(".pause_description.paused_by", :text=>"Paused by loser")
+      expect(block).to have_selector(".pause_description.pause_message", :text=>"(need to have fun)")
     end
   end
 end

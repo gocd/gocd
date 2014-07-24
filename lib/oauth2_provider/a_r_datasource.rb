@@ -67,7 +67,7 @@ if defined?(ActiveRecord)
       end
 
       def find_all_authorization_by_client_id(client_id)
-        AuthorizationDto.find_all_by_client_id(client_id)
+        AuthorizationDto.where(id: client_id)
       end
 
       def find_authorization_by_id(id)
@@ -91,7 +91,7 @@ if defined?(ActiveRecord)
       end
 
       def find_all_token_by_client_id(client_id)
-        TokenDto.find_all_by_client_id(client_id)
+        TokenDto.where(id: client_id)
       end
 
       def find_all_token_by_user_id(user_id)

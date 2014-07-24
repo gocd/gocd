@@ -13,10 +13,10 @@ module Oauth2Provider
 
     def get_token
 
-      authorization = Oauth2::Provider::OauthAuthorization.find_one(:code, params[:code])
+      authorization = Oauth2Provider::Authorization.find_one(:code, params[:code])
       authorization.destroy unless authorization.nil?
 
-      original_token = Oauth2::Provider::OauthToken.find_one(:refresh_token, params[:refresh_token])
+      original_token = Oauth2Provider::Token.find_one(:refresh_token, params[:refresh_token])
       original_token.destroy unless original_token.nil?
 
       unless ['authorization-code', 'refresh-token'].include?(params[:grant_type])

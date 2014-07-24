@@ -223,6 +223,7 @@ describe PipelinesController do
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
 
     expect(response).to be_success
+    expect(response).to render_template(:layout => false)
     expect(assigns[:matched_revisions]).to eq(revisions)
     expect(assigns[:material_type]).to eq("PackageMaterial")
   end
@@ -236,6 +237,7 @@ describe PipelinesController do
     post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
 
     expect(response).to be_success
+    expect(response).to render_template(:layout => false)
     expect(assigns[:matched_revisions]).to eq(revisions)
     expect(assigns[:material_type]).to eq("PackageMaterial")
   end

@@ -17,6 +17,7 @@
 class PipelinesController < ApplicationController
   include ApplicationHelper
   layout "application", :except => ["show", "material_search", "show_for_trigger"]
+  protect_from_forgery :except => [:material_search]
 
   def build_cause
     result = HttpOperationResult.new
@@ -53,6 +54,7 @@ class PipelinesController < ApplicationController
       return
     end
     @material_type = go_config_service.materialForPipelineWithFingerprint(params[:pipeline_name], params[:fingerprint]).getType
+    render layout: false
   end
 
   def select_pipelines

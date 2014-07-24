@@ -18,5 +18,5 @@
   <%=h @oauth_client.redirect_uri %>
 </p>
 
-<%= link_to 'Edit', edit_oauth_client_path(@oauth_client) %> |
-<%= link_to 'Back', oauth_clients_path %>
+<%= link_to 'Edit', oauth_engine.edit_client_path(id: @oauth_client.id) %> |
+<%= link_to 'Back', oauth_engine.clients_path %>

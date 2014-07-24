@@ -32,14 +32,14 @@
 
       <% @oauth_clients.each do |oauth_client| %>
         <tr>
-          <td><%= link_to h(oauth_client.name), {:controller => 'oauth_clients', :action => :edit, :id => oauth_client.id}, {:class => 'edit_link'} %></td>
+          <td><%= link_to h(oauth_client.name), oauth_engine.edit_client_path(id: oauth_client.id), {:class => 'edit_link'} %></td>
           <td><%=h oauth_client.redirect_uri %></td>
           <td>
             <p><b>Client ID</b>: <%=h oauth_client.client_id %></p>
             <p><b>Client Secret</b>: <%=h oauth_client.client_secret %></p>
           </td>
           <td>
-            <%= link_to '<span>Delete</span>', {:controller => 'oauth_clients', :action => :destroy, :id => oauth_client.id}, {:confirm => 'Are you sure?', :method => :delete, :class => 'delete_link', :title => 'Click to delete this client'} %>
+            <%= link_to 'Delete', oauth_engine.client_path(id: oauth_client.id), {:confirm => 'Are you sure?', :method => :delete, :class => 'delete_link', :title => 'Click to delete this client'} %>
           </td>
         </tr>
       <% end %>

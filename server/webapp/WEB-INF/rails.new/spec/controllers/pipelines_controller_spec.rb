@@ -213,6 +213,7 @@ describe PipelinesController do
 
     post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
     expect(response.status).to eq(401)
+    assert_template layout: false
   end
 
   it "should set up the matched revisions" do
@@ -224,6 +225,7 @@ describe PipelinesController do
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search'
 
     expect(response).to be_success
+    assert_template layout: false
     expect(assigns[:matched_revisions]).to eq(revisions)
     expect(assigns[:material_type]).to eq("PackageMaterial")
   end

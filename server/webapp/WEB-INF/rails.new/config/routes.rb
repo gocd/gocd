@@ -148,7 +148,7 @@ Go::Application.routes.draw do
 
   scope 'pipelines' do
     defaults :no_layout => true do
-      post 'material_search' => 'pipelines#material_search'
+      match 'material_search' => 'pipelines#material_search', via: [:get, :post]
       post 'show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
       get ':pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
     end

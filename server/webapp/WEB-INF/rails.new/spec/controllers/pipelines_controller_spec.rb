@@ -192,8 +192,9 @@ describe PipelinesController do
     end
   end
 
-  it "should resolve post to /pipelines/material_search as a call" do
+  it "should resolve get AND post to /pipelines/material_search as a call" do
     expect({:post => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
+    expect({:get => "/pipelines/material_search"}).to route_to(:controller => "pipelines", :action => "material_search", :no_layout => true)
   end
 
   it "should show error message if the user is not authorized to view the pipeline" do

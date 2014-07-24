@@ -40,7 +40,7 @@ module Oauth2Provider
       respond_to do |format|
         if @oauth_client.save
           flash[:notice] = 'OAuth client was successfully created.'
-          format.html { redirect_to :action => 'index' }
+          format.html { redirect_to oauth_engine.clients_path }
           format.xml  { render :xml => @oauth_client, :status => :created, :location => @oauth_client }
         else
           flash.now[:error] = @oauth_client.errors.full_messages

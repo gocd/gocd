@@ -16,26 +16,34 @@
 
 unless defined? NonApiController
   def draw_test_controller_route
-    test_routes = Proc.new do
-      match 'rails/foo', via: :all, to: 'api/test#not_found_action'
-      match 'rails/bar', via: :all, to: 'api/test#unauthorized_action'
-      match 'rails/baz', via: :all, to: 'api/test#another_not_found_action'
-      match 'rails/bang', via: :all, to: 'api/test#localized_not_found_action'
-      match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
-      match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
-      match 'rails/:controller/:action', via: :all, to: 'api/test#test_action'
-      match 'rails/auto_refresh', via: :all, to: 'api/test#auto_refresh'
+    begin
+      _routes = Go::Application.routes
+      _routes.disable_clear_and_finalize = true
+      _routes.clear!
+      Go::Application.routes_reloader.paths.each{ |path| load(path) }
+      _routes.draw do
+        match 'rails/foo', via: :all, to: 'api/test#not_found_action'
+        match 'rails/bar', via: :all, to: 'api/test#unauthorized_action'
+        match 'rails/baz', via: :all, to: 'api/test#another_not_found_action'
+        match 'rails/bang', via: :all, to: 'api/test#localized_not_found_action'
+        match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
+        match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
+        match 'rails/:controller/:action', via: :all, to: 'api/test#test_action'
+        match 'rails/auto_refresh', via: :all, to: 'api/test#auto_refresh'
 
-      match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
-      match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
-      match 'rails/exception_out', via: :all, to: 'non_api#exception_out'
-      match 'rails/double_render', via: :all, to: 'non_api#double_render'
-      match 'rails/render_and_redirect', via: :all, to: 'non_api#redirect_after_render'
-      match 'rails/double_render_without_error', via: :all, to: 'non_api#double_render_without_error'
-      match 'rails/encoded_param_user', via: :all, to: 'non_api#encoded_param_user_action'
-      match 'rails/non_encoded_param_user', via: :all, to: 'non_api#non_encoded_param_user_action'
+        match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
+        match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
+        match 'rails/exception_out', via: :all, to: 'non_api#exception_out'
+        match 'rails/double_render', via: :all, to: 'non_api#double_render'
+        match 'rails/render_and_redirect', via: :all, to: 'non_api#redirect_after_render'
+        match 'rails/double_render_without_error', via: :all, to: 'non_api#double_render_without_error'
+        match 'rails/encoded_param_user', via: :all, to: 'non_api#encoded_param_user_action'
+        match 'rails/non_encoded_param_user', via: :all, to: 'non_api#non_encoded_param_user_action'
+      end
+      ActiveSupport.on_load(:action_controller) { _routes.finalize! }
+    ensure
+      _routes.disable_clear_and_finalize = false
     end
-    Go::Application.routes.eval_block(test_routes)
   end
 end
 

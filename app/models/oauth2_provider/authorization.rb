@@ -17,7 +17,6 @@ module Oauth2Provider
       Token.find_all_with(:user_id, user_id).each do |token|
         token.destroy if token.client_id == client_id
       end
-      
       token = client.create_token_for_user_id(user_id)
       self.destroy
       token

@@ -16,7 +16,6 @@ if defined?(ActiveRecord)
         self.table_name = :oauthauthorizations
         alias_attribute :user_id, :userid
         alias_attribute :client_id, :oauthclientid
-        alias_attribute :code, :code
         alias_attribute :expires_at, :expiresat
       end
 

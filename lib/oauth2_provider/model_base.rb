@@ -178,7 +178,6 @@ module Oauth2Provider
         result[column_name] = read_attribute(column_name)
         result
       end
-      
       if self.valid?
         dto = datasource.send("save_#{self.class.compact_name}", attrs.with_indifferent_access)
         update_from_dto(dto)

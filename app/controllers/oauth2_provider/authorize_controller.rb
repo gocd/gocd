@@ -19,13 +19,13 @@ module Oauth2Provider
         redirect_to "#{params[:redirect_uri]}?error=access-denied"
         return
       end
-      authorization = @client.create_authorization_for_user_id(current_user_id_for_oauth)
+      @authorization = @client.create_authorization_for_user_id(current_user_id_for_oauth)
       state_param = if params[:state].blank?
         ""
       else
         "&state=#{CGI.escape(params[:state])}"
       end
-      redirect_to "#{params[:redirect_uri]}?code=#{authorization.code}&expires_in=#{authorization.expires_in}#{state_param}"
+      redirect_to "#{params[:redirect_uri]}?code=#{@authorization.code}&expires_in=#{@authorization.expires_in}#{state_param}"
     end
 
     private

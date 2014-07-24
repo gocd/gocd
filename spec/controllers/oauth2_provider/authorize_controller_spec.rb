@@ -44,7 +44,31 @@ module Oauth2Provider
         post :authorize, {use_route: :oauth_engine}.merge({client_id: @client.id, response_type: 'code'}.merge(@params))
         expect(response).to redirect_to("#{@params[:redirect_uri]}?error=redirect-uri-mismatch")
       end
-
+    end
+    
+    describe 'authorize' do
+      before :each do 
+        @authorized_params = @valid_params.merge(authorize: "Yes")
+        allow(@controller).to receive(:current_user_id_for_oauth).and_return("1")
+      end
+      
+      it "should return if unauthorized" do
+        post :authorize, {use_route: :oauth_engine}.merge(@valid_params)
+        expect(response).to redirect_to("#{@valid_params[:redirect_uri]}?error=access-denied")
+      end
+      
+      it "should create an authorization" do
+        post :authorize, {use_route: :oauth_engine}.merge(@authorized_params)
+        actual = assigns[:authorization]
+        expect(response).to redirect_to("#{@authorized_params[:redirect_uri]}?code=#{actual.code}&expires_in=#{actual.expires_in}")
+      end
+      
+      it "should create an authorization with state_param" do
+        state_param = 'foo'
+        post :authorize, {use_route: :oauth_engine, state: state_param}.merge(@authorized_params)
+        actual = assigns[:authorization]
+        expect(response).to redirect_to("#{@authorized_params[:redirect_uri]}?code=#{actual.code}&expires_in=#{actual.expires_in}&state=#{state_param}")
+      end
     end
   end
 end

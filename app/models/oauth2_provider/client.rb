@@ -15,10 +15,10 @@ module Oauth2Provider
     end
 
     def create_authorization_for_user_id(user_id)
-      oauth_authorizations.each do |authorization|
+      authorizations.each do |authorization|
         authorization.destroy if authorization.user_id == user_id
       end
-      Authorization.create!(:user_id => user_id, :oauth_client_id => id)
+      Oauth2Provider::Authorization.create!(:user_id => user_id, :client_id => id)
     end
 
     def tokens

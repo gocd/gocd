@@ -100,7 +100,8 @@ describe PipelinesController do
     end
 
     it "should resolve" do
-      expect({:get => "/pipelines"}).to route_to(:controller => "pipelines", :action => "index")
+      expect({:get => "/pipelines"}).to route_to(:controller => "pipelines", :action => "index", :format => "html")
+      expect({:get => "/pipelines.json"}).to route_to(:controller => "pipelines", :action => "index", :format => "json")
       expect({:get => "/home"}).to route_to(:controller => "pipelines", :action => "index")
     end
 

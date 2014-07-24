@@ -154,11 +154,12 @@ Go::Application.routes.draw do
     end
 
     get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-    get "" => 'pipelines#index', as: :pipeline_dashboard
     post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
   end
 
+  get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
+
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   scope 'compare' do

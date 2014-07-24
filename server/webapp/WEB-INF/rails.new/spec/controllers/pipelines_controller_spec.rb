@@ -202,7 +202,9 @@ describe PipelinesController do
     end
 
     get :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+
     expect(response.status).to eq(401)
+    assert_template layout: false
   end
 
   it "should show error message if the user is not authorized to view the pipeline - with POST" do
@@ -211,7 +213,9 @@ describe PipelinesController do
     end
 
     post :material_search, :pipeline_name => 'pipeline', :fingerprint => 'sha', :search => 'search', :no_layout => true
+
     expect(response.status).to eq(401)
+    assert_template layout: false
   end
 
   it "should set up the matched revisions" do

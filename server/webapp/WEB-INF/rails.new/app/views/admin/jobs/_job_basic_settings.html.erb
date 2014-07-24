@@ -55,7 +55,7 @@
 
     Util.on_load(function() {
         function hookupResourcesAutoComplete() {
-            jQuery(".resources_auto_complete").autocomplete(<%= @autocomplete_resources -%>, {
+            jQuery(".resources_auto_complete").autocomplete(<%== @autocomplete_resources %>, {
                 multiple: true,
                 minChars: 0,
                 matchContains: true,

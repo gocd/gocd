@@ -32,19 +32,19 @@ describe "pipelines/material_search.html.erb" do
       render
 
       Capybara.string(response.body).find('ul li#matched-revision-0').tap do |li|
-        expect(li).to have_selector('div.revision', 'rev-1')
+        expect(li).to have_selector('div.revision', :text => 'rev-1')
         expect(li).to have_selector("div.revision[title='rev-1-long']")
-        expect(li).to have_selector('div.user', 'user1')
-        expect(li).to have_selector('div.date', @commit_date1.display_time.to_s)
-        expect(li).to have_selector('div.comment', 'comment1')
+        expect(li).to have_selector('div.user', :text => 'user1')
+        expect(li).to have_selector('div.date', :text => @commit_date1.display_time.to_s)
+        expect(li).to have_selector('div.comment', :text => 'comment1')
       end
 
       Capybara.string(response.body).find('ul li#matched-revision-1').tap do |li|
-        expect(li).to have_selector('div.revision', 'rev-2')
+        expect(li).to have_selector('div.revision', :text => 'rev-2')
         expect(li).to have_selector("div.revision[title='rev-2-long']")
-        expect(li).to have_selector('div.user', 'user2')
-        expect(li).to have_selector('div.date', @commit_date2.display_time.to_s)
-        expect(li).to have_selector('div.comment', 'comment2')
+        expect(li).to have_selector('div.user', :text => 'user2')
+        expect(li).to have_selector('div.date', :text => @commit_date2.display_time.to_s)
+        expect(li).to have_selector('div.comment', :text => 'comment2')
       end
     end
   end
@@ -65,19 +65,19 @@ describe "pipelines/material_search.html.erb" do
       render
 
       Capybara.string(response.body).find('ul li#matched-revision-0').tap do |li|
-        expect(li).to have_selector('div.revision', 'rev-1')
+        expect(li).to have_selector('div.revision', :text => 'rev-1')
         expect(li).to have_selector("div.revision[title='rev-1-long']")
-        expect(li).to have_selector('div.user', 'user1')
-        expect(li).to have_selector('div.date', @commit_date1.display_time.to_s)
-        expect(li).to have_selector('div.comment', "Trackback: http://foo")
+        expect(li).to have_selector('div.user', :text => 'user1')
+        expect(li).to have_selector('div.date', :text => @commit_date1.display_time.to_s)
+        expect(li).to have_selector('div.comment', :text => "Trackback: http://foo")
       end
 
       Capybara.string(response.body).find('ul li#matched-revision-1').tap do |li|
-        expect(li).to have_selector('div.revision', 'rev-2')
+        expect(li).to have_selector('div.revision', :text => 'rev-2')
         expect(li).to have_selector("div.revision[title='rev-2-long']")
-        expect(li).to have_selector('div.user', 'anonymous')
-        expect(li).to have_selector('div.date', @commit_date2.display_time.to_s)
-        expect(li).to have_selector('div.comment', 'Built on blrstdgobgr03.')
+        expect(li).to have_selector('div.user', :text => 'anonymous')
+        expect(li).to have_selector('div.date', :text => @commit_date2.display_time.to_s)
+        expect(li).to have_selector('div.comment', :text => 'Built on blrstdgobgr03.')
       end
     end
   end

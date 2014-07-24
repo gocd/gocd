@@ -69,21 +69,21 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find("div.change_materials").tap do |div|
-      expect(div).to have_selector(".revision_number[title='1234']", "1234")
-      expect(div).to have_selector(".date[title='#{@yesterday.iso8601}']", "1 day ago")
-      expect(div).to have_selector(".material_name", "SvnName")
-      expect(div).to have_selector(".user", "username")
-      expect(div).to have_selector(".comment", "I changed something")
-      expect(div).to have_selector(".folder", "Folder")
+      expect(div).to have_selector(".revision_number[title='1234']", :text => "1234")
+      expect(div).to have_selector(".date[title='#{@yesterday.iso8601}']", :text => "1 day ago")
+      expect(div).to have_selector(".material_name", :text => "SvnName")
+      expect(div).to have_selector(".user", :text => "username")
+      expect(div).to have_selector(".comment", :text => "I changed something")
+      expect(div).to have_selector(".folder", :text => "Folder")
       expect(div).to have_selector("input[name='material_fingerprint[#{latest_hg_rev.getMaterial().getPipelineUniqueFingerprint()}]']")
     end
 
-    expect(response.body).to have_selector("div.change_materials .folder.not_set", "not-set")
+    expect(response.body).to have_selector("div.change_materials .folder.not_set", :text => "not-set")
     expect(response.body).to have_selector("button[type='submit'][value='Trigger Pipeline']")
 
     Capybara.string(response.body).all("div.change_materials .material_summary").tap do |divs|
-      expect(divs[1]).to have_selector(".revision_number[title='#{latest_hg_rev.getLatestRevisionString()}']", latest_hg_rev.getLatestShortRevision())
-      expect(divs[1]).to have_selector(".material_name", "named_hg_material")
+      expect(divs[1]).to have_selector(".revision_number[title='#{latest_hg_rev.getLatestRevisionString()}']", :text => latest_hg_rev.getLatestShortRevision())
+      expect(divs[1]).to have_selector(".material_name", :text => "named_hg_material")
     end
   end
 
@@ -96,8 +96,8 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find("div.change_materials").tap do |div|
-      expect(div).to have_selector(".user", "&lt;script&gt;alert('Check-in user')&lt;/script&gt;")
-      expect(div).to have_selector(".comment", "&lt;script&gt;alert('Check-in comment')&lt;/script&gt;")
+      expect(div).to have_selector(".user", :text => "<script>alert('Check-in user')</script>")
+      expect(div).to have_selector(".comment", :text => "<script>alert('Check-in comment')</script>")
     end
   end
 
@@ -106,7 +106,7 @@ describe "/pipelines/show_for_trigger.html.erb" do
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
-    expect(response.body).to have_selector(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", "foo_bar_ba..._ban_pavan")
+    expect(response.body).to have_selector(".materials .material_name[title=foo_bar_baz_quuz_ban_pavan]", :text => "foo_bar_ba..._ban_pavan")
   end
 
   it "should disable trigger_with_options button when preparing to schedule" do
@@ -121,12 +121,12 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).all(".material_detail").tap do |divs|
-      expect(divs[0]).to have_selector(".revision_number[title='1234']", "1234")
-      expect(divs[0]).to have_selector(".date[title='#{@yesterday.iso8601}']", "1 day ago")
-      expect(divs[0]).to have_selector(".material_name", "SvnName")
-      expect(divs[0]).to have_selector(".user", "username")
-      expect(divs[0]).to have_selector(".comment", "I changed something")
-      expect(divs[0]).to have_selector(".folder", "Folder")
+      expect(divs[0]).to have_selector(".revision_number[title='1234']", :text => "1234")
+      expect(divs[0]).to have_selector(".date[title='#{@yesterday.iso8601}']", :text => "1 day ago")
+      expect(divs[0]).to have_selector(".material_name", :text => "SvnName")
+      expect(divs[0]).to have_selector(".user", :text => "username")
+      expect(divs[0]).to have_selector(".comment", :text => "I changed something")
+      expect(divs[0]).to have_selector(".folder", :text => "Folder")
       expect(divs[0]).to have_selector("input.autocomplete-input[name='material_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
       expect(divs[0]).to have_selector("input.original-revision[name='original_fingerprint[#{svn_material.getPipelineUniqueFingerprint()}]']")
       expect(divs[0]).to have_selector("input.original-revision[value='1234']")
@@ -157,19 +157,19 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).all(".material_detail").tap do |divs|
-      expect(divs[1]).to have_selector(".revision_number[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".date[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".material_name", "not-run-with-history")
-      expect(divs[1]).to have_selector(".user", "N/A")
-      expect(divs[1]).to have_selector(".comment", "N/A")
-      expect(divs[1]).to have_selector(".folder", "not-set")
+      expect(divs[1]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run-with-history")
+      expect(divs[1]).to have_selector(".user", :text => "N/A")
+      expect(divs[1]).to have_selector(".comment", :text => "N/A")
+      expect(divs[1]).to have_selector(".folder", :text => "not-set")
       expect(divs[1]).to have_selector("input#material-number-1-original[type='hidden'][value='123']", visible: false)
       expect(divs[1]).to have_selector("input#material-number-1-autocomplete[type='text']")
     end
 
     Capybara.string(response.body).all(".material_summary").tap do |divs|
-      expect(divs[0]).to have_selector(".material_name", "not-run-with-history")
-      expect(divs[0]).to have_selector(".revision_number[title='Latest Available Revision'].updated", "latest")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run-with-history")
+      expect(divs[1]).to have_selector(".revision_number[title='Latest Available Revision'].updated", :text => "latest")
     end
   end
 
@@ -184,20 +184,20 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true, :pegged_revisions => {@not_run_with_history_material.getPipelineUniqueFingerprint() => "abc"}}}
 
     Capybara.string(response.body).all(".material_detail").tap do |divs|
-      expect(divs[1]).to have_selector(".revision_number[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".date[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".material_name", "not-run-with-history")
-      expect(divs[1]).to have_selector(".user", "N/A")
-      expect(divs[1]).to have_selector(".comment", "N/A")
-      expect(divs[1]).to have_selector(".folder", "not-set")
+      expect(divs[1]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run-with-history")
+      expect(divs[1]).to have_selector(".user", :text => "N/A")
+      expect(divs[1]).to have_selector(".comment", :text => "N/A")
+      expect(divs[1]).to have_selector(".folder", :text => "not-set")
       expect(divs[1]).to have_selector("input#material-number-1-original[type=hidden][value='abc']", visible: false)
       expect(divs[1]).not_to have_selector("input#material-number-1-autocomplete")
-      expect(divs[1]).to have_selector("#material-number-1-pegged[title='abc']", "abc")
+      expect(divs[1]).to have_selector("#material-number-1-pegged[title='abc']", :text => "abc")
     end
 
     Capybara.string(response.body).all(".material_summary").tap do |divs|
-      expect(divs[0]).to have_selector(".material_name", "not-run-with-history")
-      expect(divs[0]).to have_selector(".revision_number.updated", "abc")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run-with-history")
+      expect(divs[1]).to have_selector(".revision_number.updated", :text => "abc")
     end
   end
 
@@ -208,28 +208,28 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).all(".material_summary").tap do |divs|
-      expect(divs[0]).to have_selector(".material_name", "not-run")
-      expect(divs[0]).to have_selector(".revision_number[title='Latest Available Revision'].updated", "latest")
+      expect(divs[0]).to have_selector(".material_name", :text => "not-run")
+      expect(divs[0]).to have_selector(".revision_number[title='Latest Available Revision'].updated", :text => "latest")
     end
 
     Capybara.string(response.body).all(".material_detail").tap do |divs|
-      expect(divs[0]).to have_selector(".revision_number[title='N/A']", "N/A")
-      expect(divs[0]).to have_selector(".date[title='N/A']", "N/A")
-      expect(divs[0]).to have_selector(".material_name", "not-run")
-      expect(divs[0]).to have_selector(".user", "N/A")
-      expect(divs[0]).to have_selector(".comment", "N/A")
-      expect(divs[0]).to have_selector(".folder", "not-set")
-      expect(divs[0]).to have_selector("#material-number-0-latest[title='Latest Available Revision']", "latest")
+      expect(divs[0]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[0]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[0]).to have_selector(".material_name", :text => "not-run")
+      expect(divs[0]).to have_selector(".user", :text => "N/A")
+      expect(divs[0]).to have_selector(".comment", :text => "N/A")
+      expect(divs[0]).to have_selector(".folder", :text => "not-set")
+      expect(divs[0]).to have_selector("#material-number-0-latest[title='Latest Available Revision']", :text => "latest")
     end
 
     Capybara.string(response.body).all(".material_detail").tap do |divs|
-      expect(divs[1]).to have_selector(".revision_number[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".date[title='N/A']", "N/A")
-      expect(divs[1]).to have_selector(".material_name", "not-run-with-history")
-      expect(divs[1]).to have_selector(".user", "N/A")
-      expect(divs[1]).to have_selector(".comment", "N/A")
-      expect(divs[1]).to have_selector(".folder", "not-set")
-      expect(divs[1]).to have_selector("#material-number-1-latest[title='Latest Available Revision']", "latest")
+      expect(divs[1]).to have_selector(".revision_number[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".date[title='N/A']", :text => "N/A")
+      expect(divs[1]).to have_selector(".material_name", :text => "not-run-with-history")
+      expect(divs[1]).to have_selector(".user", :text => "N/A")
+      expect(divs[1]).to have_selector(".comment", :text => "N/A")
+      expect(divs[1]).to have_selector(".folder", :text => "not-set")
+      expect(divs[1]).to have_selector("#material-number-1-latest[title='Latest Available Revision']", :text => "latest")
     end
   end
 
@@ -241,11 +241,11 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find(".variables", visible: false).tap do |div|
-      expect(div).to have_selector("span", "Override Environment and Pipeline level variables:", visible: false)
+      expect(div).to have_selector("span", :text => "Override Environment and Pipeline level variables:", visible: false)
       @variables.each_with_index do |variable, index|
         expect(div).to have_selector(".variable input[id='variable-#{index}'][type='text'][name='variables[#{variable.getName()}]'][value='#{variable.getValue()}']", visible: false)
-        expect(div).to have_selector(".variable label", "#{variable.getName()}", visible: false)
-        expect(div).to have_selector(".variable .message.hidden", "Overwritten. Default: #{variable.getValue()}", visible: false)
+        expect(div).to have_selector(".variable label", :text => "#{variable.getName()}", visible: false)
+        expect(div).to have_selector(".variable .message.hidden", :text => "Overwritten. Default: #{variable.getValue()}", visible: false)
       end
     end
   end
@@ -268,14 +268,14 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find(".sub_tabs_container li#secure_environment_variables_tab").tap do |div|
-      expect(div).to have_selector("a.tab_button_body_match_text", "secure-environment-variables")
-      expect(div).to have_selector("a", "Secure Variables")
+      expect(div).to have_selector("a.tab_button_body_match_text", :text => "secure-environment-variables")
+      expect(div).to have_selector("a", :text => "Secure Variables")
     end
 
     Capybara.string(response.body).find("div.secure_variables", visible: false).tap do |div|
-      expect(div).to have_selector("label", "secure_foo", visible: false)
+      expect(div).to have_selector("label", :text => "secure_foo", visible: false)
       expect(div).to have_selector("input[type='password'][name='secure_variables[secure_foo]'][value='******']", visible: false)
-      expect(div).to have_selector("label", "secure_bar", visible: false)
+      expect(div).to have_selector("label", :text => "secure_bar", visible: false)
       expect(div).to have_selector("input[type='password'][name='secure_variables[secure_bar]'][value='******']", visible: false)
     end
   end
@@ -283,10 +283,10 @@ describe "/pipelines/show_for_trigger.html.erb" do
   it "should have material tab header" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
-    expect(response.body).to have_selector(".change_materials .sub_tabs_container ul li.current_tab a", "Materials")
+    expect(response.body).to have_selector(".change_materials .sub_tabs_container ul li.current_tab a", :text => "Materials")
 
     Capybara.string(response.body).all(".change_materials .sub_tabs_container ul li").tap do |lis|
-      expect(lis).not_to have_selector("a", "Environment Variables")
+      expect(lis).not_to have_selector("a", :text => "Environment Variables")
     end
   end
 
@@ -302,7 +302,7 @@ describe "/pipelines/show_for_trigger.html.erb" do
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
-    expect(response.body).to have_selector(".change_materials .sub_tabs_container ul li a", "Environment Variables")
+    expect(response.body).to have_selector(".change_materials .sub_tabs_container ul li a", :text => "Environment Variables")
   end
 
   it "should have environment variables tab contents when variables are defined" do
@@ -319,8 +319,8 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find("div#tab-content-of-secure-environment-variables", visible: false).tap do |div|
-      expect(div).to have_selector("label[for='secure_variables_secure_foo']", "secure_foo", visible: false)
-      expect(div).to have_selector("a.override", "Override", visible: false)
+      expect(div).to have_selector("label[for='secure_variables_secure_foo']", :text => "secure_foo", visible: false)
+      expect(div).to have_selector("a.override", :text => "Override", visible: false)
       expect(div).to have_selector("input[name='secure_variables[secure_foo]'][value='******'][disabled='disabled']", visible: false)
     end
   end
@@ -351,10 +351,9 @@ describe "/pipelines/show_for_trigger.html.erb" do
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => true}}
 
     Capybara.string(response.body).find("div.change_materials").tap do |div|
-      expect(div).to have_selector(".revision_number[title='1234']", "1234")
-      expect(div).to have_selector(".comment", "simplified")
+      expect(div).to have_selector(".revision_number[title='1234']", :text => "1234")
+      expect(div).to have_selector(".comment", :text => "simplified")
     end
-
   end
 
   def secure_env_variable(key, cipher_text)
@@ -363,5 +362,4 @@ describe "/pipelines/show_for_trigger.html.erb" do
     ReflectionUtil.setField(secure_variable, "isSecure", true)
     secure_variable
   end
-
 end

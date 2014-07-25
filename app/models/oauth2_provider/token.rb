@@ -5,7 +5,7 @@ module Oauth2Provider
   class Token < Oauth2Provider::ModelBase
 
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
-    columns :user_id, :client_id, :access_token, :refresh_token, :expires_at => :integer
+    columns :id, :user_id, :client_id, :access_token, :refresh_token, :expires_at => :integer
 
     EXPIRY_TIME = 90.days
 
@@ -27,6 +27,7 @@ module Oauth2Provider
 
     def refresh
       self.destroy
+      client = Oauth2Provider::Client.find_one(:id, client_id)
       client.create_token_for_user_id(user_id)
     end
 

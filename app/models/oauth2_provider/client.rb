@@ -11,7 +11,7 @@ module Oauth2Provider
     columns :id, :name, :client_id, :client_secret, :redirect_uri
 
     def create_token_for_user_id(user_id)
-      Token.create!(:user_id => user_id, :oauth_client_id => id)
+      Token.create!(:user_id => user_id, :client_id => id)
     end
 
     def create_authorization_for_user_id(user_id)

@@ -24,7 +24,7 @@ module Oauth2Provider
         return
       end
 
-      client = Oauth2::Provider::OauthClient.find_one(:client_id, params[:client_id])
+      client = Oauth2Provider::Client.find_one(:id, params[:client_id])
 
       if client.nil? || client.client_secret != params[:client_secret]
         render_error('invalid-client-credentials', 'Invalid client credentials!')
@@ -37,13 +37,13 @@ module Oauth2Provider
       end
 
       if params[:grant_type] == 'authorization-code'
-        if authorization.nil? || authorization.expired? || authorization.oauth_client.id != client.id
+        if authorization.nil? || authorization.expired? || Oauth2Provider::Client.find_one(:id, authorization.client_id).id != client.id
           render_error('invalid-grant', "Authorization expired or invalid!")
           return
         end
         token = authorization.generate_access_token
       else # refresh-token
-        if original_token.nil? || original_token.oauth_client.id != client.id
+        if original_token.nil? || Oauth2Provider::Client.find_one(:id, original_token.client_id).id != client.id
           render_error('invalid-grant', 'Refresh token is invalid!')
           return
         end

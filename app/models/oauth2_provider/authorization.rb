@@ -7,7 +7,7 @@ module Oauth2Provider
     EXPIRY_TIME = 1.hour
     
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
-    columns :user_id, :client_id, :code, :expires_at => :integer
+    columns :id, :user_id, :client_id, :code, :expires_at => :integer
 
     def client
       Client.find_by_id(:client_id)
@@ -17,6 +17,7 @@ module Oauth2Provider
       Token.find_all_with(:user_id, user_id).each do |token|
         token.destroy if token.client_id == client_id
       end
+      client = Client.find_one(:id, client_id)
       token = client.create_token_for_user_id(user_id)
       self.destroy
       token

@@ -1,3 +1,5 @@
-class Oauth2Provider::ApplicationController < ActionController::Base
-  include Oauth2Provider::Engine.routes.url_helpers
+module Oauth2Provider
+  class ApplicationController < ::ApplicationController
+    include Oauth2Provider::Engine.routes.url_helpers
+  end
 end

@@ -17,7 +17,6 @@
 class PipelinesController < ApplicationController
   include ApplicationHelper
   layout "application", :except => ["show", "material_search", "show_for_trigger"]
-  protect_from_forgery :except => [:material_search]
 
   def build_cause
     result = HttpOperationResult.new

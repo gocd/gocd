@@ -68,7 +68,7 @@ ActionController::Routing::Routes.draw do |map|
     no_layout.api_disable_agent 'api/agents/edit_agents', :action => 'edit_agents', :controller => 'api/agents', :conditions => {:method => :post}
     no_layout.agent_action "api/agents/:uuid/:action", :controller => 'api/agents', :requirements => {:action => /enable|disable|delete/}, :conditions => {:method => :post}
 
-    no_layout.pipeline_material_search "pipelines/material_search", :controller => 'pipelines', :action => 'material_search', :conditions => {:method => :post}
+    no_layout.pipeline_material_search "pipelines/material_search", :controller => 'pipelines', :action => 'material_search', :conditions => {:method => :get}
     no_layout.pipeline_show_with_option "pipelines/show_for_trigger", :controller => 'pipelines', :action => 'show_for_trigger', :conditions => {:method => :post}
     no_layout.environment_new "environments/new", :controller => 'environments', :action => 'new', :conditions => {:method => :get}
     no_layout.environment_create "environments/create", :controller => 'environments', :action => 'create', :conditions => {:method => :post}

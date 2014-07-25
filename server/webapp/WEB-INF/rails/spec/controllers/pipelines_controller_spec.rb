@@ -183,7 +183,7 @@ describe PipelinesController do
   end
 
   it "should resolve post to /pipelines/material_search as a call" do
-    params_from(:post, "/pipelines/material_search").should == {:controller => 'pipelines', :action => 'material_search', :no_layout => true}
+    params_from(:get, "/pipelines/material_search").should == {:controller => 'pipelines', :action => 'material_search', :no_layout => true}
   end
 
   it "should show error message if the user is not authorized to view the pipeline" do

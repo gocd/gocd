@@ -201,6 +201,9 @@ Go::Application.routes.draw do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
 
+      # history
+      get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
+
       # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
       post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name

@@ -203,6 +203,7 @@ Go::Application.routes.draw do
 
       # history
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
+      get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api
 
       # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage

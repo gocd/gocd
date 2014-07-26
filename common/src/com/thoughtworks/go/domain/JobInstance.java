@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Date;
-
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.Duration;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Date;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -365,6 +365,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     public String getPipelineName() {
         return identifier.getPipelineName();
     }
+
+	public Integer getPipelineCounter() {
+	        return identifier.getPipelineCounter();
+	    }
 
     public String getStageName() {
         return identifier.getStageName();

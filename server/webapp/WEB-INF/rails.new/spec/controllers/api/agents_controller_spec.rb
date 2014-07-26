@@ -19,6 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Api::AgentsController do
   before do
     controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
+    controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
     controller.stub(:current_user).and_return(@user = Object.new)
   end
 
@@ -142,6 +143,24 @@ describe Api::AgentsController do
     it "should show error if no agents are selected" do
       post :edit_agents, :operation => 'Enable', :selected => [], :no_layout => true
       expect(response.body).to eq("No agents were selected. Please select at least one agent and try again.")
+    end
+  end
+
+  describe :job_run_history do
+    include APIModelMother
+
+    it "should resolve routes" do
+      expect(:get => "/api/agents/1234/job_run_history").to route_to({:controller => 'api/agents', :action => 'job_run_history', :uuid => '1234', :offset => '0', :no_layout => true})
+      expect(:get => "/api/agents/1234/job_run_history/1").to route_to({:controller => 'api/agents', :action => 'job_run_history', :uuid => '1234', :offset => '1', :no_layout => true})
+    end
+
+    it "should render job run history json" do
+      @job_instance_service.should_receive(:totalCompletedJobsCountOn).and_return(10)
+      @job_instance_service.should_receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_job_history_model)
+
+      get :job_run_history, :uuid => 'uuid', :no_layout => true
+
+      expect(response.body).to eq(AgentJobRunHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), create_job_history_model).to_json)
     end
   end
 end

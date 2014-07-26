@@ -84,6 +84,13 @@ describe PipelineHistoryAPIModel do
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
       job_instance_api_model.scheduled_date.should == 'scheduled time'
+      job_instance_api_model.rerun.should == nil
+      job_instance_api_model.original_job_id.should == nil
+      job_instance_api_model.agent_uuid.should == nil
+      job_instance_api_model.pipeline_name.should == nil
+      job_instance_api_model.pipeline_counter.should == nil
+      job_instance_api_model.stage_name.should == nil
+      job_instance_api_model.stage_counter.should == nil
     end
   end
 end

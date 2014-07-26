@@ -70,6 +70,21 @@ module APIModelMother
     @job_view_model
   end
 
+  def create_job_history_model
+    @job_view_model = create_job_model
+    @job_view_model.stub(:isRerun).and_return(false)
+    @job_view_model.stub(:getOriginalJobId).and_return(0)
+    @job_view_model.stub(:getAgentUuid).and_return('uuid')
+    @job_view_model.stub(:getPipelineName).and_return('pipeline')
+    @job_view_model.stub(:getPipelineCounter).and_return(1)
+    @job_view_model.stub(:getStageName).and_return('stage')
+    @job_view_model.stub(:getStageCounter).and_return('1')
+
+    @job_history_view_model = double('JobHistoryViewModel')
+    @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
+    @job_history_view_model
+  end
+
   def create_stage_model
     @stage_view_model = double('StageViewModel')
     @stage_view_model.stub(:getId).and_return(4)

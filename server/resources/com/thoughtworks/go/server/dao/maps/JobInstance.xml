@@ -106,6 +106,26 @@
         LIMIT #count#
     </select>
 
+    <select id="getJobHistoryCount" resultClass="java.lang.Integer" cacheModel="latest-completed-job-instances">
+        SELECT COUNT(1)
+        FROM _builds
+            WHERE name = #jobConfigName#
+                AND pipelineName = #pipelineName#
+                AND stageName = #stageName#
+                AND originalJobId IS NULL
+    </select>
+
+    <select id="findJobHistoryPage" resultMap="select-build-with-identifier" cacheModel="latest-completed-job-instances">
+        SELECT *, id AS buildId
+        FROM _builds
+        WHERE name = #jobConfigName#
+            AND pipelineName = #pipelineName#
+            AND stageName = #stageName#
+            AND originalJobId IS NULL
+        ORDER BY id DESC
+        LIMIT #count# OFFSET #offset#
+    </select>
+
     <sql id="select-job-id">
         FROM _builds
         WHERE name = #jobName# AND ignored != true

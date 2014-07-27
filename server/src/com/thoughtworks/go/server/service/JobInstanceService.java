@@ -34,11 +34,14 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
+import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,17 +64,19 @@ public class JobInstanceService implements JobPlanLoader {
     private final JobResolverService jobResolverService;
     private final EnvironmentConfigService environmentConfigService;
     private final GoConfigService goConfigService;
+	private SecurityService securityService;
     private PluginManager pluginManager;
     private final List<JobStatusListener> listeners;
+	private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     private static Logger LOGGER = Logger.getLogger(JobInstanceService.class);
     private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
     JobInstanceService(JobInstanceDao jobInstanceDao, PropertiesService buildPropertiesService, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
-                       TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
-                       EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
-                       PluginManager pluginManager, JobStatusListener... listener) {
+					   TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
+					   EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
+					   SecurityService securityService, PluginManager pluginManager, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
         this.buildPropertiesService = buildPropertiesService;
         this.jobResultTopic = jobResultTopic;
@@ -81,6 +86,7 @@ public class JobInstanceService implements JobPlanLoader {
         this.jobResolverService = jobResolverService;
         this.environmentConfigService = environmentConfigService;
         this.goConfigService = goConfigService;
+		this.securityService = securityService;
         this.pluginManager = pluginManager;
         this.listeners = new ArrayList<JobStatusListener>(Arrays.asList(listener));
     }
@@ -88,6 +94,23 @@ public class JobInstanceService implements JobPlanLoader {
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
         return jobInstanceDao.latestCompletedJobs(pipelineName, stageName, jobConfigName, 25);
     }
+
+	public int getJobHistoryCount(String pipelineName, String stageName, String jobConfigName) {
+		return jobInstanceDao.getJobHistoryCount(pipelineName, stageName, jobConfigName);
+	}
+
+	public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
+		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
+		}
+		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			return null;
+		}
+
+		return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
+	}
 
     public JobInstance buildByIdWithTransitions(long buildId) {
         return jobInstanceDao.buildByIdWithTransitions(buildId);

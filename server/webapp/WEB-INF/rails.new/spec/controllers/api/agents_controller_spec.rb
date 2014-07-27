@@ -156,11 +156,11 @@ describe Api::AgentsController do
 
     it "should render job run history json" do
       @job_instance_service.should_receive(:totalCompletedJobsCountOn).and_return(10)
-      @job_instance_service.should_receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_job_history_model)
+      @job_instance_service.should_receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_agent_job_run_history_model)
 
       get :job_run_history, :uuid => 'uuid', :no_layout => true
 
-      expect(response.body).to eq(AgentJobRunHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), create_job_history_model).to_json)
+      expect(response.body).to eq(AgentJobRunHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), create_agent_job_run_history_model).to_json)
     end
   end
 end

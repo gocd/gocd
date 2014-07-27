@@ -21,18 +21,18 @@ describe AgentJobRunHistoryAPIModel do
 
   before(:each) do
     @pagination_view_model = create_pagination_model
-    @job_run_history_view_model = create_agent_job_run_history_model
+    @job_run_history_view_model = [create_job_history_model]
   end
 
   describe "should initialize correctly" do
     it "should populate correct data" do
-      agent_job_run_history_api_model = AgentJobRunHistoryAPIModel.new(@pagination_view_model, @job_run_history_view_model)
+      job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_run_history_view_model)
 
-      agent_job_run_history_api_model.pagination.page_size.should == 10
-      agent_job_run_history_api_model.pagination.offset.should == 1
-      agent_job_run_history_api_model.pagination.total.should == 100
+      job_history_api_model.pagination.page_size.should == 10
+      job_history_api_model.pagination.offset.should == 1
+      job_history_api_model.pagination.total.should == 100
 
-      job_instance_api_model = agent_job_run_history_api_model.jobs[0]
+      job_instance_api_model = job_history_api_model.jobs[0]
       job_instance_api_model.id.should == 5
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'

@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class StageInstanceAPIModel
-  attr_reader :id, :name, :counter, :scheduled, :approval_type, :approved_by, :result, :rerun_of_counter, :operate_permission, :can_run, :jobs
+  attr_reader :id, :name, :counter, :scheduled, :approval_type, :approved_by, :result, :rerun_of_counter, :operate_permission, :can_run, :pipeline_name, :pipeline_counter, :jobs
 
   def initialize(stage_instance_model)
     @id = stage_instance_model.getId()
@@ -28,6 +28,8 @@ class StageInstanceAPIModel
     @rerun_of_counter = stage_instance_model.getRerunOfCounter()
     @operate_permission = stage_instance_model.hasOperatePermission()
     @can_run = stage_instance_model.getCanRun()
+    @pipeline_name = stage_instance_model.getPipelineName()
+    @pipeline_counter = stage_instance_model.getPipelineCounter()
     @jobs = []
     stage_instance_model.getBuildHistory().each do |job_instance_model|
       @jobs << JobInstanceAPIModel.new(job_instance_model)

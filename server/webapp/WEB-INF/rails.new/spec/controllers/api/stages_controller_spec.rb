@@ -20,7 +20,7 @@ describe Api::StagesController do
 
   describe "index" do
     before :each do
-      controller.stub(:stage_service).and_return(@stage_service = double())
+      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
       controller.stub(:set_locale)
       controller.stub(:licensed_agent_limit)
       controller.stub(:populate_config_validity)
@@ -83,6 +83,44 @@ describe Api::StagesController do
       @controller.stub(:current_user).and_return(user)
       @schedule_service.should_receive(:cancelAndTriggerRelevantStages).with("blah_pipeline", "blah_stage", user, an_instance_of(HttpLocalizedOperationResult))
       post :cancel_stage_using_pipeline_stage_name, {:pipeline_name => "blah_pipeline", :stage_name => "blah_stage", :no_layout => true}
+    end
+  end
+
+  describe :history do
+    include APIModelMother
+
+    before :each do
+      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+    end
+
+    it "should route to history" do
+      expect(:get => "/api/stages/pipeline/stage/history").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "0", :no_layout => true)
+      expect(:get => "/api/stages/pipeline/stage/history/1").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "1", :no_layout => true)
+    end
+
+    it "should render history json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @stage_service.should_receive(:getCount).and_return(10)
+      @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything).and_return([create_stage_model])
+
+      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :no_layout => true
+
+      expect(response.body).to eq(StageHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), [create_stage_model]).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @stage_service.should_receive(:getCount).and_return(10)
+      @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything) do |pipeline_name, stage_name, pagination, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
     end
   end
 end

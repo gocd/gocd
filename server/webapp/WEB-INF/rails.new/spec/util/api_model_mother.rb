@@ -110,6 +110,8 @@ module APIModelMother
     @stage_view_model.stub(:hasOperatePermission).and_return('yes')
     @stage_view_model.stub(:getCanRun).and_return(true)
     @stage_view_model.stub(:getBuildHistory).and_return([create_job_model])
+    @stage_view_model.stub(:getPipelineName).and_return('pipeline')
+    @stage_view_model.stub(:getPipelineCounter).and_return(1)
     @stage_view_model
   end
 
@@ -133,6 +135,26 @@ module APIModelMother
   def create_pipeline_history_model
     @pipeline_history_view_model = [create_pipeline_model]
     @pipeline_history_view_model
+  end
+
+  def create_agent_model
+    @agent_view_model = double('AgentViewModel')
+    @agent_view_model.stub(:getUuid).and_return("uuid3")
+    @agent_view_model.stub(:getHostname).and_return("CCeDev01")
+    @agent_view_model.stub(:getIpAddress).and_return("127.0.0.1")
+    @agent_view_model.stub(:getLocation).and_return("/var/lib/go-server")
+    @agent_view_model.stub(:getStatusForDisplay).and_return("Idle")
+    @agent_view_model.stub(:buildLocator).and_return("/pipeline/1/stage/1/job")
+    @agent_view_model.stub(:getOperatingSystem).and_return("Linux")
+    disk_space = DiskSpace.new(0)
+    @agent_view_model.stub(:freeDiskSpace).and_return(disk_space)
+    resources_arr = Array.new
+    resources_arr << "java"
+    @agent_view_model.stub(:getResources).and_return(resources_arr)
+    environments_arr = Array.new
+    environments_arr << "foo"
+    @agent_view_model.stub(:getEnvironments).and_return(environments_arr)
+    @agent_view_model
   end
 end
 

@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -37,15 +38,18 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.*;
+import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,11 +81,13 @@ public class StageServiceTest {
     private JobInstanceService jobInstanceService;
     private SecurityService securityService;
     private ChangesetService changesetService;
+	private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private List<CaseInsensitiveString> pipelineNames;
     private Username user;
     private TransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
+    private PipelineDao pipelineDao;
 
 
     private static final Username ALWAYS_ALLOW_USER = new Username(new CaseInsensitiveString("always allowed"));
@@ -91,11 +97,13 @@ public class StageServiceTest {
     @Before
     public void setUp() throws Exception {
         stageDao = mock(StageDao.class);
+		pipelineDao = mock(PipelineDao.class);
         jobInstanceService = mock(JobInstanceService.class);
         securityService = mock(SecurityService.class);
         pipelineNames = asList(new CaseInsensitiveString("blah-pipeline"));
         user = new Username(new CaseInsensitiveString("poovan"));
         operationResult = new HttpLocalizedOperationResult();
+		cruiseConfig = mock(CruiseConfig.class);
         goConfigService = mock(GoConfigService.class);
         changesetService = mock(ChangesetService.class);
         goCache = mock(GoCache.class);
@@ -111,7 +119,6 @@ public class StageServiceTest {
 
     @Test
     public void canGetFailureRunForThreeStages() {
-        PipelineDao pipelineDao = mock(PipelineDao.class);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
                 changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -133,7 +140,6 @@ public class StageServiceTest {
 
     @Test
     public void canGetFailureRunForThreeStagesAtStartOfPipeline() {
-        PipelineDao pipelineDao = mock(PipelineDao.class);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
 
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
@@ -155,7 +161,6 @@ public class StageServiceTest {
 
     @Test
     public void shouldNotReturnAnythingWhenNothingIsFailing() {
-        PipelineDao pipelineDao = mock(PipelineDao.class);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
 
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
@@ -174,7 +179,6 @@ public class StageServiceTest {
 
     @Test
     public void shouldNotReturnAnythingWhenCurrentStageHasNotFailed() {
-        PipelineDao pipelineDao = mock(PipelineDao.class);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
                 pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -552,4 +556,53 @@ public class StageServiceTest {
         assertThat(stages, hasItem(stageBaz));
         assertThat(stages, hasItem(stageQuux));
     }
+
+	@Test
+	public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+
+		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
+
+		verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
+	}
+
+	@Test
+	public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+
+		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		HttpOperationResult result = new HttpOperationResult();
+		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+
+		assertThat(stageInstanceModels, is(Matchers.nullValue()));
+		assertThat(result.httpCode(), is(404));
+	}
+
+	@Test
+	public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+
+		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		HttpOperationResult result = new HttpOperationResult();
+		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+
+		assertThat(stageInstanceModels, is(Matchers.nullValue()));
+		assertThat(result.canContinue(), is(false));
+	}
 }

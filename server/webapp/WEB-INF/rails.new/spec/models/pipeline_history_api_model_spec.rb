@@ -77,6 +77,8 @@ describe PipelineHistoryAPIModel do
       stage_instance_api_model.rerun_of_counter.should == 1
       stage_instance_api_model.operate_permission.should == 'yes'
       stage_instance_api_model.can_run.should == true
+      stage_instance_api_model.pipeline_name.should == 'pipeline'
+      stage_instance_api_model.pipeline_counter.should == 1
 
       job_instance_api_model = stage_instance_api_model.jobs[0]
       job_instance_api_model.id.should == 5

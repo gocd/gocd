@@ -16,17 +16,17 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe AgentJobRunHistoryAPIModel do
+describe JobHistoryAPIModel do
   include APIModelMother
 
   before(:each) do
     @pagination_view_model = create_pagination_model
-    @job_run_history_view_model = [create_job_history_model]
+    @job_history_view_model = [create_job_history_model]
   end
 
   describe "should initialize correctly" do
     it "should populate correct data" do
-      job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_run_history_view_model)
+      job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)
 
       job_history_api_model.pagination.page_size.should == 10
       job_history_api_model.pagination.offset.should == 1

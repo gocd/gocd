@@ -85,13 +85,13 @@ describe Api::JobsController do
     expect(assigns[:doc].asXML()).to eq(JobPlanXmlViewModel.new(waitingJobPlans).toXml(context).asXML())
   end
 
-  it "should route to history" do
-    expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
-    expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
-  end
-
   describe :history do
     include APIModelMother
+
+    it "should route to history" do
+      expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
+      expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
+    end
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))

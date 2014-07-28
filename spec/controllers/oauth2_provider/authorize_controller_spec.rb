@@ -70,5 +70,12 @@ module Oauth2Provider
         expect(response).to redirect_to("#{@authorized_params[:redirect_uri]}?code=#{actual.code}&expires_in=#{actual.expires_in}&state=#{state_param}")
       end
     end
+    
+    describe 'index' do
+      it "should return if params invalid" do
+        get :index, {use_route: :oauth_engine}
+        expect(response.status).to eq(302)
+      end
+    end
   end
 end

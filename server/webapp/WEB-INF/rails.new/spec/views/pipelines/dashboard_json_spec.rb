@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "/pipelines/index.new_json.erb" do
+describe "/pipelines/dashboard.json.erb" do
   include PipelineModelMother
   include PipelinesHelper
 

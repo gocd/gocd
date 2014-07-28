@@ -31,12 +31,14 @@ class PipelinesController < ApplicationController
   end
 
   def index
-    @pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-    @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
-    @pipeline_configs = security_service.viewableGroupsFor(current_user)
+    load_pipeline_related_information
     if @pipeline_configs.isEmpty() && security_service.canCreatePipelines(current_user)
       redirect_to url_for_path("/admin/pipeline/new?group=defaultGroup")
     end
+  end
+
+  def dashboard
+    load_pipeline_related_information
   end
 
   def show
@@ -71,4 +73,9 @@ class PipelinesController < ApplicationController
     render :partial => "pipeline_material_revisions", :locals => {:scope => {:show_on_pipelines => should_show, :pegged_revisions => params["pegged_revisions"]}}
   end
 
+  def load_pipeline_related_information
+    @pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
+    @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
+    @pipeline_configs = security_service.viewableGroupsFor(current_user)
+  end
 end

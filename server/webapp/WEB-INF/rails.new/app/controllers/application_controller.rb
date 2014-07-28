@@ -160,9 +160,14 @@ class ApplicationController < ActionController::Base
     @cruise_config_md5
   end
 
-  helper_method :cruise_config_md5
+  helper_method :cruise_config_md5, :servlet_request
 
   def populate_config_validity
     @config_valid = go_config_service.checkConfigFileValid().isValid()
   end
+
+  def servlet_request
+    request.env['java.servlet_request']
+  end
+
 end

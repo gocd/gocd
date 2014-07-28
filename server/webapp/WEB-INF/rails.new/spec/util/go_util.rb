@@ -43,7 +43,6 @@ module GoUtil
   end
 
   def stub_context_path obj
-    allow(obj).to receive(:servlet_request).and_return(req = double('req'))
-    req.stub(:getContextPath).and_return("/go")
+    allow(obj).to receive(:context_path).and_return("/go")
   end
 end

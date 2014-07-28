@@ -9,11 +9,11 @@ module Oauth2Provider
     transaction_actions :revoke, :revoke_by_admin
 
     def index
-      @tokens = Oauth2::Provider::OauthToken.find_all_with(:user_id, current_user_id_for_oauth)
+      @tokens = Oauth2Provider::Token.find_all_with(:user_id, current_user_id_for_oauth)
     end
 
     def revoke
-      token = Oauth2::Provider::OauthToken.find_by_id(params[:token_id])
+      token = Oauth2Provider::Token.find_by_id(params[:token_id])
       if token.nil?
         render_not_authorized
         return
@@ -28,7 +28,6 @@ module Oauth2Provider
     end
   
     def revoke_by_admin
-    
       if params[:token_id].blank? && params[:user_id].blank?
         render_not_authorized
         return
@@ -56,7 +55,7 @@ module Oauth2Provider
   
     def redirect_after_revoke
       flash[:notice] = "OAuth access token was successfully deleted."
-      redirect_to params[:redirect_url] || {:action => 'index'}
+      redirect_to params[:redirect_url] || oauth_engine.user_tokens_index_path
     end
   end
 end

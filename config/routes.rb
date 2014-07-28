@@ -8,5 +8,5 @@ Oauth2Provider::Engine.routes.draw do
   get "/authorize" => "authorize#index"
   post "/token" => "tokens#get_token"
   delete "/user_tokens/revoke/:token_id" => "user_tokens#revoke"
-  get "/user_tokens" => "user_tokens#index"
+  get "/user_tokens" => "user_tokens#index", as: :user_tokens_index
 end

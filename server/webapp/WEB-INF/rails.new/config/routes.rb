@@ -209,6 +209,7 @@ Go::Application.routes.draw do
 
       # config
       get 'config/materials' => 'materials#list_configs', as: :material_config_list_api
+      get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
 
       # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage

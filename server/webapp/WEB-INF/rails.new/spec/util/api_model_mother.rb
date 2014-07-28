@@ -281,5 +281,29 @@ module APIModelMother
     @agent_view_model.stub(:getEnvironments).and_return(nil)
     @agent_view_model
   end
+
+  def create_config_revision_model
+    @config_revision_view_model = double('config_revision_view_model')
+    @config_revision_view_model.stub(:getMd5).and_return('md5')
+    @config_revision_view_model.stub(:getUsername).and_return('user name')
+    @config_revision_view_model.stub(:getGoVersion).and_return('version')
+    @config_revision_view_model.stub(:getGoEdition).and_return('edition')
+    @config_revision_view_model.stub(:getTime).and_return('time')
+    @config_revision_view_model.stub(:getSchemaVersion).and_return('schema')
+    @config_revision_view_model.stub(:getCommitSHA).and_return('commit')
+    @config_revision_view_model
+  end
+
+  def create_empty_config_revision_model
+    @config_revision_view_model = double('config_revision_view_model')
+    @config_revision_view_model.stub(:getMd5).and_return(nil)
+    @config_revision_view_model.stub(:getUsername).and_return(nil)
+    @config_revision_view_model.stub(:getGoVersion).and_return(nil)
+    @config_revision_view_model.stub(:getGoEdition).and_return(nil)
+    @config_revision_view_model.stub(:getTime).and_return(nil)
+    @config_revision_view_model.stub(:getSchemaVersion).and_return(nil)
+    @config_revision_view_model.stub(:getCommitSHA).and_return(nil)
+    @config_revision_view_model
+  end
 end
 

@@ -16,26 +16,14 @@
 
 package com.thoughtworks.go.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-
+import com.thoughtworks.go.GoConfigRevisions;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ThrowingFn;
-import com.thoughtworks.go.util.VoidThrowingFn;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.jgit.api.AddCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.LogCommand;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
@@ -48,6 +36,11 @@ import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 
 import static java.lang.String.format;
 
@@ -179,6 +172,26 @@ public class ConfigRepository {
             throw e;
         }
     }
+
+	public GoConfigRevisions getCommits(final int pageSize, final int offset) throws Exception {
+		return doLocked(new ThrowingFn<GoConfigRevisions, RuntimeException>() {
+			public GoConfigRevisions call() {
+				GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
+				try {
+					LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
+					Iterable<RevCommit> revisions = command.call();
+					for (RevCommit revision : revisions) {
+						GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
+						goConfigRevision.setCommitSHA(revision.name());
+						goConfigRevisions.add(goConfigRevision);
+					}
+				} catch (Exception e) {
+					// ignore
+				}
+				return goConfigRevisions;
+			}
+		});
+	}
 
     private GoConfigRevision getGoConfigRevision(final RevCommit revision) {
         return new GoConfigRevision(contentFromTree(revision.getTree()), revision.getFullMessage());

@@ -21,6 +21,14 @@ module Oauth2Provider
           client_secret: @client.client_secret, redirect_uri: @client.redirect_uri}
       end
       
+      it "should render error for invalid grant-type" do 
+        post :get_token, {use_route: :oauth_engine}.merge(@params).merge({grant_type: 'random-string'})
+        expect(response.status).to eq(400)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to eq("unsupported-grant-type")
+        expect(json["error_description"]).to eq("Grant type random-string is not supported!")
+      end
+      
       it "should get token for authorization-code" do
         post :get_token, {use_route: :oauth_engine}.merge(@params).merge({grant_type: 'authorization-code'})
         expect(response.status).to eq(200)
@@ -54,6 +62,22 @@ module Oauth2Provider
         json = JSON.parse(response.body)
         expect(json["error"]).to eq("invalid-grant")
         expect(json["error_description"]).to eq("Refresh token is invalid!")
+      end
+      
+      it "should render error for invalid client_id" do
+        post :get_token, {use_route: :oauth_engine}.merge(@params).merge({grant_type: 'authorization-code', client_secret: ''})
+        expect(response.status).to eq(400)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to eq("invalid-client-credentials")
+        expect(json["error_description"]).to eq("Invalid client credentials!")
+      end
+      
+      it "should render error for invalid redirect_uri" do
+        post :get_token, {use_route: :oauth_engine}.merge(@params).merge({grant_type: 'authorization-code', redirect_uri: ''})
+        expect(response.status).to eq(400)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to eq("invalid-grant")
+        expect(json["error_description"]).to eq("Redirect uri mismatch!")
       end
     end
     

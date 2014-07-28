@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <%= render :partial => "shared/head" %>
+</head>
+<body id="<%= page_name %>" class="<%= page_name %>">
+<div id="body_bg">
+    <div id="header">
+        <%= render :partial => "shared/header", :locals => {:scope => {:admin_tab_url => '/tab/admin'}} %>
+    </div>
+
+    <div id='body_content'>
+        <div class="messaging_wrapper" id="messaging_wrapper">
+            <%= render :partial => "shared/flash_message" %>
+            <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
+        </div>
+
+        <div id="pause_info_and_controls">
+            <%= render :partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => @pause_info, :pipeline_name => @pipeline.name()}} %>
+        </div>
+
+        <div class="page_header">
+            <h1 class="entity_title">
+                <%= link_to l.string("ADMINISTRATION"), pipeline_groups_path -%>
+            </h1>
+        </div>
+
+        <%= yield %>
+    </div>
+
+    <div id='footer'>
+        <%= render :partial => "shared/footer" %>
+    </div>
+</div>
+</body>
+
+<script type="text/javascript">
+    AjaxRefreshers.addRefresher(new AjaxRefresher("<%= pause_info_refresh_path(:pipeline_name => @pipeline.name()) -%>"), true);
+</script>
+</html>
+

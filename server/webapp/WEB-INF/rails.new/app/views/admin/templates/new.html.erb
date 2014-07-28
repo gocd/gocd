@@ -25,15 +25,17 @@
                     <%- extract_from = @pipeline.selectedPipelineName() -%>
                     <div class="checkbox_row">
                         <% pipelineEmptyOrPegged = @pipeline.pipelineNames.empty? || ( extract_from && !allow_pipeline_selection?)
-                           check_box_options = { :class => "pipeline_to_extract_selector" }
+                           check_box_options = { :class => "pipeline_to_extract_selector", :include_hidden => false }
                            check_box_label_options = {}
                            if pipelineEmptyOrPegged
                              check_box_options[:disabled] = "disabled"
                              check_box_label_options[:class] = "disabled" 
                            end
                            check_box_options[:checked] = "checked" if extract_from
-                          %>
+                           use_existing_pipeline_value = extract_from ? "1" : "0"
+                        %>
 
+                        <%= f.hidden_field com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, :value => use_existing_pipeline_value %>
                         <%= f.check_box com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, check_box_options %>
 
                         <%= f.label com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::USE_EXISTING_PIPELINE, l.string("EXTRACT_TEMPLATE_FROM_PIPELINE_LABEL"), check_box_label_options %>

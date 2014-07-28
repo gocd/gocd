@@ -235,7 +235,7 @@ module ApplicationHelper
 
   def version
     version_file = Rails.root.join("..", "vm", "admin", "admin_version.txt.vm")
-    File.readlines(version_file)
+    File.readlines(version_file)[0]
   end
 
   def json_escape data

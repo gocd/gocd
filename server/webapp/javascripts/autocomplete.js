@@ -19,6 +19,7 @@ var CruiseAutocomplete = {
         var autocompleter = new Ajax.Autocompleter(id_of_text_field, id_of_text_field + "-content", "/go/pipelines/material_search", {
             parameters: 'pipeline_name=' + pipeline_name + '&fingerprint=' + fingerprint,
             paramName: 'search',
+            method: 'get',
             minChars: -1,
             onShow: function(element, update){
                 var materialPopupContainers = $$("div.change_materials");

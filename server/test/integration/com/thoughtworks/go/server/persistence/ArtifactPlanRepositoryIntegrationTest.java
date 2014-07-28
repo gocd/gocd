@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.server.persistence;
 
+import com.thoughtworks.go.config.ArtifactPlan;
+import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.config.TestArtifactPlan;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -51,14 +50,14 @@ import static org.hamcrest.core.IsNot.not;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class ResourceRepositoryIntegrationTest {
+public class ArtifactPlanRepositoryIntegrationTest {
     private static final String JOB_NAME = "functional";
     private static final String OTHER_JOB_NAME = "unit";
     private static final String STAGE_NAME = "mingle";
     private static final String PIPELINE_NAME = "pipeline";
 
     @Autowired private JobInstanceSqlMapDao jobInstanceDao;
-    @Autowired private ResourceRepository resourceRepository;
+    @Autowired private ArtifactPlanRepository artifactPlanRepository;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private InstanceFactory instanceFactory;
 
@@ -84,32 +83,66 @@ public class ResourceRepositoryIntegrationTest {
 
 
     @Test
-    public void shouldSaveResource() {
+    public void shouldSaveArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        Resource resource = new Resource("something");
-        resource.setBuildId(jobInstance.getId());
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        artifactPlan.setBuildId(jobInstance.getId());
 
         // Act
-        resourceRepository.save(resource);
+        artifactPlanRepository.save(artifactPlan);
 
         // Assert
-        assertThat(resource.getId(), is(not(nullValue())));
+        assertThat(artifactPlan.getId(), is(not(nullValue())));
     }
 
     @Test
-    public void shouldLoadSavedResource() {
+    public void shouldLoadSavedArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        Resource savedResource = new Resource("something");
-        savedResource.setBuildId(jobInstance.getId());
-        resourceRepository.save(savedResource);
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        savedArtifactPlan.setBuildId(jobInstance.getId());
+        artifactPlanRepository.save(savedArtifactPlan);
 
         // Act
-        List<Resource> resourceList = resourceRepository.findByBuildId(jobInstance.getId());
+        List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
 
         // Assert
-        assertThat(resourceList.size(), is(1));
-        assertThat(resourceList.get(0), is(savedResource));
+        assertThat(artifactPlanList.size(), is(1));
+        assertThat(artifactPlanList.get(0), is(savedArtifactPlan));
     }
+
+    @Test
+    public void shouldLoadSavedArtifactPlanWithTypeUnit() {
+        // Arrange
+        JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, "src", "dest");
+        savedArtifactPlan.setBuildId(jobInstance.getId());
+        artifactPlanRepository.save(savedArtifactPlan);
+
+        // Act
+        List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
+
+        // Assert
+        assertThat(artifactPlanList.size(), is(1));
+        assertThat(artifactPlanList.get(0), is(savedArtifactPlan));
+    }
+
+    @Test
+    public void shouldLoadSavedTestArtifactPlan() {
+        // Arrange
+        JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
+        ArtifactPlan savedArtifactPlan = new TestArtifactPlan();
+        savedArtifactPlan.setBuildId(jobInstance.getId());
+        artifactPlanRepository.save(savedArtifactPlan);
+
+        // Act
+        List<ArtifactPlan> artifactPlanList = artifactPlanRepository.findByBuildId(jobInstance.getId());
+
+        // Assert
+        assertThat(artifactPlanList.size(), is(1));
+        ArtifactPlan loadedArtifactPlan = artifactPlanList.get(0);
+        assertThat(loadedArtifactPlan, is(savedArtifactPlan));
+    }
+
 }

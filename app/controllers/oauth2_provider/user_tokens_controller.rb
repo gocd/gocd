@@ -34,14 +34,14 @@ module Oauth2Provider
       end
     
       if !params[:token_id].blank?
-        token = Oauth2::Provider::OauthToken.find_by_id(params[:token_id])
+        token = Oauth2Provider::Token.find_by_id(params[:token_id])
         if token.nil?
           render_not_authorized
           return
         end
         token.destroy
       else
-        Oauth2::Provider::OauthToken.find_all_with(:user_id, params[:user_id]).map(&:destroy)
+        Oauth2Provider::Token.find_all_with(:user_id, params[:user_id]).map(&:destroy)
       end
 
       redirect_after_revoke

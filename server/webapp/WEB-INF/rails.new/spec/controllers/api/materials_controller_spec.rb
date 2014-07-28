@@ -61,4 +61,26 @@ describe Api::MaterialsController do
       expect(response.body).to eq("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.\n")
     end
   end
+
+  describe :list_materials_config do
+    include APIModelMother
+
+    before :each do
+      controller.stub(:material_config_service).and_return(@material_config_service = double('material_config_service'))
+    end
+
+    it "should resolve" do
+      expect(:get => "/api/config/materials").to route_to(:controller => "api/materials", :action => "list_configs", :no_layout=>true)
+    end
+
+    it "should render material list json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @material_config_service.should_receive(:getMaterialConfigs).with("loser").and_return([create_material_config_view_model])
+
+      get :list_configs, :no_layout => true
+
+      expect(response.body).to eq([MaterialInstanceAPIModel.new(create_material_config_view_model)].to_json)
+    end
+  end
 end

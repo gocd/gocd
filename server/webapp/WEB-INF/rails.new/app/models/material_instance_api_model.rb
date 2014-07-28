@@ -18,7 +18,7 @@ class MaterialInstanceAPIModel
   attr_reader :id, :fingerprint, :type, :description
 
   def initialize(material_instance_model)
-    @id = material_instance_model.getId() unless material_instance_model.getId() == nil
+    @id = material_instance_model.getId() if (material_instance_model.respond_to? :getId) && (material_instance_model.getId() != nil)
     @fingerprint = material_instance_model.getFingerprint() unless material_instance_model.getFingerprint() == nil
     @type = material_instance_model.getTypeForDisplay() unless material_instance_model.getTypeForDisplay() == nil
     @description = material_instance_model.getLongDescription() unless material_instance_model.getLongDescription() == nil

@@ -1464,6 +1464,14 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(adminName))), is(true));
     }
 
+	@Test
+	public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
+		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		expectLoad(cruiseConfig);
+		goConfigService.getAllPipelinesInGroup("group");
+		verify(cruiseConfig).pipelines("group");
+	}
+
     private Matcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {
         return new Matcher<UpdateConfigCommand>() {
             @Override

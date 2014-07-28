@@ -40,6 +40,12 @@ module APIModelMother
     @material_view_model
   end
 
+  def create_material_config_view_model
+    @material_view_model = create_material_view_model
+    @material_view_model.stub(:getId).and_return(nil)
+    @material_view_model
+  end
+
   def create_empty_material_view_model
     @material_view_model = double('MaterialViewModel')
     @material_view_model.stub(:getId).and_return(nil)

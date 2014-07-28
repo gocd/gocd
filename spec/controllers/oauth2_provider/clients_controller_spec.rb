@@ -34,12 +34,19 @@ module Oauth2Provider
       end
     end
     
-    describe 'show' do
+    describe 'show' do  
       it "should load client" do
         client = create(Oauth2Provider::Client)
-        get :edit, {use_route: :oauth_client, id: client.id}
+        get :show, {use_route: :oauth_client, id: client.id}
         actual = assigns[:oauth_client]
         expect(actual.name).to eq(client.name)
+      end
+      
+      it "should respond to xml" do
+        client = create(Oauth2Provider::Client)
+        get :show, {use_route: :oauth_client, id: client.id, format: :xml}
+        output = Hash.from_xml(response.body)
+        expect(output['client']['client_id']).to eq(client.client_id)
       end
     end
     

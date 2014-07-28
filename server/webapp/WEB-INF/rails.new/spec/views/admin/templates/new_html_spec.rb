@@ -108,7 +108,7 @@ describe "admin/templates/new.html.erb" do
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|
-      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='0']")
+      expect(form).to have_selector("input[type='hidden'][name='pipeline[useExistingPipeline]'][value='1']")
       expect(form).to have_selector("input#pipeline_useExistingPipeline[type='checkbox'][name='pipeline[useExistingPipeline]'][value='1'][class='pipeline_to_extract_selector'][disabled='disabled']")
       expect(form).to have_selector("label[for='pipeline_useExistingPipeline'][class='disabled']", :text => "Extract From Pipeline")
 

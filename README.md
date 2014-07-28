@@ -8,4 +8,4 @@ This repo has the migration of #gocd oauth2provider into a Rails 4 Engine. This 
 
 ## Coverage
 
-[![Coverage Status](https://img.shields.io/coveralls/sachinsudheendra/gocd_oauth2_provider_engine.svg)](https://coveralls.io/r/sachinsudheendra/gocd_oauth2_provider_engine?branch=master)
+[![Coverage Status](https://coveralls.io/repos/sachinsudheendra/gocd_oauth2_provider_engine/badge.png?branch=master)](https://coveralls.io/r/sachinsudheendra/gocd_oauth2_provider_engine?branch=master)

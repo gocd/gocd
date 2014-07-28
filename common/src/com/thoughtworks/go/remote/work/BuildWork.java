@@ -161,7 +161,7 @@ public class BuildWork implements Work {
     }
 
     private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
+        context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
         context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
         plan.getIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);

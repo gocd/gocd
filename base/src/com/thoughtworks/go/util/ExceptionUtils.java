@@ -51,17 +51,6 @@ public final class ExceptionUtils {
         }
     }
 
-    public static void bombIfFailed(int returnValue, String msg) {
-        if (returnValue != 0) {
-            String output = String.format("return code is [%s], detail information : [%s]", returnValue, msg);
-            throw new RuntimeException(output);
-        }
-    }
-
-    public static void bombIfNotNull(Object o, String msg) {
-        bombIf(o != null, msg);
-    }
-
     public static void bombIf(boolean check, String msg) {
         if (check) {
             throw bomb(msg);

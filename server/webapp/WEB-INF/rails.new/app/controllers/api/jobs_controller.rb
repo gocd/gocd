@@ -53,7 +53,7 @@ class Api::JobsController < Api::ApiController
 
     if result.canContinue()
       job_history_api_model = JobHistoryAPIModel.new(pagination, job_history)
-      render json: job_history_api_model.to_json
+      render json: job_history_api_model
     else
       render_error_response(result.detailedMessage(), result.httpCode(), true)
     end

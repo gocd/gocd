@@ -63,7 +63,7 @@ class Api::StagesController < Api::ApiController
 
     if result.canContinue()
       stage_history_api_model = StageHistoryAPIModel.new(pagination, stage_history)
-      render json: stage_history_api_model.to_json
+      render json: stage_history_api_model
     else
       render_error_response(result.detailedMessage(), result.httpCode(), true)
     end

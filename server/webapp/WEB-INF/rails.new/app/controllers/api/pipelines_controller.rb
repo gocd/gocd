@@ -44,7 +44,7 @@ class Api::PipelinesController < Api::ApiController
 
     if result.canContinue()
       pipeline_history_api_model = PipelineHistoryAPIModel.new(pagination, pipeline_history)
-      render json: pipeline_history_api_model.to_json
+      render json: pipeline_history_api_model
     else
       render_error_response(result.detailedMessage(), result.httpCode(), true)
     end

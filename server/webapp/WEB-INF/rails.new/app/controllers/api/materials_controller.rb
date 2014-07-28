@@ -24,10 +24,10 @@ class Api::MaterialsController < Api::ApiController
 
   def list_configs
     material_configs = material_config_service.getMaterialConfigs(CaseInsensitiveString.str(current_user.getUsername()))
-    @material_api_models = []
+    material_api_models = []
     material_configs.each do |material_config|
-      @material_api_models << MaterialInstanceAPIModel.new(material_config)
+      material_api_models << MaterialInstanceAPIModel.new(material_config)
     end
-    render json: @material_api_models
+    render json: material_api_models
   end
 end

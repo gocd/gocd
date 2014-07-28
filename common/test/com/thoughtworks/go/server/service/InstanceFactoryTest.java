@@ -73,7 +73,6 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
@@ -82,6 +81,7 @@ import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -193,7 +193,7 @@ public class InstanceFactoryTest {
                 ));
         try {
             instanceFactory.createStageInstance(stageConfig, context, "md5", new TimeProvider());
-            Assert.fail("expected exception but not thrown");
+            fail("expected exception but not thrown");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [blah-stage]."));
         }
@@ -238,7 +238,7 @@ public class InstanceFactoryTest {
 
         try {
             instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
-            Assert.fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
+            fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), CoreMatchers.is("Cannot schedule multiple instances of job named 'rails'."));
         }
@@ -354,7 +354,7 @@ public class InstanceFactoryTest {
         try {
             newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
                     "md5");
-            Assert.fail("should not schedule when job config does not exist anymore");
+            fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
             exception = e;
         }
@@ -406,7 +406,7 @@ public class InstanceFactoryTest {
         try {
             newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
                     new TimeProvider(), "md5");
-            Assert.fail("should not schedule when job config does not exist anymore");
+            fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
             exception = e;
         }
@@ -610,7 +610,7 @@ public class InstanceFactoryTest {
             RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
             instanceFactory.createJobInstance(new CaseInsensitiveString("myStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
-            Assert.fail("should have failed as no agents matched");
+            fail("should have failed as no agents matched");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not find matching agents to run job [foo] of stage [myStage]."));
         }

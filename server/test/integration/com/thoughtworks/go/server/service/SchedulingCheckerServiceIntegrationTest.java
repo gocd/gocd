@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -26,9 +23,7 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.TestRepo;
@@ -39,8 +34,8 @@ import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -50,7 +45,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.Matchers.startsWith;
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -65,7 +62,6 @@ public class SchedulingCheckerServiceIntegrationTest {
     @Autowired private GoConfigFileDao goConfigFileDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private SchedulingCheckerService schedulingChecker;
-    @Autowired private CachedCurrentActivityService cachedCurrentActivityService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private PipelineService pipelineService;
@@ -73,7 +69,6 @@ public class SchedulingCheckerServiceIntegrationTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private TriggerMonitor triggerMonitor;
-    @Autowired private UserService userService;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
 
@@ -232,18 +227,6 @@ public class SchedulingCheckerServiceIntegrationTest {
         assertThat(result.getServerHealthState().isSuccess(), is(false));
         assertThat(result.getServerHealthState().getDescription(), containsString("is locked "));
         assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
-    }
-
-    private void assertFailedBecauseOfUserLimitBeingExceeded(ServerHealthStateOperationResult result) {
-        assertThat(result.getServerHealthState().isSuccess(), is(false));
-        assertThat(result.getServerHealthState().getMessage(), is("License Violation"));
-        assertThat(result.getServerHealthState().getDescription(), startsWith("Current Go licence allows only 2 users. There are currently 3 users enabled."));
-    }
-
-    private void add3Users() throws ValidationException {
-        userService.saveOrUpdate(new User("jake", "Jake", "jake@email.com"));
-        userService.saveOrUpdate(new User("jj", "JJ", "jj@email.com"));
-        userService.saveOrUpdate(new User("another_user", "Another person", "another@email.com"));
     }
 
     @Test

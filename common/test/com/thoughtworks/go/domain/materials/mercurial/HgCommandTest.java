@@ -38,18 +38,17 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.fail;
 
 public class HgCommandTest {
     private static File serverRepo;
     private static File clientRepo;
 
     private HgCommand hgCommand;
-    private File anotherWorkingCopy;
 
     private List<File> foldersToDelete = new ArrayList<File>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
@@ -63,7 +62,6 @@ public class HgCommandTest {
     public void setUp() throws IOException {
         serverRepo = createTmpFolder("testHgServerRepo");
         clientRepo = createTmpFolder("testHgClientRepo");
-        anotherWorkingCopy = createTmpFolder("connectfour");
         secondBranchWorkingCopy = createTmpFolder("second");
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/test-resources/data/hgrepo.hgbundle"));

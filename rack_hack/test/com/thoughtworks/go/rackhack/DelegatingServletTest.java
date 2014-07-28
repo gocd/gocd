@@ -26,7 +26,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 public class DelegatingServletTest {
@@ -41,7 +42,7 @@ public class DelegatingServletTest {
         ServletContextEvent evt = new ServletContextEvent(ctx);
         DelegatingListener listener = new DelegatingListener();
         listener.contextInitialized(evt);
-        assertThat((DummyServlet) ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET), is(DummyServlet.class));
+        assertThat((DummyServlet) ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET), isA(DummyServlet.class));
         DelegatingServlet servlet = new DelegatingServlet();
         servlet.init(new MockServletConfig(ctx));
         Request request = new Request() {

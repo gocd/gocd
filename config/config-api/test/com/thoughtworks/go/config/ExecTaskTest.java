@@ -28,11 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.junit.Assert.fail;
 
 public class ExecTaskTest {
 

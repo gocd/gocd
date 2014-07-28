@@ -29,10 +29,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Ignore("CS - This test is currently failing on a WindowsXP box for an unknown reason.")
 public class SvnLongFileNamesTest {

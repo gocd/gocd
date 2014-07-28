@@ -47,7 +47,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.hamcrest.Matchers.is;
 import static org.jmock.Expectations.equal;
 import static org.junit.Assert.assertThat;

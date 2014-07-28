@@ -28,11 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_PIPELINE;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class JobPropertiesTest {

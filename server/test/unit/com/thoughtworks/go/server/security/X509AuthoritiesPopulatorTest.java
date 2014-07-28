@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import java.security.cert.X509Certificate;
 
@@ -31,9 +31,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 
 public class X509AuthoritiesPopulatorTest {
-
     private final X509AuthoritiesPopulator populator = new X509AuthoritiesPopulator(ROLE_AGENT);
-
 
     @Test
     public void shouldNotReturnUserDetailsIfCertificateHasNoOu() {
@@ -42,7 +40,7 @@ public class X509AuthoritiesPopulatorTest {
         try {
             populator.getUserDetails(agentCertificate);
             Assert.fail("Oh dear. You should have thrown an exception, silly!");
-        } catch (BadCredentialsException bce) {
+        } catch (BadCredentialsException ignored) {
         }
     }
 

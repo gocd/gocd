@@ -48,12 +48,12 @@ import org.junit.matchers.JUnitMatchers;
 import static com.thoughtworks.go.util.DateUtils.parseISO8601;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class HgMaterialTest {
     private HgMaterial hgMaterial;

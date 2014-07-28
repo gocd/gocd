@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -180,11 +181,18 @@ public class JobInstancesTest {
 
     @Test
     public void shouldReturnLatestTransitionDate() {
-        Date expectedLatest = new Date(2008, 10, 12);
+        Date expectedLatest = date(2008, 10, 12);
         Date actualLatest = new JobInstances(
                 completed(completed("job1"), JobResult.Failed, expectedLatest),
-                completed(completed("job1"), JobResult.Failed, new Date(2008, 10, 11)),
-                completed(completed("job1"), JobResult.Failed, new Date(2008, 10, 5))).latestTransitionDate();
+                completed(completed("job1"), JobResult.Failed, date(2008, 10, 11)),
+                completed(completed("job1"), JobResult.Failed, date(2008, 10, 5))).latestTransitionDate();
         assertThat(actualLatest,is(expectedLatest));
+    }
+
+    private Date date(int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 }

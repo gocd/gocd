@@ -16,20 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
-import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -39,6 +25,15 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class HttpServiceTest {
     private static final String NOT_EXIST_URL = "http://bjcruiselablablab";
@@ -110,7 +105,6 @@ public class HttpServiceTest {
         } catch (FileNotFoundException e) {
             fail("Nulitpart should be created even in the absence of checksum file");
         }
-
     }
 
     @Test

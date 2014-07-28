@@ -56,7 +56,6 @@ import org.reflections.Reflections;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
-import static junit.framework.Assert.assertTrue;
 import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.CoreMatchers.is;
@@ -64,6 +63,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
 public class MagicalMaterialAndMaterialConfigConversionTest {

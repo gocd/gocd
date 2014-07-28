@@ -26,10 +26,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -46,7 +46,7 @@ public class NestedJarClassLoaderTest {
         Class<?> clazz = Class.forName("javax.xml.parsers.SAXParserFactory", true, nestedJarClassLoader);
         assertThat(clazz.getClassLoader() instanceof URLClassLoader, is(true));
         try {
-            SAXParserFactory saxParserFactory = (SAXParserFactory) clazz.getMethod("newInstance").invoke(clazz);
+            clazz.getMethod("newInstance").invoke(clazz);
             fail("Should throw class cast exception");
         } catch (Exception e) {
             assertThat(e.getCause() instanceof ClassCastException, is(true));
@@ -123,12 +123,10 @@ public class NestedJarClassLoaderTest {
         Class<?> clazz = Class.forName("javax.xml.parsers.SAXParserFactory", true, nestedJarClassLoader);
         assertThat(clazz.getClassLoader() == null, is(true));
         try {
-            SAXParserFactory saxParserFactory = (SAXParserFactory) clazz.getMethod("newInstance").invoke(clazz);
+            clazz.getMethod("newInstance").invoke(clazz);
         } catch (Exception e) {
             fail("should cast successfully");
         }
-
-
     }
 
     @Test

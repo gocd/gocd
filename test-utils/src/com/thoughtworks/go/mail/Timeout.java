@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.mail;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 public class Timeout {
     private int time;

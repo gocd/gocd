@@ -18,18 +18,16 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConstants;
 
-import static junit.framework.Assert.fail;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.fail;
 
 public class MagicalGoConfigXmlLoaderFixture {
     private static MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();

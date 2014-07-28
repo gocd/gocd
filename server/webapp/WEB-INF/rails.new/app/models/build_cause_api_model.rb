@@ -18,9 +18,9 @@ class BuildCauseAPIModel
   attr_reader :trigger_message, :trigger_forced, :approver, :material_revisions
 
   def initialize(build_cause)
-    @trigger_message = build_cause.getBuildCauseMessage()
-    @trigger_forced = build_cause.isForced()
-    @approver = build_cause.getApprover()
+    @trigger_message = build_cause.getBuildCauseMessage() unless build_cause.getBuildCauseMessage() == nil
+    @trigger_forced = build_cause.isForced() unless build_cause.isForced() == nil
+    @approver = build_cause.getApprover() unless build_cause.getApprover() == nil
     @material_revisions = []
     build_cause.getMaterialRevisions().each do |material_revision_instance_model|
       @material_revisions << MaterialRevisionInstanceAPIModel.new(material_revision_instance_model)

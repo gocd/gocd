@@ -19,13 +19,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe JobHistoryAPIModel do
   include APIModelMother
 
-  before(:each) do
-    @pagination_view_model = create_pagination_model
-    @job_history_view_model = [create_job_history_model]
-  end
-
   describe "should initialize correctly" do
     it "should populate correct data" do
+      @pagination_view_model = create_pagination_model
+      @job_history_view_model = [create_job_history_model]
       job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)
 
       job_history_api_model.pagination.page_size.should == 10
@@ -45,6 +42,30 @@ describe JobHistoryAPIModel do
       job_instance_api_model.pipeline_counter.should == 1
       job_instance_api_model.stage_name.should == 'stage'
       job_instance_api_model.stage_counter.should == '1'
+    end
+
+    it "should should handle empty data" do
+      @pagination_view_model = create_empty_pagination_model
+      @job_history_view_model = [create_empty_job_history_model]
+      job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)
+
+      job_history_api_model.pagination.page_size.should == nil
+      job_history_api_model.pagination.offset.should == nil
+      job_history_api_model.pagination.total.should == nil
+
+      job_instance_api_model = job_history_api_model.jobs[0]
+      job_instance_api_model.id.should == nil
+      job_instance_api_model.name.should == nil
+      job_instance_api_model.state.should == nil
+      job_instance_api_model.result.should == nil
+      job_instance_api_model.scheduled_date.should == nil
+      job_instance_api_model.rerun.should == nil
+      job_instance_api_model.original_job_id.should == nil
+      job_instance_api_model.agent_uuid.should == nil
+      job_instance_api_model.pipeline_name.should == nil
+      job_instance_api_model.pipeline_counter.should == nil
+      job_instance_api_model.stage_name.should == nil
+      job_instance_api_model.stage_counter.should == nil
     end
   end
 end

@@ -19,13 +19,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe StageHistoryAPIModel do
   include APIModelMother
 
-  before(:each) do
-    @pagination_view_model = create_pagination_model
-    @stage_view_model = [create_stage_model]
-  end
-
   describe "should initialize correctly" do
     it "should populate correct data" do
+      @pagination_view_model = create_pagination_model
+      @stage_view_model = [create_stage_model]
       stage_history_api_model = StageHistoryAPIModel.new(@pagination_view_model, @stage_view_model)
 
       stage_history_api_model.pagination.page_size.should == 10
@@ -45,6 +42,58 @@ describe StageHistoryAPIModel do
       stage_instance_api_model.can_run.should == true
       stage_instance_api_model.pipeline_name.should == 'pipeline'
       stage_instance_api_model.pipeline_counter.should == 1
+
+      job_instance_api_model = stage_instance_api_model.jobs[0]
+      job_instance_api_model.id.should == 5
+      job_instance_api_model.name.should == 'job name'
+      job_instance_api_model.state.should == 'state'
+      job_instance_api_model.result.should == 'result'
+      job_instance_api_model.scheduled_date.should == 'scheduled time'
+      job_instance_api_model.rerun.should == nil
+      job_instance_api_model.original_job_id.should == nil
+      job_instance_api_model.agent_uuid.should == nil
+      job_instance_api_model.pipeline_name.should == nil
+      job_instance_api_model.pipeline_counter.should == nil
+      job_instance_api_model.stage_name.should == nil
+      job_instance_api_model.stage_counter.should == nil
+    end
+
+    it "should populate correct data" do
+      @pagination_view_model = create_empty_pagination_model
+      @stage_view_model = [create_empty_stage_model]
+      stage_history_api_model = StageHistoryAPIModel.new(@pagination_view_model, @stage_view_model)
+
+      stage_history_api_model.pagination.page_size.should == nil
+      stage_history_api_model.pagination.offset.should == nil
+      stage_history_api_model.pagination.total.should == nil
+
+      stage_instance_api_model = stage_history_api_model.stages[0]
+      stage_instance_api_model.id.should == nil
+      stage_instance_api_model.name.should == nil
+      stage_instance_api_model.counter.should == nil
+      stage_instance_api_model.scheduled.should == nil
+      stage_instance_api_model.approval_type.should == nil
+      stage_instance_api_model.approved_by.should == nil
+      stage_instance_api_model.result.should == nil
+      stage_instance_api_model.rerun_of_counter.should == nil
+      stage_instance_api_model.operate_permission.should == nil
+      stage_instance_api_model.can_run.should == nil
+      stage_instance_api_model.pipeline_name.should == nil
+      stage_instance_api_model.pipeline_counter.should == nil
+
+      job_instance_api_model = stage_instance_api_model.jobs[0]
+      job_instance_api_model.id.should == nil
+      job_instance_api_model.name.should == nil
+      job_instance_api_model.state.should == nil
+      job_instance_api_model.result.should == nil
+      job_instance_api_model.scheduled_date.should == nil
+      job_instance_api_model.rerun.should == nil
+      job_instance_api_model.original_job_id.should == nil
+      job_instance_api_model.agent_uuid.should == nil
+      job_instance_api_model.pipeline_name.should == nil
+      job_instance_api_model.pipeline_counter.should == nil
+      job_instance_api_model.stage_name.should == nil
+      job_instance_api_model.stage_counter.should == nil
     end
   end
 end

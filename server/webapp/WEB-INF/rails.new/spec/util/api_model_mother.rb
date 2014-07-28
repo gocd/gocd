@@ -23,12 +23,29 @@ module APIModelMother
     @pagination_view_model
   end
 
+  def create_empty_pagination_model
+    @pagination_view_model = double('PaginationViewModel')
+    @pagination_view_model.stub(:getPageSize).and_return(nil)
+    @pagination_view_model.stub(:getOffset).and_return(nil)
+    @pagination_view_model.stub(:getTotal).and_return(nil)
+    @pagination_view_model
+  end
+
   def create_material_view_model
     @material_view_model = double('MaterialViewModel')
     @material_view_model.stub(:getId).and_return(2)
     @material_view_model.stub(:getFingerprint).and_return('fingerprint')
     @material_view_model.stub(:getTypeForDisplay).and_return('git')
     @material_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    @material_view_model
+  end
+
+  def create_empty_material_view_model
+    @material_view_model = double('MaterialViewModel')
+    @material_view_model.stub(:getId).and_return(nil)
+    @material_view_model.stub(:getFingerprint).and_return(nil)
+    @material_view_model.stub(:getTypeForDisplay).and_return(nil)
+    @material_view_model.stub(:getLongDescription).and_return(nil)
     @material_view_model
   end
 
@@ -43,11 +60,30 @@ module APIModelMother
     @modification_view_model
   end
 
+  def create_empty_modification_view_model
+    @modification_view_model = double('ModificationViewModel')
+    @modification_view_model.stub(:getId).and_return(nil)
+    @modification_view_model.stub(:getRevision).and_return(nil)
+    @modification_view_model.stub(:getModifiedTime).and_return(nil)
+    @modification_view_model.stub(:getUserName).and_return(nil)
+    @modification_view_model.stub(:getComment).and_return(nil)
+    @modification_view_model.stub(:getEmailAddress).and_return(nil)
+    @modification_view_model
+  end
+
   def create_material_revision_view_model
     @material_revisions_view_model = double('MaterialRevisionsViewModel')
     @material_revisions_view_model.stub(:getMaterial).and_return(create_material_view_model)
     @material_revisions_view_model.stub(:isChanged).and_return(true)
     @material_revisions_view_model.stub(:getModifications).and_return([create_modification_view_model])
+    @material_revisions_view_model
+  end
+
+  def create_empty_material_revision_view_model
+    @material_revisions_view_model = double('MaterialRevisionsViewModel')
+    @material_revisions_view_model.stub(:getMaterial).and_return(create_empty_material_view_model)
+    @material_revisions_view_model.stub(:isChanged).and_return(nil)
+    @material_revisions_view_model.stub(:getModifications).and_return([create_empty_modification_view_model])
     @material_revisions_view_model
   end
 
@@ -60,6 +96,15 @@ module APIModelMother
     @build_cause_view_model
   end
 
+  def create_empty_build_cause_model
+    @build_cause_view_model = double('BuildCauseViewModel')
+    @build_cause_view_model.stub(:getBuildCauseMessage).and_return(nil)
+    @build_cause_view_model.stub(:isForced).and_return(nil)
+    @build_cause_view_model.stub(:getApprover).and_return(nil)
+    @build_cause_view_model.stub(:getMaterialRevisions).and_return([create_empty_material_revision_view_model])
+    @build_cause_view_model
+  end
+
   def create_job_model
     @job_view_model = double('JobViewModel')
     @job_view_model.stub(:getId).and_return(5)
@@ -67,6 +112,16 @@ module APIModelMother
     @job_view_model.stub(:getState).and_return('state')
     @job_view_model.stub(:getResult).and_return('result')
     @job_view_model.stub(:getScheduledDate).and_return('scheduled time')
+    @job_view_model
+  end
+
+  def create_empty_job_model
+    @job_view_model = double('JobViewModel')
+    @job_view_model.stub(:getId).and_return(nil)
+    @job_view_model.stub(:getName).and_return(nil)
+    @job_view_model.stub(:getState).and_return(nil)
+    @job_view_model.stub(:getResult).and_return(nil)
+    @job_view_model.stub(:getScheduledDate).and_return(nil)
     @job_view_model
   end
 
@@ -82,15 +137,28 @@ module APIModelMother
     @job_view_model
   end
 
+  def create_empty_job_history_model
+    @job_view_model = create_empty_job_model
+    @job_view_model.stub(:isRerun).and_return(nil)
+    @job_view_model.stub(:getOriginalJobId).and_return(nil)
+    @job_view_model.stub(:getAgentUuid).and_return(nil)
+    @job_view_model.stub(:getPipelineName).and_return(nil)
+    @job_view_model.stub(:getPipelineCounter).and_return(nil)
+    @job_view_model.stub(:getStageName).and_return(nil)
+    @job_view_model.stub(:getStageCounter).and_return(nil)
+    @job_view_model
+  end
+
   def create_agent_job_run_history_model
-    @job_view_model = create_job_model
-    @job_view_model.stub(:isRerun).and_return(false)
-    @job_view_model.stub(:getOriginalJobId).and_return(0)
-    @job_view_model.stub(:getAgentUuid).and_return('uuid')
-    @job_view_model.stub(:getPipelineName).and_return('pipeline')
-    @job_view_model.stub(:getPipelineCounter).and_return(1)
-    @job_view_model.stub(:getStageName).and_return('stage')
-    @job_view_model.stub(:getStageCounter).and_return('1')
+    @job_view_model = create_job_history_model
+
+    @job_history_view_model = double('JobHistoryViewModel')
+    @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
+    @job_history_view_model
+  end
+
+  def create_empty_agent_job_run_history_model
+    @job_view_model = create_empty_job_history_model
 
     @job_history_view_model = double('JobHistoryViewModel')
     @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
@@ -115,6 +183,24 @@ module APIModelMother
     @stage_view_model
   end
 
+  def create_empty_stage_model
+    @stage_view_model = double('StageViewModel')
+    @stage_view_model.stub(:getId).and_return(nil)
+    @stage_view_model.stub(:getName).and_return(nil)
+    @stage_view_model.stub(:getCounter).and_return(nil)
+    @stage_view_model.stub(:isScheduled).and_return(nil)
+    @stage_view_model.stub(:getApprovalType).and_return(nil)
+    @stage_view_model.stub(:getApprovedBy).and_return(nil)
+    @stage_view_model.stub(:getResult).and_return(nil)
+    @stage_view_model.stub(:getRerunOfCounter).and_return(nil)
+    @stage_view_model.stub(:hasOperatePermission).and_return(nil)
+    @stage_view_model.stub(:getCanRun).and_return(nil)
+    @stage_view_model.stub(:getBuildHistory).and_return([create_empty_job_model])
+    @stage_view_model.stub(:getPipelineName).and_return(nil)
+    @stage_view_model.stub(:getPipelineCounter).and_return(nil)
+    @stage_view_model
+  end
+
   def create_pipeline_model
     @pipeline_view_model = double('PipelineViewModel')
     @pipeline_view_model.stub(:getId).and_return(1)
@@ -132,8 +218,30 @@ module APIModelMother
     @pipeline_view_model
   end
 
+  def create_empty_pipeline_model
+    @pipeline_view_model = double('PipelineViewModel')
+    @pipeline_view_model.stub(:getId).and_return(nil)
+    @pipeline_view_model.stub(:getName).and_return(nil)
+    @pipeline_view_model.stub(:getCounter).and_return(nil)
+    @pipeline_view_model.stub(:getLabel).and_return(nil)
+    @pipeline_view_model.stub(:getNaturalOrder).and_return(nil)
+    @pipeline_view_model.stub(:getCanRun).and_return(nil)
+    @pipeline_view_model.stub(:isPreparingToSchedule).and_return(nil)
+    @pipeline_view_model.stub(:isCurrentlyLocked).and_return(nil)
+    @pipeline_view_model.stub(:isLockable).and_return(nil)
+    @pipeline_view_model.stub(:canUnlock).and_return(nil)
+    @pipeline_view_model.stub(:getBuildCause).and_return(create_empty_build_cause_model)
+    @pipeline_view_model.stub(:getStageHistory).and_return([create_empty_stage_model])
+    @pipeline_view_model
+  end
+
   def create_pipeline_history_model
     @pipeline_history_view_model = [create_pipeline_model]
+    @pipeline_history_view_model
+  end
+
+  def create_empty_pipeline_history_model
+    @pipeline_history_view_model = [create_empty_pipeline_model]
     @pipeline_history_view_model
   end
 
@@ -148,12 +256,23 @@ module APIModelMother
     @agent_view_model.stub(:getOperatingSystem).and_return("Linux")
     disk_space = DiskSpace.new(0)
     @agent_view_model.stub(:freeDiskSpace).and_return(disk_space)
-    resources_arr = Array.new
-    resources_arr << "java"
-    @agent_view_model.stub(:getResources).and_return(resources_arr)
-    environments_arr = Array.new
-    environments_arr << "foo"
-    @agent_view_model.stub(:getEnvironments).and_return(environments_arr)
+    @agent_view_model.stub(:getResources).and_return(["java"])
+    @agent_view_model.stub(:getEnvironments).and_return(["foo"])
+    @agent_view_model
+  end
+
+  def create_empty_agent_model
+    @agent_view_model = double('AgentViewModel')
+    @agent_view_model.stub(:getUuid).and_return(nil)
+    @agent_view_model.stub(:getHostname).and_return(nil)
+    @agent_view_model.stub(:getIpAddress).and_return(nil)
+    @agent_view_model.stub(:getLocation).and_return(nil)
+    @agent_view_model.stub(:getStatusForDisplay).and_return(nil)
+    @agent_view_model.stub(:buildLocator).and_return(nil)
+    @agent_view_model.stub(:getOperatingSystem).and_return(nil)
+    @agent_view_model.stub(:freeDiskSpace).and_return(nil)
+    @agent_view_model.stub(:getResources).and_return(nil)
+    @agent_view_model.stub(:getEnvironments).and_return(nil)
     @agent_view_model
   end
 end

@@ -19,12 +19,9 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe AgentAPIModel do
   include APIModelMother
 
-  before(:each) do
-    @agent_view_model = create_agent_model
-  end
-
   describe "should initialize correctly" do
     it "should populate correct data" do
+      @agent_view_model = create_agent_model
       agent_api = AgentAPIModel.new(@agent_view_model)
       agent_api.uuid.should == "uuid3"
       agent_api.agent_name.should == "CCeDev01"
@@ -37,10 +34,26 @@ describe AgentAPIModel do
       agent_api.resources[0].should == "java"
       agent_api.environments[0].should == "foo"
     end
+
+    it "should handle empty data" do
+        @agent_view_model = create_empty_agent_model
+        agent_api = AgentAPIModel.new(@agent_view_model)
+        agent_api.uuid.should == nil
+        agent_api.agent_name.should == nil
+        agent_api.ip_address.should == nil
+        agent_api.sandbox.should == nil
+        agent_api.status.should == nil
+        agent_api.build_locator.should == nil
+        agent_api.os.should == nil
+        agent_api.free_space.should == nil
+        agent_api.resources.should == nil
+        agent_api.environments.should == nil
+      end
   end
 
   describe "should convert to json correctly" do
     it "should have all fields correctly" do
+      @agent_view_model = create_agent_model
       agents_api_arr = Array.new
       agents_api_arr << AgentAPIModel.new(@agent_view_model)
       ActiveSupport::JSON.decode(agents_api_arr.to_json).should == [

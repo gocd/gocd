@@ -56,7 +56,8 @@ module Oauth2Provider
       end
       
       it "should not revoke if token is invalid" do
-        delete :revoke_by_admin, {use_route: :oauth_engine}.merge({user_id: @token.user_id, token_id: SecureRandom.hex(32)})
+        another_token = create(Oauth2Provider::Token)
+        delete :revoke_by_admin, {use_route: :oauth_engine}.merge({user_id: @token.user_id, token_id: another_token.id})
         expect(response.body).to eq("You are not authorized to perform this action!")
         expect(response.status).to eq(400)
       end

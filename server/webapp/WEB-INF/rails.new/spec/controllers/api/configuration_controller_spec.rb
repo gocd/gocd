@@ -17,6 +17,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::ConfigurationController do
+  include APIModelMother
 
   before(:each) do
     controller.stub(:security_service).and_return(@security_service = double("security_service"))
@@ -24,8 +25,6 @@ describe Api::ConfigurationController do
   end
 
   describe :config_revisions do
-    include APIModelMother
-
     it "should route to list_revisions" do
       expect(:get => '/api/config/revisions').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '0', :no_layout => true)
       expect(:get => '/api/config/revisions/1').to route_to(:controller => "api/configuration", :action => "config_revisions", :offset => '1', :no_layout => true)
@@ -48,6 +47,34 @@ describe Api::ConfigurationController do
       @security_service.should_receive(:isUserAdmin).with(loser).and_return(false)
 
       get :config_revisions, :no_layout => true
+
+      expect(response.status).to eq(401)
+      expect(response.body).to eq("Unauthorized to access this API.\n")
+    end
+  end
+
+  describe :diff do
+    it "should route to list_revisions" do
+      expect(:get => '/api/config/diff/a/b').to route_to(:controller => "api/configuration", :action => "config_diff", :from_revision => 'a', :to_revision => 'b', :no_layout => true)
+    end
+
+    it "should render history json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @security_service.should_receive(:isUserAdmin).with(loser).and_return(true)
+      @config_repository.should_receive(:configChangesForCommits).with('a', 'b').and_return('text')
+
+      get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
+
+      expect(response.body).to eq('text')
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @security_service.should_receive(:isUserAdmin).with(loser).and_return(false)
+
+      get :config_diff, :from_revision => 'a', :to_revision => 'b', :no_layout => true
 
       expect(response.status).to eq(401)
       expect(response.body).to eq("Unauthorized to access this API.\n")

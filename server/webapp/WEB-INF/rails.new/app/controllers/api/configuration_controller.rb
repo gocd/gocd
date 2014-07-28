@@ -31,4 +31,16 @@ class Api::ConfigurationController < Api::ApiController
       render_error_response(l.string("API_ACCESS_UNAUTHORIZED"), 401, true)
     end
   end
+
+  def config_diff
+    from_revision = params[:from_revision]
+    to_revision = params[:to_revision]
+
+    if security_service.isUserAdmin(current_user)
+      config_diff = config_repository.configChangesForCommits(from_revision, to_revision)
+      render text: config_diff
+    else
+      render_error_response(l.string("API_ACCESS_UNAUTHORIZED"), 401, true)
+    end
+  end
 end

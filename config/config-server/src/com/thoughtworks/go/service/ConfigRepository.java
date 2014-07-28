@@ -148,6 +148,15 @@ public class ConfigRepository {
         throw new IllegalArgumentException(String.format("There is no config version corresponding to md5: '%s'", md5));
     }
 
+	RevCommit getRevCommitForCommitSHA(String commitSHA) throws GitAPIException {
+		for (RevCommit revision : revisions()) {
+			if (revision.getName().equals(commitSHA)) {
+				return revision;
+			}
+		}
+		throw new IllegalArgumentException(String.format("There is no commit corresponding to SHA: '%s'", commitSHA));
+	}
+
     public GoConfigRevision getCurrentRevision() {
         return doLocked(new ThrowingFn<GoConfigRevision, RuntimeException>() {
             public GoConfigRevision call() {
@@ -240,6 +249,22 @@ public class ConfigRepository {
             }
         });
     }
+
+	public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
+		return doLocked(new ThrowingFn<String, GitAPIException>() {
+			public String call() throws GitAPIException {
+				RevCommit laterCommit = null;
+				RevCommit earlierCommit = null;
+				if (!StringUtil.isBlank(fromRevision)) {
+					laterCommit = getRevCommitForCommitSHA(fromRevision);
+				}
+				if (!StringUtil.isBlank(toRevision)) {
+					earlierCommit = getRevCommitForCommitSHA(toRevision);
+				}
+				return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+			}
+		});
+	}
 
     String findDiffBetweenTwoRevisions(RevCommit laterCommit, RevCommit earlierCommit) throws GitAPIException {
         if (laterCommit == null || earlierCommit == null) {

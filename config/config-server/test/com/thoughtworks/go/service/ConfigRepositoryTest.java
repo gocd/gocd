@@ -192,6 +192,31 @@ public class ConfigRepositoryTest {
         assertThat(actual, containsString(configChangesLine3));
     }
 
+	@Test
+	public void shouldShowDiffForAnyTwoCommitSHAs() throws Exception {
+		configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
+		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+
+		GoConfigRevisions commits = configRepo.getCommits(10, 0);
+		String firstCommitSHA = commits.get(2).getCommitSHA();
+		String secondCommitSHA = commits.get(1).getCommitSHA();
+		String thirdCommitSHA = commits.get(0).getCommitSHA();
+
+		String configChangesLine1 = "-<cruise schemaVersion='33'>";
+		String configChangesLine2 = "+<cruise schemaVersion='60'>";
+		String configChangesLine3 = "+<cruise schemaVersion='55'>";
+
+		String actual = configRepo.configChangesForCommits(secondCommitSHA, firstCommitSHA);
+
+		assertThat(actual, containsString(configChangesLine1));
+		assertThat(actual, containsString(configChangesLine2));
+
+		actual = configRepo.configChangesForCommits(thirdCommitSHA, firstCommitSHA);
+		assertThat(actual, containsString(configChangesLine1));
+		assertThat(actual, containsString(configChangesLine3));
+	}
+
     @Test
     public void shouldRemoveUnwantedDataFromDiff() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));

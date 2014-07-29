@@ -9,8 +9,11 @@ module Oauth2Provider
     
     #Uniqueness is a ActiveRecord validation and cannot be applied to ActiveModel objects. Hence the custom validation
     validate do
-      if !self.name.blank? && ObjectSpace.each_object(self.class).select{|o| o.name == self.name }.size > 1
-        errors.add(:name, "not unique") 
+      unless self.name.blank?
+        existing_client = Oauth2Provider::Client.find_one(:name, self.name)
+        unless existing_client.nil?
+          errors.add(:name, "not unique") 
+        end
       end
     end
 

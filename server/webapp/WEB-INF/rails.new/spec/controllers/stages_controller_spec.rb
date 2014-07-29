@@ -374,9 +374,11 @@ describe StagesController do
           stage.calculateResult
           stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
           @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-          ActionController::Base.cache_store.write(controller.view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), "fbh", :subkey => controller.view_cache_key.forFailedBuildHistoryStage(stage, "junk"))
+          options = {:subkey => controller.view_cache_key.forFailedBuildHistoryStage(stage, "html")}
+          view_cache_key = controller.view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier())
+          ActionController::Base.cache_store.write(view_cache_key, "fbh", options)
           @go_config_service.should_receive(:stageHasTests).never
-          get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => "junk"
+          get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => "html"
           expect(assigns(:failing_tests_error_message)).to be_nil
           expect(assigns(:failing_tests)).to be_nil
         end

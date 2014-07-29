@@ -29,10 +29,6 @@ class GoCacheStore < ActiveSupport::Cache::Store
     value
   end
 
-  def exist?(name, options = nil)
-    super(*key(name, options), options)
-  end
-
   def clear
     cache.clear
   end

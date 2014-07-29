@@ -37,14 +37,14 @@ module Oauth2Provider
     describe 'show' do  
       it "should load client" do
         client = create(Oauth2Provider::Client)
-        get :show, {use_route: :oauth_client, id: client.id}
+        get :show, {use_route: :oauth_engine, id: client.id}
         actual = assigns[:oauth_client]
         expect(actual.name).to eq(client.name)
       end
       
       it "should respond to xml" do
         client = create(Oauth2Provider::Client)
-        get :show, {use_route: :oauth_client, id: client.id, format: :xml}
+        get :show, {use_route: :oauth_engine, id: client.id, format: :xml}
         output = Hash.from_xml(response.body)
         expect(output['client']['client_id']).to eq(client.client_id)
       end
@@ -61,7 +61,7 @@ module Oauth2Provider
     describe 'create' do
       it "should create a new client" do
         expected = build(Oauth2Provider::Client)
-        post :create, {use_route: :oauth_client, client: {name: expected.name, redirect_uri: expected.redirect_uri}}
+        post :create, {use_route: :oauth_engine, client: {name: expected.name, redirect_uri: expected.redirect_uri}}
         actual = assigns[:oauth_client]
         expect(flash[:notice]).to eq("OAuth client was successfully created.")
         expect(actual.name).to eq(expected.name)
@@ -70,7 +70,7 @@ module Oauth2Provider
       end
       
       it "should render error when save fails" do
-        post :create, {use_route: :oauth_client, client: {name: "", redirect_uri: ""}}
+        post :create, {use_route: :oauth_engine, client: {name: "", redirect_uri: ""}}
         error = flash.now[:error]
         expect(error).to match_array(["Redirect uri can't be blank", "Name can't be blank"])
         expect(response).to render_template("new")
@@ -80,7 +80,7 @@ module Oauth2Provider
     describe 'edit' do
       it "should load client for edit" do
         client = create(Oauth2Provider::Client)
-        get :edit, {use_route: :oauth_client, id: client.id}
+        get :edit, {use_route: :oauth_engine, id: client.id}
         actual = assigns[:oauth_client]
         expect(actual.name).to eq(client.name)
       end
@@ -90,7 +90,7 @@ module Oauth2Provider
       it "should update a client" do
         client = create(Oauth2Provider::Client)
         new_name = SecureRandom.hex(32)
-        put :update, {use_route: :oauth_client, client: {name: new_name}, id: client.id}
+        put :update, {use_route: :oauth_engine, client: {name: new_name}, id: client.id}
         actual = assigns[:oauth_client]
         expect(actual.name).to eq(new_name)
         expect(actual.name).to_not eq(client.name)
@@ -101,7 +101,7 @@ module Oauth2Provider
       it "should render error when update fails" do
         client = create(Oauth2Provider::Client)
         new_name = ""
-        put :update, {use_route: :oauth_client, client: {name: new_name}, id: client.id}
+        put :update, {use_route: :oauth_engine, client: {name: new_name}, id: client.id}
         error = flash.now[:error]
         expect(error).to match_array(["Name can't be blank"])
         expect(response).to render_template("edit")
@@ -114,6 +114,21 @@ module Oauth2Provider
         delete :destroy, {use_route: :oauth_client, id: client.id}
         expect(flash[:notice]).to eq("OAuth client was successfully deleted.")
         expect(response).to redirect_to("/oauth2_provider/clients")
+        expect(Oauth2Provider::Client.find_by_id(client.id)).to eq(nil)
+      end
+      
+      it "should destroy a client along with tokens and authorizations" do
+        client = create(Oauth2Provider::Client)
+        token = create(Oauth2Provider::Token, client_id: client.id)
+        auth = create(Oauth2Provider::Authorization, client_id: client.id)
+        expect(Oauth2Provider::Token.find_by_id(token.id)).to_not eq(nil)
+        expect(Oauth2Provider::Authorization.find_by_id(auth.id)).to_not eq(nil)
+        delete :destroy, {use_route: :oauth_engine, id: client.id}
+        expect(flash[:notice]).to eq("OAuth client was successfully deleted.")
+        expect(response).to redirect_to("/oauth2_provider/clients")
+        expect(Oauth2Provider::Token.find_by_id(token.id)).to eq(nil)
+        expect(Oauth2Provider::Authorization.find_by_id(auth.id)).to eq(nil)
+        expect(Oauth2Provider::Client.find_by_id(client.id)).to eq(nil)
       end
     end
   end

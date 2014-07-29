@@ -1,5 +1,3 @@
-<h1 id="current_user_is_current_user_id_for_oauth">Current user is <%= current_user_id_for_oauth -%></h1>
-
 <div id="oauth_page">
   <%= render_help_link('OAuth 2.0 Clients', :class => 'page-help-at-action-bar') if defined?(render_help_link)  %>
 
@@ -10,8 +8,8 @@
 
     <% if Oauth2Provider::Configuration.ssl_base_url_as_url_options[:protocol] == 'https' %>
       <div class='summary info-box oauth_config_info'>
-        <p><span>Authorization URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_authorize, :action => :index) %></p>
-        <p><span>Token URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_token, :action => :get_token) %></p>
+        <p><span>Authorization URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(controller: :authorize, action: :index) %></p>
+        <p><span>Token URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(controller: :tokens, action: :get_token) %></p>
       </div>
     <% else %>
       <div class="error-box"><%= Oauth2Provider::Configuration.ssl_not_configured_message %></div>
@@ -41,7 +39,10 @@
             <p><b>Client Secret</b>: <%=h oauth_client.client_secret %></p>
           </td>
           <td>
-            <%= link_to 'Delete', oauth_engine.client_path(id: oauth_client.id), {:confirm => 'Are you sure?', :method => :delete, :class => 'delete_link', :title => 'Click to delete this client'} %>
+			  <%= form_tag(oauth_engine.client_path(id: oauth_client.id), method: :delete) do %>
+			  	<%= submit_tag "Delete", class: "delete_link", title: "Click to delete this client"%>
+			  <% end -%>
+            <%= link_to 'Delete', oauth_engine.client_path(id: oauth_client.id), {data: { confirm: 'Are you sure?' }, :method => :delete, :class => 'delete_link', :title => 'Click to delete this client'} %>
           </td>
         </tr>
       <% end %>

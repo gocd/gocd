@@ -90,7 +90,7 @@ if defined?(ActiveRecord)
       end
 
       def find_all_token_by_client_id(client_id)
-        TokenDto.where(id: client_id)
+        TokenDto.where(oauthclientid: client_id)
       end
 
       def find_all_token_by_user_id(user_id)

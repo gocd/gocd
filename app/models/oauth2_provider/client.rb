@@ -6,6 +6,13 @@ module Oauth2Provider
     validates_format_of :redirect_uri, :with => Regexp.new("^(https|http)://.+$"), :multiline => true, :if => proc { |client| !client.redirect_uri.blank? }
     validates :redirect_uri, presence: true
     validates :name, presence: true
+    
+    #Uniqueness is a ActiveRecord validation and cannot be applied to ActiveModel objects. Hence the custom validation
+    validate do
+      if !self.name.blank? && ObjectSpace.each_object(self.class).select{|o| o.name == self.name }.size > 1
+        errors.add(:name, "not unique") 
+      end
+    end
 
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
     columns :id, :name, :client_id, :client_secret, :redirect_uri

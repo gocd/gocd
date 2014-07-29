@@ -60,12 +60,13 @@ module Oauth2Provider
     
     describe 'create' do
       it "should create a new client" do
-        expected = build(Oauth2Provider::Client)
-        post :create, {use_route: :oauth_engine, client: {name: expected.name, redirect_uri: expected.redirect_uri}}
+        name = SecureRandom.hex(32)
+        redirect_uri = "http://test.host"
+        post :create, {use_route: :oauth_engine, client: {name: name, redirect_uri: redirect_uri}}
         actual = assigns[:oauth_client]
         expect(flash[:notice]).to eq("OAuth client was successfully created.")
-        expect(actual.name).to eq(expected.name)
-        expect(actual.redirect_uri).to eq(expected.redirect_uri)
+        expect(actual.name).to eq(name)
+        expect(actual.redirect_uri).to eq(redirect_uri)
         expect(response).to redirect_to("/oauth2_provider/clients")
       end
       

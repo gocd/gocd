@@ -7,7 +7,7 @@ module Oauth2Provider
     EXPIRY_TIME = 1.hour
     
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
-    columns :id, :user_id, :client_id, :code, :expires_at => :integer
+    columns :user_id, :client_id, :code, :expires_at => :integer, :id => :integer
 
     def client
       Client.find_by_id(:client_id)

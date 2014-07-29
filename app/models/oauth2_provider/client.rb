@@ -18,7 +18,7 @@ module Oauth2Provider
     end
 
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
-    columns :id, :name, :client_id, :client_secret, :redirect_uri
+    columns :name, :client_id, :client_secret, :redirect_uri, :id => :integer
 
     def create_token_for_user_id(user_id)
       Token.create!(:user_id => user_id, :client_id => id)

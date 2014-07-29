@@ -10,8 +10,8 @@
 
     <% if Oauth2Provider::Configuration.ssl_base_url_as_url_options[:protocol] == 'https' %>
       <div class='summary info-box oauth_config_info'>
-        <p><span>Authorization URL:</span> <%= url_for Oauth2::Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_authorize, :action => :index) %></p>
-        <p><span>Token URL:</span> <%= url_for Oauth2::Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_token, :action => :get_token) %></p>
+        <p><span>Authorization URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_authorize, :action => :index) %></p>
+        <p><span>Token URL:</span> <%= url_for Oauth2Provider::Configuration.ssl_base_url_as_url_options.merge(:controller => :oauth_token, :action => :get_token) %></p>
       </div>
     <% else %>
       <div class="error-box"><%= Oauth2Provider::Configuration.ssl_not_configured_message %></div>

@@ -51,19 +51,19 @@ Go::Application.routes.draw do
     get "admin/pipelines/:pipeline_name/materials/dependency/pipeline_name_search" => "admin/materials/dependency#pipeline_name_search", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_pipeline_name_search
     get "admin/pipelines/:pipeline_name/materials/dependency/load_stage_names_for" => "admin/materials/dependency#load_stage_names_for", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_load_stage_names_for
   end
-  get "admin/pipelines/:pipeline_name/materials" => "admin/materials#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_index
-  delete "admin/pipelines/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_material_delete
+  get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_index
+  delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_delete
 
   get "admin/pipeline/new" => "admin/pipelines#new", as: :pipeline_new
   post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
   get "admin/pipeline/:pipeline_name/clone" => "admin/pipelines#clone", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_clone
   post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
-  get "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
-  put "admin/pipelines/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
+  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
+  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
 
   get "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_listing
-  put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, :defaults => {:stage_parent => "pipelines"}, as: :admin_stage_use_template
+  put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_use_template
   get "admin/:stage_parent/:pipeline_name/stages/new" => "admin/stages#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_new
   delete "admin/:stage_parent/:pipeline_name/stages/:stage_name" => "admin/stages#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_delete
   post "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_create
@@ -123,8 +123,8 @@ Go::Application.routes.draw do
   delete "admin/templates/:pipeline_name" => "admin/templates#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :delete_template
   get "admin/templates/:template_name/permissions" => "admin/templates#edit_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :edit_template_permissions
   post "admin/templates/:template_name/permissions" => "admin/templates#update_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :update_template_permissions
-  get "admin/templates/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_edit
-  put "admin/templates/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, as: :template_update
+  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_edit
+  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_update
 
   get "admin/package_definitions/:repo_id/new" => "admin/package_definitions#new", as: :package_definitions_new
   get "admin/package_definitions/:repo_id/new_for_new_pipeline_wizard" => "admin/package_definitions#new_for_new_pipeline_wizard", as: :package_definitions_new_for_new_pipeline_wizard
@@ -150,17 +150,18 @@ Go::Application.routes.draw do
 
   scope 'pipelines' do
     defaults :no_layout => true do
-      post 'material_search' => 'pipelines#material_search'
+      get 'material_search' => 'pipelines#material_search'
       post 'show_for_trigger' => 'pipelines#show_for_trigger', as: :pipeline_show_with_option
       get ':pipeline_name/:pipeline_counter/build_cause' => 'pipelines#build_cause', constraints: PIPELINE_LOCATOR_CONSTRAINTS, as: :build_cause
     end
 
     get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-    get "" => 'pipelines#index', as: :pipeline_dashboard
     post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
   end
 
+  get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
+
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   scope 'compare' do
@@ -169,6 +170,10 @@ Go::Application.routes.draw do
     get ':pipeline_name/list/compare_with/:other_pipeline_counter' => 'comparison#list', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, format: 'json', as: :compare_pipelines_list
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
+
+  get 'failures/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name/:suite_name/:test_name' => 'failures#show', constraints: STAGE_LOCATOR_CONSTRAINTS, :no_layout => true, as: :failure_details_internal
+
+  get 'server/messages.json' => 'server#messages', :format => "json", as: :global_message
 
   scope 'config_view' do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
@@ -243,7 +248,14 @@ Go::Application.routes.draw do
         post 'jobs/:id.xml' => 'jobs#index'
       end
     end
-  end
+end
+
+post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
+get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/(:action)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
+get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
+get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
+
+get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
   resources :agents, :only =>  [:index], :defaults => {:format => "html"}
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
@@ -265,14 +277,16 @@ Go::Application.routes.draw do
     post '/users/dismiss_license_expiry_warning' => 'admin/users#dismiss_license_expiry_warning', as: :dismiss_license_expiry_warning
   end
 
+  get "agents/:uuid" => 'agent_details#show', as: :agent_detail
+  get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent
+
+  get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
+  get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
+
   # dummy mappings. for specs to pass
-  get '/server/messages.json' => 'test/test#index', as: :global_message
-  get '/pipelines' => 'pipelines#index', as: :pipelines_for_test
-  get "agents/:uuid" => "test/test#index", as: :agent_detail
-  get '/environments' => 'environments#index', as: :environments_for_test
-  get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(/:action)' => 'test/test#%{action}', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS, defaults: {action: 'overview'}
-  get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter(.:format)" => 'test/test#overview', as: :stage_detail, constraints: STAGE_LOCATOR_CONSTRAINTS
-  get "agents/:uuid/job_run_history" => 'test/test#index', as: :job_run_history_on_agent
+  get 'test' => 'test/test#index', as: :gadget_rendering
+  get 'test' => 'test/test#index', as: :gadgets_oauth_clients
+  get 'test' => 'test/test#index', as: :oauth_clients
 
   # catch all route
   match '*url', via: :all, to: 'application#unresolved'

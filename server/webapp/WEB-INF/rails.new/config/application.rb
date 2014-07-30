@@ -2,8 +2,10 @@ require File.expand_path('../boot', __FILE__)
 
 require "action_controller/railtie"
 require "rails"
-require "gadgets"
+# require "gadgets"
 require "oauth2_provider"
+require "dynamic_form"
+
 
 module Go
   class Application < Rails::Application

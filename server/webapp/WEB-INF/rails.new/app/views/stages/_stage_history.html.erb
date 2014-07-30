@@ -1,0 +1,49 @@
+<div class="stage_history">
+    <h3><%= l.string("STAGE_HISTORY") %></h3>
+    <%
+       current_config_version = scope[:current_config_version]
+       stage_history_page = scope[:stage_history_page]
+       immediate_chronologically_forward_stage_history_entry = stage_history_page.getImmediateChronologicallyForwardStageHistoryEntry()
+       bottom_of_last_page_config_version = immediate_chronologically_forward_stage_history_entry.nil? ? nil : immediate_chronologically_forward_stage_history_entry.getConfigVersion()
+    -%>
+    <% stage_history_page.getStages().each_with_index do |stage_in_stage_history, index_in_stage_history| %>
+        <% if current_config_version != stage_in_stage_history.getConfigVersion() &&  (bottom_of_last_page_config_version.nil? || bottom_of_last_page_config_version != stage_in_stage_history.getConfigVersion()) %>
+            <% later_config_version = current_config_version -%>
+            <% current_config_version = stage_in_stage_history.getConfigVersion() -%>
+            <div class="config_change <%= "counter_#{stage_in_stage_history.getIdentifier().getPipelineCounter()}_#{stage_in_stage_history.getIdentifier().getStageCounter()}"-%>">
+               <% if is_user_an_admin? && current_config_version != nil %>
+                    <% span_text = link_to("Config Changed", "#", :onclick => "Modalbox.show('#{config_change_path(:later_md5 => later_config_version, :earlier_md5 => current_config_version)}', {overlayClose: false, title: 'Config Changes'})") %>
+                <% else %>
+                    <% span_text = "Config Changed" %>
+                <% end %>
+
+                <span><%= span_text -%></span>
+            </div>
+        <% end %>
+        <div class="stage">
+            <a class="<%= is_current_stage?(stage_id_in_stage_history = stage_in_stage_history.getIdentifier()) ? "selected alert" : "" %>" href="<%= tab_aware_path_for_stage stage_id_in_stage_history, scope[:tab] %>">
+                <div class="label_counter_wrapper">
+                    <div class="color_code_stage <%= stage_in_stage_history.getState() -%> <%= stage_in_stage_history.hasRerunJobs() ? "has_rerun_jobs" : "has_no_rerun_jobs" -%>">
+                        <%= check_for_cancelled_contents(stage_in_stage_history.getState()) %>
+                    </div>
+                    <%- if stage_in_stage_history.hasRerunJobs() -%>
+                        <img class="has_rerun_jobs_icon" src="<%=image_path('/images/g9/icons/icon_rerun_flag.png')%>">
+                     <%- end -%>
+                    <span class="pipeline_label"><%= smart_word_breaker(stage_in_stage_history.getIdentifier().getPipelineLabel()) %></span>
+                    <% if stage_in_stage_history.getIdentifier().getStageCounter().to_i > 1 %>
+                        <span class="stage_counter secondary"><%= l.string("STAGE_RUN_NUMBER", [stage_in_stage_history.getIdentifier().getStageCounter()]) %></span>
+                    <% end %>
+                </div>
+            </a>
+            <span class="compare_pipeline hidden">
+                <a href="<%= compare_pipelines_path(:pipeline_name => stage_in_stage_history.getIdentifier().getPipelineName(), :to_counter => stage_in_stage_history.getIdentifier().getPipelineCounter(), :from_counter => scope[:current_stage_pipeline].getCounter()) %>">&nbsp;</a>
+            </span>
+        </div>
+    <% end %>
+    <%= render :partial => "shared/pagination_bar.html", :locals => {:scope => {:page_handler => :stage_history_pagination_handler, :pagination => scope[:stage_history_page].getPagination(), :handler_args => [scope[:tab]]}} -%>
+</div>
+<script type="text/javascript">
+    Util.on_load(function() {
+        compare_link_handlers();
+    });
+</script>

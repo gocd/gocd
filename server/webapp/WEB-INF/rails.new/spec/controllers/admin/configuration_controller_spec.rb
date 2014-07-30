@@ -54,14 +54,20 @@ describe Admin::ConfigurationController do
 
     it "should set tab name for show" do
       @admin_service.should_receive(:populateModel).with(anything).and_return(@config)
+
       get :show
+
       assigns[:view_title].should == 'Administration'
+      assert_template layout: "admin"
     end
 
     it "should set tab name for edit" do
       @admin_service.should_receive(:configurationMapForSourceXml).and_return(@config)
+
       get :edit
+
       assigns[:view_title].should == 'Administration'
+      assert_template layout: "admin"
     end
   end
 
@@ -88,7 +94,9 @@ describe Admin::ConfigurationController do
       @admin_service.should_receive(:populateModel).with(anything).and_return(config)
       cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
+
       get :show
+
       response.should render_template "show"
       assigns[:go_config].content.should == "config-content"
       assigns[:go_config].md5.should == "md5"
@@ -103,7 +111,9 @@ describe Admin::ConfigurationController do
       @admin_service.should_receive(:configurationMapForSourceXml).and_return(config)
       cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
+
       get :edit
+
       response.should render_template "edit"
       assigns[:go_config].content.should == "config-content"
       assigns[:go_config].md5.should == "md5"
@@ -116,7 +126,9 @@ describe Admin::ConfigurationController do
     it "should update the configuration" do
       param_map = {"content" => "config_content", "md5" => "md5"}
       @admin_service.should_receive(:updateConfig).with(param_map, an_instance_of(HttpLocalizedOperationResult)).and_return(GoConfigValidity::valid())
+
       put :update, :go_config => param_map
+
       flash[:success].should == 'Saved successfully.'
       assert_redirect config_view_path
     end
@@ -177,6 +189,7 @@ describe Admin::ConfigurationController do
       config_validity.should_receive(:isValid).and_return(true)
       config_validity.should_receive(:wasMerged).and_return(true)
       @admin_service.should_receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
+
       put :update, {:go_config => submitted_copy}
 
       flash[:success].should == 'Saved successfully. The configuration was modified by someone else, but your changes were merged successfully.'

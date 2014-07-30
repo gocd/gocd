@@ -1,0 +1,5 @@
+<div class="form_item_block">
+    <label><%= l.string('DESTINATION_DIR') -%></label>
+    <%= scope[:form].text_field(com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER, {:include_blank => true, :class => "form_input", :omit_id_generation => true}) -%>
+    <%= error_message_on(scope[:form].object, com.thoughtworks.go.config.materials.ScmMaterialConfig::FOLDER, :css_class => "form_error") %>
+</div>

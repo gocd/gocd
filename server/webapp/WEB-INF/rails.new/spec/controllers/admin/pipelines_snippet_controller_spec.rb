@@ -74,7 +74,6 @@ describe Admin::PipelinesSnippetController do
         @user = Username.new(CaseInsensitiveString.new("group_admin"))
         controller.stub(:current_user).and_return(@user)
         @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["foo"])
-
       end
 
       it "should return a group xml for a valid group" do
@@ -88,6 +87,7 @@ describe Admin::PipelinesSnippetController do
         assigns[:modifiable_groups].size.should == 1
         assigns[:modifiable_groups].should include "foo"
         response.should render_template :show
+        assert_template layout: "admin"
       end
 
       it "should return unauthorized error if the user does not have access to the group" do
@@ -97,8 +97,8 @@ describe Admin::PipelinesSnippetController do
         @config = CruiseConfig.new
         group = "valid_group"
         @pipeline_configs_service.should_receive(:getXml).with(group, @user, @result).and_return(nil)
-
         get :show, {:group_name => group}
+
         response.should render_template 'shared/config_error'
         assert_response 401
       end
@@ -117,14 +117,15 @@ describe Admin::PipelinesSnippetController do
         @config = CruiseConfig.new
         @config.should_receive(:getMd5).and_return('md5_value_for_configuration')
         @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
-
         get :edit, {:group_name => group}
+
         assigns[:group_name].should == group
         assigns[:group_as_xml].should == "some valid xml as string"
         assigns[:config_md5].should == 'md5_value_for_configuration'
         assigns[:modifiable_groups].size.should == 1
         assigns[:modifiable_groups].should include "foo"
         response.should render_template :edit
+        assert_template layout: "admin"
       end
 
       it "should return unauthorized error if the user does not have access to the group" do
@@ -135,8 +136,8 @@ describe Admin::PipelinesSnippetController do
         group = "valid_group"
         @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
         @pipeline_configs_service.should_receive(:getXml).with(group, @user, @result).and_return(nil)
-
         get :edit, {:group_name => group}
+
         response.should render_template 'shared/config_error'
         assert_response 401
       end
@@ -168,6 +169,7 @@ describe Admin::PipelinesSnippetController do
         cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
         @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+
         response.should redirect_to pipelines_snippet_show_path("renamed_group", :fm => "Success!")
       end
 
@@ -186,8 +188,8 @@ describe Admin::PipelinesSnippetController do
         validity.should_receive(:isPostValidationError).never
         cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
         @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
-
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+
         response.should render_template 'edit'
         assigns[:config_md5].should == "md5"
         assigns[:group_name].should == group_name
@@ -196,6 +198,7 @@ describe Admin::PipelinesSnippetController do
         assigns[:modifiable_groups].should include "foo"
         assigns[:errors].should == ['error message']
         flash.now[:error].should == "failed"
+        assert_template layout: "admin"
       end
 
       it "should render error on flash pane for pre merge validation errors or other errors" do
@@ -213,8 +216,8 @@ describe Admin::PipelinesSnippetController do
         validity.should_receive(:isMergeConflict).and_return(false)
         cruise_config_operational_response.should_receive(:getValidity).and_return(validity)
         @pipeline_configs_service.should_receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
-
         put :update, {:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
+
         response.should render_template 'edit'
         assigns[:config_md5].should == "md5"
         assigns[:group_name].should == group_name

@@ -5,7 +5,7 @@
             <% if placeholder_stage?(sim_for_pipeline) %>
                 <div <%= scope[:html_options] -%>><%= check_for_cancelled_contents(sim_for_pipeline.getState()) %></div>
             <% else %>
-                <a href="<%= scope[:disable_stage_bar_href] ? '#' : stage_detail_path(:pipeline_name => scope[:pipeline].getName(), :pipeline_counter => scope[:pipeline].getCounter(), :stage_name => sim_for_pipeline.getName(), :stage_counter => sim_for_pipeline.getCounter()) -%>">
+                <a href="<%= scope[:disable_stage_bar_href] ? '#' : stage_detail_tab_path(:pipeline_name => scope[:pipeline].getName(), :pipeline_counter => scope[:pipeline].getCounter(), :stage_name => sim_for_pipeline.getName(), :stage_counter => sim_for_pipeline.getCounter()) -%>">
                     <div <%= scope[:html_options] -%>>
                         <%= check_for_cancelled_contents(sim_for_pipeline.getState()) %>
                     </div>
@@ -15,5 +15,5 @@
     </div>
 <% end %>
 <div class="triggered_by">
-    <%= "#{trigger_message_with_formatted_date_time(scope[:pipeline].getScheduledDate(), scope[:pipeline].getApprovedBy())}" -%>
+    <%= trigger_message_with_formatted_date_time(scope[:pipeline].getScheduledDate(), scope[:pipeline].getApprovedBy()) -%>
 </div>

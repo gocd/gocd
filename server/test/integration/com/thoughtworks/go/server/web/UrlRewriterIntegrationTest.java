@@ -253,6 +253,7 @@ public class UrlRewriterIntegrationTest {
 
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_INDEX = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage");
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
+    @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
 
     public static String enc(String str) {
         return UrlEncoded.encodeString(str);

@@ -1,0 +1,25 @@
+<span class="hidereveal_expander"><%= l.string(scope[:message], [scope[:jobs].size()]) %></span>
+<% if scope[:jobs].size()>0 %>
+    <ul class="hidereveal_content">
+        <% scope[:jobs].each do |job_in_job_breakdown| %>
+            <li class="job">
+                <a class="" href="<%= url_for_job(job_in_job_breakdown) %>">
+                    <div class="color_code_small <%= job_in_job_breakdown.getStatus() -%>">
+                        <%= check_for_cancelled_contents(job_in_job_breakdown.getStatus()) %>
+                    </div>
+                    <%= smart_word_breaker(job_in_job_breakdown.getName()) %>
+                </a>
+                <% unless job_in_job_breakdown.isCompleted() %>
+                    <%= render :partial => "elapsed_time.html", :locals=> {:scope => {:job => job_in_job_breakdown }} %>
+                <% end %>
+            </li>
+        <% end %>
+    </ul>
+    <script type='text/javascript'>
+        Util.on_load(new function() {
+            AjaxRefreshers.main().afterRefreshOf('<%= scope[:parent_id] %>', (function() {
+                make_collapsable('<%= scope[:parent_id] %>');
+            }));
+        });
+    </script>
+<% end %>

@@ -109,7 +109,7 @@ describe "admin/materials index.html.erb" do
     render "admin/materials/index.html"
 
     response.body.should have_tag("div.light_box_content") do
-      with_tag("div.warnings", "In order to configure multiple materials for this pipeline, each of its material needs have to a ‘Destination Directory’ specified. Please edit the existing material and specify a ‘Destination Directory’ in order to proceed with this operation.")
+      with_tag("div.warnings", "In order to configure multiple materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.")
       with_tag("button.right.close_modalbox_control")
     end
     response.body.should have_tag("div.enhanced_dropdown ul") do

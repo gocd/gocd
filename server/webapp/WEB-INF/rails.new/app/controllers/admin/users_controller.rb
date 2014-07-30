@@ -13,13 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
-module Admin
 
+module Admin
   class UsersController < AdminController
     include UsersHelper
     include ApplicationHelper
 
     layout :determine_layout
+
+    protect_from_forgery :except => :delete_all #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
     def new
     end

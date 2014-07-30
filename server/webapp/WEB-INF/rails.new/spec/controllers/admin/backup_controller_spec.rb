@@ -45,6 +45,7 @@ describe Admin::BackupController do
       get "index"
 
       assigns[:tab_name].should == "backup"
+      assert_template layout: "admin"
     end
 
     it "should populate the backup location" do
@@ -81,7 +82,7 @@ describe Admin::BackupController do
         r.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"))
       end
 
-      post "perform_backup"
+      post :perform_backup
 
       assert_redirected_with_flash(backup_server_path, "Backup completed successfully.", "success")
     end
@@ -93,7 +94,7 @@ describe Admin::BackupController do
         result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", ["Ran out of disk space"].to_java(java.lang.String)))
       end
 
-      post "perform_backup"
+      post :perform_backup
 
       assert_redirected_with_flash(backup_server_path, "Failed to perform backup. Reason: Ran out of disk space", "error")
     end

@@ -70,6 +70,7 @@ describe Admin::TasksController do
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
 
       stub_save_for_success
+
       post :decrement_index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks"
 
       @tasks.size().should == 4
@@ -117,7 +118,7 @@ describe Admin::TasksController do
       assigns[:pipeline].should == @pipeline
       assigns[:stage].should == @pipeline.get(0)
       assigns[:job].should == @pipeline.get(0).getJobs().get(0)
-      assigns[:tasks].should == Tasks.new([@example_task].to_java(Task))
+      assigns[:tasks].should == com.thoughtworks.go.config.Tasks.new([@example_task].to_java(Task))
       assigns[:task_view_models].should == tasks
       assert_template "index"
       assert_template layout: "pipelines/job"

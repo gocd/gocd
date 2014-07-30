@@ -18,8 +18,14 @@ require File.join(File.dirname(__FILE__), "/../../../spec_helper")
 
 describe "admin/pipeline_groups/possible_groups.html.erb" do
   it "should render _possible_groups_popup.html.erb" do
+    @possible_groups = []
+    @pipeline_name = "test"
+    @md5_match = false
+
+    stub_template "possible_groups_popup" => "possible group popup"
+
     render
 
-    response.should render_template(:partial => '_possible_groups_popup')
+    assert_template partial: "possible_groups_popup", :locals => {:scope => {:possible_groups => @possible_groups, :pipeline_name => @pipeline_name, :md5_match => @md5_match}}
   end
 end

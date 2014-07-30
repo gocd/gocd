@@ -37,8 +37,11 @@ describe Admin::GarageController do
 
     it 'should query garage service for data' do
       @garage_service.should_receive(:getData).and_return('data')
+
       get :index
+
       assigns[:garage_data].should == 'data'
+      assert_template layout: false
     end
   end
 
@@ -53,7 +56,9 @@ describe Admin::GarageController do
       @result.should_receive(:isSuccessful).and_return(true)
       @result.should_receive(:message).and_return('message')
       @garage_service.should_receive(:gc).with(@result)
+
       post :gc
+
       flash[:notice][:gc].should == 'message'
       assert_redirect garage_index_path
     end
@@ -62,7 +67,9 @@ describe Admin::GarageController do
       @result.should_receive(:isSuccessful).and_return(false)
       @result.should_receive(:message).and_return('message')
       @garage_service.should_receive(:gc).with(@result)
+
       post :gc
+
       flash[:error][:gc].should == 'message'
       assert_redirect garage_index_path
     end

@@ -18,6 +18,7 @@
 module ApplicationHelper
   include Services
   include RailsLocalizer
+  include PrototypeHelper
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
@@ -51,7 +52,7 @@ module ApplicationHelper
 
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
-    stage_detail_path :pipeline_name => stage_identifier.getPipelineName(),
+    stage_detail_tab_path :pipeline_name => stage_identifier.getPipelineName(),
                       :pipeline_counter => stage_identifier.getPipelineCounter(),
                       :stage_name => stage_identifier.getStageName(),
                       :stage_counter => stage_identifier.getStageCounter()
@@ -234,7 +235,7 @@ module ApplicationHelper
 
   def version
     version_file = Rails.root.join("..", "vm", "admin", "admin_version.txt.vm")
-    File.readlines(version_file)
+    File.readlines(version_file)[0]
   end
 
   def json_escape data
@@ -281,7 +282,38 @@ module ApplicationHelper
   def blocking_link_to_remote_new(options = {})
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
-    %Q|<a href="#" onclick="#{options[:before]}; new Ajax.Updater({success:'#{options[:update][:success]}',failure:'#{options[:update][:failure]}'}, '#{options[:url]}', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}}); return false;">#{options[:name]}</a>|
+    tag_options = tag_options(options[:html], true)
+    %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
+  end
+
+  def remote_function_new(options)
+    javascript_options = options_for_ajax(options)
+
+    update = ''
+    if options[:update] && options[:update].is_a?(Hash)
+      update  = []
+      update << "success:'#{options[:update][:success]}'" if options[:update][:success]
+      update << "failure:'#{options[:update][:failure]}'" if options[:update][:failure]
+      update  = '{' + update.join(',') + '}'
+    elsif options[:update]
+      update << "'#{options[:update]}'"
+    end
+
+    function = update.empty? ?
+        "new Ajax.Request(" :
+        "new Ajax.Updater(#{update}, "
+
+    url_options = options[:url]
+    url_options = url_options.merge(:escape => false) if url_options.is_a?(Hash)
+    function << "'#{escape_javascript(url_for(url_options))}'"
+    function << ", #{javascript_options})"
+
+    function = "#{options[:before]}; #{function}" if options[:before]
+    function = "#{function}; #{options[:after]}"  if options[:after]
+    function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
+    function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
+
+    return function
   end
 
   def link_to_remote_new(name, options = {}, html_options = nil)
@@ -302,7 +334,7 @@ module ApplicationHelper
     else
       contents = ""
     end
-    return contents
+    return contents.html_safe
   end
 
   def content_wrapper_tag(options={})
@@ -321,7 +353,7 @@ module ApplicationHelper
       i+=1
       new_txt.insert(i*break_at_length, "<wbr/>")
     end
-    return new_txt
+    return new_txt.html_safe
   end
 
   def selections
@@ -359,7 +391,7 @@ module ApplicationHelper
       splitTxt[i] = segment
       i+=1
     end
-    return splitTxt.join("-<wbr/>")
+    return splitTxt.join("-<wbr/>").html_safe
   end
 
   def make_https url
@@ -377,11 +409,12 @@ module ApplicationHelper
 
   def required_label(form, name, text)
     text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
-    form.label(name, text)
+    form.label(name, text.html_safe)
   end
 
   def required_label_text(text)
-    text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
+    text.html_safe
   end
 
   def label_with_hint(form, name, text, hint, required)
@@ -389,7 +422,7 @@ module ApplicationHelper
       text = text + "<span class='asterisk'>#{l.string("REQUIRED_FIELD")}</span>"
     end
     text = text + "<span class='hint'>"+hint+"</span>"
-    form.label(name, text)
+    form.label(name, text.html_safe)
   end
 
   def render_pluggable_template(task_view_model, options = {})

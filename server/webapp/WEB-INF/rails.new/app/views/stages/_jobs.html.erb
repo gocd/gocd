@@ -1,0 +1,26 @@
+<%- stage_state = scope[:stage].getState()
+    if stage_state.completed() -%>
+    <%== form_tag rerun_jobs_path(:tab => params[:action]) %>
+<%- end -%>
+
+<div id="job_actions">
+<%- if scope[:has_operate_permissions] && scope[:stage].getState().completed() -%>
+        <%= submit_button(l.string("RERUN")) %>
+    <% end %>
+</div>
+
+<table class="jobs_summary list_table <%= scope[:stage].getStage().hasRerunJobs() ? "stage_with_rerun_jobs" : "" -%>">
+    <tr>
+        <th>&nbsp;</th>
+        <th class="jobs_summary_header_name">Name</th>
+        <th class="jobs_summary_header_result">Result</th>
+        <th class="jobs_summary_header_state">State</th>
+        <th class="jobs_summary_header_duration">Duration</th>
+        <th class="jobs_summary_header_agent">Agent</th>
+    </tr>
+
+    <%= render :partial => "job_listing.html", :locals => {:scope => {:jobs => scope[:jobs], :stage_state => stage_state, :has_operate_permissions => scope[:has_operate_permissions]}} %>
+</table>
+<%- if scope[:stage].getState().completed() -%>
+    </form>
+<%- end -%>

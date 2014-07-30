@@ -59,7 +59,7 @@ module MaterialsHelper
     if comment.match(/\"TYPE\":\"PACKAGE_MATERIAL\"/)
       render_comment_for_package_material(comment)
     else
-      render_tracking_tool_link_for_comment(comment, pipeline_name)
+      render_tracking_tool_link_for_comment(comment, pipeline_name).html_safe
     end
   end
 
@@ -69,7 +69,7 @@ module MaterialsHelper
 
   def render_comment_for_package_material(comment)
     package_comment_map = package_material_display_comment(comment)
-    "#{get_comment(package_comment_map)}#{l.string('TRACKBACK')}#{get_trackback_url(package_comment_map)}"
+    "#{get_comment(package_comment_map)}#{l.string('TRACKBACK')}#{get_trackback_url(package_comment_map)}".html_safe
   end
 
   def render_tracking_tool_link(modification, pipeline_name)

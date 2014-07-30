@@ -26,11 +26,11 @@ describe Admin::MaterialsController do
 
   describe "routes" do
     it "should resolve index" do
-      {:get => "/admin/pipelines/pipeline.name/materials"}.should route_to(:controller => "admin/materials", :action => "index", :stage_parent=>"pipelines", :pipeline_name => "pipeline.name")
+      {:get => "/admin/pipelines/pipeline.name/materials"}.should route_to(:controller => "admin/materials", :action => "index", :stage_parent => "pipelines", :pipeline_name => "pipeline.name")
     end
 
     it "should generate index" do
-      admin_material_index_path(:pipeline_name => "foo.bar", :stage_parent=>"pipelines").should == "/admin/pipelines/foo.bar/materials"
+      admin_material_index_path(:pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials"
     end
   end
 
@@ -53,8 +53,10 @@ describe Admin::MaterialsController do
     end
 
     it "should set current tab param" do
-      get :index, {:pipeline_name => @pipeline_name, :stage_parent => "pipelines"}
+      get :index, {:stage_parent => "pipelines", :pipeline_name => @pipeline_name}
+
       controller.params[:current_tab].should == 'materials'
+      assert_template layout: "pipelines/details"
     end
   end
 
@@ -88,7 +90,7 @@ describe Admin::MaterialsController do
       @pipeline.addMaterialConfig(hg = HgMaterialConfig.new("url", nil))
       @pipeline.materialConfigs().size.should == 2
 
-      delete :destroy, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint(), :stage_parent => "pipelines"
+      delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
 
       @pipeline.materialConfigs().size.should == 1
       @pipeline.materialConfigs().first.should == hg
@@ -103,10 +105,11 @@ describe Admin::MaterialsController do
 
       @pipeline.materialConfigs().size.should == 1
 
-      delete :destroy, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint(), :stage_parent => "pipelines"
+      delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
 
       @cruise_config.getAllErrors().size.should == 1
       response.status.should == 400
+      assert_template layout: "pipelines/details"
     end
   end
 end

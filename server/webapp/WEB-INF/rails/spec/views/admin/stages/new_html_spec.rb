@@ -62,8 +62,7 @@ describe "admin/stages new.html.erb" do
       with_tag("input#auto[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::SUCCESS}']")
       with_tag("label[for='manual']", "Manual")
       with_tag("input#manual[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
-      with_tag("span.stage_approval.contextual_help.has_go_tip_right[title=?]", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually
-                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
+      with_tag("span.stage_approval.contextual_help.has_go_tip_right[title=?]", "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
 
       with_tag("input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
 

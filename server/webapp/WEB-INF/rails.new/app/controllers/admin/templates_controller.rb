@@ -22,7 +22,6 @@ class Admin::TemplatesController < AdminController
 
   layout "admin", :except => [:new, :create]
 
-
   def new
     pipelineName = CaseInsensitiveString.new(params[:pipelineToExtractFrom])
     if pipelineName.empty? || (!pipelineName.empty? && @cruise_config.hasPipelineNamed(pipelineName))
@@ -98,7 +97,7 @@ class Admin::TemplatesController < AdminController
         templates.add(@template)
         cruise_config.makePipelineUseTemplate(CaseInsensitiveString.new(@view_model.selectedPipelineName), @template.name()) if @view_model.useExistingPipeline
       end
-    end.new(params, current_user, security_service, @pipeline), {:action => :new}, {:action => "edit", :stage_parent => "templates", :pipeline_name => template_name, :current_tab => "general"}) do
+    end.new(params, current_user, security_service, @pipeline), {:action => :new, :layout => false}, {:action => "edit", :stage_parent => "templates", :pipeline_name => template_name, :current_tab => "general"}) do
       assert_load :pipeline, @pipeline
     end
   end

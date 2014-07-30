@@ -16,7 +16,7 @@
 
 class Admin::CommandsController < AdminController
 
-  layout nil
+  layout false
 
   def index
     @invalid_commands = command_repository_service.getAllInvalidCommandSnippets()

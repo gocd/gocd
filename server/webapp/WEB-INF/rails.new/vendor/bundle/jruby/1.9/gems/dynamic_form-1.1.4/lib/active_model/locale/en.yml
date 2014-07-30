@@ -1,0 +1,4 @@
+en:
+  errors:
+    # The default format to use in full dynamic error messages.
+    dynamic_format: "%{message}"

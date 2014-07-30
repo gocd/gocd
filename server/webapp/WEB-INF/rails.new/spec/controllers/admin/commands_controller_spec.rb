@@ -60,6 +60,7 @@ describe Admin::CommandsController do
         get :index, {:format => :html}
 
         assigns[:invalid_commands].should == [invalid_command_snippet_2, invalid_command_snippet_1]
+        assert_template layout: false
       end
     end
 

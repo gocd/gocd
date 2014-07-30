@@ -117,19 +117,23 @@ describe Admin::ServerController do
 
     it "should assign server config details" do
       get :index
+
       assigns[:server_configuration_form].should == @server_configuration_form
       assigns[:tab_name].should == "server_configuration"
       assigns[:allow_user_to_turn_off_auto_login].should == true
+      assert_template layout: "admin"
     end
 
     it "should assign retrieve jobTimeout for index" do
       get :index
+
       assigns[:server_configuration_form].jobTimeout.should == "42"
       assigns[:server_configuration_form].timeoutType.should == com.thoughtworks.go.config.ServerConfig::OVERRIDE_TIMEOUT
     end
 
     it "should assign configured command repository location" do
       get :index
+
       assigns[:server_configuration_form].commandRepositoryLocation.should == "foo"
     end
 
@@ -144,6 +148,7 @@ describe Admin::ServerController do
 
     it "should construct server config form to display ldap searchbases" do
       get :index
+
       assigns[:server_configuration_form].ldap_search_base.should == "base1\r\nbase2"
     end
 
@@ -152,11 +157,11 @@ describe Admin::ServerController do
 
       before do
         controller.stub(:populate_health_messages) do
-          stub_server_health_messages
+          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
         end
         user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("foo"))
         controller.stub(:set_current_user) do
-          assigns[:user] = user
+          controller.instance_variable_set :@user, user
         end
         controller.stub(:current_user).and_return(user)
         controller.stub(:security_service).and_return(@security_service = Object.new)
@@ -170,7 +175,7 @@ describe Admin::ServerController do
 
         get :index
 
-        response.body.should have_tag("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+        expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
       end
     end
   end
@@ -199,7 +204,9 @@ describe Admin::ServerController do
     it "should assign server config details" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
       stub_update_server_config(@mail_host, @ldap_config, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
+
       post :update, :server_configuration_form => @valid_server_params, :cruise_config_md5 => "foo_bar_baz"
+
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success', [])
     end
 
@@ -223,14 +230,18 @@ describe Admin::ServerController do
     it "should skip validating mailHost params if all of them are empty" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", 10, 20, nil, @should_allow_auto_login, nil, nil, nil, localized_success_message, "foo_bar_baz")
+
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting), :cruise_config_md5 => "foo_bar_baz"
+
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
     end
 
     it "should drop purge-values when purging turned off" do
       @server_config_service.stub(:siteUrlFor).and_return { |url, forceSsl| url }
       stub_update_server_config(MailHost.new(com.thoughtworks.go.security.GoCipher.new), @ldap_config, @password_file_config, "newArtifactDir", nil, nil, nil, @should_allow_auto_login, nil, nil,nil,  localized_success_message, "foo_bar_baz")
+
       post :update, :server_configuration_form => @valid_security_config_params.merge(@valid_artifacts_setting).merge(:purgeArtifacts => "Never"), :cruise_config_md5 => "foo_bar_baz"
+
       assert_redirected_with_flash("/admin/config/server", "Saved configuration successfully.", 'success')
     end
 
@@ -268,6 +279,7 @@ describe Admin::ServerController do
       end
 
       post :update, :server_configuration_form => @valid_mail_host_params
+
       assert_index_rendered_with_error("From address is not a valid email address.")
     end
 
@@ -332,7 +344,9 @@ describe Admin::ServerController do
     it "should validate email" do
       @default_localized_result.invalid("INVALID_EMAIL", ["@foo.com"].to_java(java.lang.String))
       @server_config_service.should_receive(:validateEmail).with("@foo.com").and_return(@default_localized_result)
+
       get :validate, :email => "@foo.com"
+
       assigns[:result].should == @default_localized_result
     end
 
@@ -392,6 +406,7 @@ describe Admin::ServerController do
       end
 
       post :test_email, :server_configuration_form => @valid_mail_host_params
+
       json = JSON.parse(response.body)
       json["error"].should == "Invalid port."
       json["success"].should == nil
@@ -399,7 +414,9 @@ describe Admin::ServerController do
 
     it "should validate port" do
       controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
+
       post :test_email, :server_configuration_form => @valid_mail_host_params.except(:port)
+
       json = JSON.parse(response.body)
       json["error"].should == "Port is required."
       json["success"].should == nil
@@ -410,7 +427,9 @@ describe Admin::ServerController do
       mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       @server_config_service.should_receive(:sendTestMail).with(mail_host, an_instance_of(HttpLocalizedOperationResult))
+
       post :test_email, :server_configuration_form => @valid_mail_host_params
+
       json = JSON.parse(response.body)
       json["error"].should == nil
       json["success"].should == "Sent test email successfully."

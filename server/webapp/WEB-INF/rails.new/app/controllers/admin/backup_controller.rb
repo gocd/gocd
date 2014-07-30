@@ -18,6 +18,8 @@ class Admin::BackupController < ApplicationController
 
   layout "admin"
 
+  protect_from_forgery :except => :delete_all #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
+
   def index
     @tab_name = "backup"
     @backup_location = backup_service.backupLocation()

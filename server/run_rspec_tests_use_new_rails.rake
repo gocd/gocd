@@ -122,6 +122,28 @@ task "spec" => RAILS_DEPENDENCIES do
   execute_under_rails(str)
 end
 
+task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_module" if args[:spec_module_path] == nil
+
+  path = args[:spec_module_path].split('rails.new/spec/')[1]
+
+  running_tests!
+  rm_rf SPEC_SERVER_DIR
+  reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
+  puts "reports directory: " + reports_dir
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
+          ' --require rspec-extra-formatters' +
+          ' --format progress' +
+          ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
+          ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
+          ' --drb' +
+          ' spec' +
+          ' --pattern ' + "#{path}/**/*_spec.rb"
+  execute_under_rails(str)
+
+  puts File.read(File.join(reports_dir, 'spec_full_report'))
+end
+
 task "spec_file", [:spec_file_path, :spec_file_line] => RAILS_DEPENDENCIES do |t, args|
   raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" if args[:spec_file_path] == nil
 

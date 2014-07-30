@@ -146,6 +146,7 @@ module Admin
         @group_name = params[:group]
         @pipeline_group = PipelineConfigs.new([@pipeline].to_java(PipelineConfig))
         load_group_list
+        render layout: false
       else
         render_error_template(l.string("PIPELINE_NOT_FOUND", [pipelineName]), 404)
       end
@@ -174,7 +175,7 @@ module Admin
         end
       end.new(params, current_user, security_service, dup_pipeline)
 
-      save_popup(params[:config_md5],save_action,{:action => :clone, :layout => nil}, {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => params[:pipeline_group][:pipeline][:name], :current_tab => 'general', :stage_parent => "pipelines"}, "Cloned successfully.")do
+      save_popup(params[:config_md5],save_action,{:action => :clone, :layout => false}, {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => params[:pipeline_group][:pipeline][:name], :current_tab => 'general', :stage_parent => "pipelines"}, "Cloned successfully.")do
         assert_load :pipeline, @subject
         assert_load(:pipeline_group, save_action.group)
         assert_load(:group_name, save_action.group.getGroup())

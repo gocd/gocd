@@ -4,7 +4,9 @@ gem 'rails', '4.0.4'
 
 gem 'validatable', '>=1.6.0'
 
-gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
+gem 'dynamic_form'
 
-#Clone repo into ~/projects/oauth2_provider from https://github.com/sachinsudheendra/gocd_oauth2_provider_engine.git
+#gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
+
 gem 'oauth2_provider', '0.0.1', path: 'vendor/engines/oauth2_provider'
+

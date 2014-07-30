@@ -45,7 +45,7 @@ shared_examples_for :material_controller do
     end
 
     it "delete" do
-      {:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}.should route_to(:controller => "admin/materials", :action => "destroy", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
+      {:delete => "/admin/pipelines/pipeline.name/materials/finger_print"}.should route_to(:controller => "admin/materials", :action => "destroy", :stage_parent => "pipelines", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
       send("admin_material_delete_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/finger_print"
     end
   end
@@ -64,9 +64,12 @@ shared_examples_for :material_controller do
 
       it "should load new material" do
         setup_for_new_material
+
         get :new, :pipeline_name => "pipeline-name"
+
         assert_material_is_initialized
         assigns[:cruise_config].should == @cruise_config
+        assert_template layout: false
       end
     end
 
@@ -102,6 +105,7 @@ shared_examples_for :material_controller do
 
         assigns[:errors].size.should == 1
         response.status.should == 400
+        assert_template layout: false
       end
     end
 
@@ -113,10 +117,13 @@ shared_examples_for :material_controller do
 
       it "should edit an existing material" do
         setup_other_form_objects
+
         get :edit, :pipeline_name => "pipeline-name", :finger_print => @material.getPipelineUniqueFingerprint()
+
         assigns[:material].should == @material
         assigns[:cruise_config].should == @cruise_config
         controller_specific_assertion
+        assert_template layout: false
       end
     end
 
@@ -165,9 +172,11 @@ shared_examples_for :material_controller do
         end
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => update_payload, :finger_print => @material.getPipelineUniqueFingerprint()
+
         assigns[:errors].size.should == 1
         response.status.should == 400
         assigns[:material].should_not == nil
+        assert_template layout: false
       end
     end
   end

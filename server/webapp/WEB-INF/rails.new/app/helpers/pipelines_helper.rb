@@ -26,14 +26,14 @@ module PipelinesHelper
   #  l.string(is_stage_unknown ? "Building" : stage_result_to_string)
   #end
   #
-  #def stage_bar_url stage, action
-  #  stage_id = stage.getIdentifier()
-  #  stage.isScheduled() ? stage_detail_tab_path(:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter(), :action => action) : "#"
-  #end
-  #
-  #def run_stage_label stage
-  #  (stage.isScheduled() ? "rerun" : "trigger")
-  #end
+  def stage_bar_url stage, action
+    stage_id = stage.getIdentifier()
+    stage.isScheduled() ? stage_detail_tab_path(:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter(), :action => action) : "#"
+  end
+
+  def run_stage_label stage
+    (stage.isScheduled() ? "rerun" : "trigger")
+  end
 
   def trigger_message(actual_date_time, pim)
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
@@ -46,9 +46,9 @@ module PipelinesHelper
   def trigger_message_with_formatted_date_time(date_time, who)
     on = "&nbsp;#{l.string("on")}&nbsp;<span class='time'>#{date_time.to_long_display_date_time}</span>"
     if who == GoConstants::DEFAULT_APPROVED_BY
-      "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}"
+      "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}".html_safe
     else
-      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}"
+      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}".html_safe
     end
   end
   #
@@ -68,26 +68,27 @@ module PipelinesHelper
     pipeline_model.getLatestPipelineInstance().getName()
   end
 
-  #def material_type(material)
-  #  dependency?(material) ? 'dependency' : 'scm'
-  #end
+  def material_type(material)
+    dependency?(material) ? 'dependency' : 'scm'
+  end
+
   #
   #def scm?(material)
   #  material.is_a? ScmMaterial
   #end
   #
-  #def dependency?(material)
-  #  material.is_a? DependencyMaterial
-  #end
-  #
-  #def revision_for(revision)
-  #  if dependency?(revision.getMaterial())
-  #    "#{revision.getRevision().getPipelineName()}/#{revision.getRevision().getPipelineCounter()}"
-  #  else
-  #    revision.getLatestShortRevision()
-  #  end
-  #end
-  #
+  def dependency?(material)
+    material.is_a? DependencyMaterial
+  end
+
+  def revision_for(revision)
+    if dependency?(revision.getMaterial())
+      "#{revision.getRevision().getPipelineName()}/#{revision.getRevision().getPipelineCounter()}"
+    else
+      revision.getLatestShortRevision()
+    end
+  end
+
   def pipeline_instance_identifier(pim)
     "#{pim.getName()}_#{pim.getCounter()}"
   end
@@ -96,14 +97,14 @@ module PipelinesHelper
     "changes_#{pipeline_instance_identifier(pim)}"
   end
 
-  #def build_cause_popup_id_for_pipeline_counter(counter, prefix = nil)
-  #  "#{prefix}for_pipeline_#{counter}"
-  #end
-  #
-  #def url_for_pipeline_instance(pipeline, options = {})
-  #  stage = pipeline.latestStage()
-  #  stage_detail_tab_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :stage_name => stage.getName(), :stage_counter => stage.getCounter(), :action => "pipeline"}))
-  #end
+  def build_cause_popup_id_for_pipeline_counter(counter, prefix = nil)
+    "#{prefix}for_pipeline_#{counter}"
+  end
+
+  def url_for_pipeline_instance(pipeline, options = {})
+    stage = pipeline.latestStage()
+    stage_detail_tab_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :stage_name => stage.getName(), :stage_counter => stage.getCounter(), :action => "pipeline"}))
+  end
 
   def url_for_pipeline_value_stream_map(pipeline, options = {})
     vsm_show_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :action => "show"}))

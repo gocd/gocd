@@ -1,7 +1,7 @@
 <div class="form_content">
     <div class="environment_variables_section popup_form">
         <textarea id="environment_variables_template" class="template">
-            <%- scope[:form].fields_for :variables, :index => "" do |var_form| -%>
+            <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
                 <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form}} -%>
             <%- end -%>
         </textarea>

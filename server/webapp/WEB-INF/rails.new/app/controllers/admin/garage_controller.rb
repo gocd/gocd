@@ -16,7 +16,7 @@
 
 module Admin
   class GarageController < AdminController
-    layout nil
+    layout false
 
     def index
       @garage_data = garage_service.getData

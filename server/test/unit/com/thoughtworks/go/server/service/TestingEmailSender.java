@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 public class TestingEmailSender implements EmailSender {
     private String sentMessage = NO_MESSAGE;

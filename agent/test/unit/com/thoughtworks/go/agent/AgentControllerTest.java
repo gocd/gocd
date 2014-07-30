@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

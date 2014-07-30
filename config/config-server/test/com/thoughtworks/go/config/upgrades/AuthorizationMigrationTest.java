@@ -28,9 +28,9 @@ import com.thoughtworks.go.util.GoConstants;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 
 // test for 14.xsl

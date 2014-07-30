@@ -41,11 +41,11 @@ import static com.thoughtworks.go.serverhealth.HealthStateScope.forMaterialConfi
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class ServerHealthServiceTest {
     private ServerHealthService serverHealthService;
@@ -82,7 +82,7 @@ public class ServerHealthServiceTest {
         serverHealthService.update(expiresNever);
         ServerHealthStates logs = serverHealthService.getAllValidLogs(new CruiseConfig());
         assertThat(logs.size(), is(3));
-        assertThat(logs,hasItems(expiresInThreeMins,expiresInNintySecs, expiresNever));
+        assertThat(logs, hasItems(expiresInThreeMins,expiresInNintySecs, expiresNever));
         testingClock.addSeconds(100);
         logs = serverHealthService.getAllValidLogs(new CruiseConfig());
         assertThat(logs.size(), is(2));

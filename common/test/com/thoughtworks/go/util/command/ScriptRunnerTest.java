@@ -22,11 +22,11 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.fail;
 
 @RunWith(JunitExtRunner.class)
 public class ScriptRunnerTest {

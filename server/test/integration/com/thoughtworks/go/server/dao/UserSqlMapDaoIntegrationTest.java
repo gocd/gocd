@@ -16,15 +16,8 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
@@ -38,6 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;

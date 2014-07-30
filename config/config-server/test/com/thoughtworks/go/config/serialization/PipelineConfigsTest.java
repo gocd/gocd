@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.serialization;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -27,10 +26,10 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class PipelineConfigsTest {
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();

@@ -237,7 +237,7 @@ public class JobInstanceMother {
         String instanceName = RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(jobName, counter);
         JobInstance jobInstance = building(instanceName);
         jobInstance.setRunOnAllAgents(true);
-        JobIdentifier identifier = new JobIdentifier(pipelineName, pipelineLabel, stageName, "1", instanceName);
+        JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", instanceName, 0L);
         jobInstance.setIdentifier(identifier);
         return jobInstance;
     }
@@ -245,7 +245,7 @@ public class JobInstanceMother {
     public static JobInstance buildingInstance(String pipelineName, String stageName, String jobName,
                                                String pipelineLabel) {
         JobInstance job = building(jobName);
-        JobIdentifier identifier = new JobIdentifier(pipelineName, pipelineLabel, stageName, "1", jobName);
+        JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", jobName, 0L);
         job.setIdentifier(identifier);
         return job;
     }

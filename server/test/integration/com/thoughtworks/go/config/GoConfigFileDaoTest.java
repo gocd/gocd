@@ -43,7 +43,6 @@ import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.TestUtils.assertContains;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -51,6 +50,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -311,7 +311,7 @@ public class GoConfigFileDaoTest {
         try {
             goConfigFileDao.updateConfig(command);
             fail("should have failed as check returned false");
-        } catch (ConfigUpdateCheckFailedException expected) {
+        } catch (ConfigUpdateCheckFailedException ignored) {
         }
         assertThat(command.wasUpdated, is(false));
         assertThat(command.after, not(nullValue()));
@@ -403,7 +403,6 @@ public class GoConfigFileDaoTest {
         assertThat(indexOfSecond, is(not(-1)));
         assertThat(indexOfFirst, is(not(-1)));
         assertTrue(indexOfSecond < indexOfFirst);
-
     }
 
     @Test
@@ -415,8 +414,7 @@ public class GoConfigFileDaoTest {
         try {
             goConfigFileDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
             fail();
-        } catch (Exception e) {
-
+        } catch (Exception ignored) {
         }
         cruiseConfig = goConfigFileDao.load();
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize));
@@ -469,7 +467,7 @@ public class GoConfigFileDaoTest {
         try {
             cachedGoConfig.save("This is invalid Cruise", false);
             fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         assertCurrentConfigIs(cruiseConfig);

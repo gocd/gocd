@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class StageResultTest {
 

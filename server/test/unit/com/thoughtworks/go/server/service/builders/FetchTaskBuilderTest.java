@@ -16,46 +16,26 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import java.io.File;
-import java.util.Date;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.DirHandler;
-import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.domain.FetchHandler;
-import com.thoughtworks.go.domain.FileHandler;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
+import java.io.File;
+import java.util.Date;
+
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class FetchTaskBuilderTest {
     private static final String LABEL = "1.01";

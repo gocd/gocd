@@ -37,9 +37,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(JunitExtRunner.class)
 public class SvnCommandRemoteTest {

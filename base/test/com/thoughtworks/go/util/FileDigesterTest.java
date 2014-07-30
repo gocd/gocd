@@ -16,28 +16,16 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.After;
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class FileDigesterTest {
-    private List<File> tempFiles = new ArrayList<File>();
-
-    @After
-    public void tearDown() throws Exception {
-        for (File tempFile : tempFiles) {
-            tempFile.delete();
-        }
-    }
-
     private File createFileWithSampleData() throws IOException {
         File tempFile = TestFileUtil.createTempFile("test.txt");
         FileUtil.writeContentToFile("sample data", tempFile);
@@ -58,8 +46,7 @@ public class FileDigesterTest {
         try {
             fileDigester.md5();
             fail("Should have thrown an invalid state exception");
-        } catch (Exception e) {
-
+        } catch (Exception ignored) {
         }
     }
 }

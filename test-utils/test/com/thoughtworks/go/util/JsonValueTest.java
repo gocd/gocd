@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.util;
 
-import static junit.framework.Assert.fail;
-
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import org.junit.Test;
 
 public class JsonValueTest {

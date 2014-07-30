@@ -27,13 +27,13 @@ import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class UserTest {
     private MaterialRevisions materialRevisions;
@@ -128,7 +128,7 @@ public class UserTest {
         try {
             user.validateEmail();
             fail("validator should capture the email");
-        } catch (ValidationException e) {
+        } catch (ValidationException ignored) {
         }
     }
 
@@ -138,7 +138,7 @@ public class UserTest {
         try {
             user.validateEmail();
             fail("validator should capture the email");
-        } catch (ValidationException e) {
+        } catch (ValidationException ignored) {
         }
     }
 
@@ -154,7 +154,7 @@ public class UserTest {
         try {
             user.validateMatcher();
             fail("validator should capture the matcher");
-        } catch (ValidationException e) {
+        } catch (ValidationException ignored) {
         }
     }
 

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server.domain;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 public class MessageLevelTest extends TestCase {
     public void testShouldMapDisplayNameToType() {

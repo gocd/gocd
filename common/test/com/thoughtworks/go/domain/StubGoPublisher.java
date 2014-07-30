@@ -23,6 +23,8 @@ import java.util.Map;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import static org.junit.Assert.fail;
+
 public class StubGoPublisher extends DefaultGoPublisher {
     private String message = "";
     private Map<File, String> uploadedFiles = new HashMap<File, String>();
@@ -71,6 +73,6 @@ public class StubGoPublisher extends DefaultGoPublisher {
                 return;
             }
         }
-        junit.framework.Assert.fail(endOfFileName + " was not published to " + destination + ".\n" + uploadedFiles);
+        fail(endOfFileName + " was not published to " + destination + ".\n" + uploadedFiles);
     }
 }

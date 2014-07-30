@@ -25,7 +25,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 public class DatabaseValidator extends ZipValidator {
 
     public Validation validate(Validation validation) {
-        File destDir = new File(SystemEnvironment.getProperty("user.dir"), "db");
+        File destDir = new File(new SystemEnvironment().getPropertyImpl("user.dir"), "db");
         destDir.mkdirs();
         try {
             unzip(new ZipInputStream(this.getClass().getResourceAsStream("/defaultFiles/h2deltas.zip")), destDir);

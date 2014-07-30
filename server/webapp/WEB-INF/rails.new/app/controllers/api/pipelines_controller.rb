@@ -50,6 +50,19 @@ class Api::PipelinesController < Api::ApiController
     end
   end
 
+  def status
+    pipeline_name = params[:pipeline_name]
+    result = HttpOperationResult.new
+
+    pipeline_status = pipeline_history_service.getPipelineStatus(pipeline_name, CaseInsensitiveString.str(current_user.getUsername()), result)
+
+    if result.canContinue()
+      render json: PipelineStatusAPIModel.new(pipeline_status)
+    else
+      render_error_response(result.detailedMessage(), result.httpCode(), true)
+    end
+  end
+
   helper_method :url, :resource_url, :page_url
 
   def pipeline_instance

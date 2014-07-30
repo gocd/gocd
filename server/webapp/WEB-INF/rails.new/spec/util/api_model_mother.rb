@@ -305,5 +305,13 @@ module APIModelMother
     @config_revision_view_model.stub(:getCommitSHA).and_return(nil)
     @config_revision_view_model
   end
+
+  def create_pipeline_status_model
+    @pipeline_status_model = double('PipelineStatusViewModel')
+    @pipeline_status_model.stub(:isPaused).and_return(true)
+    @pipeline_status_model.stub(:isLocked).and_return(true)
+    @pipeline_status_model.stub(:isSchedulable).and_return(true)
+    @pipeline_status_model
+  end
 end
 

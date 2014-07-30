@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -35,6 +36,7 @@ import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -150,6 +152,24 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 		}
 
 		return history;
+	}
+
+	public PipelineStatusModel getPipelineStatus(String pipelineName, String username, OperationResult result) {
+		PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+		if (pipelineConfig == null) {
+			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
+		}
+		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			return null;
+		}
+
+		boolean isPaused = pipelinePauseService.isPaused(pipelineName);
+		boolean isCurrentlyLocked = pipelineLockService.isLocked(pipelineName);
+		boolean isSchedulable = schedulingCheckerService.canManuallyTrigger(pipelineConfig, username, new ServerHealthStateOperationResult());
+
+		return new PipelineStatusModel(isPaused, isCurrentlyLocked, isSchedulable);
 	}
 
     private void populatePipelineInstanceModel(Username username, boolean populateCanRun, PipelineConfig pipelineConfig, PipelineInstanceModel pipelineInstanceModel) {

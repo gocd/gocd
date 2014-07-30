@@ -1,0 +1,27 @@
+AllCops:
+  Exclude:
+    - uglifier.gemspec
+    - lib/uglifier/version.rb
+
+ClassLength:
+  Enabled: false
+
+# Offense count: 4
+# Cop supports --auto-correct.
+DeprecatedHashMethods:
+  Enabled: false
+
+HashSyntax:
+  EnforcedStyle: hash_rockets
+
+LineLength:
+  Max: 100
+
+MethodLength:
+  Max: 20
+
+SignalException:
+  Enabled: false
+
+StringLiterals:
+  Enabled: false

@@ -1,0 +1,24 @@
+$:.push File.expand_path("../lib", __FILE__)
+require "coffee/rails/version"
+
+Gem::Specification.new do |s|
+  s.name        = "coffee-rails"
+  s.version     = Coffee::Rails::VERSION
+  s.platform    = Gem::Platform::RUBY
+  s.authors     = ["Santiago Pastorino"]
+  s.email       = ["santiago@wyeworks.com"]
+  s.homepage    = "https://github.com/rails/coffee-rails"
+  s.summary     = %q{CoffeeScript adapter for the Rails asset pipeline.}
+  s.description = %q{CoffeeScript adapter for the Rails asset pipeline.}
+
+  s.rubyforge_project = "coffee-rails"
+
+  s.add_runtime_dependency 'coffee-script', '>= 2.2.0'
+  s.add_runtime_dependency 'railties',      '>= 4.0.0', '< 5.0'
+
+  s.files         = [<%= files.map(&:inspect).join ',' %>]
+  s.test_files    = [<%= test_files.map(&:inspect).join ',' %>]
+  s.executables   = [<%= executables.map(&:inspect).join ',' %>]
+  s.require_paths = ["lib"]
+  s.license = "MIT"
+end

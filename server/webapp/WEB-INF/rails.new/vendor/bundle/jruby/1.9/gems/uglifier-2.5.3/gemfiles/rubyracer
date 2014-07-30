@@ -1,0 +1,5 @@
+source "https://rubygems.org"
+
+gemspec :path=>"../"
+gem 'therubyracer'
+gem 'rubocop', '0.23.0'

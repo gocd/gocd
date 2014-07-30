@@ -3,5 +3,5 @@
 
   <h1>Edit OAuth client</h1>
 
-  <%= render :partial => "form", :locals => { :oauth_client => @oauth_client } %>
+  <%= render :partial => "form", :locals => { :oauth_client => @oauth_client, url: oauth_engine.client_path(id: @oauth_client.id), method: :patch } %>
 </div>

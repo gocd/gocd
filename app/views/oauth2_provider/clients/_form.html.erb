@@ -1,4 +1,4 @@
-<%= form_for(@oauth_client, :html => {:id => 'oauth_client_edit_form'}) do |f| %>
+<%= form_for(@oauth_client, url: url, method: method, html: {id: 'oauth_client_edit_form'}) do |f| %>
 
   <div class="form_item">
     <label for='name'>

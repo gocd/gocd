@@ -42,7 +42,6 @@
 			  <%= form_tag(oauth_engine.client_path(id: oauth_client.id), method: :delete) do %>
 			  	<%= submit_tag "Delete", class: "delete_link", title: "Click to delete this client"%>
 			  <% end -%>
-            <%= link_to 'Delete', oauth_engine.client_path(id: oauth_client.id), {data: { confirm: 'Are you sure?' }, :method => :delete, :class => 'delete_link', :title => 'Click to delete this client'} %>
           </td>
         </tr>
       <% end %>

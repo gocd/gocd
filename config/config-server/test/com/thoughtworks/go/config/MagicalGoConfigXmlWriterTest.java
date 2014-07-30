@@ -49,9 +49,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class MagicalGoConfigXmlWriterTest {
@@ -59,11 +59,10 @@ public class MagicalGoConfigXmlWriterTest {
     private MagicalGoConfigXmlWriter xmlWriter;
     public SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
-    private MetricsProbeService metricsProbeService;
 
     @Before
     public void setup() {
-        metricsProbeService = mock(MetricsProbeService.class);
+        MetricsProbeService metricsProbeService = mock(MetricsProbeService.class);
         output = new ByteArrayOutputStream();
         ConfigCache configCache = new ConfigCache();
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);

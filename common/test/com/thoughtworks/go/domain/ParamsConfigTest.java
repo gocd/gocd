@@ -29,9 +29,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +48,7 @@ public class ParamsConfigTest {
     @Test
     public void shouldPopulateParamFromMapIgnoringEmptyPairs() {
         paramsConfig = new ParamsConfig();
-        List paramsMap = new ArrayList<Map>();
+        List<Map> paramsMap = new ArrayList<Map>();
 
         paramsMap.add(createParamMap("param-name", "param-value"));
         paramsMap.add(createParamMap("", ""));

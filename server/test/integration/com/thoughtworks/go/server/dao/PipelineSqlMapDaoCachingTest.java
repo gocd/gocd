@@ -70,9 +70,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;

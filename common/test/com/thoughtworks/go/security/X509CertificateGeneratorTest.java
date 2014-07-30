@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.security;
 
-import static junit.framework.Assert.assertTrue;
-
 import java.io.File;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -28,6 +26,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class X509CertificateGeneratorTest {
     private TempFiles tempFiles;

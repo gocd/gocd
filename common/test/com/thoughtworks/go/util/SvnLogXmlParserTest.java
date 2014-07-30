@@ -29,11 +29,11 @@ import org.jdom.input.SAXBuilder;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.SvnLogXmlParser.convertDate;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.fail;
 
 public class SvnLogXmlParserTest {
 

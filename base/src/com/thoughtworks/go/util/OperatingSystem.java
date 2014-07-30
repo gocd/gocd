@@ -28,7 +28,7 @@ public enum OperatingSystem {
     }
 
     public static OperatingSystem fromProperty() {
-        String osName = SystemEnvironment.getProperty("os.name");
+        String osName = new SystemEnvironment().getPropertyImpl("os.name");
         return parseOperatingSystem(osName);
     }
 

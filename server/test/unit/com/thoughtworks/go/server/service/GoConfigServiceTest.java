@@ -74,7 +74,7 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static java.lang.String.format;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.Matchers.*;

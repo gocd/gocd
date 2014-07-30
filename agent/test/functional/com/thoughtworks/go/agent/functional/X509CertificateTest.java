@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent.functional;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 

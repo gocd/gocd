@@ -28,10 +28,10 @@ import org.apache.commons.io.FileUtils;
 public class JettyWorkDirValidator implements Validator {
     public Validation validate(Validation val) {
         if (SystemEnvironment.getProperty("jetty.home", "").equals("")) {
-            new SystemEnvironment().setProperty("jetty.home", SystemEnvironment.getProperty("user.dir"));
+            new SystemEnvironment().setProperty("jetty.home", new SystemEnvironment().getPropertyImpl("user.dir"));
         }
-        File home = new File(SystemEnvironment.getProperty("jetty.home"));
-        File work = new File(SystemEnvironment.getProperty("jetty.home"), "work");
+        File home = new File(new SystemEnvironment().getPropertyImpl("jetty.home"));
+        File work = new File(new SystemEnvironment().getPropertyImpl("jetty.home"), "work");
         if (home.exists()) {
             if (work.exists()) {
                 try {

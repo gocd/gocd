@@ -53,20 +53,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 public class ParamResolverTest {
 
     private ClassAttributeCache.FieldCache fieldCache;
-    private ClassAttributeCache.AnnotationPresentCache annotationPresentCache;
 
     @Before
     public void setUp() throws Exception {
         fieldCache = new ClassAttributeCache.FieldCache();
-        annotationPresentCache = new ClassAttributeCache.AnnotationPresentCache();
     }
 
     @Test
@@ -106,7 +105,7 @@ public class ParamResolverTest {
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
         assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("cruise-#{foo}-#{bar}")));
         assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPassword(), is("#quux-#{foo}-#{bar}"));
-        assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class), is(SkipParameterResolution.class));
+        assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class), isA(SkipParameterResolution.class));
     }
 
     @Test
@@ -117,7 +116,7 @@ public class ParamResolverTest {
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
         assertThat(pipelineConfig.getParams().get(0), is(param("#{foo}-name", "#{foo}-#{bar}-baz")));
-        assertThat(pipelineConfig.getClass().getDeclaredField("params").getAnnotation(SkipParameterResolution.class), is(SkipParameterResolution.class));
+        assertThat(pipelineConfig.getClass().getDeclaredField("params").getAnnotation(SkipParameterResolution.class), isA(SkipParameterResolution.class));
     }
 
     @Test

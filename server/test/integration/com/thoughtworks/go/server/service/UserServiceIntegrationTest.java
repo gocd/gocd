@@ -63,12 +63,12 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -166,7 +166,7 @@ public class UserServiceIntegrationTest {
         try {
             userService.validate(new User("username", new String[]{"committer"}, "mail.com", false));
             fail("should have thrown when email is invalid");
-        } catch (ValidationException expected) {
+        } catch (ValidationException ignored) {
         }
     }
 

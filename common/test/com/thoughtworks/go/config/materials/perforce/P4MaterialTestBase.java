@@ -35,12 +35,12 @@ import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
 
 import static java.lang.String.format;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.junit.Assert.fail;
 
 public abstract class P4MaterialTestBase extends PerforceFixture {
     protected static final String VIEW = "//depot/... //something/...";
@@ -249,7 +249,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         P4Material p4Material = p4Fixture.material(VIEW);
         p4Material.updateTo(outputconsumer, new StringRevision("2"), clientFolder, new TestSubprocessExecutionContext());
         String message = format("Start updating %s at revision %s from %s", "files", "2", p4Material.getUrl());
-        assertThat(outputconsumer.getStdOut(), JUnitMatchers.containsString(message));
+        assertThat(outputconsumer.getStdOut(), containsString(message));
     }
 
     @Test public void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {

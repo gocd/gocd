@@ -18,9 +18,9 @@ package com.thoughtworks.go.plugin.infra;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class PluginManagerReferenceTest {
@@ -30,7 +30,7 @@ public class PluginManagerReferenceTest {
         try {
             reference.getPluginManager();
             fail("should throw exception");
-        } catch (IllegalStateException ise) {
+        } catch (IllegalStateException ignored) {
         }
         PluginManager mockManager = mock(PluginManager.class);
         reference.setPluginManager(mockManager);

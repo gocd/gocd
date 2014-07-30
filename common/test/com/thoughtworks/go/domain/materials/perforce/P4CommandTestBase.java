@@ -31,11 +31,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,7 +119,7 @@ public abstract class P4CommandTestBase extends PerforceFixture {
         try {
             p4.execute(line, "foo", outputStreamConsumer, true);
             fail("did't bomb for non zero return code");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         verify(line).run(outputStreamConsumer, null, "foo");
     }

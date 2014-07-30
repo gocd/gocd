@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
-import static junit.framework.Assert.fail;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
@@ -49,7 +48,7 @@ public class BuildPlansTest {
         try {
             jobConfigs.add(jobConfig("Test"));
             fail("Should not be able to add build plan with the same name again");
-        } catch (RuntimeException expected) {
+        } catch (RuntimeException ignored) {
         }
     }
 
@@ -60,7 +59,7 @@ public class BuildPlansTest {
         try {
             jobConfigs.add(jobConfig("test"));
             fail("Should not be able to add build plan with the same name again");
-        } catch (RuntimeException expected) {
+        } catch (RuntimeException ignored) {
         }
     }
 

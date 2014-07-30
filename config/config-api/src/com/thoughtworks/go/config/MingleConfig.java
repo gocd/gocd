@@ -90,7 +90,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
     }
 
     public String urlFor(String path) throws URIException {
-        URI baseUri = new URI(baseUrl, "UTF-8");
+        URI baseUri = new URI(baseUrl, false, "UTF-8");
         String originalPath = baseUri.getPath();
         if (originalPath == null) {
             originalPath = "";

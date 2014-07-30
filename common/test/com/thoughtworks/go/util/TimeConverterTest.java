@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.util;
 
-import static junit.framework.Assert.assertEquals;
-
 import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class TimeConverterTest {
     private TimeConverter timeConverter;
@@ -56,6 +56,7 @@ public class TimeConverterTest {
         assertEquals(TimeConverter.ABOUT_1_MINUTE_AGO, timeConverter.getConvertedTime(89));
     }
 
+    @Test
     public void testShouldReport2To44MinutesFor90Seconds() {
         assertEquals(TimeConverter.ABOUT_X_MINUTES_AGO.argument(2), timeConverter
                 .getConvertedTime(1 * 60 + 30));

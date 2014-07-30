@@ -57,11 +57,11 @@ import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.listOf;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 @RunWith(SpringJUnit4ClassRunner.class)

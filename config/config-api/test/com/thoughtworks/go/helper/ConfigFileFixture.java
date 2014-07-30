@@ -28,6 +28,46 @@ import java.util.Arrays;
 
 public final class ConfigFileFixture {
 
+    /* Used by rspec spec. For agent page test (agents controller in ruby). */
+    @SuppressWarnings("UnusedDeclaration")
+    public static final String WITH_VARITY_OF_AGENTS = "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"16\">\n"
+            + "           <server artifactsdir=\"logs\">\n"
+            + "           </server>\n"
+            + "            <agents>\n"
+            + "              <agent hostname=\"crey\" ipaddress=\"10.18.8.18\" uuid=\"f73955ee-ff0f-4506-b6d0-0b7231d065a2\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                  <resource>filtering_resource</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "              <agent hostname=\"ery-desktopE\" ipaddress=\"10.18.8.16\" uuid=\"887f3678-894e-48a0-b386-9d382cf1dbec\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "              <agent hostname=\"cceuser-desktopF\" ipaddress=\"10.18.8.19\" uuid=\"870fb502-0511-4f97-8656-99d9fc406936\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "              <agent hostname=\"cceuser-desktopX\" ipaddress=\"10.18.8.20\" uuid=\"5641d41f-5fc0-46f1-85db-9baa0f6b90e3\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "              <agent hostname=\"cceuser-desktopB\" ipaddress=\"10.18.8.21\" uuid=\"daa7d3df-7fb4-4bb4-ad5b-8ef34a967d78\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "              <agent hostname=\"cceuser-desktopC\" ipaddress=\"10.18.8.22\" uuid=\"df992305-51ed-484d-918b-d6cfe286100d\">\n"
+            + "                <resources>\n"
+            + "                  <resource>personal</resource>\n"
+            + "                </resources>\n"
+            + "              </agent>\n"
+            + "            </agents>\n"
+            + "         </cruise>";
+
     //TODO: test reload if config file changed
     public static final String INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT =
             "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"

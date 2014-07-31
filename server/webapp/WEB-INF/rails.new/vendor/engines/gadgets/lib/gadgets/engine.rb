@@ -1,9 +1,12 @@
 module Gadgets
   class Engine < ::Rails::Engine
-    require 'validatable'
-    require 'ext/ssl_certificate.rb'
+    require 'active_model'
+    require 'active_model/validations'
+    require 'active_model/errors'
     require 'ext/validatable_ext.rb'
+    require 'ext/ssl_certificate.rb'
     require 'gadgets'
+
     if RUBY_PLATFORM =~ /java/
       java.lang.System.setProperty('java.awt.headless', 'true')
       require 'shindig'

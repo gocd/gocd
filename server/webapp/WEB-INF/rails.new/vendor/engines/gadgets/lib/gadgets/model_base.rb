@@ -7,8 +7,9 @@ module Gadgets
   end
 
   class ModelBase
-
-    include Validatable
+    include ActiveModel::Validations
+    include ActiveModel::Conversion
+    extend ActiveModel::Naming
 
     CONVERTORS =  {
             :integer => Proc.new { |v| v ? v.to_i : nil },
@@ -57,16 +58,16 @@ module Gadgets
     def self.validates_uniqueness_of(*columns)
       options = columns.extract_options!
       columns.each do |column_name|
-        self.validates_each column_name, :logic => lambda {
+        self.validates_each column_name do |record, attr, value|
           if scope = options[:scope]
-            dtos = self.class.find_all_with(column_name, self.send(column_name))
-            dtos = dtos.select{ |o| o.send(scope) == self.send(scope) }
-            errors.add(column_name, 'is a duplicate.', options[:humanized_name]) if dtos.size == 1 && dtos.first.id != self.id
+            dtos = record.class.find_all_with(attr, record.send(attr))
+            dtos = dtos.select{ |o| o.send(scope) == record.send(scope) }
+            record.errors.add(attr, 'is a duplicate.', options[:humanized_name]) if dtos.size == 1 && dtos.first.id != record.id
           else
-            dto = datasource.send("find_#{self.class.compact_name}_by_#{column_name}", read_attribute(column_name))
-            errors.add(column_name, 'is a duplicate.', options[:humanized_name]) if dto && dto.id != self.id
+            dto = datasource.send("find_#{record.class.compact_name}_by_#{attr}", record.read_attribute(attr))
+            record.errors.add(attr, 'is a duplicate.', options[:humanized_name]) if dto && dto.id != record.id
           end
-        }
+        end
       end
     end
 
@@ -227,18 +228,17 @@ module Gadgets
       acc.to_xml({:root => self.class.name.demodulize.underscore.downcase}.merge(options))
     end
 
-    private
+    def read_attribute(column_name)
+      convert(column_name, self.send(column_name))
+    end
 
+    private
     def self.convert(column_name, value)
       db_columns[column_name.to_s].call(value)
     end
 
     def convert(column_name, value)
       self.class.convert(column_name, value)
-    end
-
-    def read_attribute(column_name)
-      convert(column_name, self.send(column_name))
     end
 
     def write_attribute(column_name, value)

@@ -13,6 +13,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=9">
     <%- @current_tab_name = "admin" -%>
+    <%- @view_title = @view_title || "Administration" -%>
     <%= render :partial => "shared/head" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
@@ -30,8 +31,8 @@
         <% if @in_pipeline_group_edit %>
             <div class="page_header">
                 <h1 id="page-title" class="entity_title">
-                    <%= link_to l.string("ADMINISTRATION"), pipeline_groups_path -%>&nbsp;&raquo;
-                    <%= link_to l.string("PIPELINE_GROUPS"), pipeline_groups_path -%>&nbsp;&raquo;
+                    <%= link_to l.string("ADMINISTRATION"), main_app.pipeline_groups_path -%>&nbsp;&raquo;
+                    <%= link_to l.string("PIPELINE_GROUPS"), main_app.pipeline_groups_path -%>&nbsp;&raquo;
                     <%= @group.getGroup() -%>
                 </h1>
             </div>
@@ -54,54 +55,54 @@
                     <ul>
                         <% if is_user_an_admin? || is_user_a_group_admin? %>
                             <li id="pipeline-groups-tab-button" class="<%= "current_tab" if @tab_name == "pipeline-groups" %>">
-                                <a id="tab-link-of-pipeline-groups" href="<%= pipeline_groups_path -%>"><%= l.string("PIPELINES_POPUP_TITLE") -%></a>
+                                <a id="tab-link-of-pipeline-groups" href="<%= main_app.pipeline_groups_path -%>"><%= l.string("PIPELINES_POPUP_TITLE") -%></a>
                             </li>
                         <% end %>
                         <% if is_user_an_admin? || is_user_a_template_admin? -%>
                             <li id="templates-tab-button" class="<%= "current_tab" if @tab_name == "templates" %>">
-                                <a id="tab-link-of-templates" href="<%= templates_path -%>"><%= l.string("TEMPLATES") -%></a>
+                                <a id="tab-link-of-templates" href="<%= main_app.templates_path -%>"><%= l.string("TEMPLATES") -%></a>
                             </li>
                         <%- end -%>
                         <% if !is_user_an_admin? && is_user_a_group_admin? %>
                             <li id="tab-content-of-pipelines-snippet" class="<%= "current_tab" if @tab_name == "pipelines-snippet" %>">
-                                <%= link_to l.string("PIPELINES_SNIPPET"), pipelines_snippet_path, :id => "tab-link-of-pipelines-snippet" -%>
+                                <%= link_to l.string("PIPELINES_SNIPPET"), main_app.pipelines_snippet_path, :id => "tab-link-of-pipelines-snippet" -%>
                             </li>
                             <% if is_plugins_enabled? %>
                                 <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
-                                    <%= link_to l.string("PLUGINS_TAB"), plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
+                                    <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
                                 </li>
                             <% end %>
                             <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
-                                <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), package_repositories_list_path, :id => "tab-link-of-package-repositories" %>
+                                <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), main_app.package_repositories_list_path, :id => "tab-link-of-package-repositories" %>
                             </li>
                         <% end %>
 
                         <% if is_user_an_admin? %>
                             <li id="source-xml-tab-button" class="<%= "current_tab" if @tab_name == "configuration-xml" %>">
-                                <%= link_to l.string("PIPELINES_SNIPPET"), config_view_path, :id => 'tab-link-of-source-xml' -%>
+                                <%= link_to l.string("PIPELINES_SNIPPET"), main_app.config_view_path, :id => 'tab-link-of-source-xml' -%>
                             </li>
                             <li id="server-configuration-tab-button" class="<%= "current_tab" if @tab_name == "server_configuration" %>">
-                                <%= link_to l.string("SERVER_CONFIGURATION"), edit_server_config_path, :id => 'tab-link-of-server-configuration' -%>
+                                <%= link_to l.string("SERVER_CONFIGURATION"), main_app.edit_server_config_path, :id => 'tab-link-of-server-configuration' -%>
                             </li>
                             <li id="user-summary-tab-button" class="<%= @tab_name == "user-listing" ? "current_tab" : "" -%>">
-                                <%= link_to "User Summary", user_listing_path, :id => "tab-link-of-user-listing" %>
+                                <%= link_to "User Summary", main_app.user_listing_path, :id => "tab-link-of-user-listing" %>
                             </li>
                             <li id="oauth-clients-tab-button" class="<%= @tab_name == "oauth-clients" ? "current_tab" : "" -%>">
                                 <%= link_to "OAuth Clients", oauth_engine.clients_path, :id => "tab-link-of-oauth-clients" %>
                             </li>
                             <li id="gadget-providers-tab-button" class="<%= @tab_name == "gadget-providers" ? "current_tab" : "" -%>">
-                                <%= link_to "OAuth Enabled Gadget Providers", gadgets_oauth_clients_path, :id => "tab-link-of-gadget-providers" %>
+                                <%= link_to "OAuth Enabled Gadget Providers", main_app.gadgets_oauth_clients_path, :id => "tab-link-of-gadget-providers" %>
                             </li>
                             <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
-                                <%= link_to "Backup", backup_server_path, :id => "tab-link-of-backup" %>
+                                <%= link_to "Backup", main_app.backup_server_path, :id => "tab-link-of-backup" %>
                             </li>
                             <% if is_plugins_enabled? %>
                                 <li id="plugins-listing-tab-button" class="<%= @tab_name == "plugins-listing" ? "current_tab" : "" -%>">
-                                    <%= link_to l.string("PLUGINS_TAB"), plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
+                                    <%= link_to l.string("PLUGINS_TAB"), main_app.plugins_listing_path, :id => "tab-link-of-plugins-listing" %>
                                 </li>
                             <% end %>
                             <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
-                                <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), package_repositories_new_path, :id => "tab-link-of-package-repositories" %>
+                                <%= link_to l.string("PACKAGE_REPOSITORY_TAB"), main_app.package_repositories_new_path, :id => "tab-link-of-package-repositories" %>
                             </li>
                         <% end %>
                     </ul>

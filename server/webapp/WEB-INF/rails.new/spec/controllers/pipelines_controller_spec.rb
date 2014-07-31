@@ -276,4 +276,17 @@ describe PipelinesController do
       expect(cookiejar[:selected_pipelines]).to eq(nil)
     end
   end
+
+  describe "set_tab_name" do
+    it "should set tab name" do
+      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new)
+      @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
+
+      get :index
+
+      expect(assigns[:current_tab_name]).to eq('pipelines')
+    end
+  end
 end

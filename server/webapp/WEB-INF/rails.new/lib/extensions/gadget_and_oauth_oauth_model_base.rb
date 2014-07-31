@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-Oauth2::Provider::ModelBase.instance_eval do
-  def datasource
-    @go_oauth_provider_datasource ||= Spring.bean("oauthRepository")
-  end
-end
+# Oauth2::Provider::ModelBase.instance_eval do
+#   def datasource
+#     @go_oauth_provider_datasource ||= Spring.bean("oauthRepository")
+#   end
+# end
 
 Gadgets::ModelBase.instance_eval do
   def datasource

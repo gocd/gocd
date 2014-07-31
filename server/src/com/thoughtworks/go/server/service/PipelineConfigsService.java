@@ -31,6 +31,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PipelineConfigsService {
 
@@ -87,6 +89,18 @@ public class PipelineConfigsService {
         CruiseConfig cruiseConfig = goConfigService.getConfigForEditing();
         return cruiseConfig.getGroups().findGroup(groupName);
     }
+
+	public PipelineConfigs getConfigsForUser(String userName) {
+		PipelineConfigs pipelineConfigs = new PipelineConfigs();
+		List<String> groupNames = goConfigService.allGroups();
+		for (String groupName : groupNames) {
+			if (securityService.hasViewPermissionForGroup(userName, groupName)) {
+				PipelineConfigs pipelinesInGroup = goConfigService.getAllPipelinesInGroup(groupName);
+				pipelineConfigs.addAll(pipelinesInGroup);
+			}
+		}
+		return pipelineConfigs;
+	}
 
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {

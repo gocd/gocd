@@ -40,12 +40,6 @@ module APIModelMother
     @material_view_model
   end
 
-  def create_material_config_view_model
-    @material_view_model = create_material_view_model
-    @material_view_model.stub(:getId).and_return(nil)
-    @material_view_model
-  end
-
   def create_empty_material_view_model
     @material_view_model = double('MaterialViewModel')
     @material_view_model.stub(:getId).and_return(nil)
@@ -312,6 +306,29 @@ module APIModelMother
     @pipeline_status_model.stub(:isLocked).and_return(true)
     @pipeline_status_model.stub(:isSchedulable).and_return(true)
     @pipeline_status_model
+  end
+
+  def create_stage_config_model
+    @stage_config_view_model = double('StageViewModel')
+    @stage_config_view_model.stub(:name).and_return('stage name')
+    @stage_config_view_model
+  end
+
+  def create_material_config_model
+    @material_config_view_model = double('MaterialViewModel')
+    @material_config_view_model.stub(:getFingerprint).and_return('fingerprint')
+    @material_config_view_model.stub(:getTypeForDisplay).and_return('git')
+    @material_config_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    @material_config_view_model
+  end
+
+  def create_pipeline_config_model
+    @pipeline_config_view_model = double('PipelineViewModel')
+    @pipeline_config_view_model.stub(:name).and_return('pipeline name')
+    @pipeline_config_view_model.stub(:getLabelTemplate).and_return('label')
+    @pipeline_config_view_model.stub(:materialConfigs).and_return([create_material_config_model])
+    @pipeline_config_view_model.stub(:getStages).and_return([create_stage_config_model])
+    @pipeline_config_view_model
   end
 end
 

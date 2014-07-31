@@ -14,13 +14,19 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class MaterialInstanceAPIModel
-  attr_reader :id, :fingerprint, :type, :description
+class PipelineConfigAPIModel
+  attr_reader :name, :label, :materials, :stages
 
-  def initialize(material_instance_model)
-    @id = material_instance_model.getId() unless material_instance_model.getId() == nil
-    @fingerprint = material_instance_model.getFingerprint() unless material_instance_model.getFingerprint() == nil
-    @type = material_instance_model.getTypeForDisplay() unless material_instance_model.getTypeForDisplay() == nil
-    @description = material_instance_model.getLongDescription() unless material_instance_model.getLongDescription() == nil
+  def initialize(pipeline_config_model)
+    @name = pipeline_config_model.name().to_s unless pipeline_config_model.name() == nil
+    @label = pipeline_config_model.getLabelTemplate() unless pipeline_config_model.getLabelTemplate() == nil
+    @materials = []
+    pipeline_config_model.materialConfigs().each do |material_config_model|
+      @materials << MaterialConfigAPIModel.new(material_config_model)
+    end
+    @stages = []
+    pipeline_config_model.getStages().each do |stage_config_model|
+      @stages << StageConfigAPIModel.new(stage_config_model)
+    end
   end
 end

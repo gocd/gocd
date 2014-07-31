@@ -14,13 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class MaterialInstanceAPIModel
-  attr_reader :id, :fingerprint, :type, :description
+class MaterialConfigAPIModel
+  attr_reader :fingerprint, :type, :description
 
-  def initialize(material_instance_model)
-    @id = material_instance_model.getId() unless material_instance_model.getId() == nil
-    @fingerprint = material_instance_model.getFingerprint() unless material_instance_model.getFingerprint() == nil
-    @type = material_instance_model.getTypeForDisplay() unless material_instance_model.getTypeForDisplay() == nil
-    @description = material_instance_model.getLongDescription() unless material_instance_model.getLongDescription() == nil
+  def initialize(material_config_model)
+    @fingerprint = material_config_model.getFingerprint() unless material_config_model.getFingerprint() == nil
+    @type = material_config_model.getTypeForDisplay() unless material_config_model.getTypeForDisplay() == nil
+    @description = material_config_model.getLongDescription() unless material_config_model.getLongDescription() == nil
   end
 end

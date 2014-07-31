@@ -76,11 +76,11 @@ describe Api::MaterialsController do
     it "should render material list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
-      @material_config_service.should_receive(:getMaterialConfigs).with("loser").and_return([create_material_config_view_model])
+      @material_config_service.should_receive(:getMaterialConfigs).with("loser").and_return([create_material_config_model])
 
       get :list_configs, :no_layout => true
 
-      expect(response.body).to eq([MaterialInstanceAPIModel.new(create_material_config_view_model)].to_json)
+      expect(response.body).to eq([MaterialConfigAPIModel.new(create_material_config_model)].to_json)
     end
   end
 end

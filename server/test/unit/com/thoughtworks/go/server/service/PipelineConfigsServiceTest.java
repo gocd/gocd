@@ -17,9 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigSaveState;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -36,15 +35,13 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineConfigsServiceTest {
 
@@ -290,6 +287,25 @@ public class PipelineConfigsServiceTest {
         String key = (String) ReflectionUtil.getField(message, "key");
         assertThat(key, is("FLASH_MESSAGE_ON_CONFLICT"));
     }
+
+	@Test
+	public void shouldGetPipelineConfigsForUser() {
+		when(goConfigService.allGroups()).thenReturn(Arrays.asList("group1", "group2"));
+		String user = "looser";
+		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(false);
+		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(true);
+		PipelineConfigs expectedPipelineConfigs = new PipelineConfigs();
+		PipelineConfig pipelineConfig = new PipelineConfig();
+		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
+		pipelineConfig.addMaterialConfig(gitMaterialConfig1);
+		expectedPipelineConfigs.add(pipelineConfig);
+		when(goConfigService.getAllPipelinesInGroup("group2")).thenReturn(expectedPipelineConfigs);
+
+		PipelineConfigs gotPipelineConfigs = service.getConfigsForUser(user);
+
+		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
+		assertThat(gotPipelineConfigs, is(expectedPipelineConfigs));
+	}
 
     private String groupXml() {
         return "<pipelines group=\"renamed_group_name\">\n"

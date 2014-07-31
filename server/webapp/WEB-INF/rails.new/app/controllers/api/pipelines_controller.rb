@@ -63,6 +63,15 @@ class Api::PipelinesController < Api::ApiController
     end
   end
 
+  def list_configs
+    pipeline_configs = pipeline_configs_service.getConfigsForUser(CaseInsensitiveString.str(current_user.getUsername()))
+    pipeline_config_api_models = []
+    pipeline_configs.each do |pipeline_config|
+      pipeline_config_api_models << PipelineConfigAPIModel.new(pipeline_config)
+    end
+    render json: pipeline_config_api_models
+  end
+
   helper_method :url, :resource_url, :page_url
 
   def pipeline_instance

@@ -21,9 +21,9 @@ def schedule_options(specified_revisions, variables, secure_variables = {})
 end
 
 describe Api::PipelinesController do
-
   include StageModelMother
   include GoUtil
+  include APIModelMother
 
   before :each do
     controller.stub(:populate_health_messages)
@@ -55,8 +55,6 @@ describe Api::PipelinesController do
   end
 
   describe :history do
-    include APIModelMother
-
     it "should route to history" do
       expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
       expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
@@ -89,8 +87,6 @@ describe Api::PipelinesController do
   end
 
   describe :status do
-    include APIModelMother
-
     it "should route to history" do
       expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)
     end
@@ -116,6 +112,26 @@ describe Api::PipelinesController do
 
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
+    end
+  end
+
+  describe :list_pipeline_configs do
+    before :each do
+      controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
+    end
+
+    it "should resolve" do
+      expect(:get => "/api/config/pipelines").to route_to(:controller => "api/pipelines", :action => "list_configs", :no_layout=>true)
+    end
+
+    it "should render pipeline list json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_configs_service.should_receive(:getConfigsForUser).with("loser").and_return([create_pipeline_config_model])
+
+      get :list_configs, :no_layout => true
+
+      expect(response.body).to eq([PipelineConfigAPIModel.new(create_pipeline_config_model)].to_json)
     end
   end
 

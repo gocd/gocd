@@ -8,7 +8,8 @@ module Oauth2Provider
     include Oauth2Provider::TransactionHelper
     
     transaction_actions :create, :update, :destroy
-
+    before_filter :set_layout_and_tab_name
+    
     def index
       @oauth_clients = Client.all.sort{|a, b| a.name.casecmp(b.name)}
       respond_to do |format|
@@ -75,6 +76,13 @@ module Oauth2Provider
         format.html { redirect_to oauth_engine.clients_path }
         format.xml  { head :ok }
       end
+    end
+    
+    private
+    
+    def set_layout_and_tab_name
+      @tab_name = 'oauth-clients'
+      self.class.layout 'admin'
     end
   end
 end

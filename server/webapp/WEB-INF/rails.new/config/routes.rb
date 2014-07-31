@@ -282,12 +282,10 @@ get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", 
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
 
   # dummy mappings. for specs to pass
-  get 'test' => 'test/test#index', as: :gadget_rendering
-  get 'test' => 'test/test#index', as: :gadgets_oauth_clients
   get 'test' => 'test/test#index', as: :oauth_clients
 
   # catch all route
-  match '*url', via: :all, to: 'application#unresolved'
+  # match '*url', via: :all, to: 'application#unresolved'
 
 # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

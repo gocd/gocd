@@ -15,11 +15,5 @@ Rails.application.routes.draw do
   get "#{user_prefix}/gadgets/concat" => "gadget_proxy#concat"
   get "#{user_prefix}/gadgets/js/:features.js" => "gadget_js_request#js"
 
-  gadget_oauth_client_route = admin_prefix + (admin_prefix.blank? ? "" : "/") + "gadgets/oauth_clients"
-  get "#{gadget_oauth_client_route}" => "gadgets_oauth_clients#index"
-  get "#{gadget_oauth_client_route}/new" => "gadgets_oauth_clients#new"
-  post "#{gadget_oauth_client_route}" => "gadgets_oauth_clients#create"
-  get "#{gadget_oauth_client_route}/:id/edit" => "gadgets_oauth_clients#edit"
-  put "#{gadget_oauth_client_route}/:id" => "gadgets_oauth_clients#update"
-  delete "#{gadget_oauth_client_route}/:id" => "gadgets_oauth_clients#destroy"
+  resources :gadgets_oauth_clients, :path => "/" + admin_prefix + (admin_prefix.blank? ? "" : "/") + "gadgets/oauth_clients"
 end

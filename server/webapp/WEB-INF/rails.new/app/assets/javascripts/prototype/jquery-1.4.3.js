@@ -6115,7 +6115,7 @@ jQuery.fn.extend({
 		}
 
 		return this[ optall.queue === false ? "each" : "queue" ](function() {
-			// XXX ‘this’ does not always have a nodeName when running the
+			// XXX √îthis√ï does not always have a nodeName when running the
 			// test suite
 
 			var opt = jQuery.extend({}, optall), p,

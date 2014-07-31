@@ -96,5 +96,5 @@
 //= require 'pipeline_search'
 //= require 'angular_helper'
 //= require 'task_plugin_view'
-//= require_tree ''
+//= require_tree .
 //= require 'lib/d3-3.1.5.min.js'

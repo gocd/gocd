@@ -1,4 +1,4 @@
-<% form_for(@gadgets_oauth_client, :html => {:id => 'gadgets_oauth_client_create_form', :class => nil}) do |f| %>
+<%= form_for(@gadgets_oauth_client, {:as => :gadgets_oauth_client, :url => gadgets_oauth_clients_path, :html => {:id => 'gadgets_oauth_client_create_form', :class => nil}}) do |f| %>
 
   <div class="form_item">
     <label for='service_name'>

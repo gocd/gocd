@@ -1,3 +1,10 @@
+PATH
+  remote: vendor/engines/gadgets
+  specs:
+    gadgets (0.0.1)
+      rails (~> 4.0.4)
+      validatable (>= 1.6.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -78,5 +85,6 @@ PLATFORMS
 
 DEPENDENCIES
   dynamic_form
+  gadgets (= 0.0.1)!
   rails (= 4.0.4)
   validatable (>= 1.6.0)

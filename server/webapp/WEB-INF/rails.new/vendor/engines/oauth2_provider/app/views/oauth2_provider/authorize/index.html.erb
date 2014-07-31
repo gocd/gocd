@@ -1,0 +1,17 @@
+<div class="content_wrapper_outer">
+  <div class="content_wrapper_inner">
+    <% form_for(url_for(:action => :authorize), :html => {:id => 'oauth_authorize_form'}) do |f| -%>
+      <div class="label">Do you wish to allow the service named '<%= @client.name %>' to access this application on your behalf?</div>
+      <div>
+        <%= link_to_function 'Yes', 'document.getElementById("oauth_authorize_allow").value="Yes";document.getElementById("oauth_authorize_form").submit()', {:class => 'link_as_button primary_link_as_button primary', :href => 'javascript:void(0)', :id => 'authorize-yes'} %>
+        <%= link_to_function 'No', 'document.getElementById("oauth_authorize_allow").value="No";document.getElementById("oauth_authorize_form").submit()', {:class => 'link_as_button link_as_button', :href => 'javascript:void(0)', :id => "authorize-no"} %>
+      </div>
+
+      <input type="hidden" name="authorize" id="oauth_authorize_allow" value="No"/>
+      <input type="hidden" name="client_id" id="client_id" value="<%= params[:client_id] %>" />
+      <input type="hidden" name="redirect_uri" id="redirect_uri" value="<%= params[:redirect_uri] %>" />
+      <input type="hidden" name="response_type" id="response_type" value="<%= params[:response_type] %>" />
+      <input type="hidden" name="state" id="state" value="<%= params[:state] %>" />
+    <% end -%>
+  </div>
+</div>

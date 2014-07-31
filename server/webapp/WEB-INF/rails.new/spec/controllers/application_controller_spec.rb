@@ -466,12 +466,14 @@ describe ApplicationController do
       expect(assigns[:current_server_health_states]).to eq(:all_health_messages)
     end
 
-    #it "should set the siteUrl and secureSiteUrl on the thread" do
-    #  get :index
-    #  #This is being set in the spec_helper's setup_base_urls method
-    #  Thread.current[:ssl_base_url].should == "https://ssl.host:443"
-    #  Thread.current[:base_url].should == "http://test.host"
-    #end
+    it "should set the siteUrl and secureSiteUrl on the thread" do
+      get :index
+
+      # These values are configured in the spec_helper's setup_base_urls method.
+      # But, this controller puts them on the current thread.
+      Thread.current[:ssl_base_url].should == "https://ssl.host:443"
+      Thread.current[:base_url].should == "http://test.host"
+    end
   end
 
   describe "current_user_id for gadget rendering server" do

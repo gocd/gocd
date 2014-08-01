@@ -1,4 +1,5 @@
 class GadgetsOauthClient < Gadgets::ModelBase
+  self.db_columns = self.db_columns.dup
   columns :oauth_authorize_url, :client_id, :client_secret, :service_name
 
   validates_presence_of :service_name, :client_secret

@@ -178,11 +178,25 @@ def put_first(lib_paths, files_to_put_first)
 end
 
 task :create_all_js do
+  ENV['USE_NEW_RAILS'] == "Y" ? task('create_all_js_rails4').invoke : task('create_all_js_rails2')
+end
+
+task :copy_compressed_js_to_webapp do
+  task('copy_compressed_js_to_webapp_rails2') unless ENV['USE_NEW_RAILS'] == "Y"
+end
+
+task :create_all_js_rails4 do
+  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+  classpath = File.read("target/server-test-dependencies")
+  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+end
+
+task :create_all_js_rails2 do
   yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
   yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
 
   priority_libs = ["es5-shim.min.js", "jquery-1.7.2.js", "jquery.timeago-1.2.3.js", "jquery.url-1.0.js", "jquery_no_conflict.js", "prototype-1.6.0.js",
-  "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
+                   "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
   libs_to_load_first = []
   priority_libs.each do |lib|
     libs_to_load_first << File.join(JS_LIB_DIR, lib)
@@ -200,7 +214,7 @@ task :create_all_js do
   end
 end
 
-task :copy_compressed_js_to_webapp do
+task :copy_compressed_js_to_webapp_rails2 do
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
   safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
   FileUtils.remove_dir("target/webapp/javascripts", true)

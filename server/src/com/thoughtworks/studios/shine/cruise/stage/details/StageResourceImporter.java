@@ -59,11 +59,12 @@ public class StageResourceImporter {
     }
 
 //used for tests
-    public StageResourceImporter(String artifactsBaseDir, XmlApiService xmlApiService, StageFinder stageFinder, PipelineInstanceLoader pipelineInstanceLoader) {
+    public StageResourceImporter(String artifactsBaseDir, XmlApiService xmlApiService, StageFinder stageFinder, PipelineInstanceLoader pipelineInstanceLoader, SystemEnvironment systemEnvironment) {
         this.artifactsBaseDir = artifactsBaseDir;
         this.xmlApiService = xmlApiService;
         this.stageFinder = stageFinder;
         this.pipelineInstanceLoader = pipelineInstanceLoader;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public void initialize(){

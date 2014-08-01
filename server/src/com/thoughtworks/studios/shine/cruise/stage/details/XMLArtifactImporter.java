@@ -38,9 +38,13 @@ public class XMLArtifactImporter {
 
     private final static Logger LOGGER = Logger.getLogger(XMLArtifactImporter.class);
 
-    SystemEnvironment systemEnvironment = new SystemEnvironment();
+    SystemEnvironment systemEnvironment;
 
     private List<XMLRDFizer> handlers = new LinkedList<XMLRDFizer>();
+
+    public XMLArtifactImporter(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
 
     public void registerHandler(XMLRDFizer handler) {
         handlers.add(handler);

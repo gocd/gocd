@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.xml.StageXmlViewModel;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineInstanceLoader;
 import com.thoughtworks.go.server.service.XmlApiService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoGRDDLResourceRDFizer;
 import com.thoughtworks.studios.shine.cruise.GoIntegrationException;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
@@ -46,13 +47,15 @@ public class StageResourceImporter {
     private final StageFinder stageFinder;
     private final PipelineInstanceLoader pipelineInstanceLoader;
     private GoConfigService goConfigService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public StageResourceImporter(GoConfigService goConfigService, XmlApiService xmlApiService, StageFinder stageFinder, PipelineInstanceLoader pipelineInstanceLoader) {
+    public StageResourceImporter(GoConfigService goConfigService, XmlApiService xmlApiService, StageFinder stageFinder, PipelineInstanceLoader pipelineInstanceLoader, SystemEnvironment systemEnvironment) {
         this.xmlApiService = xmlApiService;
         this.stageFinder = stageFinder;
         this.pipelineInstanceLoader = pipelineInstanceLoader;
         this.goConfigService = goConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
 //used for tests
@@ -115,7 +118,7 @@ public class StageResourceImporter {
     }
 
     private void importJobs(Graph stageGraph, XSLTTransformerRegistry transformerRegistry, Stage stage, final String baseUri) throws GoIntegrationException {
-        JobResourceImporter importer = new JobResourceImporter(artifactsBaseDir, stageGraph, transformerRegistry, xmlApiService);
+        JobResourceImporter importer = new JobResourceImporter(artifactsBaseDir, stageGraph, transformerRegistry, xmlApiService, systemEnvironment);
         for (JobInstance instance : stage.getJobInstances()) {
             stageGraph.addTriplesFromGraph(importer.importJob(instance, baseUri));
         }

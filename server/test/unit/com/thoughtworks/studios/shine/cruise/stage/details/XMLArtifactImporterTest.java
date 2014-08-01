@@ -20,6 +20,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.semweb.*;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import org.dom4j.Document;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -40,10 +41,15 @@ public class XMLArtifactImporterTest {
 
 
     private String STUB_URL = "http://theurl";
+    private XMLArtifactImporter artifactImporter;
+
+    @Before
+    public void setUp() throws Exception {
+        artifactImporter = new XMLArtifactImporter(new SystemEnvironment());
+    }
 
     @Test
     public void testNothingAnArtifactHandlerDoesCanStopTheImporting() throws Exception {
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(new ExplodingHandler());
 
         artifactImporter.importFile(null, null, new ByteArrayInputStream("<foo />".getBytes()));
@@ -53,7 +59,7 @@ public class XMLArtifactImporterTest {
     private String SAMPLE_TEST_ARTIFACT=
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-            "\"http://www.somejunkhost.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+            "\"http://www.host.invalid/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
             "<testsuite errors=\"0\" failures=\"0\" hostname=\"go-agent-1\" name=\"SmokeTest.scn\" tests=\"1\" time=\"243.47\" timestamp=\"2014-07-29T17:04:06\">\n" +
             "  <properties />\n" +
             "  <testcase classname=\"com.thoughtworks.test.XMLJunitOutputListener\" name=\"SmokeTest.scn\" time=\"243.47\" />\n" +
@@ -63,7 +69,6 @@ public class XMLArtifactImporterTest {
     public void testShouldNotTryToDownloadAndVerifyDtdWhenParsingXmlByDefault() throws Exception {
         XMLRDFizer handler = mock(XMLRDFizer.class);
         when(handler.canHandle(any(Document.class))).thenReturn(false);
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(handler);
 
         artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT));
@@ -75,22 +80,24 @@ public class XMLArtifactImporterTest {
 
     @Test
     public void testShouldTryToDownloadAndVerifyDtdWhenParsingXmlByDefault() throws Exception {
-        new SystemEnvironment().set(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD,true);
-        XMLRDFizer handler = mock(XMLRDFizer.class);
-        when(handler.canHandle(any(Document.class))).thenReturn(false);
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
-        artifactImporter.registerHandler(handler);
+        try {
+            new SystemEnvironment().set(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD,true);
+            XMLRDFizer handler = mock(XMLRDFizer.class);
+            when(handler.canHandle(any(Document.class))).thenReturn(false);
+            artifactImporter.registerHandler(handler);
 
-        artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT));
+            artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT));
 
 
-        //xml read failed, could not download http://www.somejunkhost.org/TR/xhtml1/DTD/xhtml1-transitional.dtd of SAMPLE_TEST_ARTIFACT
-        verify(handler,never()).canHandle(any(Document.class));
+            //xml read failed, could not download http://www.host.invalid/TR/xhtml1/DTD/xhtml1-transitional.dtd of SAMPLE_TEST_ARTIFACT
+            verify(handler,never()).canHandle(any(Document.class));
+        } finally {
+            new SystemEnvironment().set(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD,false);
+        }
     }
 
     @Test
     public void testANonXMLArtifactDoesntBlowUpTheUniverse() throws Exception {
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(new StubHandler(true));
 
         artifactImporter.importFile(null, null, new ByteArrayInputStream("XML is for lusers".getBytes()));
@@ -99,7 +106,6 @@ public class XMLArtifactImporterTest {
 
     @Test
     public void testImportedDataWasAdded() throws IOException {
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(new StubHandler(true));
 
         Graph graph = new InMemoryTempGraphFactory().createTempGraph();
@@ -119,7 +125,6 @@ public class XMLArtifactImporterTest {
 
     @Test
     public void testSubsequentHandlerIsUsedWhenFirstCannotHandleArtifact() throws Exception {
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(new StubHandler(false, "http://foobar/"));
         artifactImporter.registerHandler(new StubHandler(true, "http://A-OK/"));
 
@@ -149,7 +154,6 @@ public class XMLArtifactImporterTest {
 
     @Test
     public void testSubsequentHandlerIsUsedWhenFirstHandlerBlowsUp () throws Exception {
-        XMLArtifactImporter artifactImporter = new XMLArtifactImporter();
         artifactImporter.registerHandler(new ExplodingHandler());
         artifactImporter.registerHandler(new StubHandler(true, "http://A-OK/"));
 

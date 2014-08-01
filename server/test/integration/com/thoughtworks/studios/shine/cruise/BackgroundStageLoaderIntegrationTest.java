@@ -104,7 +104,7 @@ public class BackgroundStageLoaderIntegrationTest {
         stageStorage.clear();
         stageFinder = stageService;
         pipelineInstanceLoader = pipelineHistoryService;
-        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader);
+        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader,systemEnvironment);
         loader = new BackgroundStageLoader(null, importer, stageStorage, pipelineHistoryService, stageService, systemEnvironment );
         configHelper.usingCruiseConfigDao(goConfigFileDao);
         configHelper.onSetUp();
@@ -167,7 +167,7 @@ public class BackgroundStageLoaderIntegrationTest {
         pipelineInstanceLoader = mock(PipelineInstanceLoader.class);
         when(pipelineInstanceLoader.loadPipelineForShine(anyLong())).thenThrow(new RuntimeException("ouch, that hurt!"));
 
-        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader);
+        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader,systemEnvironment);
 
         loader = new BackgroundStageLoader(null, importer, stageStorage, pipelineHistoryService, stageService, systemEnvironment);
 
@@ -186,7 +186,7 @@ public class BackgroundStageLoaderIntegrationTest {
         when(propertiesService.getPropertiesForJob(anyLong())).thenThrow(new RuntimeException("something bad happened"));
 
         xmlApiService = new XmlApiService(propertiesService, artifactsService, jobInstanceService, stageService);
-        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader);
+        StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader,systemEnvironment);
         loader = new BackgroundStageLoader(null, importer, stageStorage, pipelineHistoryService, stageService, systemEnvironment);
         TestFailureSetup.SavedStage stage = failureSetup.setupPipelineInstanceWithoutTestXmlStubbing(true, null, new Date());
 

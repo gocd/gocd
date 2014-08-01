@@ -1,6 +1,7 @@
+/*!
 // Copyright 2009 Asa Wilson
 // Available under both the GPL and MIT licenses, see license files for more details.
-
+*/
 if (typeof jQuery == 'undefined') throw("jQuery could not be found.");
 
 (function($){

@@ -1,3 +1,4 @@
+/*!
 // script.aculo.us dragdrop.js v1.8.0, Tue Nov 06 15:01:40 +0300 2007
 
 // Copyright (c) 2005-2007 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
@@ -5,6 +6,7 @@
 // 
 // script.aculo.us is freely distributable under the terms of an MIT-style license.
 // For details, see the script.aculo.us web site: http://script.aculo.us/
+*/
 
 if(Object.isUndefined(Effect))
   throw("dragdrop.js requires including script.aculo.us' effects.js library");

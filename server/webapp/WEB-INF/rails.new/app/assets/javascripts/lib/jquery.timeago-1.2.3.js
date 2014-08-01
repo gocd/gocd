@@ -1,4 +1,4 @@
-/*
+/*!
  * timeago: a jQuery plugin, version: 0.9 (2010-06-21)
  * @requires jQuery v1.2.3 or later
  *

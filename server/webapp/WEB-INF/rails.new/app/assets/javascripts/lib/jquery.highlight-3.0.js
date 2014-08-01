@@ -1,4 +1,4 @@
-/*
+/*!
  * jQuery Highlight plugin
  *
  * Based on highlight v3 by Johann Burkard

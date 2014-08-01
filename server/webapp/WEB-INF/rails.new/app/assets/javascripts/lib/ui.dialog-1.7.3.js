@@ -1,4 +1,4 @@
-/*
+/*!
  * jQuery UI Dialog 1.7.3
  *
  * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)

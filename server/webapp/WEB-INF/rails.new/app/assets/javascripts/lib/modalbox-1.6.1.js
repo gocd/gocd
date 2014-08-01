@@ -1,4 +1,4 @@
-/*
+/*!
 ModalBox - The pop-up window thingie with AJAX, based on prototype and script.aculo.us.
 
 Copyright Andrey Okonetchnikov (andrej.okonetschnikow@gmail.com), 2006-2007

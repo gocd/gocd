@@ -1,4 +1,4 @@
-/**
+/*!
  * TrimPath Template. Release 1.0.38.
  * Copyright (C) 2004, 2005 Metaha.
  * 

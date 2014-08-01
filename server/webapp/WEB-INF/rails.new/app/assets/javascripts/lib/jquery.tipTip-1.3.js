@@ -1,4 +1,4 @@
-/*
+/*!
  * TipTip
  * Copyright 2010 Drew Wilson
  * www.drewwilson.com

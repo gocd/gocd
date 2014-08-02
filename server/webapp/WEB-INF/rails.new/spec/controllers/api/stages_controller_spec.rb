@@ -104,9 +104,9 @@ describe Api::StagesController do
       @stage_service.should_receive(:getCount).and_return(10)
       @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything).and_return([create_stage_model])
 
-      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :no_layout => true
+      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :offset => '5', :no_layout => true
 
-      expect(response.body).to eq(StageHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), [create_stage_model]).to_json)
+      expect(response.body).to eq(StageHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_stage_model]).to_json)
     end
 
     it "should render error correctly" do

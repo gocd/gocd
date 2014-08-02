@@ -66,9 +66,9 @@ describe Api::PipelinesController do
       @pipeline_history_service.should_receive(:totalCount).and_return(10)
       @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, "loser", anything).and_return(create_pipeline_history_model)
 
-      get :history, :pipeline_name => 'up42', :no_layout => true
+      get :history, :pipeline_name => 'up42', :offset => '5', :no_layout => true
 
-      expect(response.body).to eq(PipelineHistoryAPIModel.new(Pagination.pageStartingAt(0, 10, 10), create_pipeline_history_model).to_json)
+      expect(response.body).to eq(PipelineHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), create_pipeline_history_model).to_json)
     end
 
     it "should render error correctly" do

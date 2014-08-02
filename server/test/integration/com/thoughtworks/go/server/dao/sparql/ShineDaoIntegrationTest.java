@@ -88,6 +88,7 @@ public class ShineDaoIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
 
     @Autowired private PipelineTimeline pipelineTimeline;
+    @Autowired private SystemEnvironment systemEnvironment;
 
     private TempFiles tempFiles;
     private StubGoURLRepository goURLRepository;
@@ -108,9 +109,9 @@ public class ShineDaoIntegrationTest {
 
         String artifactsRoot = tempFolder.getAbsolutePath();
         stageStorage.clear();
-        StageResourceImporter importer = new StageResourceImporter(artifactsRoot, xmlApiService, stageService, pipelineHistoryService);
+        StageResourceImporter importer = new StageResourceImporter(artifactsRoot, xmlApiService, stageService, pipelineHistoryService,systemEnvironment);
 
-        LazyStageGraphLoader graphLoader = new LazyStageGraphLoader(importer, stageStorage, new SystemEnvironment());
+        LazyStageGraphLoader graphLoader = new LazyStageGraphLoader(importer, stageStorage, systemEnvironment);
         StagesQuery stagesQuery = new StagesQuery(graphLoader, stagesQueryCache);
         shineDao = new ShineDao(stagesQuery, stageService, pipelineHistoryService);
         goURLRepository = new StubGoURLRepository("http://localhost:8153", artifactsRoot);

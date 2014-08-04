@@ -16,10 +16,7 @@
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.URIReference;
 import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
@@ -27,12 +24,27 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.LinkedList;
+import java.util.List;
 
 public class XMLArtifactImporter {
 
     private final static Logger LOGGER = Logger.getLogger(XMLArtifactImporter.class);
 
+    SystemEnvironment systemEnvironment;
+
     private List<XMLRDFizer> handlers = new LinkedList<XMLRDFizer>();
+
+    public XMLArtifactImporter(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
 
     public void registerHandler(XMLRDFizer handler) {
         handlers.add(handler);
@@ -40,7 +52,13 @@ public class XMLArtifactImporter {
 
     public void importFile(Graph graph, URIReference parentJob, InputStream in) {
         try {
-            Document doc = new SAXReader().read(in);
+            SAXReader saxReader = new SAXReader();
+            if (systemEnvironment.get(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD)) {
+                saxReader.setValidation(true);
+            } else {
+                saxReader.setEntityResolver(getCustomEntityResolver());
+            }
+            Document doc = saxReader.read(in);
             importXML(graph, parentJob, doc);
         } catch (DocumentException e) {
             LOGGER.warn("Invalid xml provided.", e);
@@ -62,4 +80,13 @@ public class XMLArtifactImporter {
         }
     }
 
+    private EntityResolver getCustomEntityResolver() {
+
+        return new EntityResolver() {
+            @Override
+            public InputSource resolveEntity(String s, String s2) throws SAXException, IOException {
+                return new InputSource(new StringReader(""));
+            }
+        };
+    }
 }

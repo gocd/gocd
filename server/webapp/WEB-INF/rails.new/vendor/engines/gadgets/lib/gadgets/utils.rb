@@ -8,7 +8,12 @@ module Gadgets
     def copy_java_stream_to_io(java_stream, ruby_io)
       ApacheIOUtils.copy(java_stream, JRubyIOOutputStream.new(ruby_io))
     end
-    
+
+    def java_stream_to_string(java_stream)
+      ApacheIOUtils.toString(java_stream, "UTF8")
+    end
+
     module_function :copy_java_stream_to_io
+    module_function :java_stream_to_string
   end
 end

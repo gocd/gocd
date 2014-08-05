@@ -18,17 +18,22 @@ package com.thoughtworks.go.server.service;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.ModificationVisitor;
+import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.activity.CcTrayStatus;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
@@ -76,22 +81,57 @@ public class StageNotificationService {
     }
 
     public void sendNotifications(StageIdentifier stageIdentifier, StageEvent event, Username cancelledBy) {
+    	
+    	LOGGER.debug("checking notification for stage " + stageIdentifier.getPipelineName() + ":" + stageIdentifier.getStageName());
+    	 
         Users users = userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier());
-        if (users.isEmpty()) {
-            return;
-        }
         Stage stage = stageService.findStageWithIdentifier(stageIdentifier);
         Pipeline pipeline = pipelineService.fullPipelineById(stage.getPipelineId());
         MaterialRevisions materialRevisions = pipeline.getMaterialRevisions();
+        
+        if(event == StageEvent.Breaks){
+        	
+        	//calculate breakers here
+        	Set<String> breakers =  CcTrayStatus.computeBreakersIfStageFailed(stage, materialRevisions);
+        	LOGGER.info("Found broken stage!  Sending Notifiaction...");
+        	
+        	for(String breakerName : breakers){
+        		
+        		User breaker = userService.findUserByName(breakerName);  //returns an empty NullUser Instance if no user found.
+        		
+        		if(breaker == null || breaker instanceof NullUser){
+	        		String breakerEmailAddr = findEmailAddress(breakerName);
+	        		LOGGER.debug("checking email address: " + breakerEmailAddr);
+	        		breaker = userService.findUserByEmail(breakerEmailAddr);
+	        		
+	        		if(breaker instanceof NullUser && breakerEmailAddr != null){
+	        			breaker = new User(breakerName);
+	        			breaker.setEmail(breakerEmailAddr);
+	        		}
+        		}
+        			
+        		LOGGER.debug("found breaker: " + breakerName + " mapped to user " + breaker.toString());
+    			breaker.setEmailMe(true);
+    			
+    			if( ! users.contains(breaker)){
+    				users.add(breaker);
+    			}
+        	}
+        }
+        
+        if (users.isEmpty()) {
+        	LOGGER.debug("No users detected for delivery");
+            return;
+        }
+        
         final List<TestSuite> failedTestSuites = shineDao.failedTestsFor(stageIdentifier);
         String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier, failedTestSuites).getContent();
 
         String subject = "Stage [" + stageIdentifier.stageLocator() + "]" + event.describe();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Processing notification titled [%s]", subject));
-        }
+        LOGGER.debug(String.format("Processing notification titled [%s]", subject));
         for (User user : users) {
-            if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
+        	
+        	LOGGER.debug("Emailing User " + user.toString());
                 StringBuilder emailWithSignature = new StringBuilder(emailBody)
                         .append("\n\n")
                         .append("Sent by Go on behalf of ")
@@ -99,12 +139,15 @@ public class StageNotificationService {
                 SendEmailMessage sendEmailMessage
                         = new SendEmailMessage(subject, emailWithSignature.toString(), user.getEmail());
                 emailNotificationTopic.post(sendEmailMessage);
-            }
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Finished processing notification titled [%s]", subject));
-        }
+        LOGGER.debug(String.format("Finished processing notification titled [%s]", subject));
     }
+
+    private String findEmailAddress(String breakerName) {
+    	Pattern emailAddrPattern = Pattern.compile(".*?([_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})).*?", Pattern.CASE_INSENSITIVE);
+    	Matcher matcher = emailAddrPattern.matcher(breakerName);
+    	return matcher.group(1);
+	}
 
     //only for test
     void setEmailNotificationTopic(EmailNotificationTopic emailNotificationTopic) {

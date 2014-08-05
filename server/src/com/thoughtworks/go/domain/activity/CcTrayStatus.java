@@ -76,7 +76,7 @@ public class CcTrayStatus implements JobStatusListener, StageStatusListener {
             return;
         }
         String projectName = stage.getIdentifier().ccProjectName();
-        Set<String> breakers = computeBreakersIfStageFailed(stage);
+        Set<String> breakers = computeBreakersIfStageFailed(stage,  materialRepository.findMaterialRevisionsForPipeline(stage.getPipelineId()));
         cacheStage(stage, projectName, breakers);
 
         noActivityYetList.remove(projectName);
@@ -97,11 +97,10 @@ public class CcTrayStatus implements JobStatusListener, StageStatusListener {
                 stage.getIdentifier().webUrl(), breakers));
     }
 
-    private Set<String> computeBreakersIfStageFailed(Stage stage) {
+    public static Set<String> computeBreakersIfStageFailed(Stage stage, MaterialRevisions materialRevisions) {
         Set<String> breakersForChangedMaterials = new HashSet<String>();
         Set<String> breakersForMaterialsWithNoChange = new HashSet<String>();
         if (stage.getResult() == StageResult.Failed) {
-            MaterialRevisions materialRevisions = materialRepository.findMaterialRevisionsForPipeline(stage.getPipelineId());
             for (MaterialRevision materialRevision : materialRevisions) {
                 if (materialRevision.isChanged()) {
                     addToBreakers(breakersForChangedMaterials, materialRevision);
@@ -114,7 +113,7 @@ public class CcTrayStatus implements JobStatusListener, StageStatusListener {
         return breakersForChangedMaterials.isEmpty() ? breakersForMaterialsWithNoChange : breakersForChangedMaterials;
     }
 
-    private void addToBreakers(Set<String> breakers, MaterialRevision materialRevision) {
+    private static void addToBreakers(Set<String> breakers, MaterialRevision materialRevision) {
         for (Modification modification : materialRevision.getModifications()) {
             Author authorInfo = Author.getAuthorInfo(materialRevision.getMaterial().getType(), modification);
             if(authorInfo != null) {

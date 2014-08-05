@@ -372,6 +372,28 @@ public class UserService {
     public User findUserByName(String username) {
         return userDao.findUser(username);
     }
+    
+    /**
+     * attempt to find a user using a supplied email address. 
+     * 
+     * @param emailAddress
+     * @return new NullUser() if no user exists, otherwise returns a User object that has the email address specified.
+     */
+    public User findUserByEmail(String emailAddress){
+    	
+    	if(emailAddress == null || emailAddress.length() < 6){  //minimum email address is at least 6 chars long
+    		return new NullUser();
+    	}
+    	
+    	Users users = userDao.allUsers();
+    	for(User user : users){
+    		if(emailAddress.equals(user.getEmail())) {
+    			return user;
+    		}
+    	}
+    	
+    	return new NullUser();
+    }
 
     public void addNotificationFilter(final long userId, final NotificationFilter filter) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {

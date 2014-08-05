@@ -28,5 +28,12 @@ module Go
 
     # Replacement for "helper :all", used to make all helper methods available to controllers.
     config.action_controller.include_all_helpers = true
+
+    # Add catch-all route, after all Rails routes and Engine routes are initialized.
+    initializer :add_catch_all_route, :after => :add_routing_paths do |app|
+      app.routes.append do
+        match '*url', via: :all, to: 'application#unresolved'
+      end
+    end
   end
 end

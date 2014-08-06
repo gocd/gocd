@@ -130,7 +130,6 @@ public class StageNotificationService {
         String subject = "Stage [" + stageIdentifier.stageLocator() + "]" + event.describe();
         LOGGER.debug(String.format("Processing notification titled [%s]", subject));
         for (User user : users) {
-        	
         	LOGGER.debug("Emailing User " + user.toString());
                 StringBuilder emailWithSignature = new StringBuilder(emailBody)
                         .append("\n\n")

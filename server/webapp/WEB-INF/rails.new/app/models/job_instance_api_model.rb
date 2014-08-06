@@ -22,7 +22,7 @@ class JobInstanceAPIModel
     @name = job_instance_model.getName() unless job_instance_model.getName() == nil
     @state = job_instance_model.getState().to_s unless job_instance_model.getState() == nil
     @result = job_instance_model.getResult().to_s unless job_instance_model.getResult() == nil
-    @scheduled_date = job_instance_model.getScheduledDate().to_s unless job_instance_model.getScheduledDate() == nil
+    @scheduled_date = job_instance_model.getScheduledDate().getTime() unless job_instance_model.getScheduledDate() == nil || job_instance_model.getScheduledDate().getTime() == nil
     @rerun = job_instance_model.isRerun() if (job_instance_model.respond_to? :isRerun) && (job_instance_model.isRerun() != nil)
     @original_job_id = job_instance_model.getOriginalJobId() if (job_instance_model.respond_to? :getOriginalJobId) && (job_instance_model.getOriginalJobId() != nil)
     @agent_uuid = job_instance_model.getAgentUuid() if (job_instance_model.respond_to? :getAgentUuid) && (job_instance_model.getAgentUuid() != nil)

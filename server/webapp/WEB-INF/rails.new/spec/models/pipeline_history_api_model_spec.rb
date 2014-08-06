@@ -58,7 +58,7 @@ describe PipelineHistoryAPIModel do
       modification_api_model = material_revision_api_model.modifications[0]
       modification_api_model.id.should == 3
       modification_api_model.revision.should == 'revision'
-      modification_api_model.modified_time.should == 'modification time'
+      modification_api_model.modified_time.should == 12345678
       modification_api_model.user_name.should == 'user name'
       modification_api_model.comment.should == 'comment'
       modification_api_model.email_address.should == 'test@test.com'
@@ -82,7 +82,7 @@ describe PipelineHistoryAPIModel do
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
-      job_instance_api_model.scheduled_date.should == 'scheduled time'
+      job_instance_api_model.scheduled_date.should == 12345678
       job_instance_api_model.rerun.should == nil
       job_instance_api_model.original_job_id.should == nil
       job_instance_api_model.agent_uuid.should == nil

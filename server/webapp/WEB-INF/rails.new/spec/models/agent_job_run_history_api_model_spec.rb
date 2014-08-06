@@ -34,7 +34,7 @@ describe AgentJobRunHistoryAPIModel do
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
-      job_instance_api_model.scheduled_date.should == 'scheduled time'
+      job_instance_api_model.scheduled_date.should == 12345678
       job_instance_api_model.rerun.should == false
       job_instance_api_model.original_job_id.should == 0
       job_instance_api_model.agent_uuid.should == 'uuid'

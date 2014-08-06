@@ -53,7 +53,9 @@ module APIModelMother
     @modification_view_model = double('ModificationViewModel')
     @modification_view_model.stub(:getId).and_return(3)
     @modification_view_model.stub(:getRevision).and_return('revision')
-    @modification_view_model.stub(:getModifiedTime).and_return('modification time')
+    time = double('time')
+    time.stub(:getTime).and_return(12345678)
+    @modification_view_model.stub(:getModifiedTime).and_return(time)
     @modification_view_model.stub(:getUserName).and_return('user name')
     @modification_view_model.stub(:getComment).and_return('comment')
     @modification_view_model.stub(:getEmailAddress).and_return('test@test.com')
@@ -111,7 +113,9 @@ module APIModelMother
     @job_view_model.stub(:getName).and_return('job name')
     @job_view_model.stub(:getState).and_return('state')
     @job_view_model.stub(:getResult).and_return('result')
-    @job_view_model.stub(:getScheduledDate).and_return('scheduled time')
+    time = double('time')
+    time.stub(:getTime).and_return(12345678)
+    @job_view_model.stub(:getScheduledDate).and_return(time)
     @job_view_model
   end
 
@@ -282,7 +286,9 @@ module APIModelMother
     @config_revision_view_model.stub(:getUsername).and_return('user name')
     @config_revision_view_model.stub(:getGoVersion).and_return('version')
     @config_revision_view_model.stub(:getGoEdition).and_return('edition')
-    @config_revision_view_model.stub(:getTime).and_return('time')
+    time = double('time')
+    time.stub(:getTime).and_return(12345678)
+    @config_revision_view_model.stub(:getTime).and_return(time)
     @config_revision_view_model.stub(:getSchemaVersion).and_return('schema')
     @config_revision_view_model.stub(:getCommitSHA).and_return('commit')
     @config_revision_view_model

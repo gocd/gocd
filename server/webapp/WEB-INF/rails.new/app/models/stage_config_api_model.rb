@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class StageConfigAPIModel
-  attr_reader :name, :jobs
+  attr_reader :name
 
   def initialize(stage_config_model)
     @name = stage_config_model.name().to_s unless stage_config_model.name() == nil

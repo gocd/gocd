@@ -20,7 +20,7 @@ class ModificationInstanceAPIModel
   def initialize(modification_instance_model)
     @id = modification_instance_model.getId() unless modification_instance_model.getId() == nil
     @revision = modification_instance_model.getRevision() unless modification_instance_model.getRevision() == nil
-    @modified_time = modification_instance_model.getModifiedTime().to_s unless modification_instance_model.getModifiedTime() == nil
+    @modified_time = modification_instance_model.getModifiedTime().getTime() unless modification_instance_model.getModifiedTime() == nil || modification_instance_model.getModifiedTime().getTime() == nil
     @user_name = modification_instance_model.getUserName() unless modification_instance_model.getUserName() == nil
     @comment = modification_instance_model.getComment() unless modification_instance_model.getComment() == nil
     @email_address = modification_instance_model.getEmailAddress() unless modification_instance_model.getEmailAddress() == nil

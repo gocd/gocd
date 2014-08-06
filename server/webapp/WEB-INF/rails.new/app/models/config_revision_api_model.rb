@@ -22,7 +22,7 @@ class ConfigRevisionAPIModel
     @username = config_revision_instance_model.getUsername() unless config_revision_instance_model.getUsername() == nil
     @goVersion = config_revision_instance_model.getGoVersion() unless config_revision_instance_model.getGoVersion() == nil
     @goEdition = config_revision_instance_model.getGoEdition().to_s unless config_revision_instance_model.getGoEdition() == nil
-    @time = config_revision_instance_model.getTime().to_s unless config_revision_instance_model.getTime() == nil
+    @time = config_revision_instance_model.getTime().getTime() unless config_revision_instance_model.getTime() == nil || config_revision_instance_model.getTime().getTime() == nil
     @schemaVersion = config_revision_instance_model.getSchemaVersion() unless config_revision_instance_model.getSchemaVersion() == nil
     @commitSHA = config_revision_instance_model.getCommitSHA() unless config_revision_instance_model.getCommitSHA() == nil
   end

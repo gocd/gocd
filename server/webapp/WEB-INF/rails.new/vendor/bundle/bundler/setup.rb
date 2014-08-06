@@ -33,3 +33,4 @@ $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/spro
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/sprockets-rails-2.0.1/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/rails-4.0.4/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/validatable-1.6.7/lib")
+$:.unshift File.expand_path("#{path}/../../engines/oauth2_provider/lib")

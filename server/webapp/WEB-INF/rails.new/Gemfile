@@ -9,4 +9,3 @@ gem 'dynamic_form'
 #gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
 
 gem 'oauth2_provider', '1.0.1', path: 'vendor/engines/oauth2_provider'
-

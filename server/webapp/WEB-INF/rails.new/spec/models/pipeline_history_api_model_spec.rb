@@ -63,6 +63,10 @@ describe PipelineHistoryAPIModel do
       modification_api_model.comment.should == 'comment'
       modification_api_model.email_address.should == 'test@test.com'
 
+      modified_file_api_model = modification_api_model.modified_files[0]
+      modified_file_api_model.file_name.should == 'file-name'
+      modified_file_api_model.action.should == 'add'
+
       stage_instance_api_model = pipeline_instance_api_model.stages[0]
       stage_instance_api_model.id.should == 4
       stage_instance_api_model.name.should == 'stage name'
@@ -134,6 +138,10 @@ describe PipelineHistoryAPIModel do
       modification_api_model.user_name.should == nil
       modification_api_model.comment.should == nil
       modification_api_model.email_address.should == nil
+
+      modified_file_api_model = modification_api_model.modified_files[0]
+      modified_file_api_model.file_name.should == nil
+      modified_file_api_model.action.should == nil
 
       stage_instance_api_model = pipeline_instance_api_model.stages[0]
       stage_instance_api_model.id.should == nil

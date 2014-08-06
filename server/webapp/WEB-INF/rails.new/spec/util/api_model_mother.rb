@@ -49,6 +49,20 @@ module APIModelMother
     @material_view_model
   end
 
+  def create_modified_file_view_model
+    @modified_file_view_model = double('ModifiedFileViewModel')
+    @modified_file_view_model.stub(:getFileName).and_return('file-name')
+    @modified_file_view_model.stub(:getAction).and_return('add')
+    @modified_file_view_model
+  end
+
+  def create_empty_modified_file_view_model
+    @modified_file_view_model = double('ModifiedFileViewModel')
+    @modified_file_view_model.stub(:getFileName).and_return(nil)
+    @modified_file_view_model.stub(:getAction).and_return(nil)
+    @modified_file_view_model
+  end
+
   def create_modification_view_model
     @modification_view_model = double('ModificationViewModel')
     @modification_view_model.stub(:getId).and_return(3)
@@ -59,6 +73,7 @@ module APIModelMother
     @modification_view_model.stub(:getUserName).and_return('user name')
     @modification_view_model.stub(:getComment).and_return('comment')
     @modification_view_model.stub(:getEmailAddress).and_return('test@test.com')
+    @modification_view_model.stub(:getModifiedFiles).and_return([create_modified_file_view_model])
     @modification_view_model
   end
 
@@ -70,6 +85,7 @@ module APIModelMother
     @modification_view_model.stub(:getUserName).and_return(nil)
     @modification_view_model.stub(:getComment).and_return(nil)
     @modification_view_model.stub(:getEmailAddress).and_return(nil)
+    @modification_view_model.stub(:getModifiedFiles).and_return([create_empty_modified_file_view_model])
     @modification_view_model
   end
 

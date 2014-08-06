@@ -206,6 +206,7 @@ Go::Application.routes.draw do
       get 'stages/:pipeline_name/:stage_name/history/(:offset)' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :stage_history_api
       get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
       get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api
+      get "materials/:fingerprint/modifications/(:offset)" => 'materials#modifications', defaults: {:offset => '0'}, as: :material_modifications_api
 
       # status
       get 'pipelines/:pipeline_name/status' => 'pipelines#status', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_status_api

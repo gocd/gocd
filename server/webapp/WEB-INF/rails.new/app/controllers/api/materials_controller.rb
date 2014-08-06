@@ -30,4 +30,26 @@ class Api::MaterialsController < Api::ApiController
     end
     render json: material_api_models
   end
+
+  def modifications
+    fingerprint = params[:fingerprint]
+    offset = params[:offset].to_i
+    page_size = 10
+    result = HttpOperationResult.new
+
+    material_config = material_config_service.getMaterialConfig(CaseInsensitiveString.str(current_user.getUsername()), fingerprint, result)
+
+    if result.canContinue()
+      modifications_count = material_service.getTotalModificationsFor(material_config)
+
+      pagination = Pagination.pageStartingAt(offset, modifications_count, page_size)
+
+      modifications = material_service.getModificationsFor(material_config, pagination)
+
+      material_history_api_model = MaterialHistoryAPIModel.new(pagination, modifications)
+      render json: material_history_api_model
+    else
+      render_error_response(result.detailedMessage(), result.httpCode(), true)
+    end
+  end
 end

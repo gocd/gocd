@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.oauth.OauthDomainEntity;
 import com.thoughtworks.go.server.domain.oauth.OauthToken;
 import com.thoughtworks.go.server.oauth.OauthDataSource;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.Session;
 import org.hibernate.HibernateException;
@@ -43,6 +44,8 @@ import org.springframework.transaction.TransactionStatus;
  */
 @Service
 public class OauthRepository extends HibernateDaoSupport implements OauthDataSource {
+
+    private static final String PARAM_ID = "id";
 
     private TransactionTemplate txnTemplate;
     private final OauthPersistenceHelper persistenceHelper;
@@ -63,81 +66,158 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public OauthClientDTO findOauthClientById(long id) {
+        return findClientById(id);
+    }
+
+    public OauthClientDTO findClientById(long id) {
         return persistenceHelper.loadDomainEntity(OauthClient.class, id).getDTO();
     }
 
     public Collection<OauthClientDTO> findAllOauthClient() {
+        return findAllClient();
+    }
+
+    public Collection findAllClient() {
         return persistenceHelper.dtoFromDomain((List<OauthClient>) getHibernateTemplate().find("from OauthClient"));
     }
 
     public OauthClientDTO findOauthClientByClientId(final String clientId) {
+        return findClientByClientId(clientId);
+    }
+
+    public OauthClientDTO findClientByClientId(String clientId) {
         return persistenceHelper.entityByColumn(OauthClient.class, "clientId", clientId);
     }
 
     public OauthClientDTO findOauthClientByName(String name) {
+        return findClientByName(name);
+    }
+
+    public OauthClientDTO findClientByName(String name) {
         return persistenceHelper.entityByColumn(OauthClient.class, "name", name);
     }
 
     public OauthClientDTO findOauthClientByRedirectUri(String redirectUri) {
+        return findClientByRedirectUri(redirectUri);
+    }
+
+    public OauthClientDTO findClientByRedirectUri(String redirectUri) {
         return persistenceHelper.entityByColumn(OauthClient.class, "redirectUri", redirectUri);
     }
 
     public OauthClientDTO saveOauthClient(Map attributes) {
-        Long id = (Long) attributes.get("id");
+        return saveClient(attributes);
+    }
+
+    public OauthClientDTO saveClient(Map attributes) {
         OauthClient oauthClient = new OauthClient();
-        if ( id != null && id > 0) {
-            oauthClient = persistenceHelper.loadDomainEntity(OauthClient.class, id);
+        if (attributes.containsKey(PARAM_ID)) {
+            Object value = attributes.get(PARAM_ID);
+            if (StringUtils.isNotBlank(String.valueOf(value))) {
+                Long aLong = (Long) attributes.get(PARAM_ID);
+                if (aLong != null && aLong > 0) {
+                    oauthClient = persistenceHelper.loadDomainEntity(OauthClient.class, aLong);
+                }
+            }
         }
         oauthClient.setAttributes(attributes);
         return persistenceHelper.saveOrUpdateEntity(oauthClient);
     }
 
     public void deleteOauthClient(long id) {
+        deleteClient(id);
+    }
+
+    public void deleteClient(long id) {
         persistenceHelper.deleteEntity(OauthClient.class, id);
     }
 
     public Collection<OauthAuthorizationDTO> findAllOauthAuthorizationByOauthClientId(final String oauthClientId) {
+        return findAllAuthorizationByClientId(oauthClientId);
+    }
+
+    public Collection<OauthAuthorizationDTO> findAllAuthorizationByClientId(String oauthClientId) {
         return persistenceHelper.listByColumn(OauthAuthorization.class, "oauthClient.clientId", oauthClientId);
     }
 
     public OauthAuthorizationDTO findOauthAuthorizationById(long id) {
+        return findAuthorizationById(id);
+    }
+
+    public OauthAuthorizationDTO findAuthorizationById(long id) {
         return loadAuthorization(id).getDTO();
     }
 
     public OauthAuthorizationDTO findOauthAuthorizationByCode(final String code) {
+        return findAuthorizationByCode(code);
+    }
+
+    public OauthAuthorizationDTO findAuthorizationByCode(String code) {
         return persistenceHelper.entityByColumn(OauthAuthorization.class, "code", code);
     }
 
     public OauthAuthorizationDTO saveOauthAuthorization(Map attributes) {
+        return saveAuthorization(attributes);
+    }
+
+    public OauthAuthorizationDTO saveAuthorization(Map attributes) {
         OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
         return persistenceHelper.saveOrUpdateEntity(authorization);
     }
 
     public void deleteOauthAuthorization(long id) {
+        deleteAuthorization(id);
+    }
+
+    public void deleteAuthorization(long id) {
         persistenceHelper.deleteEntity(OauthAuthorization.class, id);
     }
 
     public OauthTokenDTO findOauthTokenById(long id) {
+        return findTokenById(id);
+    }
+
+    public OauthTokenDTO findTokenById(long id) {
         return ((OauthToken) getHibernateTemplate().load(OauthToken.class, id)).getDTO();
     }
 
     public Collection<OauthTokenDTO> findAllOauthTokenByOauthClientId(String oauthClientId) {
+        return findAllTokenByClientId(oauthClientId);
+    }
+
+    public Collection<OauthTokenDTO> findAllTokenByClientId(String oauthClientId) {
         return persistenceHelper.listByColumn(OauthToken.class, "oauthClient.clientId", oauthClientId);
     }
 
     public Collection<OauthTokenDTO> findAllOauthTokenByUserId(String userId) {
+        return findAllTokenByUserId(userId);
+    }
+
+    public Collection<OauthTokenDTO> findAllTokenByUserId(String userId) {
         return persistenceHelper.listByColumn(OauthToken.class, "userId", userId);
     }
 
     public OauthTokenDTO findOauthTokenByAccessToken(String accessToken) {
+        return findTokenByAccessToken(accessToken);
+    }
+
+    public OauthTokenDTO findTokenByAccessToken(String accessToken) {
         return persistenceHelper.entityByColumn(OauthToken.class, "accessToken", accessToken);
     }
 
     public OauthTokenDTO findOauthTokenByRefreshToken(String refreshToken) {
+        return findTokenByRefreshToken(refreshToken);
+    }
+
+    public OauthTokenDTO findTokenByRefreshToken(String refreshToken) {
         return persistenceHelper.entityByColumn(OauthToken.class, "refreshToken", refreshToken);
     }
 
     public OauthTokenDTO saveOauthToken(Map attributes) {
+        return saveToken(attributes);
+    }
+
+    public OauthTokenDTO saveToken(Map attributes) {
         OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
         return persistenceHelper.saveOrUpdateEntity(token);
     }
@@ -163,6 +243,10 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public void deleteOauthToken(long id) {
+        deleteToken(id);
+    }
+
+    public void deleteToken(long id) {
         persistenceHelper.deleteEntity(OauthToken.class, id);
     }
 

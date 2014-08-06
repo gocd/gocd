@@ -1,3 +1,9 @@
+PATH
+  remote: vendor/engines/oauth2_provider
+  specs:
+    oauth2_provider (0.0.1)
+      rails (~> 4.0.4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -65,6 +71,7 @@ GEM
       activesupport (>= 3.0)
       sprockets (~> 2.8)
     thor (0.19.1)
+    thread_safe (0.3.3)
     thread_safe (0.3.3-java)
     tilt (1.4.1)
     treetop (1.4.15)
@@ -78,5 +85,6 @@ PLATFORMS
 
 DEPENDENCIES
   dynamic_form
+  oauth2_provider (= 0.0.1)!
   rails (= 4.0.4)
   validatable (>= 1.6.0)

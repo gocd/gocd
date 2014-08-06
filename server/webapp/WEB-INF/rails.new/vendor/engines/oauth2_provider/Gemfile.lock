@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    oauth2_provider (0.0.1)
+    oauth2_provider (1.0.1)
       rails (~> 4.0.4)
 
 GEM

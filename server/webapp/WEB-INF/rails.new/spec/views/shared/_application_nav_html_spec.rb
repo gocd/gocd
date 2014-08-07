@@ -38,7 +38,7 @@ describe "/shared/_application_nav.html.erb" do
     it 'should have the header links' do
       render :partial => "shared/application_nav.html.erb"
 
-      assert_header_values = {'recent-activity' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'admin' => 'ADMIN'}
+      assert_header_values = {'pipelines' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'admin' => 'ADMIN'}
 
       Capybara.string(response.body).find('ul.tabs').tap do |ul_tabs|
         assert_header_values.each do |key, value|
@@ -78,6 +78,7 @@ describe "/shared/_application_nav.html.erb" do
       expect(response.body).to have_selector(".user .help a[href='/help/index.html']", "Help")
     end
   end
+
   describe "server health messages" do
 
     it "should render header with pipelines tab selected as current" do
@@ -85,9 +86,10 @@ describe "/shared/_application_nav.html.erb" do
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action] = 'index'
+      assign(:current_tab_name, 'pipelines')
       render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
 
-      expect(response.body).to have_selector("#cruise-header-tab-recent-activity.current")
+      expect(response.body).to have_selector("#cruise-header-tab-pipelines.current")
     end
     
     it "should mark admin tab as hilighted when current_tab override used" do

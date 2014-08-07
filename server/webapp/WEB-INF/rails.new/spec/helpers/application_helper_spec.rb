@@ -30,39 +30,52 @@ describe ApplicationHelper do
     tab_for("quux", :class => "foo bar", :anchor_class => "skip_dirty_stop").should == "<li id='cruise-header-tab-quux' class=' foo bar'>\n<a class=\"skip_dirty_stop\" href=\"/go/quux\">QUUX</a>\n</li>"
   end
 
-  it "url_for_path should handle default_url_options" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo?x"
+  describe "url_for_path" do
+
+    before :each do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+    end
+
+    it "should handle default_url_options" do
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo?x"
+    end
+
+    it "should handle default_url_options" do
+      url = url_for_path("/foo?bar=blah")
+      url.should == "/go/quux/foo?bar=blah&x"
+    end
+
+    it "should handle query params" do
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo?x"
+    end
+
+    it "should handle url without params" do
+      allow(main_app).to receive(:root_path).and_return("/go/quux")
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo"
+    end
+
+    it "should handle root url with trailing slash and provided sub path with leading slash" do
+      allow(main_app).to receive(:root_path).and_return("/go/quux/")
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo"
+    end
   end
 
-  it "url_for_path should handle default_url_options" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo?bar=blah")
-    url.should == "/go/quux/foo?bar=blah&x"
-  end
+  describe "url_for_login" do
+    before :each do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+    end
 
-  it "url_for_login should give the url for login" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url_for_login.should == "/go/quux/auth/login?x"
-  end
-
-  it "url_for_path should handle query params" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo?x"
-  end
-
-  it "url_for_path should handle url without params" do
-    allow(self).to receive(:root_path).and_return("/go/quux")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo"
-  end
-
-  it "url_for_path should handle root url with trailing slash and provided sub path with leading slash" do
-    allow(self).to receive(:root_path).and_return("/go/quux/")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo"
+    it "should give the url for login" do
+      url_for_login.should == "/go/quux/auth/login?x"
+    end
   end
 
   it "should give the server version" do
@@ -114,6 +127,9 @@ describe ApplicationHelper do
     end
 
     it "should respect option :target" do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux")
       should_receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
       tab_for("quux", :target => 'foo').should == "<li id='cruise-header-tab-quux' class=' '>\nlink_to_quux\n</li>"
     end

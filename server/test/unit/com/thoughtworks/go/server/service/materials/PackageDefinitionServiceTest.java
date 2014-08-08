@@ -16,40 +16,35 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.server.service.materials.PackageMaterialTestHelper.assertPackageConfiguration;
 import static org.hamcrest.Matchers.hasItems;
@@ -58,9 +53,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PackageDefinitionServiceTest {
@@ -278,6 +271,16 @@ public class PackageDefinitionServiceTest {
             @Override
             public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
 
+            }
+
+            @Override
+            public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
+                return null;
+            }
+
+            @Override
+            public List<GoPluginIdentifier> allPluginsOfType(String extension) {
+                return null;
             }
         };
     }

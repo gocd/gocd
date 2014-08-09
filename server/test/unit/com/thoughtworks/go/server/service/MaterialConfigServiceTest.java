@@ -4,13 +4,12 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Arrays;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -25,62 +24,62 @@ public class MaterialConfigServiceTest {
 	@Mock
 	SecurityService securityService;
 
+	String user;
+	MaterialConfigService materialConfigService;
+
 	@Before
 	public void setup() throws Exception {
 		initMocks(this);
+
+		user = "looser";
+		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
+		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
+
+		PipelineConfigs pipelineGroup1 = new PipelineConfigs();
+		pipelineGroup1.setGroup("group1");
+		PipelineConfig pipelineConfig1 = new PipelineConfig();
+		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
+		pipelineConfig1.addMaterialConfig(gitMaterialConfig1);
+		GitMaterialConfig getMaterialConfig2 = new GitMaterialConfig("http://crap.com");
+		pipelineConfig1.addMaterialConfig(getMaterialConfig2);
+		pipelineGroup1.add(pipelineConfig1);
+
+		PipelineConfigs pipelineGroup2 = new PipelineConfigs();
+		pipelineGroup2.setGroup("group2");
+		PipelineConfig pipelineConfig2 = new PipelineConfig();
+		GitMaterialConfig gitMaterialConfig3 = new GitMaterialConfig("http://another.com");
+		pipelineConfig2.addMaterialConfig(gitMaterialConfig3);
+		pipelineGroup2.add(pipelineConfig2);
+
+		PipelineGroups pipelineGroups = new PipelineGroups(pipelineGroup1, pipelineGroup2);
+		when(goConfigService.groups()).thenReturn(pipelineGroups);
+
+		materialConfigService = new MaterialConfigService(goConfigService, securityService);
 	}
 
 	@Test
 	public void shouldGetMaterialConfigs() {
-		when(goConfigService.allGroups()).thenReturn(Arrays.asList("group1", "group2"));
-		String user = "looser";
-		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(false);
-		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(true);
-		PipelineConfigs pipelineConfigs = new PipelineConfigs();
-		PipelineConfig pipelineConfig = new PipelineConfig();
-		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
-		GitMaterialConfig getMaterialConfig2 = new GitMaterialConfig("http://crap.com");
-		pipelineConfig.addMaterialConfig(gitMaterialConfig1);
-		pipelineConfig.addMaterialConfig(getMaterialConfig2);
-		pipelineConfigs.add(pipelineConfig);
-		when(goConfigService.getAllPipelinesInGroup("group2")).thenReturn(pipelineConfigs);
-
-		MaterialConfigService materialConfigService = new MaterialConfigService(goConfigService, securityService);
-
 		MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(user);
 
-		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
 		assertThat(materialConfigs.size(), is(2));
-		assertThat(materialConfigs.get(0), is((MaterialConfig) gitMaterialConfig1));
-		assertThat(materialConfigs.get(1), is((MaterialConfig) getMaterialConfig2));
+		assertThat(materialConfigs.get(0), is((MaterialConfig) new GitMaterialConfig("http://test.com")));
+		assertThat(materialConfigs.get(1), is((MaterialConfig) new GitMaterialConfig("http://crap.com")));
 	}
 
 	@Test
 	public void shouldGetMaterialConfigByFingerprint() {
-		when(goConfigService.allGroups()).thenReturn(Arrays.asList("group1", "group2"));
-		String user = "looser";
-		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(false);
-		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(true);
-		PipelineConfigs pipelineConfigs = new PipelineConfigs();
-		PipelineConfig pipelineConfig = new PipelineConfig();
-		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
-		GitMaterialConfig getMaterialConfig2 = new GitMaterialConfig("http://crap.com");
-		String fingerprintForGit2 = getMaterialConfig2.getFingerprint();
-		pipelineConfig.addMaterialConfig(gitMaterialConfig1);
-		pipelineConfig.addMaterialConfig(getMaterialConfig2);
-		pipelineConfigs.add(pipelineConfig);
-		when(goConfigService.getAllPipelinesInGroup("group2")).thenReturn(pipelineConfigs);
-
-		MaterialConfigService materialConfigService = new MaterialConfigService(goConfigService, securityService);
-
 		HttpOperationResult result = new HttpOperationResult();
-		MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, fingerprintForGit2, result);
+		GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://crap.com");
+		MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
 
-		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
-		assertThat(materialConfig, is((MaterialConfig) getMaterialConfig2));
+		assertThat(materialConfig, is((MaterialConfig) gitMaterialConfig));
 		assertThat(result.canContinue(), is(true));
+	}
 
-		materialConfig = materialConfigService.getMaterialConfig(user, "unknown-fingerprint", result);
+	@Test
+	public void shouldPopulateErrorCorrectlyWhenMaterialNotFound_getMaterialConfigByFingerprint() {
+		HttpOperationResult result = new HttpOperationResult();
+		MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, "unknown-fingerprint", result);
 
 		assertThat(materialConfig, is(nullValue()));
 		assertThat(result.httpCode(), is(404));

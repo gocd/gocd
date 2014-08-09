@@ -26,8 +26,6 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * @understands providing services around a pipeline configuration
  */
@@ -44,11 +42,9 @@ public class MaterialConfigService {
 
 	public MaterialConfigs getMaterialConfigs(String username) {
 		MaterialConfigs materialConfigs = new MaterialConfigs();
-		List<String> groupNames = goConfigService.allGroups();
-		for (String groupName : groupNames) {
-			if (securityService.hasViewPermissionForGroup(username, groupName)) {
-				PipelineConfigs pipelinesInGroup = goConfigService.getAllPipelinesInGroup(groupName);
-				for (PipelineConfig pipelineConfig : pipelinesInGroup) {
+		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
+				for (PipelineConfig pipelineConfig : pipelineGroup) {
 					MaterialConfigs materialsForPipeline = pipelineConfig.materialConfigs();
 					materialConfigs.addAll(materialsForPipeline);
 				}
@@ -59,11 +55,9 @@ public class MaterialConfigService {
 
 	public MaterialConfig getMaterialConfig(String username, String materialFingerprint, OperationResult result) {
 		MaterialConfig materialConfig = null;
-		List<String> groupNames = goConfigService.allGroups();
-		for (String groupName : groupNames) {
-			if (securityService.hasViewPermissionForGroup(username, groupName)) {
-				PipelineConfigs pipelinesInGroup = goConfigService.getAllPipelinesInGroup(groupName);
-				for (PipelineConfig pipelineConfig : pipelinesInGroup) {
+		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
+				for (PipelineConfig pipelineConfig : pipelineGroup) {
 					MaterialConfigs materialsForPipeline = pipelineConfig.materialConfigs();
 					for (MaterialConfig currentMaterialConfig : materialsForPipeline) {
 						if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {

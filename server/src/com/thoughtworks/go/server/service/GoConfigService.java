@@ -482,6 +482,10 @@ public class GoConfigService {
         return allGroup;
     }
 
+	public PipelineGroups groups() {
+		return getCurrentConfig().getGroups();
+	}
+
     public List<Task> tasksForJob(String pipelineName, String stageName, String jobName) {
         return getCurrentConfig().tasksForJob(pipelineName, stageName, jobName);
     }

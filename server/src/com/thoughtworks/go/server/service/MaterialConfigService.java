@@ -26,6 +26,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @understands providing services around a pipeline configuration
  */
@@ -42,11 +45,16 @@ public class MaterialConfigService {
 
 	public MaterialConfigs getMaterialConfigs(String username) {
 		MaterialConfigs materialConfigs = new MaterialConfigs();
+		Set<String> materialFingerprints = new HashSet<String>();
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
 			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
 				for (PipelineConfig pipelineConfig : pipelineGroup) {
-					MaterialConfigs materialsForPipeline = pipelineConfig.materialConfigs();
-					materialConfigs.addAll(materialsForPipeline);
+					for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+						if (!materialFingerprints.contains(currentMaterialConfig.getFingerprint())) {
+							materialConfigs.add(currentMaterialConfig);
+							materialFingerprints.add(currentMaterialConfig.getFingerprint());
+						}
+					}
 				}
 			}
 		}
@@ -58,8 +66,7 @@ public class MaterialConfigService {
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
 			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
 				for (PipelineConfig pipelineConfig : pipelineGroup) {
-					MaterialConfigs materialsForPipeline = pipelineConfig.materialConfigs();
-					for (MaterialConfig currentMaterialConfig : materialsForPipeline) {
+					for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
 						if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
 							materialConfig = currentMaterialConfig;
 							break;

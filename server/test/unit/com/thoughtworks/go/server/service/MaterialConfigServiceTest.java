@@ -34,6 +34,7 @@ public class MaterialConfigServiceTest {
 		user = "looser";
 		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
 		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
+		when(securityService.hasViewPermissionForGroup(user, "group3")).thenReturn(true);
 
 		PipelineConfigs pipelineGroup1 = new PipelineConfigs();
 		pipelineGroup1.setGroup("group1");
@@ -51,14 +52,21 @@ public class MaterialConfigServiceTest {
 		pipelineConfig2.addMaterialConfig(gitMaterialConfig3);
 		pipelineGroup2.add(pipelineConfig2);
 
-		PipelineGroups pipelineGroups = new PipelineGroups(pipelineGroup1, pipelineGroup2);
+		PipelineConfigs pipelineGroup3 = new PipelineConfigs();
+		pipelineGroup3.setGroup("group3");
+		PipelineConfig pipelineConfig3 = new PipelineConfig();
+		GitMaterialConfig gitMaterialConfig4 = new GitMaterialConfig("http://test.com");
+		pipelineConfig1.addMaterialConfig(gitMaterialConfig4);
+		pipelineGroup3.add(pipelineConfig3);
+
+		PipelineGroups pipelineGroups = new PipelineGroups(pipelineGroup1, pipelineGroup2, pipelineGroup3);
 		when(goConfigService.groups()).thenReturn(pipelineGroups);
 
 		materialConfigService = new MaterialConfigService(goConfigService, securityService);
 	}
 
 	@Test
-	public void shouldGetMaterialConfigs() {
+	public void shouldGetUniqueMaterialConfigsToWhichUserHasViewPermission() {
 		MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(user);
 
 		assertThat(materialConfigs.size(), is(2));

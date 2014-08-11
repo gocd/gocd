@@ -1489,34 +1489,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotAllowJobToHaveTheRunOnAllAgentsMarkerInItsName() throws Exception {
         String invalidJobName = format("%s-%s-%s", "invalid-name", RunOnAllAgentsJobTypeConfig.MARKER, 1);
-        String content = ConfigFileFixture.configWithPipeline(
-                "    <pipeline name=\"dev\">\n"
-                        + "      <materials>\n"
-                        + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
-                        + "      </materials>\n"
-                        + "      <stage name=\"AutoStage\">\n"
-                        + "        <jobs>\n"
-                        + "          <job name=\"" + invalidJobName + "\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
-                        + "            </tasks>\n"
-                        + "          </job>\n"
-                        + "        </jobs>\n"
-                        + "      </stage>\n"
-                        + "    </pipeline>");
-        try {
-            ConfigMigrator.loadWithMigration(content);
-            fail("should not allow jobs with runOnAllAgents=true to have names with 'runOnAll'");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("A job cannot have 'runOnAll' in it's name: " + invalidJobName));
-        }
-    }
-
-    @Test
-    public void shouldAllowNonRunOnAllAgentJobToHavePartsOfTheRunOnAllAgentsMarkerInItsName() throws Exception {
-		String invalidJobName = format("%s-%s-%s", "invalid-name", RunOnAllAgentsJobTypeConfig.MARKER, 1);
 		testForInvalidJobName(invalidJobName, RunOnAllAgentsJobTypeConfig.MARKER);
     }
+
+	@Test
+	public void shouldNotAllowJobToHaveTheRunInstanceMarkerInItsName() throws Exception {
+		String invalidJobName = format("%s-%s-%s", "invalid-name", RunMultipleInstanceJobTypeConfig.MARKER, 1);
+		testForInvalidJobName(invalidJobName, RunMultipleInstanceJobTypeConfig.MARKER);
+	}
 
 	private void testForInvalidJobName(String invalidJobName, String marker) {
 		String content = ConfigFileFixture.configWithPipeline(

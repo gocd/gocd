@@ -201,7 +201,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private JobTypeConfig jobTypeConfig() {
         if (runOnAllAgents) {
             return new RunOnAllAgentsJobTypeConfig();
-        } else {
+		} else if (isRunMultipleInstanceType()) {
+			return new RunMultipleInstanceJobTypeConfig();
+		} else {
             return new SingleJobTypeConfig();
         }
     }

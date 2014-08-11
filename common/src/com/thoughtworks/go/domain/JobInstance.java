@@ -501,10 +501,12 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return jobType().isInstanceOf(name, true, identifier.getJobName());
     }
 
-    private JobType jobType() {
+    JobType jobType() {
         if (runOnAllAgents) {
             return new RunOnAllAgents();
-        } else {
+		} else if (runMultipleInstance) {
+			return new RunMultipleInstance();
+		} else {
             return new SingleJobInstance();
         }
     }

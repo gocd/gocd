@@ -18,16 +18,23 @@ package com.thoughtworks.go.domain;
 
 public class CannotRerunJobException extends IllegalStateException {
     private final String jobName;
+    private final String information;
 
-    public CannotRerunJobException(String jobName) {
+    public CannotRerunJobException(String jobName, String information) {
         this.jobName = jobName;
+		this.information = information;
     }
 
     public String getJobName() {
         return jobName;
     }
 
-    @Override public String getMessage() {
-        return String.format("Cannot rerun job, configuration for job named '%s' doesn't exist.", jobName);
-    }
+	public String getInformation() {
+		return information;
+	}
+
+	@Override
+	public String getMessage() {
+		return String.format("Cannot rerun job '%s'. %s", jobName, information);
+	}
 }

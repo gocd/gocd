@@ -30,6 +30,7 @@
         <result property="agentUuid" column="agentUuid"/>
         <result property="ignored" column="ignored"/>
         <result property="runOnAllAgents" column="runOnAllAgents"/>
+        <result property="runMultipleInstance" column="runMultipleInstance"/>
         <result property="originalJobId" column="originalJobId"/>
         <result property="rerun" column="rerun"/>
     </resultMap>
@@ -81,6 +82,7 @@
         <parameter property="agentUuid"/>
         <parameter property="stageId"/>
         <parameter property="runOnAllAgents"/>
+        <parameter property="runMultipleInstance"/>
         <parameter property="originalJobId"/>
         <parameter property="rerun"/>
     </parameterMap>
@@ -275,8 +277,8 @@
     </update>
 
     <insert id="insertBuild" parameterMap="insert-build-param">
-        INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, originalJobId, rerun)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, runMultipleInstance, originalJobId, rerun)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey resultClass="long" keyProperty="id" type="post">
             CALL IDENTITY();
         </selectKey>
@@ -330,6 +332,7 @@
         joined.stageId,
         joined.ignored,
         joined.runOnAllAgents,
+        joined.runMultipleInstance,
         joined.originalJobId,
         joined.rerun,
         joined.pipelineName,

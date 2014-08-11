@@ -798,6 +798,16 @@ public class JobInstanceSqlMapDaoTest {
         assertThat(reloaded.isRunOnAllAgents(), is(true));
     }
 
+	@Test
+	public void shouldLoadRunMultipleInstaceForAssignment() throws Exception {
+		JobInstance jobInstance = scheduled(projectOne);
+		jobInstance.setRunMultipleInstance(true);
+		jobInstanceDao.save(stageId, jobInstance);
+
+		JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(jobInstance.getId());
+		assertThat(reloaded.isRunMultipleInstance(), is(true));
+	}
+
     private JobIdentifier jobIdentifier(JobInstance jobInstance) {
         return new JobIdentifier(savedPipeline, savedStage, jobInstance);
     }

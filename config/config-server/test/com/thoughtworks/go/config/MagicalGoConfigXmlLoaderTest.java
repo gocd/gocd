@@ -1514,6 +1514,37 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowNonRunOnAllAgentJobToHavePartsOfTheRunOnAllAgentsMarkerInItsName() throws Exception {
+		String invalidJobName = format("%s-%s-%s", "invalid-name", RunOnAllAgentsJobTypeConfig.MARKER, 1);
+		testForInvalidJobName(invalidJobName, RunOnAllAgentsJobTypeConfig.MARKER);
+    }
+
+	private void testForInvalidJobName(String invalidJobName, String marker) {
+		String content = ConfigFileFixture.configWithPipeline(
+				"    <pipeline name=\"dev\">\n"
+						+ "      <materials>\n"
+						+ "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
+						+ "      </materials>\n"
+						+ "      <stage name=\"AutoStage\">\n"
+						+ "        <jobs>\n"
+						+ "          <job name=\"" + invalidJobName + "\">\n"
+						+ "            <tasks>\n"
+						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
+						+ "            </tasks>\n"
+						+ "          </job>\n"
+						+ "        </jobs>\n"
+						+ "      </stage>\n"
+						+ "    </pipeline>"
+		);
+		try {
+			ConfigMigrator.loadWithMigration(content);
+			fail("should not allow jobs with with name '" + marker + "'");
+		} catch (Exception expected) {
+			assertThat(expected.getMessage(), containsString("A job cannot have '" + marker + "' in it's name: " + invalidJobName));
+		}
+	}
+
+	@Test
+    public void shouldAllow_NonRunOnAllAgentJobToHavePartsOfTheRunOnAll_and_NonRunMultipleInstanceJobToHavePartsOfTheRunInstance_AgentsMarkerInItsName() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
                 "    <pipeline name=\"dev\">\n"
                         + "      <materials>\n"
@@ -1526,7 +1557,12 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "              <exec command=\"ls\" args=\"-lah\" />\n"
                         + "            </tasks>\n"
                         + "          </job>\n"
-                        + "        </jobs>\n"
+						+ "          <job name=\"valid-name-runInstance\" >\n"
+						+ "            <tasks>\n"
+						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
+						+ "            </tasks>\n"
+						+ "          </job>\n"
+						+ "        </jobs>\n"
                         + "      </stage>\n"
                         + "    </pipeline>");
         ConfigMigrator.loadWithMigration(content); // should not fail with a validation exception
@@ -1914,6 +1950,23 @@ public class MagicalGoConfigXmlLoaderTest {
         }
     }
 
+	@Test
+	public void shouldNotAllowIllegalValueForRunMultipleInstanceJob() throws Exception {
+		try {
+			loadJobWithRunMultipleInstance("-1");
+			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+		} catch (Exception e) {
+			assertThat(e.getMessage(), containsString("'-1' is not facet-valid with respect to minInclusive '1' for type 'positiveInteger'"));
+		}
+
+		try {
+			loadJobWithRunMultipleInstance("abcd");
+			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+		} catch (Exception e) {
+			assertThat(e.getMessage(), containsString("'abcd' is not a valid value for 'integer'"));
+		}
+	}
+
     @Test
     public void shouldSupportEnvironmentVariablesInAJob() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
@@ -2184,6 +2237,15 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(job, is(jobConfig));
     }
 
+	@Test
+	public void shouldSupportRunMultipleInstance() throws Exception {
+		CruiseConfig cruiseConfig = loadJobWithRunMultipleInstance("10");
+		JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
+		JobConfig jobConfig = new JobConfig("do-something");
+		jobConfig.setRunInstanceCount(10);
+		assertThat(job, is(jobConfig));
+	}
+
     @Test
     public void shouldUnderstandEncryptedPasswordAttributeForSvnMaterial() throws Exception {
         String password = "abc";
@@ -2238,6 +2300,21 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipeline>", 16);
         return ConfigMigrator.loadWithMigration(content).config;
     }
+
+	private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
+		String content = ConfigFileFixture.configWithPipeline(
+				  "<pipeline name='pipeline1'>"
+				+ "    <materials>"
+				+ "      <svn url ='svnurl'/>"
+				+ "    </materials>"
+				+ "  <stage name='mingle'>"
+				+ "    <jobs>"
+				+ "      <job name='do-something' runInstanceCount='" + value + "'/>"
+				+ "    </jobs>"
+				+ "  </stage>"
+				+ "</pipeline>", 74);
+		return ConfigMigrator.loadWithMigration(content).config;
+	}
 
     private void assertValidMaterials(String materials) throws Exception {
         createConfig(materials);

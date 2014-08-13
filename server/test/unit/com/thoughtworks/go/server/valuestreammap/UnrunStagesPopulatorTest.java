@@ -16,30 +16,21 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.Revision;
-import com.thoughtworks.go.domain.valuestreammap.UnrunPipelineRevision;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.domain.valuestreammap.*;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -93,9 +84,9 @@ public class UnrunStagesPopulatorTest {
 
         unrunStagesPopulator.apply(valueStreamMap);
         PipelineRevision revision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
-        MatcherAssert.assertThat(revision.getStages(), Matchers.hasSize(2));
-        MatcherAssert.assertThat(revision.getStages().get(0).getName(), Matchers.is("s2"));
-        MatcherAssert.assertThat(revision.getStages().get(1).getName(), Matchers.is("s1"));
+        assertThat(revision.getStages(), hasSize(2));
+        assertThat(revision.getStages().get(0).getName(), is("s2"));
+        assertThat(revision.getStages().get(1).getName(), is("s1"));
     }
 
     @Test
@@ -156,16 +147,43 @@ public class UnrunStagesPopulatorTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         unrunStagesPopulator.apply(graph);
 
-        assertThat(p2_node.revisions(), hasSize(1));
-        PipelineRevision empty_p2_revision = (PipelineRevision) p2_node.revisions().get(0);
-        assertThat(empty_p2_revision.getPipelineIdentifier(), Matchers.is(new UnrunPipelineRevision("p2").getPipelineIdentifier()));
-        assertThat(empty_p2_revision.getStages(), is(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4"))));
+		assertUnrunPipeline(p2_node, "p2");
+		assertUnrunPipeline(p3_node, "p3");
+	}
 
-        assertThat(p3_node.revisions(), hasSize(1));
-        PipelineRevision empty_p3_revision = (PipelineRevision) p3_node.revisions().get(0);
-        assertThat(empty_p2_revision.getPipelineIdentifier(),is(new UnrunPipelineRevision("p2").getPipelineIdentifier()));
-        assertThat(empty_p3_revision.getStages(), is(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4"))));
-    }
+	@Test
+	public void shouldPopulateUnrunStagesAndConfiguredStagesFromMaterial() throws Exception {
+		/*
+			git --> p1 --> p2
+			 \
+			  +-> p3
+		 */
+
+		GitMaterial gitMaterial = new GitMaterial("url");
+		ValueStreamMap graph = new ValueStreamMap(gitMaterial, null, ModificationsMother.aCheckIn("r1"));
+		Node git_node = graph.getCurrentMaterial();
+		Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode("p1", "p1"), git_node.getId());
+		Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode("p2", "p2"), "p1");
+		Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), git_node.getId());
+
+		addRevisions(p1_node);
+		addRevisions(p3_node);
+
+		CruiseConfig cruiseConfig = new CruiseConfig();
+		String group = "first";
+		cruiseConfig.addPipeline(group, pipelineConfig("p"));
+		cruiseConfig.addPipeline(group, pipelineConfig("p1"));
+		cruiseConfig.addPipeline(group, pipelineConfig("p2"));
+		cruiseConfig.addPipeline(group, pipelineConfig("p3"));
+
+		when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
+		unrunStagesPopulator.apply(graph);
+
+		assertStages(p1_node);
+		assertStages(p3_node);
+
+		assertUnrunPipeline(p2_node, "p2");
+	}
 
     private void assertStages(Node node) {
         List<Revision> revisions = node.revisions();
@@ -176,12 +194,19 @@ public class UnrunStagesPopulatorTest {
 
     private void assertRevision(Revision revision) {
         PipelineRevision pipelineRevision = (PipelineRevision) revision;
-        MatcherAssert.assertThat(pipelineRevision.getStages(), Matchers.hasSize(3));
-        MatcherAssert.assertThat(pipelineRevision.getStages().get(0).getName(), Matchers.is("s1"));
-        MatcherAssert.assertThat(pipelineRevision.getStages().get(1).getName(), Matchers.is("s3"));
-        MatcherAssert.assertThat(pipelineRevision.getStages().get(2).getName(), Matchers.is("s4"));
-        MatcherAssert.assertThat(pipelineRevision.getStages().get(2).getState(), Matchers.is(StageState.Unknown));
+        assertThat(pipelineRevision.getStages(), hasSize(3));
+        assertThat(pipelineRevision.getStages().get(0).getName(), is("s1"));
+        assertThat(pipelineRevision.getStages().get(1).getName(), is("s3"));
+        assertThat(pipelineRevision.getStages().get(2).getName(), is("s4"));
+        assertThat(pipelineRevision.getStages().get(2).getState(), is(StageState.Unknown));
     }
+
+	private void assertUnrunPipeline(Node node, String pipelineName) {
+		assertThat(node.revisions(), hasSize(1));
+		PipelineRevision empty_p2_revision = (PipelineRevision) node.revisions().get(0);
+		assertThat(empty_p2_revision.getPipelineIdentifier(), is(new UnrunPipelineRevision(pipelineName).getPipelineIdentifier()));
+		assertThat(empty_p2_revision.getStages(), is(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4"))));
+	}
 
     private PipelineConfig pipelineConfig(String pipelineName) {
         return PipelineConfigMother.pipelineConfig(pipelineName,

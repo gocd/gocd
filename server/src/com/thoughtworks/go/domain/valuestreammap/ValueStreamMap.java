@@ -16,14 +16,9 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
@@ -31,12 +26,18 @@ import com.thoughtworks.go.server.valuestreammap.CrossingMinimization;
 import com.thoughtworks.go.server.valuestreammap.DummyNodeCreation;
 import com.thoughtworks.go.server.valuestreammap.LevelAssignment;
 
+import java.util.*;
+
 public class ValueStreamMap {
-    private final Node currentPipeline;
+    private Node currentPipeline;
+    private Node currentMaterial;
+	private MaterialInstance currentMaterialInstance;
     private LinkedHashMap<String, Node> nodeIdToNodeMap = new LinkedHashMap<String, Node>();
+	private List<Node> rootNodes = new ArrayList<Node>();
+
+	private LevelAssignment levelAssignment = new LevelAssignment();
     private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
     private CrossingMinimization crossingMinimization = new CrossingMinimization();
-    private LevelAssignment levelAssignment = new LevelAssignment();
 
     public ValueStreamMap(String pipeline, PipelineRevision pipelineRevision) {
         currentPipeline = new PipelineDependencyNode(pipeline, pipeline);
@@ -44,12 +45,27 @@ public class ValueStreamMap {
         currentPipeline.addRevision(pipelineRevision);
     }
 
+	public ValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification) {
+		currentMaterial = new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), material.getTypeForDisplay());
+		currentMaterialInstance = materialInstance;
+		nodeIdToNodeMap.put(currentMaterial.getId(), currentMaterial);
+		currentMaterial.addRevision(new SCMRevision(modification));
+	}
+
     //used in rails
     public Node getCurrentPipeline() {
         return currentPipeline;
     }
 
-    public Node addUpstreamNode(Node node, PipelineRevision revision, String dependentNodeId) {
+	public Node getCurrentMaterial() {
+		return currentMaterial;
+	}
+
+	public MaterialInstance getCurrentMaterialInstance() {
+		return currentMaterialInstance;
+	}
+
+	public Node addUpstreamNode(Node node, PipelineRevision revision, String dependentNodeId) {
         node = addUpstreamNode(node, dependentNodeId);
         node.addRevision(revision);
         return node;
@@ -94,18 +110,25 @@ public class ValueStreamMap {
         return nodeIdToNodeMap.get(nodeId);
     }
 
-    @Override
-    public String toString() {
-        String s = "graph:\n";
-        for (Node currentNode : allNodes()) {
-            s += currentNode + "\n";
-        }
-        return s;
-    }
-
     public Collection<Node> allNodes() {
         return nodeIdToNodeMap.values();
     }
+
+	public List<Node> getRootNodes() {
+		if (rootNodes.isEmpty()) {
+			populateRootNodes();
+		}
+		return rootNodes;
+	}
+
+	void populateRootNodes() {
+		rootNodes = new ArrayList<Node>();
+		for (Node currentNode : allNodes()) {
+			if (currentNode.getParents().isEmpty()) {
+				rootNodes.add(currentNode);
+			}
+		}
+	}
 
     private boolean hasNode(String nodeId) {
         return nodeIdToNodeMap.containsKey(nodeId);
@@ -120,10 +143,9 @@ public class ValueStreamMap {
 
     public boolean hasCycle() {
         Set<Node> verifiedNodes = new HashSet<Node>();
-        Set<String>
-        nodesInPath = new HashSet<String>();
+        Set<String> nodesInPath = new HashSet<String>();
 
-        for (Node node : findRootNodes()) {
+        for (Node node : getRootNodes()) {
             if (node.hasCycleInSubGraph(nodesInPath, verifiedNodes)) {
                 return true;
             }
@@ -131,14 +153,12 @@ public class ValueStreamMap {
         return false;
     }
 
-    public List<Node> findRootNodes() {
-        List<Node> nodesWithNoParents = new ArrayList<Node>();
-        for (Node currentNode : allNodes()) {
-            if (currentNode.getParents().isEmpty()) {
-                nodesWithNoParents.add(currentNode);
-            }
-        }
-        return nodesWithNoParents;
-    }
-
+	@Override
+	public String toString() {
+		String s = "graph:\n";
+		for (Node currentNode : allNodes()) {
+			s += currentNode + "\n";
+		}
+		return s;
+	}
 }

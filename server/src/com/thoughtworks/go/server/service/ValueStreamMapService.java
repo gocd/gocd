@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -29,11 +25,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
@@ -45,6 +37,10 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ValueStreamMapService {
@@ -117,7 +113,6 @@ public class ValueStreamMapService {
         return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).name().toString();
     }
 
-
     private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
         for (Node node : valueStreamMap.allNodes()) {
             if (node instanceof PipelineDependencyNode) {
@@ -132,7 +127,6 @@ public class ValueStreamMapService {
             }
         }
     }
-
 
     private void traverseUpstream(String pipelineName, BuildCause buildCause, ValueStreamMap graph, List<MaterialRevision> visitedNodes) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {

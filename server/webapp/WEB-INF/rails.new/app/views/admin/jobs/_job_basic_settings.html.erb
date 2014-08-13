@@ -47,6 +47,11 @@
             <label for="job_runOnAllAgents" title="<%= l.string("TOOLTIP_RUN_ON_ALL") %>"><%= l.string('RUN_ON_ALL_AGENTS') -%></label>
             <%= error_message_on(scope[:job].isRunOnAllAgents(), "type", :css_class => "form_error") %>
         </div>
+        <div class="form_item_block run_multiple_instance">
+            <label for="job_runInstanceCount" title="<%= l.string("TOOLTIP_RUN_MULTIPLE_INSTANCE") %>"><%= l.string('RUN_MULTIPLE_INSTANCES') -%></label>
+            <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT, :title => "#{l.string("TOOLTIP_RUN_MULTIPLE_INSTANCE")}" %>
+            <%= error_message_on(scope[:job], com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT, :css_class => "form_error") %>
+        </div>
     </div>
     <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

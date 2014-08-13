@@ -257,12 +257,13 @@ public class JobConfigTest {
 
 		jobConfig1.setConfigAttributes(map);
 
-		assertThat(jobConfig1.getRunInstanceCount(), is(10));
+		assertThat(jobConfig1.getRunInstanceCountValue(), is(10));
 		assertThat(jobConfig1.isRunMultipleInstanceType(), is(true));
 
 		JobConfig jobConfig2 = new JobConfig();
 
-		jobConfig2.setConfigAttributes(new HashMap());
+		map.put(JobConfig.RUN_INSTANCE_COUNT, "");
+		jobConfig2.setConfigAttributes(map);
 
 		assertThat(jobConfig2.getRunInstanceCount(), is(nullValue()));
 		assertThat(jobConfig2.isRunMultipleInstanceType(), is(false));

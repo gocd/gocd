@@ -179,11 +179,15 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
 	public boolean isRunMultipleInstanceType() {
-		return getRunInstanceCount() > 0;
+		return getRunInstanceCountValue() > 0;
 	}
 
-	public Integer getRunInstanceCount() {
+	public Integer getRunInstanceCountValue() {
 		return runInstanceCount == null ? 0 : Integer.valueOf(runInstanceCount);
+	}
+
+	public String getRunInstanceCount() {
+		return runInstanceCount;
 	}
 
 	public void setRunInstanceCount(Integer runInstanceCount) {
@@ -300,7 +304,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             runOnAllAgents = "1".equals(attributesMap.get(RUN_ON_ALL_AGENTS));
         }
 		if (attributesMap.containsKey(RUN_INSTANCE_COUNT)) {
-			this.runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
+			if (StringUtil.isBlank((String) attributesMap.get(RUN_INSTANCE_COUNT))) {
+				this.runInstanceCount = null;
+			} else {
+				this.runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
+			}
 		}
 		if (attributesMap.containsKey(NAME)) {
             String nameString = (String) attributesMap.get(NAME);

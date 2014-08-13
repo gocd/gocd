@@ -64,7 +64,7 @@ public class RunMultipleInstance implements JobType {
 	}
 
 	public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig config, String stageName, final JobNameGenerator nameGenerator, final Clock clock, InstanceFactory instanceFactory) {
-		Integer totalInstances = context.isRerun() ? 1 : config.getRunInstanceCount();
+		Integer totalInstances = context.isRerun() ? 1 : config.getRunInstanceCountValue();
 		for (int counter = 1; counter <= totalInstances; counter++) {
 			instanceFactory.reallyCreateJobInstance(config, jobs, null, nameGenerator.generateName(counter), false, true, context, clock);
 		}

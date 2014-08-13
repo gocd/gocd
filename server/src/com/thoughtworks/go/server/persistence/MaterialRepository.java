@@ -559,6 +559,18 @@ public class MaterialRepository extends HibernateDaoSupport {
         return materialInstance;//TODO: clone me, caller may mutate
     }
 
+	public Modification getModificationFor(final MaterialInstance materialInstance, final String revision) {
+		Modification modification = (Modification) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("FROM Modification WHERE materialid = :materialid AND revision = :revision");
+				q.setParameter("materialid", materialInstance.getId());
+				q.setParameter("revision", revision);
+				return q.uniqueResult();
+			}
+		});
+		return modification;
+	}
+
     private Object firstResult(DetachedCriteria criteria) {
         List results = getHibernateTemplate().findByCriteria(criteria);
         if (results.isEmpty()) {

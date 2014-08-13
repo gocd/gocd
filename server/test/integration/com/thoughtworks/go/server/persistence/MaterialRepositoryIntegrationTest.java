@@ -71,8 +71,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
+import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -133,12 +135,14 @@ public class MaterialRepositoryIntegrationTest {
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
+	private ScheduleTestUtil u;
 
     @Before
     public void setUp() throws Exception {
         originalTemplate = repo.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
+		u = new ScheduleTestUtil(transactionTemplate, repo, dbHelper, new GoConfigFileHelper());
     }
 
     @After
@@ -872,6 +876,19 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(materialRevision.getMaterial(), is(material));
         assertThat(materialRevision.getModifications().size(), is(0));
     }
+
+	@Test
+	public void shouldReturnModificationWithGivenMaterialAndRevision() throws Exception {
+		GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+		u.checkinInOrder(g1, "g_1");
+		MaterialInstance g1Instance = repo.findMaterialInstance(g1);
+
+		Modification modification = repo.getModificationFor(g1Instance, "g_1");
+		assertThat(modification.getRevision(), is("g_1"));
+
+		modification = repo.getModificationFor(g1Instance, "unknown");
+		assertThat(modification, is(nullValue()));
+	}
 
     @Test
     public void shouldReturnMatchedRevisionsForAGivenSearchString() throws Exception {

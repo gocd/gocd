@@ -138,7 +138,7 @@ public class ValueStreamMap {
         NodeLevelMap nodeLevelMap = levelAssignment.apply(this);
         dummyNodeCreation.apply(this, nodeLevelMap);
         crossingMinimization.apply(nodeLevelMap);
-        return new ValueStreamMapPresentationModel(currentPipeline, nodeLevelMap.nodesAtEachLevel());
+        return new ValueStreamMapPresentationModel(currentPipeline, currentMaterial, nodeLevelMap.nodesAtEachLevel());
     }
 
     public boolean hasCycle() {

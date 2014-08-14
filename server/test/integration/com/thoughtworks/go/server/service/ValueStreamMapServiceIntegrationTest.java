@@ -16,19 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.Revision;
-import com.thoughtworks.go.domain.valuestreammap.VSMTestHelper;
-import com.thoughtworks.go.domain.valuestreammap.VSMViewType;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -51,6 +43,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Collection;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInstances;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;

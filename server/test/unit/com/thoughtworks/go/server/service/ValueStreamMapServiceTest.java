@@ -16,42 +16,25 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.SCMRevision;
-import com.thoughtworks.go.domain.valuestreammap.VSMTestHelper;
-import com.thoughtworks.go.domain.valuestreammap.VSMViewType;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
@@ -63,58 +46,73 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
+import java.util.*;
+
+import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertDepth;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValueStreamMapServiceTest {
+	@Mock
+	private PipelineService pipelineService;
+	@Mock
+	private MaterialRepository materialRepository;
+	@Mock
+	private GoConfigService goConfigService;
+	@Mock
+	private RunStagesPopulator runStagesPopulator;
+	@Mock
+	private UnrunStagesPopulator unrunStagesPopulator;
+	@Mock
+	private DownstreamInstancePopulator downstreaminstancepopulator;
+	@Mock
+	private SecurityService securityService;
 
-    private PipelineService pipelineService;
-    private GoConfigService goConfigService;
-    private ValueStreamMapService valueStreamMapService;
-    private HttpLocalizedOperationResult result;
-    private RunStagesPopulator runStagesPopulator;
-    private UnrunStagesPopulator unrunStagesPopulator;
-    private DownstreamInstancePopulator downstreaminstancepopulator;
-    private SecurityService securityService;
-    private Username user;
+	private Username user;
+	private ValueStreamMapService valueStreamMapService;
+	private HttpLocalizedOperationResult result;
 
     @Before
     public void setUp() throws Exception {
-        pipelineService = mock(PipelineService.class);
-        goConfigService = mock(GoConfigService.class);
-        runStagesPopulator = mock(RunStagesPopulator.class);
-        downstreaminstancepopulator = mock(DownstreamInstancePopulator.class);
-        unrunStagesPopulator = mock(UnrunStagesPopulator.class);
-        securityService = mock(SecurityService.class);
+		initMocks(this);
         user = new Username(new CaseInsensitiveString("poovan"));
 
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p1"))).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p2"))).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p3"))).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("MYPIPELINE"))).thenReturn(true);
+		setupExistenceOfPipelines("p1", "p2", "p3", "MYPIPELINE");
 
-        when(securityService.hasViewPermissionForPipeline(user, "C")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "A")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "B")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "P1")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "P2")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "P3")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "p1")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "p2")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "p3")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(user, "MYPIPELINE")).thenReturn(true);
+		setupViewPermissionForPipelines("C", "A", "B", "P1", "P2", "P3", "p1", "p2", "p3", "MYPIPELINE");
 
-        valueStreamMapService = new ValueStreamMapService(pipelineService, goConfigService, downstreaminstancepopulator, runStagesPopulator, unrunStagesPopulator, securityService);
+		setupViewPermissionForGroups("g1");
+
+        valueStreamMapService = new ValueStreamMapService(pipelineService, materialRepository, goConfigService, downstreaminstancepopulator, runStagesPopulator, unrunStagesPopulator, securityService);
         result = new HttpLocalizedOperationResult();
     }
+
+	private void setupExistenceOfPipelines(String... pipelineNames) {
+		for (String pipelineName : pipelineNames) {
+			when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+		}
+	}
+
+	private void setupViewPermissionForPipelines(String... pipelineNames) {
+		for (String pipelineName : pipelineNames) {
+			when(securityService.hasViewPermissionForPipeline(user, pipelineName)).thenReturn(true);
+		}
+	}
+
+	private void setupViewPermissionForGroups(String... groups) {
+		for (String group : groups) {
+			when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(user.getUsername()), group)).thenReturn(true);
+		}
+	}
 
     @Test
     public void shouldBeCaseInsensitiveWhenGettingPipelineDependencyGraphForAPipeline() {
@@ -228,6 +226,66 @@ public class ValueStreamMapServiceTest {
         assertThat(thirdLevel.size(), is(1));
         assertNode(0, thirdLevel.get(0), "p3", "p3", 0);
     }
+
+	@Test
+	public void shouldGetPipelineDependencyGraphForAPipelineWithDiamondDependency_VSMForMaterial() {
+		/*
+		* |----> P1----->
+		* g             |_> p3
+		* |             |
+		* ---- > P2----->
+		*
+		* */
+
+		GitMaterial gitMaterial = new GitMaterial("git");
+		MaterialConfig gitConfig = gitMaterial.config();
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", "master", "submodule", "flyweight");
+		BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<GitMaterial>());
+		BuildCause p2buildCause = createBuildCause(new ArrayList<String>(), asList(gitMaterial));
+		Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
+		String gitRevision = gitModification.getRevision();
+		BuildCause p1buildCause = createBuildCause(new ArrayList<String>(), asList(gitMaterial));
+
+		when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
+		when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
+		when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
+
+		PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
+		PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
+		PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
+				new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
+		PipelineConfigs pipelineConfigs = new PipelineConfigs("g1", new Authorization(), p1Config, p2Config, p3Config);
+		CruiseConfig cruiseConfig = new CruiseConfig(pipelineConfigs);
+
+		when(goConfigService.groups()).thenReturn(new PipelineGroups(pipelineConfigs));
+		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
+		when(materialRepository.getModificationFor(gitMaterialInstance, gitRevision)).thenReturn(gitModification);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+		ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), gitRevision, user, result);
+		List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
+
+		assertThat(graph.getCurrentPipeline(), is(nullValue()));
+		assertThat(graph.getCurrentMaterial().getId(), is(gitMaterial.getFingerprint()));
+		assertThat(nodesAtEachLevel.size(), is(3));
+
+		List<Node> firstLevel = nodesAtEachLevel.get(0);
+		assertThat(firstLevel.size(), is(1));
+		assertNode(0, firstLevel.get(0), gitMaterial.getDisplayName(), gitMaterial.getFingerprint(), 0, "p1", "p2");
+		assertDepth(graph, firstLevel.get(0).getId(), 1);
+
+		List<Node> secondLevel = nodesAtEachLevel.get(1);
+		assertThat(secondLevel.size(), is(2));
+		assertNode(1, secondLevel.get(0), "p1", "p1", 0, "p3");
+		assertDepth(graph, secondLevel.get(0).getId(), 1);
+		assertNode(1, secondLevel.get(1), "p2", "p2", 0, "p3");
+		assertDepth(graph, secondLevel.get(1).getId(), 2);
+
+		List<Node> thirdLevel = nodesAtEachLevel.get(2);
+		assertThat(thirdLevel.size(), is(1));
+		assertNode(2, thirdLevel.get(0), "p3", "p3", 0);
+		assertDepth(graph, thirdLevel.get(0).getId(), 1);
+	}
 
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesWhenCurrentLevelIsDeeperThanExistingNodeLevel() throws Exception {
@@ -582,9 +640,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(pipelineName, 1, newUser, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
-        assertThat((String) ReflectionUtil.getField((result.localizable()), "key"), is("PIPELINE_CANNOT_VIEW"));
+		assertResult(HttpStatus.SC_UNAUTHORIZED, "PIPELINE_CANNOT_VIEW");
     }
 
     @Test
@@ -634,6 +690,64 @@ public class ValueStreamMapServiceTest {
 
     }
 
+	@Test
+	public void shouldPopulateErrorCorrectly_VSMForMaterial() throws Exception {
+		/*
+				git --> p1
+		 */
+
+		String groupName = "g1";
+		String pipelineName = "p1";
+		String userName = "looser";
+		GitMaterial gitMaterial = new GitMaterial("git");
+		MaterialConfig gitConfig = gitMaterial.config();
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
+		PipelineConfigs groups = new PipelineConfigs(groupName, new Authorization(), PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(gitConfig)));
+		CruiseConfig cruiseConfig = new CruiseConfig(groups);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(goConfigService.groups()).thenReturn(new PipelineGroups(groups));
+
+		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(false);
+
+		// unknown material
+		valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
+
+		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND");
+
+		// unauthorized
+		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+
+		assertResult(HttpStatus.SC_UNAUTHORIZED, "MATERIAL_CANNOT_VIEW");
+
+		// material config exists but no material instance
+		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
+		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(null);
+
+		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+
+		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND");
+
+		// modification (revision) doesn't exist
+		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
+		when(materialRepository.getModificationFor(gitMaterialInstance, "r1")).thenReturn(null);
+
+		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+
+		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_MODIFICATION_NOT_FOUND");
+
+		// internal error
+		when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
+
+		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+
+		assertResult(HttpStatus.SC_INTERNAL_SERVER_ERROR, "VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL");
+	}
+
+	private void assertResult(int httpCode, String msgKey) {
+		assertThat(result.isSuccessful(), is(false));
+		assertThat(result.httpCode(), is(httpCode));
+		assertThat((String) ReflectionUtil.getField((result.localizable()), "key"), is(msgKey));
+	}
 
     private void assertLayerHasDummyNodeWithDependents(List<Node> nodesOfLevel, String... dependents) {
         for (Node currentNode : nodesOfLevel) {
@@ -662,7 +776,6 @@ public class ValueStreamMapServiceTest {
             dependencyMaterialDetails.add(dependencyMaterial(dependencyMaterial, counter));
         }
         return createBuildCauseForRevisions(dependencyMaterialDetails, gitMaterials, ModificationsMother.multipleModificationList(0));
-
     }
 
     private BuildCause createBuildCause(List<String> dependencyMaterials, List<GitMaterial> gitMaterials) {

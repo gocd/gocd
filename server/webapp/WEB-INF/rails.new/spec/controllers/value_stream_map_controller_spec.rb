@@ -73,7 +73,6 @@ describe ValueStreamMapController do
 
   describe "show" do
     it "should route to pdg show path" do
-
       expect(controller.send(:vsm_show_path, {:pipeline_name => "P", :pipeline_counter => 1, :format => "json"})).to eq("/pipelines/value_stream_map/P/1.json")
       expect(controller.send(:vsm_show_path, {:pipeline_name => "P", :pipeline_counter => 1, :format => "html"})).to eq("/pipelines/value_stream_map/P/1")
       expect(controller.send(:vsm_show_path, {:pipeline_name => "P", :pipeline_counter => 1})).to eq("/pipelines/value_stream_map/P/1")
@@ -100,7 +99,6 @@ describe ValueStreamMapController do
 
       expect(assigns(:pipeline)).to eq(nil)
     end
-
 
     describe "render json" do
       it "should get the pipeline dependency graph json" do
@@ -265,6 +263,54 @@ describe ValueStreamMapController do
         ],
         "current_pipeline": "current"
       }!
+    end
+  end
+
+  describe "show material" do
+    it "should route to pdg show path" do
+      expect(controller.send(:vsm_show_material_path, {:material_fingerprint => "fingerprint", :revision => 'revision', :format => "json"})).to eq("/materials/value_stream_map/fingerprint/revision.json")
+      expect(controller.send(:vsm_show_material_path, {:material_fingerprint => "fingerprint", :revision => 'revision', :format => "html"})).to eq("/materials/value_stream_map/fingerprint/revision")
+      expect(controller.send(:vsm_show_material_path, {:material_fingerprint => "fingerprint", :revision => 'revision'})).to eq("/materials/value_stream_map/fingerprint/revision")
+
+      expect(:get => "/materials/value_stream_map/fingerprint/revision.json").to route_to({:controller => "value_stream_map", :action => 'show_material', :material_fingerprint => "fingerprint", :revision => "revision", :format => "json"})
+      expect(:get => "/materials/value_stream_map/fingerprint/revision.html").to route_to({:controller => "value_stream_map", :action => 'show_material', :material_fingerprint => "fingerprint", :revision => "revision", :format => "html" })
+      expect(:get => "/materials/value_stream_map/fingerprint/revision").to route_to({:format=>:html, :controller => "value_stream_map", :action => 'show_material', :material_fingerprint => "fingerprint", :revision => "revision"})
+    end
+
+    describe "render json" do
+      it "should get the pipeline dependency graph json" do
+        material = GitMaterial.new("url")
+        vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1"))
+        vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
+        model = vsm.presentationModel()
+        @value_stream_map_service.should_receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
+
+        get :show_material, :material_fingerprint => material.getFingerprint(), :revision => 'revision', :format => "json"
+
+        expect(response.status).to eq(200)
+
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l).to_json)
+      end
+
+      it "should display error message when the pipeline does not exist" do
+        fingerprint = 'fingerprint'
+        revision = 'revision'
+        @value_stream_map_service.should_receive(:getValueStreamMap) do |fingerprint, revision, user, result|
+          result.stub(:message).with(anything).and_return("error")
+        end
+
+        get :show_material, :material_fingerprint => fingerprint, :revision => revision, :format => "json"
+
+        expect(response.body).to eq({:error => "error"}.to_json)
+      end
+    end
+
+    describe "render html" do
+      it "should render html when html format" do
+        get :show_material, :material_fingerprint => "fingerprint", :revision => 'revision'
+
+        assert_template "show_material"
+      end
     end
   end
 end

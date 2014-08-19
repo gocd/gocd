@@ -18,6 +18,8 @@ class PipelinesController < ApplicationController
   include ApplicationHelper
   layout "application", :except => ["show", "material_search", "show_for_trigger"]
 
+  before_filter :set_tab_name
+
   def build_cause
     result = HttpOperationResult.new
     @pipeline_instance = pipeline_history_service.findPipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
@@ -68,6 +70,10 @@ class PipelinesController < ApplicationController
     @pipeline = pipeline_history_service.latest(pipeline_name, current_user)
     @variables = go_config_service.variablesFor(pipeline_name)
     render :partial => "pipeline_material_revisions", :locals => {:scope => {:show_on_pipelines => should_show, :pegged_revisions => params["pegged_revisions"]}}
+  end
+
+  def set_tab_name
+    @current_tab_name = 'pipelines'
   end
 
 end

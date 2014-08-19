@@ -27,6 +27,8 @@ class ApplicationController < ActionController::Base
 
   before_filter :set_current_user, :populate_health_messages, :local_access_only, :populate_config_validity, :set_site_urls_in_thread
 
+  helper_method :current_user_id_for_oauth
+
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
   # user

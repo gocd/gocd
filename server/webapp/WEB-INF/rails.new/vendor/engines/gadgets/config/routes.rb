@@ -1,12 +1,6 @@
 Rails.application.routes.draw do
-  admin_prefix= ENV['ADMIN_OAUTH_URL_PREFIX']
-  user_prefix= ENV['USER_OAUTH_URL_PREFIX']
-
-  admin_prefix = "" if admin_prefix.blank?
-  user_prefix = "" if user_prefix.blank?
-
-  admin_prefix = admin_prefix.gsub(%r{^/}, '').gsub(%r{/$}, '')
-  user_prefix = user_prefix.gsub(%r{^/}, '').gsub(%r{/$}, '')
+  admin_prefix= (ENV['ADMIN_OAUTH_URL_PREFIX'] || "").gsub(%r{^/}, '').gsub(%r{/$}, '')
+  user_prefix= (ENV['USER_OAUTH_URL_PREFIX'] || "").gsub(%r{^/}, '').gsub(%r{/$}, '')
 
   get "#{user_prefix}/gadgets/oauthcallback" => "gadget_oauth_callback#oauth_callback"
   get "#{user_prefix}/gadgets/ifr" => "gadget_rendering#ifr", as: :gadget_rendering

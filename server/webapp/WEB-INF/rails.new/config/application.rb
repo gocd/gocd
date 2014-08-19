@@ -2,6 +2,7 @@ require File.expand_path('../boot', __FILE__)
 
 require "action_controller/railtie"
 require "rails"
+require "oauth2_provider"
 require "dynamic_form"
 
 # For gadgets client plugin

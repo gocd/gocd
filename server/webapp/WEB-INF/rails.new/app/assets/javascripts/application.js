@@ -23,7 +23,6 @@
 //= require "lib/effects-1.8.0.js"
 //= require "lib/accordion-2.0.js"
 //= require "lib/controls-1.8.0.js"
-// require "lib/d3-3.1.5.min.js"
 //= require "lib/dragdrop-1.8.0.js"
 //= require "lib/highcharts-2.3.3.min.js"
 //= require "lib/jquery-ui-1.7.3.custom.min.js"

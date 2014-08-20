@@ -17,25 +17,37 @@
 package com.thoughtworks.go.server.web;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.handler.ContextHandler;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
+
+import java.io.File;
+import java.util.UUID;
 
 public class GoVelocityViewTest {
     private GoVelocityView view;
@@ -142,5 +154,68 @@ public class GoVelocityViewTest {
                         null, null));
         view.exposeHelpers(velocityContext, request);
         assertThat((String) velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
+    }
+
+    @Test
+    public void shouldSetJavascriptPathVariableWhenRailsNewWithCompressedJavascriptsIsUsed() throws Exception {
+        File assetsDir = FileUtil.createTempFolder("assets-" + UUID.randomUUID().toString());
+        FileUtil.writeContentToFile(json, new File(assetsDir, "manifest-digest.json"));
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
+        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        GoVelocityView view = new GoVelocityView(systemEnvironment);
+        Request servletRequest = mock(Request.class);
+        ContextHandler.SContext context = mock(ContextHandler.SContext.class);
+        when(context.getInitParameter("rails.root")).thenReturn("");
+        when(context.getRealPath(Matchers.<String>any())).thenReturn(assetsDir.getAbsolutePath());
+
+        when(servletRequest.getContext()).thenReturn(context);
+        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+
+        view.exposeHelpers(velocityContext, servletRequest);
+        assertThat((String) velocityContext.get(GoVelocityView.COMPRESSED_JAVASCRIPT_FILE_PATH), is("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js"));
+    }
+
+    @Test
+    public void shouldSetJavascriptPathVariableWhenRailsNewIsUsedWithoutCompressedJavascripts() throws Exception {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
+        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        GoVelocityView view = new GoVelocityView(systemEnvironment);
+        view.exposeHelpers(velocityContext, request);
+        assertThat((String)velocityContext.get(GoVelocityView.JAVASCRIPTS_PATH_IN_DEV_ENV), is("assets"));
+        assertThat(velocityContext.get(GoVelocityView.COMPRESSED_JAVASCRIPT_FILE_PATH), is(nullValue()));
+    }
+
+    private String json = "{\n" +
+            "    \"files\": {\n" +
+            "        \"application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js\": {\n" +
+            "            \"logical_path\": \"application.js\",\n" +
+            "            \"mtime\": \"2014-08-26T12:39:43+05:30\",\n" +
+            "            \"size\": 1091366,\n" +
+            "            \"digest\": \"bfdbd4fff63b0cd45c50ce7a79fe0f53\"\n" +
+            "        },\n" +
+            "        \"application-4b25c82f986c0bef78151a4ab277c3e4.css\": {\n" +
+            "            \"logical_path\": \"application.css\",\n" +
+            "            \"mtime\": \"2014-08-26T13:45:30+05:30\",\n" +
+            "            \"size\": 513,\n" +
+            "            \"digest\": \"4b25c82f986c0bef78151a4ab277c3e4\"\n" +
+            "        }\n" +
+            "    },\n" +
+            "    \"assets\": {\n" +
+            "        \"application.js\": \"application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js\",\n" +
+            "        \"application.css\": \"application-4b25c82f986c0bef78151a4ab277c3e4.css\"\n" +
+            "    }\n" +
+            "}";
+
+
+    @Test
+    public void shouldSetJavascriptsPathVariableWhenRails2IsUsed() throws Exception {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
+        GoVelocityView view = new GoVelocityView(systemEnvironment);
+        view.exposeHelpers(velocityContext, request);
+        assertThat((String)velocityContext.get(GoVelocityView.JAVASCRIPTS_PATH_IN_DEV_ENV), is("javascripts"));
+        assertThat((String)velocityContext.get(GoVelocityView.COMPRESSED_JAVASCRIPT_FILE_PATH), is("compressed/all.js?#include(\"admin/admin_version.txt.vm\")"));
     }
 }

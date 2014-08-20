@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.web;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;

@@ -29,30 +29,149 @@
     <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
 
 ##    new files from less starts
-    <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-##    new files from less ends
+    #if($useNewRails)
+        #if ($useCompressJS)
+            <link href="$req.getContextPath()/$compressedApplicationCssFilePath" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/$compressedCssCssFilePath" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/$compressedApplicationCssFilePath" media="all" rel="stylesheet" />
+        #else
+            <link href="$req.getContextPath()/assets/application.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/structure/reset.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/main.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/layout.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/structure.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/ie_hacks.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/module.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/structure/application.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/plugins/jquery.autocomplete.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/plugins/treeview.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/action_icons.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/buttons.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/dropdowns.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/forms.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/messages.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/modalbox.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/patterns.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/status_visualizations.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/tables.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/tabs.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/titles.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/tooltips.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/patterns/wizard_steps.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_jobs.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_dependency.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_git.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_hg.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_p4.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_shared.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_materials_svn.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_pipeline_groups.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_pipelines.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_pipelines_materials.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_pipelines_snippet.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_shared.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_stages.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_ant.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_exec.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_fetch.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_nant.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_rake.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_tasks_shared.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_templates.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/admin_user_roles.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/agents.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/backup.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/comparison.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/config_server.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/environments.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/failures.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/gadgets_pipeline.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/pipelines.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/server.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/shared.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/shared_go_license_about_to_expire.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/stages.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/users.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/views/views.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/base/mixins.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/base/reset-g9.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/base/sprites.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/base/variables.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/alerts.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/labels-badges.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/messages.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/navbar.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/pagination.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/treenav.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/components/wizard.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/breadcrumb.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/button-groups.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/docked-toolbar.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/dropdowns.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/forms.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/layouts.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/modals.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/popovers.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/progress-bars.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/scaffolding.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/tabs.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/gadgets/tooltip.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/global/layout.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/global/reset.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/global/responsive.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/global/typography.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/admin.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/admin/templates.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/agent.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/history-panel.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/pipeline.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/plugin-infra.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/go-pages/vsm.css?body=1" media="all" rel="stylesheet" />
 
+            <link href="$req.getContextPath()/assets/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            #if($extra_css_list)
+                #foreach($css_name in $extra_css_list)
+                <link href="$req.getContextPath()/assets/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
+                #end
+            #end
 
-    <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    #if ($useCompressJS)
-    <link href="$req.getContextPath()/stylesheets/vm/vm.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/vm/rails_like.css" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/vm/old_ui_hack.css" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/vm/structure_for_old_ui.css" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/vm/layout_for_old_ui.css" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/assets/vm/jef_override_for_old_ui.css" rel="stylesheet" type="text/css"></link>
+        #end
     #else
-    <link href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/old_ui_hack.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+    ##    new files from less ends
+
+        <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        #if ($useCompressJS)
+            <link href="$req.getContextPath()/stylesheets/vm/vm.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        #else
+            <link href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/stylesheets/vm/old_ui_hack.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        #end
+        <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
+        #if($extra_css_list)
+            #foreach($css_name in $extra_css_list)
+                <link href="$req.getContextPath()/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
+            #end
+        #end
     #end
-    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
-    #if($extra_css_list)
-    #foreach($css_name in $extra_css_list)
-    <link href="$req.getContextPath()/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
-    #end
-    #end
+
+
 
     <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
     <!--[if IE 6]><script type="text/javascript">window.cruise_is_running_in_ie6 = true;</script><![endif]-->

@@ -174,6 +174,9 @@ public class GoVelocityViewTest {
 
         view.exposeHelpers(velocityContext, servletRequest);
         assertThat((String) velocityContext.get(GoVelocityView.COMPRESSED_JAVASCRIPT_FILE_PATH), is("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js"));
+        assertThat((String) velocityContext.get(GoVelocityView.COMPRESSED_APPLICATION_CSS_FILE_PATH), is("assets/application-4b25c82f986c0bef78151a4ab277c3e4.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.COMPRESSED_VM_CSS_FILE_PATH), is("assets/vm/application-4b25c82f986c0bef78151a4ab277c3f5.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.COMPRESSED_CSS_CSS_FILE_PATH), is("assets/css/application-4b25c82f986c0bef78151a4ab277c3g6.css"));
     }
 
     @Test
@@ -200,11 +203,25 @@ public class GoVelocityViewTest {
             "            \"mtime\": \"2014-08-26T13:45:30+05:30\",\n" +
             "            \"size\": 513,\n" +
             "            \"digest\": \"4b25c82f986c0bef78151a4ab277c3e4\"\n" +
+            "        },\n" +
+            "        \"vm/application-4b25c82f986c0bef78151a4ab277c3f5.css\": {\n" +
+            "            \"logical_path\": \"vm/application.css\",\n" +
+            "            \"mtime\": \"2014-08-26T13:45:30+05:30\",\n" +
+            "            \"size\": 513,\n" +
+            "            \"digest\": \"4b25c82f986c0bef78151a4ab277c3f5\"\n" +
+            "        },\n" +
+            "        \"css/application-4b25c82f986c0bef78151a4ab277c3g6.css\": {\n" +
+            "            \"logical_path\": \"css/application.css\",\n" +
+            "            \"mtime\": \"2014-08-26T13:45:30+05:30\",\n" +
+            "            \"size\": 513,\n" +
+            "            \"digest\": \"4b25c82f986c0bef78151a4ab277c3g6\"\n" +
             "        }\n" +
             "    },\n" +
             "    \"assets\": {\n" +
             "        \"application.js\": \"application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js\",\n" +
-            "        \"application.css\": \"application-4b25c82f986c0bef78151a4ab277c3e4.css\"\n" +
+            "        \"application.css\": \"application-4b25c82f986c0bef78151a4ab277c3e4.css\",\n" +
+            "        \"vm/application.css\": \"vm/application-4b25c82f986c0bef78151a4ab277c3f5.css\",\n" +
+            "        \"css/application.css\": \"css/application-4b25c82f986c0bef78151a4ab277c3g6.css\"\n" +
             "    }\n" +
             "}";
 

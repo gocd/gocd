@@ -182,7 +182,7 @@ task :create_all_js do
 end
 
 task :copy_compressed_js_to_webapp do
-  task('copy_compressed_js_to_webapp_rails2') unless ENV['USE_NEW_RAILS'] == "Y"
+  ENV['USE_NEW_RAILS'] == "Y" ? task('copy_compressed_js_to_webapp_rails4').invoke : task('copy_compressed_js_to_webapp_rails2')
 end
 
 task :create_all_js_rails4 do
@@ -214,6 +214,10 @@ task :create_all_js_rails2 do
   end
 end
 
+task :copy_compressed_js_to_webapp_rails4 do
+  safe_cp "webapp/WEB-INF/rails.new/public/assets/", "target/webapp/WEB-INF/rails.new/public/assets/"
+end
+
 task :copy_compressed_js_to_webapp_rails2 do
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
   safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
@@ -229,16 +233,26 @@ def expand_css_wildcard wildcard
 end
 
 task :pull_latest_sass do
-  # Clear css_sass folder before regenerating new css files
-  FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
+  unless(ENV['USE_NEW_RAILS'] == "Y")
+    # Clear css_sass folder before regenerating new css files
+    FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
 
-  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-  sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
+    ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+    sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
 
-  FileUtils.remove_dir("target/webapp/sass", true)
+    FileUtils.remove_dir("target/webapp/sass", true)
+  end
 end
 
 task :create_all_css do
+  ENV['USE_NEW_RAILS'] == "Y" ? task('create_all_css_rails4').invoke : task('create_all_css_rails2')
+end
+
+task :create_all_css_rails4 do
+# Do nothing as create_all_js_rails4 already took care of assets precompile
+end
+
+task :create_all_css_rails2 do
   main_dir = "target/webapp/stylesheets/"
   yui_compress_all(YUI_CSS_OUTPUT, main_dir, "*.css")
   File.open("target/all.css", "w") do |handle|
@@ -274,11 +288,12 @@ task :create_all_css do
 end
 
 task :copy_compressed_css_to_webapp do
-  cp "target/all.css", "target/webapp/stylesheets"
-
-  COMPRESSED_ALL_DOT_CSS.each do |file|
-    name = File.basename(file).gsub(File.extname(file), '')
-    cp file, "target/webapp/stylesheets/#{name}"
+  unless ENV['USE_NEW_RAILS'] == "Y"
+    cp "target/all.css", "target/webapp/stylesheets"
+    COMPRESSED_ALL_DOT_CSS.each do |file|
+      name = File.basename(file).gsub(File.extname(file), '')
+      cp file, "target/webapp/stylesheets/#{name}"
+    end
   end
 end
 

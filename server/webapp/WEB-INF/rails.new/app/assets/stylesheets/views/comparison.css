@@ -1,0 +1,240 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/**
+ * Comparision.css
+ */
+ 
+
+/**
+ * TABLE OF CONTENTS
+ *
+ * =SHOW
+ * =PARTIALS
+ * ==DEPENDENCY_MATERIAL_MODIFICATIONS_TABLE
+ * ==MATERIAL_MODIFICATIONS_TABLE
+ * ==MODAL_TIMELINE
+ * ==PIPELINE_AUTOCOMPLETE_LIST_ENTRY
+ * ==PIPELINE_INSTANCE_DROP_DOWN
+ * ==STAGE_BAR_WITHOUT_CONTROLS
+ * ==STABE_BAR
+ */
+ 
+
+/**
+ * =SHOW
+ */
+.compare_search_instructions {
+  color: #333;
+  font-size: 11px;
+  margin: 10px;
+}
+.compare_search_instructions p {
+  margin-top: 5px;
+}
+.compare_search_instructions p:first-child {
+  margin-top: 0;
+}
+
+.message .prompt a.link_as_header_button {
+  float: none;
+}
+
+ 
+/**
+ * =PARTIALS
+ */
+
+ 
+/**
+ * ==DEPENDENCY_MATERIAL_MODIFICATIONS_TABLE
+ */
+
+
+/**
+ * ==MODAL_TIMELINE
+ */
+.modal_timeline {
+  height: 360px;
+  overflow: hidden;
+}
+.modal_timeline .results .time_list {
+  background: #DDD; 
+  border-right: 1px solid #CCC;
+  float: left;
+  height: 360px;
+  width: 30px;
+}
+.modal_timeline .results .time_list ul {
+  float: none;
+  margin-top: 2px;
+}
+.modal_timeline .results .time_list li {
+  float: none;
+  width: 100%;
+}
+.modal_timeline .results .time_list li a {
+  color: #999;
+  display: block;
+  margin-bottom: 4px;
+  padding-left: 5px;
+  padding: 3px;
+  width: 100%;
+}
+.modal_timeline .results .time_list li a:hover {
+  background-color:#E3F0F3;
+  display: block;
+}
+.modal_timeline .results .time_list li.selected a {
+  background: #666;
+  color: #EEE;
+  font-size: 12px;
+}
+.modal_timeline .results .pipeline_instance_list {
+  background-color: #EEE;
+  display: block;
+  float: left;
+  height: 360px;
+  left: 0;
+  position: relative;
+  top: 0;
+  width: 235px;
+}
+.modal_timeline .results .pipeline_instance_list .time_heading {
+  background-color: #666;
+  color: #EEE;
+  font-size: 10px;
+  margin: 5px 0;
+  padding: 2px 7px;
+  width: 80%;
+}
+.modal_timeline .results .pipeline_instance_list ul {
+  float: none;
+  margin-top: 5px;
+}
+.modal_timeline .results .pipeline_instance_list li {
+  border-left: 0;
+  border-right: 0;
+  cursor: pointer;
+  display: list-item;
+  float: none;
+  width: 100%;
+  padding:4px 0 8px 0;
+}
+*+html .modal_timeline .results .pipeline_instance_list li {
+  margin-top: -3px;
+}
+.modal_timeline .results .pipeline_instance_list li:hover {
+  background: #C5D9E0;
+}
+.modal_timeline .results .pipeline_instance_list li.selected {
+  background-color: #FFF;
+  z-index: 9999;
+  margin-right: -2px;
+  padding-right: 2px;
+  box-shadow: -5px 0 5px #bbb;
+    -moz-box-shadow: -5px 0 5px #BBB;
+    -webkit-box-shadow: -5px 0 5px #BBB;
+  
+}
+.modal_timeline .results .pipeline_instance_list li .pipeline_label,
+.modal_timeline .results .pipeline_instance_list li .pipeline_label_truncated {
+  display: inline;
+  float: left;
+  padding: 0 2px 0 5px;
+  width: 100px;
+  margin-right: 7px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.modal_timeline .results .pipeline_instance_list li .pipeline_label {
+  max-width: 100px;
+  width: auto;
+}
+.modal_timeline .results .pipeline_instance_list li .pipeline,
+.modal_timeline .results .pipeline_instance_list li .pipeline .stages {
+  display: inline;
+  width: 120px;
+}
+.modal_timeline .results .pipeline_instance_list li .pipeline .stages .stage {
+  position: static;
+} 
+.modal_timeline .results .pipeline_instance_list li .pipeline .stages .stage_bar {
+  margin-top: 7px;
+  margin-right: 2px;
+}
+.modal_timeline .results .pipeline_instance_list .pagination {
+  bottom: 12px;
+  left: 6px;
+  position: absolute;
+  width: 215px;
+}
+.modal_timeline .results .pipeline_instance_details{
+  height: 286px;
+  overflow: auto;
+  padding: 5px 12px 24px 12px;
+  border-left: 1px solid #AAA;
+}
+.modal_timeline .results .pipeline_instance_details table {
+  width: 80%;
+}
+
+.modal_timeline .results .actions {
+    border-left: 1px solid #AAA;
+}
+.modal_timeline .results .actions a{
+  float: left;
+}
+.modal_timeline .form_buttons button,
+.modal_timeline  .form_buttons a.link_as_button {
+  height: auto;
+}
+.modal_timeline .spinny {
+   margin-left: 100px;
+   margin-top: 10px;
+}
+
+
+
+/**
+ * ==MATERIAL_MODIFICATIONS_TABLE
+ */
+
+
+/**
+ * ==PIPELINE_AUTOCOMPLETE_LIST_ENTRY
+ */
+
+.pipeline_instance_details .stage_bar_wrapper a{
+    cursor: default;
+}
+
+
+/**
+ * ==PIPELINE_INSTANCE_DROP_DOWN
+ */
+
+
+/**
+ * ==STAGE_BAR_WITHOUT_CONTROLS
+ */
+
+
+/**
+ * ==STABE_BAR
+ */
+ 
+ 

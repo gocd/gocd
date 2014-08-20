@@ -43,6 +43,9 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String USE_NEW_RAILS = "useNewRails";
     public static final String COMPRESSED_JAVASCRIPT_FILE_PATH = "compressedJavascriptFilePath";
+    public static final String COMPRESSED_APPLICATION_CSS_FILE_PATH = "compressedApplicationCssFilePath";
+    public static final String COMPRESSED_VM_CSS_FILE_PATH = "compressedVmCssFilePath";
+    public static final String COMPRESSED_CSS_CSS_FILE_PATH = "compressedCssCssFilePath";
     public static final String JAVASCRIPTS_PATH_IN_DEV_ENV = "javascriptsPathInDevEnv";
     private final SystemEnvironment systemEnvironment;
 
@@ -60,12 +63,16 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
+        velocityContext.put("jyoti", this);
         Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
         velocityContext.put(USE_NEW_RAILS, useNewRails);
         if (useNewRails) {
             if (systemEnvironment.useCompressedJs()) {
-                RailsAssetsHelper assetsHelper = new RailsAssetsHelper(((Request) request).getContext());
-                velocityContext.put(COMPRESSED_JAVASCRIPT_FILE_PATH, assetsHelper.getAssetPath("application.js"));
+                RailsAssetsHelper helper = new RailsAssetsHelper(((Request) request).getContext());
+                velocityContext.put(COMPRESSED_JAVASCRIPT_FILE_PATH, helper.getAssetPath("application.js"));
+                velocityContext.put(COMPRESSED_APPLICATION_CSS_FILE_PATH, helper.getAssetPath("application.css"));
+                velocityContext.put(COMPRESSED_VM_CSS_FILE_PATH, helper.getAssetPath("vm/application.css"));
+                velocityContext.put(COMPRESSED_CSS_CSS_FILE_PATH, helper.getAssetPath("css/application.css"));
             } else {
                 velocityContext.put(JAVASCRIPTS_PATH_IN_DEV_ENV, "assets");
             }

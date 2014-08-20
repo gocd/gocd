@@ -2,7 +2,7 @@
     <%= @view_title %> - Go
 </title>
 <%= yield :before_stylesheets %>
-<%= render :partial => "shared/css" %>
+<%= stylesheet_link_tag "application", media: "all" %>
 
 <!-- START: prototype hooks for css injection -->
 <% if params[:controller] == "prototype" %>

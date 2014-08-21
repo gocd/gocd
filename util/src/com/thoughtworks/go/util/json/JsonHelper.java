@@ -33,6 +33,11 @@ public class JsonHelper {
         return gson.toJson(object);
     }
 
+    public static String toJsonString(Object object,String dateFormat) {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat(dateFormat).create();
+        return gson.toJson(object);
+    }
+
     public static <T> T fromJson(final String jsonString, final Class<T> clazz) {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, clazz);
     }

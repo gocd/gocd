@@ -118,6 +118,11 @@
         <result property="scheduledDate" column="scheduledDate"/>
     </resultMap>
 
+    <resultMap id="result-distinct-stages" class="com.thoughtworks.go.domain.StageConfigIdentifier">
+        <result property="pipelineName" column="pipelineName"/>
+        <result property="stageName" column="name"/>
+    </resultMap>
+
     <parameterMap id="insert-stage-param" class="com.thoughtworks.go.domain.Stage">
         <parameter property="name"/>
         <parameter property="pipelineId"/>
@@ -738,5 +743,28 @@
         FROM stages s
         INNER JOIN pipelines p on p.id=s.pipelineid
         GROUP BY p.name, s.name
+    </select>
+
+    <select id="getStagesWithArtifactsGivenPipelineAndStage" resultMap="select-stage-with-identifier">
+        SELECT
+        s.id as stageId,
+        s.name as stageName,
+        s.counter as stageCounter,
+        s.result as stageResult,
+        s.state as stageState,
+        *
+        FROM _stages s
+        WHERE name = #stageName#
+        AND pipelineName = #pipelineName#
+        AND artifactsdeleted = FALSE
+        AND state in ('Passed','Failed','Cancelled')
+        AND id > #fromId#
+        ORDER BY id ASC
+    </select>
+
+    <select id="getDistinctStages" resultMap="result-distinct-stages">
+        SELECT  distinct s.name,  s.pipelineName
+        FROM _stages s
+        ORDER BY s.pipelineName ASC
     </select>
 </sqlMap>

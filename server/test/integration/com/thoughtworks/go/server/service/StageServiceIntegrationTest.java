@@ -58,12 +58,10 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -77,10 +75,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -89,11 +84,13 @@ import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.util.DateUtils.formatISO8601;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -101,25 +98,44 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class StageServiceIntegrationTest {
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private StageService stageService;
-    @Autowired private AgentService agentService;
-    @Autowired private StageDao stageDao;
-    @Autowired private PipelineSqlMapDao pipelineDao;
-    @Autowired private CcTrayStatus ccTrayStatus;
-	@Autowired private DatabaseAccessHelper dbHelper;
-	@Autowired private ScheduleHelper scheduleHelper;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
-    @Autowired private JobResultTopic jobResultTopic;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private ConfigDbStateRepository configDbStateRepository;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private ChangesetService changesetService;
-    @Autowired private GoCache goCache;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private StageDao stageDao;
+    @Autowired
+    private PipelineSqlMapDao pipelineDao;
+    @Autowired
+    private CcTrayStatus ccTrayStatus;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private GoConfigFileDao goConfigFileDao;
+    @Autowired
+    private JobResultTopic jobResultTopic;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private ConfigDbStateRepository configDbStateRepository;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private ChangesetService changesetService;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -189,7 +205,7 @@ public class StageServiceIntegrationTest {
 
         Assertions.waitUntil(Timeout.TEN_SECONDS, new Assertions.Predicate() {
             public boolean call() throws Exception {
-                return receivedResult != null && receivedState != null && receivedStageResult!=null;
+                return receivedResult != null && receivedState != null && receivedStageResult != null;
             }
         });
         assertThat(receivedState, is(JobState.Completed));
@@ -284,7 +300,7 @@ public class StageServiceIntegrationTest {
         for (int i = 1; i < stages.length; i++) {
             DefaultSchedulingContext ctx = new DefaultSchedulingContext("anonumous");
             StageConfig stageCfg = pipelineConfig.first();
-            stages[i] = i%2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], a("unit", "blah"), ctx,
+            stages[i] = i % 2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], a("unit", "blah"), ctx,
                     stageCfg, new TimeProvider(), "md5");
             stageService.save(savedPipeline, stages[i]);
         }
@@ -349,7 +365,8 @@ public class StageServiceIntegrationTest {
                 jobInstance.getState().cctrayActivity(), jobInstance.getIdentifier().webUrl())));
     }
 
-    @Test public void shouldUpdateCcTrayFeedAfterStageIsCancelled() throws SQLException {
+    @Test
+    public void shouldUpdateCcTrayFeedAfterStageIsCancelled() throws SQLException {
         ccTrayStatus.clear();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -360,14 +377,15 @@ public class StageServiceIntegrationTest {
         StageIdentifier identifier = stage.getIdentifier();
         assertThat(ccTrayStatus.getProject(identifier.ccProjectName()),
                 is(new ProjectStatus(identifier.ccProjectName(),
-                                     stage.stageState().cctrayActivity(),
-                                     stage.stageState().cctrayStatus(),
-                                     identifier.ccTrayLastBuildLabel(),
-                                     stage.completedDate(),
-                                     identifier.webUrl())));
+                        stage.stageState().cctrayActivity(),
+                        stage.stageState().cctrayStatus(),
+                        identifier.ccTrayLastBuildLabel(),
+                        stage.completedDate(),
+                        identifier.webUrl())));
     }
 
-    @Test public void shouldLookupModifiedStageById_afterCancel() throws SQLException {
+    @Test
+    public void shouldLookupModifiedStageById_afterCancel() throws SQLException {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -378,7 +396,8 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeCancellation)));
     }
 
-    @Test public void shouldLookupModifiedStageById_afterJobUpdate() throws SQLException {
+    @Test
+    public void shouldLookupModifiedStageById_afterJobUpdate() throws SQLException {
         Stage stageLoadedBeforeUpdate = stageService.stageById(stage.getId());
         dbHelper.completeAllJobs(stage, JobResult.Passed);
         assertThat(stageService.stageById(stage.getId()), is(stageLoadedBeforeUpdate));
@@ -387,7 +406,8 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeUpdate)));
     }
 
-    @Test public void shouldNotCancelAlreadyCompletedBuild() throws SQLException {
+    @Test
+    public void shouldNotCancelAlreadyCompletedBuild() throws SQLException {
         jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
             public void onMessage(JobResultMessage message) {
                 JobIdentifier jobIdentifier = message.getJobIdentifier();
@@ -564,25 +584,116 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.oldestStagesWithDeletableArtifacts().size(), is(0));
     }
 
-     @Test
-     public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
-         PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
-         configFileHelper.turnOffSecurity();
-         List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
-         Pipeline pipeline;
-         for (int i = 0; i < 16; i++) {
-             pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
-             dbHelper.pass(pipeline);
-             completedPipelines.add(pipeline);
-         }
-         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4, new Username(new CaseInsensitiveString("loser")));
-         assertThat(stages.size(), is(4));
-         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(16));
-         stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4, new Username(new CaseInsensitiveString("loser")));
-         assertThat(stages.size(), is(4));
-         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(8));
-         assertThat(stages.getPagination().getTotalPages(), is(4));
-     }
+    @Test
+    public void shouldGetStagesWithArtifactsGivenPipelineAndStage() {
+        CruiseConfig cruiseConfig = configFileHelper.currentConfig();
+        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+        ReflectionUtil.setField(mingleConfig.get(0), "artifactCleanupProhibited", true);
+        configFileHelper.writeConfigFile(cruiseConfig);
+
+        configDbStateRepository.flushConfigState();
+
+
+        PipelineConfig pipelineCfg2 = configFileHelper.addPipeline("pipeline-2", "stage", "job");
+        dbHelper.pass(dbHelper.schedulePipeline(pipelineCfg2, new TimeProvider()));
+
+
+        PipelineConfig pipelineCfg1 = configFileHelper.addPipeline("pipeline-1", "stage", "job");
+        Pipeline p1Run1 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.passStage(p1Run1.getFirstStage());
+        stageService.markArtifactsDeletedFor(p1Run1.getFirstStage());
+
+        Pipeline p1Run2 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.passStage(p1Run2.getFirstStage());
+
+        Pipeline p1Run3 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.failStage(p1Run3.getFirstStage());
+
+        Pipeline p1Run4 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.cancelStage(p1Run4.getFirstStage());
+
+        Pipeline p1Run5 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.buildingBuildInstance(p1Run5.getFirstStage());
+
+
+        List<Stage> result = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage");
+
+        assertThat(result.size(), is(3));
+        assertStageDetails(result.get(0), p1Run2);
+        assertStageDetails(result.get(1), p1Run3);
+        assertStageDetails(result.get(2), p1Run4);
+
+        List<Stage> resultWithFromId = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage", p1Run2.getFirstStage().getId());
+        assertThat(resultWithFromId.size(), is(2));
+        assertStageDetails(resultWithFromId.get(0), p1Run3);
+        assertStageDetails(resultWithFromId.get(1), p1Run4);
+    }
+
+    private void assertStageDetails(Stage stage, Pipeline expectedRunDetails) {
+        assertThat(stage.getId(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getId()));
+        assertThat(stage.getName(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getName()));
+        assertThat(stage.getCounter(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getCounter()));
+        assertThat(stage.getPipelineId(), CoreMatchers.<Object>is(expectedRunDetails.getId()));
+        assertThat(stage.getIdentifier().getPipelineName(), CoreMatchers.<Object>is(expectedRunDetails.getName()));
+        assertThat(stage.getIdentifier().getPipelineCounter(), CoreMatchers.<Object>is(expectedRunDetails.getCounter()));
+        assertThat(formatISO8601(stage.getLastTransitionedTime()), CoreMatchers.<Object>is(formatISO8601(
+                dbHelper.getStageDao().stageById(expectedRunDetails.getFirstStage().getId()).latestTransitionDate())));
+        assertThat(stage.getResult(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getResult()));
+    }
+
+    @Test
+    public void shouldGetAllDistinctStages() throws Exception {
+
+        PipelineConfig pipelineCfgOne = configFileHelper.addPipeline("pipeline-one", "stage");
+        PipelineConfig pipelineCfgTwo = configFileHelper.addPipeline("pipeline-two", "stage");
+
+
+        Pipeline p1Run1 = dbHelper.schedulePipeline(pipelineCfgOne, new TimeProvider());
+        dbHelper.passStage(p1Run1.findStage("stage"));
+
+        Pipeline p1Run2 = dbHelper.schedulePipeline(pipelineCfgOne, new TimeProvider());
+        dbHelper.passStage(p1Run2.findStage("stage"));
+
+        Pipeline p2Run1 = dbHelper.schedulePipeline(pipelineCfgTwo, new TimeProvider());
+        dbHelper.passStage(p2Run1.findStage("stage"));
+
+        Pipeline p2Run2 = dbHelper.schedulePipeline(pipelineCfgTwo, new TimeProvider());
+        dbHelper.passStage(p2Run2.findStage("stage"));
+
+
+        List<StageConfigIdentifier> stages = stageService.getAllDistinctStages();
+
+        assertThat(stages.size(), is(3));
+        assertStageWithPipeline(stages.get(0), "dev", "mingle");
+        assertStageWithPipeline(stages.get(1), "stage", "pipeline-one");
+        assertStageWithPipeline(stages.get(2), "stage", "pipeline-two");
+
+    }
+
+    private void assertStageWithPipeline(StageConfigIdentifier stageConfigIdentifier, String expectedStageName, String expectedPipelineName) {
+        assertThat(stageConfigIdentifier.getStageName(), CoreMatchers.<Object>is(expectedStageName));
+        assertThat(stageConfigIdentifier.getPipelineName(), CoreMatchers.<Object>is(expectedPipelineName));
+    }
+
+    @Test
+    public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
+        PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
+        configFileHelper.turnOffSecurity();
+        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        Pipeline pipeline;
+        for (int i = 0; i < 16; i++) {
+            pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+            dbHelper.pass(pipeline);
+            completedPipelines.add(pipeline);
+        }
+        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4, new Username(new CaseInsensitiveString("loser")));
+        assertThat(stages.size(), is(4));
+        assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(16));
+        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4, new Username(new CaseInsensitiveString("loser")));
+        assertThat(stages.size(), is(4));
+        assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(8));
+        assertThat(stages.getPagination().getTotalPages(), is(4));
+    }
 
     @Test
     public void findStageHistoryForChart_shouldNotRetrieveCancelledStagesAndStagesWithRerunJobs() throws Exception {
@@ -690,12 +801,12 @@ public class StageServiceIntegrationTest {
         setup2DependentInstances(upstreamMingle, downstreamMingle);
         List<StageIdentity> latestStageInstances = stageService.findLatestStageInstances();
         assertThat(latestStageInstances.size(), is(4));
-        assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev",8L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage",13L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage",14L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev", 8L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage", 13L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage", 14L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage", 10L)), is(true));
     }
-    
+
     private void assertStageEntryAuthorAndMingleCards(MingleConfig upstreamMingle, MingleConfig downstreamMingle, FeedEntries feed) {
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(0),

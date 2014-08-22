@@ -16,15 +16,11 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageConfigIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
@@ -45,17 +41,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
+import java.sql.SQLException;
+import java.util.*;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @understands: StageSqlMapDaoTest
@@ -164,5 +157,32 @@ public class StageSqlMapDaoTest {
         verify(topOfThisPage).getId();
         verify(topOfThisPage).getIdentifier();
         verify(sqlMapClientTemplate).queryForObject("findStageHistoryEntryBefore", args);
+    }
+
+    @Test
+    public void shouldGetAllStagesInstancesWithArtifactsForGivenStageNameAndPipelineName() throws Exception {
+        String pipelineName = "some_pipeline_name";
+        String stageName = "stage_name";
+        int fromId = 100;
+
+        HashMap args = new HashMap();
+        args.put("pipelineName", pipelineName);
+        args.put("stageName", stageName);
+        args.put("fromId", fromId);
+
+        List<Stage> expectedResult = new ArrayList<Stage>();
+        when(sqlMapClientTemplate.queryForObject("findStageHistoryEntryBefore", args)).thenReturn(expectedResult);
+
+        List<Stage> result = stageSqlMapDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldGetAllDistinctStages() throws Exception {
+        List<StageConfigIdentifier> expectedResult = new ArrayList<StageConfigIdentifier>();
+        when(sqlMapClientTemplate.queryForObject("findStageHistoryEntryBefore")).thenReturn(expectedResult);
+
+        List<StageConfigIdentifier> result = stageSqlMapDao.getAllDistinctStages();
+        assertThat(result, is(expectedResult));
     }
 }

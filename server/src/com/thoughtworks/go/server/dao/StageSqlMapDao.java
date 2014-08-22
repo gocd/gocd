@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.opensymphony.oscache.base.CacheEntry;
@@ -29,18 +24,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
@@ -63,6 +47,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
@@ -393,6 +382,19 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             }
         }
         return stageIdentities;
+    }
+
+    @Override
+    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, long fromId) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).
+                and("stageName", stageName).
+                and("fromId", fromId).asMap();
+        return getSqlMapClientTemplate().queryForList("getStagesWithArtifactsGivenPipelineAndStage", args);
+    }
+
+    @Override
+    public List<StageConfigIdentifier> getAllDistinctStages() {
+        return getSqlMapClientTemplate().queryForList("getDistinctStages");
     }
 
 

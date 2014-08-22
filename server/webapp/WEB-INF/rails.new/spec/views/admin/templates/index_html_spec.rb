@@ -40,10 +40,13 @@ describe "admin/templates/index.html.erb" do
   it "should display the list of all the templates and the pipelines in it" do
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
-      templates.find(".template") do |template|
+      all_the_templates = templates.all(".template")
+      expect(all_the_templates.size).to eq(3)
+
+      all_the_templates[0].tap do |template|
         expect(template).to have_selector("h2", :text => "template1")
         template.find("table") do |table|
           table.find("thead tr.pipeline") do |tr|
@@ -66,7 +69,8 @@ describe "admin/templates/index.html.erb" do
           end
         end
       end
-      templates.find(".template") do |template|
+
+      all_the_templates[1].tap do |template|
         expect(template).to have_selector("h2", "template2")
         template.find("table") do |table|
           table.find("tbody") do |tbody|
@@ -79,7 +83,8 @@ describe "admin/templates/index.html.erb" do
           end
         end
       end
-      templates.find(".template") do |template|
+
+      all_the_templates[2].tap do |template|
         expect(template).to have_selector("h2", :text => "template3")
         expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
       end
@@ -92,10 +97,13 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
-      templates.find(".template") do |template|
+      all_the_templates = templates.all(".template")
+      expect(all_the_templates.size).to eq(3)
+
+      all_the_templates[0].tap do |template|
         expect(template).to have_selector("h2", :text => "template1")
         template.find("table") do |table|
           table.find("thead tr.pipeline") do |tr|
@@ -118,7 +126,8 @@ describe "admin/templates/index.html.erb" do
           end
         end
       end
-      templates.find(".template") do |template|
+
+      all_the_templates[1].tap do |template|
         expect(template).to have_selector("h2", "template2")
         template.find("table") do |table|
           table.find("tbody") do |tbody|
@@ -131,7 +140,8 @@ describe "admin/templates/index.html.erb" do
           end
         end
       end
-      templates.find(".template") do |template|
+
+      all_the_templates[2].tap do |template|
         expect(template).to have_selector("h2", :text => "template3")
         expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
       end
@@ -144,7 +154,7 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
       templates.find("#template_container_template1") do |template_container|

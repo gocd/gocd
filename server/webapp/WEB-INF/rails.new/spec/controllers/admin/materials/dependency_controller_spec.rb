@@ -27,7 +27,7 @@ describe Admin::Materials::DependencyController do
     import com.thoughtworks.go.helper.NoOpMetricsProbeService unless defined? NoOpMetricsProbeService
     @metrics_probe_service = NoOpMetricsProbeService.new
   end
-  
+
   describe "new,edit,create and destroy actions" do
     before do
       @material = DependencyMaterialConfig.new(CaseInsensitiveString.new("up-pipeline"), CaseInsensitiveString.new("up-stage"))
@@ -145,6 +145,7 @@ describe Admin::Materials::DependencyController do
 
       get :new, :pipeline_name => "pipeline-name"
 
+      expect(response.response_code).to eq(200)
       assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
     end
 
@@ -155,9 +156,22 @@ describe Admin::Materials::DependencyController do
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
-      get :edit, :pipeline_name => "pipeline-name", :finger_print => "fingerPrint"
+      valid_fingerprint = pipeline.materialConfigs().first.getPipelineUniqueFingerprint()
+      get :edit, :pipeline_name => "pipeline-name", :finger_print => valid_fingerprint
 
+      expect(response.response_code).to eq(200)
       assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
+    end
+
+    it "should not try and render twice on failure to find material, while trying to load for edit" do
+      pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
+      pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
+
+      @go_config_service.should_receive(:loadForEdit).and_return(pipeline_config_for_edit)
+
+      get :edit, :pipeline_name => "pipeline-name", :finger_print => "invalid-fingerprint"
+
+      expect(response.response_code).to eq(404)
     end
   end
 end

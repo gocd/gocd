@@ -54,8 +54,8 @@ describe "admin/pipelines/new.html.erb" do
   it "should have a page title and view title" do
     render
 
-    assigns(:view_title).should == "Add Pipeline"
-    assigns(:page_header).should have_selector("h1#page-title", :text => "Add Pipeline")
+    expect(view.instance_variable_get("@view_title")).to eq("Add Pipeline")
+    expect(view.instance_variable_get("@page_header")).to have_selector("h1#page-title", :text => "Add Pipeline")
   end
 
   it "should show wizard steps and the steps should be disabled" do

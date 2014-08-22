@@ -1,0 +1,32 @@
+<%- @view_title = "Config Error" -%>
+<%= content_wrapper_tag %>
+<div class='pagenotfound'>
+    <div class="errors">
+        <div class='biggest'>:(</div>
+        <h3><%= @message -%></h3>
+    </div>
+    <% unless unauthorized_access -%>
+        <div class="error-child-like-margin">
+            <span><%= l.string("JUMP_TO") -%></span>
+            <%= link_to l.string("PIPELINES_TITILEZED"), pipeline_groups_path -%>
+            <%= l.string("OPTION_SEPARATOR") -%>
+            <%= link_to l.string("TEMPLATES"), templates_path -%>
+        </div>
+    <% end -%>
+</div>
+<%= end_content_wrapper %>
+
+
+
+
+<script type="text/javascript">
+    pageResizer();
+    function pageResizer() {
+        var $pagenotfound = $j('.pagenotfound');
+        $pagenotfound.parent( ".content_wrapper_inner").height($j(window).height() - 160).css({'padding':0});
+        $pagenotfound.parents("#body_content").css({paddingTop:46});
+    }
+    $j(window).resize(function() {
+        pageResizer();
+    });
+</script>

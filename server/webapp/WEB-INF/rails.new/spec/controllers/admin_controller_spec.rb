@@ -162,6 +162,7 @@ describe AdminController do
     controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
     controller.stub(:response).and_return(response = double('response'))
     response.should_receive(:headers).and_return(header = {})
+    response.should_receive(:committed?).and_return(true)
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)
     end

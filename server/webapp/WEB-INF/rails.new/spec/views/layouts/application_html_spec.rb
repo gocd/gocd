@@ -18,9 +18,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/application" do
+  include EngineUrlHelper
+
   before do
     stub_server_health_messages
   end
+
   before do
     @layout_name = "layouts/application"
     @admin_url = "/admin/pipelines"
@@ -37,6 +40,10 @@ describe "/layouts/application" do
 
       alias_method_chain :url_for, :stub
     end
+
+    main_app = double('main_app')
+    stub_routes_for_main_app main_app
+    allow(view).to receive(:main_app).and_return(main_app)
   end
 
   it_should_behave_like :layout

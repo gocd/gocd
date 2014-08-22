@@ -94,6 +94,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.helper.EnvironmentConfigMother unless defined? EnvironmentConfigMother
   java_import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper unless defined? RepositoryMetadataStoreHelper
   java_import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
+  java_import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference unless defined? TaskPreference
   java_import com.thoughtworks.go.presentation.PluggableTaskViewModel unless defined? PluggableTaskViewModel
   java_import com.thoughtworks.go.plugin.infra.PluginManager unless defined? PluginManager
   java_import com.thoughtworks.go.plugin.api.task.TaskView unless defined? TaskView

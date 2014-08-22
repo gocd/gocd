@@ -40,7 +40,7 @@ describe "admin/templates/index.html.erb" do
   it "should display the list of all the templates and the pipelines in it" do
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
       templates.find(".template") do |template|
@@ -92,7 +92,7 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
       templates.find(".template") do |template|
@@ -144,7 +144,7 @@ describe "admin/templates/index.html.erb" do
 
     render
 
-    assigns(:tab_name).should == "templates"
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
 
     Capybara.string(response.body).find('.templates').tap do |templates|
       templates.find("#template_container_template1") do |template_container|

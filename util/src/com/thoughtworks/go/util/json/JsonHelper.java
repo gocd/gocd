@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JsonHelper {
+    public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss S";
+
     public static void addDeveloperErrorMessage(JsonMap jsonMap, Exception e) {
         addFriendlyErrorMessage(jsonMap, e.getMessage() + ": " + e.getCause() + " at " + e.getStackTrace()[0]);
     }

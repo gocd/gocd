@@ -1,0 +1,305 @@
+<% @view_title = "History of #{params[:pipeline_name]}" -%>
+
+<div class="page_header">
+    <ul class="entity_title">
+        <li class="last"><%= params[:pipeline_name] %></li>
+    </ul>
+</div>
+
+<div class="content" ng-app="pipeline-history">
+    <div ng-controller="PipelineHistoryController">
+        <div ng-repeat="pipeline_instance in pipelineHistory.pipelines">
+            <!-- print stage names -->
+            <div ng-if="requiresStageNamePrint($index)">
+                <div ng-repeat="stage_instance in pipeline_instance.stages">
+                    {{stage_instance.name}}
+                </div>
+            </div>
+
+            <a href="/go/pipelines/value_stream_map/{{pipeline_instance.name}}/{{pipeline_instance.counter}}">{{pipeline_instance.counter}}</a>
+
+            <ul class="instances" ng-repeat="material_revision in pipeline_instance.build_cause.material_revisions">
+                <li></li>
+                <li>
+                    <div title="{{material_revision.material.description}}">{{material_revision.material.description}}</div>
+                </li>
+                <li class="instance" ng-repeat="modification in material_revision.modifications">
+                    <div title="{{modification.revision}}" class="icon revision">{{modification.revision}}</div>
+                    <div class="usercomment wraptext">{{modification.comment}}</div>
+                    <div class="author">
+                        <p>{{modification.user_name}}</p>
+                        <p>{{modification.modified_time}}</p>
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="stages" ng-repeat="stage_instance in pipeline_instance.stages">
+                <!-- trigger stage button -->
+                <div ng-switch on="$index">
+                    <div ng-switch-when="0">
+                        <!-- should not print -->
+                    </div>
+                    <div ng-switch-default>
+                        {{stage_instance.state}}
+                        <div ng-switch on="canRunStage(stage_instance)">
+                            <div ng-switch-when="true">
+                                <!-- enable -->
+                                <div ng-click="triggerStage(pipeline_instance.name, pipeline_instance.counter, stage_instance.name)">&gt;&gt;</div>
+                            </div>
+                            <div ng-switch-default>
+                                <!-- disable -->
+                                <div>&gt;&gt;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <li class="stage_bar {{stage_instance.state}}" style="width:115px" title="{{stage_instance.name}}">
+                    <a href="/go/pipelines/{{pipeline_instance.name}}/{{pipeline_instance.counter}}/{{stage_instance.name}}/{{stage_instance.counter}}"><span>{{stage_instance.name}}</span></a>
+
+                    <!-- re-run stage button -->
+                    <div ng-if="canReRunStage(stage_instance)">
+                        <div ng-click="rerunStage(pipeline_instance.name, pipeline_instance.counter, stage_instance.name, stage_instance.counter)">O</div>
+                    </div>
+
+                    <!-- cancel stage button -->
+                    <div ng-if="canCancelStage(stage_instance)">
+                        <div ng-click="cancelStage(pipeline_instance.name, pipeline_instance.counter, stage_instance.name, stage_instance.counter)">X</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <pagination total-items="pipelineHistory.pagination.total" ng-model="current.page" max-size="pipelineHistory.pagination.pageNumbersToShow" class="pagination-sm" boundary-links="true" rotate="false" num-pages="pipelineHistory.pagination.numberOfPages" ng-change="pageChanged()"></pagination>
+    </div>
+</div>
+
+<script type="application/javascript">
+    var app = angular.module('pipeline-history', ['ui.bootstrap']);
+
+    function PipelineHistoryController($scope, $http, $timeout) {
+        // pagination
+        $scope.offset = function () {
+            return ($scope.current.page - 1) * $scope.pipelineHistory.pagination.page_size;
+        }
+
+        $scope.pageChanged = function () {
+            $scope.setupNextAutoRefresh(1000);
+        }
+
+        $scope.setPaginationDetails = function () {
+            $scope.pipelineHistory.pagination.pageNumbersToShow = 5;
+            $scope.pipelineHistory.pagination.numberOfPages = Math.ceil($scope.pipelineHistory.pagination.total / $scope.pipelineHistory.pagination.page_size);
+        }
+
+        // data
+        $scope.getData = function () {
+            var url = '/go/api/pipelines/' + $scope.current.pipeline + '/history/' + $scope.offset();
+            $http({
+                method: 'GET',
+                url: url
+            }).success(function (data, status, headers, config) {
+                $scope.pipelineHistory = data;
+
+                $scope.setPaginationDetails();
+            }).error(function (data, status, headers, config) {
+                // handle
+            });
+        }
+
+        $scope.loadData = function () {
+            $scope.getData();
+
+            $scope.setupNextAutoRefresh(10000);
+        }
+
+        // auto-refresh
+        $scope.removeExistingAutoRefresh = function () {
+            if ($scope.autoRefreshTimeout)
+                $timeout.cancel($scope.autoRefreshTimeout);
+        }
+
+        $scope.setupNextAutoRefresh = function (timeout) {
+            $scope.removeExistingAutoRefresh();
+
+            $scope.autoRefreshTimeout = $timeout(function () {
+                $scope.loadData();
+            }, timeout);
+        }
+
+        // checks
+        $scope.requiresStageNamePrint = function (index) {
+            if (index == 0)
+                return true;
+            else {
+                var currentPipelineInstance = $scope.pipelineHistory.pipelines[index];
+                var previousPipelineInstance = $scope.pipelineHistory.pipelines[index - 1];
+                if (currentPipelineInstance.stages.length != previousPipelineInstance.stages.length)
+                    return true;
+
+                for (i = 0; i < currentPipelineInstance.stages.length; i++) {
+                    if (currentPipelineInstance.stages[i].name != previousPipelineInstance.stages[i].name) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        $scope.canRunStage = function (stage_instance) {
+            return stage_instance.operate_permission && stage_instance.can_run && stage_instance.state == 'Unknown'
+        }
+
+        $scope.canReRunStage = function (stage_instance) {
+            return stage_instance.operate_permission && stage_instance.can_run && stage_instance.state != 'Unknown'
+        }
+
+        $scope.canCancelStage = function (stage_instance) {
+            return stage_instance.operate_permission && stage_instance.state == 'Building'
+        }
+
+        // actions
+        $scope.triggerStage = function (pipeline_name, pipeline_counter, stage_name) {
+            var user_confirm = confirm('Do you want to run the stage \'' + stage_name + '\'?');
+            console.log(user_confirm)
+        }
+
+        $scope.rerunStage = function (pipeline_name, pipeline_counter, stage_name, stage_counter) {
+            var user_confirm = confirm('Do you want to re-run the stage \'' + stage_name + '\'?');
+            console.log(user_confirm)
+        }
+
+        $scope.cancelStage = function (pipeline_name, pipeline_counter, stage_name, stage_counter) {
+            var user_confirm = confirm('This will cancel all active jobs in this stage. Are you sure?');
+            console.log(user_confirm)
+        }
+
+        // initialize
+        $scope.initialize = function () {
+            $scope.current = new Object();
+            $scope.current.pipeline = 'up42';
+            $scope.current.page = 1;
+
+            $scope.pipelineHistory = new Object();
+            $scope.pipelineHistory.pagination = new Object();
+            $scope.pipelineHistory.pagination.offset = 0;
+            $scope.pipelineHistory.pagination.total = 0;
+            $scope.pipelineHistory.pagination.page_size = 10;
+
+            $scope.setPaginationDetails();
+
+            $scope.loadData();
+        }
+
+        $scope.initialize();
+    }
+</script>
+
+<style type="text/css">
+    .pagination {
+        display: inline-block;
+        padding-left: 0;
+        margin: 20px 0;
+        border-radius: 4px;
+    }
+
+    .pagination > li {
+        display: inline;
+    }
+
+    .pagination > li > a,
+    .pagination > li > span {
+        position: relative;
+        float: left;
+        padding: 6px 12px;
+        margin-left: -1px;
+        line-height: 1.42857143;
+        color: #428bca;
+        text-decoration: none;
+        background-color: #fff;
+        border: 1px solid #ddd;
+    }
+
+    .pagination > li:first-child > a,
+    .pagination > li:first-child > span {
+        margin-left: 0;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .pagination > li:last-child > a,
+    .pagination > li:last-child > span {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    .pagination > li > a:hover,
+    .pagination > li > span:hover,
+    .pagination > li > a:focus,
+    .pagination > li > span:focus {
+        color: #2a6496;
+        background-color: #eee;
+        border-color: #ddd;
+    }
+
+    .pagination > .active > a,
+    .pagination > .active > span,
+    .pagination > .active > a:hover,
+    .pagination > .active > span:hover,
+    .pagination > .active > a:focus,
+    .pagination > .active > span:focus {
+        z-index: 2;
+        color: #fff;
+        cursor: default;
+        background-color: #428bca;
+        border-color: #428bca;
+    }
+
+    .pagination > .disabled > span,
+    .pagination > .disabled > span:hover,
+    .pagination > .disabled > span:focus,
+    .pagination > .disabled > a,
+    .pagination > .disabled > a:hover,
+    .pagination > .disabled > a:focus {
+        color: #777;
+        cursor: not-allowed;
+        background-color: #fff;
+        border-color: #ddd;
+    }
+
+    .pagination-lg > li > a,
+    .pagination-lg > li > span {
+        padding: 10px 16px;
+        font-size: 18px;
+    }
+
+    .pagination-lg > li:first-child > a,
+    .pagination-lg > li:first-child > span {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+    }
+
+    .pagination-lg > li:last-child > a,
+    .pagination-lg > li:last-child > span {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+
+    .pagination-sm > li > a,
+    .pagination-sm > li > span {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .pagination-sm > li:first-child > a,
+    .pagination-sm > li:first-child > span {
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
+
+    .pagination-sm > li:last-child > a,
+    .pagination-sm > li:last-child > span {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+    }
+</style>

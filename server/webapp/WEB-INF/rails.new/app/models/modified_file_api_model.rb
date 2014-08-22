@@ -19,6 +19,6 @@ class ModifiedFileAPIModel
 
   def initialize(modified_file_model)
     @file_name = modified_file_model.getFileName() unless modified_file_model.getFileName() == nil
-    @action = modified_file_model.getAction() unless modified_file_model.getAction() == nil
+    @action = modified_file_model.getAction().to_s unless modified_file_model.getAction() == nil
   end
 end

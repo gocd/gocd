@@ -43,7 +43,7 @@ body{
  */
 
 #header {
-    background: url(../../images/g9/backgrounds/bg_header_default.png) repeat-x 0 0 transparent;
+    background: url('/go/assets/g9/backgrounds/bg_header_default.png') repeat-x 0 0 transparent;
     color:#FFF;
     font-size: 11px;
     left: 0;
@@ -108,7 +108,7 @@ body{
     padding-bottom: 1.6666em;
 }
 #pipeline_status_bar .pipeline .stages .selected .wrapper{
-    background: url(../../images/g9/backgrounds/details_stage_selected.png) no-repeat 50% 100% transparent;
+    background: url('/go/assets/g9/backgrounds/details_stage_selected.png') no-repeat 50% 100% transparent;
 }
 
 #pipeline_status_bar .pipeline .stages .stage_bar{

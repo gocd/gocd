@@ -176,28 +176,28 @@ h2#pipeline_activity_header,
 
 #new-pipeline-history .passed-stage {
     background: none;
-    background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
     background-repeat: repeat-x;
     background-color: #78c42d;
 }
 
 #new-pipeline-history .failed-stage {
     background: none;
-    background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
     background-repeat: repeat-x;
     background-color: #fa2d2d;
 }
 
 #new-pipeline-history .failing-stage {
     background: none;
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #fa2d2d;
 }
 
 #new-pipeline-history .building-stage {
     background: none;
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;
@@ -205,7 +205,7 @@ h2#pipeline_activity_header,
 
 #new-pipeline-history .cancelled-stage {
     background: none;
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;
@@ -290,7 +290,7 @@ ol#pipelines  {
 }
 
 .sub-tabs-container{
-    background: #999 url(../../images/g9/backgrounds/overlay_bottom_inside_shadow.png) bottom repeat-x !important;
+    background: #999 url('/go/assets/g9/backgrounds/overlay_bottom_inside_shadow.png') bottom repeat-x !important;
     border: 0 !important;
     padding: 10px;
     padding-bottom: 0;
@@ -350,7 +350,7 @@ ol#pipelines  {
 
 
 .sub-tabs-container li.updated a {
-    background: transparent url(../../images/icon-12-alert.png) no-repeat 100% 50%;
+    background: transparent url('/go/assets/icon-12-alert.png') no-repeat 100% 50%;
 }
 
 #yui-main h1, h2, h3, h4 {

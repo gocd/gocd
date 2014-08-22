@@ -92,7 +92,7 @@
 /* Docked Header Styles */
 
 #agents_form_container .isFixed {
-    background: url("../../images/g9/backgrounds/bg_actionpanel_shadow.png") repeat-x scroll 0 0 transparent;
+    background: url("/go/assets/g9/backgrounds/bg_actionpanel_shadow.png") repeat-x scroll 0 0 transparent;
     padding: 8px 15px;
     position: fixed;
     top: 87px;
@@ -182,7 +182,7 @@
 }
 
 .agent_instance .agent_hostname.bootstrap-old {
-    background: url(../../images/g9/icons/icon_info_16.png) no-repeat scroll 0 0 transparent;
+    background: imageurl('g9/icons/icon_info_16.png') no-repeat scroll 0 0 transparent;
 }
 
 .agent_instance .info_icon {

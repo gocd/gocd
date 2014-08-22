@@ -119,13 +119,13 @@ input[type="text"].error,
   color: #F33;
 }
 .tristate.add {
-  background-image: url(../../images/tri-state-checkbox-checked.png);
+  background-image: url('/go/assets/tri-state-checkbox-checked.png');
 }
 .tristate.remove {
-  background-image: url(../../images/tri-state-checkbox-empty.png);
+  background-image: url('/go/assets/tri-state-checkbox-empty.png');
 }
 .tristate.nochange {
-  background-image: url(../../images/tri-state-checkbox-slash.png);
+  background-image: url('/go/assets/tri-state-checkbox-slash.png');
 }
 
 
@@ -294,7 +294,7 @@ textarea.template{
 }
 
 input[type="text"].searchbox {
-  background: url("../../images/g9/icon_search.png") transparent no-repeat right;
+  background: url("/go/assets/g9/icon_search.png") transparent no-repeat right;
   padding-right: 16px;
 }
 

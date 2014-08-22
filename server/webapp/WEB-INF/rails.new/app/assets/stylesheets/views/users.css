@@ -85,7 +85,7 @@
     z-index: 1000;
     position: fixed;
     top: 86px;
-    background: url("../../images/g9/backgrounds/bg_actionpanel_shadow.png") repeat-x scroll 0 0 transparent;
+    background: url("/go/assets/g9/backgrounds/bg_actionpanel_shadow.png") repeat-x scroll 0 0 transparent;
     height: 35px;
 }
 

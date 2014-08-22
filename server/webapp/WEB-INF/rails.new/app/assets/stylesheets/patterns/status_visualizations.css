@@ -34,39 +34,39 @@
  * =STATUS_TREATMENTS
 **/
 .Passed{
-  background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+  background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
   background-repeat: repeat-x;
   background-color: #78C42D;
   background-position: bottom left;
 }
 
 .Failed{
-  background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+  background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
   background-repeat: repeat-x;
   background-color: #FA2D2D;
   background-position: bottom left;
 }
 
 .Failing {
-  background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+  background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
   background-repeat: repeat-x;
   background-color: #FA2D2D;
   background-position: bottom left;
 }
 .Unknown{
-  background: url(../../images/g9/backgrounds/bg_state_unknown.png) no-repeat right;
+  background: url('/go/assets/g9/backgrounds/bg_state_unknown.png') no-repeat right;
 }
 
 .Building,
 .Active{
-  background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+  background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
   background-repeat: repeat-x;
   background-color: #FFC11B;
   background-position: bottom left;
 }
 
 .Cancelled {
-  background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+  background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
   background-repeat: repeat-x;
   background-color: #FFC11B;
   background-position: bottom left;

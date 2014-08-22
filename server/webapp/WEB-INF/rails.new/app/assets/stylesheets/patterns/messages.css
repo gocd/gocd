@@ -42,18 +42,18 @@
 }
 .notification .warning {
   background-color: #EEE;
-  background-image: url(../../images/g9/icons/icon_warning_24.png);
+  background-image: url('/go/assets/g9/icons/icon_warning_24.png');
   background-repeat: no-repeat;
   color:#000;
 }
 .notification .error {
   background-color:#EEE;
-  background-image:url(../../images/g9/icons/icon_error_24.png);
+  background-image: url('/go/assets/g9/icons/icon_error_24.png');
   color:#000;
 }
 .notification .info {
   background-color:#EEE;
-  background-image:url(../../images/g9/icons/icon_info_24.png);
+  background-image: url('/go/assets/g9/icons/icon_info_24.png');
   color: #000;
 }
 
@@ -63,7 +63,7 @@
  */
 
 .error_message {
-  background: url(../../images/g9/icons/icon_error_16.png) no-repeat;
+  background: url('/go/assets/g9/icons/icon_error_16.png') no-repeat;
   display:inline-block;
   padding: 2px 2px 2px 20px;
 }
@@ -86,7 +86,7 @@
   background-color: #FFF1A8;
 }
 .ok_message {
-  background: url(../../images/g9/icons/icon_pass_16.png) no-repeat;
+  background: url('/go/assets/g9/icons/icon_pass_16.png') no-repeat;
   display:inline-block;
   padding: 2px 2px 2px 20px;
 }

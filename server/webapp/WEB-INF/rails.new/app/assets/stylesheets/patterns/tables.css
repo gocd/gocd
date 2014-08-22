@@ -46,7 +46,7 @@
   padding: 8px 10px;
 }
 .list_table th {
-  background: #EEE url(../../images/g9/backgrounds/overlay_gradient_th.png) repeat-x;
+  background: #EEE url('/go/assets/g9/backgrounds/overlay_gradient_th.png') repeat-x;
   border-bottom: 1px solid #DDD;
   white-space:nowrap;
 }
@@ -66,20 +66,20 @@
  * =SORTABLE TABLE
 **/
 .sortable_table th a.sorted_asc span {
-  background-image: url(../../images/g9/icons/icon_sorted_up.png);
+  background-image: url('/go/assets/g9/icons/icon_sorted_up.png');
 }
 .sortable_table th a.sorted_desc span {
-  background-image: url(../../images/g9/icons/icon_sorted_down.png);
+  background-image: url('/go/assets/g9/icons/icon_sorted_down.png');
 }
 .sortable_table th a span {
-  background-image: url(../../images/g9/icons/icon_sort_sortable.png);
+  background-image: url('/go/assets/g9/icons/icon_sort_sortable.png');
   background-position: right;
   background-repeat: no-repeat;
   display: inline-block;
   padding-right: 15px;
 }
 .sortable_table th a span:hover {
-  background-image: url(../../images/g9/icons/icon_sort_sortable_hover.png);
+  background-image: url('/go/assets/g9/icons/icon_sort_sortable_hover.png');
 }
 
 

@@ -2631,7 +2631,7 @@ li.task_property {
 }
 
 .vsm-entity h3 {
-    background: url(../images/andare/ico-16x16.png) no-repeat scroll 0px 0px transparent;
+    background: url('/go/assets/andare/ico-16x16.png') no-repeat scroll 0px 0px transparent;
     padding: 0px 0px 10px 12px;
     border-bottom: 1px dotted #999;
     font-size: 13px;
@@ -2659,7 +2659,7 @@ li.task_property {
 }
 
 .vsm-entity h4 .label {
-    background: url(../images/andare/ico-16x16.png) no-repeat scroll 0px -20px transparent;
+    background: url('/go/assets/andare/ico-16x16.png') no-repeat scroll 0px -20px transparent;
     display: inline-block;
     padding: 0 0 5px 18px;
     text-indent: -6000px;
@@ -2897,7 +2897,7 @@ li.task_property {
     cursor: pointer;
 }
 .instances .icon, .vsm-entity.material .icon{
-    background: url(../images/andare/ico-16x16.png) no-repeat scroll 0px 0px transparent;
+    background: url('/go/assets/andare/ico-16x16.png') no-repeat scroll 0px 0px transparent;
     /*background: url("../images/andare/vsm-entity-icons.png") no-repeat scroll 0 0 transparent;*/
     padding-left: 20px;
 }
@@ -3064,7 +3064,7 @@ li.task_property {
     width: 16px;
     height: 16px;
     float: right;
-    background: url(../images/andare/ico-16x16.png) no-repeat scroll 0px -140px #F8F8F8;
+    background: url('/go/assets/andare/ico-16x16.png') no-repeat scroll 0px -140px #F8F8F8;
     text-indent: -6000px;
     margin: 8px 5px 5px 0px;
 }

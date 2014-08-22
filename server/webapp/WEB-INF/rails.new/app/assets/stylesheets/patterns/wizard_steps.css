@@ -58,7 +58,7 @@
 
 .steps_wrapper .tabs li.current_tab a {
     color: #FFF;
-    background: url(../../images/g9/step_current.png) bottom left transparent no-repeat;
+    background: url('/go/assets/g9/step_current.png') bottom left transparent no-repeat;
 }
 
 .steps_wrapper .tabs a div {
@@ -67,7 +67,7 @@
 
 .steps_wrapper {
     display: block;
-    background: #666 url(../../images/g9/backgrounds/bg_gradient_50.png) repeat-x center left !important;
+    background: #666 url('/go/assets/g9/backgrounds/bg_gradient_50.png') repeat-x center left !important;
     -moz-border-radius: 6px;
     padding:0;
 }
@@ -92,7 +92,7 @@
 
 .steps_wrapper li a {
     padding: 5px 12px;
-    background: #000 url(../../images/g9/backgrounds/overlay_gradient_30px.png) repeat-x;
+    background: #000 url('/go/assets/g9/backgrounds/overlay_gradient_30px.png') repeat-x;
     color: #FFF;
     -moz-border-radius: 4px;
     margin-top: 6px;

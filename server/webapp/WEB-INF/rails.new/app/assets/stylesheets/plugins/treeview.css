@@ -45,7 +45,7 @@
 }
 
 .treeview .hitarea {
-    background: url("../../images/g9/prototype/treeview-default.gif") no-repeat scroll -64px -25px transparent;
+    background: url("/go/assets/g9/prototype/treeview-default.gif") no-repeat scroll -64px -25px transparent;
     cursor: pointer;
     float: left;
     height: 16px;
@@ -82,7 +82,7 @@
     cursor: pointer;
 }
 .treeview li {
-   background: url("../../images/g9/prototype/treeview-default-line.gif") no-repeat scroll 0 0 transparent;
+   background: url("/go/assets/g9/prototype/treeview-default-line.gif") no-repeat scroll 0 0 transparent;
 }
 .treeview li.collapsable, .treeview li.expandable {
     background-position: 0 -176px;
@@ -95,7 +95,7 @@
     background-position: 0 -1766px;
 }
 .treeview li.lastCollapsable, .treeview li.lastExpandable {
-   background-image: url("../../images/g9/prototype/treeview-default.gif");
+   background-image: url("/go/assets/g9/prototype/treeview-default.gif");
 }
 .treeview li.lastCollapsable {
     background-position: 0 -111px;
@@ -107,13 +107,13 @@
     background-position: 0 50%;
 }
 .treeview-gray li  {
-   background-image: url("../../images/g9/prototype/treeview-gray-line.gif");
+   background-image: url("/go/assets/g9/prototype/treeview-gray-line.gif");
 }
 .treeview-gray .hitarea, .treeview-gray li.lastCollapsable, .treeview-gray li.lastExpandable {
-   background-image: url("../../images/g9/prototype/treeview-gray.gif");
+   background-image: url("/go/assets/g9/prototype/treeview-gray.gif");
 }
 .treeview .placeholder {
-    background: url("../../images/g9/prototype/ajax-loader.gif") no-repeat scroll 0 0 transparent;
+    background: url("/go/assets/g9/prototype/ajax-loader.gif") no-repeat scroll 0 0 transparent;
     display: block;
     height: 16px;
     width: 16px;
@@ -140,12 +140,12 @@
 
 .treeview .collapsable-hitarea,
 .treeview-gray .hitarea, .treeview-gray li.lastCollapsable{
-	background: url(../../images/g9/icons/arrow_open.png) 0 50% no-repeat #FFF;
+	background: url('/go/assets/g9/icons/arrow_open.png') 0 50% no-repeat #FFF;
 }
 
 .treeview .expandable-hitarea,
 .treeview-gray .hitarea, .treeview-gray li.lastExpandable {
-	background: url(../../images/g9/icons/arrow_closed.png) 0 50% no-repeat #FFF;
+	background: url('/go/assets/g9/icons/arrow_closed.png') 0 50% no-repeat #FFF;
 }
 */
 

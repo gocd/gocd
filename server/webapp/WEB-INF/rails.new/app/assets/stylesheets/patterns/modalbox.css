@@ -75,7 +75,7 @@
 
 .ui-dialog-titlebar,
 #MB_header {
-  background: #333 url(../../images/g9/backgrounds/bg_glass_gradient.png) repeat-x center center;
+  background: #333 url('/go/assets/g9/backgrounds/bg_glass_gradient.png') repeat-x center center;
   margin: 0;
   padding: 0;
 }
@@ -111,7 +111,7 @@
 
 .ui-dialog-titlebar-close,
 #MB_close {
-  background-image: url(../../images/g9/icons/sprite_modal_close.png);
+  background-image: url('/go/assets/g9/icons/sprite_modal_close.png');
   background-position: 0 -30px;
   display: block;
   font-size: 1px;
@@ -133,7 +133,7 @@ ui-dialog-titlebar-close,
 }
 
 #MB_loading {
-  background: transparent url(../../images/spinner.gif) 50% 0 no-repeat;
+  background: transparent url('/go/assets/spinner.gif') 50% 0 no-repeat;
   text-indent: -10000px;
   padding: 1.5em;
 }
@@ -191,7 +191,7 @@ ui-dialog-titlebar-close,
 /* action row and buttons */
 .ui-dialog-buttonpane,
 #MB_content .actions {
-  background: #EEEEE9 url(../../images/g9/backgrounds/overlay_modal_action_row.png) repeat-x;
+  background: #EEEEE9 url('/go/assets/g9/backgrounds/overlay_modal_action_row.png') repeat-x;
   border-radius: 0;
     -moz-border-radius: 0;
     -webkit-border-radius: 0;

@@ -14,18 +14,16 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-@import "../base/variables";
-
 .missing_plugin{
   font-style: italic;
-  background: url(#{$image-path-andare}background-lines.png) ;
+  background: url('/go/assets/andare/background-lines.png') ;
 }
 .missing_plugin_link{
   padding-left: 22px;
   font-style: italic;
   padding-top: 2px;
   padding-bottom: 2px;
-  background: url(#{$image-path}icon-warning-small.gif) no-repeat ;
+  background: url('/go/assets/andare/icon-warning-small.gif') no-repeat ;
 }
  #plugin_missing_error{
   margin-bottom: 20px;

@@ -140,7 +140,7 @@ a.link_as_header_button_hover.disabled {
     padding: 6px 8px;
     margin-left:5px;
     text-align: center;
-    background: #444 url(../../images/g9/backgrounds/overlay_gradient_button.png) repeat-x bottom left;
+    background: #444 url('/go/assets/g9/backgrounds/overlay_gradient_button.png') repeat-x bottom left;
     color: #FFF;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -265,7 +265,7 @@ button.submit.header_submit span{
     font-size: 11px;
     height: auto;
     padding-right: 15px;
-    background-image: url(../../images/g9/button_select_icon_dark.png);
+    background-image: url('/go/assets/g9/button_select_icon_dark.png');
     background-position: right center;
     background-repeat: no-repeat;
     display: block;
@@ -299,7 +299,7 @@ a.link_as_button_hover span {
 }
 
 button.submit.header_submit:hover span {
-    background-image: url(../../images/g9/button_select_icon.png);
+    background-image: url('/go/assets/g9/button_select_icon.png');
     color: #FFF;
     padding: 0 15px 0 0;
 }
@@ -447,51 +447,51 @@ button.submit_hover span img {
     height: 22px;
 }
 .trigger_with_options_wrapper button.image span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -74px -30px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -74px -30px no-repeat transparent;
 }
 .trigger_with_options_wrapper button.image:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -74px 0 no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -74px 0 no-repeat transparent;
 }
 .trigger_wrapper button.image span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -37px -30px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -37px -30px no-repeat transparent;
 }
 .trigger_wrapper button.image:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -37px 0 no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -37px 0 no-repeat transparent;
 }
 .pause_wrapper button.image span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 -30px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 -30px no-repeat transparent;
 }
 .pause_wrapper button.image:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 0 no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat transparent;
 }
 .unpause_wrapper button.image span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 0 no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat transparent;
 }
 .unpause_wrapper button.image:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 0 no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 0 no-repeat transparent;
 }
 .trigger_with_options_wrapper button.disabled span,
 .trigger_with_options_wrapper button.disabled:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -74px -60px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -74px -60px no-repeat transparent;
 }
 .trigger_wrapper button.disabled span,
 .trigger_wrapper button.disabled:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) -37px -60px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') -37px -60px no-repeat transparent;
 }
 .pause_wrapper button.disabled span,
 .pause_wrapper button.disabled:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 -60px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 -60px no-repeat transparent;
 }
 .unpause_wrapper button.disabled span,
 .unpause_wrapper button.disabled:hover span{
-    background: url(../../images/g9/icons/bg_sprite_pipeline_actions.png) 0 -60px no-repeat transparent;
+    background: url('/go/assets/g9/icons/bg_sprite_pipeline_actions.png') 0 -60px no-repeat transparent;
 }
 
 
 /* add special stuffs when they are in the edit panel */
 .edit_panel button.submit,
 .edit_panel a.link_as_button{
-  background: url(../../images/g9/backgrounds/overlay_gradient_button.png) repeat-x left bottom #F6F6F6;
+  background: url('/go/assets/g9/backgrounds/overlay_gradient_button.png') repeat-x left bottom #F6F6F6;
   -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) inset;
   -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) inset;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) inset;  

@@ -29,7 +29,7 @@
  * =SUB_TABS
 **/
 .sub_tabs_container {
-  background: #999 url(../../images/g9/backgrounds/overlay_bottom_inside_shadow.png) bottom repeat-x;
+  background: #999 url('/go/assets/g9/backgrounds/overlay_bottom_inside_shadow.png') bottom repeat-x;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
     -moz-border-radius-topleft: 6px;

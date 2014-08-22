@@ -49,13 +49,13 @@ h2.entity_title {
 }
 
 .environment h2.entity_title,.pipeline_group h2.entity_title {
-    background-image: url(../../images/g9/icons/icon_environments_24.png);
+    background-image: url('/go/assets/g9/icons/icon_environments_24.png');
 }
 .pipeline_group h2.entity_title {
-  background-image: url(../../images/g9/icons/icon_pipelinegroup_24.png);
+  background-image: url('/go/assets/g9/icons/icon_pipelinegroup_24.png');
 }
 .template_group h2.entity_title {
-  background-image: url(../../images/g9/icons/icon_pipeline_template_24.png);
+  background-image: url('/go/assets/g9/icons/icon_pipeline_template_24.png');
   background-position: -12px -10px;
   padding-left: 35px;
 }
@@ -65,7 +65,7 @@ h3.entity_title {
   margin: 0;
 }
 .pipeline_header h3.entity_title {
-  background-image: url(../../images/g9/icons/icon_pipeline_24.png);
+  background-image: url('/go/assets/g9/icons/icon_pipeline_24.png');
   background-position: -12px -10px;
 }
 
@@ -84,6 +84,6 @@ h2.inline {
 
 /* if there are new materials */
 .pipeline_bundle .pipeline_header h3.has_new_materials {
-    background-image: url(../../images/g9/icons/icon_pipeline_24_info.png);
+    background-image: url('/go/assets/g9/icons/icon_pipeline_24_info.png');
     background-position: -12px -12px;
 }

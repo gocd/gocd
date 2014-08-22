@@ -115,7 +115,7 @@
 }
 
 .stage_history .config_change span {
-    background: url(../../images/g9/icon_config_changed_16.png) no-repeat left center transparent;
+    background: url('/go/assets/g9/icon_config_changed_16.png') no-repeat left center transparent;
     font-size: 10px;
     margin:0;
     padding: 3px 0 3px 20px;

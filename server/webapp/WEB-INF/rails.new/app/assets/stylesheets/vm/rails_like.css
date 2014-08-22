@@ -56,7 +56,7 @@ ul#head-links {
 }
 
 .logo-enterprise {
-  background:transparent url(../../images/logo-cruise-enterprise.png) no-repeat scroll 0 0;
+  background:transparent url('/go/assets/logo-cruise-enterprise.png') no-repeat scroll 0 0;
   display:block;
   float:left;
   height:37px;
@@ -82,7 +82,7 @@ ul#tabs li {
 }
 
 ul#tabs li {
-  background-image:url(../../images/bg-header-tabs.png) !important;
+  background-image:url('/go/assets/bg-header-tabs.png') !important;
   background-position:left 50%;
   background-repeat:repeat-x;
 }
@@ -143,7 +143,7 @@ ul#tabs li{
     font-size: 1em;
 }
 #tabs li.currenttab {
-    background-image :url(../../images/bg-header-tabs-current.png) !important;
+    background-image :url('/go/assets/bg-header-tabs-current.png') !important;
     background-position: top left;
     background-repeat: repeat-x;
     background-color: #AEA888;
@@ -154,7 +154,7 @@ ul#tabs li{
 }
 
 ul#tabs li.admin{
-    background: url(../../images/bg-header-tabs-admin.png) left 50% repeat-x !important;
+    background: url('/go/assets/bg-header-tabs-admin.png') left 50% repeat-x !important;
 }
 
 
@@ -163,7 +163,7 @@ ul#tabs li.admin{
  */
 
 .logo-enterprise{
-    background: transparent url(../../images/logo/cruise_blank_343226.jpg) no-repeat 0 0;
+    background: transparent url('/go/assets/logo/cruise_blank_343226.jpg) no-repeat 0 0;
 }
 
 /*

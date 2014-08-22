@@ -38,7 +38,7 @@
  * NOTE: this is a helper class that should be put on the div calling the tooltip
 **/
 div.contextual_help {
-  background: url(../../images/g9/icons/icon_help_16_inactive.png) no-repeat center center;
+  background: url('/go/assets/g9/icons/icon_help_16_inactive.png') no-repeat center center;
   display: block;
   float: left;
   height: 22px;
@@ -46,10 +46,10 @@ div.contextual_help {
   width: 22px;
 }
 .contextual_help:hover {
-  background: url(../../images/g9/icons/icon_help_16.png) no-repeat center center;
+  background: url('/go/assets/g9/icons/icon_help_16.png') no-repeat center center;
 }
 span.contextual_help {
-  background: url(../../images/g9/icons/icon_help_16_inactive.png) no-repeat center center;
+  background: url('/go/assets/g9/icons/icon_help_16_inactive.png') no-repeat center center;
   line-height: 22px;
   padding-bottom: 5px;
   padding-right: 22px;
@@ -179,7 +179,7 @@ span.contextual_help {
  * TODO: FROM MODULE.CSS
  */
 div.has_go_tip {
-  /*background: transparent url(../../images/g9/icons/icon_help_16.png) repeat scroll 0 0;*/
+  /*background: transparent url('/go/assets/g9/icons/icon_help_16.png') repeat scroll 0 0;*/
   /*height: 16px;*/
   /*position: absolute;*/
   /*right: 0;*/

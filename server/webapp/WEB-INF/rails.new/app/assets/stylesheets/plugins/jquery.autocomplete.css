@@ -55,7 +55,7 @@
 }
 
 .ac_loading {
-	background: white url('../../images/indicator.gif') right center no-repeat;
+	background: white url('/go/assets/indicator.gif') right center no-repeat;
 }
 
 .ac_odd {

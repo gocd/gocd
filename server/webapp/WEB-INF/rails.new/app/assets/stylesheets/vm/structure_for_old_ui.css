@@ -181,7 +181,7 @@ a.link_as_button_hover.disabled {
     padding: 6px 8px;
 	margin-right:5px;
 	text-align: center;
-    background: #444 url(../../images/g9/backgrounds/overlay_gradient_button.png) repeat-x bottom left;
+    background: #444 url('/go/assets/g9/backgrounds/overlay_gradient_button.png') repeat-x bottom left;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -298,7 +298,7 @@ margin-right: 0;
 
 #agents_form .edit_panel .new_agent span {
     padding-left: 16px;
-    background-image: url(../../images/g9/icons/icon_plus.png);
+    background-image: url('/go/assets/g9/icons/icon_plus.png');
     background-position: 1px 1px;
     background-repeat: no-repeat;
 }
@@ -389,7 +389,7 @@ a.xlink_as_button {
 }
 
 .loading{
-    background: url(../../images/new/ajax_loader_small.gif) 50% 50% no-repeat transparent;
+    background: url('/go/assets/new/ajax_loader_small.gif) 50% 50% no-repeat transparent;
 }
 
 
@@ -398,35 +398,35 @@ a.xlink_as_button {
  * Global Pass/Fail colors
  */
 .Passed{
-    background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
     background-repeat: repeat-x;
     background-color: #78c42d;
 }
 
 .Failed{
-    background-image: url(../../images/g9/backgrounds/bg_status_gradient.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_gradient.png');
     background-repeat: repeat-x;
     background-color: #fa2d2d;
 }
 
 .Failing {
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #fa2d2d;
 }
 .Unknown{
-    background: url(../../images/g9/backgrounds/bg_state_unknown.png) no-repeat right;
+    background: url('/go/assets/g9/backgrounds/bg_state_unknown.png') no-repeat right;
 }
 
 .Building,
 .Active{
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
 }
 
 .Cancelled {
-    background-image: url(../../images/g9/backgrounds/bg_status_diagonal.png);
+    background-image: url('/go/assets/g9/backgrounds/bg_status_diagonal.png');
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;
@@ -471,7 +471,7 @@ a.xlink_as_button {
  * Application Navigation
  */
 #application_logo {
-  background-image: url(../../images/g9/logo_go.png);
+  background-image: url('/go/assets/g9/logo_go.png');
   background-repeat: no-repeat;
   background-position: 0 4px;
   /*border-right: 1px solid rgba(255, 255, 255, 0.15);*/
@@ -558,7 +558,7 @@ a.xlink_as_button {
 }
 .application_nav .cruise_messages a {
     background-color:#400;
-    background-image:url("../../images/g9/icons/icon_error_16.png");
+    background-image:url("/go/assets/g9/icons/icon_error_16.png");
     background-position:6px 4px;
     background-repeat:no-repeat;
     border-left: 1px solid #800;
@@ -630,7 +630,7 @@ a.xlink_as_button {
 #success-container #success-box {
     padding: 10px;
     padding-left: 36px;
-    background: transparent url(../../images/g9/backgrounds/overlay_gradient_48px.png) 0 0 repeat-x;
+    background: transparent url('/go/assets/g9/backgrounds/overlay_gradient_48px.png') 0 0 repeat-x;
 }
 
 #warn-container #warn-box a,
@@ -667,7 +667,7 @@ a.xlink_as_button {
  */
 #content_titlebar .help {
     text-indent: -10000px;
-    background: transparent url(../../images/buttons_sprites.png) no-repeat -320px top;
+    background: transparent url('/go/assets/buttons_sprites.png') no-repeat -320px top;
     width: 22px;
     height: 23px;
     margin: 0 0 0 0.8em;
@@ -705,13 +705,13 @@ a.xlink_as_button {
 /*
 
 #admin-page h2.entity_title {
-    background-image: url(../../images/g9/icons/icon_admin_36.png);
+    background-image: url('/go/assets/g9/icons/icon_admin_36.png');
     background-position: -8px 0px;
     padding-left: 45px;
 }
 
 .pipeline_history h2.entity_title {
-    background-image: url(../../images/g9/icons/icon_pipeline_36.png);
+    background-image: url('/go/assets/g9/icons/icon_pipeline_36.png');
     background-position: -8px 0px;
     padding-left: 45px;s
 }
@@ -736,15 +736,15 @@ a.xlink_as_button {
 }
 
 .tristate.add {
-    background-image: url(../../images/tri-state-checkbox-checked.png);
+    background-image: url('/go/assets/tri-state-checkbox-checked.png');
 }
 
 .tristate.remove {
-    background-image: url(../../images/tri-state-checkbox-empty.png);
+    background-image: url('/go/assets/tri-state-checkbox-empty.png');
 }
 
 .tristate.nochange {
-    background-image: url(../../images/tri-state-checkbox-slash.png);
+    background-image: url('/go/assets/tri-state-checkbox-slash.png');
 }
 
 
@@ -887,12 +887,12 @@ a.xlink_as_button {
 }
 
 .enhanced_dropdown .loading {
-    background: url("../../images/spinner.gif") 50% 50% no-repeat transparent;
+    background: url("/go/assets/spinner.gif") 50% 50% no-repeat transparent;
     padding: 1em;
 }
 
 .enhanced_dropdown .error {
-    background: url(../../images/g9/icons/error_small.png) 5px 62% no-repeat transparent;
+    background: url('/go/assets/g9/icons/error_small.png') 5px 62% no-repeat transparent;
     padding: 1em 1em 1em 2em;
     color: #FF3E44;
     border: 1px solid #D4D4D4;
@@ -943,7 +943,7 @@ a.xlink_as_button {
  * Sub Tabs
  */
 .sub_tabs_container {
-    background: #999 url(../../images/g9/backgrounds/overlay_bottom_inside_shadow.png) bottom repeat-x !important;
+    background: #999 url('/go/assets/g9/backgrounds/overlay_bottom_inside_shadow.png') bottom repeat-x !important;
     border: 0 !important;
     padding: 10px;
     padding-bottom: 0;
@@ -1030,7 +1030,7 @@ table{
 }
 .list_table th {
     border-bottom: 1px solid #ddd;
-    background: #eee url(../../images/g9/backgrounds/overlay_gradient_th.png) repeat-x;
+    background: #eee url('/go/assets/g9/backgrounds/overlay_gradient_th.png') repeat-x;
     white-space:nowrap;
 }
 .list_table th a {
@@ -1044,7 +1044,7 @@ table{
 /* Sortable Table */
 
 .sortable_table th a span {
-    background-image: url(../../images/g9/icons/icon_sort_sortable.png);
+    background-image: url('/go/assets/g9/icons/icon_sort_sortable.png');
     background-position: right;
     background-repeat: no-repeat;
     padding-right: 15px;
@@ -1052,14 +1052,14 @@ table{
 }
 
 .sortable_table th a span:hover {
-    background-image: url(../../images/g9/icons/icon_sort_sortable_hover.png);
+    background-image: url('/go/assets/g9/icons/icon_sort_sortable_hover.png');
 }
 
 .sortable_table th a.sorted_asc span {
-    background-image: url(../../images/g9/icons/icon_sorted_up.png);
+    background-image: url('/go/assets/g9/icons/icon_sorted_up.png');
 }
 .sortable_table th a.sorted_desc span {
-    background-image: url(../../images/g9/icons/icon_sorted_down.png);
+    background-image: url('/go/assets/g9/icons/icon_sorted_down.png');
 }
 
 /* Selectable Table */

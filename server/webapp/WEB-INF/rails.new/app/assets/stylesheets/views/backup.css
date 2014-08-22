@@ -92,7 +92,7 @@
 }
 
 .backup_spinny {
-    background: url(../../images/g9/icons/spinny_gray_16.gif) no-repeat 0 50% transparent;
+    background: url('/go/assets/g9/icons/spinny_gray_16.gif') no-repeat 0 50% transparent;
     width: 16px;
     height: 16px;
     display: block;

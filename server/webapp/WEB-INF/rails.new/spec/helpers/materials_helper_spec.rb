@@ -94,7 +94,7 @@ describe MaterialsHelper do
   describe :render_comment_markup_for do
     it "should display comment and trackback url" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"google.com"}'
-      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Built on blrstdgobgr03.<br/>Trackback: <a href=\"google.com\">google.com</a>")
+      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Built on blrstdgobgr03.<br>Trackback: <a href=\"google.com\">google.com</a>")
     end
 
     it "should display trackback url when comment is not provided" do

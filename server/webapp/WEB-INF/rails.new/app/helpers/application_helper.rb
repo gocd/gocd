@@ -282,6 +282,8 @@ module ApplicationHelper
   def blocking_link_to_remote_new(options = {})
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
+    options[:method] = "post"
+
     tag_options = tag_options(options[:html], true)
     %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
   end

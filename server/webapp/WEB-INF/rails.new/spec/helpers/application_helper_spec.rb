@@ -263,7 +263,18 @@ describe ApplicationHelper do
                                            :html => {},
                                            :before => "spinny('unlock');"
 
-      exp = %q|<a href="#" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
+      expect(actual).to eq(exp)
+    end
+
+    it "should create a blocking link to a remote location with extra HTML provided" do
+      actual = blocking_link_to_remote_new :name => "&nbsp;",
+                                           :url => api_pipeline_action_path(:pipeline_name => "SOME_NAME", :action => 'releaseLock'),
+                                           :update => {:failure => "message_pane", :success => 'function(){}'},
+                                           :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
+                                           :before => "spinny('unlock');"
+
+      exp = %q|<a href="#"  class="ABC" id="SOME-ID" title="TITLE" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end

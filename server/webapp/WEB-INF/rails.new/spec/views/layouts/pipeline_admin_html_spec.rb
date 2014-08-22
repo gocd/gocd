@@ -19,9 +19,12 @@ load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 
 describe "/layouts/pipeline_admin" do
+  include EngineUrlHelper
+
   before do
     stub_server_health_messages
   end
+
   before do
     @layout_name = "layouts/pipeline_admin"
     @admin_url = "/admin/pipelines"
@@ -43,6 +46,10 @@ describe "/layouts/pipeline_admin" do
 
     assign(:pipeline, PipelineConfigMother.pipelineConfig("mingle"))
     assign(:pause_info, PipelinePauseInfo.paused("need to have fun", "loser"))
+
+    main_app = double('main_app')
+    stub_routes_for_main_app main_app
+    allow(view).to receive(:main_app).and_return(main_app)
   end
 
   it_should_behave_like :layout

@@ -31,7 +31,7 @@
                             <li class="field stage_type">
                                 <label>
                                     <span class="key"><%= l.string("STAGE_TYPE_LABEL") %></span>
-                                    <span class="hint"><%= l.string("RADIO_BUTTON_TITLE_APPROVAL") %></span>
+                                    <span class="hint"><%= l.string("RADIO_BUTTON_TITLE_APPROVAL").html_safe %></span>
                                 </label>
                                 <span class="input value"><%= stage.getApproval().isManual() ? l.string("MANUAL") : l.string("AUTO") %></span>
                             </li>

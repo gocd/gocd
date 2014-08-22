@@ -161,7 +161,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
         package_material_modification_row_node = all_rows[2]
         expect(package_material_modification_row_node[:id]).to eq("#{@package_material_id}_0")
-        expect(package_material_modification_row_node.find(".comment").text.strip).to eq('Some comment.<br/>Trackback: <a href="http://google.com">http://google.com</a>')
+        expect(text_without_whitespace(package_material_modification_row_node.find(".comment"))).to eq('Some comment.<br>Trackback: <a href="http://google.com">http://google.com</a>')
       end
     end
 
@@ -185,6 +185,10 @@ describe "/shared/_build_cause_popup.html.erb" do
         expect(package_material_modification_row_node[:id]).to eq("#{@package_material_id}_0")
         expect(package_material_modification_row_node.find(".comment").text.strip).to eq("Trackback: Not Provided")
       end
+    end
+
+    def text_without_whitespace element
+      element.native.inner_html.gsub(/^[\n ]*/, '').gsub(/[\n ]*$/, '')
     end
   end
 end

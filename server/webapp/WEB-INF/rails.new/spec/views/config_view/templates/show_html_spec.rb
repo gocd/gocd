@@ -59,7 +59,7 @@ describe "config_view/templates/show.html.erb" do
               list.find("li.stage_type.field").tap do |field|
                 field.find("label").tap do |label|
                   expect(label).to have_selector("span.key", :text => "Stage Type")
-                  expect(label).to have_selector("span.hint", :text => "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually\n                                              trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
+                  expect(label).to have_selector("span.hint", :text => "'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
                 end
                 expect(field).to have_selector("span.value", :text => e[:stage_type])
               end

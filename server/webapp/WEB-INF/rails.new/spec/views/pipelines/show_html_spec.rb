@@ -51,7 +51,7 @@ describe "/pipelines/show.html.erb" do
 
     render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
 
-    assert_fixture_equal("pipeline_deploy_test.html", response.body)
+    assert_fixture_equal("pipeline_deploy_test_rails_new.html", response.body)
   end
 
   it "should display revision number, time and material name/url" do

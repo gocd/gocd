@@ -160,7 +160,6 @@ Go::Application.routes.draw do
   get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard
   get 'home' => 'pipelines#index'
 
-  get "pipelines/history/:pipeline_name" => "pipelines#history", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT}, as: :pipeline_history
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
 
   scope 'compare' do
@@ -203,7 +202,7 @@ Go::Application.routes.draw do
       get 'plugins/status' => 'plugins#status'
 
       # history
-      get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history_api
+      get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
       get 'stages/:pipeline_name/:stage_name/history/(:offset)' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :stage_history_api
       get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
       get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api

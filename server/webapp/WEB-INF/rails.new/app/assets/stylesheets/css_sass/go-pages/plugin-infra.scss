@@ -16,14 +16,14 @@
 
 .missing_plugin{
   font-style: italic;
-  background: url('/go/assets/andare/background-lines.png') ;
+  background: image_url('andare/background-lines.png') ;
 }
 .missing_plugin_link{
   padding-left: 22px;
   font-style: italic;
   padding-top: 2px;
   padding-bottom: 2px;
-  background: url('/go/assets/andare/icon-warning-small.gif') no-repeat ;
+  background: image_url('andare/icon-warning-small.gif') no-repeat ;
 }
  #plugin_missing_error{
   margin-bottom: 20px;

@@ -1,0 +1,754 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+a#add-new-pipeline-button {
+    margin-left: 10px;
+}
+
+
+
+
+/* Fix a IE7 bug */
+.bd-container {
+    *padding-top: 0.75em;
+}
+#content_area textarea {
+    width: 99.8%;
+    background-color: #fffacd;
+}
+
+#tab-content-of-configuration {
+    background-color:white;
+}
+
+#tab-content-of-configuration .round_top {
+    background-color : #f1f0ec;
+}
+
+#tab-content-of-configuration h1 {
+    background-color : #f1f0ec;
+    font-weight : bold;
+    margin: 0.75em;
+}
+
+#tab-content-of-configuration h1 span {
+    padding : 5px 0 0 5px;
+}
+
+.admin_holder {
+    /*padding : 1em;*/
+    /*margin: 0 1em 1em;*/
+     /*background-color : #eae0ce;*/
+    /*overflow: auto;*/
+    /*color: #452f33;*/
+    
+}
+.admin_holder .wbrSensitive{
+    
+    display: block;
+    font-size: 17px;
+    margin-left: .25em;
+    color: #000;
+    padding-top: 1em;
+}
+
+
+
+#tab-content-of-about {
+    margin: 0.75em;
+}
+
+#specifyConfigLocation .txt {
+    width : 41em;
+    margin-right : 10px;
+}
+
+.inlineedit input {
+    margin : 10px 0 10px 550px;
+}
+
+.btn {
+    width : 120px;
+    float : right;
+}
+
+.txt {
+    float : left;
+}
+
+#warning {
+    margin-right: 10px;
+}
+
+/* Configuration wizard */
+#yui-main .wizard h1 {
+
+    float: left;
+}
+
+
+
+
+
+#yui-main #tab-content-of-server-configuration h1 {
+    width: 18em;
+}
+.wizard h1 strong {
+    display: block;
+}
+
+.wizard-content {
+    background: #FFF;
+    /*margin: 0 1em 1em 1em;*/
+    zoom: 1;
+}
+
+.add-new-pipeline {
+    margin: 1em 3.6em 0 1em;;
+    background: transparent image_url('icon-add-pipeline.gif') no-repeat left 50%;
+    padding-left: 25px;
+    float: right;
+    color: #5B3820;
+}
+
+#pipelines {
+    width: 15em;
+    overflow: hidden;
+    float: left;
+    margin-right: 1em;
+}
+#pipelines ol {
+        
+}
+#pipelines li {
+    display:block;
+    cursor: pointer;
+
+    /*background-color:#ECDFCC;*/
+    /*background: transparent image_url('arrow_closed.jpg) no-repeat 80% 50%;*/
+}
+#pipelines-list {
+
+}
+#pipelines-list a{
+    color: black;
+}
+#pipelines-list textarea {
+    width: 95%;
+    font-family: consolas, monaco, courier;
+    margin-top: 10px;
+}
+
+.pipeline {
+    display: none;
+}
+#pipelines-list .current {
+    display: block;
+}
+#pipelines-list .stages {
+    display: none;
+}
+#pipelines-list .current .stages {
+    display: block;
+    /*border-bottom: 4px solid #795134;*/
+}
+
+#pipelines-list .pipeline-stages-title {
+    color: #333;
+    margin: 1em  .5em;
+    border-bottom: 1px solid #CCC;
+}
+
+
+#pipelines-configuration .content_wrapper_inner {
+    -moz-border-radius:0;
+    -moz-box-shadow: none;
+    background-image: none;
+    background-color:transparent;
+    border:0;
+    margin:0;
+    padding:0;
+}
+
+#pipelines-configuration #pipelines-list h2  {
+    font-size:18px;
+    font-weight:300;
+    padding:10px 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+
+
+#pipelines-list h2 a {
+
+    font-weight: normal;
+    
+}
+
+.stages .stages-h3-wrapper {
+    background-image:image_url('g9/backgrounds/overlay_glass_blend.png');
+    background-repeat: repeat-x;
+    background-color: #666;
+    padding: 10px;
+    margin: 10px 0 0 0;
+    cursor: pointer;
+    clear: both;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.stages .stage-content {
+    font-size: 11px;
+    border-left: 5px solid #999;
+    padding-left: 15px;
+}
+
+.stages .current .stages-h3-wrapper {
+    -moz-border-radius-bottomleft: 0;
+    -webkit-border-bottom-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #744b8c;
+}
+
+
+.stages .current .stage-content {
+    border-left: 5px solid #744b8c;
+}
+
+
+.stages label {
+    display: inline;
+    color: #393C41;
+}
+.stages .stage {
+    margin-bottom: 1em;
+    border-top: none;
+}
+.stages li ol,
+.stages li p {
+    display: none;
+}
+.stages li.current ol,
+.stages li.current p {
+    display: block;
+}
+
+
+
+.stages h3 {
+    /*background: #FFF image_url('icon_stage_twist_open.gif') no-repeat 5px 50%;*/
+    margin: 0;
+    margin-top: 2px;
+    font-weight: 700;
+    padding: 0 0 0 30px;
+    overflow: hidden;
+    background: image_url('background_header_closed.png') no-repeat;
+    color: #fff;
+
+}
+.stages li.current h3 {
+    background: image_url('background_header_open.png') no-repeat;
+
+}
+.stages h3 span {
+    margin-left: 1em;
+    font-weight: normal;
+}
+.stages h3 span.approval {
+    color: #fff;
+    border-left: 1px solid #fff;
+    margin-left: 10px;
+    padding-left: 10px;
+}
+.stages h3 a {
+    font-weight: normal;
+}
+.stage-content p {
+    margin: 0.25em 0;
+}
+.stage-content p label {
+    color: black;
+}
+.stage-content p a {
+    text-decoration: underline;
+}
+.builds{
+    margin-left: 2.5em;
+}
+.builds .build {
+    padding-top: 15px;
+}
+.build h4 {
+    background: image_url('g9/icons/icon_job_24.png') no-repeat -10px -12px;
+    padding: 5px 10px 5px 20px;
+    margin: 0 0 10px 0px;
+    padding-left: 35px;
+    overflow: hidden;
+    font-weight: bold;
+}
+
+ol.builds {
+margin-left:0;
+}
+
+ol.builds li.build {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+
+}
+
+
+/* heavy-handed font size reset for all admin tables */
+
+#pipelines-configuration table td,
+#pipelines-configuration table th,
+#pipelines-configuration table td span,
+#pipelines-configuration table td li,
+#pipelines-configuration table td ul {
+    font-size: 11px !important;
+}
+
+#pipelines-configuration table td li,
+#pipelines-configuration table td ul {
+    margin: 0;
+    padding: 0;
+}
+
+
+#pipelines-configuration table {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+
+
+#pipelines-configuration table th,
+#pipelines-configuration table td,
+.build-content th, 
+.build-content td, 
+.material-and-dependencies th, 
+.material-and-dependencies td,
+#server-details-table th,
+#server-details-table td {
+    border-top: 1px dotted #ccc;
+    padding: 7px 10px;
+}
+
+
+#pipelines-configuration table th,
+#server-details-table table th {
+    background-color: #eee;
+    float: none;
+    color: #333333;
+    text-align: right;
+    min-width: 160px;
+}
+
+.wizard-content {
+    border-top: 1px solid #999;
+    padding-top: 15px;
+}
+
+
+#pipelines-configuration .content_wrapper_outer {
+    margin-left: 250px !important;
+}
+
+
+
+
+
+
+#pipelines li {
+    font-size: 11px !important;
+}
+
+
+
+
+
+.build h4 a {
+    font-weight: normal;
+    /*text-decoration: underline;*/
+}
+
+.material-and-dependencies {
+    /*margin-left: 3em;*/
+    font-weight: normal;
+}
+.stages h3 span.attribute-name {
+    font-weight: 900;
+    margin: 0;
+}
+.build-content th,
+.build-content td,
+.material-and-dependencies th,
+.material-and-dependencies td {
+    border: none;
+}
+.build-content a {
+    font-weight: normal;
+    font-size: 0.9em;
+    text-decoration: underline;
+}
+.build-content .delete {
+    padding-left: 0.25em;
+}
+.build-content .delete img {
+    vertical-align: middle;
+}
+.build-content th,
+.material-and-dependencies th {
+    text-align: right;
+    width: 12em;
+    color: #333;
+    float: left;
+}
+.build-content li,
+.material-and-dependencies li {
+    clear: left;
+}
+.resources {
+    display: inline;
+}
+.resources li {
+    display: inline;
+    padding-left: 0.5em;
+}
+.artifacts,
+.tasks {
+    float: left;
+    list-style: none;
+}
+.cancel-task {
+    padding-left: 1em;
+}
+
+.exec-arguments {
+    float: left;
+    padding-left: 1em;
+}
+.normal-font-weight {
+    font-weight: normal;
+}
+#pipelines-list .tab {
+    font-weight: normal;
+}
+.build-plan-operations,
+.pipeline-operations,
+.stage-operations,
+.group-operations {
+    float: right;
+}
+
+h2 span.pipeline-operations {
+    font-size: 18px !important;
+}
+
+
+.pipeline-operations a.link_as_button,
+span.group-operations a.link_as_button,
+span.stage-operations a.link_as_button,
+span.build-plan-operations a.link_as_button {
+    margin-right: 0;
+    margin-left: 5px;
+    min-width: 100px;
+}
+
+
+
+#pipelines-list .stages li.stage {
+    width: 100%;
+}
+
+
+.group-operations{
+
+}
+
+#tab-content-of-source-xml h1 {
+    float: left;
+}
+
+#tab-content-of-source-xml h1 span.wbrSensitive {
+    display: block;
+}
+
+.buttons-group a.link_as_button {
+    min-width: 100px;
+    margin-left: 5px;
+    margin-right: 0;
+}   
+/* About page start */
+#content-of-about,
+#content-of-about-us {
+    
+}
+#content-of-about-us h2 {
+
+}
+
+#content-of-about-us p {
+
+}
+
+
+#content-of-about .ab-corner,
+#content-of-about-us .ab-corner {
+    border-color: #FFF;
+}
+#tab-content-of-about table,
+#content-of-about table {
+    width: 100%;
+    border: none;
+}
+td {
+    padding: 5px 10px;
+    border-bottom: 1px dotted #ccc;
+}
+
+/*.odd td {*/
+    /*background-color: #f6ece2;*/
+    /*border: none;*/
+/*}*/
+
+/*.even td {*/
+    /*background-color: #e4d8bd;*/
+    /*border: none;*/
+/*}*/
+
+#server-details-table td {
+    font-weight: bold; 
+    background-color: #eee;
+}
+
+#server-details-table td.value_column {
+    font-weight: normal; 
+    background-color: #fff;
+    width: 75%; 
+}
+
+
+.save-edit-xml {
+    margin-right: 0.5em;
+}
+/* About page end */
+#testNotification {
+    margin: 2px 10px;
+}
+
+#pipelines .pipeline-group {
+    font-weight:bold;
+}
+#pipelines > li.current {
+    /*background-color:#EDEEE9;*/
+}
+
+
+#pipelines li.current {
+    
+}
+
+
+#pipelines li{
+    /*padding-left: 50px;*/
+}
+
+
+
+#pipelines li.entity_title {
+    padding: .25em 0;
+}
+
+
+
+#pipelines li div.item,
+#pipelines li div.title {
+    clear:left;
+    margin: 3px 0;
+    padding:3px 5px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid transparent;  
+    font-size: 11px !important;
+}
+
+#pipelines li div.item {
+    margin-left: 20px;
+}
+
+#pipelines li div.item div {
+    font-size: 11px !important;
+}
+
+#pipelines li.current div.item,
+#pipelines li.current div.item:hover {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    -moz-box-shadow: inset 0 0 3px #ccc;   
+}
+
+#pipelines li div.item:hover {
+    background-color: #c3e1f2;
+    border: 1px solid #ccc; 
+}
+
+
+
+
+/* Pipeline Config */
+#tab-content-of-pipelines-configuration{
+    margin-top: 1em;
+}
+#pipelines-configuration .content_wrapper_outer{
+    margin-left: 16em;
+}
+#tab-content-of-source-xml .content_wrapper_outer{
+    clear: both;
+}
+#tab-content-of-source-xml .content_wrapper_inner pre{
+    overflow: auto;
+    height: 500px;
+}
+#tab-content-of-server-configuration input[type="text"], input[type="password"]{
+    float: left;
+}
+#tab-content-of-server-configuration .content_wrapper_outer{
+
+}
+
+#tab-content-of-server-configuration .content_wrapper_outer,
+#tab-content-of-server-configuration .content_wrapper_inner {
+    padding: 0;
+    margin: 0;
+}
+
+
+#mailhost-configuration fieldset.two-cols p{
+    clear: both;
+    margin: 5px 0;
+    overflow: hidden;
+}
+#mailhost-configuration .form_buttons{
+
+}
+#tab-content-of-server-configuration fieldset .error_message{
+    position: relative;
+    top: 0;
+    left: 5px;
+}
+
+
+#pipelines-configuration .pipeline-group{
+
+}
+#pipelines-configuration .open_group{
+    background-position: 0 -650px;
+}
+
+#pipelines-configuration .pipeline_templates{
+
+}
+#pipelines-configuration .open_group div.title {
+    padding-left: 20px;
+    background: image_url('g9/icons/arrow_open.png') 0 50% no-repeat transparent;
+}
+
+#pipelines-configuration .group div.title {
+    padding-left: 20px;
+    background: image_url('g9/icons/arrow_closed.png') 0 50% no-repeat transparent;
+}
+
+#content-of-about .table_wrapper{
+
+}
+
+#server-details-table {
+    margin-top: 15px;
+}
+
+#content-of-about-us {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ccc;
+}
+
+#content-of-about .content_wrapper_outer{
+
+}
+#content-of-about tr.odd,
+#content-of-about tr.even{
+
+}
+#content-of-about tr.even{
+
+}
+#content-of-about td{
+
+}
+#content-of-about .content_wrapper_inner {
+    height: 350px;
+}
+*:first-child+html #content-of-about .content_wrapper_outer {
+    height: 380px;
+}
+#content-of-about-us .content_wrapper_inner h3,
+#content-of-about-us .content_wrapper_inner p
+{
+    padding: 0 13px 4px 13px;
+}
+#build-status-panel h1{
+    padding: 0;
+    margin: 0;
+    font-size: 20px;
+}
+#build-status-panel h3{
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: 300;
+
+}
+
+
+
+.stages h3 .link_as_button span {
+    margin-left: 0;
+}
+
+.buttons-group{
+    float: right;
+}
+
+*+html .buttons-group{
+    display:inline-block;
+}
+
+.config_path_title{
+    float: left;
+}
+
+#yui-main #tab-content-of-source-xml .content_wrapper_outer,
+#yui-main #tab-content-of-source-xml .content_wrapper_inner {
+    margin: 0;
+    padding: 0;
+}
+
+
+li{
+    float: none;
+}

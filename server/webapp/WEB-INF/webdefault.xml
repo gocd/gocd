@@ -80,6 +80,11 @@
 
     <filter-mapping>
         <filter-name>gizFilter</filter-name>
+        <url-pattern>/assets</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gizFilter</filter-name>
         <url-pattern>/admin</url-pattern>
     </filter-mapping>
 
@@ -140,12 +145,20 @@
 
     <servlet-mapping>
         <servlet-name>default</servlet-name>
+        <url-pattern>/assets/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
         <url-pattern>/css/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>*.js</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.css</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

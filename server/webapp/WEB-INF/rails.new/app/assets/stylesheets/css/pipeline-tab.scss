@@ -1,0 +1,1187 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/* build pipelines for list view */
+.container-in-body {
+    margin: 0 0;
+    zoom: 1;
+}
+
+#yui-main #stage-history-container {
+    *padding-top: 1em;
+}
+
+#stage-history-container #build-pipelines {
+    zoom: 1;
+    margin: 1em 0.7em;
+    *margin: 0 0.7em !important;
+}
+
+
+#stage-history-container h2 {
+    padding: 0.25em 1em 0.25em 0.5em;
+}
+
+#stage-history-container .stage-build-plan-container {
+    padding: 0.5em;
+    background-color: #FFF;
+}
+
+#stage-history-container .stage-build-plan-status {
+    border: none;
+    margin-bottom: 2px;
+}
+
+#stage-history-container .stage-build-plan-content {
+    padding: 0.2em 1em 0.2em 4em;
+}
+
+#stage-history-container button.collapse-or-expand-button {
+    margin-top: -1px;
+    cursor: pointer;
+}
+
+#pipeline-action-bar .bd-c-wrapper {
+    padding: 0.25em 0.5em;
+    *padding: 0 0.5em;
+}
+
+.pipeline-container,
+.pipeline-config-container,
+.pipeline-history-container {
+    margin: 0;
+    margin-bottom: 1em;
+    padding: 0;
+}
+
+.pipeline-container {
+    /*border: 1px solid #938b55;*/
+    background-color: #FFF;
+}
+
+#yui-main .pipeline-config-container .pipeline-config-header {
+    color: #B9A173;
+}
+
+.pipeline-config-container a,
+#pipeline-history .pipeline-history-link .pipeline-nav {
+    color: #c7caa8;
+}
+
+.pipeline-config-container strong {
+    font-size: 1.1em;
+    color: #c7caa8;
+}
+
+#yui-main .pipeline-config-container h1 {
+    background: #584538;
+    color: #c7caa8;
+    margin: 0;
+}
+
+#yui-main .pipeline-container h1,
+#yui-main .pipeline-history-container h1 {
+/*background: #EEF image_url('icon_pipeline_v1.gif') no-repeat 10px 50%;*/
+/*padding-left: 35px;*/
+    color: #FFF;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 0.416em 1em 0.416em 1em;
+}
+
+.pipeline-nav {
+    font-size: 0.8em;
+    font-weight: normal;
+    padding-left: 0.5em;
+}
+
+.pipeline-container .pipeline-stages {
+    padding: 0 0.7em;
+}
+
+.pipeline-container h1 a,
+.pipeline-container h1 a:visited {
+    color: #59351E;
+}
+
+.stage-container {
+    margin: 0 0 1em;
+    padding: 0;
+}
+
+.pipeline-container .stage-container {
+    margin-bottom: 0.7em;
+}
+
+.stage-container h2 {
+    display: block;
+    padding: 0;
+    font-weight: bold;
+    background: #CCFF99;
+    zoom: 1;
+}
+
+.stage-container h2 table {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-collapse: collapse;
+}
+
+.stage-container h2 table th {
+    border: none;
+    padding: 0.3em 0.82em;
+}
+
+.stage-name {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0.1em 0.5em 0.1em 35px; /*width: 26em;*/
+    width: 20em;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+a:hover.stage-name {
+    text-decoration: none;
+}
+
+/* supports 6 status of pipeline plan
+   passed, failed, building, failing, discontinued, unknow
+   green,     red,    yellow,   red,     grey,         grey
+*/
+.pipeline-passed h2,
+.pipeline-failed h2,
+.pipeline-building h2,
+.pipeline-failing h2,
+.pipeline-distontinued h2,
+.pipeline-unknow h2 {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.pipeline-stages table tr {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.pipeline-failed h2,
+.pipeline-failing h2,
+.pipeline-cancelled h2,
+.stage-failed,
+.stage-failing,
+.stage-cancelled {
+    background: #CD5447;
+    color: #FFF;
+}
+
+.pipeline-failed h2 a,
+.pipeline-failing h2 a,
+.pipeline-cancelled h2 a,
+.pipeline-failed h2 a:visited,
+.pipeline-failing h2 a:visited,
+.pipeline-cancelled h2 a:visited,
+.pipeline-failed h2 a:active,
+.pipeline-failing h2 a:active,
+.pipeline-cancelled h2 a:active,
+.stage-failed a,
+.stage-failing a,
+.stage-cancelled a,
+.stage-failed a:visited,
+.stage-failing a:visited,
+.stage-cancelled a:visited,
+.stage-failed a:active,
+.stage-failing a:active,
+.stage-cancelled a:active {
+    color: #FFF;
+}
+
+.pipeline-passed h2,
+.stage-passed,
+.stage-passed a:visited,
+.stage-passed a:active {
+    background: #6CA62E;
+    color: #FFF;
+}
+
+.pipeline-passed h2 a {
+    color: #FFF;
+}
+
+.pipeline-unknown h2,
+.pipeline-discontinued h2,
+.stage-unknown,
+.stage-discontinued {
+    background: #EEEEEE;
+    color: #000;
+}
+
+.pipeline-building h2,
+.stage-building {
+    background: #ebc26d;
+    color: #000;
+}
+
+.pipeline-unknown h2 a,
+.pipeline-discontinued h2 a,
+.stage-unknown a,
+.stage-discontinued a,
+.pipeline-building h2 a,
+.stage-building a,
+.pipeline-unknown h2 a:visited,
+.pipeline-discontinued h2 a:visited,
+.stage-unknown a:visited,
+.stage-discontinued a:visited,
+.pipeline-building h2 a:visited,
+.stage-building a:visited,
+.pipeline-unknown h2 a:active,
+.pipeline-discontinued h2 a:active,
+.stage-unknown a:active,
+.stage-discontinued a:active,
+.pipeline-building h2 a:active,
+.stage-building a:active {
+    color: #000;
+}
+
+/* stage history colors */
+#stage-history-container .pipeline-failed,
+#stage-history-container .pipeline-failing,
+#stage-history-container .pipeline-cancelled {
+    background: #CD5447;
+    color: #FFF;
+}
+
+#stage-history-container .pipeline-passed {
+    background: #6CA62E;
+    color: #FFF;
+}
+
+#stage-history-container .pipeline-unknown,
+    #stage-history-container .pipeline-discontinued,
+{
+    background: #EEEEEE;
+    color: #290d06;
+}
+
+#stage-history-container .pipeline-building,
+{
+    background: #ebc26d;
+    color: #290d06;
+}
+
+/* For the arrow after the stage name */
+.pipeline-failed .stage-name,
+.pipeline-failing .stage-name,
+.pipeline-cancelled .stage-name {
+    background: #D23221 image_url('bg_pipeline_bullet_red.gif') no-repeat 100% 50%;
+}
+
+.pipeline-passed .stage-name {
+    background: #578810 image_url('bg_pipeline_bullet_green.gif') no-repeat 100% 50%;
+}
+
+.pipeline-unknown .stage-name,
+    .pipeline-discontinued .stage-name {
+    background: #D3D3D3 image_url('bg_pipeline_bullet_grey.gif') no-repeat 100% 50%;
+}
+
+.pipeline-building .stage-name {
+    background: #f0a80f image_url('bg_pipeline_bullet_yellow.gif') no-repeat 100% 50%;
+}
+
+a.disabled,
+a:visited.disabled,
+a:hover.disabled {
+    color: #999;
+    text-decoration: none;
+    cursor: default;
+}
+
+.pipeline-stages .stage-container h2 .collapsed,
+.pipeline-stages .stage-container h2 .expanded {
+    padding-left: 0;
+}
+
+.stage-container h2 .collapsed {
+    background: transparent image_url('icon_stage_twist.gif') no-repeat -3px 50%;
+}
+
+.stage-container h2 .expanded {
+    background: transparent image_url('icon_stage_twist.gif') no-repeat -23px 50%;
+}
+
+.stage-container h2 span {
+    font-weight: normal;
+    padding: 0;
+}
+
+.stage-container h2 span.current-revision,
+.stage-container h2 span.current-revision-status {
+    padding-left: 0.8em;
+}
+
+.stage-container h2 span.pipeline-actions {
+    float: right;
+    text-align: right;
+}
+
+.stage-container h2 span.pipeline-actions a, .stage-container h2 span.pipeline-actions a:visited {
+    text-decoration: underline;
+    color: #666;
+}
+
+.stage-build-plan-container {
+    padding: 0.5em 0 0 4em;
+}
+
+.closed .stage-build-plan-container {
+    display: none;
+}
+
+.stage-build-plan-status {
+    border-bottom: 2px solid #FFF;
+}
+
+.pipeline-build-plan-icon {
+    background: #92D050;
+    margin: 0;
+    float: left;
+    width: 3em;
+    height: 3em;
+    padding: 0;
+}
+
+.pipeline-name {
+    padding-left: 0.5em;
+}
+
+.pipeline-failed .pipeline-build-plan-icon {
+    background: #C00000; /*E05566*/
+}
+
+.pipeline-passed .pipeline-build-plan-icon {
+    background: #92D050;
+}
+
+.pipeline-unknown .pipeline-build-plan-icon {
+    background: #ECE9D8;
+}
+
+.pipeline-scheduled .pipeline-build-plan-icon {
+    background: inherit image_url('icon-queued-medium.png') no-repeat 50% 50%;
+}
+
+.assigned .pipeline-build-plan-icon,
+.preparing .pipeline-build-plan-icon,
+.building .pipeline-build-plan-icon,
+.completing .pipeline-build-plan-icon {
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+}
+
+.failed .stage-build-plan-content,
+    .cancelled .stage-build-plan-content {
+    background-color: #FFCCCC;
+}
+
+.passed .stage-build-plan-content {
+    background-color: #E4F3D3;
+}
+
+.unknown .stage-build-plan-content,
+    .discontinued .stage-build-plan-content {
+    background-color: #ECE9D8;
+}
+
+.scheduled .stage-build-plan-content,
+.rescheduled .stage-build-plan-content,
+.assigned .stage-build-plan-content,
+.preparing .stage-build-plan-content,
+.building .stage-build-plan-content,
+.completing .stage-build-plan-content {
+    background-color: #ffe4c6;
+}
+
+.stage-build-plan-content {
+    padding: 0.1em 0.4em 0.2em 30px;
+    zoom: 1;
+}
+
+.stage-build-plan-content h3,
+{
+    font-weight: bold;
+}
+
+.stage-build-plan-content h3 .buildplan-name {
+    font-weight: bold;
+    font-size: 1.05em;
+    color: #290D06;
+}
+
+.stage-build-plan-content h3 .status-message {
+    color: #290D06;
+}
+
+.stage-build-plan-content h3 a,
+.stage-build-plan-content h3 a:visited {
+    display: inline;
+}
+
+.stage-build-plan-content .status-message {
+    font-weight: normal;
+    padding-left: 0.6em;
+}
+
+.stage-build-plan-content .resources {
+    font-weight: normal;
+}
+
+.stage-build-plan-content .status {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.stage-build-plan-content .build-plan-actions {
+    float: right;
+    width: 80px;
+}
+
+.stage-build-plan-content .progress-info,
+#stage-buildplans-histories .progress-info {
+    width: auto;
+    margin-right: 0.5em;
+    font-size: 0.9em;
+    float: right;
+    margin-top: 0.1em;
+    color: #904e19;
+    text-decoration: none;
+}
+
+.stage-build-plan-content .build-information,
+    #stage-buildplans-histories .build-information {
+    float: left;
+}
+
+.stage-build-plan-content .progress-bar,
+    #stage-buildplans-histories .progress-bar {
+    width: 22em;
+    height: 1em;
+    background: #FFF;
+    border: 1px solid #bd9646;
+    padding: 1px;
+    margin-left: 0.6em;
+    float: right;
+}
+
+.stage-build-plan-content .progress-bar .progress,
+    #stage-buildplans-histories .progress-bar .progress {
+    height: 100%;
+    background: #636947 image_url('progress-bar.gif') repeat-x left bottom;
+}
+
+.build-plan-actions a, .build-plan-actions a:visited {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 3px 3px 0 3px;
+    float: right;
+}
+
+.build-plan-actions .all-builds {
+    background: transparent image_url('icon-view-all-builds.gif') no-repeat left top;
+}
+
+.build-plan-actions .all-successful-builds {
+    background: transparent image_url('icon-all-successful-builds.gif') no-repeat left top;
+}
+
+.build-plan-actions .force-rebuild {
+    background: transparent image_url('icon-force-build.gif') no-repeat left top;
+}
+
+.disabled .all-builds {
+    background: transparent image_url('icon-view-all-builds-grey.gif') no-repeat left top;
+}
+
+.disabled .all-successful-builds {
+    background: transparent image_url('icon-all-successful-builds-grey.gif') no-repeat left top;
+}
+
+.disabled .force-rebuild {
+    background: transparent image_url('icon-force-build-grey.gif') no-repeat left top;
+}
+
+.pipeline-buttons,
+    .stage-buttons,
+    .build-cause {
+    float:left;
+}
+
+.pipeline-buttons {
+    margin-top: 0;
+}
+
+#pipeline-history .pipeline-buttons {
+    margin-top: -3px;
+}
+
+a.icon-link,
+    a:visited.icon-link,
+    a:hover.icon-link {
+    display: block;
+    font-size: 0;
+    line-height: 0;
+    padding: 0;
+    margin: 0;
+    margin-right: 5px;
+    background: transparent no-repeat left top;
+    width: 20px;
+    height: 20px;
+    float: left;
+}
+
+.pipeline-config-header .paused-status {
+    font-size: 1em;
+    margin-left: 1em;
+    font-weight: normal;
+}
+
+#yui-main h1 .paused-status {
+    font-size: 0.833em;
+    margin-left: 1em;
+    color: #C7CAA8;
+}
+
+a.cancel-build-link,
+    a:visited.cancel-build-link,
+    a:hover.cancel-build-link {
+    background-image: image_url('icon_cancel_pipeline.gif');
+    background-position: left top;
+}
+
+a.cancel-build-link-disabled,
+    a:visited.cancel-build-link-disabled,
+    a:hover.cancel-build-link-disabled {
+    background-image: image_url('icon_cancel_pipeline.gif');
+    background-position: left -20px;
+    cursor: default;
+}
+
+#yui-main a.schedule-build-link-enabled,
+    #yui-main a.schedule-build-link-disabled,
+    #yui-main a.pause-build-link,
+    #yui-main a.unpause-build-link {
+    width: 27px;
+    height: 26px;
+    background-image: image_url('buttons_sprites.png');
+    background-repeat: no-repeat;
+}
+
+#yui-main a.pause-build-link-disabled,
+#yui-main a.unpause-build-link-disabled {
+    width: 32px;
+    height: 32px;
+    background-image: image_url('pause-icon.png');
+    background-repeat: no-repeat;
+}
+
+a:link.unpause-build-link-disabled,
+    a:visited.unpause-build-link-disabled,
+    a:hover.unpause-build-link-disabled,
+    a:active.unpause-build-link-disabled {
+    background-position: 0px -166px;
+    cursor: default;
+}
+
+a:link.pause-build-link-disabled,
+    a:visited.pause-build-link-disabled,
+    a:hover.pause-build-link-disabled,
+    a:active.pause-build-link-disabled {
+    background-position: 0px -67px;
+    cursor: default;
+}
+
+a:link.schedule-build-link-enabled,
+    a:visited.schedule-build-link-enabled,
+    a:hover.schedule-build-link-enabled,
+    a:active.schedule-build-link-enabled {
+    background-position: -140px top;
+}
+
+a:link.schedule-build-link-disabled,
+    a:visited.schedule-build-link-disabled,
+    a:hover.schedule-build-link-disabled,
+    a:active.schedule-build-link-disabled {
+    background-position: -230px top;
+    cursor: default;
+}
+
+a:link.pause-build-link,
+    a:visited.pause-build-link,
+    a:hover.pause-build-link,
+    a:active.pause-build-link {
+    background-position: -170px top;
+}
+
+a:link.unpause-build-link,
+    a:visited.unpause-build-link,
+    a:hover.unpause-build-link,
+    a:active.unpause-build-link {
+    background-position: -260px top;
+    cursor: pointer;
+}
+
+/* Popup cause styles */
+h2 .popup-open,
+    h2 .popup-closed,
+    h1 .popup-open,
+    h1 .popup-closed {
+    position: relative;
+    font-weight: normal;
+    padding-top: 0.2em;
+}
+
+h2 .popup-closed .popup,
+    h1 .popup-closed .popup {
+    display: none;
+}
+
+h2 .popup-open .popup,
+    h1 .popup-open .popup {
+    display: block;
+}
+
+.popup {
+    position: absolute;
+    top: 0;
+    width: 42em;
+    color: black;
+}
+
+.popup .popup-arrow {
+    background: image_url('g9/backgrounds/tooltip_up_arrow.png') no-repeat 30px top;
+    height: 15px;
+    width: 95%;
+    line-height: 0;
+    position: absolute;
+    z-index: 2;
+}
+
+.popup .close-popup {
+	display: block;
+	position: absolute;
+	right: -15px;
+    top: 19px;
+	padding: 0;
+	font-weight: bold;
+	text-decoration: none;
+    background-image: image_url('g9/icons/sprite_modal_close.png');
+    background-position: 0 -30px;
+    height: 23px;
+    width: 23px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.popup .close-popup:hover {
+    background-position: 0 0;
+}
+
+
+
+.popup .build-cause-summary-container {
+    position: absolute;
+    top: 13px;
+    background-color: #333;
+    width: 100%;
+    padding: 10px;
+    z-index: 1;
+    -moz-border-radius: 6px;
+	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.popup-at-bottom-right {
+    top: 1.8em;
+    left: -1em;
+}
+
+.popup-at-bottom-right .popup-arrow {
+    top: 0;
+    background-position: 30px top;
+}
+
+.popup-at-bottom-left {
+    top: 1.8em;
+    right: 1em;
+}
+
+.popup-at-bottom-left .popup-arrow {
+    top: 0;
+    background-position: 95% top;
+}
+
+.popup-at-top-right {
+    bottom: 1.8em;
+    left: 1em;
+    top: auto;
+}
+
+.popup-at-top-right .popup-arrow,
+    .popup-at-top-left .popup-arrow {
+    background-image: image_url('g9/backgrounds/tooltip_down_arrow.png');
+}
+
+.popup-at-top-right .popup-arrow {
+    bottom: 0;
+    background-position: 30px bottom;
+}
+
+.popup-at-top-right .build-cause-summary-container {
+    top: auto;
+    bottom: 12px;
+    left: -1em;
+}
+
+.popup-at-top-left {
+    bottom: 1.8em;
+    right: -1em;
+    top: auto;
+}
+
+.popup-at-top-left .popup-arrow {
+    bottom: 0;
+    background-position: 95% bottom;
+}
+
+.popup-at-top-left .build-cause-summary-container {
+    top: auto;
+    bottom: 12px;
+    right: 1em;
+}
+
+.popup-at-top-right .close-popup {
+    top: 22px;
+    right: -2px;
+}
+
+.popup-at-top-left .close-popup {
+    top: 22px;
+    right: -2px;
+}
+
+h1 .divider,
+    h2 .divider {
+    font-weight: normal;
+    font-size: 1em;
+}
+
+.build-cause-summary-container table {
+    width: 100%;
+* width : 96%;
+    margin-top: 0;
+    border-collapse: collapse;
+    color: #FFF;
+}
+
+.build-cause-summary-container th {
+    font-size: 11px !important;
+    font-weight: bold;
+}
+
+.stage-container h2 .build-cause-summary-container th {
+    padding: 1em 1em 0.3em 1em;
+    border-bottom: 1px solid #bbbb93;
+}
+
+.build-cause-summary-container th last_highlight-true {
+    color: #FFFF66;
+}
+
+.build-cause-summary-container th last_highlight-false {
+    color: #FFFF66;
+}
+
+.build-cause-summary-container td {
+    border-bottom: 1px dotted #666;
+    font-size: 11px !important;
+}
+
+.build-cause-summary-container td.last_highlight-true {
+    border-right: none;
+    font-style: italic;
+    color: #FFFF66;
+}
+
+.build-cause-summary-container td.last_highlight-false {
+    border-right: none;
+}
+
+.popup .highlight-true {
+    font-style: italic;
+    color: #FFFF66;
+}
+
+.popup .highlight-false {
+    font-style: normal;
+}
+
+
+.build-cause-summary-container th.last {
+    border-right: none;
+}
+
+
+.popup .build-cause-summary-container a:hover,
+.popup .build-cause-summary-container a:active
+{
+    color: #dbf2ff;
+}
+
+
+.popup .build-cause-summary-container a:link,
+.popup .build-cause-summary-container a:visited
+{
+    color: #abdffe;
+    text-decoration:underline;
+}
+
+/* those class is for the pipeline history page */
+#pipeline-history .rounded-corner-grey-border {
+    margin: 0.25em;
+}
+
+#pipeline-history .rounded-corner-grey-border .rounded-corner-grey-border {
+    padding-left: 2em;
+    padding-right: 2em;
+    padding-bottom: 0.5em;
+* z-index : - 1;
+}
+
+#pipeline-history .stage-link {
+    display: block;
+    float: left;
+    min-width: 10em;
+    _width: 10em;
+    text-align: center;
+    margin: 0.5em;
+    white-space: nowrap;
+    height: 2.3em;
+    padding: 0;
+}
+
+#pipeline-history a:hover.stage-link {
+    text-decoration: none;
+}
+
+#pipeline-history .stage-name {
+    color: #FFF;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 0.4em;
+    zoom: 1;
+}
+
+#pipeline-history .pipeline-config-stages-container .stage-name,
+#pipeline-history .pipeline-config-stages-container .pipeline-nav {
+    color: #968065;
+}
+
+#pipeline-configurations .pipeline-config-stages-container .stage-name,
+#pipeline-configurations .pipeline-config-stages-container .pipeline-nav {
+    color: #606352;
+}
+
+.gate {
+    float: left;
+    height: 2.3em;
+    margin: 0.5em;
+    border: 1px transparent solid;
+    _border: 1px #DED1B4 solid;
+    width: 64px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-image: image_url('icons_gate_in_config.png');
+}
+
+.pipeline-history-stages-container .gate {
+    _border: 1px white solid;
+}
+
+#pipeline-config .gate {
+    cursor: default;
+}
+
+.gate-auto-pass {
+    background-position: left 50%;
+}
+
+.gate-manual-waiting {
+    background-position: -67px 50%;
+    cursor: pointer;
+}
+
+.gate-completed-auto {
+    background: transparent image_url('icon_pipeline_config_gates.gif') no-repeat -40px 60%;
+}
+
+.gate-completed-manual {
+    background: transparent image_url('icon_pipeline_config_gates.gif') no-repeat -60px 60%;
+}
+
+.pipeline-history-container .pipeline-id {
+    color: #4B220D;
+    margin-right: 0.3em;
+}
+
+.pipeline-history-stages-container,
+{
+    padding: 0.25em;
+}
+
+.pipeline-config-stages-container {
+    padding: 0;
+    background-color: #DED1B4;
+    zoom: 1;
+}
+
+/* Fix bug #1542, #1543 */
+.pipeline-history-container .c3,
+    .pipeline-history-container .c4,
+    .pipeline-config-container .c3,
+    .pipeline-config-container .c4 {
+* bottom : - 1px;
+    _bottom: -2px;
+}
+
+.pipeline-history-container .c2,
+    .pipeline-history-container .c4,
+    .pipeline-config-container .c2,
+    .pipeline-config-container .c4 {
+* right : - 1px;
+}
+
+.pipeline-history-container .stage-link .c2,
+    .pipeline-history-container .stage-link .c4,
+    .pipeline-config-container .stage-link .c2,
+    .pipeline-config-container .stage-link .c4 {
+* right : - 1px;
+    _right: -2px;
+}
+
+/* Fix bug #1542, #1543 end */
+
+.pipeline-history-container .pipeline-history-header a,
+    .pipeline-history-container .pipeline-history-header a:visited {
+    color: #4B220D;
+    font-weight: normal;
+    font-size: 0.64em;
+}
+
+#pipeline-history a:hover.stage-failed,
+    #pipeline-history a:hover.stage-failing,
+    #pipeline-history a:hover.stage-cancelled {
+    background: #FF9999;
+}
+
+#pipeline-history a:hover.stage-passed {
+    background: #8FD45C;
+}
+
+#pipeline-history a:hover.stage-unknown,
+    #pipeline-history a:hover.stage-discontinued {
+    background: #F6F6F6;
+}
+
+#pipeline-history a:hover.stage-building {
+    background: #FFD371;
+}
+
+#pipeline-history .popup {
+    color: black;
+}
+
+/* This style is to be used in pipeline page only, override the golobal yui style */
+.yui-t7 {
+    min-width: 30em !important;
+}
+
+/* Create a simple pipeline */
+#artifacts-table {
+    width: 95%;
+}
+
+table#artifacts-table th,
+table#artifacts-table td {
+    border: 0;
+    border-bottom: 1px dotted #ccc;
+}
+
+#artifacts-table th.last {
+    white-space: nowrap;
+}
+
+#artifacts-table a.action,
+    #artifacts-table a:visited.action {
+    color: #fff;
+    min-width: 110px;
+    /*text-decoration: underline;*/
+    font-weight: normal;
+    /*margin: 0 0.5em;*/
+}
+
+#artifacts-table .source-column,
+    #artifacts-table .destination-column {
+    _width: 30%;
+}
+
+.add-artifacts-column {
+    width: 300px;
+}
+
+#stage-history-container {
+    margin: 0 0.5em 1em 0.5em;
+    padding: 0;
+}
+
+/* pipeline filters */
+.pipeline-selectors li {
+    display: block;
+    width: 23em;
+    height: 1.6em;
+    border-bottom: 1px solid #E4D9C3;
+}
+
+.pipeline-selectors li.group {
+    background-color: #946710;
+    color: white;
+    font-weight: bold;
+}
+
+#pipeline-selector-content span {
+    margin-right: 0.5em;
+}
+
+#pipeline-selector-container {
+    margin-top: 0.65em;
+    border-top: 1px solid #F4EEDF;
+}
+
+.pipeline-divider {
+    font-size: 0;
+    line-height: 0;
+    border-top: #999999 1px solid;
+    border-bottom: #cccccc 1px solid;
+    margin-bottom: 13px;
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.rerun,
+    .disabled-rerun,
+    .submiting-rerun,
+    .detail {
+    background: transparent image_url('icons-pipeline-history_new.png') no-repeat left -558px;
+    border: none;
+    display: block;
+    overflow: hidden;
+    text-indent: -10000px;
+    zoom: 1;
+    padding: 0;
+    cursor: pointer;
+    width: 26px;
+    height: 21px;
+    float: left;
+    margin-top: -2px;
+}
+
+.rerun {
+    _background: none;
+    _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-rerun-s.png', sizingMethod='crop');
+}
+
+button:hover.rerun {
+    background-position: -27px -558px;
+    _background: none;
+    _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-rerun-high-s.png', sizingMethod='crop');
+    cursor: pointer;
+}
+
+.submiting-rerun {
+    background: transparent image_url('spinner.gif') no-repeat 50% 50%;
+    cursor: default;
+}
+
+#view {
+    width: 50%;
+}
+
+#vcsconnection-message {
+    margin-left: 1.5em;
+    display: block;
+    width: 30%;
+    float: left;
+    white-space: pre-wrap; /* css-3 should we be so lucky... */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 ?? */
+    white-space: -o-pre-wrap; /* Opera 7 ?? */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    _white-space: pre; /* IE only hack to re-specify in addition to word-wrap  */
+}
+
+#pipelineGroupDropdown .selected {
+    background-color: lightblue;
+}
+
+#pipelineGroupDropdown {
+    margin-left: 0em;
+    width: 18em;
+    border: 1px solid black;
+    background-color: white;
+    position: relative;
+}
+
+div.autocomplete {
+    margin: 0px;
+    padding: 0px;
+    width: 250px;
+    background: #fff;
+    border: 1px solid #888;
+    position: absolute;
+}
+
+div.autocomplete ul {
+    margin: 0px;
+    padding: 0px;
+    list-style-type: none;
+}
+
+div.autocomplete ul li.selected {
+    background-color: #ffb;
+}
+
+div.autocomplete ul li {
+    margin: 0;
+    padding: 2px;
+    display: block;
+    list-style-type: none;
+    cursor: pointer;
+}

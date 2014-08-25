@@ -1,0 +1,845 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/* 'Old new' UI */
+
+/* search */
+.search {
+    padding: 0.5em;
+}
+
+.pipeline-history {
+    color: white;
+}
+
+.pipeline-history h1 {
+    padding: 0.5em;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #e8e8e8;
+    text-transform: uppercase;
+}
+
+.pipeline-instance a:link{
+    color: white;
+    text-decoration: none;
+}
+
+.pipeline-instance {
+    border: 1px solid #666;
+    background-color: #484537;
+    color: white;
+    zoom: 1;
+}
+
+/* pipeline instance */
+.pipeline-instance .summary,
+    .pipeline-instance .trigger {
+    float: left;
+}
+
+.pipeline-instance .caused-by {
+    float: right;
+}
+
+.stage-instance .summary {
+    background-image: image_url('panel-header-background.png');
+    background-repeat: repeat;
+}
+
+.pipeline-instance .summary,
+    .pipeline-instance .caused-by,
+    .pipeline-instance dl {
+    margin: 1em;
+}
+
+.pipeline-instance .summary h1 {
+    font-size: 1.5em;
+    color: #c7caa8;
+}
+
+.pipeline-instance .summary .name {
+    font-weight: bold;
+    color: #c7caa8;
+}
+
+.pipeline-instance .summary ul {
+    margin: 0;
+    padding: 0;
+}
+
+.pipeline-instance .summary li {
+    padding-right: 0.5em;
+    padding-left: 0;
+    display: inline;
+}
+
+.pipeline-instance dl {
+    float: left;
+}
+
+.pipeline-instance dt {
+    color: #c7caa8;
+    text-transform: uppercase;
+}
+
+.pipeline-instance .caused-by h2 {
+    float: left;
+    text-transform: uppercase;
+    color: #c7caa8;
+}
+
+.pipeline-instance .caused-by dl {
+    margin: 0 0.5em;
+}
+
+.pipeline-instance .caused-by dd {
+    display: block;
+    width: 40px;
+    height: 40px;
+    background-color: gray;
+    text-indent: -10000px;
+    zoom: 1;
+    overflow: hidden;
+    border: 1px solid white;
+}
+
+.pipeline-instance .caused-by dt {
+    text-transform: none;
+    font-size: 0.8em;
+}
+
+/* stage instance */
+.stage-instance h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 0.5em 1em;
+    float: left;
+    color: #C7CAA8;
+}
+
+.stage-instance h3 span {
+    color: white;
+    margin: 1em;
+}
+
+.stage-instance .name {
+    color: white;
+}
+
+.stage-instance .status {
+    background-image: image_url('icon-stage-status.png');
+    background-repeat: no-repeat;
+    background-color: transparent !important;
+    line-height: 25px;
+    padding: 0;
+    padding-right: 28px;
+    background-position: right 0;
+}
+
+.stage-instance .status.Failed,
+    .stage-instance .status.Cancelled {
+    background-position: right -40px;
+}
+
+.stage-instance dl {
+    float: left;
+    margin: 0.5em 1em 1em 1em;
+}
+
+.stage-instance dd {
+    color: white;
+}
+
+.stage-instance dt {
+    color: #c7caa8;
+    text-transform: uppercase;
+}
+
+.stage-instance .jobs {
+    display: block;
+    clear: left;
+    float: left;
+    width: 15em;
+}
+
+.stage-instance .jobs li {
+    background-color: #e9ece9;
+    border-bottom: 1px solid #b4ab9c !important;
+}
+
+.stage-instance .jobs li.Passed {
+    background-color: #ceedce;
+}
+
+.stage-instance .jobs li.Failed {
+    background-color: #ffe5e6;
+}
+
+.stage-instance .jobs li.Building {
+    background-color: #ffffe1;
+}
+
+.stage-instance .jobs li.current {
+    background-color: #343226;
+}
+
+.stage-instance .jobs a:link{
+    padding: 0.5em 1em;
+    display: block;
+    color: black;
+    text-decoration: none;
+}
+
+/* clearafter fix */
+.pipeline-instance:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/* changes */
+
+.changes h3 {
+    font-size: 1.5em;
+    color: gray;
+}
+
+.changes h4 {
+    margin-top: 1em;
+    font-weight: bold;
+}
+
+.changes .details {
+    margin-top: 1em;
+}
+
+.changes .comment {
+    font-weight: bold;
+}
+
+.changes .modified-file {
+    margin-left: 2em;
+}
+
+/* pipeline-visualization */
+
+.pipeline-visualization .approval .manual {
+    background-image: image_url('manual-approval-icon.png');
+}
+
+.pipeline-visualization .approval .manual.disabled_btn {
+    background-position: 0 -22px;
+}
+
+.pipeline-visualization .approval .auto.disabled_btn {
+    background-position: 0 -22px;
+}
+
+.pipeline-visualization .approval .auto {
+    background-image: image_url('auto-approval-icon.png');
+}
+
+.pipeline-visualization .approval input {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    height: 22px;
+    width: 48px;
+    border: medium none;
+    display: block;
+    left: -35px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    text-indent: -10000px;
+    zoom: 1;
+    top: 2em;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.pipeline-visualization .cancel input[type="submit"]:hover {
+    background-position: 0 -30px;
+}
+
+.pipeline-visualization .cancel input[type="submit"] {
+    background-color: transparent;
+    background-image: image_url('cancel-icon.png');
+    border: none;
+    display: block;
+    height: 30px;
+    margin-top: -2px;
+    overflow: hidden;
+    padding: 0;
+    text-indent: -10000px;
+    zoom: 1;
+    width: 30px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: -5px;
+    z-index: 1;
+}
+
+.pipeline-visualization .rerun input[type="submit"]:hover {
+    background-position: 0 -30px;
+}
+
+.pipeline-visualization .rerun input[type="submit"] {
+    background-color: transparent;
+    background-image: image_url('rerun-icon.png');
+    background-repeat: no-repeat;
+    border: medium none;
+    display: block;
+    height: 30px;
+    margin-top: -2px;
+    overflow: hidden;
+    padding: 0;
+    text-indent: -10000px;
+    zoom: 1;
+    width: 30px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: -5px;
+    z-index: 1;
+}
+
+.pipeline-visualization {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.pipeline-visualization th,
+    .pipeline-visualization td {
+    background-color: #e7e1d1;
+    padding: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.pipeline-visualization .selected {
+    background-color: gray;
+}
+
+.pipeline-visualization th {
+    color: #484537;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.2em;
+    width: 7em;
+    padding: 0.25em;
+}
+
+.pipeline-visualization .stage-wrapper {
+    min-width: 150px;
+    position: relative;
+    width: auto;
+}
+
+.pipeline-visualization .stage {
+    display: block;
+    text-indent: -10000px;
+    zoom: 1;
+    overflow: hidden;
+    margin: 1em auto;
+    width: 105px;
+    height: 70px;
+    border: 2px solid white;
+    background-color: #666;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+
+    -moz-box-shadow: 5px 5px 5px black;
+    -webkit-box-shadow: 5px 5px 5px black;
+    box-shadow: 5px 5px 5px black;
+}
+
+.pipeline-visualization .Passed {
+    background-image: image_url('stage_passed.png');
+    background-position: center center;
+}
+
+.pipeline-visualization .Building {
+    background-image: image_url('stage_running.png');
+    background-position: center center;
+}
+
+.pipeline-visualization .Failing,
+    .pipeline-visualization .Failed,
+    .pipeline-visualization .Cancelled {
+    background-image: image_url('stage_failed.png');
+    background-position: center center;
+}
+
+
+
+/* State color rule for Jobs */
+.job {
+    background-color: transparent !important;
+}
+
+.jobs .Active {
+    background-color: #FFCC66 !important;
+    color: black !important;
+}
+
+.jobs .Passed {
+    background-color: #6CA62E !important;
+    color: black !important;
+}
+
+.jobs .Failed {
+    background-color: #CD5447 !important;
+    color: black !important;
+}
+
+/* pipeline history sidebar */
+.pipeline {
+    background-color: #DDD6C6;
+    border-top: 1px solid #b4ab9c;
+    color: #494638;
+}
+
+div:hover.pipeline {
+    background-color: #CCC6B6;
+    cursor: pointer;
+}
+
+#dashboard-page .pipeline {
+    border-top: 1px solid #484537;
+}
+
+.pipeline-history > div:nth-child(odd)
+{
+background-color: #E7E1D1;
+}
+
+.pipeline-history .header {
+    background-color: #484537 !important;
+}
+
+.pipeline-history .header [type="submit"] {
+    float: left;
+    cursor: pointer;
+}
+
+.pipeline-history .pause input[type="submit"] {
+    display: block;
+    background-image: image_url('pause-icon.png');
+    background-position: left top;
+    background-color: transparent;
+    width: 33px;
+    height: 33px;
+    border: none;
+    overflow: hidden;
+    text-indent: -10000px;
+    zoom: 1;
+}
+
+.pipeline-history .pause input[type="submit"]:hover {
+    background-position: left -33px
+}
+
+.pipeline-history .unpause input[type="submit"] {
+    display: block;
+    background-image: image_url('pause-icon.png');
+    background-position: left 66px;
+    background-color: transparent;
+    width: 33px;
+    height: 33px;
+    border: none;
+    overflow: hidden;
+    text-indent: -10000px;
+    zoom: 1;
+}
+
+.pipeline-history .unpause input[type="submit"]:hover {
+    background-position: left bottom
+}
+
+.pipeline-history .force input[type="submit"] {
+    display: block;
+    background-image: image_url('start-icon.png');
+    background-position: left top;
+    background-color: transparent;
+    width: 33px;
+    height: 33px;
+    border: none;
+    overflow: hidden;
+    text-indent: -10000px;
+    zoom: 1;
+}
+
+.pipeline-history .force input[type="submit"]:hover {
+    background-position: left -33px
+}
+
+.pipeline-history .force input[type="submit"].disabled {
+    background-position: left bottom;
+    cursor: default;
+}
+
+.pipeline-history .pipeline-operations {
+    margin-top: 0.15em;
+    margin-right: 0.5em;
+    float: right;
+}
+
+.pipeline-history .pipeline-operations form {
+    display: inline;
+}
+
+.pipeline .details {
+    margin: 0;
+    padding-top: 0;
+    padding-left: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.pipeline .details span {
+    padding-right: 0.5em;
+}
+
+.pipeline .details .label {
+    font-weight: bold;
+}
+
+.pipeline .details .label a:link,
+    .pipeline-history h1 a:link{
+    color: #494638;
+}
+
+.pipeline .name {
+    clear: left;
+    display: none;
+}
+
+.pipeline .label {
+    font-weight: bold;
+    border-right: 1px solid white;
+}
+
+.pipeline .build-cause {
+    display: none;
+}
+
+.stages {
+    width: 20em;            
+    /*float: left;*/
+    clear: both;
+    margin-bottom: 2em;
+    margin-top: .2em;
+    padding-top: .2em;
+}
+
+.stage {
+    border: .1em solid #000;
+    float: left;
+    margin-left: -.1em;
+    min-height: 2em;
+}
+
+.stages .last_run_stage {
+	border: .3em solid #000;
+	margin-left: -.3em;
+	margin-top: -.2em;
+}
+
+/* Clear after */
+.stages:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.Passed {
+    background-color: #6CA62E;
+}
+
+.Unknown {
+    background-color: white;
+}
+
+.Building,
+.Failing {
+    background-color: #FFCC66;
+}
+
+.Failed,
+    .Cancelled {
+    background-color: #CD5447;
+}
+
+
+.group li {
+    float: left;
+    width: 1.5em;
+    list-style: none;
+    display: block;
+    padding: 0.25em 0.5em;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    border-bottom: 1px solid white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.group li:last-child {
+    width: auto;
+    float: none;
+}
+
+.pipeline .stage .name {
+    display: none;
+}
+
+
+
+.jobs {
+    display: none;
+}
+
+/* pipeline group */
+.pipeline-groups {
+    margin-left: 1em;
+    padding-top: 1em;
+}
+
+.pipeline-group {
+    background-color: #e7e1d1;
+    margin-right: 1em;
+    margin-bottom: 1em;
+    border: 1px solid #484537;
+    clear: left;
+}
+
+.pipeline-group h1.name {
+    font-size: 1.2em;
+    text-transform: uppercase;
+    overflow: hidden;
+    color: #c7caa8;
+    background-color: #484537;
+    padding: 0.25em 0.5em;
+}
+
+#dashboard-page .pipeline-history h1 {
+    background-color: transparent;
+    color: #484537;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    word-wrap: break-word;
+}
+
+#dashboard-page.firefox-less-than-31 .pipeline-history h1 {
+    overflow: hidden;
+    width: 24em;
+    display: inline-block;
+}
+
+#dashboard-page div.pipeline-history {
+    border-bottom: 1px solid #484537;
+}
+
+#dashboard-page .pipeline {
+    border-left: 1px solid #484537;
+    border-right: 1px solid #484537;
+}
+
+.pipeline-history .group {
+    display: none;
+}
+
+#dashboard-page .group li {
+    border: none;
+}
+
+#dashboard-page .group .lastgood {
+    display: block;
+}
+
+#dashboard-page .group a:link{
+    color: white;
+}
+
+#dashboard-page .group .lastgood {
+    display: block;
+}
+
+#dashboard-page .group a:link{
+    color: white;
+}
+
+#dashboard-page div.pipeline-history {
+    display: block;
+    width: 30em;
+    margin-right: 0;
+    float: left;
+    margin-left: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}
+
+/* job instance */
+.job-instance {
+    background-color: #B4AB9C;
+    clear: left;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+}
+
+.job-instance h3 {
+    color: #534f44;
+    float: left;
+}
+
+.job-tabs,
+    .job-tab {
+    float: left;
+}
+
+.job-tabs {
+    background-image: image_url('bg_job_tabs.png');
+    background-position: left 50%;
+    background-repeat: repeat-x;
+    border: 1px solid white;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    margin-left: 5em;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.job-tabs a:link{
+    color: white;
+    font-weight: bold;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.job-tabs li.current {
+    background-image: image_url('bg_job_tab_current.png');
+    background-position: left top;
+    background-repeat: repeat-x;
+    background-color: #c2bbb1;
+}
+
+.job-tabs .current a:link{
+    color: #292824;
+}
+
+.job-tab {
+    padding: 0.5em 1em;
+}
+
+#job-content {
+    margin-left: 15em;
+    border-left: 1px solid grey;
+}
+
+/*
+*  Accordions
+*/
+
+.accordion_toggle {
+    display: block;
+    cursor: pointer;
+}
+
+.accordion_toggle_active {
+}
+
+.accordion_content {
+    padding: .2em 1em;
+    overflow: hidden;
+}
+
+li.pipeline h3 {
+    margin-bottom: .3em;
+}
+
+ul li.material {
+    padding: 0 0 1em 1em;
+}
+
+.environment h1.name a {
+    color: #C7CAA8;
+}
+
+.show_revisions {
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.material dt {
+    color: #666666;
+    float: left;
+}
+
+.material dd {
+    margin-left: 9.5em;
+}
+
+.material .submit {
+    float: right;
+}
+
+.material .submit .select {
+    margin-right: .5em;
+}
+
+.material .submit .cancel {
+    margin-right: 1em;
+}
+
+/**
+ * Operate : Select Revision lightbox
+ */
+#MB_content .material ul {
+    margin: 1em;
+}
+
+#MB_content .material li {
+    clear: left;
+    padding: .3em;
+}
+
+#MB_content .material li.even {
+    background-color: #F9F9F9;
+}
+
+#MB_content .material li.odd {
+    background-color: #EBEBEB;
+}
+
+#MB_content .material li {
+    display: block;
+}
+
+#MB_content .material input {
+    margin-right: .2em;
+}
+

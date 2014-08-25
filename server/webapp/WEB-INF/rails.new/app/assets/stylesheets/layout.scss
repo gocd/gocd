@@ -1,0 +1,279 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*
+ * Layout.css
+ * This file contains layout styles for foundation layout files.
+ * Measurements should all be in "em" unless it is a border.
+ * 1em = 12px
+ *
+ * Quick guide to conversions:
+ *      1px = .0833em
+ *      2px = .1666em
+ *      4px = .25em
+ *      6px = .5em
+ *      10px = .8333em
+ *      12px = 1em
+ *      14px = 1.1666em
+ *      16px = 1.3333em
+ *      18px = 1.25em
+ */
+
+#header, #body, #footer{
+	clear: both;
+}
+/*
+#body_bg {
+  min-height:100%;
+  position:relative;
+}
+*/
+/*
+ * Header
+ */
+#header {
+  background: image_url('g9/backgrounds/bg_header_default.png') repeat-x 0 0 transparent;
+  color:#FFF;
+  font-size: 11px;
+  border-bottom: 1px solid #333;
+    left: 0;
+    position: fixed;
+    z-index: 1001;
+    right: 0;
+    top: 0;
+
+}
+#header .header {
+    background: #333333; /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzMzMzMzMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwZjBmMGYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top,  #333333 0%, #0f0f0f 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#333333), color-stop(100%,#0f0f0f)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #333333 0%,#0f0f0f 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #333333 0%,#0f0f0f 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #333333 0%,#0f0f0f 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #333333 0%,#0f0f0f 100%); /* W3C */
+    padding: 5px 15px;
+}
+
+#body_content {
+    position: relative;
+}
+
+
+
+/*
+ * Page Header
+ */
+
+
+
+h1 .title_secondary_info{
+	margin-left: 15px;
+	font-size: 12px;	
+}
+h1 .title_secondary_info ul{
+	float: none;
+	display: inline;
+}
+
+/* light blue links for all dark backgrounds */
+
+
+#tiptip_content a,
+.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a {
+    color: #abdffe;
+}
+
+
+.page_header a {
+    font-size: 12px;
+    font-weight: bold;
+}
+page_header
+
+/*.page_header a:hover,*/
+#tiptip_content a:hover,
+.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a:hover {
+    color: #dbf2ff;
+}
+
+
+/* Pipeline/Stage Details header - Stages Bar */
+
+
+
+#pipeline_status_bar .pipeline .stages .stage_bar_wrapper{
+    margin-right: 4px;
+    padding-bottom: 19px;
+    position: relative;
+}
+
+#pipeline_navigator .selected .stage_bar_wrapper{
+    padding-bottom: 14px;
+    position: relative;
+}
+
+#pipeline_navigator .selected .stage_bar_wrapper,
+#pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper{
+    background: image_url('g9/backgrounds/details_stage_selected.png') no-repeat 50% 100% transparent;
+}
+
+#pipeline_status_bar .pipeline .stages .stage .wrapper{
+    margin-right: 4px;
+    padding-left: 20px;
+    position: relative;
+}
+#pipeline_status_bar .pipeline .stages .stage:first-child .wrapper{
+    padding-left: 0;
+}
+
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate{
+    position: absolute;
+    bottom: 15px;
+    left: -4px;
+}
+
+#pipeline_navigator .trigger_gate span,
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate a,
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate span{
+    width: 20px;
+    height: 20px;
+    display:block;
+}
+
+#pipeline_navigator .trigger_gate span{
+    float:left;
+    margin-right: 2px;
+        margin-left: 2px;
+    margin-top:23px;
+}
+
+#pipeline_navigator .trigger_gate span.auto,
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate a.auto{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -2px -30px no-repeat transparent;
+}
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate a.auto:hover{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -2px 0px no-repeat transparent;
+}
+
+
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate span.auto{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -2px -60px no-repeat transparent;
+}
+
+#pipeline_navigator .trigger_gate span.manual,
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate a.manual{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -32px -30px no-repeat transparent;
+}
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate a.manual:hover{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -32px 0px no-repeat transparent;
+}
+#pipeline_status_bar .pipeline .stages .stage .trigger_gate span.manual{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -32px -60px no-repeat transparent;
+}
+#pipeline_status_bar .pipeline .stages .stage_bar{
+    margin-right: 0px;
+}
+#pipeline_status_bar .pipeline .stage .Unknown {
+    margin-right:4px;
+}
+#pipeline_status_bar .pipeline .stages .last_run_stage {
+    margin-right: 0px;
+}
+#pipeline_status_bar .pipeline .stages .last_run_stage .stage_bar{
+    margin-right: 0;
+}
+
+
+
+/* Pipeline/Stage Details header - Status Bar */
+.page_title_bar{
+    clear: both;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 12px;
+    border-bottom: 1px solid #ccc;
+}
+.page_title_bar #page_status_bar{
+    clear: both;
+    padding: 15px 0;
+
+}
+.page_title_bar #page_status_bar .section{
+    float: left;
+    padding-right: 1em;
+}
+
+
+/**
+ * Admin Layout 
+ */
+
+.no_sidebar .admin_workspace {
+  margin-left: 0;
+}
+
+/* *
+ * 2 column layout styles
+ */
+
+.two_col .content{
+    margin-right: 255px;
+}
+
+.two_col .rail{
+    border: 1px solid #ccc;
+    background-color: #eee;
+    float:right;
+    width:235px;
+    padding:15px 0;
+    margin-left: 10px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    box-shadow: 0 0 4px #ddd;
+    -webkit-box-shadow:  0 0 4px #ddd;
+}
+.rail h3 {
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+
+/*
+ * ======= ADD ALL NEW STYLES ABOVE THIS LINE.  ONLY FLOAT CLEARING SHOULD GO BELOW ============
+ */
+
+
+/*
+ * Float Clearing
+ */
+
+#header:after,
+#header .header_wrapper:after,
+#header .application_nav:after,
+.page_title_bar .page_status_bar:after,
+.pipeline_flow .pipeline .stages:after,
+.entity_status_wrapper:after,
+.page_header:after
+{
+	clear:both;
+	content:".";
+	display:block;
+	height:0;
+	visibility:hidden;
+}

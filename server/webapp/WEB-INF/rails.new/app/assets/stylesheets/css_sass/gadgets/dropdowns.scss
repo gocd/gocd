@@ -81,7 +81,7 @@
     padding: .5em;
 }
 .enhanced_dropdown .add_panel {
-    background: #EEEEE9 url('/go/assets/g9/backgrounds/overlay_modal_action_row.png') repeat-x;
+    background: #EEEEE9 image_url('g9/backgrounds/overlay_modal_action_row.png') repeat-x;
     border-top: 1px solid #CCC;
     bottom: 0;
     margin: 0;
@@ -97,7 +97,7 @@
     margin-left: 4px;
 }
 .enhanced_dropdown a.lookup_icon {
-    background: url("/go/assets/g9/icon_search.png") transparent no-repeat right;
+    background: image_url("g9/icon_search.png") transparent no-repeat right;
 }
 
 
@@ -105,7 +105,7 @@
  * ==MESSAGING
  */
 .enhanced_dropdown .loading {
-    background: url('/go/assets/spinner.gif') 50% 50% no-repeat transparent;
+    background: image_url('spinner.gif') 50% 50% no-repeat transparent;
     padding: 1em;
 }
 .enhanced_dropdown .error {

@@ -17,7 +17,7 @@
 @import "../base/mixins.sass";
 
 .header #application_logo {
-    background-image: url('/go/assets/g9/logo_go.png');
+    background-image: image_url('g9/logo_go.png');
     background-repeat: no-repeat;
     background-position: 0px 4px;
     float:left;
@@ -27,7 +27,7 @@
 
 .application_nav {
     .icon{
-        background: url('/go/assets/andare/nav-sprites.png') no-repeat ;
+        background: image_url('andare/nav-sprites.png') no-repeat ;
     }
 
     a,.user li{
@@ -91,7 +91,7 @@
     }
 
 .dropdown-arrow-icon{
-    background:url("/go/assets/andare/nav-user-triangle.png") no-repeat scroll right 10px transparent;
+    background:image_url("andare/nav-user-triangle.png") no-repeat scroll right 10px transparent;
     padding-right: 20px !important;
 }
     .user {
@@ -199,7 +199,7 @@
         z-index:9999;
         a {
             background-color:#400;
-            background-image:url("/go/assets/g9/icons/icon_error_16.png");
+            background-image:image_url("g9/icons/icon_error_16.png");
             background-position:6px 4px;
             background-repeat:no-repeat;
             border-left: 1px solid #800;

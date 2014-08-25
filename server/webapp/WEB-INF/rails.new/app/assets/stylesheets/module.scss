@@ -1,0 +1,3293 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*
+ * Module.css
+ * All specific styles that relate to a view page or partial should occur here.  All styles should be namespaced by atlest the style you want to alter,
+ * and it's partial's wrapping classname.  In the event the class you want to apply has no parent with a specific class name, default to the page's specific
+ * body id name
+ *
+ * Measurements should all be in "em" unless it is a border.
+ * 1em = 12px
+ *
+ * Quick guide to conversions:
+ *      1px = .0833em
+ *      2px = .1666em
+ *      4px = .25em
+ *      5px = .4166em
+ *      6px = .5em
+ *      10px = .8333em
+ *      11px = .9166em
+ *      12px = 1em
+ *      14px = 1.1666em
+ *      16px = 1.3333em
+ *      18px = 1.25em
+ */
+
+
+
+/*
+* Pipeline visualization
+*/
+#pipeline_visualization {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+#pipeline_visualization h4 {
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+#pipeline_visualization .upstream {
+    float: left;
+    width: 30%;
+    position: relative;
+}
+
+#pipeline_visualization .current {
+    float: left;
+    width: 30%;
+    position: relative;
+}
+
+#pipeline_visualization .downstream {
+    width: 30%;
+    position: relative;
+    float: left;
+}
+
+#pipeline_visualization .pipeline {
+    width: 50%;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    margin-bottom: 1em;
+    padding: 5px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    min-height: 68px;
+
+}
+
+#pipeline_visualization .line,
+#pipeline_visualization .vertical_line {
+    background-color: #CCC;
+}
+
+#pipeline_visualization .pipeline .title,
+#pipeline_visualization .pipeline .name {
+    font-size: 12px;
+    padding: 5px;
+}
+
+#pipeline_visualization .pipeline .content .material {
+    font-size: 12px;
+}
+
+#pipeline_visualization .pipeline .content {
+    padding: 6px;
+    display: block;
+}
+
+#pipeline_visualization .pipeline .content div {
+    word-wrap: break-word;
+}
+
+#pipeline_visualization .pipeline_instance,
+#pipeline_visualization .pipeline {
+    clear: both;
+    padding: 5px;
+    overflow: hidden;
+
+}
+
+#pipeline_visualization .stage_bar {
+    margin-top: 0;
+}
+
+#pipeline_visualization .pipeline_instance a,
+#pipeline_visualization .pipeline .content a {
+
+}
+
+#pipeline_visualization .pipeline_instance .stages,
+#pipeline_visualization .pipeline .stages {
+    clear: left;
+}
+
+#pipeline_visualization .pipeline .content form {
+    margin-top: 2em;
+}
+
+#pipeline_visualization .upstream .pipeline,
+#pipeline_visualization .downstream .pipeline {
+    background-color: #EEE;
+    -moz-box-shadow: inset 0 0 5px #CCC;
+    -webkit-box-shadow: inset 0 0 5px #CCC;
+    box-shadow: inset 0 0 5px #CCC;
+}
+
+#pipeline_visualization .current .pipeline {
+    -moz-box-shadow: 0 0 5px #CCC;
+    -webkit-box-shadow: 0 0 5px #CCC;
+    box-shadow: 0 0 5px #CCC;
+}
+
+#pipeline_visualization .stages .stage {
+    margin-top: 5px;
+}
+
+/*
+* Agents
+*/
+#agents .entity_title {
+    float: left;
+}
+
+#agents .content_wrapper_outer {
+    clear: both;
+}
+
+.agent_counts{
+}
+
+.list_aggregation {
+    float: left;
+    font-size: 12px;
+    /*margin-left: 15px;*/
+    margin-bottom: 10px;
+}
+
+*+html .list_aggregation {
+  margin-top: 8px;
+}
+
+.list_aggregation li {
+    padding: 10px 10px 0  0;
+    margin-right: 1.25em;
+    color: #666;
+    display: inline;
+    float: none;
+}
+
+/*
+* Agents Form
+*/
+#agents_form input.show_panel {
+    background: image_url('down_arrow.png') 97% 50% #E4E4E4 no-repeat;
+    padding-right: .6667em;
+    margin-left: 2em;
+}
+
+/*
+* Pipeline Navigator
+*/
+#pipeline_navigator .stage_name {
+    font-size: 13px;
+}
+
+#pipeline_navigator .total_jobs_wrapper {
+    font-size: 11px;
+    display: inline;
+    margin-left: 12px;
+}
+
+#pipeline_navigator .total_jobs {
+    display: inline;
+    cursor:pointer;
+}
+
+#pipeline_navigator .total_jobs img{
+    margin-left:-2px;
+    margin-bottom:-1px;
+}
+
+
+/*
+ * Edit panel for agents page
+ */
+
+.templates .edit_panel,
+#users_form .edit_panel,
+#agents_form .edit_panel {
+    padding: 0px 0;
+    margin-bottom: 10px;
+    border: 0;
+    margin-left: -5px;
+}
+
+
+#templates_form .enhanced_dropdown,
+#users_form .enhanced_dropdown,
+#agents_form .enhanced_dropdown {
+    max-width: 320px;
+}
+
+input.new_role,
+input.new_resource {
+    float: left;
+    margin-left: 10px;
+    width: 120px;
+}
+
+#agents_form .edit_panel .new_agent {
+    float: right;
+}
+
+/*
+ * Agents Table
+ */
+.agents_table tr.agent_instance td.location {
+    width: 10%;
+}
+
+.agents_table tr.agent_instance td.ip_address {
+    max-width: 110px;
+}
+
+.agents_table tr.agent_instance td.resources,
+.agents_table tr.agent_instance th.resources {
+    width: 20%;
+}
+
+.agents_table tr.agent_instance td.environments,
+.agents_table tr.agent_instance th.environments {
+    width: 20%;
+}
+
+.agents_table tr.Building,
+.agents_table tr.Building td span {
+    text-align: left;
+}
+
+.agents_table tr.Building td,
+.agents_table tr.Active td,
+.agents_table tr.Cancelled td {
+    background-image: none;
+    background-color: #FAE48E;
+}
+
+.agents_table tr.Missing td.status,
+.agents_table tr.Lost-Contact td.status,
+.agents_table tr.Lost-contact td.status,
+.agents_table tr.Lostcontact td.status,
+.agents_table tr.Lost td.status,
+{
+    background: image_url('g9/icons/icon_question_16.png') no-repeat 5px 50%;
+    padding-left: 25px;
+}
+
+/**
+* Pipeline Status Gadget content
+*/
+
+#gadget_content .pipeline {
+    background: #FFF;
+    width: 245px;
+    float: left;
+    padding: 15px;
+    min-height: 190px;
+    overflow: hidden;
+    margin: 0 10px 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    float: left;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: inset 0 0 5px #ddd;
+    -webkit-box-shadow: inset 0 0 5px #ddd;
+    box-shadow: inset 0 0 5px #ddd;
+    font-size: 11px;
+}
+
+/*
+ * Pipeline Container: contains groups of pipelines, like Pipeline Groups, Environments, etc.
+ */
+#pipeline_groups_container {
+    clear: both;
+}
+
+.pipeline_bundle {
+    overflow: hidden;
+    min-width: 87.5em;
+}
+
+.pipeline_bundle .divider {
+    width: 1px;
+    height: 10em;
+    float: left;
+}
+
+
+.pipeline_bundle div.pipeline .pipeline_instance {
+/*    border-top: 1px dotted #ccc;*/
+    padding: 10px 0 0 0;
+}
+
+.pipeline_bundle .pipeline .alert {
+    margin: .25em;
+}
+
+.pipeline_bundle .pipeline .status,
+.pipeline_bundle .pipeline .stages {
+    clear: both;
+}
+
+.pipeline_bundle .pipeline .warn_message {
+    background: image_url('g9/icons/icon_error_16.png') no-repeat scroll 0 50% transparent;
+    float: right;
+    font-weight: normal;
+    padding: 3px 0 3px 20px;
+    font-size: 11px;
+}
+
+.pipeline_bundle .pipeline .status .label {
+    font-size: 11px;
+    margin: 3px 10px 4px 0;
+}
+
+.pipeline_bundle .pipeline .status .changes_button_wrapper {
+    padding-top: 4px;
+    padding-left: 5px;
+}
+
+.pipeline_bundle .pipeline .status .pipeline_instance_details {
+    margin-top: 10px;
+    clear: both;
+}
+
+.pipeline_bundle .pipeline .previously {
+
+}
+
+#pipelines .pipeline_bundle .pipeline .previously_wrapper {
+    margin: 10px 0;
+    min-height: 22px;
+}
+
+*+html #pipelines .pipeline_bundle .pipeline .previously_wrapper {
+    height: 1.5em;
+}
+
+.pipeline_bundle .pipeline .previously .label {
+    float: left;
+}
+
+.pipeline_bundle .pipeline .previously a {
+    float: left;
+    margin-left: .25em;
+}
+
+.pipeline_grouping_wrapper {
+    float: left;
+    min-width: 87.5em;
+}
+
+.compare_pipeline {
+    font-size: 1.1em;
+}
+
+.compare_pipeline a {
+    background: image_url("g9/icons/icon_compare_16.png") transparent no-repeat;
+    padding-left: 20px;
+}
+
+.compare_pipeline a:hover {
+    background: image_url("g9/icons/icon_compare_16_hover.png") transparent no-repeat;
+}
+
+.compare_pipeline.dashboard a {
+    display: inline;
+}
+
+.compare_pipeline.bisect{
+    background: image_url("g9/icons/icon_compare_16.png") transparent no-repeat;
+    opacity: 0.5;
+}
+
+.compare_pipeline.dashboard {
+    font-size: 11px;
+}
+
+input.compare_pipeline_input {
+    background: image_url("g9/icon_search.png") transparent no-repeat right;
+    width: 338px;
+    padding: 4px 8px 4px 4px;
+}
+
+input.compare_pipeline_input.ac_loading {
+    background-image: image_url('g9/icons/spinny_white_16.gif');
+}
+
+.compare_pipeline label {
+    background: image_url("g9/icons/icon_compare_16.png") transparent no-repeat;
+    cursor: default;
+    padding-left: 20px;
+    opacity: 0.5;
+    display: inline;
+}
+
+.compare_pipeline_page .triggered_by {
+    float: left;
+    margin-top: -10px;
+}
+
+.pipeline_flow {
+    padding-bottom: 30px;
+}
+
+.stage_history .compare_pipeline {
+    position: absolute;
+    bottom: 13px;
+    *bottom: 9px;
+    right: 10px;
+}
+
+.compare_pipeline a .has_go_tip {
+    cursor: pointer;
+}
+
+.run_details .compare_pipeline {
+    margin-left: 8px;
+}
+
+.separator {
+    border-right:1px solid gray;
+}
+
+*+html .pipeline_grouping_wrapper {
+    width: 87.5em;
+}
+
+#pipelines .pipeline_bundle .operate,
+.pipeline .operate {
+    float: left;
+}
+
+.pipeline_bundle .pipeline_operations {
+    clear: both;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #CCC;
+
+}
+
+/*
+.pipeline_bundle .pipeline_operations .trigger_with_options_wrapper button {
+    border-right: 1px solid #DDD;
+    border-left: 1px solid #DDD;
+}
+.pipeline_bundle .pipeline_operations .pause_wrapper button,
+.pipeline_bundle .pipeline_operations .unpause_wrapper button{
+    -moz-border-radius-topright: 4px;
+    -moz-border-radius-bottomright: 4px;
+    -webkit-border-top-right-radius: 4px;
+    -webkit-border-bottom-right-radius: 4px;
+    border-right-top-radius: 4px;
+    border-right-bottom-radius: 4px;
+    -moz-box-shadow: 0;
+}
+.pipeline_bundle .pipeline_operations .trigger_wrapper button{
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    -webkit-border-top-left-radius: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+    border-left-top-radius: 4px;
+    border-left-bottom-radius: 4px;
+    -moz-box-shadow: 0;
+}
+
+*/
+.pipeline_bundle .pause_description {
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* remove button appearance from the  changes button */
+.pipeline_bundle .pipeline_instance .changes_button_wrapper button, .non_passing_tests .changes_button_wrapper button {
+    border: 0;
+    padding: 3px 0;
+    background: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.pipeline_bundle .pipeline_instance .changes_button_wrapper a,
+.non_passing_tests .changes_button_wrapper button span,
+.non_passing_tests .changes_button_wrapper a {
+    padding-right: 16px;
+    background: image_url('g9/icons/arrow_open.png') right no-repeat;
+    font-size: 11px !important;
+    color: #1F66BD;
+}
+
+.pipeline_bundle .pipeline_instance .changes_button_wrapper button span:hover {
+    color: #1F66BD;
+}
+
+.non_passing_tests .changes_button_wrapper button.submit:hover span {
+    color: #1F66BD;
+}
+
+.non_passing_tests .changes_button_wrapper button.submit:hover {
+    background: none;
+}
+
+.pipeline_bundle .pipeline_instance .changes_button_wrapper button span img, .non_passing_tests .changes_button_wrapper button span img {
+    display: none;
+}
+
+.checkbox_label_box {
+    padding: 15px;
+}
+
+/**
+ * Stage Editor
+ */
+.fieldset .form_item .form_item_block select {
+    float: none;
+    margin-left: 1px;
+    margin-bottom: 1.167em;
+}
+
+.promote_down {
+    background: white image_url("g9/icons/arrow_open.png") no-repeat;
+}
+
+.promote_up {
+    background: white image_url("g9/icons/arrow_up.png") no-repeat;
+}
+
+.promote_up,
+.promote_down {
+    height:8px;
+    width: 10px;
+}
+
+.promote_button{
+    width: 15px;
+    height: 15px;
+    background-color:white;
+}
+
+span.contextual_help.stage_approval{
+    padding-top: 8px;
+}
+
+
+/**
+ * Task editor
+ */
+
+.exec_task_editor textarea {
+    /*width: auto;*/
+}
+
+#on_cancel_task_options {
+    margin-top: -32px;
+    margin-left: 124px;
+    float: left;
+    clear: both;
+}
+
+#on_cancel_task {
+    margin-top: 10px;
+}
+
+.on_cancel {
+    margin-top:14px;
+}
+.on_cancel label {
+    margin-left: 5px;
+}
+
+.on_cancel input[type="text"] {
+    float: left;
+}
+
+#has_cancel_task {
+    margin : 0px;
+}
+
+.on_cancel_run_if_options label.condition,
+.run_if_options label.condition {
+    display: inline;
+    margin-left: 0px;
+}
+
+
+.task_entry {
+    margin-top:12px;
+}
+
+/*
+* Environments
+*/
+.show_environment .added_item {
+    float: left;
+    width: 31.5%;
+
+}
+
+.show_environment .added_item ul {
+    float: none;
+    margin-left: 10px;
+}
+
+.show_environment .added_item li {
+    float: none;
+    list-style: disc;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.show_environment h3 {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.show_environment h3 a {
+    text-transform: none;
+}
+
+.show_environment .added_pipelines,
+.show_environment .added_agents {
+    border-right: 1px solid #CCCCCC;
+    margin-right: 1.5%;
+    margin-bottom: 10px;
+    min-height: 100px;
+}
+
+.show_environment button {
+    background-color: #444;
+    min-width: 0;
+    margin-left: 12px;
+}
+.show_environment button:hover{
+  margin-left: 12px;
+}
+
+.environments {
+    clear: both;
+}
+
+.environments .unused_feature p {
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.environments .add_new_environment {
+    float: right;
+    margin-left: 13px;
+    padding: 2px;
+}
+.environments .add_new_environment a{
+    font-weight: normal;
+
+}
+
+/* define the layout for the env variables rows */
+
+.variables h4, .params h4 {
+    float: left;
+    width: 250px;
+    margin-bottom: 5px;
+    font-size: larger;
+}
+
+.artifacts_plan_section input.form_input,
+.environment_variables_section input.form_input {
+    margin-right: 5px;
+    -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) inset;
+    float: left;
+}
+
+.environment_variables_section .equals_sign {
+    margin-right: 10px;
+    margin-left: 4px;
+    float: left;
+    padding-top: 5px;
+}
+
+.artifacts_plan_section .fieldWithErrors,
+.environment_variables_section .fieldWithErrors {
+    display:inline;
+    padding: 0px;
+}
+
+.artifacts_plan_section .fieldWithErrors input,
+.environment_variables_section .fieldWithErrors input {
+    border: 1px solid red;
+    padding: 4px;
+    margin: 1px;
+}
+
+.artifacts_plan_section .form_error,
+.environment_variables_section .form_error {
+    display: block;
+    float: none;
+    width: 250px;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+.environment_variables_section li,
+.artifacts_plan_section li {
+    padding: 4px 0;
+    clear: left;
+}
+
+.user_permissions_section{
+
+}
+.user_permissions_section .icon_remove,
+.user_permissions_section .user_role_name {
+    margin:3px;
+}
+
+.stage_permissions .users, .inherited_permissions .users {
+    border-bottom: 1px dotted #CCC;
+    margin-bottom:15px;
+        padding-bottom: 15px;
+}
+
+.stage_permissions span{
+    margin-bottom:10px;
+}
+
+.wizard_error_message {
+    float: left;
+    padding: 4px;
+    color: #990000;
+}
+
+a.add_item {
+    padding: 8px 5px 0 22px;
+    background: image_url('g9/icon_add_16.png') no-repeat 1px 5px;
+    display: block;
+    width: 80px;
+    margin: 10px 0;
+    text-decoration: none;
+    color: #333;
+    font-size: 12px;
+    cursor: pointer;
+    clear: both;
+}
+
+.environment_variables_section input.environment_variable_name {
+    width: 250px;
+}
+
+.environment_variables_section .icon_remove {
+    float: right;
+}
+
+.environment_variables_section .link_as_button {
+    float: none;
+}
+
+.environment_variables_section .new_variables {
+    margin-top: .5em;
+    margin-bottom: 15px;
+}
+
+.environment .pipeline .deploy {
+    margin-top: 10px;
+}
+
+.environment .pipeline .deploy form {
+    float: left;
+}
+
+.environment .pipeline .deployed_revisions form {
+    display: inline;
+}
+
+.environment .pipeline .deployed_revisions {
+    padding-top: 5px;
+    clear: both;
+}
+
+.environment .pipeline div.has_new_materials {
+    background: image_url('g9/icons/icon_info_16.png') no-repeat 0 2px;
+    padding-left: 20px;
+    padding-bottom: 2px;
+}
+
+.environment .pipeline div.has_new_materials table {
+    margin-left: -20px;
+}
+
+#add_new_environment .agents_section .list_table {
+    -moz-box-shadow: 0 0 0 0 transparent;
+}
+
+.pipeline_selector {
+    padding: 4px 0;
+}
+
+.pipeline_selector label.inline {
+    cursor: pointer;
+}
+
+#pipelines_form .input {
+    margin-bottom: 10px;
+    margin-left: 14px;
+    margin-top: 10px;
+}
+
+.available_pipelines {
+    margin-left: 14px;
+}
+
+.unavailable_pipelines label {
+    padding-top: 5px;
+    margin-left: 14px;
+    color: #999;
+}
+
+/*
+.environment_variables_section {
+    max-height:27em;
+    margin-top:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    width:780px;
+}
+*/
+
+/* compare pipeline page */
+
+.autocomplete .pipeline_details,
+.autocomplete .pipeline_counter,
+.autocomplete .pipeline_details .revision_details{
+    display:block;
+    padding-left: 10px;
+}
+
+.autocomplete .pipeline_details .revisions_details {
+    font-size: 11px;
+    line-height: 1.6em;
+}
+
+.autocomplete .pipeline_details .revisions_details .modifications {
+    padding-top: 5px;
+}
+
+.pipeline_details .stage_graphic {
+    padding-bottom: 10px;
+    font-size: 11px;
+}
+
+#comparison .pipeline {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.autocomplete .pipeline_details .revisions_details div label {
+    font-weight: bolder;
+    display:inline;
+    color: GRAY;
+}
+
+.autocomplete .pipeline_details label {
+    font-weight: bolder;
+    color: GRAY;
+    padding-top: 15px;
+    font-size: 11px;
+}
+
+.autocomplete .pipeline_counter {
+  margin-bottom: -5px;
+}
+
+
+.autocomplete .pipeline_counter h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.autocomplete .triggered_by {
+    margin: 10px 0;
+    float: left;
+}
+
+.autocomplete tr.first td {
+  border-top: 1px dotted #CCC;
+}
+
+.autocomplete table {
+  clear: left;
+  width: 100%;
+}
+
+.autocomplete td {
+    font-size: 11px;
+    font-weight: normal;
+    padding: 4px;
+    vertical-align: top;
+}
+
+.autocomplete td.label {
+    font-weight:bold;
+    color: #111;
+}
+
+
+.compared_to {
+    float: left;
+    font-size: 11px;
+    font-style: italic;
+    margin: 1em;
+    padding-left: 10px;
+    padding-right: 25px;
+}
+
+.comparison .ac_results li {
+    cursor: pointer;
+}
+
+/*
+* Wizard form styling
+*/
+.wizard_form .section_title {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+
+#add_new_environment .environment_name {
+    padding-bottom: 1.2em;
+}
+
+#add_new_environment .environment_name label {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+
+/*
+ Hidereveal
+
+ To implement this ...
+
+*/
+.hidereveal_collapsed .hidereveal_content {
+    display: none;
+}
+
+.hidereveal_expander {
+    padding-left: 14px;
+    margin: 3px 0;
+    cursor: pointer;
+    background: image_url('g9/icons/arrow_open.png') 0 50% no-repeat transparent;
+    display: block;
+}
+
+.hidereveal_collapsed .hidereveal_expander {
+    background: image_url('g9/icons/arrow_closed.png') 0 50% no-repeat transparent;
+}
+
+a.hidereveal_expander,
+a.hidereveal_collapsed {
+    color: #333;
+}
+
+/*
+ Compare Pipelines page
+*/
+
+.stage_bar_pipeline_counter {
+    display: inline;
+    float: left;
+    line-height: 1.167em;
+    padding: .7em .5em;
+    font-size: larger;
+    font-weight: bold;
+}
+
+.pipeline .stages_with_pipeline_counter.stages {
+    width: 98%;
+    float: right;
+}
+
+.material_revision_diff .revision, .material_revision_diff .modified_by {
+    width: 20%;
+}
+
+.material_revision_diff .dmr.revision, .material_revision_diff .dmr.label {
+    width: 33%;
+}
+
+.material_revision_diff .material_title {
+    padding-top: 1.2em;
+    padding-bottom: .4em;
+}
+
+.ac_results .ac_over {
+    background: #D2EBF0;
+}
+
+.ac_results .highlight {
+    background: #FFFF99;
+}
+
+.ac_results .no_results {
+    font-style: italic;
+}
+
+/*
+ environment material revision section
+*/
+
+.environment .pipeline .deployed_revisions table.materials {
+    margin-top: 10px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.environment .pipeline .deployed_revisions .materials th {
+    color: #333;
+    font-weight: normal;
+}
+
+.environment .pipeline .deployed_revisions .materials th,
+.environment .pipeline .deployed_revisions .materials td {
+    padding: 4px 5px;
+    font-size: 10.5px;
+    border-bottom: 1px solid #ddd;
+    word-break:break-all;
+    word-wrap:break-word;
+    -ms-word-wrap:break-word;
+    border-bottom:1px solid #ddd;
+}
+
+.environment .pipeline .deployed_revisions .materials tr.revision-row td {
+    background-color: #deeef2;
+    border-bottom: 1px solid #b6d7de;
+}
+
+.environment .pipeline .deployed_revisions .materials tr.revision-row td.revision_number {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.environment .pipeline .deployed_revisions .materials th.noshow,
+.environment .pipeline .deployed_revisions .materials td.noshow {
+    display: none;
+}
+
+.environment .pipeline .deployed_revisions .hidereveal_expander {
+    display: inline;
+}
+
+.environment .pipeline .deployed_revisions .materials td {
+    vertical-align: top;
+}
+
+/*
+* Stage Detail Page
+*/
+
+.page_title_bar .run_results .run,
+.page_title_bar .run_details .schedule_info,
+.page_title_bar .other_runs a {
+    float: left;
+    margin-right: 1em;
+}
+
+a#show_other_stage_runs {
+    background: image_url('g9/icons/arrow_open.png') no-repeat right;
+    padding-right: 16px;
+}
+
+.page_title_bar .run_results .result,
+.page_title_bar .run_details .duration {
+    float: left;
+}
+.page_title_bar .run_results .result {
+  padding-right: 10px;
+  border-right: 1px solid #A5A5A5;
+}
+.page_title_bar .run_details .duration {
+    padding-right: 10px;
+    border-right: 1px solid #A5A5A5;
+}
+
+.page_title_bar .color_code {
+    width: 1em;
+    height: 1em;
+    margin-right: .5em;
+    float: left;
+    disply: inline;
+}
+
+.page_title_bar .page_status_bar .enhanced_dropdown {
+    width: auto;
+}
+
+*+html .page_title_bar .page_status_bar .enhanced_dropdown {
+    width: 13.5em;
+}
+
+.page_title_bar .other_runs {
+    margin: 10px;
+}
+
+*+html .page_title_bar .other_runs,
+*+html .page_title_bar .other_runs li {
+    width: 100%;
+}
+
+.page_title_bar .status ul li {
+    display: block;
+    margin: 0.5em 0;
+}
+
+.page_title_bar .run ul li {
+    display: block;
+/*    padding-bottom: .5em;             */
+    clear: left;
+}
+
+.micro_content_root li>div{
+    margin-top: 5px;
+}
+.micro_content_root li>span{float: right;}
+
+/** Test Failures Widget **/
+
+.non_passing_tests .block_to_hide_or_reveal_by_above_pipeline_bar {
+    margin-left: 15px;
+    border-left: 5px solid #CCC;
+    padding-left: 15px;
+}
+
+.non_passing_tests h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.non_passing_tests h3 .counts {
+    float: right;
+    font-size: 12px;
+    padding-right: 10px;
+}
+
+.non_passing_tests span.total,
+.non_passing_tests span.failures,
+.non_passing_tests span.errors {
+    padding: 2px 0;
+}
+
+.non_passing_tests span.total,
+.non_passing_tests span.failures {
+    margin-right: 5px;
+    padding-right: 10px;
+    border-right: 1px solid #CCC;
+}
+
+.non_passing_tests span.failures {
+    background: image_url('g9/icons/icon_failure_16.png') no-repeat 0 1px;
+    padding-left: 20px;
+        border: 0;
+}
+
+.non_passing_tests span.errors {
+    background: image_url('g9/icons/icon_error_16.png') no-repeat 0 1px !important;
+    padding-left: 20px;
+}
+
+.non_passing_tests .failing_pipeline {
+    float: none;
+    margin-bottom: 15px;
+}
+
+.non_passing_tests .header .title {
+    float: left;
+}
+
+.non_passing_tests .header .counts {
+    float: right;
+}
+
+.non_passing_tests .pipeline_bar {
+    background: #CCC image_url('g9/backgrounds/overlay_gradient_36px.png') repeat-x;
+    padding: 10px;
+    margin-bottom: 10px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+
+}
+
+.non_passing_tests .pipeline_bar,
+.non_passing_tests .pipeline_bar .secondary {
+    color: #333;
+    margin-right: 1em;
+}
+
+.non_passing_tests .pipeline_bar .pipeline_label {
+    font-weight: bold;
+}
+
+.non_passing_tests .pipeline_bar .color_code,
+.non_passing_tests .pipeline_bar .failing_since_label {
+    float: left;
+}
+
+.non_passing_tests .pipeline_bar .pipeline_details {
+    margin-left: 20px;
+    display: block;
+    margin-top: -2px;
+}
+
+.non_passing_tests .pipeline_bar .secondary {
+    font-size: 12px;
+}
+
+.message .secondary {
+    font-size: 12px !important;
+    margin-left: 5px;
+}
+
+.non_passing_tests .pipeline_bar .counts {
+    float: right;
+}
+
+.non_passing_tests .users {
+    font-size: 12px;
+    margin: 0 0 10px 10px;
+    font-weight: bold;
+}
+
+.non_passing_tests .test_suite {
+
+}
+
+.non_passing_tests .suite {
+    padding: 10px 0 5px 0;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    border-top: 1px dotted #CCC;
+}
+
+.non_passing_tests .suite .suite_name {
+    font-weight: normal;
+}
+
+.non_passing_tests .test_suite .test_case .alt_row {
+    background-color: #A5A5A5;
+}
+
+.non_passing_tests .test_suite .test_case .test_status {
+
+}
+
+.non_passing_tests .test_suite .test_case .test_status div {
+    width: 16px;
+    height: 16px;
+    padding: 2px 0 2px 10px;
+}
+
+.non_passing_tests .test_suite td {
+    padding: 2px 0;
+}
+
+.non_passing_tests .test_suite .test_case .test_status div.Failure {
+    background: image_url('g9/icons/icon_failure_16.png') no-repeat 2px 2px;
+
+}
+
+.non_passing_tests .test_suite .test_case .test_status div.Error {
+    background: image_url('g9/icons/icon_error_16.png') no-repeat 2px 2px;
+}
+
+.non_passing_tests ol {
+
+}
+
+/**
+ * Jobs
+ */
+
+.jobs_summary.stage_with_rerun_jobs .is_rerun .rerun_job_icon {
+    margin: 5px 0px 0px -15px;
+    position: absolute;
+}
+
+.jobs_summary.stage_with_rerun_jobs .not_rerun {
+    background-color: #eee;
+}
+
+.content #tab_container div.jobs {
+    clear: left;
+    float: left;
+    width: 180px;
+    border-right: 1px solid #CCC;
+    padding-bottom: 0 !important;
+    border-bottom: 0 !important;
+}
+
+.content #tab_container .materials_overview_wrapper {
+    margin-left: 200px;
+    margin-top: 10px;
+}
+
+.overview_widget .job_grouping {
+    margin-bottom: 5px;
+    padding-right: 10px;
+    clear: left;
+}
+
+.overview_widget .job {
+    clear: both;
+    margin: 5px 0;
+    margin-left: 15px;
+    width: 100%;
+}
+
+.overview_widget .job a {
+    float: left;
+    margin-right: 1em;
+}
+
+.job .progress_bar_container {
+    float: left;
+    width: 14em;
+    height: 10px;
+    border: 1px solid #CCC;
+    background: #FFF;
+    margin-top: 5px;
+}
+
+.job .progress_bar_container div {
+    height: 100%;
+    background: #999 image_url('g9/backgrounds/bg_status_gradient.png') repeat-x;
+}
+
+.overview_widget .job .elapsed_time {
+  white-space: nowrap;
+  clear: both;
+}
+
+.chart_information {
+    background: image_url('g9/icons/icon_info_16.png') no-repeat scroll 0 0;
+    font-size: 12px;
+    background-position: 10px 9px !important;
+    background-repeat: no-repeat;
+    margin: 10px 0px 10px 0px !important;
+    padding: 10px 10px 10px 36px !important;
+}
+
+/*
+* Materials - Pipeline Details
+*/
+#stages .content .changes {
+    clear: both;
+    border-top: 1px solid #CCC;
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+#stages .build_cause {
+    float: left;
+    width: 100%;
+}
+
+#stages .build_cause .material {
+    float: left;
+    clear: both;
+    width: 100%;
+}
+
+#stages .build_cause .material_name {
+    padding: 6px;
+    font-size: 12px;
+    background-color: #eee;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+
+}
+
+#stages .build_cause .change {
+    clear: both;
+    border-bottom: 1px dotted #CCC;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+}
+
+#stages .build_cause .change div {
+    padding-bottom: 5px;
+    clear: both;
+    overflow: hidden;
+}
+
+#stages .build_cause dl {
+    clear: both;
+}
+
+#stages .build_cause dt {
+    float: left;
+    padding: 5px 0;
+    padding-right:5px;
+    font-weight: bold; /*width: 6em;*/
+}
+
+#stages .build_cause dd {
+/*margin-left: 9em;*/
+    float: left;
+    padding: 5px 0;
+}
+
+
+#stages .comment {
+    clear: both;
+}
+
+#stages .build_cause .modified_files {
+    clear: both;
+}
+
+#stages .build_cause .modified_files div {
+    padding: 5px 5px 5px 20px;
+    background-repeat: no-repeat;
+    background-position: 0 3px;
+}
+
+#stages .build_cause .modified_files .added {
+    background-image: image_url('g9/icons/icon_add.png');
+}
+
+#stages .build_cause .modified_files .deleted {
+    background-image: image_url('g9/icons/icon_delete.png');
+}
+
+#stages .build_cause .modified_files .modified {
+    background-image: image_url('g9/icons/icon_modified.png');
+}
+
+#stages .build_cause .changed .material_name {
+    background: #eee image_url('g9/icons/icon_info_16.png') no-repeat 6px 4px;
+    padding-left: 28px; /*padding-right: 1em;*/
+}
+
+.inline_changes_link {
+    display: inline;
+}
+
+.dashboard_build_cause_like_microcontent_popups .changes .changed {
+    color: #ffff66;
+    font-style: italic;
+}
+
+.dashboard_build_cause_like_microcontent_popups table.list_table tr.change.changed td a {
+    color: #0080ff;
+}
+/*
+ * Changes popup
+ */
+
+#stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown.failure_detail_popup {
+    max-height: 500px !important;
+    max-width: 700px !important;
+    overflow: auto !important;
+}
+
+.fbh_failure_detail_button {
+    margin-left: .5em;
+    color: #AC0F00;
+}
+
+.dashboard_build_cause_like_microcontent_popups .tooltip_arrow {
+    display: block;
+    height: 15px;
+    background: image_url('g9/backgrounds/tooltip_up_arrow.png') no-repeat 30px 0;
+    z-index: 2;
+}
+
+#pipelines .dashboard_build_cause_like_microcontent_popups .enhanced_dropdown, #stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown {
+    border: 0;
+    background-color: #333;
+    color: #fff;
+    width: 100%;
+    padding: 10px;
+    z-index: 1;
+    -moz-border-radius: 6px;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.dashboard_build_cause_like_microcontent_popups .scrollable_panel {
+    margin-right: -10px;
+}
+
+.dashboard_build_cause_like_microcontent_popups .changes .list_table {
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 0;
+    background: transparent;
+}
+
+.dashboard_build_cause_like_microcontent_popups .changes .list_table th {
+    display: none;
+}
+
+.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td {
+    border-bottom: 1px dotted #666;
+    padding: 5px 8px;
+}
+
+.dashboard_build_cause_like_microcontent_popups .build_cause_popup_material_name {
+    font-weight: bold;
+}
+
+.change .comment p {
+    margin-bottom: 8px;
+}
+
+#pipelines .enhanced_dropdown .list_table td{
+    -ms-word-break: break-all;
+    word-break:break-all;
+    max-width:300px;
+}
+
+.change td{
+    vertical-align:top;
+}
+
+/*
+* Deploy Popup (Change Materials and Environment Vars
+*/
+
+.material_detail .bring_to_front{
+    z-index:100;
+}
+
+
+.change_materials {
+
+}
+
+.change_materials .materials,
+.change_materials .variables {
+    font-size: 11px;
+}
+
+.change_materials .material_summaries {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow: inset 0 0 8px #DDDDDD;
+    -webkit-box-shadow: inset 0 0 8px #DDDDDD;
+    box-shadow: inset 0 0 8px #DDDDDD;
+    background-color: #EEEEEE;
+    border: 1px solid #CCCCCC;
+    margin: 0;
+    padding: 10px;
+    float: left;
+    width: 30%;
+    clear: both;
+}
+
+.change_materials .material_summary .revision_number {
+    float: left;
+    margin-right: 1em;
+}
+
+.change_materials .material_summary .updated {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.sub_tabs_container li.updated a,
+.sub_tabs_container li.updated a:hover {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.change_materials .material_summary {
+    clear: left;
+    margin: 3px 0 3px -1px;
+    padding: 5px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.change_materials .material_summary:hover {
+    background-color: #c3e1f2;
+    border: 1px solid #ccc
+}
+
+.change_materials .material_summaries .selected,
+.change_materials .material_summaries .selected:hover {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    -moz-box-shadow: inset 0 0 3px #ccc;
+    -webkit-box-shadow: inset 0 0 3px #ccc;
+    box-shadow: inset 0 0 3px #ccc;
+}
+
+.change_materials .material_summary .material_name {
+    margin-left: 10em;
+}
+
+.change_materials .materials .content_wrapper_outer {
+    float: right;
+    width: 64%;
+    overflow: hidden;
+}
+
+.change_materials .material_details {
+    background-color: #FFF;
+}
+
+.material_details {
+    padding: 0;
+}
+
+*+html .change_materials .material_details {
+    width: 61.5%;
+}
+
+.change_materials dl dt,
+.change_materials dl dd {
+    padding: 5px;
+}
+
+.change_materials dl dt {
+    float: left;
+    font-weight: bold;
+}
+
+.change_materials dl dd {
+    margin-left: 11em;
+}
+
+.material_details dd{
+    min-height: 15px;
+}
+
+.change_materials dl dd input {
+    width: 9em;
+}
+
+.change_materials .smartfill_content {
+    float: left;
+    -moz-box-shadow: 2px 2px 4px #ccc;
+    border: 1px solid #ccc;
+}
+
+*+html .change_materials .smartfill_content {
+    width: 28em;
+}
+
+.change_materials .smartfill_content li {
+    border-bottom: 1px dotted #ccc;
+    clear: left;
+    width: 28em;
+}
+
+.change_materials .smartfill_content .revision,
+.change_materials .smartfill_content .user {
+    float: left;
+}
+
+.change_materials .smartfill_content .revision {
+    padding-right: .25em;
+    min-width: 2em;
+    border-right: 1px dotted #000;
+}
+
+.change_materials .smartfill_content .user {
+    white-space: nowrap;
+    padding: 0 .25em;
+}
+
+.change_materials .smartfill_content .date {
+    min-width: 5em;
+    float: right;
+    white-space: nowrap;
+    padding-left: .25em;
+    border-left: 1px dotted #000;
+}
+
+.change_materials .smartfill_content .comment {
+    font-style: italic;
+    padding: 0 0 .25em 1em;
+    clear: both;
+}
+
+.change_materials .variables .content_wrapper_outer {
+    margin: 0;
+}
+
+.change_materials .variables .content_wrapper_inner {
+    padding: 0;
+}
+
+.change_materials .variables .variable {
+    clear: both;
+}
+
+.change_materials .variables label,
+.change_materials .secure_variables label {
+    width: 25em;
+    text-align: right;
+    float: left;
+    margin-right: 1em;
+    line-height: 1.75em;
+    clear: both;
+    margin-bottom: .5em;
+}
+
+.change_materials .variables .MB_focusable {
+    float: left;
+
+}
+
+.spinny {
+    background: image_url('g9/icons/spinny_white_16.gif') no-repeat 0 50% transparent;
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* Locked icons*/
+
+span.click_to_unlock {
+    float: right !important;
+    margin: 0 !important;
+    border-left: none !important;
+    display: block;
+}
+
+span.click_to_unlock a {
+    background: image_url('g9/icons/icon_lock.png') no-repeat;
+    display: block;
+    width: 15px;
+    height: 15px;
+}
+
+span.locked {
+    background: image_url('g9/icons/icon_lock_locked.png') no-repeat;
+    float: right !important;
+    margin: 0 !important;
+    border-left: none !important;
+    width: 15px;
+    height: 15px;
+    display: block;
+}
+
+/* use black spinny for unlocking */
+
+.locked .spinny {
+    background: image_url('g9/icons/spinny_black_16.gif') no-repeat 10px 50% transparent;
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* Pipeline unlocking */
+.locked_instance a {
+    font-size: 1em;
+}
+
+/* Pipeline Groups - Changes */
+#pipelines .enhanced_dropdown, #stages .fbh_microcontent_popup .enhanced_dropdown,
+#pipelines .enhanced_dropdown .scrollable_panel {
+    max-width: 50em;
+    width: 50em;
+    padding: 0;
+}
+
+
+
+/*
+* Admin Page: Server Configuration Tab
+*/
+
+.admin_wrapper #form_parent form,
+#admin_tasks table.reorderable_table{
+    margin-top: 12px;
+}
+
+#user_management,
+#mail_host,
+#license_management {
+    padding: 1em 0 .5em .5em;
+}
+
+.password_file_settings,
+.ldap_settings {
+    border-top: 1px solid #BEBEBE;
+    padding-top: .75em;
+}
+
+.ldap_settings .form_item:last-child{
+    padding-bottom:10px ;
+}
+
+.fieldset h3 {
+    padding: 5px 0;
+    color: #000;
+    font-weight: bold;
+}
+
+fieldset.two-cols button {
+    vertical-align: middle;
+}
+
+input.small_text_field {
+    width: 45px;
+}
+
+/*
+* Admin Page: Users, Templates & Groups Tab
+*/
+
+
+/**
+ * Admin - Edit Pipeline
+ */
+
+
+/*buttons*/
+#pipeline_edit_form .form_buttons .submit,
+#stage_edit_form .form_buttons .submit,
+#job_edit_form .form_buttons .submit,
+#template_edit_form .form_buttons .submit,
+#group_edit_form .form_buttons .submit,
+#pipeline_edit_form .form_buttons .reset_button,
+#stage_edit_form .form_buttons .reset_button,
+#job_edit_form .form_buttons .reset_button,
+#template_edit_form .form_buttons .reset_button,
+#group_edit_form .form_buttons .reset_button,
+#stage_permissions_edit_form .form_buttons .reset_button,
+#pipeline_snippet_view #view_group .link_as_button,
+#pipeline_snippet_edit #edit_group .form_buttons .link_as_button
+ {
+  min-width: 120px;
+  box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+/*  line-height: 11px;*/
+  font-size: 11px !important;
+  padding: 7px 10px;
+}
+
+#pipeline_edit_form .form_buttons .reset_button,
+#stage_edit_form .form_buttons .reset_button,
+#job_edit_form .form_buttons .reset_button,
+#template_edit_form .form_buttons .reset_button,
+#group_edit_form .form_buttons .reset_button,
+#stage_permissions_edit_form .form_buttons .reset_button{
+  height: auto;
+}
+
+.treeview .template .template_name{
+    background: image_url('g9/icons/icon_pipeline_template_16.png') no-repeat 0 2px transparent;
+    padding: 5px 22px;
+    margin: 0 5px;
+    position: relative;
+    font-size: 11px;
+}
+
+.treeview .edit_template{
+    color: #1F66BD;
+    word-break:break-all;
+    font-size: 11px;
+}
+.has_tree_view #form_parent {
+  overflow-y: auto;
+}
+
+.template_selection .action_icon{
+    margin-left: 5px;
+    padding-top: 6px;
+}
+.template_form_error {
+    margin-left: 0px;
+    padding-top: 10px;
+}
+
+li.template_form_error {
+    margin-left: 25px;
+    list-style: disc;
+    padding-top: 0px;
+    display: list-item;
+    float: none;
+}
+
+/*  global errors - clicky admin */
+.admin_workspace .errors h3 {
+    font-size: 12px;
+    display: block;
+}
+
+#MB_content .errors {
+    margin-top: 0px;
+}
+
+#MB_content .errors h3 {
+    font-size: 12px;
+}
+
+/*nav*/
+
+.pipeline_header {
+    border-bottom: 1px solid #CCC;
+    display: block;
+    float: left;
+    margin-bottom: 15px;
+    overflow: visible;
+    padding-bottom: 10px;
+    width: 100%;
+}
+.admin_workspace .pipeline_header {
+    float: none;
+}
+
+.pipeline_header h3 {
+    font-size: 16px;
+}
+
+.pipeline_header .pipeline_name_link {
+    display: table-cell;
+}
+
+.pipeline_header .pipeline_actions {
+    float:right;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+.admin_nav ul {
+  float: none;
+}
+
+.admin_nav ul li {
+  display: block;
+  float: left;
+}
+
+.admin_nav ul li:last-child {
+  border: 0;
+}
+
+.admin_nav ul li a {
+  color: #333;
+  display: block;
+  padding: 7px 10px;
+  margin: 1px 0;
+  border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+.admin_nav ul li a:hover {
+  color: #FFF;
+  background: #999;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    -moz-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+.admin_nav ul li a.selected {
+  color: #FFF;
+  background: #444;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    -moz-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+/*css hack to highlight selected nav item*/
+.general li#general a,
+.project_management li#project_management a,
+.materials li#materials a,
+.stages li#stages a,
+.environment_variables li#environment_variables a,
+.parameters li#parameters a,
+.permissions li#permissions a,
+.stage li#stage a,
+.jobs li#jobs a,
+.stage_variables li#stage_variables a,
+.stage_permissions li#stage_permissions a,
+.settings li#settings a,
+.tasks li#tasks a,
+.artifacts li#artifacts a,
+.jobs_variables li#jobs_variables a,
+.tabs li#tabs a,
+.jobs_permissions li#jobs_permissions a
+ {
+  color: BLACK;
+  background: #FFF;
+}
+
+
+/*admin pipeline header*/
+.admin_workspace .header {
+  border-bottom: 1px solid #CCC;
+  margin: 0 0 15px 0;
+  padding: 0 0 10px 0;
+  overflow: hidden;
+}
+
+.admin_workspace .header h2 {
+  color: #3F2559;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+  display: inline;
+  float: left;
+}
+
+#MB_content h3,
+.admin_workspace h3,
+.admin_wrapper h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+}
+
+/*do this so tooltips show up in the proper place*/
+.admin_workspace h3 {
+    display: inline;
+}
+
+
+.admin_workspace .header button,
+.admin_workspace .header .link_as_button {
+  float: right;
+  margin: 0;
+}
+/* pipeline navigator */
+.pipeline_navigation {
+    -moz-border-radius: 6px 6px 6px 6px;
+    background-color: #FFFFFF;
+    border: 0 none;
+    margin: 0 15px 15px;
+    padding: 15px;
+}
+
+#pipeline_navigator{
+    overflow: auto;
+    display: block;
+    border-bottom: 1px solid #CCC;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+#pipeline_navigator .each_stage {
+    float: left;
+    margin-top: 10px;
+}
+
+#pipeline_navigator .stage_bar {
+    height: 12px;
+    width: 400px;
+    line-height: 12px;
+    margin-right: 4px;
+    margin-top: 3px;
+    background-color: transparent;
+    background-image: image_url("g9/backgrounds/bg_state_unknown.png");
+    background-position: left bottom;
+    background-repeat: repeat-x;
+    margin-bottom: 5px;
+}
+
+#pipeline_navigator .total_jobs img {
+    margin-left: 5px;
+}
+#pipeline_navigator .job_navigator {
+    display: none;
+    width: 125px;
+    position: absolute;
+    z-index:999;
+    background: #E9E9E9;
+    -moz-border-radius: 0px 0px 6px 6px;
+    border-radius: 0px 0px 6px 6px;
+    border: 1px solid #C0C0C0;
+
+}
+
+#pipeline_navigator .job_navigator li {
+    display: list-item;
+    float: none;
+}
+
+
+/***
+ * Admin - Pipeline Groups
+ */
+#tab-content-of-pipeline-groups .group_pipelines .group{
+  margin-bottom: 50px;
+}
+#tab-content-of-pipeline-groups .group_pipelines .group .actions li .delete_parent{
+  margin-top: 1px;
+}
+
+#tab-content-of-pipeline-groups .group_pipelines .group .actions li{
+  margin-right:10px;
+}
+
+#tab-content-of-pipeline-groups .pipeline_group .add_pipeline_to_group{
+  margin-top: 7px;
+}
+
+.group_pipelines .group_name {
+    float:left;
+}
+
+.group_pipelines .group_name_edit {
+    float:left;
+    margin-left: 20px;
+    margin-top: 8px;
+}
+
+.group_name_delete {
+    float: left;
+    margin-left: 10px;
+    margin-top: 8px;
+}
+
+.group_pipelines .list_table{
+    clear:left;
+}
+.no_pipeline_in_group{
+    clear: both;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.group_pipelines .move_pipeline span{
+  background: image_url("g9/icons/arrow_open.png") no-repeat scroll right center transparent;
+  padding: 4px;
+}
+
+.group_permissions_table {
+    width: inherit;
+    margin-bottom: 10px;
+}
+
+.group_permissions_table th {
+    width: 50px;
+}
+
+.group_permissions_table th.remove{
+    width: 18px;
+    vertical-align: middle;
+}
+
+/***
+ * Admin - Templates
+ */
+
+body.admin_templates .pipeline_header h3.entity_title{
+    background-image: image_url('g9/icons/icon_pipeline_template_24.png');
+    background-position: -12px -10px;
+}
+
+#tab-content-of-templates .template {
+  margin-bottom: 50px;
+}
+#tab-content-of-templates .template h2{
+    float: left;
+}
+#tab-content-of-templates .template .title_action_wrapper{
+    float: left;
+}
+#tab-content-of-templates .template .title_action_wrapper li{
+    margin-left: 15px;
+    margin-top: 5px;
+
+}
+
+#tab-content-of-templates .template .grouping_content_wrapper{
+    clear: both;
+}
+
+
+#tab-content-of-templates .template .header .icon_cannot_remove,
+#tab-content-of-templates .template .header .icon_remove {
+  margin-left: 10px;
+}
+
+#tab-content-of-templates .template .header {
+    padding-bottom: 20px;
+}
+
+#tab-content-of-templates .pipeline .name .edit_icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Admin - Materials */
+
+.change_materials #check_connection {
+    float:left;
+}
+
+.change_materials #vcsconnection-message {
+    width: 500px;
+}
+
+/* clicky admin - job tabs */
+
+.tabs thead tr th.path,
+.tabs tbody.tabs tr td.name_value_cell.path {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.tabs thead tr th {
+    padding-bottom: 5px;
+}
+
+.tabs h4 {
+    margin-bottom: 5px;
+    font-size: larger;
+    float: left;
+}
+
+#job_edit_form .before_tip {
+    float: left;
+    margin-top: 4px;
+}
+
+label.label_with_help {
+    float: left;
+    display: inline;
+}
+.job_timeout_options {
+    clear: left;
+}
+.job_timeout_options .timeout_option {
+    clear: both;
+    display: block;
+}
+.job_timeout_options .timeout_option label{
+    vertical-align: text-bottom;
+}
+
+/*new admin stuff*/
+
+
+.environment_variables_section #add_variables{
+  float: none;
+}
+
+
+.form_body_text {
+    font-size: 12px;
+}
+
+.checkbox_row input.stage_security_mode {
+    margin-bottom: 10px;
+    vertical-align: middle !important;
+    margin-right: 0px;
+}
+.checkbox_row .checkbox_label_wrapper{
+    float: left;
+    font-size: 12px;
+}
+
+.checkbox_row .checkbox_label{
+    font-size: 12px;
+}
+
+.users_and_roles td {
+    padding-bottom: 5px;
+}
+
+td.align_top {
+    vertical-align: top;
+}
+
+.inherited_permissions div.users {
+    padding-bottom: 10px;
+}
+
+/*move this to the left because of add link*/
+#new_material_popup {
+    margin-left: 20px;
+}
+
+li.menu_item_last_with_border {
+    border-top: 1px solid #CCC;
+}
+
+#group_summary h1, #template_summary h1 {
+    background-color: transparent;
+    color: #3F2559;
+    font-size: 21px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    padding-bottom: 0;
+}
+
+#admin_pipeline_groups .content_wrapper_inner h1,
+#user_summary .content_wrapper_inner h1,
+#admin_templates .content_wrapper_inner h1,
+#oauth_page .content_wrapper_inner h1{
+    font-weight: 300;
+    margin-bottom: 14px;
+}
+
+#group_summary h1 strong,
+#user_summary h1 strong, #template_summary h1 strong {
+    float: left;
+}
+
+#group_summary .list_aggregation li,
+#user_summary .list_aggregation li, #template_summary .list_aggregation li {
+    color: #666;
+    font-weight: 300;
+}
+
+#group_summary .list_aggregation,
+#user_summary .list_aggregation, #template_summary .list_aggregation {
+    margin-top: 0;
+}
+
+input.searchbox.ac_loading {
+    background-image: image_url('g9/icons/spinny_white_16.gif');
+}
+
+#search_users_table {
+    height: 341px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.user_search_box {
+    padding-top: 15px;
+    padding-left: 15px;
+}
+
+.add_new_group,
+.add_new_users, .add_new_template {
+    float: right;
+}
+.isFixed .add_new_users{
+    margin-right: 20px;
+}
+
+.clear-float {
+    clear: both;
+}
+
+li.task_property span.name {
+    font-weight: bold;
+    margin-right: .3em;
+}
+
+li.task_property {
+    padding-right: .5em;
+}
+
+.light_box_content {
+   padding: 15px;
+}
+
+.light_box_content button.right {
+    float: right;
+}
+
+/*
+* oauth_user_tokens
+*/
+
+#oauth_page .page_header {
+    background: none;
+    margin-bottom: 5px;
+    overflow: hidden;
+    padding-top: 5px;
+}
+
+#oauth_page .page_header .entity_title {
+    margin-bottom: 0;
+}
+
+/*
+*  Modal box
+*/
+
+#add_error_message p {
+    background: #ffff99 image_url('g9/icons/icon_info_16.png') no-repeat scroll 10px 50%;
+    font-size: 12px;
+    padding: 10px 10px 10px 36px;
+}
+
+#oauth_page h2 {
+    font-size: 18px;
+    margin: 10px 0 5px;
+}
+
+#oauth_page .oauth_config_info {
+    margin-bottom: 20px !important;
+}
+
+#oauth_page .info-box {
+    background: #DDEBF3 image_url('g9/icons/icon_info_16.png') no-repeat scroll 0 0;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    background-position: 10px 9px !important;
+    background-repeat: no-repeat;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333333;
+    padding: 10px 10px 10px 36px !important;
+}
+
+#oauth_page .table_actions {
+    margin-top: 10px;
+}
+
+#oauth_page a.delete_link {
+    background: transparent image_url('g9/icons/icon_close_small.png') no-repeat scroll 0 0;
+    display: block;
+    height: 14px;
+    padding: 0;
+    width: 14px;
+}
+
+#oauth_page a.delete_link:hover {
+    background: transparent image_url('g9/icons/icon_close_hover_small.png') repeat scroll 0 0;
+}
+
+#oauth_page a.delete_link span {
+    display: none;
+}
+
+#oauth_page .oauth_config_info span {
+    font-weight: bold;
+}
+
+#oauth_page .oauth_config_info span.redirect-uri {
+    font-weight: normal;
+}
+
+#oauth_page .notes {
+    color: #999;
+    font-style: italic;
+}
+
+/* gadget pages */
+
+#oauth_page .certificate_details {
+    margin: 24px 0;
+    padding-top: 12px;
+    border-top: 1px solid #CCC;
+}
+
+#oauth_page .certificate_details h4 {
+    clear: left;
+    margin-top: 6px;
+    margin-bottom: 0.5em;
+}
+
+#oauth_page .certificate_details dt {
+    float: left;
+    clear: left;
+    margin-bottom: 0.5em;
+}
+
+#oauth_page .certificate_details dd {
+    margin-left: 200px;
+    min-height: 1.167em;
+    margin-bottom: 0.5em;
+}
+#oauth_page .accept_certificate_wrapper .info-box {
+    background-image: none;
+    padding: 10px !important;
+}
+
+#oauth_page .accept_certificate {
+    display: inline;
+}
+
+
+
+/* artifacts wizard */
+
+.artifact h4 {
+    margin-bottom: 5px;
+    font-size: larger;
+    float: left;
+}
+
+.artifact h4.src {
+    width: 45px;
+}
+
+.artifact h4.dest {
+    width: 75px;
+}
+
+.artifact h4.type {
+    width: 32px;
+}
+
+.artifact select {
+    margin-right: 10px;
+}
+
+.group_pipelines .group table {
+    width: 100%;
+}
+
+.group_pipelines .pipeline td.name,
+#admin_templates tr.pipeline td.name {
+    width: 50%;
+}
+
+.group_pipelines td .has_go_tip {
+    cursor: pointer;
+}
+
+
+/* Value Stream Map - styles */
+
+#body_bg.vsm #body_content {
+    background: #EEE;
+}
+
+#vsm-container {
+    position: relative;
+    background: #EEE;
+    overflow: auto;
+    margin: 5px;
+}
+
+#vsm-container a {
+    border: none;
+}
+
+#vsm-container .vsm-entity.dummy {
+    visibility: hidden;
+}
+
+#vsm-container .highlight {
+    background: #F2F2F2;
+    width: 253px;
+    min-height: 300px;
+    position: absolute;
+    left: 0px;
+}
+
+.vsm-entity{
+    position: absolute;
+    background: #FFF;
+    border: 1px solid #DDD;
+    font: 13px arial;
+    color: #666;
+    white-space: nowrap;
+    overflow: visible;
+    border-radius: 4px;
+    width: 190px;
+    height: 110px;
+    padding: 10px;
+}
+
+
+.vsm-entity h3, .vsm-entity h4 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: default;
+}
+
+.vsm-entity h3 {
+    background: image_url('andare/ico-16x16.png') no-repeat scroll 0px 0px transparent;
+    padding: 0px 0px 10px 12px;
+    border-bottom: 1px dotted #999;
+    font-size: 13px;
+    line-height: 16px;
+    padding-bottom: 5px;
+}
+
+.vsm-entity h3.restricted, .vsm-entity h3.deleted {
+    opacity: 0.7;
+}
+
+.vsm-entity h3 a {
+    cursor: pointer;
+}
+
+.material h3{
+    padding-bottom: 0;
+    border: 0 none;
+}
+
+.vsm-entity h4 {
+    font-size: 11px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.vsm-entity h4 .label {
+    background: image_url('andare/ico-16x16.png') no-repeat scroll 0px -20px transparent;
+    display: inline-block;
+    padding: 0 0 5px 18px;
+    text-indent: -6000px;
+}
+
+.vsm-entity .show-more {
+    text-align: center;
+    border-top: 1px solid #CCC;
+    margin: 3px 0px;
+}
+
+.vsm-entity .show-more a {
+    font-size: 11px;
+    height: 13px;
+    line-height: 13px;
+    padding: 0px 5px;
+    margin: -8px 50px 0px;
+    background: #FFF;
+    display: block;
+}
+
+.vsm-entity.current {
+    -webkit-box-shadow: 0 0 2px 2px #CCCCCC;
+    box-shadow: 0 0 2px 2px #CCCCCC;
+    border: 2px solid #AAA;
+    width: 230px;
+    height: 150px;
+}
+
+.vsm-entity.hovered {
+    border-color: #666;
+}
+
+.vsm-entity.pinned {
+    border-color: #666;
+}
+
+.vsm-entity .material_type {
+    /*background: image_url('andare/ico-16x16.png') no-repeat scroll  0 -141px #FFF;*/
+    background-image: none;
+    padding-left: 0px;
+    font-size: 11px;
+}
+
+.vsm-entity .material_type {
+    margin-bottom: 0;
+}
+
+.vsm-entity .actions {
+    background: #F8F8F8;
+    height: 30px;
+    position: absolute;
+    bottom: 5px;
+    width: 200px;
+    margin: 0px 0px 0px -5px;
+}
+
+.vsm-entity.pipeline .instances.expanded {
+    float: none;
+    height: 138px;
+    overflow: auto;
+}
+
+.vsm-entity.pipeline .instances {
+    float: none;
+    height: 46px;
+    overflow: hidden;
+}
+
+.vsm-entity.pipeline .instance {
+    overflow: hidden;
+    margin: 0px -3px 10px;
+    padding-bottom: 5px;
+    width: 196px;
+    padding-left: 2px;
+}
+
+.vsm-entity.pipeline.current .instance {
+    width: 237px;
+}
+
+.vsm-entity.pipeline.current .instance {
+    margin-top: 15px;
+}
+
+.vsm-entity.pipeline.expanded {
+    height: 156px;
+    z-index: 1000;
+    -webkit-box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
+    box-shadow:  2px 2px 3px 3px rgba(128, 128, 128, 0.2);
+    border: 1px solid #AAA;
+}
+
+.vsm-entity.pipeline.expanded .instances {
+    height: 92px;
+    overflow-y: auto;
+}
+
+.vsm-entity.pipeline.expanded.l {
+    height: 202px;
+}
+
+.vsm-entity.pipeline.expanded.l .instances {
+    height: 138px;
+}
+
+.vsm-entity.pipeline.expanded.xl {
+    height: 202px;
+    width: 210px;
+}
+
+.vsm-entity.pipeline.expanded.xl .actions {
+    width: 220px;
+}
+
+.vsm-entity.pipeline.expanded.xl .instances {
+    height: 138px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.vsm-entity.pipeline .stages {
+    white-space: normal;
+    margin-right: -4px;
+    text-indent: -6000px;
+    float: none;
+}
+.vsm-entity.pipeline .stages li {
+    min-width: 10px;
+    height: 12px;
+    margin-top: 3px;
+}
+
+.vsm-entity.pipeline .stages li a {
+    display: block;
+}
+
+.vsm-entity.pipeline .stages li.Cancelled a {
+    background-image: image_url('g9/stage_bar_cancelled_icon.png');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.vsm-entity.pipeline .message {
+    white-space: normal;
+    background: #F6F6F6;
+    font-size: 11px;
+    line-height: 15px;
+    padding: 7px;
+}
+
+.material_revisions {
+    border: 1px solid transparent;
+    position: relative;
+    height: 40px;
+    width: 70px;
+    clear: both;
+    margin: 0 auto;
+    z-index: 2;
+}
+
+
+.material_revisions,.triangle {
+    background-image:image_url('andare/thumbs-materials-100x100.png');
+    background-repeat: no-repeat;
+}
+
+.triangle {
+    background-position: -17px -5px;
+    height: 15px;
+    position: absolute;
+    right: -4px;
+    top: 0px;
+    width: 13px;
+}
+
+.material_revisions_label {
+    position: relative;
+    text-overflow: ellipsis;
+    clear: both;
+    background: #FFF;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 3px;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+#vsm-container > .instances {
+    width: 320px;
+    display: none;
+    left: 0;
+    position: absolute;
+    top: 96px;
+    z-index: 100;
+    background-color: rgba(255,255,255,1);
+    border: 1px solid #BBBBBB;
+    border-bottom: 0px solid #ccc;
+    line-height: 1.5em;
+    border-radius: 3px;
+
+    -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    padding-right: 0;
+
+}
+#vsm-container > .instances li {
+    border-bottom: 1px solid #CCCCCC;
+    float: none;
+    font-size: 11px;
+    overflow: hidden;
+    padding: 7px;
+    text-overflow: ellipsis;
+}
+
+#vsm-container > .instances li:first-child{
+    background: image_url("andare/comment-triangle.png") no-repeat scroll 77px 5px transparent;
+    height: 0;
+    border: 0 none;
+    margin-top: -14px;
+}
+
+#vsm-container > .instances li:nth-child(2) {
+    border: 0 none;
+    font-weight: bold;
+    background-color: #eee;
+}
+
+#vsm-container > .instances li:nth-child(2) div {
+    color: #666;
+}
+
+.vsm-entity.material, .vsm-entity.material *{
+    cursor: pointer;
+}
+.instances .icon, .vsm-entity.material .icon{
+    background: image_url('andare/ico-16x16.png') no-repeat scroll 0px 0px transparent;
+    /*background: image_url("andare/vsm-entity-icons.png") no-repeat scroll 0 0 transparent;*/
+    padding-left: 20px;
+}
+
+.vsm-entity.pipeline.current .actions {
+    width: 240px;
+}
+
+.vsm-entity.material {
+    border-radius: 70px;
+    height: 110px;
+    width: 110px;
+    overflow: hidden;
+}
+
+.vsm-entity.material .icon {
+    width: 16px;
+    height: 16px;
+    text-indent: -6000px;
+}
+
+.vsm-entity.material .actions {
+    bottom: 0 ;
+    text-align: center;
+    width: inherit;
+    margin: 0;
+    height: 30px;
+}
+
+.vsm-entity.material .more {
+    clear: both;
+    color: black;
+    cursor: pointer;
+    padding: 0;
+    height: 12px;
+    line-height: 0.4em;
+    overflow: hidden;
+    text-align: center;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 5px;
+}
+
+.vsm-entity.material .more:hover {
+    background-color: #efefef;
+}
+
+.vsm-entity.material .actions button {
+    float: none;
+    margin: 0 auto;
+}
+
+.vsm-entity.material .actions .pin {
+    margin-top: 5px;
+}
+
+.usercomment{
+    line-height: 12px;
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
+.instances .material-names{
+    background-position: 0 0;
+}
+.instances .user{
+    background-position: 0 -58px;
+}
+.instances .revision{
+    background-position: 0 -20px;
+}
+
+
+#vsm-container > .instances li div {
+    white-space: nowrap;
+    color: #444;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#vsm-container > .instances .author {
+    text-align: right;
+    color: #999;
+    border-bottom: 1px #dedede solid;
+    padding-bottom: 3px;
+}
+
+#vsm-container > .instances .author:last-child {
+    border-bottom: none;
+}
+
+#vsm-container > .instances li div span{
+    color: #999;
+}
+
+.material_revisions_label.one {
+    border: 1px solid white;
+    width: inherit !important;
+    cursor: default;
+}
+
+
+.material_revisions.git {
+    background-position: 10px -55px;
+}
+
+.material_revisions.mercurial {
+    background-position: 10px -106px;
+}
+
+.material_revisions.subversion {
+    background-position: 10px -207px;
+}
+
+.material_revisions.perforce {
+    background-position: 10px -157px;
+}
+
+.material_revisions.tfs {
+    background-position: 10px -257px;
+}
+
+.material_revisions.package {
+    background-position: 10px -332px;
+}
+
+
+.material_names {
+    padding: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    cursor: default;
+    float: left;
+    width: 160px;
+}
+
+.material_names span {
+    background-color: #FEFEFE;
+    margin: 2px 3px;
+    display: inline-block;
+    max-width: 50px;
+    padding: 3px;
+    cursor: default;
+}
+
+.dependency {
+    stroke: #DEDEDE;
+    stroke-width: 2px;
+    fill: none;
+    cursor: pointer;
+}
+
+.dependency.hovered {
+    stroke: #666;
+}
+
+.dependency.pinned {
+    stroke: #999;
+}
+
+.pin {
+    width: 16px;
+    height: 16px;
+    float: right;
+    background: image_url('andare/ico-16x16.png') no-repeat scroll 0px -140px #F8F8F8;
+    text-indent: -6000px;
+    margin: 8px 5px 5px 0px;
+}
+
+.pin:hover {
+    background-position: 0px -160px;
+    background-color: #666;
+}
+
+.pin.pinned {
+    background-position: 0px -180px;
+}
+
+.pin.pinned:hover {
+    background-position: 0px -160px;
+    background-color: #666;
+}
+
+.pin.pinned:active {
+    background-color: #EEEEEE;
+}
+
+/**/
+#pre-loader-overlay{
+    display: none;
+}
+#pre-loader-overlay .loading{
+    height: 30px;
+    width: 90px;
+    background-image: image_url('andare/gears-loader.gif');
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 8px solid #d4d4d4;
+    top: 0;
+    text-align: center;
+    font-size: 1.2em;
+    opacity: 0.8;
+    right: 0;
+    padding-top: 60px;
+    background-position: 50% 50%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+
+/* VSM - Overlay */
+
+#vsm-overlay {
+    background: rgba(225, 225, 225, 0.5);
+    position: fixed;
+    top: 93px;
+    z-index: 1000;
+    display: none;
+}
+
+#vsm-overlay .popup {
+    z-index: 1001;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+
+.pan {
+    width: 200px;
+    height: 150px;
+    border: 1px solid #AAAAAA;
+    border-radius: 1px;
+    position: absolute;
+    bottom: 90px;
+    right: 30px;
+    opacity: 0.8;
+    background-color: #E6E6E6;
+    overflow: hidden;
+    -webkit-box-shadow:  0px 0px 2px 2px rgba(128, 128, 128, 0.3);
+    box-shadow:  0px 0px 2px 2px rgba(128, 128, 128, 0.3);
+}
+
+.pan:hover {
+    opacity: 1;
+    opacity: 0.9;
+    border: 1px solid #888;
+    -webkit-box-shadow:  0px 0px 3px 3px rgba(128, 128, 128, 0.4);
+    box-shadow:  0px 0px 3px 3px rgba(128, 128, 128, 0.4);
+}
+
+.pan canvas {
+    position: absolute;
+    left:0;
+    top:0;
+    z-index: 10;
+}
+
+.pan .knob {
+    cursor: pointer;
+    cursor: hand;
+    width: 50px;
+    height: 30px;
+    position: absolute;
+    z-index: 11;
+    border: 1px solid #999;
+    background: #FFF;
+    opacity: 0.7;
+}
+
+.pan .knob:hover {
+    border: 1px solid #333;
+}
+
+.pan .constrainer {
+    overflow: visible;
+    position: relative;
+    z-index: 11;
+    background-color: rgba(0,0,0,0.01);
+}
+
+/*.text-right{*/
+    /*text-align: right;*/
+/*}*/
+.wraptext{
+    white-space: pre-wrap !important;
+}
+/*
+* ======= ADD ALL NEW STYLES ABOVE THIS LINE.  ONLY FLOAT CLEARING SHOULD GO BELOW ============
+*/
+
+/*
+* Float Clearing
+*/
+ul.variables:after,
+.environments .stages:after,
+.change_materials .materials:after,
+.change_materials:after,
+.environment .pipeline .deploy:after,
+.page_title_bar .other_runs li:after,
+.overview_widget:after,
+.overview_widget .job_grouping:after,
+.pipeline_bundle:after,
+.stage_history .stage:after,
+.pipeline_bundle:after,
+.pipeline_bundle .pipeline .title:after,
+.pipeline_bundle .pipeline .pipeline_instance_details:after,
+.pipeline_bundle .pipeline .previously:after,
+#pipeline_visualization:after,
+#pipelines .pipelines_selector:after,
+#ajax_agents_header:after,
+.pipeline_bundle .pipeline_operations:after,
+#user_summary h1:after,
+.user_permissions_section:after,
+#oauth_page .certificate_details dl:after
+{
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+
+
+
+//<!--[if IE 7]>
+//
+//             *+html ul.variables,
+//             *+html .environments .stages,
+//             *+html .change_materials .materials,
+//             *+html .change_materials,
+//             *+html .environment .pipeline .deploy,
+//             *+html .page_title_bar .other_runs li,
+//             *+html .overview_widget,
+//             *+html .overview_widget .job_grouping,
+//             *+html .stage_history .stage,
+//             *+html .pipeline_bundle,
+//             *+html .pipeline_bundle .pipeline .title,
+//             *+html .pipeline_bundle .pipeline .pipeline_instance_details,
+//             *+html .pipeline_bundle .pipeline .previously,
+//             *+html #pipeline_visualization,
+//             *+html #pipelines .pipelines_selector,
+//             *+html #ajax_agents_header
+//             *+html .pipeline,
+//             *+html .pipeline_bundle .pipeline_operations,
+//             *+html #user_summary h1,
+//             *+html #oauth_page .certificate_details dl
+//             {
+//               display: inline-block;
+//               zoom: 1;
+//             }
+//<![endif]-->
+//
+//<!--[if IE 8]>
+//
+//<style type="text/css">
+//                      ul.variables,
+//                      .environments .stages,
+//                      .change_materials .materials,
+//                      .change_materials,
+//                      .environment .pipeline .deploy,
+//                      .page_title_bar .other_runs li,
+//                      .overview_widget,
+//                      .overview_widget .job_grouping,
+//                      .stage_history .stage,
+//                      .pipeline_bundle,
+//                      .pipeline_bundle .pipeline .title,
+//                      .pipeline_bundle .pipeline .pipeline_instance_details,
+//                      .pipeline_bundle .pipeline .previously,
+//                      #pipeline_visualization,
+//                      #pipelines .pipelines_selector,
+//                      #ajax_agents_header,
+//                      .pipeline,
+//                      .pipeline_bundle .pipeline_operations,
+//                      #user_summary h1,
+//                      #oauth_page .certificate_details dl {
+//                        zoom: 1; /* triggers hasLayout */
+//                        display: block; /* resets display for IE/Win */
+//                        height: 1%;
+//                      }
+//
+///* Only IE can see inside the conditional comment
+//and read this CSS rule. Don't ever use a normal HTML
+//comment inside the CC or it will close prematurely. */
+//</style>
+//<![endif]-->

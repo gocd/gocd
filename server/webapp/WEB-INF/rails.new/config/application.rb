@@ -4,10 +4,6 @@ require "action_controller/railtie"
 require "rails"
 require "oauth2_provider"
 require "dynamic_form"
-
-# For gadgets client plugin
-ENV['ADMIN_OAUTH_URL_PREFIX'] = "admin"
-ENV['LOAD_OAUTH_SILENTLY'] = "yes"
 require "gadgets"
 
 module Go

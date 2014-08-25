@@ -1,0 +1,16 @@
+<%- @view_title = "Administration" -%>
+<div>
+    <% if @error -%>
+        <%== @error -%>
+    <% else -%>
+        <%== form_tag(plugin_save_path, :id => 'plugin_settings_form', :method => :post) -%>
+        <input type="hidden" name="plugin_id" value="<%== params[:plugin_id] -%>">
+
+        <h2>Settings for plugin: <%== params[:plugin_id] -%></h2><br/>
+
+        <div id="plugin_settings"><%== @settings_template -%></div>
+        <br/><br/>
+        <input type="submit">
+        <%== end_form_tag %>
+    <% end -%>
+</div>

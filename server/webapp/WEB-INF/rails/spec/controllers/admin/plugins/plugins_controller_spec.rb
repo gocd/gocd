@@ -23,6 +23,17 @@ describe Admin::Plugins::PluginsController do
       route_for(:controller => "admin/plugins/plugins", :action => "index").should == "admin/plugins"
       plugins_listing_path.should == "/admin/plugins"
     end
+
+    it "should resolve plugin settings route" do
+      params_from(:get, "/admin/plugin/edit").should == {:controller => "admin/plugins/plugins", :action => "edit"}
+      route_for(:controller => "admin/plugins/plugins", :action => "edit").should == "admin/plugin/edit"
+      plugin_edit_path.should == "/admin/plugin/edit"
+    end
+
+    it "should resolve plugin settings route" do
+      params_from(:post, "/admin/plugin/save").should == {:controller => "admin/plugins/plugins", :action => "save"}
+      plugin_save_path.should == "/admin/plugin/save"
+    end
   end
 
   describe :index do
@@ -74,4 +85,34 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
+  describe :edit do
+    before :each do
+      controller.stub!(:default_plugin_manager).and_return(@plugin_manager = mock('plugin_manager'))
+    end
+
+    it 'should populate settings template' do
+      settings_template = '<div></div>'
+      @plugin_manager.should_receive(:loadPluginSettings).with("sample").and_return(settings_template)
+      get :edit, :plugin_id =>'sample'
+      assigns[:tab_name].should == "plugins-listing"
+      assigns[:settings_template].should == settings_template
+    end
+
+    it 'should set error when plugin manager throws exception' do
+      @plugin_manager.should_receive(:loadPluginSettings).with("sample").and_raise("error")
+      get :edit, :plugin_id =>'sample'
+      assigns[:error].should == 'error'
+    end
+  end
+
+  describe :save do
+    before :each do
+      controller.stub!(:default_plugin_manager).and_return(@plugin_manager = mock('plugin_manager'))
+    end
+
+    it 'should save settings template' do
+      @plugin_manager.should_receive(:savePluginSettings).with('sample',"{\"key1\":\"value1\",\"key2\":{\"key2subKey1\":\"key2subKey1Value\"}}")
+      post :save, :plugin_id =>'sample', :settings => {:key1 => 'value1', :key2 => {:key2subKey1 => 'key2subKey1Value'}}
+    end
+  end
 end

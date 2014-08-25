@@ -23,6 +23,19 @@ class Admin::Plugins::PluginsController < AdminController
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
   end
 
+  def edit
+    begin
+      @settings_template = default_plugin_manager.loadPluginSettings(params[:plugin_id]);
+    rescue => e
+      @error = "#{e.message}"
+    end
+  end
+
+  def save
+    default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json);
+    redirect_to :action => "edit", :plugin_id => params[:plugin_id] and return
+  end
+
   private
   def set_tab_name
     @tab_name = 'plugins-listing'

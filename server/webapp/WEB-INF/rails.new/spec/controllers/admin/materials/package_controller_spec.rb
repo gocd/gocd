@@ -25,7 +25,17 @@ describe Admin::Materials::PackageController do
     @short_material_type = 'package'
   end
 
-  it_should_behave_like :material_controller
+  it_should_behave_like :material_controller do
+    def assert_material_is_initialized
+      assigns[:material].should_not == nil
+      assigns[:material].getType().should == 'PackageMaterial'
+    end
+
+    def controller_specific_assertion
+      assigns[:package_configuration].should_not == be_nil
+      assigns[:package_configuration].name.should == @material.getPackageDefinition().getName()
+    end
+  end
 
   describe :action do
     before :each do
@@ -132,12 +142,7 @@ describe Admin::Materials::PackageController do
     setup_metadata
   end
 
-  def assert_material_is_initialized
-    assigns[:material].should_not == nil
-    assigns[:material].getType().should == 'PackageMaterial'
-  end
 
-  private
   def configuration_for name, value
     {:configurationKey => {:name => name}, :configurationValue => {:value => value}}
   end
@@ -150,8 +155,4 @@ describe Admin::Materials::PackageController do
     package_material.getPackageDefinition().getRepository().should_not be_nil
   end
 
-  def controller_specific_assertion
-    assigns[:package_configuration].should_not == be_nil
-    assigns[:package_configuration].name.should == @material.getPackageDefinition().getName()
-  end
 end

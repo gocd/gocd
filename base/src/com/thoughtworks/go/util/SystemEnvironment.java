@@ -104,7 +104,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
     /* Temporary: Feature toggle "use.new.rails" is related to this. */
-    public static GoSystemProperty<Boolean> USE_NEW_RAILS = new GoBooleanSystemProperty("use.new.rails", false);
+    public static GoSystemProperty<Boolean> USE_NEW_RAILS = new GoBooleanSystemProperty("use.new.rails", true);
 
     public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<Integer>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
     public static GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<Integer>(new GoIntSystemProperty("material.update.inactive.timeout", 15));

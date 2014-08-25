@@ -79,9 +79,6 @@
                 <bcprov.artifactId>bcprov-jdk16</bcprov.artifactId>
                 <bcprov.version>140</bcprov.version>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
         <profile>
             <id>newrails</id>
@@ -98,6 +95,9 @@
                 <bcprov.artifactId>bcprov-jdk15on</bcprov.artifactId>
                 <bcprov.version>1.47</bcprov.version>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
     </profiles>
 

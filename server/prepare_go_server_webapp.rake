@@ -120,7 +120,7 @@ CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_versio
 task :copy_files do
   safe_cp "webapp", "target"
 
-  if ENV['USE_NEW_RAILS'] == "Y"
+  if ENV['USE_NEW_RAILS'] != "N"
     FileUtils.remove_dir("target/webapp/WEB-INF/rails", true)
   else
     FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true)
@@ -281,7 +281,7 @@ task "version-image-urls-in-css" do
 end
 
 # inline partials
-RAILS_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "rails.new" : "rails"
+RAILS_DIR = ENV['USE_NEW_RAILS'] != "N" ? "rails.new" : "rails"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
 RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"

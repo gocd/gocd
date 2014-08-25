@@ -142,7 +142,7 @@ describe Admin::Materials::PackageController do
     setup_metadata
   end
 
-
+  private
   def configuration_for name, value
     {:configurationKey => {:name => name}, :configurationValue => {:value => value}}
   end

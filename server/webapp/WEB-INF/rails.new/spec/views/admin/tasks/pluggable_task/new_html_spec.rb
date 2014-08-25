@@ -31,8 +31,8 @@ describe "admin/tasks/plugin/new.html.erb" do
     view.stub(:admin_task_create_path).and_return("task_create_path")
 
     # Fake a plugin loaded into Go's plugin registry.
-    registry = Spring.bean "defaultPluginRegistry"
-    registry.loadPlugin GoPluginDescriptor.new(PLUGIN_ID, "1.0", GoPluginDescriptor::About.new(nil, nil, nil, nil, nil, ["Linux"]), nil, nil, false)
+    @registry = Spring.bean "defaultPluginRegistry"
+    @registry.loadPlugin GoPluginDescriptor.new(PLUGIN_ID, "1.0", GoPluginDescriptor::About.new(nil, nil, nil, nil, nil, ["Linux"]), nil, nil, false)
 
     # Fake more of its initialisation. Fake the part where Go talks to the plugin and gets its config for caching.
     PluggableTaskConfigStore.store().setPreferenceFor(PLUGIN_ID, TaskPreference.new(TaskMother::ApiTaskForTest.new({:display_value => "test curl", :template => PLUGIN_TEMPLATE})))
@@ -40,6 +40,7 @@ describe "admin/tasks/plugin/new.html.erb" do
 
   after :each do
     PluggableTaskConfigStore.store().removePreferenceFor(PLUGIN_ID)
+    @registry.unloadAll() if @registry
   end
 
   it "should render plugin template and data for a new pluggable task" do

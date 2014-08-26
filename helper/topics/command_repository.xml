@@ -59,7 +59,7 @@
 </section>
 
 <section title="Bundled Repository" id="bundled-repo">
-The default set of commands come from <exref url=" https://github.com/goteam/go-command-repo">https://github.com/goteam/go-command-repo</exref>. This repository is maintained by the Go team. The Go server installer bundles a clone of this Git repository under <strong>&lt;server-install-root&gt;/db/command_repository/default</strong>. Future Go server upgrades will overwrite the contents of this directory with an up to date set of commands. Hence, please do not add your commands here. Instead, set up a <cref topic="command_repository" anchor="pvt-repo">private repository</cref>.
+The default set of commands come from <exref url=" https://github.com/gocd/go-command-repo">https://github.com/gocd/go-command-repo</exref>. This repository is maintained by the Go team. The Go server installer bundles a clone of this Git repository under <strong>&lt;server-install-root&gt;/db/command_repository/default</strong>. Future Go server upgrades will overwrite the contents of this directory with an up to date set of commands. Hence, please do not add your commands here. Instead, set up a <cref topic="command_repository" anchor="pvt-repo">private repository</cref>.
 <subsection title="Pulling Updates" id="pull-updates">
 <p>Go team will continue to add (and sometimes update) commands to the repository on GitHub. If you want to make these commands available to your Go server without waiting for a new release or without upgrading your Go server, you could git pull them into &lt;go-server-install-root&gt;/db/command_repository/default as desired.</p>
 <p><strong>Linux/Unix</strong></p>
@@ -138,7 +138,7 @@ moreinfo: http://curl.haxx.se/docs/manual.html
 ]]>
      </code>
 	 <p>This is an example of valid command syntax. The command attribute is mandatory. No other attributes are valid. Zero or more arg child elements can be specified. No other child elements are allowed. One command file may only contain one command.</p>
-<note><strong>Please refer the <exref url="https://github.com/goteam/go-command-repo/blob/master/README.md">README</exref> for full command and documentation syntax.</strong></note>
+<note><strong>Please refer the <exref url="https://github.com/gocd/go-command-repo/blob/master/README.md">README</exref> for full command and documentation syntax.</strong></note>
 	 <p>When you lookup a command, the following logic is used to sort the resulting suggestions:
 <steps>
 <item>Exact matches of name in command documentation (or filename if name missing)</item>
@@ -149,7 +149,7 @@ Within each category, the sorting is alphabetical.</p>
 </section>
 
 <section title="Contributing Commands" id="contrib-cmds"><p>
-We welcome commands contributed by users. Simply,<steps><item> <exref url="https://help.github.com/articles/fork-a-repo">fork</exref> this <exref url="https://github.com/goteam/go-command-repo">GitHub repo</exref></item><item>Clone it locally</item><item>Commit and push your change</item><item>Send us a <exref url="https://help.github.com/articles/using-pull-requests">pull request</exref></item></steps>Accepted commands will be bundled into the next release.</p></section>
+We welcome commands contributed by users. Simply,<steps><item> <exref url="https://help.github.com/articles/fork-a-repo">fork</exref> this <exref url="https://github.com/gocd/go-command-repo">GitHub repo</exref></item><item>Clone it locally</item><item>Commit and push your change</item><item>Send us a <exref url="https://help.github.com/articles/using-pull-requests">pull request</exref></item></steps>Accepted commands will be bundled into the next release.</p></section>
 
 <section title="Further Reading" id="further">
     <p><exref url="http://www.thoughtworks.com/insights/blog/use-gos-new-command-repository-lookup-your-config-scripts">Use it to lookup your config scripts</exref> </p>

@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.dao;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.Approval;
@@ -1552,26 +1549,45 @@ public class StageSqlMapDaoIntegrationTest {
             dbHelper.pass(pipeline);
             pipelines[i] = pipeline;
         }
-        List<Stage> stages = stageDao.oldestStagesHavingArtifacts();
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(100));
         for (int i = 0; i < 100; i++) {
             Stage stage = stages.get(i);
             assertThat(stage.getIdentifier(), Matchers.is(pipelines[i].getFirstStage().getIdentifier()));
             stageDao.markArtifactsDeletedFor(stage);
         }
-        stages = stageDao.oldestStagesHavingArtifacts();
+        stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
         stageDao.markArtifactsDeletedFor(stages.get(0));
-        assertThat(stageDao.oldestStagesHavingArtifacts().size(), is(0));
+        assertThat(stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>()).size(), is(0));
+    }
+
+    @Test
+    public void shouldNotLoadStagesProvidedInFilterList() {
+        Pipeline pipelineOne = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-one", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineOne);
+
+        Pipeline pipelineTwo = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-two", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineTwo);
+
+        Pipeline pipelineThree = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-three", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineThree);
+
+        List<StageConfigIdentifier> stagesFilter = asList(new StageConfigIdentifier("pipeline-two", "stage"), new StageConfigIdentifier("pipeline-three", "stage"));
+
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(stagesFilter);
+
+        assertThat(stages.size(),is(1));
+        assertThat(stages.get(0).getPipelineId(),is(pipelineOne.getId()));
     }
 
     @Test
     public void shouldOnlyLoadCompletedStagesAsOldestStagesHavingArtifacts() {
         Pipeline pipeline = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("foo", "stage1", "job1"), new TimeProvider());
-        List<Stage> stages = stageDao.oldestStagesHavingArtifacts();
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(0));
         dbHelper.pass(pipeline);
-        stages = stageDao.oldestStagesHavingArtifacts();
+        stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
     }
 

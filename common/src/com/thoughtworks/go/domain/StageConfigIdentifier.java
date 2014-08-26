@@ -83,6 +83,6 @@ public class StageConfigIdentifier {
     }
 
     public String concatedStageAndPipelineName() {
-        return format("%s/%s", pipelineName, stageName);
+        return format("%s/%s", pipelineName, stageName).toUpperCase();
     }
 }

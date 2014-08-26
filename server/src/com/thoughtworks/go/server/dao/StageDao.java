@@ -98,7 +98,7 @@ public interface StageDao extends JobDurationStrategy {
 
     Stages findAllStagesFor(String pipelineName, int counter);
 
-    List<Stage> oldestStagesHavingArtifacts();
+    List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> stagesFilter);
 
     void markArtifactsDeletedFor(Stage stage);
 

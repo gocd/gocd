@@ -544,9 +544,9 @@ public class StageServiceTest {
         Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
         Stage stageQuux = StageMother.passedStageInstance("stage-quux", "job", "pipeline-bar");
         ArrayList<StageConfigIdentifier> stagesFilter = new ArrayList<StageConfigIdentifier>();
-        when(stageDao.oldestStagesHavingArtifacts()).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
+        when(stageDao.oldestStagesHavingArtifacts(stagesFilter)).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
 
-        List<Stage> stages = service.oldestStagesWithDeletableArtifacts();
+        List<Stage> stages = service.oldestStagesWithDeletableArtifacts(stagesFilter);
         assertThat(stages.size(), is(4));
         assertThat(stages, hasItem(stageFoo));
         assertThat(stages, hasItem(stageBar));

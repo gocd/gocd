@@ -368,7 +368,7 @@
 
     <select id="allCompletedStages" resultMap="stage-feed-entry">
         <include refid="selectForFeed"/>
-        WHERE completedByTransitionId IS NOT NULL 
+        WHERE completedByTransitionId IS NOT NULL
         ORDER BY completedByTransitionId DESC
         LIMIT #pageLimit#
     </select>
@@ -618,7 +618,11 @@
         FROM stages
         INNER JOIN pipelines ON pipelines.id = stages.pipelineId
         LEFT OUTER JOIN stageArtifactCleanupProhibited prohibitedCheck on prohibitedCheck.pipelineName = pipelines.name AND prohibitedCheck.stageName = stages.name
-        WHERE artifactsDeleted = FALSE AND (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND completedByTransitionId IS NOT NULL
+        WHERE
+        UPPER(CONCAT(pipelines.name,'/',stages.name)) NOT IN ($stagesFilter$) AND
+        artifactsDeleted = FALSE AND
+        (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND
+        completedByTransitionId IS NOT NULL
         ORDER BY stages.id ASC
         LIMIT 100
     </select>

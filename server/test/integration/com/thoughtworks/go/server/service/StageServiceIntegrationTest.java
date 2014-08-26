@@ -536,7 +536,7 @@ public class StageServiceIntegrationTest {
 
         Pipeline completed = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(completed);
-        List<Stage> stages = stageService.oldestStagesWithDeletableArtifacts();
+        List<Stage> stages = stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
 
         CruiseConfig cruiseConfig = configFileHelper.currentConfig();
@@ -546,7 +546,7 @@ public class StageServiceIntegrationTest {
 
         configDbStateRepository.flushConfigState();
 
-        stages = stageService.oldestStagesWithDeletableArtifacts();
+        stages = stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(0));
     }
 
@@ -567,7 +567,7 @@ public class StageServiceIntegrationTest {
             pipelines[i] = pipeline;
         }
 
-        List<Stage> stages = stageService.oldestStagesWithDeletableArtifacts();
+        List<Stage> stages = stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>());
         for (int i = 0; i < 100; i++) {
             Stage stage = stages.get(i);
             assertThat(stage.getIdentifier(), is(pipelines[i].getFirstStage().getIdentifier()));
@@ -575,13 +575,13 @@ public class StageServiceIntegrationTest {
         }
         assertThat(stages.size(), is(100));
 
-        stages = stageService.oldestStagesWithDeletableArtifacts();
+        stages = stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
         Stage stage = stages.get(0);
         assertThat(stage.getIdentifier(), is(pipelines[100].getFirstStage().getIdentifier()));
         stageService.markArtifactsDeletedFor(stage);
 
-        assertThat(stageService.oldestStagesWithDeletableArtifacts().size(), is(0));
+        assertThat(stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>()).size(), is(0));
     }
 
     @Test

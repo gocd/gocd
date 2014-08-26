@@ -1,4 +1,9 @@
 PATH
+  remote: vendor/engines/gadgets
+  specs:
+    gadgets (0.0.1)
+      rails (~> 4.0.4)
+      validatable (>= 1.6.0)
   remote: vendor/engines/oauth2_provider
   specs:
     oauth2_provider (0.0.1)
@@ -85,6 +90,7 @@ PLATFORMS
 
 DEPENDENCIES
   dynamic_form
+  gadgets (= 0.0.1)!
   oauth2_provider (= 0.0.1)!
   rails (= 4.0.4)
   validatable (>= 1.6.0)

@@ -14,21 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-Oauth2Provider::Configuration.ssl_base_url = proc { Spring.bean('go_config_service'.camelize(:lower)).getCurrentConfig.server.getSecureSiteUrl.getUrl }
-Oauth2Provider::Configuration.ssl_not_configured_message = "Please set the secureSiteURL attribute in the configuration file."
-
-Oauth2Provider::ModelBase.instance_eval do
-  def datasource
-    @go_oauth_provider_datasource ||= Spring.bean("oauthRepository")
-  end
-end
-
-Gadgets::ModelBase.instance_eval do
-  def datasource
-    @go_gadget_datasource ||= Spring.bean("gadgetRepository")
-  end
-
-  def datasource=(ds)
-    @go_gadget_datasource = ds
+# applications can change these to suit your needs
+Gadgets.init do |config|
+  config.application_name = 'Go'
+  config.application_base_url = proc { Thread.current[:base_url].gsub(/\/+$/, '') + "/go" }
+  config.ssl_base_url = proc { Thread.current[:ssl_base_url].gsub(/\/+$/, '') + "/go" }
+  if Rails.env == 'test'
+    config.truststore_path = File.join(Rails.root, 'tmp', "gadget_truststore.jks")
+  else
+    config.truststore_path = File.join(com.thoughtworks.go.util.SystemEnvironment.new.configDir().getAbsolutePath(), "gadget_truststore.jks")
   end
 end

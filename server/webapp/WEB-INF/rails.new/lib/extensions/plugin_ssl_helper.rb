@@ -14,21 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-Oauth2Provider::Configuration.ssl_base_url = proc { Spring.bean('go_config_service'.camelize(:lower)).getCurrentConfig.server.getSecureSiteUrl.getUrl }
-Oauth2Provider::Configuration.ssl_not_configured_message = "Please set the secureSiteURL attribute in the configuration file."
+module ::GoSslHelper
+  def self.included base
+    base.alias_method_chain :mandatory_ssl, :config_enforcement
+  end
 
-Oauth2Provider::ModelBase.instance_eval do
-  def datasource
-    @go_oauth_provider_datasource ||= Spring.bean("oauthRepository")
+  def mandatory_ssl_with_config_enforcement
+    if Thread.current[:ssl_base_url].nil?
+      @message = l.string("SSL_ENFORCED_BUT_BASE_NOT_FOUND")
+      @status = 404
+      render 'shared/ssl_not_configured_error', :status => @status, :layout => true
+      return false
+    end
+    mandatory_ssl_without_config_enforcement
   end
 end
 
-Gadgets::ModelBase.instance_eval do
-  def datasource
-    @go_gadget_datasource ||= Spring.bean("gadgetRepository")
-  end
+Gadgets::SslHelper.class_eval { include ::GoSslHelper }
 
-  def datasource=(ds)
-    @go_gadget_datasource = ds
-  end
-end

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.cronjob;
 
+import com.thoughtworks.go.plugin.access.artifactcleanup.ArtifactCleanupExtension;
 import com.thoughtworks.go.server.service.ArtifactsDiskCleaner;
 import com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullChecker;
 import com.thoughtworks.go.server.service.ArtifactsDiskSpaceWarningChecker;
@@ -45,6 +46,7 @@ public class GoDiskSpaceMonitor {
     private EmailSender emailSender;
     private SystemDiskSpaceChecker systemDiskSpaceChecker;
     private ArtifactsService artifactsService;
+    private ArtifactCleanupExtension artifactCleanupExtension;
     private StageService stageService;
     private ConfigDbStateRepository configDbStateRepository;
     private DiskSpaceChecker[] checkers;
@@ -57,12 +59,12 @@ public class GoDiskSpaceMonitor {
                               EmailSender emailSender,
                               ArtifactsService artifactsService,
                               StageService stageService,
-                              ConfigDbStateRepository configDbStateRepository) {
-        this(goConfigService, systemEnvironment, serverHealthService, emailSender, new SystemDiskSpaceChecker(), artifactsService, stageService, configDbStateRepository);
+                              ConfigDbStateRepository configDbStateRepository, ArtifactCleanupExtension artifactCleanupExtension) {
+        this(goConfigService, systemEnvironment, serverHealthService, emailSender, new SystemDiskSpaceChecker(), artifactsService, stageService, configDbStateRepository, artifactCleanupExtension);
     }
 
     public GoDiskSpaceMonitor(GoConfigService goConfigService, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService, EmailSender emailSender,
-                              SystemDiskSpaceChecker systemDiskSpaceChecker, ArtifactsService artifactsService, StageService stageService, ConfigDbStateRepository configDbStateRepository) {
+                              SystemDiskSpaceChecker systemDiskSpaceChecker, ArtifactsService artifactsService, StageService stageService, ConfigDbStateRepository configDbStateRepository, ArtifactCleanupExtension artifactCleanupExtension) {
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.serverHealthService = serverHealthService;
@@ -71,6 +73,7 @@ public class GoDiskSpaceMonitor {
         this.artifactsService = artifactsService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
+        this.artifactCleanupExtension = artifactCleanupExtension;
     }
 
     public void initialize() {
@@ -79,7 +82,7 @@ public class GoDiskSpaceMonitor {
                 new ArtifactsDiskSpaceWarningChecker(systemEnvironment, emailSender, goConfigService, systemDiskSpaceChecker, serverHealthService),
                 new DatabaseDiskSpaceFullChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker),
                 new DatabaseDiskSpaceWarningChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker, serverHealthService),
-                new ArtifactsDiskCleaner(systemEnvironment, goConfigService, systemDiskSpaceChecker, artifactsService, stageService, configDbStateRepository)};
+                new ArtifactsDiskCleaner(systemEnvironment, goConfigService, systemDiskSpaceChecker, artifactsService, stageService, configDbStateRepository, artifactCleanupExtension)};
     }
 
     //Note: This method is called from a Spring timer task

@@ -20,14 +20,8 @@ import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsLow;
 import com.thoughtworks.go.fixture.DatabaseDiskIsFull;
 import com.thoughtworks.go.fixture.DatabaseDiskIsLow;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConfigDbStateRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.service.SystemDiskSpaceChecker;
-import com.thoughtworks.go.server.service.TestingEmailSender;
+import com.thoughtworks.go.plugin.access.artifactcleanup.ArtifactCleanupExtension;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -43,14 +37,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
+
 import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -70,6 +64,7 @@ public class GoDiskSpaceMonitorTest {
     private long diskSpaceCacheRefresherInterval;
     private StageService stageService;
     private ConfigDbStateRepository configDbStateRepository;
+    private ArtifactCleanupExtension artifactCleanupExtension;
 
     @Before
     public void setUp() throws Exception {
@@ -78,8 +73,9 @@ public class GoDiskSpaceMonitorTest {
         mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);
         stageService = mock(StageService.class);
         configDbStateRepository = mock(ConfigDbStateRepository.class);
+        artifactCleanupExtension = mock(ArtifactCleanupExtension.class);
         goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment, serverHealthService, emailSender, mockDiskSpaceChecker, mock(ArtifactsService.class),
-                stageService, configDbStateRepository);
+                stageService, configDbStateRepository, artifactCleanupExtension);
         goDiskSpaceMonitor.initialize();
         diskSpaceCacheRefresherInterval = systemEnvironment.getDiskSpaceCacheRefresherInterval();
         systemEnvironment.setDiskSpaceCacheRefresherInterval(-1);
@@ -122,7 +118,7 @@ public class GoDiskSpaceMonitorTest {
         goDiskSpaceMonitor.onTimer();
 
         verify(configDbStateRepository, times(1)).flushConfigState();
-        verify(stageService, times(1)).oldestStagesWithDeletableArtifacts();
+        verify(stageService, times(1)).oldestStagesWithDeletableArtifacts(any(List.class));
         verifyNoMoreInteractions(stageService, configDbStateRepository);
     }
 

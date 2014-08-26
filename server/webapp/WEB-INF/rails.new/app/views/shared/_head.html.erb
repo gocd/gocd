@@ -2,7 +2,7 @@
     <%= @view_title %> - Go
 </title>
 <%= yield :before_stylesheets %>
-<%= stylesheet_link_tag "application", media: "all" %>
+<%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
 <!-- START: prototype hooks for css injection -->
 <% if params[:controller] == "prototype" %>
@@ -14,9 +14,7 @@
 
 <!-- END: prototype hooks for css injection -->
 
-<%= javascript_include_tag "application"%>
-
-
+<%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
 <![if !IE]>
     <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
 <![endif]>

@@ -22,24 +22,14 @@ Go::Application.configure do
   # config.action_dispatch.rack_cache = true
 
   # Disable Rails's static asset server (Apache or nginx will already do this).
-  # config.serve_static_assets = true
-  # config.static_cache_control = public, max-age=31536000
   config.assets.js_compressor = :yui
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
-#  config.assets.compile = false
+  config.assets.compile = false
+  config.assets.compress = true
 
   # Generate digests for assets URLs.
   config.assets.digest = true
-  # config.assets.js_compressor = :yui
-  # config.assets.css_compressor = :sass
-  # config.assets.logger = Rails.logger
-
-  # config.assets.configure do |env|
-  #   env.js_compressor  = :yui
-  #   env.css_compressor = :sass
-  #   env.logger = Rails.logger
-  # end
 
   # Version of your assets, change this if you want to expire all your assets.
   config.assets.version = '1.0'

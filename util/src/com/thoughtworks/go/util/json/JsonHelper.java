@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JsonHelper {
+    public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss S";
+
     public static void addDeveloperErrorMessage(JsonMap jsonMap, Exception e) {
         addFriendlyErrorMessage(jsonMap, e.getMessage() + ": " + e.getCause() + " at " + e.getStackTrace()[0]);
     }
@@ -30,6 +32,11 @@ public class JsonHelper {
 
     public static String toJsonString(Object object) {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.toJson(object);
+    }
+
+    public static String toJsonString(Object object,String dateFormat) {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setDateFormat(dateFormat).create();
         return gson.toJson(object);
     }
 

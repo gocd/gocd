@@ -16,23 +16,32 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import static java.lang.String.format;
 
 @Service
 public class DefaultPluginManager implements PluginManager {
@@ -40,16 +49,18 @@ public class DefaultPluginManager implements PluginManager {
     private final DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
     private final DefaultPluginJarChangeListener listener;
+    private GoApplicationAccessor goApplicationAccessor;
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener listener, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, SystemEnvironment systemEnvironment) {
         this.monitor = monitor;
         this.registry = registry;
         this.listener = listener;
+        this.goApplicationAccessor = goApplicationAccessor;
         this.systemEnvironment = systemEnvironment;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
@@ -87,7 +98,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-        if(goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId)){
+        if (goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId)) {
             doOn(serviceReferenceClass, pluginId, action);
         }
     }
@@ -118,15 +129,62 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-        PluginChangeListener filterChangeListener=new FilterChangeListener(goPluginOSGiFramework,pluginChangeListener,serviceReferenceClass);
+        PluginChangeListener filterChangeListener = new FilterChangeListener(goPluginOSGiFramework, pluginChangeListener, serviceReferenceClass);
         goPluginOSGiFramework.addPluginChangeListener(filterChangeListener);
+    }
+
+    @Override
+    public GoPluginApiResponse submitTo(String pluginId, final GoPluginApiRequest apiRequest) {
+        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
+            @Override
+            public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
+                plugin.initializeGoApplicationAccessor(goApplicationAccessor);
+                return plugin.handle(apiRequest);
+            }
+        });
+    }
+
+    public List<GoPluginIdentifier> allPluginsOfType(final String extension) {
+        final List<GoPluginIdentifier> list = new ArrayList<GoPluginIdentifier>();
+        goPluginOSGiFramework.doOnAll(GoPlugin.class, new Action<GoPlugin>() {
+            @Override
+            public void execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
+                GoPluginIdentifier goPluginIdentifier = plugin.pluginIdentifier();
+                if (extension.equals(goPluginIdentifier.getExtension())) {
+                    list.add(goPluginIdentifier);
+                }
+            }
+        });
+        return list;
+    }
+
+    public String loadPluginSettings(String pluginId) {
+        GoPluginApiResponse response;
+        try {
+            response = submitTo(pluginId, new DefaultGoPluginApiRequest("", "", "load-settings"));
+        } catch (GoPluginFrameworkException e) {
+            throw new RuntimeException(format("Plugin %s does not support this operation", pluginId));
+        }
+        if (SUCCESS_RESPONSE_CODE == response.responseCode()) {
+            return response.responseBody();
+        }
+        throw new RuntimeException(format("Error while loading settings for plugin %s. [%s]", pluginId, response.responseBody()));
+    }
+
+    public void savePluginSettings(String pluginId, String settingsAsJson) {
+        DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("", "", "save-settings");
+        request.setRequestBody(settingsAsJson);
+        GoPluginApiResponse response = submitTo(pluginId, request);
+        if (SUCCESS_RESPONSE_CODE != response.responseCode()) {
+            throw new RuntimeException(format("Error while saving settings for plugin %s. [%s]", pluginId, response.responseBody()));
+        }
     }
 
     private void removeBundleDirectory() {
         try {
             FileUtils.deleteDirectory(bundleLocation);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to copy delete bundle directory %s", bundleLocation), e);
+            throw new RuntimeException(format("Failed to copy delete bundle directory %s", bundleLocation), e);
         }
     }
 
@@ -158,7 +216,7 @@ public class DefaultPluginManager implements PluginManager {
 
         private boolean shouldCallDelegate(String pluginId) {
             for (Class<?> serviceReference : serviceReferences) {
-                if(goPluginOSGiFramework.hasReferenceFor(serviceReference, pluginId)){
+                if (goPluginOSGiFramework.hasReferenceFor(serviceReference, pluginId)) {
                     return true;
                 }
             }

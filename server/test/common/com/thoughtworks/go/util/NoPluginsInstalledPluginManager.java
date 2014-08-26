@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.infra.*;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+
 import java.util.Collections;
 import java.util.List;
-
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 public class NoPluginsInstalledPluginManager implements PluginManager {
     @Override
@@ -69,5 +68,15 @@ public class NoPluginsInstalledPluginManager implements PluginManager {
 
     @Override
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
+    }
+
+    @Override
+    public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
+        throw new RuntimeException("Invalid plugin: " + pluginId);
+    }
+
+    @Override
+    public List<GoPluginIdentifier> allPluginsOfType(String extension) {
+        return null;
     }
 }

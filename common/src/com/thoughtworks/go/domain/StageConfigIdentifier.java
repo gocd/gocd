@@ -18,9 +18,11 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import static java.lang.String.format;
+
 public class StageConfigIdentifier {
-private final CaseInsensitiveString pipelineName;
-    private final CaseInsensitiveString stageName;
+    CaseInsensitiveString pipelineName;
+    CaseInsensitiveString stageName;
 
     public StageConfigIdentifier(String pipelineName, String stageName) {
         this(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
@@ -38,6 +40,19 @@ private final CaseInsensitiveString pipelineName;
     public String getStageName() {
         return CaseInsensitiveString.str(stageName);
     }
+
+    /* for iBatis START*/
+    public StageConfigIdentifier() {
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = new CaseInsensitiveString(pipelineName);
+    }
+
+    public void setStageName(String stageName) {
+        this.stageName = new CaseInsensitiveString(stageName);
+    }
+    /*for iBatis END*/
 
     @Override
     public boolean equals(Object o) {
@@ -65,5 +80,9 @@ private final CaseInsensitiveString pipelineName;
         int result = pipelineName != null ? pipelineName.hashCode() : 0;
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         return result;
+    }
+
+    public String concatedStageAndPipelineName() {
+        return format("%s/%s", pipelineName, stageName).toUpperCase();
     }
 }

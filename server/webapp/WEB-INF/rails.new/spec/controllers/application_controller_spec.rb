@@ -253,6 +253,8 @@ describe ApplicationController do
 
       describe "url cache" do
         before do
+          draw_test_controller_route
+
           ActionController::Base.class_eval do
             @@url_cache_miss_count = 0
             alias_method :url_for_original, :url_for
@@ -286,72 +288,72 @@ describe ApplicationController do
           controller.go_cache.clear
         end
 
-        #it "should cache the url based on options" do
-        #  params.clear
-        #  controller.url_for('foo' => 'foo', 'bar' => 'bar').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
-        #  controller.url_for('bar' => 'bar', 'foo' => 'foo').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
-        #end
-        #
-        #it "should cache the url based on params" do
-        #  controller.stub!(:params).and_return({:foo => "foo", :bar => "bar"})
-        #  controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
-        #  controller.stub!(:params).and_return({:bar => "bar", :foo => "foo"})
-        #  controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
-        #end
-        #
-        #it "should cache the url based on params and options" do
-        #  controller.stub!(:params).and_return({:bar => "bar", :baz => "baz"})
-        #  controller.url_for(:foo => "foo", :quux => "quux").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
-        #
-        #  controller.stub!(:params).and_return({:baz => "baz", :bar => "bar"})
-        #  controller.url_for(:quux => "quux", :foo => "foo").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
-        #
-        #  controller.url_for(:foo => "foo").should == "2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host"
-        #
-        #  controller.stub!(:params).and_return({:bar => "bar"})
-        #  controller.url_for(:foo => "foo").should == "3 - bar=bar - foo=foo|only_path=true - http:// - test.host"
-        #end
-        #
-        #it "should cache the url based on values" do
-        #  controller.url_for(:foo => "foo", :quux => "foo").should == "1 -  - foo=foo|only_path=true|quux=foo - http:// - test.host"
-        #  controller.url_for(:foo => "foo", :quux => "quux").should == "2 -  - foo=foo|only_path=true|quux=quux - http:// - test.host"
-        #end
-        #
-        #it "should cache the url based on keys" do
-        #  controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - test.host"
-        #  controller.url_for(:foo1 => "foo").should == "2 -  - foo1=foo|only_path=true - http:// - test.host"
-        #end
-        #
-        #it "should cache the url based on host_and_port request reached on" do
-        #  controller.request.stub!(:host_with_port).and_return("local-host:8153")
-        #  controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - local-host:8153"
-        #  controller.request.stub!(:host_with_port).and_return("local-ghost:8154")
-        #  controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - http:// - local-ghost:8154"
-        #  controller.request.stub!(:host_with_port).and_return("local-ghost:8153")
-        #  controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - http:// - local-ghost:8153"
-        #end
-        #
-        #it "should cache the url based on protocol request reached on" do
-        #  controller.request.stub!(:host_with_port).and_return("host")
-        #  controller.request.stub!(:protocol).and_return("http://")
-        #  controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - host"
-        #  controller.request.stub!(:protocol).and_return("https://")
-        #  controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - https:// - host"
-        #  controller.request.stub!(:protocol).and_return("spdy://")
-        #  controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - spdy:// - host"
-        #end
-        #
-        #it "should not mistake pipeline_counter and stage_counter for caching" do
-        #  controller.stub!(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
-        #  controller.url_for(:format => "json").should == "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host"
-        #  controller.stub!(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
-        #  controller.url_for(:format => "json").should == "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host"
-        #end
-        #
-        #it "should sort symbols after string" do
-        #  h = HashMapKey
-        #  [h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort.should == [h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)]
-        #end
+        it "should cache the url based on options" do
+          controller.params.clear
+          controller.url_for('foo' => 'foo', 'bar' => 'bar').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
+          controller.url_for('bar' => 'bar', 'foo' => 'foo').should == "1 -  - bar=bar|foo=foo|only_path=true - http:// - test.host"
+        end
+
+        it "should cache the url based on params" do
+          controller.stub(:params).and_return({:foo => "foo", :bar => "bar"})
+          controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
+          controller.stub(:params).and_return({:bar => "bar", :foo => "foo"})
+          controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
+        end
+
+        it "should cache the url based on params and options" do
+          controller.stub(:params).and_return({:bar => "bar", :baz => "baz"})
+          controller.url_for(:foo => "foo", :quux => "quux").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+
+          controller.stub(:params).and_return({:baz => "baz", :bar => "bar"})
+          controller.url_for(:quux => "quux", :foo => "foo").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+
+          controller.url_for(:foo => "foo").should == "2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host"
+
+          controller.stub(:params).and_return({:bar => "bar"})
+          controller.url_for(:foo => "foo").should == "3 - bar=bar - foo=foo|only_path=true - http:// - test.host"
+        end
+
+        it "should cache the url based on values" do
+          controller.url_for(:foo => "foo", :quux => "foo").should == "1 -  - foo=foo|only_path=true|quux=foo - http:// - test.host"
+          controller.url_for(:foo => "foo", :quux => "quux").should == "2 -  - foo=foo|only_path=true|quux=quux - http:// - test.host"
+        end
+
+        it "should cache the url based on keys" do
+          controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - test.host"
+          controller.url_for(:foo1 => "foo").should == "2 -  - foo1=foo|only_path=true - http:// - test.host"
+        end
+
+        it "should cache the url based on host_and_port request reached on" do
+          controller.request.stub(:host_with_port).and_return("local-host:8153")
+          controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - local-host:8153"
+          controller.request.stub(:host_with_port).and_return("local-ghost:8154")
+          controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - http:// - local-ghost:8154"
+          controller.request.stub(:host_with_port).and_return("local-ghost:8153")
+          controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - http:// - local-ghost:8153"
+        end
+
+        it "should cache the url based on protocol request reached on" do
+          controller.request.stub(:host_with_port).and_return("host")
+          controller.request.stub(:protocol).and_return("http://")
+          controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - host"
+          controller.request.stub(:protocol).and_return("https://")
+          controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - https:// - host"
+          controller.request.stub(:protocol).and_return("spdy://")
+          controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - spdy:// - host"
+        end
+
+        it "should not mistake pipeline_counter and stage_counter for caching" do
+          controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
+          controller.url_for(:format => "json").should == "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host"
+          controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
+          controller.url_for(:format => "json").should == "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host"
+        end
+
+        it "should sort symbols after string" do
+          h = HashMapKey
+          [h.new(:pavan), h.new("pavan"), h.new("JJ"), h.new(:JJ)].sort.should == [h.new("JJ"), h.new("pavan"), h.new(:JJ), h.new(:pavan)]
+        end
 
         it "should contain flash message in the session upon redirect and forwards the params" do
           guid = nil

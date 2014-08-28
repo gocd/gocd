@@ -19,7 +19,6 @@ require 'java'
 describe ApplicationController do
 
   before do
-    #draw_test_controller_route - careful! this method makes other spec fail when this runs before other specs. needs analysis.
     stub_server_health_messages_for_controllers
     UserHelper.stub(:getUserId).and_return(1)
   end
@@ -210,36 +209,46 @@ describe ApplicationController do
       end
 
 
-      #describe "requiring full path" do
-      #  before(:each) do
-      #    setup_base_urls
-      #  end
-      #
-      #  class TestObject
-      #    def id
-      #    end
-      #  end
-      #
-      #  it "should return only the path to a given resource and not the whole url" do
-      #    controller.url_for(:controller => "java", :action => "null", :foo => "junk").should == "/?foo=junk"
-      #  end
-      #
-      #  it "should cache the url if options is an active-record object" do
-      #    obj = TestObject.new
-      #    controller.should_receive(:test_object_url).with(obj).and_return("some-url")
-      #    controller.url_for(obj).should == "some-url"
-      #  end
-      #
-      #  it "should return full path when requested explicitly" do
-      #    controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/?foo=junk"
-      #  end
-      #
-      #  it "should use ssl base url from server config when requested" do
-      #    controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'https').should == "https://ssl.host:443/?foo=junk"
-      #    controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'http').should == "http://test.host/?foo=junk"
-      #    controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/?foo=junk"
-      #  end
-      #end
+      describe "requiring full path" do
+        before(:each) do
+          setup_base_urls
+          draw_test_controller_route
+        end
+
+        # Fake that part of a Rails model object that is needed by url_for.
+        class TestObject
+          def id
+          end
+
+          def self.model_name
+            self
+          end
+
+          def self.singular_route_key
+            "test_object"
+          end
+        end
+
+        it "should return only the path to a given resource and not the whole url" do
+          controller.url_for(:controller => "java", :action => "null", :foo => "junk").should == "/rails/java/null?foo=junk"
+        end
+
+        it "should cache the url if options is an active-record object" do
+          obj = TestObject.new
+          controller.should_receive(:test_object_url).with(obj).and_return("some-url")
+          controller.url_for(obj).should == "some-url"
+        end
+
+        it "should return full path when requested explicitly" do
+          controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/rails/java/null?foo=junk"
+        end
+
+        it "should use ssl base url from server config when requested" do
+          controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'https').should == "https://ssl.host:443/rails/java/null?foo=junk"
+          controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'http').should == "http://test.host/rails/java/null?foo=junk"
+          controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/rails/java/null?foo=junk"
+        end
+      end
 
 
       describe "url cache" do

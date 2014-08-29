@@ -259,7 +259,7 @@ public class ValueStreamMapServiceTest {
 
 		when(goConfigService.groups()).thenReturn(new PipelineGroups(pipelineConfigs));
 		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
-		when(materialRepository.getModificationFor(gitMaterialInstance, gitRevision)).thenReturn(gitModification);
+		when(materialRepository.findModificationWithRevision(gitMaterial, gitRevision)).thenReturn(gitModification);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
 		ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), gitRevision, user, result);
@@ -729,7 +729,7 @@ public class ValueStreamMapServiceTest {
 
 		// modification (revision) doesn't exist
 		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
-		when(materialRepository.getModificationFor(gitMaterialInstance, "r1")).thenReturn(null);
+		when(materialRepository.findModificationWithRevision(gitMaterial, "r1")).thenReturn(null);
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 

@@ -240,7 +240,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
 		String q_2 = u.runAndPass(q, "g_1");
 
 		MaterialInstance g1Instance = materialRepository.findMaterialInstance(g1);
-		Modification g1Modification = materialRepository.getModificationFor(g1Instance, "g_1");
+		Modification g1Modification = materialRepository.findModificationWithRevision(g1, "g_1");
 
 		ValueStreamMap valueStreamMap = new ValueStreamMap(g1, g1Instance, g1Modification);
 		Node gitNode = valueStreamMap.getCurrentMaterial();

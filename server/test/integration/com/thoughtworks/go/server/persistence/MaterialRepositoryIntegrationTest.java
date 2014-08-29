@@ -877,19 +877,6 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(materialRevision.getModifications().size(), is(0));
     }
 
-	@Test
-	public void shouldReturnModificationWithGivenMaterialAndRevision() throws Exception {
-		GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
-		u.checkinInOrder(g1, "g_1");
-		MaterialInstance g1Instance = repo.findMaterialInstance(g1);
-
-		Modification modification = repo.getModificationFor(g1Instance, "g_1");
-		assertThat(modification.getRevision(), is("g_1"));
-
-		modification = repo.getModificationFor(g1Instance, "unknown");
-		assertThat(modification, is(nullValue()));
-	}
-
     @Test
     public void shouldReturnMatchedRevisionsForAGivenSearchString() throws Exception {
         ScmMaterial material = material();

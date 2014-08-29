@@ -149,14 +149,15 @@ public class ValueStreamMapService {
 				return null;
 			}
 
-			Modification modification = materialRepository.getModificationFor(materialInstance, revision);
+			Material material = new MaterialConfigConverter().toMaterial(materialConfig);
+			Modification modification = materialRepository.findModificationWithRevision(material, revision);
 
 			if (modification == null) {
 				result.notFound(LocalizedMessage.string("MATERIAL_MODIFICATION_NOT_FOUND", materialFingerprint, revision), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
 				return null;
 			}
 
-			ValueStreamMap valueStreamMap = buildValueStreamMap(materialConfig, materialInstance, modification, downstreamPipelines, username);
+			ValueStreamMap valueStreamMap = buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username);
 			if (valueStreamMap == null) {
 				return null;
 			}
@@ -168,13 +169,12 @@ public class ValueStreamMapService {
 		}
 	}
 
-	private ValueStreamMap buildValueStreamMap(MaterialConfig materialConfig, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
+	private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
 		CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
-		Material material = new MaterialConfigConverter().toMaterial(materialConfig);
 		ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
 		Map<String, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 
-		traverseDownstream(materialConfig.getFingerprint(), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<PipelineConfig>());
+		traverseDownstream(material.getFingerprint(), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<PipelineConfig>());
 
 		addInstanceInformationToTheGraph(valueStreamMap);
 		removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);

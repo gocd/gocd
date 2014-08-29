@@ -18,20 +18,19 @@ class PipelineInstanceAPIModel
   attr_reader :id, :name, :counter, :label, :natural_order, :can_run, :preparing_to_schedule, :currently_locked, :lockable, :can_unlock, :build_cause, :stages
 
   def initialize(pipeline_instance_model)
-    @id = pipeline_instance_model.getId() unless pipeline_instance_model.getId() == nil
-    @name = pipeline_instance_model.getName() unless pipeline_instance_model.getName() == nil
-    @counter = pipeline_instance_model.getCounter() unless pipeline_instance_model.getCounter() == nil
-    @label = pipeline_instance_model.getLabel() unless pipeline_instance_model.getLabel() == nil
-    @natural_order = pipeline_instance_model.getNaturalOrder() unless pipeline_instance_model.getNaturalOrder() == nil
-    @can_run = pipeline_instance_model.getCanRun() unless pipeline_instance_model.getCanRun() == nil
-    @preparing_to_schedule = pipeline_instance_model.isPreparingToSchedule() unless pipeline_instance_model.isPreparingToSchedule() == nil
-    @currently_locked = pipeline_instance_model.isCurrentlyLocked() unless pipeline_instance_model.isCurrentlyLocked() == nil
-    @lockable = pipeline_instance_model.isLockable() unless pipeline_instance_model.isLockable() == nil
-    @can_unlock = pipeline_instance_model.canUnlock() unless pipeline_instance_model.canUnlock() == nil
+    @id = pipeline_instance_model.getId()
+    @name = pipeline_instance_model.getName()
+    @counter = pipeline_instance_model.getCounter()
+    @label = pipeline_instance_model.getLabel()
+    @natural_order = pipeline_instance_model.getNaturalOrder()
+    @can_run = pipeline_instance_model.getCanRun()
+    @preparing_to_schedule = pipeline_instance_model.isPreparingToSchedule()
+    @currently_locked = pipeline_instance_model.isCurrentlyLocked()
+    @lockable = pipeline_instance_model.isLockable()
+    @can_unlock = pipeline_instance_model.canUnlock()
     @build_cause = BuildCauseAPIModel.new(pipeline_instance_model.getBuildCause())
-    @stages = []
-    pipeline_instance_model.getStageHistory().each do |stage_instance_model|
-      @stages << StageInstanceAPIModel.new(stage_instance_model)
+    @stages = pipeline_instance_model.getStageHistory().collect do |stage_instance_model|
+      StageInstanceAPIModel.new(stage_instance_model)
     end
   end
 end

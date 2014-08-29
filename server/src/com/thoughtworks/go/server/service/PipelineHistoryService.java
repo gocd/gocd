@@ -131,7 +131,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
 	public PipelineInstanceModels loadMinimalData(String pipelineName, Pagination pagination, String username, OperationResult result) {
 		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			result.notFound("Not Found", "Pipeline " + pipelineName + " not found", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
 		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {

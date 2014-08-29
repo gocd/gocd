@@ -30,9 +30,9 @@ describe PipelineHistoryAPIModel do
       pipeline_history_api_model.pagination.total.should == 100
 
       pipeline_instance_api_model = pipeline_history_api_model.pipelines[0]
-      pipeline_instance_api_model.id.should == 1
+      pipeline_instance_api_model.id.should == 321
       pipeline_instance_api_model.name.should == 'pipeline name'
-      pipeline_instance_api_model.counter.should == 11
+      pipeline_instance_api_model.counter.should == 123
       pipeline_instance_api_model.label.should == 'label'
       pipeline_instance_api_model.natural_order.should == 1
       pipeline_instance_api_model.can_run.should == true
@@ -56,7 +56,7 @@ describe PipelineHistoryAPIModel do
       material_api_model.description.should == 'URL: http://test.com Branch: master'
 
       modification_api_model = material_revision_api_model.modifications[0]
-      modification_api_model.id.should == 3
+      modification_api_model.id.should == 321
       modification_api_model.revision.should == 'revision'
       modification_api_model.modified_time.should == 12345678
       modification_api_model.user_name.should == 'user name'
@@ -68,7 +68,7 @@ describe PipelineHistoryAPIModel do
       modified_file_api_model.action.should == 'add'
 
       stage_instance_api_model = pipeline_instance_api_model.stages[0]
-      stage_instance_api_model.id.should == 4
+      stage_instance_api_model.id.should == 456
       stage_instance_api_model.name.should == 'stage name'
       stage_instance_api_model.counter.should == '1'
       stage_instance_api_model.scheduled.should == false
@@ -82,7 +82,7 @@ describe PipelineHistoryAPIModel do
       stage_instance_api_model.pipeline_counter.should == 1
 
       job_instance_api_model = stage_instance_api_model.jobs[0]
-      job_instance_api_model.id.should == 5
+      job_instance_api_model.id.should == 543
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
@@ -96,7 +96,7 @@ describe PipelineHistoryAPIModel do
       job_instance_api_model.stage_counter.should == nil
     end
 
-    it "should populate correct data" do
+    it "should handle empty data" do
       @pagination_view_model = create_empty_pagination_model
       @pipeline_history_view_model = create_empty_pipeline_history_model
       pipeline_history_api_model = PipelineHistoryAPIModel.new(@pagination_view_model, @pipeline_history_view_model)

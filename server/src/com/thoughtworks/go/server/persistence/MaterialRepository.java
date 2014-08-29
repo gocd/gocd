@@ -846,10 +846,10 @@ public class MaterialRepository extends HibernateDaoSupport {
         }
         for (Modification modification : list) {
             removeLatestCachedModification(materialInstance, modification);
-			removeCachedModificationCountFor(materialInstance);
-			removeCachedModificationsFor(materialInstance);
         }
-    }
+		removeCachedModificationCountFor(materialInstance);
+		removeCachedModificationsFor(materialInstance);
+	}
 
     public Modification findModificationWithRevision(final Material material, final String revision) {
         return (Modification) getHibernateTemplate().execute(new HibernateCallback() {

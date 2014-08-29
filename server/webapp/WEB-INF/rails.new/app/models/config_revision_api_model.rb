@@ -18,12 +18,12 @@ class ConfigRevisionAPIModel
   attr_reader :md5, :username, :goVersion, :goEdition, :time, :schemaVersion, :commitSHA
 
   def initialize(config_revision_instance_model)
-    @md5 = config_revision_instance_model.getMd5() unless config_revision_instance_model.getMd5() == nil
-    @username = config_revision_instance_model.getUsername() unless config_revision_instance_model.getUsername() == nil
-    @goVersion = config_revision_instance_model.getGoVersion() unless config_revision_instance_model.getGoVersion() == nil
+    @md5 = config_revision_instance_model.getMd5()
+    @username = config_revision_instance_model.getUsername()
+    @goVersion = config_revision_instance_model.getGoVersion()
     @goEdition = config_revision_instance_model.getGoEdition().to_s unless config_revision_instance_model.getGoEdition() == nil
-    @time = config_revision_instance_model.getTime().getTime() unless config_revision_instance_model.getTime() == nil || config_revision_instance_model.getTime().getTime() == nil
-    @schemaVersion = config_revision_instance_model.getSchemaVersion() unless config_revision_instance_model.getSchemaVersion() == nil
-    @commitSHA = config_revision_instance_model.getCommitSHA() unless config_revision_instance_model.getCommitSHA() == nil
+    @time = config_revision_instance_model.getTime().getTime() unless config_revision_instance_model.getTime() == nil
+    @schemaVersion = config_revision_instance_model.getSchemaVersion()
+    @commitSHA = config_revision_instance_model.getCommitSHA()
   end
 end

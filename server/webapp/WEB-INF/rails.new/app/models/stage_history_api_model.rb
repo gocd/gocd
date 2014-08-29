@@ -20,9 +20,8 @@ class StageHistoryAPIModel
   def initialize(pagination, stage_instances)
     @pagination = PaginationAPIModel.new(pagination)
 
-    @stages = []
-    stage_instances.each do |stage_instance|
-      @stages << StageInstanceAPIModel.new(stage_instance)
+    @stages = stage_instances.collect do |stage_instance|
+      StageInstanceAPIModel.new(stage_instance)
     end
   end
 end

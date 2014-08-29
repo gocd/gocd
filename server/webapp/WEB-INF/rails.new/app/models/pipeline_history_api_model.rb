@@ -19,9 +19,8 @@ class PipelineHistoryAPIModel
 
   def initialize(pagination, pipeline_history)
     @pagination = PaginationAPIModel.new(pagination)
-    @pipelines = []
-    pipeline_history.each do |pipeline_instance_model|
-      @pipelines << PipelineInstanceAPIModel.new(pipeline_instance_model)
+    @pipelines = pipeline_history.collect do |pipeline_instance_model|
+      PipelineInstanceAPIModel.new(pipeline_instance_model)
     end
   end
 end

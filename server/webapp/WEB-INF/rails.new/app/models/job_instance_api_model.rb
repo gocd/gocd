@@ -18,11 +18,11 @@ class JobInstanceAPIModel
   attr_reader :id, :name, :state, :result, :scheduled_date, :rerun, :original_job_id, :agent_uuid, :pipeline_name, :pipeline_counter, :stage_name, :stage_counter
 
   def initialize(job_instance_model)
-    @id = job_instance_model.getId() unless job_instance_model.getId() == nil
-    @name = job_instance_model.getName() unless job_instance_model.getName() == nil
+    @id = job_instance_model.getId()
+    @name = job_instance_model.getName()
     @state = job_instance_model.getState().to_s unless job_instance_model.getState() == nil
     @result = job_instance_model.getResult().to_s unless job_instance_model.getResult() == nil
-    @scheduled_date = job_instance_model.getScheduledDate().getTime() unless job_instance_model.getScheduledDate() == nil || job_instance_model.getScheduledDate().getTime() == nil
+    @scheduled_date = job_instance_model.getScheduledDate().getTime() unless job_instance_model.getScheduledDate() == nil
     @rerun = job_instance_model.isRerun() if (job_instance_model.respond_to? :isRerun) && (job_instance_model.isRerun() != nil)
     @original_job_id = job_instance_model.getOriginalJobId() if (job_instance_model.respond_to? :getOriginalJobId) && (job_instance_model.getOriginalJobId() != nil)
     @agent_uuid = job_instance_model.getAgentUuid() if (job_instance_model.respond_to? :getAgentUuid) && (job_instance_model.getAgentUuid() != nil)

@@ -18,8 +18,8 @@ class PaginationAPIModel
   attr_reader :page_size, :offset, :total
 
   def initialize(pagination)
-    @page_size = pagination.getPageSize() unless pagination.getPageSize() == nil
-    @offset = pagination.getOffset() unless pagination.getOffset() == nil
-    @total = pagination.getTotal() unless pagination.getTotal() == nil
+    @page_size = pagination.getPageSize()
+    @offset = pagination.getOffset()
+    @total = pagination.getTotal()
   end
 end

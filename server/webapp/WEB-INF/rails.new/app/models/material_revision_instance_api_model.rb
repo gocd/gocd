@@ -19,10 +19,9 @@ class MaterialRevisionInstanceAPIModel
 
   def initialize(material_revision_instance_model)
     @material = MaterialInstanceAPIModel.new(material_revision_instance_model.getMaterial())
-    @changed = material_revision_instance_model.isChanged() unless material_revision_instance_model.isChanged() == nil
-    @modifications = []
-    material_revision_instance_model.getModifications().each do |modification_instance_model|
-      @modifications << ModificationInstanceAPIModel.new(modification_instance_model)
+    @changed = material_revision_instance_model.isChanged()
+    @modifications = material_revision_instance_model.getModifications().collect do |modification_instance_model|
+      ModificationInstanceAPIModel.new(modification_instance_model)
     end
   end
 end

@@ -20,9 +20,8 @@ class JobHistoryAPIModel
   def initialize(pagination, job_instances)
     @pagination = PaginationAPIModel.new(pagination)
 
-    @jobs = []
-    job_instances.each do |job_instance|
-      @jobs << JobInstanceAPIModel.new(job_instance)
+    @jobs = job_instances.collect do |job_instance|
+      JobInstanceAPIModel.new(job_instance)
     end
   end
 end

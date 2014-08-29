@@ -30,7 +30,7 @@ describe StageHistoryAPIModel do
       stage_history_api_model.pagination.total.should == 100
 
       stage_instance_api_model = stage_history_api_model.stages[0]
-      stage_instance_api_model.id.should == 4
+      stage_instance_api_model.id.should == 456
       stage_instance_api_model.name.should == 'stage name'
       stage_instance_api_model.counter.should == '1'
       stage_instance_api_model.scheduled.should == false
@@ -44,7 +44,7 @@ describe StageHistoryAPIModel do
       stage_instance_api_model.pipeline_counter.should == 1
 
       job_instance_api_model = stage_instance_api_model.jobs[0]
-      job_instance_api_model.id.should == 5
+      job_instance_api_model.id.should == 543
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
@@ -58,7 +58,7 @@ describe StageHistoryAPIModel do
       job_instance_api_model.stage_counter.should == nil
     end
 
-    it "should populate correct data" do
+    it "should handle empty data" do
       @pagination_view_model = create_empty_pagination_model
       @stage_view_model = [create_empty_stage_model]
       stage_history_api_model = StageHistoryAPIModel.new(@pagination_view_model, @stage_view_model)

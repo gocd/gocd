@@ -18,16 +18,15 @@ class ModificationInstanceAPIModel
   attr_reader :id, :revision, :modified_time, :user_name, :comment, :email_address, :modified_files
 
   def initialize(modification_instance_model)
-    @id = modification_instance_model.getId() unless modification_instance_model.getId() == nil
-    @revision = modification_instance_model.getRevision() unless modification_instance_model.getRevision() == nil
-    @modified_time = modification_instance_model.getModifiedTime().getTime() unless modification_instance_model.getModifiedTime() == nil || modification_instance_model.getModifiedTime().getTime() == nil
-    @user_name = modification_instance_model.getUserName() unless modification_instance_model.getUserName() == nil
-    @comment = modification_instance_model.getComment() unless modification_instance_model.getComment() == nil
-    @email_address = modification_instance_model.getEmailAddress() unless modification_instance_model.getEmailAddress() == nil
+    @id = modification_instance_model.getId()
+    @revision = modification_instance_model.getRevision()
+    @modified_time = modification_instance_model.getModifiedTime().getTime() unless modification_instance_model.getModifiedTime() == nil
+    @user_name = modification_instance_model.getUserName()
+    @comment = modification_instance_model.getComment()
+    @email_address = modification_instance_model.getEmailAddress()
     if modification_instance_model.getModifiedFiles() != nil
-      @modified_files = []
-      modification_instance_model.getModifiedFiles().each do |modified_file|
-        @modified_files << ModifiedFileAPIModel.new(modified_file)
+      @modified_files = modification_instance_model.getModifiedFiles().collect do |modified_file|
+        ModifiedFileAPIModel.new(modified_file)
       end
     end
   end

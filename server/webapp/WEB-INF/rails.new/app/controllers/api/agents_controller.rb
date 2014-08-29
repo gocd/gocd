@@ -51,12 +51,8 @@ class Api::AgentsController < Api::ApiController
 
     pagination = Pagination.pageStartingAt(offset, job_instance_count, page_size)
 
-    job_instances = job_instance_service.completedJobsOnAgent(params[:uuid], JobHistoryColumns.valueOf(params[:column] || "completed"), specified_order("DESC"), pagination)
+    job_instances = job_instance_service.completedJobsOnAgent(params[:uuid], JobHistoryColumns.valueOf("completed"), com.thoughtworks.go.server.ui.SortOrder.orderFor("DESC"), pagination)
 
     render json: AgentJobRunHistoryAPIModel.new(pagination, job_instances)
-  end
-
-  def specified_order default="ASC"
-    com.thoughtworks.go.server.ui.SortOrder.orderFor(params[:order] || default)
   end
 end

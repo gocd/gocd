@@ -18,8 +18,8 @@ class MaterialConfigAPIModel
   attr_reader :fingerprint, :type, :description
 
   def initialize(material_config_model)
-    @fingerprint = material_config_model.getFingerprint() unless material_config_model.getFingerprint() == nil
-    @type = material_config_model.getTypeForDisplay() unless material_config_model.getTypeForDisplay() == nil
-    @description = material_config_model.getLongDescription() unless material_config_model.getLongDescription() == nil
+    @fingerprint = material_config_model.getFingerprint()
+    @type = material_config_model.getTypeForDisplay()
+    @description = material_config_model.getLongDescription()
   end
 end

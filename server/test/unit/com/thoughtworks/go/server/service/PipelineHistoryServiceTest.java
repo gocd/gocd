@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.server.util.Pagination;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -846,6 +847,48 @@ public class PipelineHistoryServiceTest {
 
 		assertThat(pipelineStatus, is(nullValue()));
 		assertThat(result.httpCode(), is(401));
+	}
+
+	@Test
+	public void shouldPopulateResultAsNotFoundWhenPipelineNotFound_loadMinimalData() {
+		String pipelineName = "unknown-pipeline";
+		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+		HttpOperationResult result = new HttpOperationResult();
+		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 0, 10), "looser", result);
+
+		assertThat(pipelineInstanceModels, is(nullValue()));
+		assertThat(result.httpCode(), is(404));
+		assertThat(result.detailedMessage(), is("Not Found { Pipeline " + pipelineName + " not found }\n"));
+	}
+
+	@Test
+	public void shouldPopulateResultAsUnauthorizedWhenUserNotAllowedToViewPipeline_loadMinimalData() {
+		String noAccessUserName = "foo";
+		String withAccessUserName = "admin";
+		String pipelineName = "no-access-pipeline";
+		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+		when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
+
+		when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
+
+		HttpOperationResult result = new HttpOperationResult();
+		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
+
+		assertThat(pipelineInstanceModels, is(nullValue()));
+		assertThat(result.httpCode(), is(401));
+
+		result = new HttpOperationResult();
+		pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
+
+		assertThat(pipelineInstanceModels, is(not(nullValue())));
+		assertThat(result.canContinue(), is(true));
 	}
 
     private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {

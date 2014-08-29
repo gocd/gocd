@@ -18,15 +18,15 @@ class AgentAPIModel
   attr_reader :uuid, :agent_name, :ip_address, :sandbox, :status, :build_locator, :os, :free_space, :resources, :environments
 
   def initialize(agent_view_model)
-    @uuid = agent_view_model.getUuid() unless agent_view_model.getUuid() == nil
-    @agent_name = agent_view_model.getHostname() unless agent_view_model.getHostname() == nil
-    @ip_address = agent_view_model.getIpAddress() unless agent_view_model.getIpAddress() == nil
-    @sandbox = agent_view_model.getLocation() unless agent_view_model.getLocation() == nil
-    @status = agent_view_model.getStatusForDisplay() unless agent_view_model.getStatusForDisplay() == nil
-    @build_locator = agent_view_model.buildLocator() unless agent_view_model.buildLocator() == nil
-    @os = agent_view_model.getOperatingSystem() unless agent_view_model.getOperatingSystem() == nil
-    @free_space = agent_view_model.freeDiskSpace().toString() unless agent_view_model.freeDiskSpace() == nil
-    @resources  = agent_view_model.getResources() unless agent_view_model.getResources() == nil
-    @environments = agent_view_model.getEnvironments() unless agent_view_model.getEnvironments() == nil
+    @uuid = agent_view_model.getUuid()
+    @agent_name = agent_view_model.getHostname()
+    @ip_address = agent_view_model.getIpAddress()
+    @sandbox = agent_view_model.getLocation()
+    @status = agent_view_model.getStatusForDisplay()
+    @build_locator = agent_view_model.buildLocator()
+    @os = agent_view_model.getOperatingSystem()
+    @free_space = agent_view_model.freeDiskSpace().to_s unless agent_view_model.freeDiskSpace() == nil
+    @resources  = agent_view_model.getResources()
+    @environments = agent_view_model.getEnvironments()
   end
 end

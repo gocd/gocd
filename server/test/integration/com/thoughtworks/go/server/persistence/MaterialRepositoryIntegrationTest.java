@@ -972,7 +972,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
 	@Test
-	public void shouldGetModificationsCountForMaterialCorrectly() throws Exception {
+	public void shouldCacheModificationCountsForMaterialCorrectly() throws Exception {
 		ScmMaterial material = material();
 		MaterialInstance materialInstance = material.createMaterialInstance();
 		repo.saveOrUpdate(materialInstance);

@@ -607,34 +607,6 @@ public class PipelineHistoryServiceIntegrationTest {
 		assertThat("The second future stage should can not run", stageHistory.get(2).getCanRun(), is(false));
 	}
 
-	@Test
-	public void shouldPopulateResultAsNotFoundWhenPipelineNotFound_loadMinimalData() {
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData("unknown", Pagination.pageFor(0, 0, 10), "looser", result);
-
-		assertThat(pipelineInstanceModels, is(nullValue()));
-		assertThat(result.httpCode(), is(404));
-	}
-
-	@Test
-	public void shouldPopulateResultAsUnauthorizedWhenUserNotAllowedToViewPipeline_loadMinimalData() {
-		Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-		String groupName = configHelper.currentConfig().getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline.getName()));
-		configHelper.setViewPermissionForGroup(groupName, "admin");
-
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipeline.getName(), Pagination.pageFor(0, 1, 10), "foo", result);
-
-		assertThat(pipelineInstanceModels, is(nullValue()));
-		assertThat(result.httpCode(), is(401));
-
-		result = new HttpOperationResult();
-		pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipeline.getName(), Pagination.pageFor(0, 1, 10), "admin", result);
-
-		assertThat(pipelineInstanceModels, is(not(nullValue())));
-		assertThat(result.canContinue(), is(true));
-	}
-
     @Test
     public void shouldLoadLatestOrEmptyInstanceForAllConfiguredPipelines() {
         configHelper.removePipeline(pipelineTwo.pipelineName);

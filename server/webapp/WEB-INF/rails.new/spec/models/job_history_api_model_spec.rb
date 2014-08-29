@@ -30,7 +30,7 @@ describe JobHistoryAPIModel do
       job_history_api_model.pagination.total.should == 100
 
       job_instance_api_model = job_history_api_model.jobs[0]
-      job_instance_api_model.id.should == 5
+      job_instance_api_model.id.should == 543
       job_instance_api_model.name.should == 'job name'
       job_instance_api_model.state.should == 'state'
       job_instance_api_model.result.should == 'result'
@@ -39,12 +39,12 @@ describe JobHistoryAPIModel do
       job_instance_api_model.original_job_id.should == 0
       job_instance_api_model.agent_uuid.should == 'uuid'
       job_instance_api_model.pipeline_name.should == 'pipeline'
-      job_instance_api_model.pipeline_counter.should == 1
+      job_instance_api_model.pipeline_counter.should == 123
       job_instance_api_model.stage_name.should == 'stage'
       job_instance_api_model.stage_counter.should == '1'
     end
 
-    it "should should handle empty data" do
+    it "should handle empty data" do
       @pagination_view_model = create_empty_pagination_model
       @job_history_view_model = [create_empty_job_history_model]
       job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)

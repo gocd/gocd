@@ -65,7 +65,7 @@ module APIModelMother
 
   def create_modification_view_model
     @modification_view_model = double('ModificationViewModel')
-    @modification_view_model.stub(:getId).and_return(3)
+    @modification_view_model.stub(:getId).and_return(321)
     @modification_view_model.stub(:getRevision).and_return('revision')
     time = double('time')
     time.stub(:getTime).and_return(12345678)
@@ -125,7 +125,7 @@ module APIModelMother
 
   def create_job_model
     @job_view_model = double('JobViewModel')
-    @job_view_model.stub(:getId).and_return(5)
+    @job_view_model.stub(:getId).and_return(543)
     @job_view_model.stub(:getName).and_return('job name')
     @job_view_model.stub(:getState).and_return('state')
     @job_view_model.stub(:getResult).and_return('result')
@@ -151,7 +151,7 @@ module APIModelMother
     @job_view_model.stub(:getOriginalJobId).and_return(0)
     @job_view_model.stub(:getAgentUuid).and_return('uuid')
     @job_view_model.stub(:getPipelineName).and_return('pipeline')
-    @job_view_model.stub(:getPipelineCounter).and_return(1)
+    @job_view_model.stub(:getPipelineCounter).and_return(123)
     @job_view_model.stub(:getStageName).and_return('stage')
     @job_view_model.stub(:getStageCounter).and_return('1')
     @job_view_model
@@ -187,7 +187,7 @@ module APIModelMother
 
   def create_stage_model
     @stage_view_model = double('StageViewModel')
-    @stage_view_model.stub(:getId).and_return(4)
+    @stage_view_model.stub(:getId).and_return(456)
     @stage_view_model.stub(:getName).and_return('stage name')
     @stage_view_model.stub(:getCounter).and_return('1')
     @stage_view_model.stub(:isScheduled).and_return(false)
@@ -223,9 +223,9 @@ module APIModelMother
 
   def create_pipeline_model
     @pipeline_view_model = double('PipelineViewModel')
-    @pipeline_view_model.stub(:getId).and_return(1)
+    @pipeline_view_model.stub(:getId).and_return(321)
     @pipeline_view_model.stub(:getName).and_return('pipeline name')
-    @pipeline_view_model.stub(:getCounter).and_return(11)
+    @pipeline_view_model.stub(:getCounter).and_return(123)
     @pipeline_view_model.stub(:getLabel).and_return('label')
     @pipeline_view_model.stub(:getNaturalOrder).and_return(1.0)
     @pipeline_view_model.stub(:getCanRun).and_return(true)

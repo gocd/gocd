@@ -30,7 +30,7 @@ describe MaterialHistoryAPIModel do
       material_history_api_model.pagination.total.should == 100
 
       modification_api_model = material_history_api_model.modifications[0]
-      modification_api_model.id.should == 3
+      modification_api_model.id.should == 321
       modification_api_model.revision.should == 'revision'
       modification_api_model.modified_time.should == 12345678
       modification_api_model.user_name.should == 'user name'
@@ -42,7 +42,7 @@ describe MaterialHistoryAPIModel do
       modified_file_api_model.action.should == 'add'
     end
 
-    it "should populate correct data" do
+    it "should handle empty data" do
       @pagination_view_model = create_empty_pagination_model
       @modification_view_model = create_empty_modification_view_model
       material_history_api_model = MaterialHistoryAPIModel.new(@pagination_view_model, [@modification_view_model])

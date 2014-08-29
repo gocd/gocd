@@ -19,14 +19,12 @@ class PipelineConfigAPIModel
 
   def initialize(pipeline_config_model)
     @name = pipeline_config_model.name().to_s unless pipeline_config_model.name() == nil
-    @label = pipeline_config_model.getLabelTemplate() unless pipeline_config_model.getLabelTemplate() == nil
-    @materials = []
-    pipeline_config_model.materialConfigs().each do |material_config_model|
-      @materials << MaterialConfigAPIModel.new(material_config_model)
+    @label = pipeline_config_model.getLabelTemplate()
+    @materials = pipeline_config_model.materialConfigs().collect do |material_config_model|
+      MaterialConfigAPIModel.new(material_config_model)
     end
-    @stages = []
-    pipeline_config_model.getStages().each do |stage_config_model|
-      @stages << StageConfigAPIModel.new(stage_config_model)
+    @stages = pipeline_config_model.getStages().collect do |stage_config_model|
+      StageConfigAPIModel.new(stage_config_model)
     end
   end
 end

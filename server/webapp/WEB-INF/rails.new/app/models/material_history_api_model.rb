@@ -19,9 +19,8 @@ class MaterialHistoryAPIModel
 
   def initialize(pagination, modification_models)
     @pagination = PaginationAPIModel.new(pagination)
-    @modifications = []
-    modification_models.each do |modification_model|
-      @modifications << ModificationInstanceAPIModel.new(modification_model)
+    @modifications = modification_models.collect do |modification_model|
+      ModificationInstanceAPIModel.new(modification_model)
     end
   end
 end

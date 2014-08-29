@@ -156,7 +156,7 @@ Go::Application.routes.draw do
     end
 
     get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-    post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
+    post ':action' => 'pipelines#:action', constraints: {:action => /select_pipelines|show/}, as: :pipeline
   end
 
   get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard

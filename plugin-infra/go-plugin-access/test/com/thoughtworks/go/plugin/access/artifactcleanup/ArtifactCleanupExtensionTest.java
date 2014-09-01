@@ -9,10 +9,11 @@ import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.OngoingStubbing;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -52,9 +53,9 @@ public class ArtifactCleanupExtensionTest {
 
     @Test
     public void shouldContinueToOtherPluginsIfOneOfThePluginReturnUnSuccessfulResponseWhileGettingStageConfigDetails() throws Exception {
-        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME);
-        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME);
-        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(Arrays.asList(pluginOne, pluginTwo));
+        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME, asList("1.0"));
+        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME, asList("1.0"));
+        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(asList(pluginOne, pluginTwo));
         when(pluginManager.submitTo(eq("one"), any(GoPluginApiRequest.class))).thenReturn(DefaultGoPluginApiResponse.badRequest(""));
         when(pluginManager.submitTo(eq("two"), any(GoPluginApiRequest.class))).thenReturn(DefaultGoPluginApiResponse.success("[{\"stageName\":\"stage-one\",\"pipelineName\":\"pipeline-one\"}]"));
 
@@ -67,9 +68,9 @@ public class ArtifactCleanupExtensionTest {
 
     @Test
     public void shouldContinueToOtherPluginsIfExceptionRaisedWhenProcessingOnOfThemWhileGettingStageConfigDetails() throws Exception {
-        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME);
-        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME);
-        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(Arrays.asList(pluginOne, pluginTwo));
+        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME, asList("1.0"));
+        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME, asList("1.0"));
+        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(asList(pluginOne, pluginTwo));
         when(pluginManager.submitTo(eq("one"), any(GoPluginApiRequest.class))).thenThrow(new RuntimeException("plugin throws exception"));
         when(pluginManager.submitTo(eq("two"), any(GoPluginApiRequest.class))).thenReturn(DefaultGoPluginApiResponse.success("[{\"stageName\":\"stage-one\",\"pipelineName\":\"pipeline-one\"}]"));
 
@@ -136,9 +137,9 @@ public class ArtifactCleanupExtensionTest {
 
     @Test
     public void shouldContinueToOtherPluginsIfOneOfThePluginReturnUnSuccessfulResponseWhileGettingStageInstanceDetails() throws Exception {
-        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME);
-        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME);
-        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(Arrays.asList(pluginOne, pluginTwo));
+        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME, asList("1.0"));
+        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME, asList("1.0"));
+        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(asList(pluginOne, pluginTwo));
         when(pluginManager.submitTo(eq("one"), any(GoPluginApiRequest.class))).thenReturn(DefaultGoPluginApiResponse.badRequest(""));
         when(pluginManager.submitTo(eq("two"), any(GoPluginApiRequest.class))).thenReturn(
                 DefaultGoPluginApiResponse.success("[{\"stageId\":\"1\", \"stageName\":\"stage\",\"stageCounter\":\"1\",\"pipelineName\":\"pipeline\",\"pipelineCounter\":\"1\"}]"));
@@ -153,9 +154,9 @@ public class ArtifactCleanupExtensionTest {
 
     @Test
     public void shouldContinueToOtherPluginsIfExceptionRaisedWhenProcessingOnOfThemWhileGettingStageInstanceDetails() throws Exception {
-        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME);
-        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME);
-        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(Arrays.asList(pluginOne, pluginTwo));
+        GoPluginIdentifier pluginOne = new GoPluginIdentifier("one", ArtifactCleanupExtension.NAME, asList("1.0"));
+        GoPluginIdentifier pluginTwo = new GoPluginIdentifier("two", ArtifactCleanupExtension.NAME, asList("1.0"));
+        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(asList(pluginOne, pluginTwo));
         when(pluginManager.submitTo(eq("one"), any(GoPluginApiRequest.class))).thenThrow(new RuntimeException("plugin throws exception"));
         when(pluginManager.submitTo(eq("two"), any(GoPluginApiRequest.class))).thenReturn(
                 DefaultGoPluginApiResponse.success("[{\"stageId\":\"1\", \"stageName\":\"stage\",\"stageCounter\":\"1\",\"pipelineName\":\"pipeline\",\"pipelineCounter\":\"1\"}]"));
@@ -169,7 +170,7 @@ public class ArtifactCleanupExtensionTest {
     }
 
     private void mockPluginManagerCalls(String pluginId, String expectedPluginResponse) {
-        when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(Arrays.asList(new GoPluginIdentifier(pluginId, ArtifactCleanupExtension.NAME)));
+        OngoingStubbing<List<GoPluginIdentifier>> listOngoingStubbing = when(pluginManager.allPluginsOfType(ArtifactCleanupExtension.NAME)).thenReturn(asList(new GoPluginIdentifier(pluginId, ArtifactCleanupExtension.NAME, asList("1.0"))));
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(DefaultGoPluginApiRequest.class))).thenReturn(response);
         when(response.responseBody()).thenReturn(expectedPluginResponse);

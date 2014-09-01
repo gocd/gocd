@@ -44,6 +44,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -241,8 +242,8 @@ public class DefaultPluginManagerTest {
 
     @Test
     public void shouldGetAllPluginsOfGivenExtension() throws Exception {
-        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("plugin-id", "extension-type");
-        GoPluginIdentifier anotherPluginIdentifier = new GoPluginIdentifier("plugin-id-2", "another-extension-type");
+        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("plugin-id", "extension-type", asList("1.0"));
+        GoPluginIdentifier anotherPluginIdentifier = new GoPluginIdentifier("plugin-id-2", "another-extension-type", asList("1.0"));
         final GoPlugin goPlugin = mock(GoPlugin.class);
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         doAnswer(new Answer() {

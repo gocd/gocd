@@ -161,6 +161,11 @@ describe PipelinesController do
   end
 
   describe "action show" do
+    it "should resolve using both GET and PUT" do
+      expect({:get => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
+      expect({:post => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
+    end
+
     it "should load pipeline and variables for a given pipeline" do
       @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
       expected = EnvironmentVariablesConfig.new()
@@ -188,7 +193,7 @@ describe PipelinesController do
       expect(assigns[:pipeline]).to eq(@pim)
     end
 
-    it "should resolve get from /pipelines/show_for_trigger as a call" do
+    it "should resolve POST to /pipelines/show_for_trigger as a call" do
       expect({:post => "/pipelines/show_for_trigger"}).to route_to(:controller => 'pipelines', :action => 'show_for_trigger', :no_layout => true)
     end
   end

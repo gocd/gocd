@@ -543,13 +543,61 @@ public class StageServiceTest {
         Stage stageBar = StageMother.passedStageInstance("stage-bar", "job", "pipeline-quux");
         Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
         Stage stageQuux = StageMother.passedStageInstance("stage-quux", "job", "pipeline-bar");
-        when(stageDao.oldestStagesHavingArtifacts()).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
+        ArrayList<StageConfigIdentifier> stagesFilter = new ArrayList<StageConfigIdentifier>();
+        when(stageDao.oldestStagesHavingArtifacts(stagesFilter)).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
 
-        List<Stage> stages = service.oldestStagesWithDeletableArtifacts();
+        List<Stage> stages = service.oldestStagesWithDeletableArtifacts(stagesFilter);
         assertThat(stages.size(), is(4));
         assertThat(stages, hasItem(stageFoo));
         assertThat(stages, hasItem(stageBar));
         assertThat(stages, hasItem(stageBaz));
         assertThat(stages, hasItem(stageQuux));
+    }
+
+    @Test
+    public void shouldGetStageInstanceDetailsForGivenPipelineAndStage() throws Exception {
+
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        String pipelineName = "pipeline-name";
+        String stageName = "stage-name";
+        int fromId = 0;
+        List<Stage> expectedResult = new ArrayList<Stage>();
+        when(stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId)).thenReturn(expectedResult);
+
+        List<Stage> actualResult = service.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName);
+
+        assertThat(actualResult, is(expectedResult));
+        verify(stageDao).getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+    }
+
+    @Test
+    public void shouldGetStageInstanceDetailsForGivenPipelineAndStageAndFromId() throws Exception {
+
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        String pipelineName = "pipeline-name";
+        String stageName = "stage-name";
+        int fromId = 100;
+        List<Stage> expectedResult = new ArrayList<Stage>();
+        when(stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId)).thenReturn(expectedResult);
+
+        List<Stage> actualResult = service.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+
+        assertThat(actualResult, is(expectedResult));
+        verify(stageDao).getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+    }
+
+    @Test
+    public void shouldGetAllDistinctStages() throws Exception {
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        List<StageConfigIdentifier> expectedResult = new ArrayList<StageConfigIdentifier>();
+        when(stageDao.getAllDistinctStages()).thenReturn(expectedResult);
+
+        List<StageConfigIdentifier> actualResult = service.getAllDistinctStages();
+
+        assertThat(actualResult, is(expectedResult));
+        verify(stageDao).getAllDistinctStages();
     }
 }

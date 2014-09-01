@@ -21,6 +21,16 @@ describe Admin::Plugins::PluginsController do
     it "should resolve the route" do
       {:get => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "index")
       plugins_listing_path.should == "/admin/plugins"
+      end
+
+    it "should resolve edit route" do
+      {:get => "/admin/plugin/edit"}.should route_to(:controller => "admin/plugins/plugins", :action => "edit")
+      plugins_edit_path.should == "/admin/plugin/edit"
+    end
+
+    it "should resolve save route" do
+      {:post => "/admin/plugin/save"}.should route_to(:controller => "admin/plugins/plugins", :action => "save")
+      plugins_save_path.should == "/admin/plugin/save"
     end
   end
 
@@ -82,4 +92,35 @@ describe Admin::Plugins::PluginsController do
     end
   end
 
+  describe :edit do
+    before :each do
+      controller.stub!(:default_plugin_manager).and_return(@plugin_manager = mock('plugin_manager'))
+    end
+
+    it 'should populate settings template' do
+      settings_template = '<div></div>'
+      @plugin_manager.should_receive(:loadPluginSettings).with("sample").and_return(settings_template)
+      get :edit, :plugin_id =>'sample'
+      expect(assigns(:tab_name)).to eq('plugins-listing')
+      expect(assigns(:settings_template)).to eq(settings_template)
+      assert_template layout: "admin"
+    end
+
+    it 'should set error when plugin manager throws exception' do
+      @plugin_manager.should_receive(:loadPluginSettings).with("sample").and_raise("error")
+      get :edit, :plugin_id =>'sample'
+      expect(assigns(:error)).to eq('error')
+    end
+  end
+
+  describe :save do
+    before :each do
+      controller.stub!(:default_plugin_manager).and_return(@plugin_manager = mock('plugin_manager'))
+    end
+
+    it 'should save settings template' do
+      @plugin_manager.should_receive(:savePluginSettings).with('sample',"{\"key1\":\"value1\",\"key2\":{\"key2subKey1\":\"key2subKey1Value\"}}")
+      post :save, :plugin_id =>'sample', :settings => {:key1 => 'value1', :key2 => {:key2subKey1 => 'key2subKey1Value'}}
+    end
+  end
 end

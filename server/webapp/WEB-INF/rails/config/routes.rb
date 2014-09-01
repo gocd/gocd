@@ -163,6 +163,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.with_options(:controller => "admin/plugins/plugins") do |plugins|
     plugins.plugins_listing "admin/plugins", :action => "index", :conditions => {:method => :get}
+    plugins.plugin_edit "admin/plugin/edit", :action => "edit", :conditions => {:method => :get}
+    plugins.plugin_save "admin/plugin/save", :action => "save", :conditions => {:method => :post}
   end
 
   ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|

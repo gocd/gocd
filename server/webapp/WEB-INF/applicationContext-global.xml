@@ -56,6 +56,7 @@
     <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
     <context:component-scan base-package="com.thoughtworks.go.metrics.service"/>
     <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.pluginrequestprocessor"/>
 
     <import resource="velocity-config.xml"/>
     <import resource="applicationContext-shine-server.xml"/>

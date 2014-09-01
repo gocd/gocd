@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.opensymphony.oscache.base.CacheEntry;
@@ -29,18 +24,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
@@ -52,10 +36,12 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.FuncVarArg;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -64,7 +50,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static org.apache.commons.collections.CollectionUtils.collect;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
@@ -99,7 +91,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (Stage) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         String pipelineName = pipeline.getName();
                         String stageName = stage.getName();
 
@@ -287,7 +280,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public void updateResult(final Stage stage, final StageResult result) {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 StageIdentifier identifier = stage.getIdentifier();
                 clearStageHistoryPageCaches(stage, identifier.getPipelineName(), true);
                 clearJobStatusDependentCaches(stage.getId(), identifier);
@@ -393,6 +387,19 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             }
         }
         return stageIdentities;
+    }
+
+    @Override
+    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, long fromId) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).
+                and("stageName", stageName).
+                and("fromId", fromId).asMap();
+        return getSqlMapClientTemplate().queryForList("getStagesWithArtifactsGivenPipelineAndStage", args);
+    }
+
+    @Override
+    public List<StageConfigIdentifier> getAllDistinctStages() {
+        return getSqlMapClientTemplate().queryForList("getDistinctStages");
     }
 
 
@@ -658,8 +665,15 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return new Stages(stages);
     }
 
-    public List<Stage> oldestStagesHavingArtifacts() {
-        return getSqlMapClientTemplate().queryForList("oldestStagesHavingArtifacts");
+    public List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> stagesFilter) {
+        List<String> stagesFilterString = (List<String>) collect(stagesFilter, new Transformer() {
+            @Override
+            public String transform(Object o) {
+                StageConfigIdentifier stageConfigIdentifier = (StageConfigIdentifier) o;
+                return stageConfigIdentifier.concatedStageAndPipelineName();
+            }
+        });
+        return getSqlMapClientTemplate().queryForList("oldestStagesHavingArtifacts", arguments("stagesFilter", SqlUtil.joinWithQuotesForSql(stagesFilterString.toArray())).asMap());
     }
 
     public void markArtifactsDeletedFor(Stage stage) {

@@ -40,6 +40,8 @@ Go::Application.routes.draw do
   delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
   get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
+  get "admin/plugin/edit" => "admin/plugins/plugins#edit", as: :plugin_edit
+  get "admin/plugin/save" => "admin/plugins/plugins#save", as: :plugin_save
 
   ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
     get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"

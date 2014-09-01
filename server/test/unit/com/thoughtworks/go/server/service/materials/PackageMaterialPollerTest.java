@@ -16,35 +16,34 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -282,6 +281,16 @@ public class PackageMaterialPollerTest {
             @Override
             public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
 
+            }
+
+            @Override
+            public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
+                return null;
+            }
+
+            @Override
+            public List<GoPluginIdentifier> allPluginsOfType(String extension) {
+                return null;
             }
         };
     }

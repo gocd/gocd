@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -64,5 +65,23 @@ public class NotificationFilterTest {
         assertThat(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false).include(
                 new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)), is(true));
 
+    }
+
+    @Test
+    public void anyPipelineShouldAlwaysMatch() {
+        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+    }
+
+    @Test
+    public void anyStageShouldAlwaysMatchWithinSamePipeline() {
+        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+    }
+
+    @Test
+    public void anyStageShouldNotMatchWithinADifferentPipeline() {
+        NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks), is(false));
     }
 }

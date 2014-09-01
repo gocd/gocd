@@ -40,6 +40,7 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,6 +174,11 @@ public class MyGoController {
 
     private List<PipelineViewModel> getPipelineModelsSortedByNameFor(List<PipelineConfigs> groups) {
         List<PipelineViewModel> pipelineModels = new ArrayList<PipelineViewModel>();
+
+        List<PipelineViewModel.StageViewModel> anyPipelineStageModels= new ArrayList<PipelineViewModel.StageViewModel>();
+        anyPipelineStageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
+        pipelineModels.add(new PipelineViewModel(GoConstants.ANY_PIPELINE, anyPipelineStageModels));
+
         for (PipelineConfigs group : groups) {
             for (PipelineConfig pipelineConfig : group) {
                 pipelineModels.add(new PipelineViewModel(CaseInsensitiveString.str(pipelineConfig.name()), getStagesModelsFor(pipelineConfig)));
@@ -184,6 +190,7 @@ public class MyGoController {
 
     private List<PipelineViewModel.StageViewModel> getStagesModelsFor(PipelineConfig pipelineConfig) {
         List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<PipelineViewModel.StageViewModel>();
+        stageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
         for (StageConfig stageConfig : pipelineConfig) {
             stageModels.add(new PipelineViewModel.StageViewModel(CaseInsensitiveString.str(stageConfig.name())));
         }

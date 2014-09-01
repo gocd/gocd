@@ -53,6 +53,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Filter;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -402,7 +403,9 @@ public class UserService {
         Users users = userDao.findNotificationSubscribingUsers();
         return users.filter(new Filter<User>() {
             public boolean matches(User user) {
-                return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
+                return (user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) ||
+                        user.hasSubscribedFor(identifier.getPipelineName(), GoConstants.ANY_STAGE)     ||
+                        user.hasSubscribedFor(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE))        &&
                         securityService.hasViewPermissionForPipeline(user.getName(), identifier.getPipelineName());
             }
         });

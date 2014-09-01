@@ -14,33 +14,34 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper')
 
-describe '/gadgets/pipelines/index' do
-
+describe 'gadgets/pipeline/index.xml.erb' do
   describe 'Module Preferences' do
     it "should return gadget spec" do
-      render '/gadgets/pipeline/index.xml'
-      response.body.should have_tag("Module")
+      render
+
+      expect(Nokogiri::XML(response.body).xpath("/Module")).to_not be_nil_or_empty
     end
 
-    it "should return an gadget which requires oauthpopup" do
-      render '/gadgets/pipeline/index.xml'
-      response.body.should have_tag("ModulePrefs[title='Pipeline Status']") do |module_prefs|
-        module_prefs.should have_tag("Require[feature='oauthpopup']")
-        module_prefs.should have_tag("Require[feature='setprefs']")
+    it "should return a gadget which requires oauthpopup" do
+      render
+
+      Nokogiri::XML(response.body).xpath("//ModulePrefs[@title='Pipeline Status']").tap do |module_prefs|
+        expect(module_prefs.xpath("Require[@feature='oauthpopup']")).to_not be_nil_or_empty
+        expect(module_prefs.xpath("Require[@feature='setprefs']")).to_not be_nil_or_empty
       end
     end
 
     it "should return an oauth gadget" do
-      render '/gadgets/pipeline/index.xml'
+      render
 
-      response.body.should have_tag("Module ModulePrefs[title='Pipeline Status']") do |module_prefs|
-        module_prefs.should have_tag("OAuth") do |oauth|
-          oauth.should have_tag("Service[name='Go']") do |service|
-            service.should have_tag("Request[method='GET'][url='http://test.host/oauth/token']")
-            service.should have_tag("Access[method='GET'][url='http://test.host/oauth/token']")
-            service.should have_tag("Authorization[url='http://test.host/oauth/authorize']")
+      Nokogiri::XML(response.body).xpath("/Module/ModulePrefs[@title='Pipeline Status']").tap do |module_prefs|
+        module_prefs.xpath("OAuth").tap do |oauth|
+          oauth.xpath("Service[@name='Go']").tap do |service|
+            expect(service.xpath("Request[@method='GET'][@url='http://test.host/admin/oauth/token']")).to_not be_nil_or_empty
+            expect(service.xpath("Access[@method='GET'][@url='http://test.host/admin/oauth/token']")).to_not be_nil_or_empty
+            expect(service.xpath("Authorization[@url='http://test.host/admin/oauth/authorize']")).to_not be_nil_or_empty
           end
         end
       end
@@ -52,9 +53,9 @@ describe '/gadgets/pipelines/index' do
 #    <UserPref name="accountNumber" datatype="string" default_value="-1" />
 
     it "should render content of type html" do
-      render '/gadgets/pipeline/index.xml', :pipeline_name => "mingle"
+      render :template => 'gadgets/pipeline/index.xml.erb', :pipeline_name => "mingle"
 
-      response.body.should have_tag("Module UserPref[name='pipelineName'][datatype='string'][default_value='']")
+      expect(Nokogiri::XML(response.body).xpath("/Module/UserPref[@name='pipelineName'][@datatype='string'][@default_value='']")).to_not be_nil_or_empty
     end
   end
 
@@ -66,9 +67,28 @@ describe '/gadgets/pipelines/index' do
 #      </Content>
 
     it "should render content of type html" do
-      render '/gadgets/pipeline/index.xml'
+      render
 
-      response.body.should have_tag("Module Content[type='html']")
+      expected_content = %q^
+<script type="text/javascript">
+    gadgets.util.registerOnLoadHandler(function() {
+      var contentUrl = 'http://test.host/gadgets/pipeline/content';
+      var pipelineName = new gadgets.Prefs().getString("pipelineName");
+      var requestUrl = contentUrl + "?pipeline_name=" + pipelineName;
+
+      gadget_toolkit.makeOAuthRequest(requestUrl, {
+        view:             "gadget_content",
+        gadgetTitle:      'Pipeline Status',
+        serviceName:      'Go',
+        autoRefresh:      new gadgets.Prefs().getBool("autoRefresh"),
+        refreshInterval:  60000
+      });
+    });
+</script>
+<div id="gadget_content">
+</div>^
+
+      expect(Nokogiri::XML(response.body).xpath("/Module/Content[@type='html']").text.strip).to include(expected_content.strip)
     end
   end
 end

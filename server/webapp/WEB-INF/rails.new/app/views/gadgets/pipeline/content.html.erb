@@ -2,10 +2,10 @@
 <div id="pipelines">
     <div class="pipeline_bundle">
         <div id="<%= pipelines_pipeline_dom_id(pipeline_model_in_pipeline_group) %>" class="pipeline">
-            <% cache(view_cache_key.forPipelineModelBox(pipeline_model_in_pipeline_group), :subkey => "pipeline_gadget_html") do %>
+            <% cache(view_cache_key.forPipelineModelBox(pipeline_model_in_pipeline_group), {:subkey => "pipeline_gadget_html", :skip_digest => true}) do %>
                 <div class="pipeline_header">
                     <h3 class="title entity_title">
-                        <%= link_to(smart_word_breaker(pipeline_model_in_pipeline_group.getName()), url_for_pipeline(pipeline_model_in_pipeline_group.getName(), {:only_path => false}), {:target => "_blank"}) %>
+                        <%== link_to(smart_word_breaker(pipeline_model_in_pipeline_group.getName()), url_for_pipeline(pipeline_model_in_pipeline_group.getName(), {:only_path => false}), {:target => "_blank"}) %>
                     </h3>
                 </div>
                 <% pipeline_model_in_pipeline_group.getActivePipelineInstances().each do |active_pipeline_in_pipeline| -%>

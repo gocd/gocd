@@ -10,9 +10,9 @@
         <Require feature="dynamic-height" />
         <OAuth>
             <Service name="<%=l.string("GO")%>">
-                <Request method="GET" url="<%= url_for(:controller => '/oauth_token', :action => :get_token, :only_path => false) %>"/>
-                <Access method="GET" url="<%= url_for(:controller => '/oauth_token', :action => :get_token, :only_path => false) %>"/>
-                <Authorization url="<%= url_for(:controller => '/oauth_authorize', :action => :index, :only_path => false) %>"/>
+                <Request method="GET" url="<%= oauth_engine.tokens_get_token_url %>"/>
+                <Access method="GET" url="<%= oauth_engine.tokens_get_token_url %>"/>
+                <Authorization url="<%= oauth_engine.authorize_index_url %>"/>
             </Service>
         </OAuth>
     </ModulePrefs>

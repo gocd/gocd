@@ -14,53 +14,50 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Gadgets::PipelineController do
-
   before :each do
     controller.stub(:populate_health_messages)
-    controller.stub!(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
     UserHelper.stub(:getUserId).and_return(1)
     controller.stub(:populate_config_validity)
   end
 
 
   describe "index" do
-
     it "should have return the pipeline gadget" do
-      pipeline_status_gadget_url.should == "http://test.host/gadgets/pipeline.xml"
+      expect(pipeline_status_gadget_url).to eq("http://test.host/gadgets/pipeline.xml")
     end
 
-    it "should return params for" do
-      params_from(:get, "/gadgets/pipeline.xml").should == {:controller => "gadgets/pipeline", :action => "index", :format => "xml"}
+    it "should resolve" do
+      expect(:get => "/gadgets/pipeline.xml").to route_to(:controller => "gadgets/pipeline", :action => "index", :format => "xml")
     end
 
     it "should set the page expiration to 1 day" do
       get :index, :format => 'xml'
-      assert_equal "max-age=86400, public", response.headers["Cache-Control"]
+      expect(response.headers["Cache-Control"]).to eq("max-age=86400, public")
     end
   end
 
 
   describe "content" do
-
     it "should return params for content" do
-      params_from(:get, "/gadgets/pipeline/content").should == {:controller => "gadgets/pipeline", :action => "content", :no_layout => true}
+      expect(:get => "/gadgets/pipeline/content").to route_to(:controller => "gadgets/pipeline", :action => "content", :no_layout => true)
     end
 
     it "should return the pipeline gadget content" do
-      pipeline_status_gadget_content_url.should == "http://test.host/gadgets/pipeline/content"
+      expect(pipeline_status_gadget_content_url).to eq("http://test.host/gadgets/pipeline/content")
     end
 
     it "should return the pipeline model by pipeline name" do
-      controller.stub!(:go_config_service).and_return(@go_config_service=mock())
+      controller.stub(:go_config_service).and_return(@go_config_service=double())
       @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("first")).and_return(true)
 
-      controller.stub!(:security_service).and_return(@security_service=mock())
+      controller.stub(:security_service).and_return(@security_service=double())
       @security_service.should_receive(:hasViewPermissionForPipeline).with(@user, "first").and_return(true)
 
-      controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
+      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
       pipeline_group_models = java.util.ArrayList.new
 
       group1 = PipelineGroupModel.new("firstGroup")
@@ -78,60 +75,60 @@ describe Gadgets::PipelineController do
 
       get :content, :pipeline_name => "first", :no_layout => true
 
-      assigns[:pipeline].should == pipeline
+      expect(assigns[:pipeline]).to eq(pipeline)
     end
 
     it "should respond with not found if the pipeline name is not found" do
-      controller.stub!(:go_config_service).and_return(@go_config_service=mock())
+      controller.stub(:go_config_service).and_return(@go_config_service=double())
       @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(false)
 
-      controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
+      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
       @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :pipeline_name => "pipeline1", :no_layout => true
 
-      response.status.should == "404 Not Found"
-      response.body.should == "Pipeline 'pipeline1' not found.\n"
-      assigns[:pipeline].should == nil
+      expect(response.code).to eq("404")
+      expect(response.body).to eq("Pipeline 'pipeline1' not found.\n")
+      expect(assigns[:pipeline]).to be_nil
     end
 
     it "should respond with error if the pipeline name is nil" do
-      controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
+      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
       @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :no_layout => true
 
-      response.status.should == "400 Bad Request"
-      response.body.should == "Request does not have parameter 'pipeline_name' set. Please specify the name of the pipeline.\n"
-      assigns[:pipeline].should == nil
+      expect(response.code).to eq("400")
+      expect(response.body).to eq("Request does not have parameter 'pipeline_name' set. Please specify the name of the pipeline.\n")
+      expect(assigns[:pipeline]).to be_nil
     end
 
     it "should respond with error if the pipeline name is empty" do
-      controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
+      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
       @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :pipeline_name => "", :no_layout => true
 
-      response.status.should == "400 Bad Request"
-      response.body.should == "Parameter 'pipeline_name' is empty. Please specify the name of the pipeline.\n"
-      assigns[:pipeline].should == nil
+      expect(response.code).to eq("400")
+      expect(response.body).to eq("Parameter 'pipeline_name' is empty. Please specify the name of the pipeline.\n")
+      expect(assigns[:pipeline]).to be_nil
     end
 
     it "should respond with unauthorised if the user does not view permission on the pipeline" do
-      controller.stub!(:go_config_service).and_return(@go_config_service=mock())
+      controller.stub(:go_config_service).and_return(@go_config_service=double())
       @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(true)
 
-      controller.stub!(:pipeline_history_service).and_return(@pipeline_history_service=mock())
+      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
       @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
-      controller.stub!(:security_service).and_return(@security_service=mock())
+      controller.stub(:security_service).and_return(@security_service=double())
       @security_service.should_receive(:hasViewPermissionForPipeline).with(@user, "pipeline1").and_return(false)
 
       get :content, :pipeline_name => "pipeline1", :no_layout => true
 
-      response.status.should == "403 Forbidden"
-      response.body.should == "User 'user' does not have view permission on pipeline 'pipeline1'\n"
-      assigns[:pipeline].should == nil
+      expect(response.code).to eq("403")
+      expect(response.body).to eq("User 'user' does not have view permission on pipeline 'pipeline1'\n")
+      expect(assigns[:pipeline]).to be_nil
     end
   end
 end

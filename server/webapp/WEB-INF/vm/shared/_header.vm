@@ -94,11 +94,11 @@
 ##            <link href="$req.getContextPath()/assets/views/stages.css?body=1" media="all" rel="stylesheet" />
 ##            <link href="$req.getContextPath()/assets/views/users.css?body=1" media="all" rel="stylesheet" />
 ##            <link href="$req.getContextPath()/assets/views/views.css?body=1" media="all" rel="stylesheet" />
-##           <link href="$req.getContextPath()/assets/css_sass/base/variables.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/global/reset.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/base/mixins.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/base/reset-g9.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/base/sprites.css?body=1" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css_sass/base/variables.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/components/alerts.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/components/labels-badges.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css_sass/components/messages.css?body=1" media="all" rel="stylesheet" />
@@ -130,7 +130,7 @@
             <link href="$req.getContextPath()/assets/css_sass/go-pages/vsm.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
             <link href="$req.getContextPath()/assets/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/css/application-old.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+##            <link href="$req.getContextPath()/assets/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
             <link href="$req.getContextPath()/assets/structure/application.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/patterns/modalbox.css?body=1" media="all" rel="stylesheet" />
             #if($extra_css_list)

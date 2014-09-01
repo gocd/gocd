@@ -33,7 +33,7 @@
         #if ($useCompressJS)
             <link href="$req.getContextPath()/$compressedApplicationCssFilePath" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/$compressedCssCssFilePath" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/$compressedApplicationCssFilePath" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/$compressedVmCssFilePath" media="all" rel="stylesheet" />
         #else
             <link href="$req.getContextPath()/assets/application.css?body=1" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/assets/structure/reset.css?body=1" media="all" rel="stylesheet" />

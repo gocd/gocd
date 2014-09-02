@@ -103,12 +103,6 @@ else
     JVM_DEBUG=""
 fi
 
-if [ "$USE_NEW_RAILS" != "" ]; then
-    USE_NEW_RAILS="-Duse.new.rails=Y"
-else
-    USE_NEW_RAILS=""
-fi
-
 if [ "$GC_LOG" != "" ]; then
     GC_LOG="-verbose:gc -Xloggc:go-server-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC"
 else
@@ -120,7 +114,7 @@ if [ ! -z $SERVER_LISTEN_HOST ]; then
 fi
 SERVER_STARTUP_ARGS+=("-server $YOURKIT")
 SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
-SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES $USE_NEW_RAILS")
+SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
 SERVER_STARTUP_ARGS+=("-Duser.language=en -Dorg.mortbay.jetty.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000")
 SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
 SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")

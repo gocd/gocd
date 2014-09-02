@@ -1,1 +1,1 @@
-Rails.application.config.assets.precompile += ['lib/d3-3.1.5.min.js', 'css/application.scss', 'vm/application.scss']
+Rails.application.config.assets.precompile += ['lib/d3-3.1.5.min.js']

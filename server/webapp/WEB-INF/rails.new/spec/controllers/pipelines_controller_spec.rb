@@ -196,7 +196,7 @@ describe PipelinesController do
   end
 
   describe "action show" do
-    it "should resolve using both GET and PUT" do
+    it "should resolve using both GET and POST" do
       expect({:get => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
       expect({:post => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
     end

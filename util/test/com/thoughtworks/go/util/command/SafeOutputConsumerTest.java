@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.util.command;
 
-import org.junit.Test;import static org.junit.matchers.JUnitMatchers.containsString;import static org.junit.Assert.assertThat;import static org.hamcrest.core.IsNot.not;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.core.IsNot.not;
 
 public class SafeOutputConsumerTest {
 

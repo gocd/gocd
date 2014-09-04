@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.oauth.OauthAuthorization;
 import com.thoughtworks.go.server.domain.oauth.OauthClient;
@@ -37,8 +38,10 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -442,6 +445,23 @@ public class OauthRepositoryTest {
     public void shouldNotBombWhenNoTokenToDelete() {
         assertThat(template.find("from OauthToken").size(), is(0));
         repo.deleteOauthToken(10);
+    }
+
+    @Test
+    public void shouldSaveClientIfIdIsMissing() throws Exception {
+        String name = "oauth";
+        String clientId = "client_id";
+        String clientSecret = "client_secret";
+        String redirectUri = "http://something";
+        Map<String, String> map = m("id", "", "name", name, "client_id", clientId, "client_secret", clientSecret, "redirect_uri", redirectUri);
+        repo.saveClient(map);
+        OauthClient client = (OauthClient) template.find("from OauthClient where clientSecret = '" + clientSecret + "'").get(0);
+        OauthDataSource.OauthClientDTO dto = client.getDTO();
+        assertThat(dto.getName(), is(name));
+        assertThat(dto.getClientId(), is(clientId));
+        assertThat(dto.getClientSecret(), is(clientSecret));
+        assertThat(dto.getRedirectUri(), is(redirectUri));
+        assertThat(dto.getId(), is(not(PersistentObject.NOT_PERSISTED)));
     }
 
     static void assertHasIdAndMatches(Object loaded, Object unpersistentExpected) throws NoSuchFieldException, IllegalAccessException {

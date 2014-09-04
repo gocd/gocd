@@ -18,6 +18,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/admin" do
+  include EngineUrlHelper
+
   before do
     stub_server_health_messages
   end
@@ -32,6 +34,7 @@ describe "/layouts/admin" do
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_a_group_admin?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_template_admin?).and_return(false)
     class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
@@ -39,11 +42,13 @@ describe "/layouts/admin" do
 
       alias_method_chain :url_for, :stub
     end
-    allow(view).to receive(:oauth_clients_path).and_return("/path/for/oauth/clients")
-    allow(view).to receive(:user_listing_path).and_return("/path/for/user/listing")
-    allow(view).to receive(:backup_server_path).and_return("admin/backup")
-    allow(view).to receive(:pipelines_snippet_path).and_return("admin/pipelines/snippet")
-    allow(view).to receive(:is_user_a_template_admin?).and_return(false)
+    oauth_engine = double('oauth_engine')
+    stub_oauth2_provider_engine oauth_engine
+    allow(view).to receive(:oauth_engine).and_return(oauth_engine)
+
+    main_app = double('main_app')
+    stub_routes_for_main_app main_app
+    allow(view).to receive(:main_app).and_return(main_app)
   end
 
   it_should_behave_like :layout
@@ -171,7 +176,7 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/admin/pipelines']", 'Pipelines')
+      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/path/to/pipeline/groups']", 'Pipelines')
     end
   end
 
@@ -210,7 +215,7 @@ describe "/layouts/admin" do
 
     it "should show tab button for super admins" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']", 'Templates')
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
     end
 
     it "should not be visible for group admins" do
@@ -218,7 +223,7 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']", 'Templates')
+      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
     end
 
     it "should be visible for template admins" do
@@ -227,7 +232,7 @@ describe "/layouts/admin" do
 
       render :inline => "<div>content</div>", :layout => @layout_name
 
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']", 'Templates')
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']", 'Templates')
     end
 
   end

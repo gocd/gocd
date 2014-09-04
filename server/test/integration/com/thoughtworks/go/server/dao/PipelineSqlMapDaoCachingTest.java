@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -39,6 +40,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -70,9 +72,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -771,6 +773,71 @@ public class PipelineSqlMapDaoCachingTest {
         pipelineDao.save(pipeline);
         assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
     }
+
+	@Test
+	public void shouldCachePipelineInstancesTriggeredOutOfMaterialRevision() throws Exception {
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
+		List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
+		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(results);
+
+		assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
+		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
+
+		//Query second time should return from cache
+		pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
+		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(actual));
+
+		verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString());
+	}
+
+	@Test
+	public void shouldCacheEmptyPipelineInstancesTriggeredOutOfMaterialRevision() throws Exception {
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
+		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(new ArrayList());
+
+		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
+
+		assertThat(actual, hasSize(0));
+		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(actual));
+	}
+
+	@Test
+	public void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() throws Exception {
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
+		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
+		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);
+
+		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
+		assertThat(actual, hasSize(1));
+		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), hasSize(1));
+
+		MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
+		Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
+
+		pipelineDao.save(pipeline);
+		assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
+	}
+
+	@Test
+	public void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision_WhenAPipelineInstanceIsCreatedWithDifferentMaterial() throws Exception {
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
+		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
+		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
+		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);
+
+		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
+		assertThat(actual, Matchers.is(result));
+		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+
+		MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r2")));
+		Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
+
+		pipelineDao.save(pipeline);
+		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+	}
 
     private PipelineInstanceModel model(long id, JobState jobState, JobResult jobResult) {
         StageInstanceModels models = new StageInstanceModels();

@@ -27,15 +27,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.RunOnAllAgents;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.Material;
@@ -220,6 +212,28 @@ public class PipelineScheduleServiceTest {
         assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("agentUuid", is("uuid3"))));
         assertThat(scheduledJobs.size(), is(2));
     }
+
+	@Test
+	public void shouldScheduleMultipleJobsWhenToBeRunMultipleInstance() throws Exception {
+		configHelper.setRunMultipleInstance(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", 2);
+
+		Material stubMaterial = new TestingMaterial();
+		evolveConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
+		MaterialRevisions revisions = new MaterialRevisions();
+		revisions.addRevision(stubMaterial, ((TestingMaterial) stubMaterial).modificationsSince(null, null, subprocessExecutionContext));
+		BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
+		dbHelper.saveMaterials(buildCause.getMaterialRevisions());
+
+		Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5, new TimeProvider());
+		pipelineService.save(pipeline);
+
+		Stage instance = scheduleService.scheduleStage(pipeline, STAGE_NAME, "anyone", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
+
+		JobInstances scheduledJobs = instance.getJobInstances();
+		assertThat(scheduledJobs.size(), is(2));
+		assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 1)))));
+		assertThat(scheduledJobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("unit", 2)))));
+	}
 
     @Test
     public void shouldPassEnvironmentLevelEnvironmentVariablesToJobsForNewlyScheduledStage() throws Exception {

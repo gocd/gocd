@@ -45,10 +45,10 @@ import static com.thoughtworks.go.helper.MaterialsMother.hgMaterial;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.job;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.stagePerJob;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class PipelineInstanceModelTest {
     private static final Modification HG_MATERIAL_MODIFICATION = new Modification("user", "Comment", "email", new Date(), "a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
@@ -180,7 +180,7 @@ public class PipelineInstanceModelTest {
         try {
             assertThat(setUpModificationFor(material).getCurrentRevision("blah").getRevision(), is("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46"));
             fail("should have raised an exeption for unknown material name");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -206,8 +206,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
 
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
-        return model;
+        return PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
     }
 
     @Test public void shouldKnowIfLatestRevisionIsReal() throws Exception {

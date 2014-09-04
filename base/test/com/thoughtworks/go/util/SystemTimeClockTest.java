@@ -17,10 +17,11 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
 import org.joda.time.DateTime;
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class SystemTimeClockTest {
     @Test

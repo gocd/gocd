@@ -51,7 +51,6 @@ import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANC
 import static com.thoughtworks.go.util.DateUtils.parseRFC822;
 import static com.thoughtworks.go.util.FileUtil.readLines;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static junit.framework.Assert.fail;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.apache.commons.lang.time.DateUtils.setMilliseconds;
@@ -60,6 +59,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(JunitExtRunner.class)
 public class GitCommandTest {

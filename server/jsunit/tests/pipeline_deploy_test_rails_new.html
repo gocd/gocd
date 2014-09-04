@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- *************************GO-LICENSE-START******************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END******************************* -->
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>CCE Dashboard Tests</title>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css"/>
+    <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+    <script language="JavaScript" type="text/javascript" src="../compressed/test_helper.js"></script>
+<script type="text/javascript" src="../app/after_load_enhancements.js"></script>
+
+    <script language="JavaScript" type="text/javascript">
+
+        var actual_timeout = setTimeout;
+
+        function setTimeout(fn) { fn(); }
+
+        var material_detail_panes = null;
+        var material_summary_panes = null;
+
+        var actual_ajax_request = Ajax.Request;
+        var foo_value,bar_value;
+
+        function setUp() {
+            material_detail_panes = $$(".materials .material_details .material_detail");
+            material_summary_panes = $$(".materials .material_summaries .material_summary");
+
+            material_detail_panes.each(function (details_pane) {
+                details_pane.addClassName('hidden');
+            });
+
+            material_summary_panes.each(function (summary_pane) {
+                summary_pane.removeClassName('selected');
+            });
+
+            material_detail_panes[0].removeClassName("hidden");
+            material_summary_panes[0].addClassName("selected");
+            MaterialDetailsToggler.reset();
+            foo_value = $$("input[name='variables[foo]']")[0].value;
+            bar_value = $$("input[name='variables[bar]']")[0].value;
+        }
+
+        function tearDown() {
+            Ajax.Request = actual_ajax_request;
+            setTimeout = actual_timeout;
+            $$("input[name='variables[foo]']")[0].value = foo_value;
+            $$("input[name='variables[bar]']")[0].value = bar_value;
+        }
+
+        function test_should_toggle_display_between_materials() {
+            fire_event(material_summary_panes[1], 'click');
+
+            assertFalse("First summary should not be selected on click of second summary", material_summary_panes[0].hasClassName('selected'));
+            assertTrue("First detail should be hidden on click of second summary", material_detail_panes[0].hasClassName('hidden'));
+
+            assertTrue("second summary should be selected on click of second summary", material_summary_panes[1].hasClassName('selected'));
+            assertFalse("Second detail should be shown on click of second", material_detail_panes[1].hasClassName('hidden'));
+        }
+
+        function test_second_click_should_keep_the_details_open_if_it_already_is_blah_blah() {
+            fire_event(material_summary_panes[1], 'click');
+            assertFalse("should select on first click", material_detail_panes[1].hasClassName('hidden'));
+            assertTrue("should open on first click", material_summary_panes[1].hasClassName('selected'));
+
+            fire_event(material_summary_panes[1], 'click');
+            assertFalse("stay selected after second click", material_detail_panes[1].hasClassName('hidden'));
+            assertTrue("stay open after second click", material_summary_panes[1].hasClassName('selected'));
+        }
+
+        function test_should_update_revision_to_deploy_when_selected() {
+            Ajax.Request = function(url, options) {
+                options.onComplete({responseText:
+                        '<ul class="smartfill_content">>'
+                        + '<li id="matched-revision-0">'
+                        + '  <div class="revision" title="long-revision1">rev1</div>'
+                        + '  <div class="user">user1</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment1</div>'
+                        + '</li>'
+                        + '<li id="matched-revision-1">'
+                        + '  <div class="revision" title="long-revision2">rev2</div>'
+                        + '  <div class="user">user2</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment2</div>'
+                        + '</li>'
+                        + '</ul>'
+                });
+            };
+            $('material-number-0-autocomplete').setValue("rev");
+            fire_event($('material-number-0-autocomplete'), 'keydown');
+            fire_event($('matched-revision-0'), "click");
+            assertEquals("First was selected", $('material-number-0-autocomplete').getValue(), "long-revision1");
+        }
+
+        function test_should_update_navigation_bar_with_selected_revision() {
+            Ajax.Request = function(url, options) {
+                options.onComplete({responseText:
+                        '<ul class="smartfill_content">>'
+                        + '<li id="matched-revision-0">'
+                        + '  <div class="revision" title="long-revision1">rev1</div>'
+                        + '  <div class="user">user1</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment1</div>'
+                        + '</li>'
+                        + '<li id="matched-revision-1">'
+                        + '  <div class="revision" title="long-revision2">rev2</div>'
+                        + '  <div class="user">user2</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment2</div>'
+                        + '</li>'
+                        + '<li id="matched-revision-2">'
+                        + '  <div class="revision" title="1234">1234</div>'
+                        + '  <div class="user">username</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">existing material</div>'
+                        + '</li>'
+                        + '</ul>'
+                });
+            };
+            $('material-number-0-autocomplete').setValue("rev");
+            fire_event($('material-number-0-autocomplete'), 'keydown');
+
+            // Choosing new revision
+            fire_event($('matched-revision-1'), "click");
+            assertEquals("Short revision set", $('material-number-0').textContent, "rev2");
+            assertEquals("Long revision set", $('material-number-0').title, "long-revision2");
+            assertTrue("Contains 'updated' class", $('material-number-0').hasClassName('updated'));
+
+            // Choosing existing revision
+            fire_event($('matched-revision-2'), "click");
+            assertEquals("Short revision set", $('material-number-0').textContent, "1234");
+            assertEquals("Long revision set", $('material-number-0').title, "1234");
+            assertFalse("Contains 'updated' class", $('material-number-0').hasClassName('updated'));
+        }
+
+        function test_should_preload_with_latest_5() {
+            Ajax.Request = function(url, options) {
+                options.onComplete({responseText:
+                        '<ul class="smartfill_content">'
+                        + '<li id="matched-revision-0">'
+                        + '  <div class="revision" title="long-revision1">rev1</div>'
+                        + '  <div class="user">user1</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment1</div>'
+                        + '</li>'
+                        + '<li id="matched-revision-1">'
+                        + '  <div class="revision" title="long-revision2">rev2</div>'
+                        + '  <div class="user">user2</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">comment2</div>'
+                        + '</li>'
+                        + '<li id="matched-revision-2">'
+                        + '  <div class="revision" title="1234">1234</div>'
+                        + '  <div class="user">username</div>'
+                        + '  <div class="checkinTime">2009-01-01</div>'
+                        + '  <div class="comment">existing material</div>'
+                        + '</li>'
+                        + '</ul>'
+                });
+            };
+            fire_event($('material-number-0-autocomplete'), 'focus');
+
+            // Choosing new revision
+            fire_event($('matched-revision-0'), "click");
+            assertEquals("First was selected", $('material-number-0-autocomplete').getValue(), "long-revision1");
+        }
+
+        function test_should_show_message_when_default_value_changes(){
+            var foo_text_box = $$("input[name='variables[foo]']")[0];
+            fire_event(foo_text_box, "change");
+            assertTrue($$(".message")[0].hasClassName("hidden"));
+            foo_text_box.value="changed";
+            fire_event(foo_text_box, "change");
+            assertFalse($$(".message")[0].hasClassName("hidden"));
+
+        }
+
+        function test_remove_unchanged(){
+            disable_unchanged();
+            assertTrue($$("input[name='variables[bar]']")[0].disabled);
+            assertTrue($$("input[name='variables[foo]']")[0].disabled);
+
+            $$(".variable input[type='text']").each(function(textbox){
+                textbox.enable();
+                textbox.value = "changed";
+            });
+            disable_unchanged();
+            assertFalse($$("input[name='variables[bar]']")[0].disabled);
+            assertFalse($$("input[name='variables[foo]']")[0].disabled);
+        }
+
+    </script>
+</head>
+<body>
+<div class='under_test'>
+    <form accept-charset='UTF-8' action='/api/pipelines/pipline-name/schedule' method='post' onsubmit="PipelineOperations.onTriggerWithOptionsDialog(this, 'pipline-name', '/api/pipelines/pipline-name/schedule'); return false;; ">
+      <div style='margin:0;padding:0;display:inline'> <input name='utf8' type='hidden' value='&#x2713;'/> </div>
+      <div class='change_materials'>
+          <div class='sub_tabs_container'>
+              <ul>
+                  <li id='materials_tab' class='current_tab'>
+                      <a class='tab_button_body_match_text'>materials</a>
+                      <a>Materials</a>
+                  </li>
+                  <li id='environment_variables_tab'>
+                      <a class='tab_button_body_match_text'>environment-variables</a>
+                      <a>Environment Variables</a>
+                  </li>
+              </ul>
+          </div>
+<div class='sub_tab_container'>
+    <div class='sub_tab_container_content'>
+        <div class='materials' id='tab-content-of-materials'>
+            <div class='material_summaries'>
+            <div class='material_summary selected first'>
+              <div id='material-number-0' class='revision_number' title='1234'>1234</div>
+              <div class='material_name' title='SvnName'>SvnName</div>
+            </div>
+            <div class='material_summary '>
+              <div id='material-number-1' class='revision_number' title='9fdcf27f16eadc362733328dd481d8a2c29915e1'>9fdcf27f16ea</div>
+              <div class='material_name' title='hg-url'>hg-url</div>
+            </div>
+          </div>
+          <div class='content_wrapper_outer'> <div class='content_wrapper_inner'>
+          <div class='material_details'>
+            <div class='material_detail '>
+              <dl>
+                <dt>Subversion</dt>
+                <dd>
+                  <span class='material_name' title='SvnName'>SvnName</span>
+                </dd>
+                <dt>Dest:</dt>
+                <dd class='folder '> Folder </dd>
+                <dt>Date:</dt>
+                <dd class='date' title='REPLACED_DATE'>REPLACED_RELATIVE_TIME</dd>
+                <dt>User:</dt>
+                <dd class='user'>username</dd>
+                <dt>Comment:</dt>
+                <dd class='comment'>I changed something</dd>
+                <dt>Currently Deployed:</dt>
+                <dd>
+                  <span id='currently-deployed-0' class='revision_number' title='1234'>1234</span>
+                </dd>
+                <dt>Revision to Deploy:</dt>
+                <dd>
+                  <input id='material-number-0-original' type='hidden' class='original-revision' name='original_fingerprint[36284ebcd009959b86b5e0c30be7e3803d0328f3ae5b8608285f2223de07faa7]' value='1234'/>
+                  <input id='material-number-0-autocomplete' type='text' class='autocomplete-input' name='material_fingerprint[36284ebcd009959b86b5e0c30be7e3803d0328f3ae5b8608285f2223de07faa7]'/>
+                  <div id='material-number-0-autocomplete-content' class='autocomplete bring_to_front'></div>
+                    <script type="text/javascript">
+                        Util.on_load(function() {
+                            CruiseAutocomplete.materialSearch(true, 'pipline-name', '70fd7f3da3a0e91de9a2bc0a9e02efc96134271fd7574b925028f9692aa61405', 'material-number-0-autocomplete',
+                                    function(short_revision, long_revision) {
+                                        var external_revision = $('material-number-0');
+                                        external_revision.update(short_revision);
+                                        external_revision.writeAttribute('title', long_revision);
+                                        if ($("currently-deployed-0").title == long_revision) {
+                                            external_revision.removeClassName('updated');
+                                            materialDirtyTracker.undoUpdate(0);
+                                        } else {
+                                            external_revision.addClassName('updated');
+                                            materialDirtyTracker.update(0);
+                                        }
+                                    });
+                        });
+                    </script>
+                </dd>
+              </dl>
+            </div>
+            <div class='material_detail hidden'>
+              <dl>
+                <dt>Mercurial</dt>
+                <dd>
+                  <span class='material_name' title='hg-url'>hg-url</span>
+                </dd>
+                <dt>Dest:</dt>
+                <dd class='folder not_set '> not-set </dd>
+                <dt>Date:</dt>
+                <dd class='date' title='REPLACED_DATE'>REPLACED_RELATIVE_TIME</dd>
+                <dt>User:</dt>
+                <dd class='user'>user2</dd>
+                <dt>Comment:</dt>
+                <dd class='comment'>comment2</dd>
+                <dt>Currently Deployed:</dt>
+                <dd>
+                  <span id='currently-deployed-1' class='revision_number' title='9fdcf27f16eadc362733328dd481d8a2c29915e1'>9fdcf27f16ea</span>
+                </dd>
+                <dt>Revision to Deploy:</dt>
+                <dd>
+                  <input id='material-number-1-original' type='hidden' class='original-revision' name='original_fingerprint[28fc4e7dda814b71db7fd4f4fbb781583155d64d7bbf526ae740687999286e1e]' value='9fdcf27f16eadc362733328dd481d8a2c29915e1'/>
+                  <input id='material-number-1-autocomplete' type='text' class='autocomplete-input' name='material_fingerprint[28fc4e7dda814b71db7fd4f4fbb781583155d64d7bbf526ae740687999286e1e]'/>
+                  <div id='material-number-1-autocomplete-content' class='autocomplete bring_to_front'></div>
+                    <script type="text/javascript">
+                        Util.on_load(function() {
+                            CruiseAutocomplete.materialSearch(false, 'pipline-name', '4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515', 'material-number-1-autocomplete',
+                                    function(short_revision, long_revision) {
+                                        var external_revision = $('material-number-1');
+                                        external_revision.update(short_revision);
+                                        external_revision.writeAttribute('title', long_revision);
+                                        if ($("currently-deployed-1").title == long_revision) {
+                                            external_revision.removeClassName('updated');
+                                            materialDirtyTracker.undoUpdate(1);
+                                        } else {
+                                            external_revision.addClassName('updated');
+                                            materialDirtyTracker.update(1);
+                                        }
+                                    });
+                        });
+                    </script>
+                </dd>
+              </dl>
+            </div>
+          </div>
+          </div></div>
+        </div>
+        <div class='variables' id="tab-content-of-environment-variables" style='display: none;'>
+            <div class="content_wrapper_outer"><div class="content_wrapper_inner">
+             <span>Override Environment and Pipeline level variables:</span>
+            <div class='variable'>
+                <label for='variables[foo]'>foo</label>
+                <input id="variable-0" type='text' name='variables[foo]' value='foo_value'/>
+                <input type='hidden' name='original_variables[foo]' value='foo_value'/>
+                <span class='message hidden'>Overwritten. Default: foo_value</span>
+            </div>
+            <div class='variable'>
+                <label for='variables[bar]'>bar</label>
+                <input id="variable-1" type='text' name='variables[bar]' value='bar_value'/>
+                <input type='hidden' name='original_variables[bar]' value='bar_value'/>
+                <span class='message hidden'>Overwritten. Default: bar_value</span>
+            </div>
+            </div></div>
+        </div>
+    </div>
+</div>
+
+          <div class='actions'>
+              <button class='primary submit disabled' disabled='disabled' type='submit' value='Deploy Changes'>
+                  <span>DEPLOY CHANGES</span>
+              </button>
+              <button class='submit button' id='close' type='button' value='Close'>
+                  <span>CLOSE</span>
+              </button>
+          </div>
+
+
+      </div>
+
+    </form>
+    <script type='text/javascript'>
+        Util.on_load(function() {
+            init_trigger_popup();
+            materialDirtyTracker = new DirtyTracker('materials_tab');
+            environmentVariableDirtyTracker = new DirtyTracker('environment_variables_tab');
+            new TabsManager('materials_tab', 'material_popup', 'UNIQUE_ID');
+        });   </script>
+</div>
+
+</body>
+</html>

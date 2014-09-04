@@ -57,11 +57,11 @@ import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.listOf;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -206,6 +206,27 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 2)))));
         assertThat(jobs.size(), is(2));
     }
+
+	@Test
+	public void shouldFindAllCopiesOfJobsRunMultipleInstance() throws Exception {
+		StageConfig stageConfig = StageConfigMother.custom("dev", "build");
+		JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
+		jobConfig.setRunInstanceCount(2);
+		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents());
+		Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
+
+		for (JobInstance instance : stage.getJobInstances()) {
+			instance.setIdentifier(new JobIdentifier("cruise", "1", "dev", "1", instance.getName()));
+		}
+
+		jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
+		jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
+
+		JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
+		assertThat(jobs.size(), is(2));
+		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 1)))));
+		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 2)))));
+	}
 
     @Test
     public void shouldThrowExceptionIfThereAreNoJobsToBeScheduled() throws Exception {

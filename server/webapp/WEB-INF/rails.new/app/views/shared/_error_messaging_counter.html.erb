@@ -8,7 +8,7 @@
 
   <%- if auto_refresh? -%>
      <script type="text/javascript">
-        Util.on_load(function() {new AjaxRefresher('<%= global_message_path() %>', null);});
+        Util.on_load(function() {new AjaxRefresher('<%= main_app.global_message_path() %>', null);});
      </script>
     <%- end -%>
 </div>

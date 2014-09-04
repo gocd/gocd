@@ -16,22 +16,11 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -39,20 +28,8 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
-import com.thoughtworks.go.config.validation.ArtifactDirValidator;
-import com.thoughtworks.go.config.validation.CommandRepositoryLocationValidator;
-import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
-import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
-import com.thoughtworks.go.config.validation.ServerIdImmutabilityValidator;
-import com.thoughtworks.go.config.validation.TaskWorkingFolderValidator;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
-import com.thoughtworks.go.domain.NullTask;
-import com.thoughtworks.go.domain.RunIfConfigs;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.config.validation.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -65,50 +42,51 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.licensing.GoLicense;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.UrlArgument;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.command.HgUrlArgument;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_ANT_BUILDER;
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
+import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
-import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
-import static com.thoughtworks.go.plugin.api.config.Property.REQUIRED;
-import static com.thoughtworks.go.plugin.api.config.Property.SECURE;
 import static java.lang.String.format;
-import static junit.framework.Assert.fail;
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 @RunWith(JunitExtRunner.class)
@@ -182,9 +160,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void serverTagShouldBeMandatorySoThatItCanHoldLicense() throws Exception {
         try {
-
             ConfigMigrator.loadWithMigration(new ByteArrayInputStream(ConfigFileFixture.WITHOUT_SERVER_TAG.getBytes()));
-
             fail();
         } catch (Exception e) {
             String expectedMsg = "The content of element 'cruise' is not complete. One of '{server}' is expected.";
@@ -973,7 +949,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo1\" dest=\"folder1/folder2\"/>\n"
                         + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2different\" />\n"
                         + "  </materials>\n";
-        String message = "Multiple materials dest folders with similar names are not nested";
         assertValidMaterials(materials);
     }
 
@@ -985,7 +960,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo2\" dest=\"folder1/folder2different\" />\n"
                         + "    <svn url=\"/hgrepo1\" dest=\"folder1/folder2\"/>\n"
                         + "  </materials>\n";
-        String message = "Multiple materials dest folders with similar names are not nested";
         assertValidMaterials(materials);
     }
 
@@ -1515,31 +1489,42 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotAllowJobToHaveTheRunOnAllAgentsMarkerInItsName() throws Exception {
         String invalidJobName = format("%s-%s-%s", "invalid-name", RunOnAllAgentsJobTypeConfig.MARKER, 1);
-        String content = ConfigFileFixture.configWithPipeline(
-                "    <pipeline name=\"dev\">\n"
-                        + "      <materials>\n"
-                        + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
-                        + "      </materials>\n"
-                        + "      <stage name=\"AutoStage\">\n"
-                        + "        <jobs>\n"
-                        + "          <job name=\"" + invalidJobName + "\">\n"
-                        + "            <tasks>\n"
-                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
-                        + "            </tasks>\n"
-                        + "          </job>\n"
-                        + "        </jobs>\n"
-                        + "      </stage>\n"
-                        + "    </pipeline>");
-        try {
-            ConfigMigrator.loadWithMigration(content);
-            fail("should not allow jobs with runOnAllAgents=true to have names with 'runOnAll'");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("A job cannot have 'runOnAll' in it's name: " + invalidJobName));
-        }
+		testForInvalidJobName(invalidJobName, RunOnAllAgentsJobTypeConfig.MARKER);
     }
 
-    @Test
-    public void shouldAllowNonRunOnAllAgentJobToHavePartsOfTheRunOnAllAgentsMarkerInItsName() throws Exception {
+	@Test
+	public void shouldNotAllowJobToHaveTheRunInstanceMarkerInItsName() throws Exception {
+		String invalidJobName = format("%s-%s-%s", "invalid-name", RunMultipleInstanceJobTypeConfig.MARKER, 1);
+		testForInvalidJobName(invalidJobName, RunMultipleInstanceJobTypeConfig.MARKER);
+	}
+
+	private void testForInvalidJobName(String invalidJobName, String marker) {
+		String content = ConfigFileFixture.configWithPipeline(
+				"    <pipeline name=\"dev\">\n"
+						+ "      <materials>\n"
+						+ "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
+						+ "      </materials>\n"
+						+ "      <stage name=\"AutoStage\">\n"
+						+ "        <jobs>\n"
+						+ "          <job name=\"" + invalidJobName + "\">\n"
+						+ "            <tasks>\n"
+						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
+						+ "            </tasks>\n"
+						+ "          </job>\n"
+						+ "        </jobs>\n"
+						+ "      </stage>\n"
+						+ "    </pipeline>"
+		);
+		try {
+			ConfigMigrator.loadWithMigration(content);
+			fail("should not allow jobs with with name '" + marker + "'");
+		} catch (Exception expected) {
+			assertThat(expected.getMessage(), containsString("A job cannot have '" + marker + "' in it's name: " + invalidJobName));
+		}
+	}
+
+	@Test
+    public void shouldAllow_NonRunOnAllAgentJobToHavePartsOfTheRunOnAll_and_NonRunMultipleInstanceJobToHavePartsOfTheRunInstance_AgentsMarkerInItsName() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
                 "    <pipeline name=\"dev\">\n"
                         + "      <materials>\n"
@@ -1552,7 +1537,12 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "              <exec command=\"ls\" args=\"-lah\" />\n"
                         + "            </tasks>\n"
                         + "          </job>\n"
-                        + "        </jobs>\n"
+						+ "          <job name=\"valid-name-runInstance\" >\n"
+						+ "            <tasks>\n"
+						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
+						+ "            </tasks>\n"
+						+ "          </job>\n"
+						+ "        </jobs>\n"
                         + "      </stage>\n"
                         + "    </pipeline>");
         ConfigMigrator.loadWithMigration(content); // should not fail with a validation exception
@@ -1561,7 +1551,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadLargeConfigFileInReasonableTime() throws Exception {
         String content = FileUtil.readToEnd(getClass().getResourceAsStream("/data/big-cruise-config.xml"));
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
         GoConfigHolder configHolder = ConfigMigrator.loadWithMigration(content);
 //        assertThat(System.currentTimeMillis() - start, lessThan(new Long(2000)));
         assertThat(configHolder.config.schemaVersion(), is(GoConstants.CONFIG_SCHEMA_VERSION));
@@ -1940,6 +1930,23 @@ public class MagicalGoConfigXmlLoaderTest {
         }
     }
 
+	@Test
+	public void shouldNotAllowIllegalValueForRunMultipleInstanceJob() throws Exception {
+		try {
+			loadJobWithRunMultipleInstance("-1");
+			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+		} catch (Exception e) {
+			assertThat(e.getMessage(), containsString("'-1' is not facet-valid with respect to minInclusive '1' for type 'positiveInteger'"));
+		}
+
+		try {
+			loadJobWithRunMultipleInstance("abcd");
+			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+		} catch (Exception e) {
+			assertThat(e.getMessage(), containsString("'abcd' is not a valid value for 'integer'"));
+		}
+	}
+
     @Test
     public void shouldSupportEnvironmentVariablesInAJob() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
@@ -2210,6 +2217,15 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(job, is(jobConfig));
     }
 
+	@Test
+	public void shouldSupportRunMultipleInstance() throws Exception {
+		CruiseConfig cruiseConfig = loadJobWithRunMultipleInstance("10");
+		JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
+		JobConfig jobConfig = new JobConfig("do-something");
+		jobConfig.setRunInstanceCount(10);
+		assertThat(job, is(jobConfig));
+	}
+
     @Test
     public void shouldUnderstandEncryptedPasswordAttributeForSvnMaterial() throws Exception {
         String password = "abc";
@@ -2264,6 +2280,21 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipeline>", 16);
         return ConfigMigrator.loadWithMigration(content).config;
     }
+
+	private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
+		String content = ConfigFileFixture.configWithPipeline(
+				  "<pipeline name='pipeline1'>"
+				+ "    <materials>"
+				+ "      <svn url ='svnurl'/>"
+				+ "    </materials>"
+				+ "  <stage name='mingle'>"
+				+ "    <jobs>"
+				+ "      <job name='do-something' runInstanceCount='" + value + "'/>"
+				+ "    </jobs>"
+				+ "  </stage>"
+				+ "</pipeline>", 74);
+		return ConfigMigrator.loadWithMigration(content).config;
+	}
 
     private void assertValidMaterials(String materials) throws Exception {
         createConfig(materials);
@@ -2450,14 +2481,13 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", 46);
-        GoConfigHolder goConfigHolder = null;
         Exception ex = null;
         try {
-            goConfigHolder = ConfigMigrator.loadWithMigration(content);
+            ConfigMigrator.loadWithMigration(content);
+            fail("Should have failed!");
         } catch (Exception e) {
             ex = e;
         }
-        assertThat(goConfigHolder, is(nullValue()));
         assertThat(ex.getMessage(), containsString("Value '0123456789012345678901234567890' with length = '31' is not facet-valid with respect to maxLength '30' for type 'tfsWorkspaceType'"));
     }
 
@@ -2633,15 +2663,13 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </stage>"
                         + "</pipeline>", 53);
 
-        GoConfigHolder holder = null;
         try {
-            holder = ConfigMigrator.loadWithMigration(content);
+            ConfigMigrator.loadWithMigration(content);
             fail("should not have permitted fetch from parent pipeline's stage after the one downstream depends on");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString(
                     "Pipeline \"down_pipeline\" tries to fetch artifact from stage \"up_pipeline :: up_stage_2\" which does not complete before \"down_pipeline\" pipeline's dependencies."));
         }
-        assertThat(holder, nullValue());
     }
 
     @Test
@@ -2667,7 +2695,7 @@ public class MagicalGoConfigXmlLoaderTest {
             GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
             assertThat(goConfigHolder.config.server().getCommandRepositoryLocation(), is("default"));
         } catch (Exception e) {
-            Assert.fail("Should not come here");
+            fail("Should not come here");
         }
     }
 
@@ -2957,7 +2985,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         try {
             xmlLoader.loadConfigHolder(xml);
-            Assert.fail("should have thrown duplicate fingerprint exception");
+            fail("should have thrown duplicate fingerprint exception");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(), is("Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']"));
         }

@@ -16,25 +16,23 @@
 
 package com.thoughtworks.go.util.validators;
 
-import java.io.File;
-
 import com.thoughtworks.go.util.SystemEnvironment;
-import static org.hamcrest.core.Is.is;
-
-import com.thoughtworks.go.util.validators.FileValidator;
-import com.thoughtworks.go.util.validators.Validation;
 import org.junit.After;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class FileValidatorTest {
     private String realConfigDir;
 
     @Before
     public void setUp() {
-        realConfigDir = SystemEnvironment.getProperty("cruise.config.dir");
-        new SystemEnvironment().setProperty("cruise.config.dir", SystemEnvironment.getProperty("java.io.tmpdir"));
+        realConfigDir = new SystemEnvironment().getPropertyImpl("cruise.config.dir");
+        new SystemEnvironment().setProperty("cruise.config.dir", new SystemEnvironment().getPropertyImpl("java.io.tmpdir"));
     }
 
     @After
@@ -51,7 +49,7 @@ public class FileValidatorTest {
         FileValidator fv = FileValidator.configFileAlwaysOverwrite("does.not.exist", new SystemEnvironment());
         Validation val = new Validation();
         fv.validate(val);
-        new File(SystemEnvironment.getProperty("java.io.tmpdir"), "does.not.exist").deleteOnExit();
+        new File(new SystemEnvironment().getPropertyImpl("java.io.tmpdir"), "does.not.exist").deleteOnExit();
         assertThat(val.isSuccessful(), is(false));
     }
 }

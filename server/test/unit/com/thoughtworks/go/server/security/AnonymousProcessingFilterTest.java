@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 

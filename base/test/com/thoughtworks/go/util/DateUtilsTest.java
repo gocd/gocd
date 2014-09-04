@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.util;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.joda.time.DateTime;
@@ -33,7 +34,9 @@ public class DateUtilsTest {
 
     @Test
     public void shouldFormatDateToDisplayOnUI() {
-        Date date = new Date(109, 10, 5);
+        Calendar instance = Calendar.getInstance();
+        instance.set(2009, Calendar.NOVEMBER, 5);
+        Date date = instance.getTime();
         String formattedDate = DateUtils.formatToSimpleDate(date);
         assertThat(formattedDate, is("05 Nov 2009"));
     }

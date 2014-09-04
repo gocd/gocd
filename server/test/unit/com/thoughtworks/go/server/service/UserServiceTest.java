@@ -16,31 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PasswordFileConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RoleUser;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
@@ -53,39 +30,36 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
-import com.thoughtworks.go.server.security.LdapUserSearch;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.PasswordFileUserSearch;
 import com.thoughtworks.go.server.security.UserLicenseLimitExceededException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
     private UserDao userDao;
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private UserService userService;
-    private LdapUserSearch ldapUserSearch;
     private GoLicenseService licenseService;
-    private PasswordFileUserSearch passwordFileUserSearch;
     private TestTransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private OauthRepository oauthRepo;
@@ -628,7 +602,7 @@ public class UserServiceTest {
 
         try {
             userService.addUserIfDoesNotExist(user);
-            Assert.fail();
+            fail();
         } catch (UserLicenseLimitExceededException e) {
             assertThat(e.getMessage(), is("User license limit exceeded, please contact the administrator"));
         }
@@ -637,15 +611,6 @@ public class UserServiceTest {
     private void configureAdmin(String username, boolean isAdmin) {
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))).thenReturn(isAdmin);
     }
-
-    private List<UserSearchModel> users(String... usernames) {
-        List<UserSearchModel> models = new ArrayList<UserSearchModel>();
-        for (String username : usernames) {
-            models.add(new UserSearchModel(new User(username, username, "foo@cruise.com")));
-        }
-        return models;
-    }
-
 
     private UserModel model(User user) {
         return model(user, false);

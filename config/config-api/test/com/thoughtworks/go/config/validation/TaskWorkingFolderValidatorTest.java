@@ -25,9 +25,9 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class TaskWorkingFolderValidatorTest {
     private CruiseConfig cruiseConfig;

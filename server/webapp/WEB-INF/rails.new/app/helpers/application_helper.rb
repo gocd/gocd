@@ -24,7 +24,7 @@ module ApplicationHelper
 
   def url_for_path(java_path, options = {})
     path = java_path.sub(/^\//, "")
-    url = ((options[:only_path] == false) ? root_url : root_path)
+    url = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
     url, params = url.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params
@@ -282,6 +282,8 @@ module ApplicationHelper
   def blocking_link_to_remote_new(options = {})
     [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
     merge_block_options(options)
+    options[:method] = "post"
+
     tag_options = tag_options(options[:html], true)
     %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
   end

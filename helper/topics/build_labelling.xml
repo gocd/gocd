@@ -22,7 +22,7 @@
 	<section title="Customising the pipeline label">
         <p>You can create a custom label by setting the <strong>Label Template</strong> field on your pipeline. This will change the value that Go shows on its webpages. It will also change the value of the <strong>GO_PIPELINE_LABEL</strong> property that is passed to your build. You can refer to ${COUNT} or material names which are defined in the configuration of <cref topic="configuration_reference" anchor="svn">materials</cref>.</p>
         <img src="resources/images/cruise/admin/pipeline_labelling.png"/>
-        <p>Power users can still edit the config xml to achieve the same. The xml snippet to configure <strong>labelTempalte</strong> is below.</p>
+        <p>Power users can still edit the config xml to achieve the same. The xml snippet to configure <strong>labelTemplate</strong> is below.</p>
         <code><![CDATA[
     <pipeline name="my-pipeline" labeltemplate="1.2.${COUNT}">
         ...

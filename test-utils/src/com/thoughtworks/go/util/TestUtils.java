@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import junit.framework.Assert;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,6 +35,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Assert;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.text.MessageFormat.format;

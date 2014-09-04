@@ -19,17 +19,23 @@ package com.thoughtworks.go.server.domain.oauth;
 import java.util.Map;
 
 import com.thoughtworks.go.domain.PersistentObject;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @understands baseclass for persistent objects required by oauth plugin
  */
 public abstract class OauthDomainEntity<T> extends PersistentObject {
+    private static final String PARAM_ID = "id";
+
     public abstract T getDTO();
 
     protected void setIdIfAvailable(Map attributes) {
-        Long aLong = (Long) attributes.get("id");
-        if (aLong != null && aLong > 0) {
-            this.id = aLong;
+        Object value = attributes.get(PARAM_ID);
+        if (StringUtils.isNotBlank(String.valueOf(value))) {
+            Long aLong = (Long) attributes.get(PARAM_ID);
+            if (aLong != null && aLong > 0) {
+                this.id = aLong;
+            }
         }
     }
 

@@ -16,18 +16,13 @@
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.xml.JobXmlViewModel;
 import com.thoughtworks.go.server.service.XmlApiService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoIntegrationException;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
@@ -41,6 +36,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JobResourceImporterTest {
+    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     private XSLTTransformerRegistry transformerRegistry;
     private XmlWriterContext xmlWriterContext;
     private DefaultJobPlan jobPlan;
@@ -77,7 +79,7 @@ public class JobResourceImporterTest {
 
         when(xmlApiService.write(any(JobXmlViewModel.class), eq(baseUri))).thenReturn(docFor(jobWithArtifactsMissing));
 
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise/artifacts", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise/artifacts", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
 
         Graph jobGraph = rdfImporter.importJob(JobInstanceMother.passed("foo"), "https://localhost:8154/go");
 
@@ -100,7 +102,7 @@ public class JobResourceImporterTest {
 
         when(xmlApiService.write(any(JobXmlViewModel.class), eq(baseUri))).thenReturn(document);
 
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise/artifacts", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise/artifacts", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
 
         Graph graph = rdfImporter.importJob(failedJob, baseUri);
 
@@ -111,7 +113,7 @@ public class JobResourceImporterTest {
 
     @Test
     public void listFilesOfTypeWhenThereAreNoMatches() {
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
 
         File[] files = rdfImporter.getArtifactFilesOfType("artifacts/job2", "junit-reports", "boo");
         assertThat(files.length, equalTo(0));
@@ -119,7 +121,7 @@ public class JobResourceImporterTest {
 
     @Test
     public void listArtifactFilesOfTypeWhenThereAreMatchesWithCaseInSensitiveExtensions() {
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
         File[] files = rdfImporter.getArtifactFilesOfType("artifacts", "job2", "xml");
         assertThat(files.length, equalTo(4));
 
@@ -136,14 +138,14 @@ public class JobResourceImporterTest {
 
     @Test
     public void listArtifactFilesReturnsEmptyListWhenJobArtifactPathIsAFile() {
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
         File[] files = rdfImporter.getArtifactFilesOfType("artifacts/job2/junit-reports", "junit-report-failed.xml", "xml");
         assertThat(files.length, equalTo(0));
     }
 
     @Test
     public void listArtifactFilesReturnsEmptyListWhenJobArtifactPathIsAGlob() {
-        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService);
+        JobResourceImporter rdfImporter = new JobResourceImporter("test/data/cruise", new InMemoryTempGraphFactory(), transformerRegistry, xmlApiService, systemEnvironment);
         File[] files = rdfImporter.getArtifactFilesOfType("artifacts", "job2/**/*.xml", "xml");
         assertThat(files.length, equalTo(0));
     }

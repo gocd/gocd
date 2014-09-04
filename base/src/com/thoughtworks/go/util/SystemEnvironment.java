@@ -146,6 +146,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String H2_DATABASE = "com.thoughtworks.go.server.database.H2Database";
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
 
+    public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
+
+
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;

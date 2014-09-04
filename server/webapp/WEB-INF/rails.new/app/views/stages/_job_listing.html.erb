@@ -28,7 +28,7 @@
         <td class="agent"
             <%- if job.hasAgentInfo() -%>
                 title="<%=job.getAgentLocation()-%>">
-                <% agent_that_job_ran_on = "#{smart_word_breaker(job.getHostname())}(#{job.getIpAddress()})" %>
+                <% agent_that_job_ran_on = "#{smart_word_breaker(job.getHostname())}(#{job.getIpAddress()})".html_safe %>
                 <%=link_to(agent_that_job_ran_on, agent_detail_path(:uuid => job.getUuid())) %>
             <%- else -%>>
                 <%=l.string('Not yet assigned')%>

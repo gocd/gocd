@@ -61,8 +61,8 @@ public class ConfigElementImplementationRegistryTest {
     public void shouldProvideTheNamespaceUriAndTheLocation() throws MalformedURLException {
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
 
-        URL resource = new File("file:///tmp/foo").toURL();
-        URL resource1 = new File("file:///tmp/bar").toURL();
+        URL resource = new File("file:///tmp/foo").toURI().toURL();
+        URL resource1 = new File("file:///tmp/bar").toURI().toURL();
         registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-1", PluginNamespace.XSD_NAMESPACE_URI, "uri1")), resource);
         registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-2", PluginNamespace.XSD_NAMESPACE_URI, "uri2")), resource);
         registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-3", PluginNamespace.XSD_NAMESPACE_URI, "uri3")), resource1);
@@ -75,8 +75,8 @@ public class ConfigElementImplementationRegistryTest {
     @Test
     public void shouldAddPluginNamespaceToPassedInElement() throws MalformedURLException {
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "something", PluginNamespace.XSD_NAMESPACE_URI, "uri")), new File("file:///tmp/foo").toURL());
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "second", PluginNamespace.XSD_NAMESPACE_URI, "uri-1")), new File("file:///tmp/foo1").toURL());
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "something", PluginNamespace.XSD_NAMESPACE_URI, "uri")), new File("file:///tmp/foo").toURI().toURL());
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "second", PluginNamespace.XSD_NAMESPACE_URI, "uri-1")), new File("file:///tmp/foo1").toURI().toURL());
         Element foo = new Element("foo");
         registry.registerNamespacesInto(foo);
         assertThat(foo.getNamespace("something"), is(Namespace.getNamespace("something", "uri")));

@@ -25,7 +25,9 @@ class ApplicationController < ActionController::Base
 
   attr_accessor :error_template_for_request
 
-  before_filter :set_current_user, :populate_health_messages, :local_access_only, :populate_config_validity
+  before_filter :set_current_user, :populate_health_messages, :local_access_only, :populate_config_validity, :set_site_urls_in_thread
+
+  helper_method :current_user_id_for_oauth
 
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
@@ -160,9 +162,33 @@ class ApplicationController < ActionController::Base
     @cruise_config_md5
   end
 
-  helper_method :cruise_config_md5
+  helper_method :cruise_config_md5, :servlet_request
 
   def populate_config_validity
     @config_valid = go_config_service.checkConfigFileValid().isValid()
+  end
+
+  def set_site_urls_in_thread
+    server = go_config_service_for_url.getCurrentConfig().server()
+    Thread.current[:base_url] = server.getSiteUrl().getUrl()
+    Thread.current[:ssl_base_url] = server.getHttpsUrl().getUrl()
+  end
+
+  def servlet_request
+    request.env['java.servlet_request']
+  end
+
+  def url_for(options = {})
+    if options.respond_to?(:has_key?)
+      options.reverse_merge!(:only_path => true)
+      force_ssl = (options.delete(:protocol) == "https")
+    end
+    cache_key_part = force_ssl ? "-force_ssl=true" : ""
+    cache_key = "rails_url_for-#{HashMapKey::hypen_safe_key_for(params)}-#{HashMapKey::hypen_safe_key_for(options)}#{cache_key_part}-#{request.host_with_port}-#{request.protocol}"
+    unless url = go_cache.get(BaseUrlChangeListener::URLS_CACHE_KEY, cache_key)
+      url = server_config_service.siteUrlFor(super(options), force_ssl || false)
+      go_cache.put(BaseUrlChangeListener::URLS_CACHE_KEY, cache_key, url)
+    end
+    url
   end
 end

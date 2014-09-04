@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import static junit.framework.Assert.assertNull;
-
 import javax.servlet.http.HttpServletRequest;
 
 import com.thoughtworks.go.server.security.GoAuthority;
@@ -25,6 +23,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;

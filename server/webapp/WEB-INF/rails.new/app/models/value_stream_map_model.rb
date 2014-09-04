@@ -16,7 +16,7 @@
 
 class ValueStreamMapModel
 
-  attr_accessor :current_pipeline, :levels, :error
+  attr_accessor :current_pipeline, :current_material, :levels, :error
 
   NODE_TYPE_FOR_PIPELINE = com.thoughtworks.go.domain.valuestreammap.DependencyNodeType::PIPELINE.to_s
   NODE_TYPE_FOR_MATERIAL = com.thoughtworks.go.domain.valuestreammap.DependencyNodeType::MATERIAL.to_s
@@ -29,7 +29,8 @@ class ValueStreamMapModel
     if error
       @error = error
     else
-      @current_pipeline = vsm.getCurrentPipeline().getName()
+      @current_pipeline = vsm.getCurrentPipeline().getName() unless vsm.getCurrentPipeline() == nil
+      @current_material = vsm.getCurrentMaterial().getId() unless vsm.getCurrentMaterial() == nil
       @levels = Array.new
       vsm.getNodesAtEachLevel().each do |nodes|
         level = VSMPipelineDependencyLevelModel.new()

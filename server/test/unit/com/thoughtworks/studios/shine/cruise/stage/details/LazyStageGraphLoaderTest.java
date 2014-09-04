@@ -16,9 +16,6 @@
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
-import java.io.File;
-import java.util.concurrent.Semaphore;
-
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -33,10 +30,13 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
+import java.io.File;
+import java.util.concurrent.Semaphore;
+
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -209,7 +209,7 @@ public class LazyStageGraphLoaderTest {
         }
 
         DummyStageResourceImporter(Graph importedStageGraph, StageIdentifier stageId, Semaphore semaphore) {
-            super((String) null, null, null, null);
+            super((String) null, null, null, null,null);
             this.importedStageGraph = importedStageGraph;
             this.expectedStageId = stageId;
             this.semaphore = semaphore;

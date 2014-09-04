@@ -33,9 +33,9 @@ import java.io.File;
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService.pluginLogFileName;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -115,9 +115,9 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         pluginLoggingService.error(pluginID(1), "LoggingClass", "error");
 
         assertNumberOfMessagesInLog(pluginLog(1), 3);
-        assertMessageInLog(pluginID(1), pluginLog(1), "INFO", "LoggingClass", "info");
-        assertMessageInLog(pluginID(1), pluginLog(1), "WARN", "LoggingClass", "warn");
-        assertMessageInLog(pluginID(1), pluginLog(1), "ERROR", "LoggingClass", "error");
+        assertMessageInLog(pluginLog(1), "INFO", "LoggingClass", "info");
+        assertMessageInLog(pluginLog(1), "WARN", "LoggingClass", "warn");
+        assertMessageInLog(pluginLog(1), "ERROR", "LoggingClass", "error");
     }
 
     @Test
@@ -136,8 +136,8 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         pluginLoggingService.warn(pluginID(1), "SomeOtherClass", "info2");
 
         assertNumberOfMessagesInLog(pluginLog(1), 2);
-        assertMessageInLog(pluginID(1), pluginLog(1), "INFO", "LoggingClass", "info1");
-        assertMessageInLog(pluginID(1), pluginLog(1), "WARN", "SomeOtherClass", "info2");
+        assertMessageInLog(pluginLog(1), "INFO", "LoggingClass", "info1");
+        assertMessageInLog(pluginLog(1), "WARN", "SomeOtherClass", "info2");
     }
 
     @Test
@@ -146,10 +146,10 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         pluginLoggingService.info(pluginID(2), "SomeOtherClass", "info2");
 
         assertNumberOfMessagesInLog(pluginLog(1), 1);
-        assertMessageInLog(pluginID(1), pluginLog(1), "INFO", "LoggingClass", "info1");
+        assertMessageInLog(pluginLog(1), "INFO", "LoggingClass", "info1");
 
         assertNumberOfMessagesInLog(pluginLog(2), 1);
-        assertMessageInLog(pluginID(2), pluginLog(2), "INFO", "SomeOtherClass", "info2");
+        assertMessageInLog(pluginLog(2), "INFO", "SomeOtherClass", "info2");
     }
 
     @Test(timeout = 10 * 1000)
@@ -183,8 +183,8 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         pluginLoggingService.error(pluginID(1), "SomeOtherClass", "error");
 
         assertNumberOfMessagesInLog(pluginLog(1), 2);
-        assertMessageInLog(pluginID(1), pluginLog(1), "WARN", "LoggingClass", "warn");
-        assertMessageInLog(pluginID(1), pluginLog(1), "ERROR", "SomeOtherClass", "error");
+        assertMessageInLog(pluginLog(1), "WARN", "LoggingClass", "warn");
+        assertMessageInLog(pluginLog(1), "ERROR", "SomeOtherClass", "error");
     }
 
     private Thread createThreadFor(final String pluginId, final String threadIdentifier) {
@@ -204,10 +204,10 @@ public class DefaultPluginLoggingServiceIntegrationTest {
         };
     }
 
-    private void assertMessageInLog(String pluginId, File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
-        List<String> linesInLog = FileUtils.readLines(pluginLogFile);
-        for (String line : linesInLog) {
-            if (line.matches(String.format("^.*%s \\[main\\] %s:.* - %s$", expectedLoggingLevel, loggerName, expectedLogMessage))) {
+    private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
+        List linesInLog = FileUtils.readLines(pluginLogFile);
+        for (Object line : linesInLog) {
+            if (((String)line).matches(String.format("^.*%s \\[main\\] %s:.* - %s$", expectedLoggingLevel, loggerName, expectedLogMessage))) {
                 return;
             }
         }

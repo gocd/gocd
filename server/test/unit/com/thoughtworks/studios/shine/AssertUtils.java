@@ -16,10 +16,10 @@
 
 package com.thoughtworks.studios.shine;
 
-import static junit.framework.Assert.fail;
-
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.GraphTestHelper;
+
+import static org.junit.Assert.fail;
 
 public class AssertUtils {
     public static void assertAskIsFalse(Graph graph, String... falsehoodAsks) {

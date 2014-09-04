@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.i18n.LocalizedKeyValueMessage.NO_VIEW_PERMISSION_ON_PIPELINE;
-import static junit.framework.Assert.assertSame;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

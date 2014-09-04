@@ -42,6 +42,9 @@ public abstract class PerforceFixture {
         p4Fixture = new P4Fixture();
         p4Fixture.setRepo(createTestRepo());
         clientFolder = TestFileUtil.createTempFolder("p4Client");
+        if (clientFolder == null) {
+            throw new RuntimeException();
+        }
         outputconsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         p4 = p4Fixture.createClient();
         tmpFiles = new TempFiles();

@@ -69,8 +69,7 @@ module TaskMother
 
   def plugin_task plugin_id = "curl.plugin", configurations = []
     configuration = Configuration.new(configurations.to_java(ConfigurationProperty))
-    pluggable_task_new = PluggableTask.new("", PluginConfiguration.new(plugin_id, "1.0"), configuration)
-    pluggable_task_new
+    PluggableTask.new("", PluginConfiguration.new(plugin_id, "1.0"), configuration)
   end
 
   def simple_task_plugin_with_on_cancel_config
@@ -106,16 +105,25 @@ module TaskMother
   class ApiTaskViewForTest
     include com.thoughtworks.go.plugin.api.task.TaskView
 
+    def initialize(options = {:display_value => "test curl", :template => nil})
+      @options = options
+    end
+
     def displayValue()
-      "test curl"
+      @options[:display_value]
     end
 
     def template()
+      @options[:template]
     end
   end
 
   class ApiTaskForTest
     include com.thoughtworks.go.plugin.api.task.Task
+
+    def initialize(options = {:display_value => "test curl", :template => nil})
+      @options = options
+    end
 
     def config()
       config = com.thoughtworks.go.plugin.api.task.TaskConfig.new()
@@ -127,7 +135,7 @@ module TaskMother
     end
 
     def view()
-      ApiTaskViewForTest.new
+      ApiTaskViewForTest.new @options
     end
 
     def validate(configuration)

@@ -16,27 +16,13 @@
 
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.*;
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.JobStateTransition;
-import com.thoughtworks.go.domain.JobStateTransitions;
-import com.thoughtworks.go.domain.RunOnAllAgents;
-import com.thoughtworks.go.domain.SchedulingContext;
-import org.joda.time.DateTime;
 
 public class JobInstanceMother {
     protected JobInstanceMother() {
@@ -237,15 +223,24 @@ public class JobInstanceMother {
         String instanceName = RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(jobName, counter);
         JobInstance jobInstance = building(instanceName);
         jobInstance.setRunOnAllAgents(true);
-        JobIdentifier identifier = new JobIdentifier(pipelineName, pipelineLabel, stageName, "1", instanceName);
+        JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", instanceName, 0L);
         jobInstance.setIdentifier(identifier);
         return jobInstance;
     }
 
+	public static JobInstance instanceForRunMultipleInstance(String pipelineName, String stageName, String jobName, String pipelineLabel, int counter) {
+		String instanceName = RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker(jobName, counter);
+		JobInstance jobInstance = building(instanceName);
+		jobInstance.setRunMultipleInstance(true);
+		JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", instanceName, 0L);
+		jobInstance.setIdentifier(identifier);
+		return jobInstance;
+	}
+
     public static JobInstance buildingInstance(String pipelineName, String stageName, String jobName,
                                                String pipelineLabel) {
         JobInstance job = building(jobName);
-        JobIdentifier identifier = new JobIdentifier(pipelineName, pipelineLabel, stageName, "1", jobName);
+        JobIdentifier identifier = new JobIdentifier(pipelineName, null, pipelineLabel, stageName, "1", jobName, 0L);
         job.setIdentifier(identifier);
         return job;
     }

@@ -33,7 +33,19 @@
           <p><b>Client Secret:</b> <%=h gadgets_oauth_client.client_secret %></p>
         </td>
 
-        <td><%= link_to content_tag(:span, 'Delete'), {:action => :destroy, :id => gadgets_oauth_client.id}, :confirm => 'Are you sure?', :method => :delete, :class => 'delete_link', :title => 'Click to delete this provider' %></td>
+        <td class="remove">
+          <% unique_delete_gadget_provider_id = random_dom_id("delete_gadget_provider_") %>
+          <%= form_for gadgets_oauth_client, :as => '', :url => {:action => :destroy, :id => gadgets_oauth_client.id},
+                       :html => {:id => "#{unique_delete_gadget_provider_id}", :method => :delete, :class => 'delete_link', :title => 'Click to delete this provider'} do |f| %>
+              <span class="icon_remove delete_parent" id="trigger_<%= unique_delete_gadget_provider_id %>">
+                    <%= render :partial => 'admin/shared/submit_with_prompt.html',
+                               :locals => {:scope => {
+                                       :button_id => "trigger_#{unique_delete_gadget_provider_id}",
+                                       :message => "Are you sure you want to delete the provider '#{gadgets_oauth_client.service_name}' ? ",
+                                       :on_confirmation_js => "$('#{"#{unique_delete_gadget_provider_id}"}').submit()"}} %>
+              </span>
+          <% end %>
+        </td>
       </tr>
     <% end %>
     </table>

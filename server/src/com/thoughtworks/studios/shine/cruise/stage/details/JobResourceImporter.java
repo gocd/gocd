@@ -16,16 +16,10 @@
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.domain.xml.JobXmlViewModel;
 import com.thoughtworks.go.server.service.XmlApiService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoGRDDLResourceRDFizer;
 import com.thoughtworks.studios.shine.cruise.GoIntegrationException;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
@@ -42,6 +36,13 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class JobResourceImporter {
 
     private final static Logger LOGGER = Logger.getLogger(JobResourceImporter.class);
@@ -50,10 +51,10 @@ public class JobResourceImporter {
     private final GoGRDDLResourceRDFizer rdfizer;
     private String artifactBaseDir;
 
-    public JobResourceImporter(String artifactBaseDir, TempGraphFactory graphFactory, XSLTTransformerRegistry transformerRegistry, XmlApiService xmlApiService) {
+    public JobResourceImporter(String artifactBaseDir, TempGraphFactory graphFactory, XSLTTransformerRegistry transformerRegistry, XmlApiService xmlApiService, SystemEnvironment systemEnvironment) {
         this.artifactBaseDir = artifactBaseDir;
         rdfizer = new GoGRDDLResourceRDFizer("job", "cruise/job-grddl.xsl", graphFactory, transformerRegistry, xmlApiService);
-        importer = new XMLArtifactImporter();
+        importer = new XMLArtifactImporter(systemEnvironment);
         AntJUnitReportRDFizer junitRDFizer = new AntJUnitReportRDFizer(graphFactory, transformerRegistry);
         importer.registerHandler(junitRDFizer);
         importer.registerHandler(new NUnitRDFizer(junitRDFizer, transformerRegistry));

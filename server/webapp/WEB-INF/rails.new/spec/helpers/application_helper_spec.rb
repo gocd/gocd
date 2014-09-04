@@ -30,39 +30,52 @@ describe ApplicationHelper do
     tab_for("quux", :class => "foo bar", :anchor_class => "skip_dirty_stop").should == "<li id='cruise-header-tab-quux' class=' foo bar'>\n<a class=\"skip_dirty_stop\" href=\"/go/quux\">QUUX</a>\n</li>"
   end
 
-  it "url_for_path should handle default_url_options" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo?x"
+  describe "url_for_path" do
+
+    before :each do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+    end
+
+    it "should handle default_url_options" do
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo?x"
+    end
+
+    it "should handle default_url_options" do
+      url = url_for_path("/foo?bar=blah")
+      url.should == "/go/quux/foo?bar=blah&x"
+    end
+
+    it "should handle query params" do
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo?x"
+    end
+
+    it "should handle url without params" do
+      allow(main_app).to receive(:root_path).and_return("/go/quux")
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo"
+    end
+
+    it "should handle root url with trailing slash and provided sub path with leading slash" do
+      allow(main_app).to receive(:root_path).and_return("/go/quux/")
+      url = url_for_path("/foo")
+      url.should == "/go/quux/foo"
+    end
   end
 
-  it "url_for_path should handle default_url_options" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo?bar=blah")
-    url.should == "/go/quux/foo?bar=blah&x"
-  end
+  describe "url_for_login" do
+    before :each do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+    end
 
-  it "url_for_login should give the url for login" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url_for_login.should == "/go/quux/auth/login?x"
-  end
-
-  it "url_for_path should handle query params" do
-    allow(self).to receive(:root_path).and_return("/go/quux?x")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo?x"
-  end
-
-  it "url_for_path should handle url without params" do
-    allow(self).to receive(:root_path).and_return("/go/quux")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo"
-  end
-
-  it "url_for_path should handle root url with trailing slash and provided sub path with leading slash" do
-    allow(self).to receive(:root_path).and_return("/go/quux/")
-    url = url_for_path("/foo")
-    url.should == "/go/quux/foo"
+    it "should give the url for login" do
+      url_for_login.should == "/go/quux/auth/login?x"
+    end
   end
 
   it "should give the server version" do
@@ -114,6 +127,9 @@ describe ApplicationHelper do
     end
 
     it "should respect option :target" do
+      main_app = double('main app')
+      allow(controller).to receive(:main_app).and_return(main_app)
+      allow(main_app).to receive(:root_path).and_return("/go/quux")
       should_receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
       tab_for("quux", :target => 'foo').should == "<li id='cruise-header-tab-quux' class=' '>\nlink_to_quux\n</li>"
     end
@@ -247,7 +263,18 @@ describe ApplicationHelper do
                                            :html => {},
                                            :before => "spinny('unlock');"
 
-      exp = %q|<a href="#" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
+      expect(actual).to eq(exp)
+    end
+
+    it "should create a blocking link to a remote location with extra HTML provided" do
+      actual = blocking_link_to_remote_new :name => "&nbsp;",
+                                           :url => api_pipeline_action_path(:pipeline_name => "SOME_NAME", :action => 'releaseLock'),
+                                           :update => {:failure => "message_pane", :success => 'function(){}'},
+                                           :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
+                                           :before => "spinny('unlock');"
+
+      exp = %q|<a href="#"  class="ABC" id="SOME-ID" title="TITLE" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/releaseLock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end
@@ -264,7 +291,7 @@ describe ApplicationHelper do
     it "should have class 'select' and image for 'select type' button" do
       submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick").should == "<button class=\"class select submit button\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
               "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png?N/A\" />" +
+              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
               "</button>"
     end
@@ -280,7 +307,7 @@ describe ApplicationHelper do
     it "should respect disabled flag for type 'select'" do
       submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true).should == "<button class=\"class select submit button disabled\" disabled=\"disabled\" id=\"id\" name=\"name\" onclick=\"onclick\" type=\"button\" value=\"name\">" +
               "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png?N/A\" />" +
+              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
               "</button>"
     end

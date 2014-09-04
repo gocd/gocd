@@ -98,14 +98,13 @@ describe Admin::PipelinesController do
     before(:each) do
       pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
       pipeline_config.setLabelTemplate("some_label_template")
-      pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
 
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
-      @go_config_service.should_receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(pipeline_config_for_edit)
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
     end
@@ -114,6 +113,7 @@ describe Admin::PipelinesController do
       before(:each) do
         @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("HelloWorld").and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(@pipeline_config_for_edit)
       end
 
       describe "GET general" do
@@ -149,11 +149,15 @@ describe Admin::PipelinesController do
       end
 
       it "should error out when user is unauthorized" do
-        @result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["HelloWorld"].to_java), HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+        expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', anything(), anything()) do |_, _, result|
+          result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["HelloWorld"].to_java), HealthStateType.unauthorised_for_pipeline("HelloWorld"))
+          nil
+        end
 
         get :edit, :pipeline_name => "HelloWorld", :current_tab => 'general', :stage_parent=>"pipelines"
 
         assigns[:pipeline].should be_nil
+        expect(response.status).to eq(401)
         expect(response.body).to have_selector("h3", :text => "Unauthorized to edit HelloWorld pipeline.")
       end
     end

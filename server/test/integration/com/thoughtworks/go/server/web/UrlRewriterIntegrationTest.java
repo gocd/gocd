@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.server.util.HttpTestUtil;
@@ -34,6 +28,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +41,13 @@ import org.mortbay.resource.Resource;
 import org.mortbay.util.UrlEncoded;
 import org.springframework.web.context.WebApplicationContext;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -70,7 +72,13 @@ public class UrlRewriterIntegrationTest {
             public void customize(Context ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);
                 ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
-                ctx.setBaseResource(Resource.newResource(new File(getClass().getClassLoader().getResource("WEB-INF/urlrewrite.xml").getFile()).getParent()));
+
+                URL resource = getClass().getClassLoader().getResource("WEB-INF/urlrewrite.xml");
+                if (resource == null) {
+                    throw new RuntimeException("Cannot load WEB-INF/urlrewrite.xml");
+                }
+
+                ctx.setBaseResource(Resource.newResource(new File(resource.getFile()).getParent()));
                 ctx.addFilter(UrlRewriteFilter.class, "/*", 1).setInitParameter("confPath", "/urlrewrite.xml");
                 ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
             }
@@ -92,7 +100,7 @@ public class UrlRewriterIntegrationTest {
     @Before
     public void setUp() throws IOException, InterruptedException {
         httpUtil.start();
-        Protocol.registerProtocol("https", new Protocol("https", new PermissiveSSLSocketFactory(), HTTPS));
+        Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new PermissiveSSLSocketFactory(), HTTPS));
         originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, String.valueOf(9071));
     }
@@ -162,17 +170,7 @@ public class UrlRewriterIntegrationTest {
         }
 
         @Override public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("ResponseAssertion");
-            sb.append("{requestedUrl='").append(requestedUrl).append('\'');
-            sb.append(", servedUrl='").append(servedUrl).append('\'');
-            sb.append(", useConfiguredUrls=").append(useConfiguredUrls);
-            sb.append(", responseHeaders=").append(responseHeaders);
-            sb.append(", backupInProgress=").append(serverBackupRunningSince);
-            sb.append(", referrer=").append(referrer);
-            sb.append(", responseCode=").append(responseCode);
-            sb.append('}');
-            return sb.toString();
+            return String.format("ResponseAssertion{requestedUrl='%s', servedUrl='%s', useConfiguredUrls=%s, responseHeaders=%s, backupInProgress=%s, referrer=%s, responseCode=%d}", requestedUrl, servedUrl, useConfiguredUrls, responseHeaders, serverBackupRunningSince, referrer, responseCode);
         }
     }
 
@@ -254,6 +252,8 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_INDEX = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage");
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
     @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
+    @DataPoint public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
+    @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/dashboard.json", "http://127.1.1.1:" + HTTP + "/go/rails/dashboard.json", METHOD.GET);
 
     public static String enc(String str) {
         return UrlEncoded.encodeString(str);
@@ -277,13 +277,15 @@ public class UrlRewriterIntegrationTest {
         useConfiguredUrls = assertion.useConfiguredUrls;
         HttpClient httpClient = new HttpClient(new HttpClientParams());
 
-        HttpMethod httpMethod = null;
+        HttpMethod httpMethod;
         if (assertion.method == METHOD.GET) {
             httpMethod = new GetMethod(assertion.requestedUrl);
         } else if (assertion.method == METHOD.POST) {
             httpMethod = new PostMethod(assertion.requestedUrl);
         } else if (assertion.method == METHOD.PUT) {
             httpMethod = new PutMethod(assertion.requestedUrl);
+        } else {
+            throw new RuntimeException("Method has to be one of GET, POST and PUT. Was: " + assertion.method);
         }
 
         if (assertion.referrer != null) {

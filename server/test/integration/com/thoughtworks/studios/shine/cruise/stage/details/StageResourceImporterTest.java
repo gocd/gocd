@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.XmlApiService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
@@ -71,6 +72,8 @@ public class StageResourceImporterTest {
     @Autowired private DatabaseAccessHelper dbHelper;
 
     @Autowired private PipelineTimeline pipelineTimeline;
+    @Autowired private SystemEnvironment systemEnvironment;
+
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TestFailureSetup failureSetup;
@@ -82,7 +85,7 @@ public class StageResourceImporterTest {
         configHelper.usingCruiseConfigDao(goConfigFileDao);
         configHelper.onSetUp();
         graphFactory = new InMemoryTempGraphFactory();
-        importer = new StageResourceImporter("test/data/cruise/artifacts", xmlApiService, stageService, pipelineHistoryService);
+        importer = new StageResourceImporter("test/data/cruise/artifacts", xmlApiService, stageService, pipelineHistoryService,systemEnvironment);
         failureSetup = new TestFailureSetup(materialRepository, dbHelper, pipelineTimeline, configHelper, transactionTemplate);
     }
 

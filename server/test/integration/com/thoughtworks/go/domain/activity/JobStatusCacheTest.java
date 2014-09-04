@@ -208,6 +208,22 @@ public class JobStatusCacheTest {
         assertThat(list.size(), is(2));
     }
 
+	@Test
+	public void shouldFindAllMatchingJobsForJobsThatAreRunMultipleInstance() {
+		JobInstance job1 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 1);
+		JobInstance job2 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 2);
+
+		jobStatusCache.jobStatusChanged(job1);
+		jobStatusCache.jobStatusChanged(job2);
+
+		JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
+
+		List<JobInstance> list = jobStatusCache.currentJobs(config);
+		assertThat(list, hasItem(job1));
+		assertThat(list, hasItem(job2));
+		assertThat(list.size(), is(2));
+	}
+
     @Test
     public void shouldExcludeJobFromOtherPipelines() {
         JobInstance job1 = JobInstanceMother.instanceForRunOnAllAgents("cruise", "dev", "linux-firefox", "1", 1);

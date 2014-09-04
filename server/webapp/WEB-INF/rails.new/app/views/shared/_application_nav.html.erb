@@ -27,9 +27,15 @@
 
   <% unless @no_tabs %>
     <ul class="tabs">
-        <%== tab_with_display_name('recent-activity', l.string('PIPELINES'), :url => '/pipelines') %>
-        <%== tab_with_display_name("environments", l.string('ENVIRONMENTS_CAPS')) %>
-        <%== tab_with_display_name('agents', l.string("AGENTS")) %>
+        <li id='cruise-header-tab-pipelines' class="<%= "current" if @current_tab_name == "pipelines" %>">
+            <%= link_to l.string('PIPELINES'), main_app.pipeline_dashboard_path -%>
+        </li>
+        <li id='cruise-header-tab-environments' class="<%= "current" if @current_tab_name == "environments" %>">
+            <%= link_to l.string('ENVIRONMENTS_CAPS'), main_app.environments_path -%>
+        </li>
+        <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
+            <%= link_to l.string('AGENTS'), main_app.agents_path -%>
+        </li>
         <li id="cruise-header-tab-admin" class="<%="current" if @current_tab_name == "admin"%>">
             <%
                admin_header_link_label = l.string("ADMIN")

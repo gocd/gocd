@@ -28,6 +28,8 @@ import java.util.Arrays;
 
 public final class ConfigFileFixture {
 
+    /* Used by rspec spec. For agent page test (agents controller in ruby). */
+    @SuppressWarnings("UnusedDeclaration")
     public static final String WITH_VARITY_OF_AGENTS = "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"16\">\n"
             + "           <server artifactsdir=\"logs\">\n"
             + "           </server>\n"
@@ -64,7 +66,7 @@ public final class ConfigFileFixture {
             + "                </resources>\n"
             + "              </agent>\n"
             + "            </agents>\n"
-            + "         </cruise>"; //FOR AGENT PAGE TEST (agents controller in ruby)
+            + "         </cruise>";
 
     //TODO: test reload if config file changed
     public static final String INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT =
@@ -216,45 +218,6 @@ public final class ConfigFileFixture {
                 + pipelinesBlock
                 + "</cruise>";
     }
-
-    public static final String WITH_3_AGENT_CONFIG_AND_ENVIRONMENT =
-            "<cruise schemaVersion='16'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
-                    + "<pipelines>\n"
-                    + "<pipeline name='pipeline1'>\n"
-                    + "    <materials>\n"
-                    + "      <svn url =\"svnurl\"/>"
-                    + "    </materials>\n"
-                    + "  <stage name='mingle'>\n"
-                    + "    <jobs>\n"
-                    + "      <job name='cardlist' />\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>\n"
-                    + "</pipelines>\n"
-                    + "<environments>\n"
-                    + "  <environment name=\"uat\">\n"
-                    + "    <agents>\n"
-                    + "      <physical uuid=\"1\"/>\n"
-                    + "      <physical uuid=\"2\"/>\n"
-                    + "    </agents>\n"
-                    + "  </environment>\n"
-                    + "  <environment name=\"prod\">\n"
-                    + "    <agents>\n"
-                    + "      <physical uuid=\"2\"/>\n"
-                    + "    </agents>\n"
-                    + "  </environment>\n"
-                    + "</environments>"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2'/>\n"
-                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' >\n"
-                    + "            <resources>\n"
-                    + "                <resource>jdk1.4</resource>\n"
-                    + "            </resources>\n"
-                    + "        </agent>\n"
-                    + "    </agents>\n"
-                    + "</cruise>";
 
     public static final String WITH_MULTIPLE_LOCAL_AGENT_CONFIG =
             "<cruise schemaVersion='12'>\n"
@@ -550,42 +513,6 @@ public final class ConfigFileFixture {
                     + "</pipeline>\n"
                     + "</pipelines>\n"
                     + "</cruise>";
-    public static final String INVALID_XML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"artifacts\">\n"
-            + "    <license user=\"Cruise UAT ThoughtWorks Beijing\">O5jEQXU0iS9kBdn+l2rSO+uEXvik+G8uNRiaUr1qxOKKLa+EBKMmSFIpDrYw&#38;#xD;\n"
-            + "dwDsd+MtfgiuAk5MDFImDhOT7R9HuKV7qqGI/a5ktRcBsuPGbYcxwJwbN5pv&#38;#xD;\n"
-            + "OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH&#38;#xD;\n"
-            + "bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh&#38;#xD;\n"
-            + "hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5&#38;#xD;\n"
-            + "BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>\n"
-            + "  </server>\n"
-            + "  <pipelines group=\"12345\">\n"
-            + "    <pipeline name=\"test\">\n"
-            + "      <materials>\n"
-            + "        <hg url=\"http://hg-server/hg/connectfour\" />\n"
-            + "      </materials>\n"
-            + "      <stage name=\"defaultStage\">\n"
-            + "        <jobs>\n"
-            + "          <job name=\"defaultJob\">\n"
-            + "            <tasks>\n"
-            + "              <exec command=\"echo\">\n"
-            + "                <oncancel>"
-            + "                     <exec command=\"ant\"/>  "
-            + "                </oncancel>"
-            + "                <oncancel>"
-            + "                     <exec command=\"ant\"/>  "
-            + "                </oncancel>"
-            + "                <runif status=\"passed\" />\n"
-            + "                <arg value=\"test\" />\n"
-            + "              </exec>\n"
-            + "            </tasks>\n"
-            + "          </job>\n"
-            + "        </jobs>\n"
-            + "      </stage>\n"
-            + "    </pipeline>\n"
-            + "  </pipelines>\n"
-            + "  </cruise>";
     public static final String CONTAINS_MULTI_SAME_STATUS_RUN_IF = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
             + "  <server artifactsdir=\"artifacts\">\n"
@@ -651,81 +578,12 @@ public final class ConfigFileFixture {
             + "  </pipelines>\n"
             + "  </cruise>";
 
-    public static final String ONE_ON_CANCEL_FOR_EACH_TASK = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"15\">\n"
-            + "  <server artifactsdir=\"artifacts\">\n"
-            + "    <license user=\"Cruise UAT ThoughtWorks Beijing\">O5jEQXU0iS9kBdn+l2rSO+uEXvik+G8uNRiaUr1qxOKKLa+EBKMmSFIpDrYw&#38;#xD;\n"
-            + "dwDsd+MtfgiuAk5MDFImDhOT7R9HuKV7qqGI/a5ktRcBsuPGbYcxwJwbN5pv&#38;#xD;\n"
-            + "OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH&#38;#xD;\n"
-            + "bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh&#38;#xD;\n"
-            + "hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5&#38;#xD;\n"
-            + "BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>\n"
-            + "  </server>\n"
-            + "  <pipelines group=\"12345\">\n"
-            + "    <pipeline name=\"test\">\n"
-            + "      <materials>\n"
-            + "        <hg url=\"http://hg-server/hg/connectfour\" />\n"
-            + "      </materials>\n"
-            + "      <stage name=\"defaultStage\">\n"
-            + "        <jobs>\n"
-            + "          <job name=\"defaultJob\">\n"
-            + "            <tasks>\n"
-            + "              <exec command=\"echo\">\n"
-            + "                <oncancel>"
-            + "                     <exec command=\"ant\"/>  "
-            + "                </oncancel>"
-            + "                <runif status=\"passed\" />\n"
-            + "                <arg value=\"test\" />\n"
-            + "              </exec>\n"
-            + "              <exec command=\"echo\">\n"
-            + "                <oncancel>"
-            + "                     <exec command=\"ant\"/>  "
-            + "                </oncancel>"
-            + "                <runif status=\"passed\" />\n"
-            + "                <arg value=\"test\" />\n"
-            + "              </exec>\n"
-            + "            </tasks>\n"
-            + "          </job>\n"
-            + "        </jobs>\n"
-            + "      </stage>\n"
-            + "    </pipeline>\n"
-            + "  </pipelines>\n"
-            + "  </cruise>";
-    public static final String NO_ON_CANCEL_FOR_EACH_TASK = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"15\">\n"
-            + "  <server artifactsdir=\"artifacts\">\n"
-            + "    <license user=\"Cruise UAT ThoughtWorks Beijing\">O5jEQXU0iS9kBdn+l2rSO+uEXvik+G8uNRiaUr1qxOKKLa+EBKMmSFIpDrYw&#38;#xD;\n"
-            + "dwDsd+MtfgiuAk5MDFImDhOT7R9HuKV7qqGI/a5ktRcBsuPGbYcxwJwbN5pv&#38;#xD;\n"
-            + "OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH&#38;#xD;\n"
-            + "bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh&#38;#xD;\n"
-            + "hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5&#38;#xD;\n"
-            + "BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>\n"
-            + "  </server>\n"
-            + "  <pipelines group=\"12345\">\n"
-            + "    <pipeline name=\"test\">\n"
-            + "      <materials>\n"
-            + "        <hg url=\"http://hg-server/hg/connectfour\" />\n"
-            + "      </materials>\n"
-            + "      <stage name=\"defaultStage\">\n"
-            + "        <jobs>\n"
-            + "          <job name=\"defaultJob\">\n"
-            + "            <tasks>\n"
-            + "              <exec command=\"echo\">\n"
-            + "              </exec>\n"
-            + "            </tasks>\n"
-            + "          </job>\n"
-            + "        </jobs>\n"
-            + "      </stage>\n"
-            + "    </pipeline>\n"
-            + "  </pipelines>\n"
-            + "  </cruise>";
 
-
-    public static final String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template) {
+    public static String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template) {
         return LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(template, 14);
     }
 
-    public static final String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template, int schemaVersion) {
+    public static String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template, int schemaVersion) {
         return "<cruise schemaVersion='" + schemaVersion + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
@@ -978,107 +836,6 @@ public final class ConfigFileFixture {
             + "  </pipelines>\n"
             + "</cruise>\n\n";
 
-    public static String pipelineWithFetchArtifact(String pipelineName, String fetchPipeline, String fetchStage,
-                                                   String fetchJob) {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
-                + "  <server artifactsdir=\"other-artifacts\">\n"
-                + "  </server>\n"
-                + "  <pipelines>\n"
-                + "    <pipeline name=\"upStream\">\n"
-                + "       <materials>\n"
-                + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "       </materials>\n"
-                + "      <stage name=\"default\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"unit\">\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "      <stage name=\"secondStage\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"unit\">\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "    <pipeline name=\"upStream-1\">\n"
-                + "       <materials>\n"
-                + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "       </materials>\n"
-                + "      <stage name=\"default\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"unit\">\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "    <pipeline name=\"" + pipelineName + "\">\n"
-                + "       <materials>\n"
-                + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "         <pipeline pipelineName=\"upStream\" stageName=\"default\" />\n"
-                + "         <pipeline pipelineName=\"upStream-1\" stageName=\"default\" />\n"
-                + "       </materials>\n"
-                + "      <stage name=\"default\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"unit\">\n"
-                + "           <tasks>\n"
-                + "             <fetchartifact pipeline=\"" + fetchPipeline + "\""
-                + "                 stage=\"" + fetchStage + "\" job=\"" + fetchJob + "\""
-                + "                 srcfile=\"something.jar\" dest=\"lib\" />\n"
-                + "           </tasks>\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "  </pipelines>\n"
-                + "</cruise>\n\n";
-    }
-
-    public static String pipelineWithFetchArtifact(String srcfile, String srcdir) {
-        String src = "";
-        if (srcfile != null) {
-            src += " srcfile='" + srcfile + "' ";
-        }
-
-        if (srcdir != null) {
-            src += " srcdir='" + srcdir + "' ";
-        }
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
-                + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
-                + "  <server artifactsdir=\"other-artifacts\">\n"
-                + "  </server>\n"
-                + "  <pipelines>\n"
-                + "    <pipeline name='pipeline'>\n"
-                + "       <materials>\n"
-                + "         <svn url=\"foobar\" checkexternals=\"true\" />\n"
-                + "       </materials>\n"
-                + "      <stage name=\"default\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"unit\">\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "      <stage name=\"defaultStage\">\n"
-                + "       <jobs>\n"
-                + "         <job name=\"defaultJob\">\n"
-                + "           <tasks>\n"
-                + "             <fetchartifact"
-                + "                 stage='default' job='unit'"
-                + src
-                + "                  dest=\"lib\" />\n"
-                + "           </tasks>\n"
-                + "         </job>\n"
-                + "        </jobs>\n"
-                + "      </stage>\n"
-                + "    </pipeline>\n"
-                + "  </pipelines>\n"
-                + "</cruise>\n\n";
-    }
-
     public static final String EMPTY_DEPENDENCIES = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"4\">\n"
@@ -1127,37 +884,6 @@ public final class ConfigFileFixture {
             + PIPELINE_WITH_TRACKINGTOOL
             + "  </pipelines>\n"
             + "</cruise>\n\n";
-
-    public static final String LICENSE_EXPIRED_USER = "Expired License";
-
-    public static final java.sql.Date LICENSE_EXPIRED_DATE = new java.sql.Date(101, 11, 25);
-
-    public static final String LICENSE_EXPIRED = "GeG8NxwLyFzSnuB0adnLaP9nxmCF4SfMk0wzhXu70zz4uqiZRzRORqAfquLh\n"
-            + "447+Dk/XI7w2idjMS2BoAiXA9xUoFzLwVhBWcQfncCXZW6RK8eAq6CQ0BFeP\n"
-            + "q3IeyuSXnNb/NeYSZxIxzWOlKuLjfP22VaD9Et7OjU+Sx30+DyLsZY06LQ1L\n"
-            + "MmB0gmMUuhlfa/TiNwN41AkfO5y29V41lPa6GGgFBKvhc9RsmYa70o00ywY3\n"
-            + "aMnpR+MV5B3+VboyKb3z2lAuO6NKU3WCQswdD/HqfibHzSVxZszW3AYLkWf9\n"
-            + "xe0ShBSzTXXn6ACdFFnPTitcmRJRbonY9D5KKQhlIw==";
-
-    public static final String ENTERPRISE_LICENSE_EXPIRED = "ldTnrBI3LPQxi88YeQESf5Y6Z4Wb8M7KjFpSvjIVzgE75K0gVgfr6H5ea7x2\n"
-            + "Sa2RhA5C/lmOGanH6e/r9o9FL4hAYfywad/CvTTPJLERpHQFkJLE5MozmZv3\n"
-            + "SDSqaIRIa/0Jq17rcfKvY2/rn+arVIdcVoGPJj1Nfo8XMHrUDjW60CQTruB4\n"
-            + "SMrUJ1xE/LMbkbvA3ECs4rOnKiLo4dbjcJpO27OhjZ/+G6at6/JvGPs+Djne\n"
-            + "zC6evyzXrJd1QvA+ksBrXq1NkcPfUbn0BhW8L7vEw6+IOnB/ZGxWgmE6Mod5\n"
-            + "yCZ1oAnOX0zX4SeybmWaOj7XEdfAIqgCSGOxNrxMjg==";
-
-    public static final String ENTERPRISE_LICENSE_EXPIRED_USER = "Go";
-
-    public static final String COMMUNITY_LICENSE_EXPIRED_USER = "Go";
-
-    public static final String COMMUNITY_LICENSE_EXPIRED = "SiO4z2aZMygvxVM9esZLAoVm3SzW2oaeeft+BYbsdNiFgec5fROLIGqEHH5A\n"
-            + "NIOlo1oveE9IuSpA0dZkIt7meq244SXRnwLQhBONjwpkHEpzYUPjFldXRMKw\n"
-            + "XNrY2ogul43RlqQE0HIRwPTQnDG2/FlamOCGoJdAkvVIsmYTnm+lH4LpesrS\n"
-            + "sbUyvfGd8w61Go10+mDhNaqzpSlTSq2Vz1Spm05ddRMsXRw/IN2hOC6fpD5x\n"
-            + "PL+2tDBp27HzbWFgUJFy2L1fvGhj6ZjIFp/HOIkTlnEUyf0zsRMQofEnewnE\n"
-            + "Lq8zsnoMMvvia7sS/p6vWZ2gbGpor/TSSBm8ogq7nQ==";
-
-
 
     public static final String CRUISE = "<cruise schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
             + "<server artifactsdir='artifactsDir' />"
@@ -1533,34 +1259,11 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-    public static String defaultXmlWith2AgentsWithArtifactsFolderAt(String artifactsFolder) {
-        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"6\">\n"
-                + "<server artifactsdir=\"" + artifactsFolder + "\">\n"
-                + "        <license user=\""
-                + TWO_USER_LICENSE_USER
-                + "\">\n"
-                + TWO_USER_LICENSE
-                + "        </license>\n"
-                + "    </server>"
-                + "</cruise>";
-    }
-
     public static final String DEFAULT_XML_WITH_UNLIMITED_AGENTS =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"6\">\n"
                     + "<server artifactsdir=\"../server.logs\">\n"
-                    + "    </server>"
-                    + "</cruise>";
-
-    public static final String DEFAULT_XML_WITH_INVALID_LICENSE =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                    + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                    + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"6\">\n"
-                    + "<server artifactsdir=\"../server.logs\">\n"
-                    + "<license user=\"loser\">some_bad_license</license>"
                     + "    </server>"
                     + "</cruise>";
 
@@ -1755,25 +1458,6 @@ public final class ConfigFileFixture {
                     + "</pipelines>\n"
                     + "</cruise>";
 
-    public static final String CONFIG_WITHOUT_LICENSE =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                    + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                    + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"16\">\n"
-                    + "<server artifactsdir='artifactsDir' />"
-                    + " <pipelines>\n"
-                    + "     <pipeline name='pipeline'>\n"
-                    + "         <materials>\n"
-                    + "             <hg url =\"svnurl\" dest=\"something\"/>"
-                    + "         </materials>\n"
-                    + "         <stage name='dist'>\n"
-                    + "             <jobs>\n"
-                    + "                 <job name='test' />\n"
-                    + "             </jobs>\n"
-                    + "         </stage>\n"
-                    + "     </pipeline>\n"
-                    + " </pipelines>\n"
-                    + "</cruise>";
-
     public static final String PIPELINE_WITH_TIMER =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -1863,48 +1547,6 @@ public final class ConfigFileFixture {
                 + "</pipelines>\n"
                 + "</cruise>";
     }
-
-    public static final String DEPENDS_ON
-            = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-            + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"4\">\n"
-            + "  <server>\n"
-            + "  </server>\n"
-            + "  <pipelines>\n"
-            + "    <pipeline name=\"multiple\">\n"
-            + "      <materials>\n"
-            + "        <svn url=\"file:///home/cceuser/projects/cruise/manual-testing/multiple/repo/trunk/part1\"\n"
-            + "         dest=\"part1\"\n"
-            + "        />\n"
-            + "      </materials>\n"
-            + "      <stage name=\"helloworld-part2\">\n"
-            + "        <jobs>\n"
-            + "          <job name=\"run1\">\n"
-            + "            <tasks>\n"
-            + "              <exec command=\"/bin/bash\" args=\"helloworld.sh\" workingdir=\"part1\" />\n"
-            + "            </tasks>\n"
-            + "          </job>\n"
-            + "       </jobs>\n"
-            + "      </stage>\n"
-            + "   </pipeline>\n"
-            + "    <pipeline name=\"depends\">\n"
-            + "    <dependencies name=\"depends\">\n"
-            + "    <pipeline name=\"depends\">\n"
-
-            + "      <materials>\n"
-            + "      </materials>\n"
-            + "      <stage name=\"depends-1\">\n"
-            + "        <jobs>\n"
-            + "          <job name=\"run1\">\n"
-            + "            <tasks>\n"
-            + "              <exec command=\"/bin/bash\" args=\"helloworld.sh\" workingdir=\"part1\" />\n"
-            + "            </tasks>\n"
-            + "          </job>\n"
-            + "       </jobs>\n"
-            + "      </stage>\n"
-            + "   </pipeline>\n"
-            + "  </pipelines>\n"
-            + "</cruise>";
 
     public static String withJob(String jobXml) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -2027,41 +1669,6 @@ public final class ConfigFileFixture {
                     + "      </resources>\n"
                     + "    </agent>\n"
                     + "  </agents>"
-                    + "</cruise>";
-
-    public static final String STAGE_AUTH_WITH_ADMIN =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                    + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                    + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
-                    + "<server artifactsdir='artifactsDir' >"
-                    + "     <security>"
-                    + "     <admins>"
-                    + "         <user>admin</user>"
-                    + "     </admins>"
-                    + "     </security>"
-                    + "</server>"
-                    + "<pipelines group=\"studios\">\n"
-                    + "     <authorization>\n"
-                    + "         <operate>\n"
-                    + "             <user>operator</user>\n"
-                    + "         </operate>\n"
-                    + "     </authorization>\n"
-                    + "<pipeline name='framework'>\n"
-                    + "    <materials>\n"
-                    + "      <hg url =\"svnurl\" dest=\"something\" />"
-                    + "    </materials>\n"
-                    + "  <stage name='dist'>\n"
-                    + "     <approval type='manual'>\n"
-                    + "         <authorization>\n"
-                    + "             <user>admin</user>\n"
-                    + "         </authorization>\n"
-                    + "     </approval>\n"
-                    + "    <jobs>\n"
-                    + "      <job name='cardlist' />\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>\n"
-                    + "</pipelines>\n"
                     + "</cruise>";
 
     public static final String STAGE_AUTH_WITH_ADMIN_AND_AUTH =

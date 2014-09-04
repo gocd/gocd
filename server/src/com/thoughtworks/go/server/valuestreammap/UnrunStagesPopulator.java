@@ -16,22 +16,18 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.HashSet;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.Revision;
-import com.thoughtworks.go.domain.valuestreammap.UnrunPipelineRevision;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.List;
 
 @Component
 public class UnrunStagesPopulator {
@@ -42,10 +38,18 @@ public class UnrunStagesPopulator {
         this.goConfigService = goConfigService;
     }
 
-    public void apply(ValueStreamMap valueStreamMap) {
-        Node currentPipeline = valueStreamMap.getCurrentPipeline();
-        getUnrunStagesForDownstreamGraphStartingFrom(currentPipeline, new HashSet<Node>());
-    }
+	public void apply(ValueStreamMap valueStreamMap) {
+		if (valueStreamMap.getCurrentPipeline() != null) {
+			Node currentPipeline = valueStreamMap.getCurrentPipeline();
+			getUnrunStagesForDownstreamGraphStartingFrom(currentPipeline, new HashSet<Node>());
+		} else {
+			List<Node> downstreamPipelines = valueStreamMap.getCurrentMaterial().getChildren();
+			HashSet<Node> visitedNodes = new HashSet<Node>();
+			for (Node downstreamPipeline : downstreamPipelines) {
+				getUnrunStagesForDownstreamGraphStartingFrom(downstreamPipeline, visitedNodes);
+			}
+		}
+	}
 
     private void getUnrunStagesForDownstreamGraphStartingFrom(Node node, HashSet<Node> visitedNodes) {
         if (visitedNodes.contains(node)) {

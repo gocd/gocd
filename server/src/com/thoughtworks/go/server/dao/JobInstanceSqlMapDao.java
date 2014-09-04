@@ -25,6 +25,8 @@ import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
+import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
@@ -60,10 +62,13 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private EnvironmentVariableDao environmentVariableDao;
     private Cloner cloner = new Cloner();
     private ResourceRepository resourceRepository;
+    private ArtifactPlanRepository artifactPlanRepository;
+    private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
 
     @Autowired
     public JobInstanceSqlMapDao(EnvironmentVariableDao environmentVariableDao, GoCache goCache, TransactionTemplate transactionTemplate, SqlMapClient sqlMapClient, Cache cache,
-                                TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database, ResourceRepository resourceRepository) {
+                                TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database,
+                                ResourceRepository resourceRepository, ArtifactPlanRepository artifactPlanRepository, ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository) {
         super(goCache, sqlMapClient, systemEnvironment, database);
         this.environmentVariableDao = environmentVariableDao;
         this.goCache = goCache;
@@ -71,6 +76,8 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.cache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.resourceRepository = resourceRepository;
+        this.artifactPlanRepository = artifactPlanRepository;
+        this.artifactPropertiesGeneratorRepository = artifactPropertiesGeneratorRepository;
     }
 
     public JobInstance buildByIdWithTransitions(long buildInstanceId) {
@@ -181,22 +188,24 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
         for (ArtifactPropertiesGenerator generator : plan.getPropertyGenerators()) {
             generator.setJobId(jobId);
-            getSqlMapClientTemplate().insert("insertArtifactPropertiesGenerator", generator);
+            artifactPropertiesGeneratorRepository.save(generator);
         }
         for (ArtifactPlan artifactPlan : plan.getArtifactPlans()) {
             artifactPlan.setBuildId(jobId);
-            getSqlMapClientTemplate().insert("insertArtifactPlan", artifactPlan);
+            artifactPlanRepository.save(artifactPlan);
         }
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
     }
 
     public JobPlan loadPlan(long jobId) {
         DefaultJobPlan plan = (DefaultJobPlan) getSqlMapClientTemplate().queryForObject("select-job-plan", jobId);
-        loadVariablesAndResources(plan);
+        loadJobPlanAssociatedEntities(plan);
         return plan;
     }
 
-    private void loadVariablesAndResources(DefaultJobPlan plan) {
+    private void loadJobPlanAssociatedEntities(DefaultJobPlan plan) {
+        plan.setPlans(artifactPlanRepository.findByBuildId(plan.getJobId()));
+        plan.setGenerators(artifactPropertiesGeneratorRepository.findByBuildId(plan.getJobId()));
         plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
@@ -410,7 +419,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         if (jobPlan == null) {
             return null;
         }
-        loadVariablesAndResources(jobPlan);
+        loadJobPlanAssociatedEntities(jobPlan);
         return jobPlan;
     }
 

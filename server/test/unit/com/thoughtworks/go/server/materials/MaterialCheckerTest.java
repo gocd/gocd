@@ -46,9 +46,9 @@ import org.mockito.Mockito;
 
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 

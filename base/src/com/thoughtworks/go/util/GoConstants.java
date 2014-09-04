@@ -16,12 +16,20 @@
 
 package com.thoughtworks.go.util;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class GoConstants {
-    public static final Date NEVER = new Date(0, 0, 1);
-    public static final String PROJECT_STATUS_IN_BUILDING = "Building";
+    public static final Date NEVER;
     public static final String GO_PLUGIN_MANIFEST_HEADER_PREFIX = "GoPlugin-";
+
+    static {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1900, Calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        NEVER = calendar.getTime();
+    }
+
     /**
      * This will force the browser to clear the cache only for this page.
      * If any other pages need to clear the cache, we might want to move this
@@ -44,15 +52,10 @@ public class GoConstants {
     public static final String CRUISE_RESULT = "cruise_job_result";
     public static final String CRUISE_JOB_DURATION = "cruise_job_duration";
     public static final String CRUISE_JOB_ID = "cruise_job_id";
-    public static final String CRUISE_DATE_PATTERN = "cruise_date_pattern";
     public static final String CRUISE_TIMESTAMP = "cruise_timestamp_";
     public static final String THOUGHTWORKS_LICENSE_URL = "http://www.thoughtworks.com/products/go-continuous-delivery/compare";
-    public static final String CRUISE_ENTERPRISE = "<a href='" + THOUGHTWORKS_LICENSE_URL
-            + "' target='_license'>Go Enterprise Edition</a>";
     public static final String CRUISE_FREE = "<a href='" + THOUGHTWORKS_LICENSE_URL
             + "' target='_license'>Go Community Edition</a>";
-    public static final String CRUISE_LICENSE = "<a href='" + THOUGHTWORKS_LICENSE_URL
-            + "' target='_license'>license</a>";
     public static final String EXPIRY_DATE = "expiry_date";
     public static final String MAX_AGENTS = "max_agents";
     public static final String MAX_USERS = "max_users";
@@ -61,14 +64,13 @@ public class GoConstants {
 
     public static final String PRODUCT_NAME = "go";
 
-    public static final int CONFIG_SCHEMA_VERSION = 73;
+    public static final int CONFIG_SCHEMA_VERSION = 74;
 
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";
     public static final int PUBLISH_MAX_RETRIES = 3;
     public static final String TEST_EMAIL_SUBJECT = "Go Email Notification";
     public static final int DEFAULT_TIMEOUT = 60 * 1000;
-    public static final String LICENSE_LIMITATION_ERROR = "License limitation error";
     public static final long MEGABYTES_IN_GIGABYTE = 1024;
     public static final long MEGA_BYTE = 1024 * 1024;
     public static final long GIGA_BYTE = MEGABYTES_IN_GIGABYTE * MEGA_BYTE;

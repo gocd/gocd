@@ -64,7 +64,7 @@ module MaterialsHelper
   end
 
   def render_comment(modification, pipeline_name)
-    render_comment_markup_for(modification.getComment(),pipeline_name)
+    render_comment_markup_for(modification.getComment(), pipeline_name)
   end
 
   def render_comment_for_package_material(comment)
@@ -87,7 +87,7 @@ module MaterialsHelper
   end
 
   def get_comment(comment_map)
-    comment_map['COMMENT'].blank? ? "" : "#{comment_map['COMMENT']}<br/>"
+    comment_map['COMMENT'].blank? ? "" : "#{comment_map['COMMENT']}<br>"
   end
 
   def get_trackback_url(comment_map)

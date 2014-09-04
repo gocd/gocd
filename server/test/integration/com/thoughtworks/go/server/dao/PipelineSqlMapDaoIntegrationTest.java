@@ -40,22 +40,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.ModificationVisitorAdapter;
-import com.thoughtworks.go.domain.NullPipeline;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineDependencyGraphOld;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -1709,6 +1694,28 @@ public class PipelineSqlMapDaoIntegrationTest {
                 new PipelineIdentifier(p1.config.name().toString(), 1));
         assertThat(pipelineIdentifiers, is(Matchers.empty()));
     }
+
+	@Test
+	public void shouldReturnListOfPipelineIdentifiersBasedOnAMaterialRevisionCorrectly() throws Exception {
+		GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+		u.checkinInOrder(g1, "g_1", "g_2", "g_3");
+
+		ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(g1));
+
+		String p1_1 = u.runAndPass(p1, "g_2");
+		String p1_2 = u.runAndPass(p1, "g_3");
+		String p1_3 = u.runAndPass(p1, "g_2");
+
+		MaterialInstance g1Instance = materialRepository.findMaterialInstance(g1);
+		List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_2");
+
+		assertThat(pipelineIdentifiers.size(), is(2));
+		assertThat(pipelineIdentifiers, contains(new PipelineIdentifier(p1.config.name().toString(), 3, "3"), new PipelineIdentifier(p1.config.name().toString(), 1, "1")));
+
+		pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p1.config.name().toString(), g1Instance, "g_1");
+
+		assertThat(pipelineIdentifiers, is(Matchers.empty()));
+	}
 
     @Test
     /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */

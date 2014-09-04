@@ -123,6 +123,24 @@ describe 'stages/_jobs.html.erb' do
     expect(response).to_not have_selector("tr.job.is_rerun td a", :text => "second")
   end
 
+  it "should smart break agent IP" do
+    jobs =  []
+    job = JobInstanceMother.completed("first", JobResult::Failed)
+    job.setIdentifier(JobIdentifier.new("blah-pipeline", 1, "blah-label", "blah-stage", "2", job.getName()))
+    i = 1
+    host_name = "host_#{SecureRandom.hex(32)}_#{i}"
+    agent = job.isAssignedToAgent()?
+          AgentInstanceMother.updateLocation(
+              AgentInstanceMother.updateIpAddress(
+                  AgentInstanceMother.updateHostname(
+                      AgentInstanceMother.updateUuid(AgentInstanceMother.building(), "agent_#{i}"), host_name), "#{i}.#{i}.#{i}.#{i}"), "location-#{i}") : nil
+    jobs << JobInstanceModel.new(job, JobDurationStrategy::ConstantJobDuration.new(100), agent)
+    render :partial => "stages/jobs", :locals => {:scope => {:jobs => jobs, :stage => @stage}}
+    Capybara.string(response.body).find("td.agent").tap do |agent|
+      expect(agent).to have_selector("a", :text => host_name)
+    end
+  end
+
   it "should get job name, state, result" do
     render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage}}
 

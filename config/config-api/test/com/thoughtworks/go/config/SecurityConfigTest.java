@@ -27,13 +27,10 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class SecurityConfigTest {
 

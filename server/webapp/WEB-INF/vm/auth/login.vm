@@ -31,7 +31,7 @@
         <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico"/>
         <link href="$req.getContextPath()/assets/css/reset-fonts-grids-fix.css" rel="stylesheet" type="text/css"></link>
         <link href="$req.getContextPath()/assets/css/rounded_corner.css" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/assets/css/application.css" rel="stylesheet" type="text/css"></link>
+        <link href="$req.getContextPath()/assets/css/application-old.css" rel="stylesheet" type="text/css"></link>
         <link href="$req.getContextPath()/assets/vm/structure_for_old_ui.css" rel="stylesheet" type="text/css"></link>
         <!--[if lte IE 7]>
         <link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
@@ -56,6 +56,7 @@
         #bd {
             background: #000;
             border: none;
+            padding-top:0;
         }
         h1, h2, h3, h4 {
             font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -144,7 +145,7 @@
                 </div>
                 #end
                 <div class='clear-both'><!-- Clear floats --></div>
-                <div id="graphic-dialog-container">
+                <div id="graphic-dialog-container" style="padding-top:1px">
                     <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
                         <div id="logo-login"><h2>&nbsp;</h2></div>
                         <div id="graphic-dialog-input">

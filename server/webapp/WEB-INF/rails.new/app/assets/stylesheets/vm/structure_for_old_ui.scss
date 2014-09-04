@@ -958,10 +958,6 @@ a.xlink_as_button {
     list-style-position:outside;
     list-style-type:none;
 }
-.sub_tabs_container ul{
-    float: none;
-    overflow: hidden;
-}
 
 .sub_tabs_container li{
     display: block;
@@ -972,7 +968,6 @@ a.xlink_as_button {
 
 .sub_tabs_container .current_tab{
     background:none !important;
-    bottom:0;
     position: relative;
 }
 

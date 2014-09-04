@@ -25,8 +25,26 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require "./reset-fonts-grids-fix"
- *= require "./rounded_corner"
- *= require "./application-old"
- *= require_tree .
+ *= require "./agents-tab.scss"
+ *= require "./application.scss"
+ *= require "./application-old.scss"
+ *= require "./build_list.scss"
+ *= require "./changes.scss"
+ *= require "./global.scss"
+ *= require "./ie_hacks.scss"
+ *= require "./mbean_console.scss"
+ *= require "./menu.scss"
+ *= require "./pipeline-history.scss"
+ *= require "./pipeline-tab.scss"
+ *= require "./rounded_corner.scss"
+ *= require "./stage-detail.scss"
+ *= require "./build_common.scss"
+ *= require "./build_detail.scss"
+ *= require "./build_detail_summary.scss"
+ *= require "./toolkit.scss"
+ *= require "./transparent_message.scss"
+ *= require "./ui.scss"
+ *= require "./mycruise-tab.scss"
+ *= require "./sub_tab.scss"
  */
+

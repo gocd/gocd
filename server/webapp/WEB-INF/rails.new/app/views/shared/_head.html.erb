@@ -3,6 +3,7 @@
 </title>
 <%= yield :before_stylesheets %>
 <%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
+<%= stylesheet_link_tag "patterns/application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
 <!-- START: prototype hooks for css injection -->
 <% if params[:controller] == "prototype" %>

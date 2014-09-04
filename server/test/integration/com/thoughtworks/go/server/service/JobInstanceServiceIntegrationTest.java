@@ -207,6 +207,27 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(jobs.size(), is(2));
     }
 
+	@Test
+	public void shouldFindAllCopiesOfJobsRunMultipleInstance() throws Exception {
+		StageConfig stageConfig = StageConfigMother.custom("dev", "build");
+		JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
+		jobConfig.setRunInstanceCount(2);
+		DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents());
+		Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
+
+		for (JobInstance instance : stage.getJobInstances()) {
+			instance.setIdentifier(new JobIdentifier("cruise", "1", "dev", "1", instance.getName()));
+		}
+
+		jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
+		jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
+
+		JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
+		assertThat(jobs.size(), is(2));
+		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 1)))));
+		assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 2)))));
+	}
+
     @Test
     public void shouldThrowExceptionIfThereAreNoJobsToBeScheduled() throws Exception {
         StageConfig stageConfig = StageConfigMother.custom("dev", "build");

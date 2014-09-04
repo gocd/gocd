@@ -71,8 +71,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
+import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -133,12 +135,14 @@ public class MaterialRepositoryIntegrationTest {
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
+	private ScheduleTestUtil u;
 
     @Before
     public void setUp() throws Exception {
         originalTemplate = repo.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
+		u = new ScheduleTestUtil(transactionTemplate, repo, dbHelper, new GoConfigFileHelper());
     }
 
     @After

@@ -93,8 +93,10 @@ describe "admin/jobs/new.html.erb" do
     end
   end
 
-  it "should render job resources and run on all agents checkbox" do
-    assign(:job, JobConfig.new)
+  it "should render job resources, run on all agents checkbox, run multiple instance" do
+    job_config = JobConfig.new
+    job_config.setRunInstanceCount(2)
+    assign(:job, job_config)
 
     render
 
@@ -104,6 +106,9 @@ describe "admin/jobs/new.html.erb" do
 
       expect(blocks[2]).to have_selector("label", :text => "Run on all agents")
       expect(blocks[2]).to have_selector("input[type='checkbox'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS}]']")
+
+      expect(blocks[3]).to have_selector("label", :text => "Run multiple instances")
+      expect(blocks[3]).to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT}]'][value='2']")
     end
   end
 

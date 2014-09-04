@@ -16,18 +16,8 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigDataSource;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.DoNotUpgrade;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -42,7 +32,6 @@ import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.util.ServerVersion;
@@ -50,11 +39,14 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import org.apache.commons.io.FileUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.List;
+
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static com.thoughtworks.go.helper.ConfigFileFixture.TWO_USER_LICENSE;
-import static com.thoughtworks.go.helper.ConfigFileFixture.TWO_USER_LICENSE_USER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.mockito.Mockito.mock;
 
 /**
  * @understands how to edit the cruise config file for testing
@@ -806,6 +798,13 @@ public class GoConfigFileHelper {
         pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunOnAllAgents(runOnAllAgents);
         writeConfigFile(config);
     }
+
+	public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, Integer runInstanceCount) {
+		CruiseConfig config = load();
+		PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+		pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);
+		writeConfigFile(config);
+	}
 
     public void addResourcesFor(String pipelineName, String stageName, String jobName, String... resources) {
         CruiseConfig config = load();

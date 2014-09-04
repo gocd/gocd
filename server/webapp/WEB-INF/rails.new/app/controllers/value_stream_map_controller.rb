@@ -31,11 +31,28 @@ class ValueStreamMapController < ApplicationController
     end
   end
 
+  def show_material
+    respond_to do |format|
+      format.html
+      format.json { render :json => generate_material_vsm_json }
+    end
+  end
+
   private
 
   def generate_vsm_json
     result = HttpLocalizedOperationResult.new
     vsm = value_stream_map_service.getValueStreamMap(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
+    render_vsm_json(vsm, result)
+  end
+
+  def generate_material_vsm_json
+    result = HttpLocalizedOperationResult.new
+    vsm = value_stream_map_service.getValueStreamMap(params[:material_fingerprint], params[:revision], current_user, result)
+    render_vsm_json(vsm, result)
+  end
+
+  def render_vsm_json(vsm, result)
     vsm_path_partial = proc do |name, counter| vsm_show_path(name, counter) end
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
        stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
@@ -52,5 +69,4 @@ class ValueStreamMapController < ApplicationController
       redirect_to url_for_pipeline_instance(pim)
     end
   end
-
 end

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.TimeProvider;
@@ -33,16 +31,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Date;
+
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.text.MessageFormat.format;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -259,6 +258,20 @@ public class JobInstanceTest {
         JobInstance instance = JobInstanceMother.building("first", new Date(), fiveSeconds);
         assertThat(instance.getDuration(), is(RunDuration.IN_PROGRESS_DURATION));
     }
+
+	@Test
+	public void shouldReturnJobTypeCorrectly() {
+		JobInstance jobInstance = new JobInstance();
+		jobInstance.setRunOnAllAgents(true);
+		assertThat(jobInstance.jobType(), instanceOf(RunOnAllAgents.class));
+
+		jobInstance = new JobInstance();
+		jobInstance.setRunMultipleInstance(true);
+		assertThat(jobInstance.jobType(), instanceOf(RunMultipleInstance.class));
+
+		jobInstance = new JobInstance();
+		assertThat(jobInstance.jobType(), instanceOf(SingleJobInstance.class));
+	}
 
     private static class JobStateTransitionMatcher extends BaseMatcher<JobStateTransition> {
         private JobState actualState;

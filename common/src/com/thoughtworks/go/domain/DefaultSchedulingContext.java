@@ -28,6 +28,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     private final String approvedBy;
     private final Agents agents;
     private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+	private boolean rerun;
 
     public DefaultSchedulingContext() {
         this("Unknown");
@@ -63,6 +64,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     public SchedulingContext overrideEnvironmentVariables(EnvironmentVariablesConfig environmentVariablesConfig) {
         DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents));
         context.variables = variables.overrideWith(environmentVariablesConfig);
+		context.rerun = rerun;
         return context;
     }
 
@@ -75,8 +77,20 @@ public class DefaultSchedulingContext implements SchedulingContext {
         }
         DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, permitted);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
+		context.rerun = rerun;
         return context;
     }
+
+	public boolean isRerun() {
+		return rerun;
+	}
+
+	public SchedulingContext rerunContext() {
+		DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents);
+		context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
+		context.rerun = true;
+		return context;
+	}
 
     @Override
     public boolean equals(Object o) {

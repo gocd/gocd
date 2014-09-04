@@ -409,6 +409,20 @@
 	    ORDER BY pipelines.id DESC
     </select>
 
+    <select id="pipelineInstancesTriggeredOffOfMaterialRevision" resultMap="select-pipeline-identifier">
+        SELECT pipelines.name as pipelineName, pipelines.label as label, pipelines.counter as pipelineCounter
+        FROM pipelines
+        WHERE pipelines.name = #pipelineName#
+        AND ID IN
+        (
+          SELECT pipelinematerialrevisions.pipelineid
+          FROM materials
+          INNER JOIN modifications ON materials.id = modifications.materialid AND materials.id = #materialId# AND modifications.revision = #materialRevision#
+          INNER JOIN pipelinematerialrevisions ON modifications.id = pipelinematerialrevisions.torevisionid
+        )
+        ORDER BY pipelines.id DESC
+    </select>
+
     <select id="pipelineIdsByNames" parameterClass="list" resultClass="long">
         SELECT max(id) as mid FROM TABLE(X VARCHAR_IGNORECASE(255)=
         <iterate open="(" close=")" conjunction=",">#[]# </iterate>) T

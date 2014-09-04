@@ -53,18 +53,19 @@ module Oauth2Provider
     def update
       @oauth_client = Client.find(params[:id])
 
-      respond_to do |format|
-        if @oauth_client.update_attributes(params[:client])
-          flash[:notice] = 'OAuth client was successfully updated.'
+      if @oauth_client.update_attributes(params[:client])
+        flash[:notice] = 'OAuth client was successfully updated.'
+        respond_to do |format|
           format.html { redirect_to oauth_engine.clients_path }
           format.xml  { head :ok }
-        else
-          flash.now[:error] = @oauth_client.errors.full_messages
+        end
+      else
+        flash.now[:error] = @oauth_client.errors.full_messages
+        respond_to do |format|
           format.html { render :action => "edit" }
           format.xml  { render :xml => @oauth_client.errors, :status => :unprocessable_entity }
         end
       end
-
     end
 
     def destroy

@@ -8,14 +8,7 @@ module Oauth2Provider
     validates :name, presence: true
     
     #Uniqueness is a ActiveRecord validation and cannot be applied to ActiveModel objects. Hence the custom validation
-    validate do
-      unless self.name.blank?
-        existing_client = Oauth2Provider::Client.find_one(:name, self.name)
-        unless existing_client.nil?
-          errors.add(:name, "not unique") 
-        end
-      end
-    end
+    validate :validate_name_uniqueness
 
     self.db_columns = {}  # read this -> http://martinciu.com/2011/07/difference-between-class_inheritable_attribute-and-class_attribute.html
     columns :name, :client_id, :client_secret, :redirect_uri, :id => :integer
@@ -53,5 +46,17 @@ module Oauth2Provider
       self.name.strip! if self.name
       self.redirect_uri.strip! if self.redirect_uri
     end
+    
+    private
+    
+    def validate_name_uniqueness
+      unless self.name.blank?
+        existing_client = Oauth2Provider::Client.find_one(:name, self.name)
+        if (!existing_client.nil? && existing_client.id != self.id)
+          errors.add(:name, "not unique") 
+        end
+      end
+    end
+    
   end
 end

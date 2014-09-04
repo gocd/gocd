@@ -72,17 +72,7 @@ task :prepare_webapp do
   #copy
   task('copy_files').invoke
 
-  # js
-  task('create_all_js').invoke
-  task('copy_compressed_js_to_webapp').invoke
-
-  # css
-  task('pull_latest_sass').invoke
-
-  task('version-image-urls-in-css').invoke
-
-  task('create_all_css').invoke
-  task('copy_compressed_css_to_webapp').invoke
+  task('handle_assets').invoke
 
   # rails
   task('copy-code-to-be-interpolated').invoke
@@ -92,6 +82,36 @@ task :prepare_webapp do
   #prepare for production mode
   task('write_revision_number').invoke
   task('change_rails_env_to_production').invoke
+end
+
+task :handle_assets_rails2 do
+  # js
+  task('create_all_js_rails2').invoke
+  task('copy_compressed_js_to_webapp_rails2').invoke
+
+  # css
+  task('pull_latest_sass').invoke
+
+  task('version-image-urls-in-css').invoke
+
+  task('create_all_css_rails2').invoke
+  task('copy_compressed_css_to_webapp_rails2').invoke
+end
+
+task :handle_assets_rails4 do
+  task('precompile_assets').invoke
+  safe_cp "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/assets"
+
+  #delete assets used by rails2
+  rm_f("target/webapp/javascripts") #if File.exist?("target/webapp/javascripts")
+  rm_f("target/webapp/css") #if File.exist?("target/webapp/css")
+  rm_f("target/webapp/stylesheets") #if File.exist?("target/webapp/stylesheets")
+  rm_f("target/webapp/sass") #if File.exist?("target/webapp/sass")
+  rm_f("target/webapp/images") #if File.exist?("target/webapp/images")
+end
+
+task :handle_assets do
+  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2')
 end
 
 #prepare help docs
@@ -177,18 +197,11 @@ def put_first(lib_paths, files_to_put_first)
   files_to_put_first + (lib_paths - files_to_put_first)
 end
 
-task :create_all_js do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('create_all_js_rails4').invoke : task('create_all_js_rails2')
-end
 
-task :copy_compressed_js_to_webapp do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('copy_compressed_js_to_webapp_rails4').invoke : task('copy_compressed_js_to_webapp_rails2')
-end
-
-task :create_all_js_rails4 do
+task :precompile_assets do
   ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
   classpath = File.read("target/server-test-dependencies")
-  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile tmp:cache:clear"
 end
 
 task :create_all_js_rails2 do
@@ -214,10 +227,6 @@ task :create_all_js_rails2 do
   end
 end
 
-task :copy_compressed_js_to_webapp_rails4 do
-  safe_cp "webapp/WEB-INF/rails.new/public/assets/", "target/webapp/WEB-INF/rails.new/public/assets/"
-end
-
 task :copy_compressed_js_to_webapp_rails2 do
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
   safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
@@ -233,23 +242,13 @@ def expand_css_wildcard wildcard
 end
 
 task :pull_latest_sass do
-  unless(ENV['USE_NEW_RAILS'] == "Y")
-    # Clear css_sass folder before regenerating new css files
-    FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
+  # Clear css_sass folder before regenerating new css files
+  FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
 
-    ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-    sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
+  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+  sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
 
-    FileUtils.remove_dir("target/webapp/sass", true)
-  end
-end
-
-task :create_all_css do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('create_all_css_rails4').invoke : task('create_all_css_rails2')
-end
-
-task :create_all_css_rails4 do
-# Do nothing as create_all_js_rails4 already took care of assets precompile
+  FileUtils.remove_dir("target/webapp/sass", true)
 end
 
 task :create_all_css_rails2 do
@@ -287,13 +286,11 @@ task :create_all_css_rails2 do
   yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/stylesheets/structure", "*.css")
 end
 
-task :copy_compressed_css_to_webapp do
-  unless ENV['USE_NEW_RAILS'] == "Y"
-    cp "target/all.css", "target/webapp/stylesheets"
-    COMPRESSED_ALL_DOT_CSS.each do |file|
-      name = File.basename(file).gsub(File.extname(file), '')
-      cp file, "target/webapp/stylesheets/#{name}"
-    end
+task :copy_compressed_css_to_webapp_rails2 do
+  cp "target/all.css", "target/webapp/stylesheets"
+  COMPRESSED_ALL_DOT_CSS.each do |file|
+    name = File.basename(file).gsub(File.extname(file), '')
+    cp file, "target/webapp/stylesheets/#{name}"
   end
 end
 
@@ -414,6 +411,7 @@ def fix_scope_calls content, prefix
 end
 
 def safe_cp from, to
+  rm_f to if File.exist? to
   mkdir_p to
   cp_r from, to
 end

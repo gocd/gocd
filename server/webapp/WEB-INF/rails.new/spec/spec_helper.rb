@@ -45,6 +45,7 @@ RSpec.configure do |config|
   # clear flash messages for every spec
   config.before(:each) do
     com.thoughtworks.go.server.web.FlashMessageService.useFlash(com.thoughtworks.go.server.web.FlashMessageService::Flash.new)
+    setup_base_urls
   end
 
   config.after(:each) do
@@ -65,14 +66,6 @@ ApplicationController.class_eval do
       actual_url.should =~ expected_url
       @performed_redirect = true
     end
-  end
-end
-
-ActionController::TestCase.class_eval do
-  setup :base_urls
-
-  def base_urls
-    setup_base_urls
   end
 end
 

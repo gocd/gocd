@@ -4,7 +4,7 @@
 
 <%= pipeline_operations_blocking_form_remote_tag(:url => api_pipeline_action_path(:pipeline_name => scope[:pipeline_name], :action => "schedule"),
                              :html => {
-                                     :onsubmit => "PipelineOperations.onTriggerWithOptionsDialog(this, '#{scope[:pipeline_name]}', '#{api_pipeline_action_path(:pipeline_name => scope[:pipeline_name], :action => "schedule")}'); return false;"
+                                     :onsubmit => ("PipelineOperations.onTriggerWithOptionsDialog(this, '#{scope[:pipeline_name]}', '#{api_pipeline_action_path(:pipeline_name => scope[:pipeline_name], :action => "schedule")}'); return false;").html_safe
                              }
     ) -%>
 

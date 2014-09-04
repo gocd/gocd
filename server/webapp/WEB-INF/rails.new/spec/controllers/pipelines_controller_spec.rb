@@ -145,6 +145,41 @@ describe PipelinesController do
     end
   end
 
+  describe "dashboard" do
+    before(:each) do
+      @selected_pipeline_id = "456"
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => @selected_pipeline_id})
+    end
+
+    it "should load pipeline information" do
+      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new)
+
+      get :dashboard, :format => "json"
+
+      expect(assigns[:pipeline_groups]).to eq(:pipeline_group_models)
+      expect(assigns[:pipeline_selections]).to eq(selections)
+      expect(assigns[:pipeline_configs]).to eq(viewable_groups)
+    end
+
+    it "should resolve to dashboard" do
+      expect({:get => "/dashboard.json"}).to route_to(:controller => "pipelines", :action => "dashboard", :format => "json")
+    end
+
+    it "should NOT redirect to 'add pipeline wizard' when there are no pipelines in config" do
+      pipeline_group_models = java.util.ArrayList.new
+      pipeline_group_models.add(PipelineGroupModel.new("bla"))
+      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
+
+      get :dashboard, :format => "json"
+
+      expect(response.code).to eq("200")
+    end
+  end
+
   describe "error_handling" do
     before do
       class << @controller
@@ -161,6 +196,11 @@ describe PipelinesController do
   end
 
   describe "action show" do
+    it "should resolve using both GET and POST" do
+      expect({:get => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
+      expect({:post => "/pipelines/show"}).to route_to(:controller => "pipelines", :action => "show")
+    end
+
     it "should load pipeline and variables for a given pipeline" do
       @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
       expected = EnvironmentVariablesConfig.new()
@@ -188,7 +228,7 @@ describe PipelinesController do
       expect(assigns[:pipeline]).to eq(@pim)
     end
 
-    it "should resolve get from /pipelines/show_for_trigger as a call" do
+    it "should resolve POST to /pipelines/show_for_trigger as a call" do
       expect({:post => "/pipelines/show_for_trigger"}).to route_to(:controller => 'pipelines', :action => 'show_for_trigger', :no_layout => true)
     end
   end

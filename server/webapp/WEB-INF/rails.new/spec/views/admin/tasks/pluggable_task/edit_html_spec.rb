@@ -14,26 +14,54 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
+require File.join(File.dirname(__FILE__), "../../../../spec_helper")
 
-describe "admin/tasks/pluggable_task/edit.html.erb" do
-  include TaskMother
+# This tests "admin/tasks/pluggable_task/edit.html.erb" through the plugin task template.
+describe "admin/tasks/plugin/edit.html.erb" do
+  include GoUtil, TaskMother, FormUI
+
+  PLUGIN_ID = "my.curl.plugin"
+  PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
+
+  before :each do
+    assign(:cruise_config, config = CruiseConfig.new)
+    set(config, "md5", "abcd1234")
+
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    view.stub(:admin_task_update_path).and_return("task_edit_path")
+
+    # Fake a plugin loaded into Go's plugin registry.
+    @registry = Spring.bean "defaultPluginRegistry"
+    @registry.loadPlugin GoPluginDescriptor.new(PLUGIN_ID, "1.0", GoPluginDescriptor::About.new(nil, nil, nil, nil, nil, ["Linux"]), nil, nil, false)
+
+    # Fake more of its initialisation. Fake the part where Go talks to the plugin and gets its config for caching.
+    PluggableTaskConfigStore.store().setPreferenceFor(PLUGIN_ID, TaskPreference.new(TaskMother::ApiTaskForTest.new({:display_value => "test curl", :template => PLUGIN_TEMPLATE})))
+  end
+
+  after :each do
+    PluggableTaskConfigStore.store().removePreferenceFor(PLUGIN_ID)
+    @registry.unloadAll() if @registry
+  end
 
   it "should render plugin template and data for existing pluggable task" do
-    task = plugin_task "curl.plugin", [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", true, "encrypted_value")]
+    pluggable_task = plugin_task PLUGIN_ID, [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", false, "value2")]
+    task = assign(:task, pluggable_task)
+    assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
-    formNameProvider = double("formNameProvider")
-    formNameProvider.stub(:form_name_prefix).and_return("form_prefix")
-    formNameProvider.stub(:css_id_for).with("angular_pluggable_task_curl_plugin").and_return("angular_plugin_name")
-    formNameProvider.stub(:css_id_for).with("data_pluggable_task_curl_plugin").and_return("plugin_data")
+    render
 
-    render :template => "admin/tasks/pluggable_task/edit.html.erb", :locals => {
-            :scope => {:task => task},
-            :local_assigns => {"formNameProvider" => formNameProvider, "template" => "PLUGIN TEMPLATE 1", "data" => "PLUGIN DATA 1"}}
+    Capybara.string(response.body).find('div.plugged_task#task_angular_pluggable_task_my_curl_plugin').tap do |div|
+      template_text = text_without_whitespace(div.find("div.plugged_task_template"))
+      expect(template_text).to eq(PLUGIN_TEMPLATE)
 
-    Capybara.string(response.body).find('div.plugged_task#angular_plugin_name').tap do |div|
-      expect(div).to have_selector("div.plugged_task_template", :text => "PLUGIN TEMPLATE 1")
-      expect(div).to have_selector("span.plugged_task_data", :text => "PLUGIN DATA 1")
+      data_for_template = JSON.parse(div.find("span.plugged_task_data", :visible => false).text)
+      expect(data_for_template.keys.sort).to eq(["KEY1", "key2"])
+      expect(data_for_template["KEY1"]).to eq({"value" => "value1"})
+      expect(data_for_template["key2"]).to eq({"value" => "value2"})
     end
+  end
+
+  def text_without_whitespace element
+    element.native.inner_html.gsub(/^[\n ]*/, '').gsub(/[\n ]*$/, '')
   end
 end

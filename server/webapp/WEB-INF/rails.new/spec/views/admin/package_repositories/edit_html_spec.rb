@@ -41,7 +41,7 @@ describe "admin/package_repositories/edit.html.erb" do
     it "should have a page title and view title" do
       render
 
-      assigns(:view_title).should == "Administration"
+      expect(view.instance_variable_get("@view_title")).to eq("Administration")
     end
 
     it "should have package repository listing panel" do

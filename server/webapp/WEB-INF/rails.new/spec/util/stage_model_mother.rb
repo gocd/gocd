@@ -73,10 +73,17 @@ module StageModelMother
     StageHistoryPage.new(historical_stages(1), Pagination.pageStartingAt(offset,100,10), nil)
   end
 
-  def stage_model(name, counter)
-    job_1 = JobHistory.new()
-    job_1.addJob("job-1", JobState::Completed, JobResult::Passed, Time.now)
+  def stage_model(name, counter, job_state = JobState::Completed, job_result = JobResult::Passed)
+    job_1 = JobHistory.new
+    job_1.addJob("job-1", job_state, job_result, Time.now)
     StageInstanceModel.new(name, counter.to_s, job_1, StageIdentifier.new("cruise", 10, name, counter.to_s))
+  end
+
+  def stage_model_with_result(name, counter, stage_result = StageResult::Passed, job_state = JobState::Completed, job_result = JobResult::Passed)
+    the_model = StageInstanceModel.new(name, counter.to_s, stage_result, StageIdentifier.new("cruise", 10, name, counter.to_s))
+    job_history = the_model.getBuildHistory
+    job_history.addJob("job-1", job_state, job_result, Time.now)
+    the_model
   end
 
   def stage_model_with_unknown_state(name)

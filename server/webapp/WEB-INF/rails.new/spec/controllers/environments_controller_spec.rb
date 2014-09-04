@@ -199,8 +199,8 @@ describe EnvironmentsController do
 
       post :create, :no_layout => true, :environment => {:name => environment_name, :pipelines => []}
 
-      expect(response.status).to eq(409)
       expect(response.body).to match(/Failed to add environment. Environment &#39;foo-environment&#39; already exists./)
+      expect(response.status).to eq(409)
     end
 
     it "should return error message if environment name is blank" do

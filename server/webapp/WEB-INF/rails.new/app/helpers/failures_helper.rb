@@ -35,6 +35,7 @@ LINK
 
   def failure_details_path job_id, suite_name, test_name
     failure_details_internal_path(:pipeline_name => job_id.getPipelineName(), :pipeline_counter => job_id.getPipelineCounter(), :stage_name => job_id.getStageName(),
-                                  :stage_counter => job_id.getStageCounter(), :job_name => job_id.getBuildName(), :suite_name => enc(suite_name), :test_name => enc(test_name))
+                                  :stage_counter => job_id.getStageCounter(), :job_name => job_id.getBuildName(),
+                                  :suite_name => CGI.escape(enc(suite_name)), :test_name => CGI.escape(enc(test_name)))
   end
 end

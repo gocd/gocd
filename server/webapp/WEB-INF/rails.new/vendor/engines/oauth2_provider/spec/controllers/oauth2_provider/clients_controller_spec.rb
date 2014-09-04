@@ -91,7 +91,7 @@ module Oauth2Provider
       it "should update a client" do
         client = create(Oauth2Provider::Client)
         new_name = SecureRandom.hex(32)
-        put :update, {use_route: :oauth_engine, client: {name: new_name}, id: client.id}
+        put :update, {use_route: :oauth_engine, client: {name: new_name, redirect_uri: client.redirect_uri}, id: client.id}
         actual = assigns[:oauth_client]
         expect(actual.name).to eq(new_name)
         expect(actual.name).to_not eq(client.name)
@@ -102,10 +102,22 @@ module Oauth2Provider
       it "should render error when update fails" do
         client = create(Oauth2Provider::Client)
         new_name = ""
-        put :update, {use_route: :oauth_engine, client: {name: new_name}, id: client.id}
+        put :update, {use_route: :oauth_engine, client: {name: new_name, redirect_uri: client.redirect_uri}, id: client.id}
         error = flash.now[:error]
         expect(error).to match_array(["Name can't be blank"])
         expect(response).to render_template("edit")
+      end
+      
+      it "should update a client's redirect URI" do
+        client = create(Oauth2Provider::Client)
+        new_redirect_uri = "http://something.else"
+        put :update, {use_route: :oauth_engine, client: {name: client.name, redirect_uri: new_redirect_uri}, id: client.id}
+        actual = assigns[:oauth_client]
+        expect(actual.name).to eq(client.name)
+        expect(actual.redirect_uri).to_not eq(client.redirect_uri)
+        expect(actual.redirect_uri).to eq(new_redirect_uri)
+        expect(flash[:notice]).to eq("OAuth client was successfully updated.")
+        expect(response).to redirect_to("/oauth2_provider/clients")
       end
     end
     

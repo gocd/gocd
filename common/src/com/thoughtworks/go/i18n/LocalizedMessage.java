@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.i18n;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.StageIdentifier;
 import org.joda.time.Duration;
+
+import java.util.List;
 
 /**
  * @understands converting the localized message for a given key
@@ -33,6 +33,10 @@ public class LocalizedMessage {
     public static Localizable cannotViewPipeline(Object pipelineName) {
         return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.PIPELINE_CANNOT_VIEW, pipelineName);
     }
+
+	public static Localizable cannotViewMaterial(Object materialFingerprint) {
+		return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.MATERIAL_CANNOT_VIEW, materialFingerprint);
+	}
 
     public static Localizable failuresCount(int count) {
         return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.FAILURES_COUNT, count);

@@ -40,6 +40,7 @@ describe ValueStreamMapModel do
     materialNames << "git2"
 
     graph_model.current_pipeline.should == "current"
+    graph_model.current_material.should == nil
 
     graph_model.levels.size.should == 3
     graph_model.levels[0].nodes.size.should == 1
@@ -266,13 +267,35 @@ describe ValueStreamMapModel do
   end
 
   it "should populate details of material modification like revision, user, comment and modified_time" do
-
     # git -> current
 
     vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
     modifications = modifications()
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), modifications, "current")
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
+    git_node = graph_model.levels[0].nodes[0]
+    git_node.instances.size.should == 1
+
+    git_instance = git_node.instances[0]
+    modification = modifications.get(0)
+    git_instance.revision.should == modification.getRevision()
+    git_instance.user.should == modification.getUserName()
+    git_instance.comment.should == modification.getComment()
+    git_instance.modified_time.should == "less than a minute ago"
+  end
+
+  it "should create VSM json model for material correctly" do
+    # git -> p1
+
+    material = GitMaterial.new("url")
+    modifications = modifications()
+    vsm = ValueStreamMap.new(material, nil, modifications[0])
+    vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
+
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
+    graph_model.current_pipeline.should == nil
+    graph_model.current_material.should == material.getFingerprint()
+
     git_node = graph_model.levels[0].nodes[0]
     git_node.instances.size.should == 1
 

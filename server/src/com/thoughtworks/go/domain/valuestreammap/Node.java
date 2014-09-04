@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public abstract class Node implements Comparable<Node>{
     protected final String id;
@@ -202,7 +202,6 @@ public abstract class Node implements Comparable<Node>{
         nodesInPath.remove(getId());
         verifiedNodes.add(this);
         return false;
-
     }
 
     public abstract void addRevisions(List<Revision> revisions);

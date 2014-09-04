@@ -18,7 +18,7 @@ public class DefaultGoApplicationAccessorTest {
 
         DefaultGoApplicationAccessor goApplicationAccessor = new DefaultGoApplicationAccessor();
         goApplicationAccessor.registerProcessorFor(api, processor);
-        processor.process(goApiRequest);
+        goApplicationAccessor.submit(goApiRequest);
 
         verify(processor).process(goApiRequest);
     }

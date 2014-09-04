@@ -72,11 +72,10 @@ public class DefaultPluginManagerTest {
         goPluginOSGiFramework = mock(GoPluginOSGiFramework.class);
         jarChangeListener = mock(DefaultPluginJarChangeListener.class);
         systemEnvironment = mock(SystemEnvironment.class);
+        applicationAccessor = mock(GoApplicationAccessor.class);
 
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(TEST_PLUGIN_BUNDLE_PATH);
         when(systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)).thenReturn(Boolean.TRUE);
-
-        applicationAccessor = mock(GoApplicationAccessor.class);
     }
 
     @Test

@@ -42,6 +42,11 @@ describe AgentJobRunHistoryAPIModel do
       job_instance_api_model.pipeline_counter.should == 123
       job_instance_api_model.stage_name.should == 'stage'
       job_instance_api_model.stage_counter.should == '1'
+
+      job_state_transition_api_model = job_instance_api_model.job_state_transitions[0]
+      job_state_transition_api_model.id.should == 987
+      job_state_transition_api_model.state.should == 'building'
+      job_state_transition_api_model.state_change_time.should == 12345678
     end
 
     it "should handle empty data" do
@@ -66,6 +71,11 @@ describe AgentJobRunHistoryAPIModel do
       job_instance_api_model.pipeline_counter.should == nil
       job_instance_api_model.stage_name.should == nil
       job_instance_api_model.stage_counter.should == nil
+
+      job_state_transition_api_model = job_instance_api_model.job_state_transitions[0]
+      job_state_transition_api_model.id.should == nil
+      job_state_transition_api_model.state.should == nil
+      job_state_transition_api_model.state_change_time.should == nil
     end
   end
 end

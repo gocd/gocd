@@ -145,6 +145,24 @@ module APIModelMother
     @job_view_model
   end
 
+  def create_job_state_transition_model
+    @job_state_transition_view_model = double('JobStateTransitionViewModel')
+    @job_state_transition_view_model.stub(:getId).and_return(987)
+    @job_state_transition_view_model.stub(:getCurrentState).and_return('building')
+    time = double('time')
+    time.stub(:getTime).and_return(12345678)
+    @job_state_transition_view_model.stub(:getStateChangeTime).and_return(time)
+    @job_state_transition_view_model
+  end
+
+  def create_empty_job_state_transition_model
+    @job_state_transition_view_model = double('JobStateTransitionViewModel')
+    @job_state_transition_view_model.stub(:getId).and_return(nil)
+    @job_state_transition_view_model.stub(:getCurrentState).and_return(nil)
+    @job_state_transition_view_model.stub(:getStateChangeTime).and_return(nil)
+    @job_state_transition_view_model
+  end
+
   def create_job_model
     @job_view_model = create_job_history_model
     @job_view_model.stub(:isRerun).and_return(false)
@@ -154,6 +172,7 @@ module APIModelMother
     @job_view_model.stub(:getPipelineCounter).and_return(123)
     @job_view_model.stub(:getStageName).and_return('stage')
     @job_view_model.stub(:getStageCounter).and_return('1')
+    @job_view_model.stub(:getTransitions).and_return([create_job_state_transition_model])
     @job_view_model
   end
 
@@ -166,6 +185,7 @@ module APIModelMother
     @job_view_model.stub(:getPipelineCounter).and_return(nil)
     @job_view_model.stub(:getStageName).and_return(nil)
     @job_view_model.stub(:getStageCounter).and_return(nil)
+    @job_view_model.stub(:getTransitions).and_return([create_empty_job_state_transition_model])
     @job_view_model
   end
 

@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class JobInstanceAPIModel
-  attr_reader :id, :name, :state, :result, :scheduled_date, :rerun, :original_job_id, :agent_uuid, :pipeline_name, :pipeline_counter, :stage_name, :stage_counter
+  attr_reader :id, :name, :state, :result, :scheduled_date, :rerun, :original_job_id, :agent_uuid, :pipeline_name, :pipeline_counter, :stage_name, :stage_counter, :job_state_transitions
 
   def initialize(job_instance_model)
     @id = job_instance_model.getId()
@@ -30,5 +30,8 @@ class JobInstanceAPIModel
     @pipeline_counter = job_instance_model.getPipelineCounter()
     @stage_name = job_instance_model.getStageName()
     @stage_counter = job_instance_model.getStageCounter()
+    @job_state_transitions = job_instance_model.getTransitions().collect do |job_state_transition_model|
+      JobStateTransitionAPIModel.new(job_state_transition_model)
+    end
   end
 end

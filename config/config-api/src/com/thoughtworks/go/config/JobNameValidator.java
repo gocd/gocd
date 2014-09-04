@@ -32,7 +32,10 @@ public class JobNameValidator implements GoConfigValidator {
                 if (RunOnAllAgentsJobTypeConfig.hasMarker(CaseInsensitiveString.str(jobConfig.name()))) {
                     throw bomb("A job cannot have 'runOnAll' in it's name: " + jobConfig.name());
                 }
-            }
+				if (RunMultipleInstanceJobTypeConfig.hasMarker(CaseInsensitiveString.str(jobConfig.name()))) {
+					throw bomb("A job cannot have 'runInstance' in it's name: " + jobConfig.name());
+				}
+			}
         });
     }
 }

@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Collection;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.Resources;
+
+import java.util.Collection;
 
 /**
  * @understands the context in which jobs are being scheduled
@@ -35,4 +35,8 @@ public interface SchedulingContext {
     SchedulingContext overrideEnvironmentVariables(EnvironmentVariablesConfig environmentVariablesConfig);
 
     SchedulingContext permittedAgent(String permittedAgentUuid);
+
+	boolean isRerun();
+
+    SchedulingContext rerunContext();
 }

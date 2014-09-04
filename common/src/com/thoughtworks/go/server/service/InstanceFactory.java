@@ -16,28 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.List;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.StageNotFoundException;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobType;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.RunOnAllAgents;
-import com.thoughtworks.go.domain.SchedulingContext;
-import com.thoughtworks.go.domain.SingleJobInstance;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class InstanceFactory {
@@ -68,15 +53,20 @@ public class InstanceFactory {
 
     public JobInstances createJobInstance(CaseInsensitiveString stageName, JobConfig jobConfig, SchedulingContext context, Clock clock, JobType.JobNameGenerator jobNameGenerator) {
         JobInstances instances = new JobInstances();
-        createJobType(jobConfig.isRunOnAllAgents()).createJobInstances(instances, context, jobConfig, CaseInsensitiveString.str(stageName), jobNameGenerator, clock, this);
+        createJobType(jobConfig.isRunOnAllAgents(), jobConfig.isRunMultipleInstanceType()).createJobInstances(instances, context, jobConfig, CaseInsensitiveString.str(stageName), jobNameGenerator, clock, this);
         return instances;
     }
 
     private JobInstances createJobInstances(StageConfig stageConfig, SchedulingContext context, Clock clock) {
         JobInstances instances = new JobInstances();
         for (JobConfig jobConfig : stageConfig.getJobs()) {
-            RunOnAllAgents.CounterBasedJobNameGenerator nameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-            JobInstances configInstances = createJobInstance(stageConfig.name(), jobConfig, context, clock, nameGenerator);
+			JobType.JobNameGenerator nameGenerator = null;
+			if (jobConfig.isRunOnAllAgents()) {
+				nameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+			} else if (jobConfig.isRunMultipleInstanceType()) {
+				nameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+			}
+			JobInstances configInstances = createJobInstance(stageConfig.name(), jobConfig, context, clock, nameGenerator);
             instances.addAll(configInstances);
         }
         return instances;
@@ -87,19 +77,26 @@ public class InstanceFactory {
             JobInstances jobInstances = newStage.getJobInstances();
             JobInstance oldJob = jobInstances.getByName(jobName);
             jobInstances.remove(oldJob);
-            createJobType(oldJob.isRunOnAllAgents()).createRerunInstances(oldJob, jobInstances, context, stageConfig, clock, this);
+            createJobType(oldJob.isRunOnAllAgents(), oldJob.isRunMultipleInstance()).createRerunInstances(oldJob, jobInstances, context, stageConfig, clock, this);
         }
     }
 
-    private JobType createJobType(boolean runOnAllAgents) {
-        return runOnAllAgents ? new RunOnAllAgents() : new  SingleJobInstance();
-    }
+	private JobType createJobType(boolean runOnAllAgents, boolean runMultipleInstances) {
+		if (runOnAllAgents) {
+			return new RunOnAllAgents();
+		}
+		if (runMultipleInstances) {
+			return new RunMultipleInstance();
+		}
+		return new SingleJobInstance();
+	}
 
-    public void reallyCreateJobInstance(JobConfig config, JobInstances jobs, String uuid, String jobName, boolean runOnAllAgents, SchedulingContext context, final Clock clock) {
+    public void reallyCreateJobInstance(JobConfig config, JobInstances jobs, String uuid, String jobName, boolean runOnAllAgents, boolean runMultipleInstance, SchedulingContext context, final Clock clock) {
         JobInstance instance = new JobInstance(jobName, clock);
         instance.setPlan(createJobPlan(config, context));
         instance.setAgentUuid(uuid);
         instance.setRunOnAllAgents(runOnAllAgents);
+		instance.setRunMultipleInstance(runMultipleInstance);
         jobs.add(instance);
     }
 

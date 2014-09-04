@@ -25,20 +25,7 @@ import java.util.UUID;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.JobStateTransition;
-import com.thoughtworks.go.domain.JobStateTransitions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -306,8 +293,8 @@ public class JobInstanceSqlMapDaoTest {
         String uuid1 = UUID.randomUUID().toString();
         String uuid2 = UUID.randomUUID().toString();
 
-        JobInstance instance1 = savedJobForAgent(uuid1);
-        JobInstance instance2 = savedJobForAgent(uuid2);
+        JobInstance instance1 = savedJobForAgent(JOB_NAME + "-" + uuid1, uuid1, true, false);
+        JobInstance instance2 = savedJobForAgent(JOB_NAME + "-" + uuid2, uuid2, true, false);
 
         List<JobInstance> after = stageDao.mostRecentJobsForStage(PIPELINE_NAME, STAGE_NAME);
         after.removeAll(before);
@@ -316,11 +303,27 @@ public class JobInstanceSqlMapDaoTest {
         assertThat("Expected 2 but got " + after, after.size(), is(2));
     }
 
-    private JobInstance savedJobForAgent(final String uuid) {
+	@Test
+	public void shouldFindAllInstancesOfJobsThatAreRunMultipleInstance() throws Exception {
+		List<JobInstance> before = stageDao.mostRecentJobsForStage(PIPELINE_NAME, STAGE_NAME);
+
+		JobInstance instance1 = savedJobForAgent(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("job", 1), null, false, true);
+		JobInstance instance2 = savedJobForAgent(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("job", 2), null, false, true);
+
+		List<JobInstance> after = stageDao.mostRecentJobsForStage(PIPELINE_NAME, STAGE_NAME);
+		after.removeAll(before);
+
+		assertThat("Expected 2 but got " + after, after.size(), is(2));
+		assertThat(after.toArray(), hasItemInArray(hasProperty("name", is(instance1.getName()))));
+		assertThat(after.toArray(), hasItemInArray(hasProperty("name", is(instance2.getName()))));
+	}
+
+    private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
         return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
-                JobInstance jobInstance = scheduled(JOB_NAME + "-" + uuid, new DateTime().plusMinutes(1).toDate());
-                jobInstance.setRunOnAllAgents(true);
+                JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
+                jobInstance.setRunOnAllAgents(runOnAllAgents);
+                jobInstance.setRunMultipleInstance(runMultipleInstance);
                 jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);
                 jobInstance.changeState(JobState.Building);
                 jobInstance.setAgentUuid(uuid);
@@ -797,6 +800,16 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(jobInstance.getId());
         assertThat(reloaded.isRunOnAllAgents(), is(true));
     }
+
+	@Test
+	public void shouldLoadRunMultipleInstanceForAssignment() throws Exception {
+		JobInstance jobInstance = scheduled(projectOne);
+		jobInstance.setRunMultipleInstance(true);
+		jobInstanceDao.save(stageId, jobInstance);
+
+		JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(jobInstance.getId());
+		assertThat(reloaded.isRunMultipleInstance(), is(true));
+	}
 
     private JobIdentifier jobIdentifier(JobInstance jobInstance) {
         return new JobIdentifier(savedPipeline, savedStage, jobInstance);

@@ -68,7 +68,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="74"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="73"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -397,7 +397,6 @@
         </xsd:all>
         <xsd:attribute name="name" type="jobnameType" use="required"/>
         <xsd:attribute name="runOnAllAgents" type="xsd:boolean" use="optional" default="false"/>
-        <xsd:attribute name="runInstanceCount" type="xsd:positiveInteger" use="optional"/>
         <xsd:attribute name="timeout" type="xsd:double" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="resourcesType">

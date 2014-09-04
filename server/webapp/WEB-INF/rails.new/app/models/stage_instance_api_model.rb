@@ -31,7 +31,7 @@ class StageInstanceAPIModel
     @pipeline_name = stage_instance_model.getPipelineName()
     @pipeline_counter = stage_instance_model.getPipelineCounter()
     @jobs = stage_instance_model.getBuildHistory().collect do |job_instance_model|
-      JobInstanceAPIModel.new(job_instance_model)
+      JobHistoryItemAPIModel.new(job_instance_model)
     end
   end
 end

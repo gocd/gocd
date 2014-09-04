@@ -123,7 +123,7 @@ module APIModelMother
     @build_cause_view_model
   end
 
-  def create_job_model
+  def create_job_history_model
     @job_view_model = double('JobViewModel')
     @job_view_model.stub(:getId).and_return(543)
     @job_view_model.stub(:getName).and_return('job name')
@@ -135,7 +135,7 @@ module APIModelMother
     @job_view_model
   end
 
-  def create_empty_job_model
+  def create_empty_job_history_model
     @job_view_model = double('JobViewModel')
     @job_view_model.stub(:getId).and_return(nil)
     @job_view_model.stub(:getName).and_return(nil)
@@ -145,8 +145,8 @@ module APIModelMother
     @job_view_model
   end
 
-  def create_job_history_model
-    @job_view_model = create_job_model
+  def create_job_model
+    @job_view_model = create_job_history_model
     @job_view_model.stub(:isRerun).and_return(false)
     @job_view_model.stub(:getOriginalJobId).and_return(0)
     @job_view_model.stub(:getAgentUuid).and_return('uuid')
@@ -157,8 +157,8 @@ module APIModelMother
     @job_view_model
   end
 
-  def create_empty_job_history_model
-    @job_view_model = create_empty_job_model
+  def create_empty_job_model
+    @job_view_model = create_empty_job_history_model
     @job_view_model.stub(:isRerun).and_return(nil)
     @job_view_model.stub(:getOriginalJobId).and_return(nil)
     @job_view_model.stub(:getAgentUuid).and_return(nil)
@@ -170,7 +170,7 @@ module APIModelMother
   end
 
   def create_agent_job_run_history_model
-    @job_view_model = create_job_history_model
+    @job_view_model = create_job_model
 
     @job_history_view_model = double('JobHistoryViewModel')
     @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
@@ -178,7 +178,7 @@ module APIModelMother
   end
 
   def create_empty_agent_job_run_history_model
-    @job_view_model = create_empty_job_history_model
+    @job_view_model = create_empty_job_model
 
     @job_history_view_model = double('JobHistoryViewModel')
     @job_history_view_model.stub(:getJobInstances).and_return([@job_view_model])
@@ -197,7 +197,7 @@ module APIModelMother
     @stage_view_model.stub(:getRerunOfCounter).and_return(1)
     @stage_view_model.stub(:hasOperatePermission).and_return('yes')
     @stage_view_model.stub(:getCanRun).and_return(true)
-    @stage_view_model.stub(:getBuildHistory).and_return([create_job_model])
+    @stage_view_model.stub(:getBuildHistory).and_return([create_job_history_model])
     @stage_view_model.stub(:getPipelineName).and_return('pipeline')
     @stage_view_model.stub(:getPipelineCounter).and_return(1)
     @stage_view_model
@@ -215,7 +215,7 @@ module APIModelMother
     @stage_view_model.stub(:getRerunOfCounter).and_return(nil)
     @stage_view_model.stub(:hasOperatePermission).and_return(nil)
     @stage_view_model.stub(:getCanRun).and_return(nil)
-    @stage_view_model.stub(:getBuildHistory).and_return([create_empty_job_model])
+    @stage_view_model.stub(:getBuildHistory).and_return([create_empty_job_history_model])
     @stage_view_model.stub(:getPipelineName).and_return(nil)
     @stage_view_model.stub(:getPipelineCounter).and_return(nil)
     @stage_view_model

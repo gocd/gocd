@@ -22,7 +22,7 @@ describe JobHistoryAPIModel do
   describe "should initialize correctly" do
     it "should populate correct data" do
       @pagination_view_model = create_pagination_model
-      @job_history_view_model = [create_job_history_model]
+      @job_history_view_model = [create_job_model]
       job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)
 
       job_history_api_model.pagination.page_size.should == 10
@@ -46,7 +46,7 @@ describe JobHistoryAPIModel do
 
     it "should handle empty data" do
       @pagination_view_model = create_empty_pagination_model
-      @job_history_view_model = [create_empty_job_history_model]
+      @job_history_view_model = [create_empty_job_model]
       job_history_api_model = JobHistoryAPIModel.new(@pagination_view_model, @job_history_view_model)
 
       job_history_api_model.pagination.page_size.should == nil

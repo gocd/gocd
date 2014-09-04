@@ -97,11 +97,11 @@ describe Api::JobsController do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
       @job_instance_service.should_receive(:getJobHistoryCount).and_return(10)
-      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_history_model])
+      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_model])
 
       get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :offset => '5', :no_layout => true
 
-      expect(response.body).to eq(JobHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_job_history_model]).to_json)
+      expect(response.body).to eq(JobHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_job_model]).to_json)
     end
 
     it "should render error correctly" do

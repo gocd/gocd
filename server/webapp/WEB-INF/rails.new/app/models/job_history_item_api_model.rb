@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class JobInstanceAPIModel
+class JobHistoryItemAPIModel
   attr_reader :id, :name, :state, :result, :scheduled_date, :rerun, :original_job_id, :agent_uuid, :pipeline_name, :pipeline_counter, :stage_name, :stage_counter
 
   def initialize(job_instance_model)
@@ -23,12 +23,5 @@ class JobInstanceAPIModel
     @state = job_instance_model.getState().to_s unless job_instance_model.getState() == nil
     @result = job_instance_model.getResult().to_s unless job_instance_model.getResult() == nil
     @scheduled_date = job_instance_model.getScheduledDate().getTime() unless job_instance_model.getScheduledDate() == nil
-    @rerun = job_instance_model.isRerun()
-    @original_job_id = job_instance_model.getOriginalJobId()
-    @agent_uuid = job_instance_model.getAgentUuid()
-    @pipeline_name = job_instance_model.getPipelineName()
-    @pipeline_counter = job_instance_model.getPipelineCounter()
-    @stage_name = job_instance_model.getStageName()
-    @stage_counter = job_instance_model.getStageCounter()
   end
 end

@@ -90,6 +90,16 @@ public class PipelineConfigsService {
         return cruiseConfig.getGroups().findGroup(groupName);
     }
 
+	public List<PipelineConfigs> getGroupsForUser(String userName) {
+		List<PipelineConfigs> pipelineGroups = new ArrayList<PipelineConfigs>();
+		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
+				pipelineGroups.add(pipelineGroup);
+			}
+		}
+		return pipelineGroups;
+	}
+
 	public List<PipelineConfig> getConfigsForUser(String userName) {
 		List<PipelineConfig> pipelineConfigs = new ArrayList<PipelineConfig>();
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {

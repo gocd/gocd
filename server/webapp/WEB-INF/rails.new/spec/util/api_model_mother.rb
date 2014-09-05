@@ -351,13 +351,13 @@ module APIModelMother
   end
 
   def create_stage_config_model
-    @stage_config_view_model = double('StageViewModel')
+    @stage_config_view_model = double('StageConfigViewModel')
     @stage_config_view_model.stub(:name).and_return('stage name')
     @stage_config_view_model
   end
 
   def create_material_config_model
-    @material_config_view_model = double('MaterialViewModel')
+    @material_config_view_model = double('MaterialConfigViewModel')
     @material_config_view_model.stub(:getFingerprint).and_return('fingerprint')
     @material_config_view_model.stub(:getTypeForDisplay).and_return('git')
     @material_config_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
@@ -365,12 +365,19 @@ module APIModelMother
   end
 
   def create_pipeline_config_model
-    @pipeline_config_view_model = double('PipelineViewModel')
+    @pipeline_config_view_model = double('PipelineConfigViewModel')
     @pipeline_config_view_model.stub(:name).and_return('pipeline name')
     @pipeline_config_view_model.stub(:getLabelTemplate).and_return('label')
     @pipeline_config_view_model.stub(:materialConfigs).and_return([create_material_config_model])
     @pipeline_config_view_model.stub(:getStages).and_return([create_stage_config_model])
     @pipeline_config_view_model
+  end
+
+  def create_pipeline_group_config_model
+    @pipeline_group_config_view_model = double('PipelineGroupConfigViewModel')
+    @pipeline_group_config_view_model.stub(:getGroup).and_return('pipeline group name')
+    @pipeline_group_config_view_model.stub(:getPipelines).and_return([create_pipeline_config_model])
+    @pipeline_group_config_view_model
   end
 end
 

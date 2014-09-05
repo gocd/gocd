@@ -290,6 +290,25 @@ public class PipelineConfigsServiceTest {
     }
 
 	@Test
+	public void shouldGetPipelineGroupsForUser() {
+		PipelineConfig pipelineInGroup1 = new PipelineConfig();
+		PipelineConfigs group1 = new PipelineConfigs(pipelineInGroup1);
+		group1.setGroup("group1");
+		PipelineConfig pipelineInGroup2 = new PipelineConfig();
+		PipelineConfigs group2 = new PipelineConfigs(pipelineInGroup2);
+		group2.setGroup("group2");
+		when(goConfigService.groups()).thenReturn(new PipelineGroups(group1, group2));
+		String user = "looser";
+		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
+		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
+
+		List<PipelineConfigs> gotPipelineGroups = service.getGroupsForUser(user);
+
+		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
+		assertThat(gotPipelineGroups, is(Arrays.asList(group1)));
+	}
+
+	@Test
 	public void shouldGetPipelineConfigsForUser() {
 		PipelineConfig pipelineInGroup1 = new PipelineConfig();
 		PipelineConfigs group1 = new PipelineConfigs(pipelineInGroup1);

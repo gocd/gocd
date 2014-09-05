@@ -50,14 +50,9 @@ describe Api::PipelinesController do
     setup_base_urls
   end
 
-  it "should return only the path to a pipeline apit" do
+  it "should return only the path to a pipeline api" do
     api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule").should == "/api/pipelines/pipeline/schedule"
   end
-
-  it "should return only the path to a pipeline apit" do
-    api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule").should == "/api/pipelines/pipeline/schedule"
-  end
-
 
   describe :card_activity do
     it "should generate the route" do

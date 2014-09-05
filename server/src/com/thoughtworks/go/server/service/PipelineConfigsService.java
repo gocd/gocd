@@ -100,18 +100,6 @@ public class PipelineConfigsService {
 		return pipelineGroups;
 	}
 
-	public List<PipelineConfig> getConfigsForUser(String userName) {
-		List<PipelineConfig> pipelineConfigs = new ArrayList<PipelineConfig>();
-		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
-			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
-				for (PipelineConfig pipelineConfig : pipelineGroup) {
-					pipelineConfigs.add(pipelineConfig);
-				}
-			}
-		}
-		return pipelineConfigs;
-	}
-
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {
             if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {

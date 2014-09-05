@@ -115,26 +115,6 @@ describe Api::PipelinesController do
     end
   end
 
-  describe :list_pipeline_configs do
-    before :each do
-      controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
-    end
-
-    it "should resolve" do
-      expect(:get => "/api/config/pipelines").to route_to(:controller => "api/pipelines", :action => "list_configs", :no_layout=>true)
-    end
-
-    it "should render pipeline list json" do
-      loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_configs_service.should_receive(:getConfigsForUser).with("loser").and_return([create_pipeline_config_model])
-
-      get :list_configs, :no_layout => true
-
-      expect(response.body).to eq([PipelineConfigAPIModel.new(create_pipeline_config_model)].to_json)
-    end
-  end
-
   describe :card_activity do
     it "should generate the route" do
       expect(:get => '/api/card_activity/foo.bar/10/to/15').to route_to(:controller => "api/pipelines", :action => "card_activity", :format=>"xml", :pipeline_name => 'foo.bar', :from_pipeline_counter => "10", :to_pipeline_counter => "15", "no_layout" => true)

@@ -87,7 +87,7 @@ public class GitTestRepo extends TestRepo {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         int returnValue = git.cloneFrom(outputStreamConsumer, from.getAbsolutePath());
         if (returnValue != 0) {
-            throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", git.workingRepositoryUrl(), returnValue, outputStreamConsumer.getAllOutput()));
+            throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }
     }
 

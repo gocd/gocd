@@ -110,7 +110,7 @@ public class ArtifactCleanupExtensionTest {
 
 
     @Test
-    public void shouldStageInstanceDetailsForArtifactCleanupWithExcludePaths() throws Exception {
+    public void shouldGetStageInstanceDetailsForArtifactCleanupWithExcludePaths() throws Exception {
         String pluginId = "plugin-id";
         mockPluginManagerCalls(pluginId, "[{\"stageId\":\"1\", \"stageName\":\"stage\",\"stageCounter\":\"1\",\"pipelineName\":\"pipeline\",\"pipelineCounter\":\"1\",\"excludePaths\":[\"a.txt\",\"b.txt\"]}]");
 

@@ -665,8 +665,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return new Stages(stages);
     }
 
-    public List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> stagesFilter) {
-        List<String> stagesFilterString = (List<String>) collect(stagesFilter, new Transformer() {
+    public List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> excludeStagesFilter) {
+        List<String> stagesFilterString = (List<String>) collect(excludeStagesFilter, new Transformer() {
             @Override
             public String transform(Object o) {
                 StageConfigIdentifier stageConfigIdentifier = (StageConfigIdentifier) o;

@@ -21,7 +21,7 @@ import static com.thoughtworks.go.util.json.JsonHelper.toJsonString;
 import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.math.NumberUtils.isNumber;
+import static org.apache.commons.lang.math.NumberUtils.isDigits;
 
 @Component
 public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor {
@@ -78,10 +78,10 @@ public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor
         String pipeLineName = requestParams.get(PIPELINE_NAME);
         String stageName = requestParams.get(STAGE_NAME);
         if (isEmpty(pipeLineName) || isEmpty(stageName)) {
-            throw new RuntimeException("Expected to provide both pipeline name and stage name");
+            throw new RuntimeException(String.format("Expected to provide both pipeline name and stage name, but got Pipeline name as [%s] and stage name as [%s]", pipeLineName, stageName));
         }
         String fromId = requestParams.get(FROM_ID);
-        if (!isEmpty(fromId) && !isNumber(fromId)) {
+        if (!isEmpty(fromId) && !isDigits(fromId)) {
             throw new RuntimeException("Invalid from-id");
         }
     }

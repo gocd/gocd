@@ -664,7 +664,7 @@ public class StageServiceIntegrationTest {
         List<StageConfigIdentifier> stages = stageService.getAllDistinctStages();
 
         assertThat(stages.size(), is(3));
-        assertStageWithPipeline(stages.get(0), "dev", "mingle");
+        assertStageWithPipeline(stages.get(0), STAGE_NAME, PIPELINE_NAME);
         assertStageWithPipeline(stages.get(1), "stage", "pipeline-one");
         assertStageWithPipeline(stages.get(2), "stage", "pipeline-two");
 

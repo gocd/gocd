@@ -7,12 +7,13 @@ public class GoPluginIdentifier {
     private String id;
 
     private String extension;
-    private List<String> supportedVersions;
 
-    public GoPluginIdentifier(String id, String extension, List<String> supportedVersions) {
+    private List<String> supportedExtensionVersions;
+
+    public GoPluginIdentifier(String id, String extension, List<String> supportedExtensionVersions) {
         this.id = id;
         this.extension = extension;
-        this.supportedVersions = supportedVersions;
+        this.supportedExtensionVersions = supportedExtensionVersions;
     }
 
     public String getId() {
@@ -23,7 +24,7 @@ public class GoPluginIdentifier {
         return extension;
     }
 
-    public List<String> getSupportedVersions() {
-        return supportedVersions;
+    public List<String> getSupportedExtensionVersions() {
+        return supportedExtensionVersions;
     }
 }

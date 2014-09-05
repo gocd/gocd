@@ -47,7 +47,7 @@ public class StageHistoryRequestProcessorTest {
         GoApiResponse response = requestProcessor.process(goApiRequest);
 
         assertThat(response.responseCode(), is(412));
-        assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name"));
+        assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name, but got Pipeline name as [pipeline] and stage name as [null]"));
         verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong());
     }
 
@@ -61,7 +61,7 @@ public class StageHistoryRequestProcessorTest {
         GoApiResponse response = requestProcessor.process(goApiRequest);
 
         assertThat(response.responseCode(), is(412));
-        assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name"));
+        assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name, but got Pipeline name as [null] and stage name as [stage]"));
         verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong());
     }
 
@@ -70,7 +70,7 @@ public class StageHistoryRequestProcessorTest {
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put(StageHistoryRequestProcessor.PIPELINE_NAME, "pipeline");
         requestParams.put(StageHistoryRequestProcessor.STAGE_NAME, "stage");
-        requestParams.put(StageHistoryRequestProcessor.FROM_ID, "junk");
+        requestParams.put(StageHistoryRequestProcessor.FROM_ID, "12.2");
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
         when(goApiRequest.requestParameters()).thenReturn(requestParams);
 

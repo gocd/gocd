@@ -114,5 +114,11 @@ describe Admin::Plugins::PluginsController do
       @plugin_manager.should_receive(:savePluginSettings).with('sample',"{\"key1\":\"value1\",\"key2\":{\"key2subKey1\":\"key2subKey1Value\"}}")
       post :save, :plugin_id =>'sample', :settings => {:key1 => 'value1', :key2 => {:key2subKey1 => 'key2subKey1Value'}}
     end
+
+    it 'should set error when plugin manager throws exception' do
+      @plugin_manager.should_receive(:savePluginSettings).with("sample").and_raise("error")
+      post :save, :plugin_id =>'sample'
+      assigns[:error].should == 'error'
+    end
   end
 end

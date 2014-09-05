@@ -481,8 +481,8 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findAllStagesFor(pipelineName, counter).isAnyStageActive();
     }
 
-    public List<Stage> oldestStagesWithDeletableArtifacts(List<StageConfigIdentifier> stagesFilter) {
-        return stageDao.oldestStagesHavingArtifacts(stagesFilter);
+    public List<Stage> oldestStagesWithDeletableArtifacts(List<StageConfigIdentifier> excludeStagesFilter) {
+        return stageDao.oldestStagesHavingArtifacts(excludeStagesFilter);
     }
 
     public List<Stage> oldestStagesWithDeletableArtifacts() {

@@ -27,6 +27,7 @@
                                 <span class="value"><a href="<%= vendor.url() %>" target="_blank"><%= vendor.name() %></a></span>
                             <% end %>
                         </span>
+                        <span class="settings"><a href="<%= plugin_edit_path %>?plugin_id=<%= descriptor.id() %>" class="icon16 setting"></a></span>
                     </div>
 
                     <div class="description"><%= about.description() %></div>

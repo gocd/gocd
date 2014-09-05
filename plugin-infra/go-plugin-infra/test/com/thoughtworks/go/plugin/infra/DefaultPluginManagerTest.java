@@ -285,14 +285,14 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfPluginDoesNotSupportLoadingSettings() throws Exception {
+    public void shouldThrowExceptionIfPluginLoadingSettingsFails() throws Exception {
         try {
             DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, systemEnvironment));
-            doThrow(new GoPluginFrameworkException()).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            doThrow(new GoPluginFrameworkException("Failed")).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
             pluginManager.loadPluginSettings("plugin-id");
             fail("should have thrown exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Plugin plugin-id does not support this operation"));
+            assertThat(e.getMessage(), is("Could not load settings for Plugin plugin-id. Failed"));
         }
     }
 
@@ -327,6 +327,18 @@ public class DefaultPluginManagerTest {
             }
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         pluginManager.savePluginSettings(pluginId, "{}");
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPluginSaveSettingsFails() throws Exception {
+        try {
+            DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, systemEnvironment));
+            doThrow(new GoPluginFrameworkException("Failed")).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            pluginManager.savePluginSettings("plugin-id","{}");
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Could not save settings for Plugin plugin-id. Failed"));
+        }
     }
 
     @Test

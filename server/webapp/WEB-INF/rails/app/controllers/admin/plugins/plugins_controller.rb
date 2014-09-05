@@ -32,8 +32,13 @@ class Admin::Plugins::PluginsController < AdminController
   end
 
   def save
-    default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json);
-    redirect_to :action => "edit", :plugin_id => params[:plugin_id] and return
+    begin
+      default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json);
+      redirect_to :action => "edit", :plugin_id => params[:plugin_id] and return
+    rescue => e
+      @error = "#{e.message}"
+      render "edit"
+    end
   end
 
   private

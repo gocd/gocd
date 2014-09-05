@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.Localizable;
@@ -31,6 +30,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -90,13 +90,13 @@ public class PipelineConfigsService {
         return cruiseConfig.getGroups().findGroup(groupName);
     }
 
-	public PipelineConfigs getConfigsForUser(String userName) {
-		PipelineConfigs pipelineConfigs = new PipelineConfigs();
-		List<String> groupNames = goConfigService.allGroups();
-		for (String groupName : groupNames) {
-			if (securityService.hasViewPermissionForGroup(userName, groupName)) {
-				PipelineConfigs pipelinesInGroup = goConfigService.getAllPipelinesInGroup(groupName);
-				pipelineConfigs.addAll(pipelinesInGroup);
+	public List<PipelineConfig> getConfigsForUser(String userName) {
+		List<PipelineConfig> pipelineConfigs = new ArrayList<PipelineConfig>();
+		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
+				for (PipelineConfig pipelineConfig : pipelineGroup) {
+					pipelineConfigs.add(pipelineConfig);
+				}
 			}
 		}
 		return pipelineConfigs;

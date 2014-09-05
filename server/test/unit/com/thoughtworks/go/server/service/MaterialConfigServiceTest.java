@@ -92,4 +92,14 @@ public class MaterialConfigServiceTest {
 		assertThat(materialConfig, is(nullValue()));
 		assertThat(result.httpCode(), is(404));
 	}
+
+	@Test
+	public void shouldPopulateErrorCorrectlyWhenUnauthorizedToViewMaterial_getMaterialConfigByFingerprint() {
+		HttpOperationResult result = new HttpOperationResult();
+		GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://another.com");
+		MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
+
+		assertThat(materialConfig, is(nullValue()));
+		assertThat(result.httpCode(), is(401));
+	}
 }

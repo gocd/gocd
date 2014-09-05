@@ -63,12 +63,15 @@ public class MaterialConfigService {
 
 	public MaterialConfig getMaterialConfig(String username, String materialFingerprint, OperationResult result) {
 		MaterialConfig materialConfig = null;
+		boolean hasViewPermissionForMaterial = false;
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
-			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
-				for (PipelineConfig pipelineConfig : pipelineGroup) {
-					for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
-						if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
-							materialConfig = currentMaterialConfig;
+			boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup());
+			for (PipelineConfig pipelineConfig : pipelineGroup) {
+				for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+					if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
+						materialConfig = currentMaterialConfig;
+						if (hasViewPermissionForGroup) {
+							hasViewPermissionForMaterial = true;
 							break;
 						}
 					}
@@ -77,7 +80,14 @@ public class MaterialConfigService {
 		}
 		if (materialConfig == null) {
 			result.notFound("Not Found", "Material not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
 		}
+
+		if (!hasViewPermissionForMaterial) {
+			result.unauthorized("Unauthorized", "Do not have view permission to this material", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
+		}
+
 		return materialConfig;
 	}
 }

@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedKeyValueMessage;
@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -290,21 +291,21 @@ public class PipelineConfigsServiceTest {
 
 	@Test
 	public void shouldGetPipelineConfigsForUser() {
-		when(goConfigService.allGroups()).thenReturn(Arrays.asList("group1", "group2"));
+		PipelineConfig pipelineInGroup1 = new PipelineConfig();
+		PipelineConfigs group1 = new PipelineConfigs(pipelineInGroup1);
+		group1.setGroup("group1");
+		PipelineConfig pipelineInGroup2 = new PipelineConfig();
+		PipelineConfigs group2 = new PipelineConfigs(pipelineInGroup2);
+		group2.setGroup("group2");
+		when(goConfigService.groups()).thenReturn(new PipelineGroups(group1, group2));
 		String user = "looser";
-		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(false);
-		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(true);
-		PipelineConfigs expectedPipelineConfigs = new PipelineConfigs();
-		PipelineConfig pipelineConfig = new PipelineConfig();
-		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
-		pipelineConfig.addMaterialConfig(gitMaterialConfig1);
-		expectedPipelineConfigs.add(pipelineConfig);
-		when(goConfigService.getAllPipelinesInGroup("group2")).thenReturn(expectedPipelineConfigs);
+		when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);
+		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
 
-		PipelineConfigs gotPipelineConfigs = service.getConfigsForUser(user);
+		List<PipelineConfig> gotPipelineConfigs = service.getConfigsForUser(user);
 
 		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
-		assertThat(gotPipelineConfigs, is(expectedPipelineConfigs));
+		assertThat(gotPipelineConfigs, is(Arrays.asList(pipelineInGroup1)));
 	}
 
     private String groupXml() {

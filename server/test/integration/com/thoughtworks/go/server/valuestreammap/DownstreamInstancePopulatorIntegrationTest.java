@@ -21,6 +21,8 @@ import java.util.List;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
@@ -208,12 +210,63 @@ public class DownstreamInstancePopulatorIntegrationTest {
         assertInstances(nodep5, "p5", 1,2, 3);
     }
 
+	@Test
+	public void shouldPopulateInstancesBuiltFromCurrentMaterial() {
+
+		/*
+			g1 -> P -> P2  -->  P4
+			   |		\      /
+			   |		 + P3 +
+			   +-> Q
+			   |
+			   +-> R
+		*/
+
+		GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+		u.checkinInOrder(g1, "g_1", "g_2");
+
+		ScheduleTestUtil.AddedPipeline p = u.saveConfigWith("p", u.m(g1));
+		ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p));
+		ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p2));
+		ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p2), u.m(p3));
+		ScheduleTestUtil.AddedPipeline q = u.saveConfigWith("q", u.m(g1));
+		ScheduleTestUtil.AddedPipeline r = u.saveConfigWith("r", u.m(g1));
+
+		String p_1 = u.runAndPass(p, "g_1");
+		String p2_1 = u.runAndPass(p2, p_1);
+		String p3_1 = u.runAndPass(p3, p2_1);
+		String p4_1 = u.runAndPass(p4, p2_1, p3_1);
+		String q_1 = u.runAndPass(q, "g_1");
+		String q_2 = u.runAndPass(q, "g_1");
+
+		MaterialInstance g1Instance = materialRepository.findMaterialInstance(g1);
+		Modification g1Modification = materialRepository.findModificationWithRevision(g1, "g_1");
+
+		ValueStreamMap valueStreamMap = new ValueStreamMap(g1, g1Instance, g1Modification);
+		Node gitNode = valueStreamMap.getCurrentMaterial();
+		Node nodep1 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p", "p"), gitNode.getId());
+		Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p2", "p2"), "p");
+		Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), "p2");
+		Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p3");
+		valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p2");
+		Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("q", "q"), gitNode.getId());
+		Node nodep6 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("r", "r"), gitNode.getId());
+
+		downstreamInstancePopulator.apply(valueStreamMap);
+
+		assertInstances(nodep1, "p", 1);
+		assertInstances(nodep2, "p2", 1);
+		assertInstances(nodep3, "p3", 1);
+		assertInstances(nodep4, "p4", 1);
+		assertInstances(nodep5, "q", 1, 2);
+		assertThat(nodep6.revisions().size(), is(0));
+	}
+
     private void assertInstances(Node node, String pipelineName, Integer... pipelineCounters) {
         List<Revision> revisions = node.revisions();
         assertThat(revisions.size(), is(pipelineCounters.length));
         for (Integer pipelineCounter : pipelineCounters) {
             assertThat(revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString())), is(true));
-
         }
     }
 }

@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineDependencyGraphOld;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+
+import java.util.List;
 
 
 public interface PipelineDao {
@@ -97,4 +94,6 @@ public interface PipelineDao {
     StageIdentifier latestPassedStageIdentifier(long pipelineId, String stage);
 
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, PipelineIdentifier revision);
+
+    List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
 }

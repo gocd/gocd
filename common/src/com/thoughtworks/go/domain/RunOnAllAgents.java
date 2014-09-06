@@ -16,18 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.server.service.InstanceFactory;
+import com.thoughtworks.go.util.Clock;
+
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobTypeConfig;
-import com.thoughtworks.go.config.RunOnAllAgentsJobTypeConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.Clock;
 
 /**
  * @understands how to match job instances associated with run-on-all-agents Jobs
@@ -46,8 +41,12 @@ public class RunOnAllAgents implements JobType {
         String configName = translateToConfigName(oldJob.getName());
         JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(configName));
         if (jobConfig == null) {
-            throw new CannotRerunJobException(configName);
+            throw new CannotRerunJobException(configName,  "Configuration for job doesn't exist.");
         }
+		if (jobConfig.isRunMultipleInstanceType()) {
+			String runType = "'run multiple instance'";
+			throw new CannotRerunJobException(configName, "Run configuration for job has been changed to " + runType + ".");
+		}
         String newJobName = jobConfig.isRunOnAllAgents() ? oldJob.getName() : CaseInsensitiveString.str(jobConfig.name());
         JobInstances instances = instanceFactory.createJobInstance(stageConfig.name(), jobConfig, context, clock, new IdentityNameGenerator(newJobName));
         for (JobInstance instance : instances) {
@@ -75,7 +74,7 @@ public class RunOnAllAgents implements JobType {
         Collection<AgentConfig> agents = context.findAgentsMatching(config.resources());
         int counter = 0;
         for (AgentConfig agent : agents) {
-            instanceFactory.reallyCreateJobInstance(config, jobs, agent.getUuid(), nameGenerator.generateName(++counter), true, context, clock);
+            instanceFactory.reallyCreateJobInstance(config, jobs, agent.getUuid(), nameGenerator.generateName(++counter), true, false, context, clock);
         }
         if (counter == 0) {
             throw new CannotScheduleException(String.format("Could not find matching agents to run job [%s] of stage [%s].", config.name(), stageName), stageName);

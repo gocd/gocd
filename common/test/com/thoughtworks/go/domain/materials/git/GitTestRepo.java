@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
@@ -82,7 +83,12 @@ public class GitTestRepo extends TestRepo {
     }
 
     private void cloneBundleToFolder(File from, File workingDir) {
-        git(workingDir).cloneFrom(inMemoryConsumer(), from.getAbsolutePath());
+        GitCommand git = git(workingDir);
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        int returnValue = git.cloneFrom(outputStreamConsumer, from.getAbsolutePath());
+        if (returnValue != 0) {
+            throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
+        }
     }
 
     private GitCommand git(File workingDir) {

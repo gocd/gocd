@@ -16,26 +16,19 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
@@ -46,10 +39,15 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class ValueStreamMapService {
 
     private final PipelineService pipelineService;
+	private final MaterialRepository materialRepository;
     private final GoConfigService goConfigService;
     private final DownstreamInstancePopulator downstreamInstancePopulator;
     private final RunStagesPopulator runStagesPopulator;
@@ -58,9 +56,10 @@ public class ValueStreamMapService {
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(ValueStreamMapService.class);
 
     @Autowired
-    public ValueStreamMapService(PipelineService pipelineService, GoConfigService goConfigService, DownstreamInstancePopulator downstreamInstancePopulator,
-                                 RunStagesPopulator runStagesPopulator, UnrunStagesPopulator unrunStagePopulator, SecurityService securityService) {
+    public ValueStreamMapService(PipelineService pipelineService, MaterialRepository materialRepository, GoConfigService goConfigService, DownstreamInstancePopulator downstreamInstancePopulator,
+								 RunStagesPopulator runStagesPopulator, UnrunStagesPopulator unrunStagePopulator, SecurityService securityService) {
         this.pipelineService = pipelineService;
+		this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.downstreamInstancePopulator = downstreamInstancePopulator;
         this.runStagesPopulator = runStagesPopulator;
@@ -113,10 +112,78 @@ public class ValueStreamMapService {
         return valueStreamMap;
     }
 
+	public ValueStreamMapPresentationModel getValueStreamMap(String materialFingerprint, String revision, Username username, LocalizedOperationResult result) {
+		try {
+			MaterialConfig materialConfig = null;
+			boolean hasViewPermissionForMaterial = false;
+			List<PipelineConfig> downstreamPipelines = new ArrayList<PipelineConfig>();
+			for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+				boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineGroup.getGroup());
+				for (PipelineConfig pipelineConfig : pipelineGroup) {
+					for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+						if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
+							materialConfig = currentMaterialConfig;
+							if (hasViewPermissionForGroup) {
+								hasViewPermissionForMaterial = true;
+							}
+							downstreamPipelines.add(pipelineConfig);
+						}
+					}
+				}
+			}
+
+			if (materialConfig == null) {
+				result.notFound(LocalizedMessage.string("MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND", materialFingerprint), HealthStateType.general(HealthStateScope.GLOBAL));
+				return null;
+			}
+
+			if (!hasViewPermissionForMaterial) {
+				result.unauthorized(LocalizedMessage.cannotViewMaterial(materialFingerprint), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+				return null;
+			}
+
+			MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+
+			if (materialInstance == null) {
+				result.notFound(LocalizedMessage.string("MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND", materialFingerprint), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+				return null;
+			}
+
+			Material material = new MaterialConfigConverter().toMaterial(materialConfig);
+			Modification modification = materialRepository.findModificationWithRevision(material, revision);
+
+			if (modification == null) {
+				result.notFound(LocalizedMessage.string("MATERIAL_MODIFICATION_NOT_FOUND", materialFingerprint, revision), HealthStateType.general(HealthStateScope.forMaterialConfig(materialConfig)));
+				return null;
+			}
+
+			ValueStreamMap valueStreamMap = buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username);
+			if (valueStreamMap == null) {
+				return null;
+			}
+			return valueStreamMap.presentationModel();
+		} catch (Exception e) {
+			result.internalServerError(LocalizedMessage.string("VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL", materialFingerprint, revision));
+			LOGGER.error(String.format("[Value Stream Map] Material %s with revision %s could not be rendered.", materialFingerprint, revision), e);
+			return null;
+		}
+	}
+
+	private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
+		CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
+		ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
+		Map<String, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
+
+		traverseDownstream(material.getFingerprint(), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<PipelineConfig>());
+
+		addInstanceInformationToTheGraph(valueStreamMap);
+		removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
+		return valueStreamMap;
+	}
+
     private String pipelineNameWithSameCaseAsConfig(String pipelineName, CruiseConfig cruiseConfig) {
         return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).name().toString();
     }
-
 
     private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
         for (Node node : valueStreamMap.allNodes()) {
@@ -132,7 +199,6 @@ public class ValueStreamMapService {
             }
         }
     }
-
 
     private void traverseUpstream(String pipelineName, BuildCause buildCause, ValueStreamMap graph, List<MaterialRevision> visitedNodes) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
@@ -160,16 +226,20 @@ public class ValueStreamMapService {
 
     private void traverseDownstream(String upstreamPipelineName, Map<String, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
         List<PipelineConfig> downstreamPipelines = pipelineToDownstreamMap.get(upstreamPipelineName);
-        for (PipelineConfig downstreamPipeline : downstreamPipelines) {
-            String downstreamPipelineName = downstreamPipeline.name().toString();
-            graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipelineName, downstreamPipelineName), upstreamPipelineName);
-            if (visitedNodes.contains(downstreamPipeline)) {
-                continue;
-            }
-            visitedNodes.add(downstreamPipeline);
-            traverseDownstream(downstreamPipelineName, pipelineToDownstreamMap, graph, visitedNodes);
-        }
-    }
+		traverseDownstream(upstreamPipelineName, downstreamPipelines, pipelineToDownstreamMap, graph, visitedNodes);
+	}
+
+	private void traverseDownstream(String materialId, List<PipelineConfig> downstreamPipelines, Map<String, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
+		for (PipelineConfig downstreamPipeline : downstreamPipelines) {
+			String downstreamPipelineName = downstreamPipeline.name().toString();
+			graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipelineName, downstreamPipelineName), materialId);
+			if (visitedNodes.contains(downstreamPipeline)) {
+				continue;
+			}
+			visitedNodes.add(downstreamPipeline);
+			traverseDownstream(downstreamPipelineName, pipelineToDownstreamMap, graph, visitedNodes);
+		}
+	}
 
     private void addInstanceInformationToTheGraph(ValueStreamMap valueStreamMap) {
         downstreamInstancePopulator.apply(valueStreamMap);

@@ -37,15 +37,19 @@ public class SingleJobInstance implements JobType {
 
     public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig jobConfig, String stageName, final JobNameGenerator nameGenerator, final Clock clock,
                                    InstanceFactory instanceFactory) {
-        instanceFactory.reallyCreateJobInstance(jobConfig, jobs, null, CaseInsensitiveString.str(jobConfig.name()), false, context, clock);
+        instanceFactory.reallyCreateJobInstance(jobConfig, jobs, null, CaseInsensitiveString.str(jobConfig.name()), false, false, context, clock);
     }
 
     public void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory) {
         String jobName = oldJob.getName();
         JobConfig jobConfig = stageConfig.jobConfigByInstanceName(jobName, true);
         if (jobConfig == null) {
-            throw new CannotRerunJobException(jobName);
+            throw new CannotRerunJobException(jobName,  "Configuration for job doesn't exist.");
         }
+		if (jobConfig.isRunMultipleInstanceType()) {
+			String runType = "'run multiple instance'";
+			throw new CannotRerunJobException(jobName, "Run configuration for job has been changed to " + runType + ".");
+		}
         RunOnAllAgents.CounterBasedJobNameGenerator nameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances instances = instanceFactory.createJobInstance(stageConfig.name(), jobConfig, context, clock, nameGenerator);
         for (JobInstance instance : instances) {

@@ -221,7 +221,7 @@
         </section>
     <section title="Publishing a Package" id="publish">
         At the moment, Go does not create or publish the package for you. But it is simple enough for each type of package. e.g. <cref topic="yum_repository_poller" anchor="create">rpm</cref>
-        <p>You could also explore the command repository on <exref url="https://github.com/goteam/go-command-repo/tree/master/deploy">GitHub</exref> for helpful commands. What is command repository? Please see <cref topic="command_repository">this</cref>.</p>
+        <p>You could also explore the command repository on <exref url="https://github.com/gocd/go-command-repo/tree/master/deploy">GitHub</exref> for helpful commands. What is command repository? Please see <cref topic="command_repository">this</cref>.</p>
     </section>
     <section title="Package Dependencies">
         Please note that Go does not support any sort of automatic polling or other support for package dependencies. Each pacakge dependency has to specified as a separate material if needed. Alternatively, just poll for the packages at the root of the dependency graph and let the package manager figure out the rest at the time of installation. e.g. if componentA-1.2.0-b234-noarch.rpm depends on componentB-2.3.0 or above, simply poll for componentA and let <code>yum install componentA-1.2.0-b234-noarch</code> do the resolution of componentB for you.

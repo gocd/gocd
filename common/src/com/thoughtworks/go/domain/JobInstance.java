@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Date;
-
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.Duration;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Date;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -45,6 +45,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     private JobInstanceLog log = new NullJobInstanceLog();
     private JobIdentifier identifier;
     private boolean runOnAllAgents;
+    private boolean runMultipleInstance;
     private Long originalJobId;
     private boolean rerun;
     private boolean pipelineStillConfigured;
@@ -156,6 +157,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
                 ", identifier=" + identifier +
                 ", plan=" + plan +
                 ", runOnAllAgents=" + runOnAllAgents +
+                ", runMultipleInstance=" + runMultipleInstance +
                 '}';
     }
 
@@ -481,7 +483,15 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return runOnAllAgents;
     }
 
-    public boolean matches(JobConfigIdentifier identifier) {
+	public boolean isRunMultipleInstance() {
+		return runMultipleInstance;
+	}
+
+	public void setRunMultipleInstance(boolean runMultipleInstance) {
+		this.runMultipleInstance = runMultipleInstance;
+	}
+
+	public boolean matches(JobConfigIdentifier identifier) {
         if (!getPipelineName().equalsIgnoreCase(identifier.getPipelineName())) {
             return false;
         }
@@ -491,10 +501,12 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return jobType().isInstanceOf(name, true, identifier.getJobName());
     }
 
-    private JobType jobType() {
+    JobType jobType() {
         if (runOnAllAgents) {
             return new RunOnAllAgents();
-        } else {
+		} else if (runMultipleInstance) {
+			return new RunMultipleInstance();
+		} else {
             return new SingleJobInstance();
         }
     }

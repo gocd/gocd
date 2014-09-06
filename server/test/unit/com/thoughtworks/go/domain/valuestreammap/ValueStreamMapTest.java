@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.HashSet;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+
+import java.util.*;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -199,7 +198,49 @@ public class ValueStreamMapTest {
         VSMTestHelper.assertNodeHasParents(graph, p2, p1);
     }
 
-    @Test
+	@Test
+	public void shouldGetRootNodesCorrectly() {
+		/*
+				git-trunk  git-plugins-->plugins ---->acceptance
+						\             /                 ^ ^
+						 \          /                   | |
+						  \       /                     | |
+				hg-trunk--->cruise +--------------------+ |
+				  +                                       |
+				  +---------------------------------------+
+		*/
+
+		String acceptance = "acceptance";
+		String plugins = "plugins";
+		String gitPlugins = "git-plugins";
+		String cruise = "cruise";
+		String gitTrunk = "git-trunk";
+		String hgTrunk = "hg-trunk";
+
+		ValueStreamMap graph = new ValueStreamMap(acceptance, null);
+		graph.addUpstreamNode(new PipelineDependencyNode(plugins, plugins), null, acceptance);
+		graph.addUpstreamNode(new PipelineDependencyNode(gitPlugins, gitPlugins), null, plugins);
+		graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, plugins);
+		graph.addUpstreamNode(new SCMDependencyNode(gitTrunk, gitTrunk, "git"), null, cruise);
+		graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, cruise);
+		graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, acceptance);
+		graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, acceptance);
+
+		List<Node> rootNodes = graph.getRootNodes();
+		assertThat(rootNodes.size(), is(3));
+		assertThat(getNodeIds(rootNodes), contains(gitPlugins, gitTrunk, hgTrunk));
+	}
+
+	private List<String> getNodeIds(List<Node> rootNodes) {
+		List<String> nodeIds = new LinkedList<String>();
+		for (Node rootNode : rootNodes) {
+			nodeIds.add(rootNode.getId());
+		}
+		Collections.sort(nodeIds);
+		return nodeIds;
+	}
+
+	@Test
     public void shouldUpdateDependentWhileAddingDownstreamIfNodeAlreadyPresent(){
           /*
              +---> p2 ---> p3

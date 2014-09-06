@@ -589,8 +589,6 @@ public class UserServiceTest {
         foo.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
-        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
-        quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getName(), "p1")).thenReturn(true);

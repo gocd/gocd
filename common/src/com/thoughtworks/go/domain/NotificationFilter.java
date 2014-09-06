@@ -80,11 +80,10 @@ public class NotificationFilter extends PersistentObject {
         if(anyPipelineAndStage && this.event.include(event)) {
             return true;
         }
-        else {
-            return stageIdentifier.getPipelineName().equals(pipelineName) &&
-                   (stageIdentifier.getStageName().equals(stageName) || stageName.equals(GoConstants.ANY_STAGE)) &&
-                   this.event.include(event);
-        }
+
+        return stageIdentifier.getPipelineName().equals(pipelineName) &&
+               (stageIdentifier.getStageName().equals(stageName) || stageName.equals(GoConstants.ANY_STAGE)) &&
+               this.event.include(event);
     }
 
     public String description() {

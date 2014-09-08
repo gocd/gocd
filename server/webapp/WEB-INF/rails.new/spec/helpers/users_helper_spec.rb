@@ -22,7 +22,7 @@ describe UsersHelper do
   it "should create an array from user search model attributes" do
     user_search_model = UserSearchModel.new(User.new("foo", "Mr. Foo", "foo@bar.com"))
 
-    user_search_model_to_array(user_search_model).should be == "['foo', 'Mr. Foo', 'foo@bar.com']"
+    expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. Foo', 'foo@bar.com']")
 
   end
 
@@ -30,7 +30,7 @@ describe UsersHelper do
   it "should escape apostrophe in dispaly name" do
     user_search_model = UserSearchModel.new(User.new("foo", "Mr. O' Brien", "foo@bar.com"))
 
-    user_search_model_to_array(user_search_model).should be == "['foo', 'Mr. O\\' Brien', 'foo@bar.com']"
+    expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. O\\' Brien', 'foo@bar.com']")
 
   end
 end

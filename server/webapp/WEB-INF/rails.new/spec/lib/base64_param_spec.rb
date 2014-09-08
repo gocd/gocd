@@ -19,10 +19,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe ParamEncoder do
   include ParamEncoder
   it "should encode" do
-    enc("foo/bar").should == "Zm9vL2Jhcg%3D%3D%0A"
+    expect(enc("foo/bar")).to eq("Zm9vL2Jhcg%3D%3D%0A")
   end
 
   it "should decode" do
-    dec("Zm9vL2Jhcg%3D%3D%0A").should == "foo/bar"
+    expect(dec("Zm9vL2Jhcg%3D%3D%0A")).to eq("foo/bar")
   end
 end

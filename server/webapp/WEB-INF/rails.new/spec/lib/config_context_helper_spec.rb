@@ -23,12 +23,10 @@ end
 describe Admin::ConfigContextHelper do
   include Admin::ConfigContextHelper
 
-
   it "should create plugin params" do
     plugin_params = create_config_context(nil).getPluginAttributeMap
-    plugin_params[:pipeline_group].should == nil
-    plugin_params[:plugin_stuff].should == "other"
-    plugin_params[:other_go_stuff].should == "also_incl"
+    expect(plugin_params[:pipeline_group]).to be_nil
+    expect(plugin_params[:plugin_stuff]).to eq("other")
+    expect(plugin_params[:other_go_stuff]).to eq("also_incl")
     end
-
 end

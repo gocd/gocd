@@ -86,6 +86,14 @@ public class NotificationFilterTest {
     }
 
     @Test
+    public void specificStageShouldMatchWithinAnyPipeline() {
+        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise1", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "not-dev"), StageEvent.Breaks), is(false));
+    }
+
+    @Test
     public void anyPipelineAndAnyStageShouldAlwaysApply() {
         NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise2", "dev"), is(true));
@@ -107,5 +115,13 @@ public class NotificationFilterTest {
     public void shouldNotApplyIfStageDiffers() {
         NotificationFilter filter = new NotificationFilter("cruise2", "devo", StageEvent.Breaks, false);
         assertThat(filter.appliesTo("cruise2", "dev"), is(false));
+    }
+
+    @Test
+    public void specificStageShouldApplyToAnyPipeline() {
+        NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
+        assertThat(filter.appliesTo("cruise1", "dev"), is(true));
+        assertThat(filter.appliesTo("cruise2", "dev"), is(true));
+        assertThat(filter.appliesTo("cruise2", "not-dev"), is(false));
     }
 }

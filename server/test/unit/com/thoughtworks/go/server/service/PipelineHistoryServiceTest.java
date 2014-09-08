@@ -812,7 +812,7 @@ public class PipelineHistoryServiceTest {
 		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(true);
 		when(pipelinePauseService.isPaused("pipeline-name")).thenReturn(true);
 		when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
-		when(schedulingCheckerService.canManuallyTrigger(pipelineConfig, "user-name", new ServerHealthStateOperationResult())).thenReturn(true);
+		when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
 
 		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", new HttpOperationResult());
 

@@ -41,83 +41,83 @@ describe PipelinesHelper do
 
   describe :run_stage_label do
     it "should show Rerun for scheduled stage" do
-       stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
-       stage = stages.get(0)
-       run_stage_label(stage).should == "rerun"
+      stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
+      stage = stages.get(0)
+      run_stage_label(stage).should == "rerun"
     end
 
     it "should show Trigger for stage not yet scheduled" do
-       stage = NullStageHistoryItem.new("stage_name")
-       run_stage_label(stage).should == "trigger"
+      stage = NullStageHistoryItem.new("stage_name")
+      run_stage_label(stage).should == "trigger"
     end
   end
 
-  #describe :stage_status_for_ui do
-  #
-  #  before :each do
-  #    @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
-  #  end
-  #
-  #  after :each do
-  #    java.util.TimeZone.setDefault(@default_timezone)
-  #  end
+  describe :stage_status_for_ui do
 
-  it "should display the trigger message with username and isodate in title" do
-    triggered_date = java.util.Date.new
-    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    before :each do
+      @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
+    end
 
-    message = trigger_message(triggered_date.getTime(), pim)
+    after :each do
+      java.util.TimeZone.setDefault(@default_timezone)
+    end
 
-    expect(message).to have_selector(".who", "Anonymous")
-    expect(message).to have_selector("input[value='#{triggered_date.getTime()}']")
+    it "should display the trigger message with username and isodate in title" do
+      triggered_date = java.util.Date.new
+      pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+
+      message = trigger_message(triggered_date.getTime(), pim)
+
+      expect(message).to have_selector(".who", "Anonymous")
+      expect(message).to have_selector("input[value='#{triggered_date.getTime()}']")
+    end
+
+    it "should not display the trigger message when the pipeline is being scheduled for the first time" do
+      triggered_date = java.util.Date.new
+      pim = PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
+
+      message = trigger_message(triggered_date.getTime(), pim)
+
+      expect(message.blank?).to be_true
+    end
+
+    it "should display the trigger message with the time and username" do
+      joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
+      message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
+      expect(message).to have_selector(".who", "Vipul")
+      expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
+    end
+
+    it "should display appropriate message when when auto triggered " do
+      joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
+      message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
+      expect(message).to have_selector(".label", "Automatically triggered")
+      expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
+    end
+
+    #  it "should report result as is for results other than Unknown" do
+    #    [StageState::Cancelled, StageState::Failed, StageState::Failing, StageState::Passed].each do |state|
+    #      stage_status_for_ui(state).should == state.stageResult().toString()
+    #    end
+    #  end
+    #
+    #  it "should report result as Building for result Unknown" do
+    #    [StageState::Building, StageState::Unknown].each do |state|
+    #      stage_status_for_ui(state).should == "Building"
+    #    end
+    #  end
+    #
+    #  describe "mock" do
+    #    it "should return internationalized result" do
+    #      localizer = mock('localizer')
+    #      stub!(:l).and_return(localizer)
+    #      localizer.should_receive(:string).with("Building").and_return("Eng Building")
+    #      localizer.should_receive(:string).with("Passed").and_return("Eng Passed")
+    #      stage_status_for_ui(StageState::Building).should == "Eng Building"
+    #      stage_status_for_ui(StageState::Passed).should == "Eng Passed"
+    #    end
+    #  end
   end
-
-  it "should not display the trigger message when the pipeline is being scheduled for the first time" do
-    triggered_date = java.util.Date.new
-    pim =  PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
-
-    message = trigger_message(triggered_date.getTime(), pim)
-
-    expect(message.blank?).to be_true
-  end
-
-  it "should display the trigger message with the time and username" do
-    joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-    message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
-    expect(message).to have_selector(".who", "Vipul")
-    expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
-  end
-
-  it "should display appropriate message when when auto triggered " do
-    joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
-    message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
-    expect(message).to have_selector(".label", "Automatically triggered")
-    expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
-  end
-
-  #  it "should report result as is for results other than Unknown" do
-  #    [StageState::Cancelled, StageState::Failed, StageState::Failing, StageState::Passed].each do |state|
-  #      stage_status_for_ui(state).should == state.stageResult().toString()
-  #    end
-  #  end
-  #
-  #  it "should report result as Building for result Unknown" do
-  #    [StageState::Building, StageState::Unknown].each do |state|
-  #      stage_status_for_ui(state).should == "Building"
-  #    end
-  #  end
-  #
-  #  describe "mock" do
-  #    it "should return internationalized result" do
-  #      localizer = mock('localizer')
-  #      stub!(:l).and_return(localizer)
-  #      localizer.should_receive(:string).with("Building").and_return("Eng Building")
-  #      localizer.should_receive(:string).with("Passed").and_return("Eng Passed")
-  #      stage_status_for_ui(StageState::Building).should == "Eng Building"
-  #      stage_status_for_ui(StageState::Passed).should == "Eng Passed"
-  #    end
-  #  end
-  #end
 
   it "should return the type of the material" do
     expect(material_type(MaterialsMother.hgMaterial())).to eq "scm"
@@ -126,12 +126,12 @@ describe PipelinesHelper do
   end
 
   it "should return the url for given pipeline instance" do
-     pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-     expect(url_for_pipeline_instance(pim)).to eq "/pipelines/blah-pipeline/5/cruise/10/pipeline"
+    pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    expect(url_for_pipeline_instance(pim)).to eq "/pipelines/blah-pipeline/5/cruise/10/pipeline"
   end
 
   it "should return the url for value stream map of given pipeline instance" do
-    pim =  pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
+    pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
     url_for_pipeline_value_stream_map(pim).should == "/pipelines/value_stream_map/blah-pipeline/5"
   end
 

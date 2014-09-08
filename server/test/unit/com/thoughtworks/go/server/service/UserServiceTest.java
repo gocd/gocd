@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.security.UserLicenseLimitExceededException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
+import com.thoughtworks.go.util.GoConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -577,6 +578,19 @@ public class UserServiceTest {
         quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
+        when(securityService.hasViewPermissionForPipeline(foo.getName(), "p1")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(bar.getName(), "p1")).thenReturn(false);
+        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
+    }
+
+    @Test
+    public void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
+        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        foo.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
+        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        bar.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
+
+        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getName(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getName(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));

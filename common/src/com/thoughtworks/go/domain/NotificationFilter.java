@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.GoConstants;
+
 public class NotificationFilter extends PersistentObject {
     private String pipelineName;
     private String stageName;
@@ -74,9 +76,23 @@ public class NotificationFilter extends PersistentObject {
     }
 
     public boolean matchStage(StageConfigIdentifier stageIdentifier, StageEvent event) {
+        boolean anyPipelineAndStage = this.pipelineName.equals(GoConstants.ANY_PIPELINE) && this.stageName.equals(GoConstants.ANY_STAGE);
+        if (anyPipelineAndStage && this.event.include(event)) {
+            return true;
+        }
+
         return stageIdentifier.getPipelineName().equals(pipelineName) &&
-                stageIdentifier.getStageName().equals(stageName) &&
-                this.event.include(event);
+               (stageIdentifier.getStageName().equals(stageName) || stageName.equals(GoConstants.ANY_STAGE)) &&
+               this.event.include(event);
+    }
+
+    public boolean appliesTo(String pipelineName, String stageName) {
+        boolean pipelineMatches = this.pipelineName.equals(pipelineName) ||
+                                  this.pipelineName.equals(GoConstants.ANY_PIPELINE);
+        boolean stageMatches = this.stageName.equals(stageName) ||
+                               this.stageName.equals(GoConstants.ANY_STAGE);
+
+        return pipelineMatches && stageMatches;
     }
 
     public String description() {

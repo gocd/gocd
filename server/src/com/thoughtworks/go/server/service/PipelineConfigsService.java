@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.Localizable;
@@ -30,6 +29,9 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PipelineConfigsService {
@@ -87,6 +89,16 @@ public class PipelineConfigsService {
         CruiseConfig cruiseConfig = goConfigService.getConfigForEditing();
         return cruiseConfig.getGroups().findGroup(groupName);
     }
+
+	public List<PipelineConfigs> getGroupsForUser(String userName) {
+		List<PipelineConfigs> pipelineGroups = new ArrayList<PipelineConfigs>();
+		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
+				pipelineGroups.add(pipelineGroup);
+			}
+		}
+		return pipelineGroups;
+	}
 
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {

@@ -16,15 +16,11 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.ui.SortOrder;
+
+import java.util.List;
 
 /**
  * @understands how to retireve and save jobInstances on the db
@@ -34,6 +30,10 @@ public interface JobInstanceDao {
     List<JobPlan> orderedScheduledBuilds();
 
     JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count);
+
+	int getJobHistoryCount(String pipelineName, String stageName, String jobName);
+
+	JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset);
 
     JobInstance save(long stageId, JobInstance jobInstance);
 

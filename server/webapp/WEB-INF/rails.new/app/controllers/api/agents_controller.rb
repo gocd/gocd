@@ -17,6 +17,8 @@
 class Api::AgentsController < Api::ApiController
   include AgentBulkEditor
 
+  JobHistoryColumns = com.thoughtworks.go.server.service.JobInstanceService::JobHistoryColumns
+
   def index
     agents = agent_service.agents
     agents_api_arr = agents.collect{|agent| AgentAPIModel.new(agent)}
@@ -40,5 +42,17 @@ class Api::AgentsController < Api::ApiController
 
   def edit_agents
     render text: bulk_edit.message()
+  end
+
+  def job_run_history
+    offset = params[:offset].to_i
+    page_size = 10
+    job_instance_count = job_instance_service.totalCompletedJobsCountOn(params[:uuid])
+
+    pagination = Pagination.pageStartingAt(offset, job_instance_count, page_size)
+
+    job_instances = job_instance_service.completedJobsOnAgent(params[:uuid], JobHistoryColumns.valueOf("completed"), com.thoughtworks.go.server.ui.SortOrder.orderFor("DESC"), pagination)
+
+    render json: AgentJobRunHistoryAPIModel.new(pagination, job_instances)
   end
 end

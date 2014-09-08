@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.opensymphony.oscache.base.CacheEntry;
@@ -29,21 +24,12 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageIdentity;
@@ -63,6 +49,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
@@ -131,6 +122,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 goCache.remove(cacheKeyForStageOffset(stage));
             }
             goCache.remove(cacheKeyForStageHistories(pipelineName, stage.getName()));
+			goCache.remove(cacheKeyForDetailedStageHistories(pipelineName, stage.getName()));
         } finally {
             readWriteLock.releaseWriteLock(mutex);
         }
@@ -405,6 +397,23 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
+	public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination) {
+		String mutex = mutexForStageHistory(pipelineName, stageName);
+		readWriteLock.acquireReadLock(mutex);
+		try {
+			String subKey = String.format("%s-%s", pagination.getCurrentPage(), pagination.getPageSize());
+			String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
+			StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
+			if (stageInstanceModels == null) {
+				stageInstanceModels = findDetailedStageHistory(pipelineName, stageName, pagination);
+				goCache.put(key, subKey, stageInstanceModels);
+			}
+			return cloner.deepClone(stageInstanceModels);
+		} finally {
+			readWriteLock.releaseReadLock(mutex);
+		}
+	}
+
     public StageHistoryPage findStageHistoryPage(final Stage stage, final int pageSize) {
         final StageIdentifier id = stage.getIdentifier();
         return findStageHistoryPage(id.getPipelineName(), id.getStageName(), new FuncVarArg<Pagination, Object>() {
@@ -453,6 +462,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
+	private String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
+		return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+	}
+
     public Long findStageIdByPipelineAndStageNameAndCounter(long pipelineId, String name, String counter) {
         Map<String, Object> toGet = arguments("pipelineId", pipelineId)
                 .and("stageName", name)
@@ -476,6 +489,17 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 and("offset", pagination.getOffset()).asMap();
         return (List<StageHistoryEntry>) getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
     }
+
+	StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
+		Map<String, Object> args = arguments("pipelineName", pipelineName).
+				and("stageName", stageName).
+				and("limit", pagination.getPageSize()).
+				and("offset", pagination.getOffset()).asMap();
+		List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
+		StageInstanceModels stageInstanceModels = new StageInstanceModels();
+		stageInstanceModels.addAll(detailedStageHistory);
+		return stageInstanceModels;
+	}
 
     private int findOffsetForStage(Stage stage) {
         String key = cacheKeyForStageOffset(stage);

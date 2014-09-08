@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.Iterator;
-
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.util.Pagination;
+
+import java.util.Iterator;
 
 /**
  * @understands how to represent a paginated list of jobs on the UI
@@ -43,7 +43,11 @@ public class JobInstancesModel implements Iterable<JobInstance> {
         return jobInstances.isEmpty();
     }
 
-    public Pagination getPagination() {
+	public JobInstances getJobInstances() {
+		return jobInstances;
+	}
+
+	public Pagination getPagination() {
         return pagination;
     }
 

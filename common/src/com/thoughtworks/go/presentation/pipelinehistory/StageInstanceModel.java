@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.Date;
-
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.StageResult;
+import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.server.presentation.models.StageConfigurationModel;
+
+import java.util.Date;
 
 import static com.thoughtworks.go.util.GoConstants.APPROVAL_SUCCESS;
 
@@ -252,6 +252,14 @@ public class StageInstanceModel implements StageConfigurationModel {
     public StageIdentifier getIdentifier() {
         return identifier;
     }
+
+	public String getPipelineName() {
+		return identifier.getPipelineName();
+	}
+
+	public Integer getPipelineCounter() {
+		return identifier.getPipelineCounter();
+	}
 
     public String locator() {
         return identifier.getStageLocator();

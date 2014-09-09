@@ -464,6 +464,16 @@ public class OauthRepositoryTest {
         assertThat(dto.getId(), is(not(PersistentObject.NOT_PERSISTED)));
     }
 
+    @Test
+    public void shouldSaveAuthorization_ForEngineFlow() throws Exception {
+        OauthClient client = new OauthClient("mingle09", "client_id", "client_secret", "http://something");
+        template.save(client);
+        Map<String, String> attributes = m("authenticity_token", "eJkmGwpHh045A/h5uhme+4Pqdr+E8b+jgRq1+vt/s6M=", "authorize", "Yes", "client_id", String.valueOf(client.getDTO().getId()),
+                "redirect_uri", "https://mingle05.thoughtworks.com/gadgets/oauthcallback", "response_type", "code", "state", "eyJvYXV0aF9hdXRob3JpemVfdXJsIjoiaHR0cHM6Ly8xOTIuMTY4Ljk5LjU5\nOjgxNTQvZ28vYWRtaW4vb2F1dGgvYXV0aG9yaXplIn0=");
+        OauthDataSource.OauthAuthorizationDTO dto = repo.saveAuthorization(attributes);
+        assertThat(dto.getId(), is(not(Matchers.nullValue())));
+    }
+
     static void assertHasIdAndMatches(Object loaded, Object unpersistentExpected) throws NoSuchFieldException, IllegalAccessException {
         assertThat(loaded, is(Matchers.<Object>instanceOf(unpersistentExpected.getClass())));
         Field id = loaded.getClass().getDeclaredField("id");

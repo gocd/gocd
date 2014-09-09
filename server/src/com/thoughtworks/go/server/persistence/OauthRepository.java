@@ -157,11 +157,12 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public OauthAuthorizationDTO saveOauthAuthorization(Map attributes) {
-        return saveAuthorization(attributes);
+        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        return persistenceHelper.saveOrUpdateEntity(authorization);
     }
 
     public OauthAuthorizationDTO saveAuthorization(Map attributes) {
-        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("client_id"))));
         return persistenceHelper.saveOrUpdateEntity(authorization);
     }
 

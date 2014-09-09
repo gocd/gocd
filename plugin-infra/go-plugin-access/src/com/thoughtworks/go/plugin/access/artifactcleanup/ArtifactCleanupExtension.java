@@ -73,9 +73,11 @@ public class ArtifactCleanupExtension {
     private void processStageConfigDetailsResponse(ArrayList<StageConfigDetailsArtifactCleanup> list, List<Map<String, String>> result) {
         for (Map<String, String> stageDetails : result) {
             StageConfigDetailsArtifactCleanup stageConfigDetailsArtifactCleanup = new StageConfigDetailsArtifactCleanup(stageDetails.get("stageName"), stageDetails.get("pipelineName"));
+            List<StageConfigDetailsArtifactCleanup> toBeAdded = new ArrayList<StageConfigDetailsArtifactCleanup>();
             if (!list.contains(stageConfigDetailsArtifactCleanup)) {
-                list.add(stageConfigDetailsArtifactCleanup);
+                toBeAdded.add(stageConfigDetailsArtifactCleanup);
             }
+            list.addAll(toBeAdded);
         }
     }
 

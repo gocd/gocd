@@ -100,10 +100,9 @@ end
 
 task :handle_assets_rails4 do
   task('precompile_assets').invoke
-  target_assets_location = "target/webapp/WEB-INF/rails.new/public/assets/"
-  rm_rf target_assets_location if File.exist? target_assets_location
-
-  safe_cp "webapp/WEB-INF/rails.new/public/assets/", target_assets_location
+  assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
+  rm_rf assets_location_in_target if File.exist? assets_location_in_target
+  cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
 
   #delete assets used by rails2
   rm_f("target/webapp/javascripts") #if File.exist?("target/webapp/javascripts")

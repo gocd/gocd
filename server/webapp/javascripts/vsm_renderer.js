@@ -27,11 +27,15 @@ Graph_Renderer = function (container) {
     var maxWidth = 100; //width of svg container
     var maxHeight = 100; //height of svg container
     var svg;
+    var noInstanceMessage = "No instance of this pipeline has run for any of the direct upstream dependency revision.";
 
     Graph_Renderer.prototype.invoke = function (vsm) {
         current = vsm.current_pipeline;
         levels = vsm.levels;
-        container.append('<div class="highlight"></div>');
+
+        if (current != null && current != undefined) {
+            container.append('<div class="highlight"></div>');
+        }
 
         renderEntities(levels);
         materialBoxCreation();
@@ -95,6 +99,7 @@ Graph_Renderer = function (container) {
 
     function renderScmEntity(node) {
         var gui = '', node_name = '';
+
         if (node.instances != null && node.instances != undefined) {
             nodeClassName = node.node_type.toLowerCase();
             gui += '<div class= "material_revisions ' + nodeClassName + '"></div>'
@@ -318,8 +323,11 @@ Graph_Renderer = function (container) {
                 gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
             }
         }
-        ;
         gui += '</ul>'
+
+        if(instance.locator.trim() == "")
+            gui += '<div style="clear:both; margin-top:20px;" class="message waiting">' + noInstanceMessage + '</div>';
+
         gui += '</li>'
         return gui;
     }

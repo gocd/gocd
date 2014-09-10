@@ -349,8 +349,12 @@
     <entry key="JOB">Job</entry>
     <entry key="RESOURCES">Resources</entry>
     <entry key="RUN_ON_ALL">Run on all</entry>
+    <entry key="RUN_TYPE">Run Type</entry>
+    <entry key="RUN_SINGLE_INSTANCE">Run one instance</entry>
     <entry key="RUN_ON_ALL_AGENTS">Run on all agents</entry>
     <entry key="RUN_MULTIPLE_INSTANCES">Run multiple instances</entry>
+    <entry key="RUN_MULTIPLE_INSTANCES_PREFIX">Run</entry>
+    <entry key="RUN_MULTIPLE_INSTANCES_SUFFIX">instances</entry>
     <entry key="TASKS">Tasks</entry>
     <entry key="TABS">Custom Tabs</entry>
     <entry key="TASK">Task</entry>

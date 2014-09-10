@@ -93,7 +93,7 @@ describe "admin/jobs/new.html.erb" do
     end
   end
 
-  it "should render job resources, run on all agents checkbox, run multiple instance" do
+  it "should render job resources" do
     job_config = JobConfig.new
     job_config.setRunInstanceCount(2)
     assign(:job, job_config)
@@ -103,12 +103,29 @@ describe "admin/jobs/new.html.erb" do
     Capybara.string(response.body).all("#new_job_container .form_item_block").tap do |blocks|
       expect(blocks[1]).to have_selector("label", :text => "Resources")
       expect(blocks[1]).to have_selector("input[type='text'][class='resources_auto_complete'][name='job[#{com.thoughtworks.go.config.JobConfig::RESOURCES}]']")
+    end
+  end
+
+  it "should render run on all agents checkbox, run multiple instance" do
+    job_config = JobConfig.new
+    job_config.setRunInstanceCount(10)
+    assign(:job, job_config)
+
+    render
+
+    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+      expect(blocks[2]).to have_selector("label", :text => "Run Type")
+
+      expect(blocks[2]).to have_selector("label", :text => "Run one instance")
+      expect(blocks[2]).to have_selector("input[type='radio'][name='job[runType]'][value='runSingleInstance']")
 
       expect(blocks[2]).to have_selector("label", :text => "Run on all agents")
-      expect(blocks[2]).to have_selector("input[type='checkbox'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS}]']")
+      expect(blocks[2]).to have_selector("input[type='radio'][name='job[runType]'][value='runOnAllAgents']")
 
-      expect(blocks[3]).to have_selector("label", :text => "Run multiple instances")
-      expect(blocks[3]).to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT}]'][value='2']")
+      expect(blocks[2]).to have_selector("input[type='radio'][name='job[runType]'][value='runMultipleInstance'][checked='checked']")
+      expect(blocks[2]).to have_selector("label", :text => "Run")
+      expect(blocks[2]).to have_selector("input[type='text'][name='job[#{com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT}]'][value='10']")
+      expect(blocks[2]).to have_selector("label", :text => "instances")
     end
   end
 

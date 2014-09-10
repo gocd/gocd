@@ -219,7 +219,7 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public OauthTokenDTO saveToken(Map attributes) {
-        OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("client_id"))));
         return persistenceHelper.saveOrUpdateEntity(token);
     }
 

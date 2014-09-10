@@ -17,10 +17,10 @@
 <% if use_compressed_js? %>
     <%= javascript_include_tag '/go/compressed/all.js' %>
     <![if !IE]>
-    <%= javascript_include_tag '/go/compressed/d3.js' %>
+    <%= javascript_include_tag '/go/compressed/d3-3.1.5.min.js' %>
     <![endif]>
     <!--[if gt IE 8]><!-->
-    <%= javascript_include_tag '/go/compressed/d3.js' %>
+    <%= javascript_include_tag '/go/compressed/d3-3.1.5.min.js' %>
     <!--<![endif]-->
 <% else %>
     <%= javascript_include_tag 'lib/es5-shim.min.js' %>

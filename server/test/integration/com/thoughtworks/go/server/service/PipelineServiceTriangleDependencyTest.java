@@ -180,7 +180,7 @@ public class PipelineServiceTriangleDependencyTest {
     private Pipeline stubPipelineSaveForStatusListener(StageStatusListener stageStatusListener, JobStatusListener jobStatusListener) {
         StageDao stageDao = mock(StageDao.class);
         JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(PropertiesService.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
-                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, pluginManager, jobStatusListener);
+                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.StageContainer;
+
+import java.util.Date;
 
 public class StageInstanceModels extends BaseCollection<StageInstanceModel> implements StageContainer {
 

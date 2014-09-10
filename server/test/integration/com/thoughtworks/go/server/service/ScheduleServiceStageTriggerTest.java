@@ -281,7 +281,7 @@ public class ScheduleServiceStageTriggerTest {
 
     private JobInstanceService jobInstanceService(JobResultTopic jobResultTopic) {
         return new JobInstanceService(jobInstanceDao, propertiesService, jobResultTopic, jobStatusCache, transactionTemplate,
-                transactionSynchronizationManager, null, null, goConfigService, pluginManager);
+                transactionSynchronizationManager, null, null, goConfigService, null, pluginManager);
     }
 
     @Test

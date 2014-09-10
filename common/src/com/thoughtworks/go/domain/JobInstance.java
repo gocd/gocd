@@ -368,6 +368,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return identifier.getPipelineName();
     }
 
+	public Integer getPipelineCounter() {
+	        return identifier.getPipelineCounter();
+	    }
+
     public String getStageName() {
         return identifier.getStageName();
     }

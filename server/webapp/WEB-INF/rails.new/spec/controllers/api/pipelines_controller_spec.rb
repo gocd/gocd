@@ -21,9 +21,9 @@ def schedule_options(specified_revisions, variables, secure_variables = {})
 end
 
 describe Api::PipelinesController do
-
   include StageModelMother
   include GoUtil
+  include APIModelMother
 
   before :each do
     controller.stub(:populate_health_messages)
@@ -52,6 +52,67 @@ describe Api::PipelinesController do
 
   it "should return only the path to a pipeline api" do
     api_pipeline_action_path(:pipeline_name => "pipeline", :action => "schedule").should == "/api/pipelines/pipeline/schedule"
+  end
+
+  describe :history do
+    it "should route to history" do
+      expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
+      expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
+    end
+
+    it "should render history json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:totalCount).and_return(10)
+      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, "loser", anything).and_return(create_pipeline_history_model)
+
+      get :history, :pipeline_name => 'up42', :offset => '5', :no_layout => true
+
+      expect(response.body).to eq(PipelineHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), create_pipeline_history_model).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:totalCount).and_return(10)
+      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, "loser", anything) do |pipeline_name, pagination, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :history, :pipeline_name => 'up42', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
+    end
+  end
+
+  describe :status do
+    it "should route to history" do
+      expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)
+    end
+
+    it "should render status json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:getPipelineStatus).with('up42', "loser", anything).and_return(create_pipeline_status_model)
+
+      get :status, :pipeline_name => 'up42', :no_layout => true
+
+      expect(response.body).to eq(PipelineStatusAPIModel.new(create_pipeline_status_model).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:getPipelineStatus).with('up42', "loser", anything) do |pipeline_name, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :status, :pipeline_name => 'up42', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
+    end
   end
 
   describe :card_activity do

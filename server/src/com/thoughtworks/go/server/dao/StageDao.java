@@ -16,22 +16,16 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.StageIdentity;
+import com.thoughtworks.go.server.util.Pagination;
+
+import java.util.List;
 
 public interface StageDao extends JobDurationStrategy {
     Stages scheduledStages();
@@ -97,6 +91,8 @@ public interface StageDao extends JobDurationStrategy {
     StageHistoryPage findStageHistoryPage(Stage stageIdentifier, int pageSize);
 
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
+
+	StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
 
     Long findStageIdByPipelineAndStageNameAndCounter(long pipeline, String name, String counter);
 

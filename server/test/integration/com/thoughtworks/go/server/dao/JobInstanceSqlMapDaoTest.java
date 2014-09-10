@@ -544,7 +544,46 @@ public class JobInstanceSqlMapDaoTest {
         assertThat(instances.size(), is(0));
     }
 
-    @Test
+	@Test
+	public void shouldCorrectly_getJobHistoryCount_findJobHistoryPage() throws Exception {
+		// has a scheduled job
+		long stageId = createSomeJobs(JOB_NAME, 2); // create 4 instances completed, scheduled, completed, scheduled
+		createCopiedJobs(stageId, JOB_NAME, 2);
+
+		JobInstance shouldNotLoadInstance = JobInstanceMother.completed("shouldnotload", JobResult.Passed); // create job with a different name
+		jobInstanceDao.save(stageId, shouldNotLoadInstance);
+
+		JobInstance building = JobInstanceMother.building(JOB_NAME); // create a building job
+		JobInstance saved = jobInstanceDao.save(stageId, building);
+
+		int jobHistoryCount = jobInstanceDao.getJobHistoryCount(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
+		assertThat(jobHistoryCount, is(6));
+
+		JobInstances instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 0);
+		assertThat(instances.size(), is(4));
+
+		assertThat(instances.get(0).getState(), is(JobState.Building));
+		assertThat(instances.get(1).getState(), is(JobState.Completed));
+		assertThat(instances.get(2).getState(), is(JobState.Scheduled));
+		assertThat(instances.get(3).getState(), is(JobState.Completed));
+		assertJobHistoryCorrectness(instances, JOB_NAME);
+
+		instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 4);
+		assertThat(instances.size(), is(2));
+
+		assertThat(instances.get(0).getState(), is(JobState.Scheduled));
+		assertThat(instances.get(1).getState(), is(JobState.Scheduled));
+		assertJobHistoryCorrectness(instances, JOB_NAME);
+	}
+
+	private void assertJobHistoryCorrectness(JobInstances instances, String jobName) {
+		for (JobInstance instance : instances) {
+			assertThat(instance.getIdentifier().getBuildName(), is(jobName));
+			assertThat("Should not have retrieved copied-over jobs", instance.isCopy(), is(false));
+		}
+	}
+
+	@Test
     public void shouldLoadRerunOfCounterValueForScheduledBuilds() {
         List<JobPlan> jobPlans = jobInstanceDao.orderedScheduledBuilds();
         assertThat(jobPlans.size(), is(2));

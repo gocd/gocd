@@ -704,6 +704,10 @@ public class GoConfigService {
         return pipelines;
     }
 
+	public PipelineConfigs getAllPipelinesInGroup(String group) {
+		return getCurrentConfig().pipelines(group);
+	}
+
     public GoConfigValidity checkConfigFileValid() {
         return goConfigFileDao.checkConfigFileValid();
     }

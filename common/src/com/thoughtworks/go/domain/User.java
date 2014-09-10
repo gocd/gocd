@@ -293,8 +293,9 @@ public class  User extends PersistentObject {
 
     public boolean hasSubscribedFor(String pipelineName, String stageName) {
         for (NotificationFilter notificationFilter : notificationFilters) {
-            if (notificationFilter.getPipelineName().equals(pipelineName) && notificationFilter.getStageName().equals(stageName))
+            if (notificationFilter.appliesTo(pipelineName, stageName)) {
                 return true;
+            }
         }
         return false;
     }

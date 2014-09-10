@@ -16,15 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -47,6 +38,9 @@ import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
@@ -197,6 +191,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public ConfigErrors errors() {
         return errors;
     }
+
+	public List<StageConfig> getStages() {
+		return this;
+	}
 
     public StageConfig getStage(final CaseInsensitiveString stageName) {
         return findBy(stageName);

@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -34,6 +32,7 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -55,6 +54,7 @@ import java.util.ArrayList;
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -69,6 +69,8 @@ public class JobInstanceServiceTest {
     @Mock private PropertiesService buildPropertiesService;
     @Mock private StageDao stageDao;
     @Mock private GoConfigService goConfigService;
+    @Mock private CruiseConfig cruiseConfig;
+	@Mock private SecurityService securityService;
     @Mock private PluginManager pluginManager;
 
     @Captor private ArgumentCaptor<Action<IJobPostCompletionHook>> jobPostCompletionActionHandlerCaptor;
@@ -100,7 +102,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener = Mockito.mock(JobStatusListener.class);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                pluginManager, listener);
+				null, pluginManager, listener);
         jobService.updateStateAndResult(job);
 
         verify(jobInstanceDao).updateStateAndResult(job);
@@ -113,7 +115,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager, listener1, listener2);
+                null, null, goConfigService, null, pluginManager, listener1, listener2);
         jobService.updateStateAndResult(job);
 
         verify(jobInstanceDao).updateStateAndResult(job);
@@ -127,7 +129,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager, listener1, listener2);
+                null, null, goConfigService, null, pluginManager, listener1, listener2);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -149,7 +151,7 @@ public class JobInstanceServiceTest {
         stage.setId(1);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager, listener1, listener2);
+                null, null, goConfigService, null, pluginManager, listener1, listener2);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 jobService.save(new StageIdentifier(pipeline.getName(), null, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
@@ -171,7 +173,7 @@ public class JobInstanceServiceTest {
         stage.setId(1);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager, failingListener, passingListener);
+                null, null, goConfigService, null, pluginManager, failingListener, passingListener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -186,7 +188,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldNotifyListenersWhenAssignedJobIsCancelled() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
         job.setAgentUuid("dummy agent");
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -206,7 +208,7 @@ public class JobInstanceServiceTest {
         final JobInstance scheduledJob = scheduled("dev");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, pluginManager);
+                null, goConfigService, null, pluginManager);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -226,7 +228,7 @@ public class JobInstanceServiceTest {
         final JobInstance completedJob = completed("dev");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, pluginManager);
+                null, goConfigService, null, pluginManager);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -244,7 +246,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldNotNotifyListenersWhenAssignedJobCancellationTransactionRollsback() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
         job.setAgentUuid("dummy agent");
 
         try {
@@ -268,7 +270,7 @@ public class JobInstanceServiceTest {
         final JobInstance scheduledJob = scheduled("dev");
         scheduledJob.setId(10);
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, pluginManager);
+                null, goConfigService, null, pluginManager);
 
         when(jobInstanceDao.buildByIdWithTransitions(scheduledJob.getId())).thenReturn(scheduledJob);
 
@@ -286,12 +288,71 @@ public class JobInstanceServiceTest {
         assertThat(scheduledJob.isFailed(), is(true));
     }
 
+	@Test
+	public void shouldDelegateToDAO_getJobHistoryCount() {
+		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager);
+
+		jobService.getJobHistoryCount("pipeline", "stage", "job");
+
+		verify(jobInstanceDao).getJobHistoryCount("pipeline", "stage", "job");
+	}
+
+	@Test
+	public void shouldDelegateToDAO_findJobHistoryPage() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+
+		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
+
+		verify(jobInstanceDao).findJobHistoryPage("pipeline", "stage", "job", pagination.getPageSize(), pagination.getOffset());
+	}
+
+	@Test
+	public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+
+		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		HttpOperationResult result = new HttpOperationResult();
+		JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
+
+		assertThat(jobHistoryPage, is(nullValue()));
+		assertThat(result.httpCode(), is(404));
+	}
+
+	@Test
+	public void shouldPopulateErrorWhenUnauthorized_findJobHistoryPage() {
+		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+
+		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
+				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);
+
+		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+		HttpOperationResult result = new HttpOperationResult();
+		JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
+
+		assertThat(jobHistoryPage, is(nullValue()));
+		assertThat(result.canContinue(), is(false));
+	}
+
     @Test
     public void shouldLoadOriginalJobPlan() {
         JobResolverService resolver = mock(JobResolverService.class);
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
                 resolver,
-                null, goConfigService, pluginManager);
+                null, goConfigService, null, pluginManager);
         DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 7, new JobIdentifier());
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
@@ -303,7 +364,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldRegisterANewListener() throws SQLException {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                pluginManager);
+				null, pluginManager);
         JobStatusListener listener = mock(JobStatusListener.class);
         jobService.registerJobStateChangeListener(listener);
         jobService.updateStateAndResult(job);
@@ -315,7 +376,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldGetCompletedJobsOnAgentOnTheGivenPage() {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                pluginManager);
+				null, pluginManager);
         ArrayList<JobInstance> expected = new ArrayList<JobInstance>();
         when(jobInstanceDao.totalCompletedJobsOnAgent("uuid")).thenReturn(500);
         when(jobInstanceDao.completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50)).thenReturn(expected);
@@ -330,7 +391,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldInvokePreScheduleHooks() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -363,7 +424,7 @@ public class JobInstanceServiceTest {
     public void shouldReThrowExceptionWhenPreScheduleHookThrowsException() {
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
 
         doThrow(new RuntimeException("This will fail with an exception, when plugin manager runs the exception handler.")).when(pluginManager).doOnAll(eq(IJobPreScheduleHook.class), jobPreScheduleActionHandlerCaptor.capture(), jobPreScheduleExceptionHandlerCaptor.capture());
 
@@ -396,7 +457,7 @@ public class JobInstanceServiceTest {
         when(jobPostCompletionHook.call(any(JobContext.class))).thenReturn(new ResponseContext(ResponseContext.ResponseCode.SUCCESS, "success"));
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
 
         //when
         jobService.updateStateAndResult(completedJob);
@@ -430,7 +491,7 @@ public class JobInstanceServiceTest {
         JobInstance jobInstance = JobInstanceMother.building("dev");
         IJobPostCompletionHook jobPostCompletionHook = mock(IJobPostCompletionHook.class);
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, pluginManager);
+                null, null, goConfigService, null, pluginManager);
 
         //when
         jobService.updateStateAndResult(jobInstance);

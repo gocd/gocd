@@ -59,6 +59,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.util.CollectionUtil;
+import com.thoughtworks.go.server.util.Pagination;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.log4j.Logger;
@@ -436,6 +437,20 @@ public class MaterialRepository extends HibernateDaoSupport {
         return (MaterialRepository.class.getName() + "_latestMaterialModifications_" + materialInstance.getId()).intern();
     }
 
+	String materialModificationCountKey(MaterialInstance materialInstance) {
+		// we intern() it because we might synchronize on the returned String
+		return (MaterialRepository.class.getName() + "_materialModificationCount_" + materialInstance.getId()).intern();
+	}
+
+	String materialModificationsWithPaginationKey(MaterialInstance materialInstance) {
+		// we intern() it because we might synchronize on the returned String
+		return (MaterialRepository.class.getName() + "_materialModificationsWithPagination_" + materialInstance.getId()).intern();
+	}
+
+	String materialModificationsWithPaginationSubKey(Pagination pagination) {
+		return String.format("%s-%s", pagination.getCurrentPage(), pagination.getPageSize());
+	}
+
     public void saveOrUpdate(MaterialInstance materialInstance) {
         String cacheKey = materialKey(materialInstance.getFingerprint());
         synchronized (cacheKey) {
@@ -462,6 +477,8 @@ public class MaterialRepository extends HibernateDaoSupport {
         try {
             getHibernateTemplate().saveOrUpdate(modification);
             removeLatestCachedModification(materialInstance, modification);
+			removeCachedModificationCountFor(materialInstance);
+			removeCachedModificationsFor(materialInstance);
         } catch (Exception e) {
             String message = "Cannot save modification " + modification;
             LOGGER.error(message, e);
@@ -747,6 +764,30 @@ public class MaterialRepository extends HibernateDaoSupport {
         });
     }
 
+	private void removeCachedModificationCountFor(final MaterialInstance materialInstance) {
+		transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				String key = materialModificationCountKey(materialInstance);
+				synchronized (key) {
+					goCache.remove(key);
+				}
+			}
+		});
+	}
+
+	private void removeCachedModificationsFor(final MaterialInstance materialInstance) {
+		transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				String key = materialModificationsWithPaginationKey(materialInstance);
+				synchronized (key) {
+					goCache.remove(key);
+				}
+			}
+		});
+	}
+
     Modifications cachedModifications(MaterialInstance materialInstance) {
         return (Modifications) goCache.get(latestMaterialModificationsKey(materialInstance));
     }
@@ -806,7 +847,9 @@ public class MaterialRepository extends HibernateDaoSupport {
         for (Modification modification : list) {
             removeLatestCachedModification(materialInstance, modification);
         }
-    }
+		removeCachedModificationCountFor(materialInstance);
+		removeCachedModificationsFor(materialInstance);
+	}
 
     public Modification findModificationWithRevision(final Material material, final String revision) {
         return (Modification) getHibernateTemplate().execute(new HibernateCallback() {
@@ -943,6 +986,54 @@ public class MaterialRepository extends HibernateDaoSupport {
         }
         return modifications;
     }
+
+	public Long getTotalModificationsFor(final MaterialInstance materialInstance) {
+		String key = materialModificationCountKey(materialInstance);
+		Long totalCount = (Long) goCache.get(key);
+		if (totalCount == null || totalCount == 0) {
+			synchronized (key) {
+				totalCount = (Long) goCache.get(key);
+				if (totalCount == null || totalCount == 0) {
+					totalCount = (Long) getHibernateTemplate().execute(new HibernateCallback() {
+						public Object doInHibernate(Session session) throws HibernateException, SQLException {
+							Query q = session.createQuery("select count(*) FROM Modification WHERE materialId = ?");
+							q.setLong(0, materialInstance.getId());
+							return q.uniqueResult();
+						}
+					});
+					goCache.put(key, totalCount);
+				}
+			}
+		}
+		return totalCount;
+	}
+
+	public Modifications getModificationsFor(final MaterialInstance materialInstance, final Pagination pagination) {
+		String key = materialModificationsWithPaginationKey(materialInstance);
+		String subKey = materialModificationsWithPaginationSubKey(pagination);
+		Modifications modifications = (Modifications) goCache.get(key, subKey);
+		if (modifications == null) {
+			synchronized (key) {
+				modifications = (Modifications) goCache.get(key, subKey);
+				if (modifications == null) {
+					List<Modification> modificationsList = getHibernateTemplate().executeFind(new HibernateCallback() {
+						public Object doInHibernate(Session session) throws HibernateException, SQLException {
+							Query q = session.createQuery("FROM Modification WHERE materialId = ? ORDER BY id DESC");
+							q.setFirstResult(pagination.getOffset());
+							q.setMaxResults(pagination.getPageSize());
+							q.setLong(0, materialInstance.getId());
+							return q.list();
+						}
+					});
+					if (!modificationsList.isEmpty()) {
+						modifications = new Modifications(modificationsList);
+						goCache.put(key, subKey, modifications);
+					}
+				}
+			}
+		}
+		return modifications;
+	}
 
     public Long latestModificationRunByPipeline(final CaseInsensitiveString pipelineName, final Material material) {
         final long materialId = findMaterialInstance(material).getId();

@@ -32,6 +32,37 @@ class Api::PipelinesController < Api::ApiController
                       :stage_counter => stage_identifier.getStageCounter()}.merge(options))
   end
 
+  def history
+    pipeline_name = params[:pipeline_name]
+    offset = params[:offset].to_i
+    page_size = 10
+    pipeline_instance_count = pipeline_history_service.totalCount(pipeline_name)
+    result = HttpOperationResult.new
+
+    pagination = Pagination.pageStartingAt(offset, pipeline_instance_count, page_size)
+    pipeline_history = pipeline_history_service.loadMinimalData(pipeline_name, pagination, CaseInsensitiveString.str(current_user.getUsername()), result)
+
+    if result.canContinue()
+      pipeline_history_api_model = PipelineHistoryAPIModel.new(pagination, pipeline_history)
+      render json: pipeline_history_api_model
+    else
+      render_error_response(result.detailedMessage(), result.httpCode(), true)
+    end
+  end
+
+  def status
+    pipeline_name = params[:pipeline_name]
+    result = HttpOperationResult.new
+
+    pipeline_status = pipeline_history_service.getPipelineStatus(pipeline_name, CaseInsensitiveString.str(current_user.getUsername()), result)
+
+    if result.canContinue()
+      render json: PipelineStatusAPIModel.new(pipeline_status)
+    else
+      render_error_response(result.detailedMessage(), result.httpCode(), true)
+    end
+  end
+
   helper_method :url, :resource_url, :page_url
 
   def pipeline_instance

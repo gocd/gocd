@@ -16,43 +16,36 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.materials.MatchedRevision;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,17 +54,19 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(Theories.class)
 public class MaterialServiceTest {
@@ -253,6 +248,37 @@ public class MaterialServiceTest {
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
         assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
     }
+
+	@Test
+	public void shouldDelegateToMaterialRepository_getTotalModificationsFor() {
+		GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, "flyweight");
+
+		when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+		when(materialRepository.getTotalModificationsFor(gitMaterialInstance)).thenReturn(1L);
+
+		Long totalCount = materialService.getTotalModificationsFor(materialConfig);
+
+		assertThat(totalCount, is(1L));
+	}
+
+	@Test
+	public void shouldDelegateToMaterialRepository_getModificationsFor() {
+		GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, "flyweight");
+		Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+		Modifications modifications = new Modifications();
+		modifications.add(new Modification("user", "comment", "email", new Date(), "revision"));
+
+		when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+		when(materialRepository.getModificationsFor(gitMaterialInstance, pagination)).thenReturn(modifications);
+
+		Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
+
+		assertThat(gotModifications, is(modifications));
+	}
 
     private void assertHasModifcation(MaterialRevisions materialRevisions, boolean b) {
         HgMaterial hgMaterial = new HgMaterial("foo.com", null);

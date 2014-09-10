@@ -252,6 +252,9 @@
                 /admin/agent-launcher.jar=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-plugins.zip=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/oauth/token=IS_AUTHENTICATED_ANONYMOUSLY
+                /admin/oauth/authorize=ROLE_USER
+                /admin/oauth/user_tokens=ROLE_USER
+                /admin/oauth/user_tokens/revoke/**=ROLE_USER
                 /tab/admin/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/configuration/file/**=ROLE_SUPERVISOR
                 /admin/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR

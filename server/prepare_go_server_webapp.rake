@@ -100,7 +100,10 @@ end
 
 task :handle_assets_rails4 do
   task('precompile_assets').invoke
-  safe_cp "webapp/WEB-INF/rails.new/public/assets/**/*", "target/webapp/WEB-INF/rails.new/public/assets/"
+  target_assets_location = "target/webapp/WEB-INF/rails.new/public/assets/"
+  rm_rf target_assets_location if File.exist? target_assets_location
+
+  safe_cp "webapp/WEB-INF/rails.new/public/assets/", target_assets_location
 
   #delete assets used by rails2
   rm_f("target/webapp/javascripts") #if File.exist?("target/webapp/javascripts")
@@ -411,7 +414,6 @@ def fix_scope_calls content, prefix
 end
 
 def safe_cp from, to
-  rm_f to if File.exist? to
   mkdir_p to
   cp_r from, to
 end

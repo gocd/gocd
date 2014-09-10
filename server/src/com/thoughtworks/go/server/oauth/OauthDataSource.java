@@ -281,6 +281,14 @@ public interface OauthDataSource {
             this.oauthClientId = oauthClientId;
         }
 
+        public String getClientId() {
+            return oauthClientId;
+        }
+
+        public void setClientId(String oauthClientId) {
+            this.oauthClientId = oauthClientId;
+        }
+
         public String getAccessToken() {
             return accessToken;
         }

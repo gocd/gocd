@@ -57,7 +57,7 @@ describe Api::ServerController do
 
     it "should answer for /api/server/server.xml" do
       expect(:get => 'api/server.xml').to route_to(:controller => "api/server", :action => 'info', :format => "xml", :no_layout => true)
+      expect(controller.send(:server_path)).to eq("/api/server.xml")
     end
   end
-
 end

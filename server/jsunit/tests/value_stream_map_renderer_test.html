@@ -106,7 +106,7 @@ function testShouldCheckIfPipelineHasRunMessageVisible() {
     ]}
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container .waiting').length, 1);
+    assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #sample .waiting').length, 1);
 }
 
 function testShouldRenderGraphForASimplePipeline() {

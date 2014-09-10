@@ -672,6 +672,16 @@ public class InstanceFactoryTest {
 		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
 		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
+		assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+		assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
+		assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+		assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
+		assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+		assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
+		assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+
 		Stage stage = createStageInstance(old, jobs);
 
 		JobInstances jobInstances = stage.getJobInstances();
@@ -695,10 +705,30 @@ public class InstanceFactoryTest {
 		RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
 		JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
+		assertThat(jobs.get(0).getName(), is("rails-runInstance-1"));
+		assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
+		assertEnvironmentVariable(jobs.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobs.get(1).getName(), is("rails-runInstance-2"));
+		assertEnvironmentVariable(jobs.get(1), 0, "GO_JOB_RUN_INDEX", "2");
+		assertEnvironmentVariable(jobs.get(1), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobs.get(2).getName(), is("rails-runInstance-3"));
+		assertEnvironmentVariable(jobs.get(2), 0, "GO_JOB_RUN_INDEX", "3");
+		assertEnvironmentVariable(jobs.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+
 		Stage stage = createStageInstance(old, jobs);
 
 		Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
 		JobInstances jobsForRerun = stageForRerun.getJobInstances();
+
+		assertThat(jobsForRerun.get(0).getName(), is("rails-runInstance-3"));
+		assertEnvironmentVariable(jobsForRerun.get(0), 0, "GO_JOB_RUN_INDEX", "3");
+		assertEnvironmentVariable(jobsForRerun.get(0), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobsForRerun.get(2).getName(), is("rails-runInstance-1"));
+		assertEnvironmentVariable(jobsForRerun.get(2), 0, "GO_JOB_RUN_INDEX", "1");
+		assertEnvironmentVariable(jobsForRerun.get(2), 1, "GO_JOB_RUN_COUNT", "3");
+		assertThat(jobsForRerun.get(3).getName(), is("rails-runInstance-2"));
+		assertEnvironmentVariable(jobsForRerun.get(3), 0, "GO_JOB_RUN_INDEX", "2");
+		assertEnvironmentVariable(jobsForRerun.get(3), 1, "GO_JOB_RUN_COUNT", "3");
 
 		assertThat(jobsForRerun.size(), is(4));
 		assertRunMultipleJobInstance(jobsForRerun.get(0), "rails-runInstance-3");
@@ -875,5 +905,10 @@ public class InstanceFactoryTest {
 		assertThat(jobInstance.isRunMultipleInstance(), is(true));
 		assertThat(jobInstance.isRunOnAllAgents(), is(false));
 		assertThat(jobInstance.isRerun(), is(true));
+	}
+
+	private void assertEnvironmentVariable(JobInstance jobInstance, int index, String name, String value) {
+		assertThat(jobInstance.getPlan().getVariables().get(index).getName(), is(name));
+		assertThat(jobInstance.getPlan().getVariables().get(index).getValue(), is(value));
 	}
 }

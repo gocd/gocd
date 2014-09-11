@@ -11,6 +11,7 @@ module Oauth2Provider
 
     def index
       return unless validate_params
+      render 'oauth2_provider/authorize/index.html.erb'
     end
 
     def authorize
@@ -45,7 +46,7 @@ module Oauth2Provider
         render :text => "You did not specify the 'redirect_uri' parameter!", :status => :bad_request
         return false
       end
-      @client = Oauth2Provider::Client.find_by_id(params[:client_id])
+      @client = Oauth2Provider::Client.find_one(:client_id, params[:client_id])
       if @client.nil?
         redirect_to "#{params[:redirect_uri]}?error=invalid-client-id"
         return false

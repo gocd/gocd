@@ -10,7 +10,7 @@ module Oauth2Provider
       end
       @params = {redirect_uri: "http://test.host/redirect/here"}
       @client = create(Oauth2Provider::Client)
-      @valid_params = {client_id: @client.id, response_type: 'code', redirect_uri: @client.redirect_uri}
+      @valid_params = {client_id: @client.client_id, response_type: 'code', redirect_uri: @client.redirect_uri}
     end
     
     describe 'validate_params' do
@@ -41,7 +41,7 @@ module Oauth2Provider
       end
       
       it "should return if redirect_uri mismatches" do
-        post :authorize, {use_route: :oauth_engine}.merge({client_id: @client.id, response_type: 'code'}.merge(@params))
+        post :authorize, {use_route: :oauth_engine}.merge({client_id: @client.client_id, response_type: 'code'}.merge(@params))
         expect(response).to redirect_to("#{@params[:redirect_uri]}?error=redirect-uri-mismatch")
       end
     end
@@ -75,7 +75,7 @@ module Oauth2Provider
       it "should return if params invalid" do
         get :index, {use_route: :oauth_engine}
         expect(response.status).to eq(302)
-      end
+      end      
     end
   end
 end

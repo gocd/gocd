@@ -162,10 +162,6 @@ describe ApplicationController do
       @controller.params[:hello] = "world"
       expect(@controller.send(:default_as_empty_list)).to eq(true)
     end
-
-  #  it "should mark defaultable field by adding a hidden input" do
-  #    @controller.send(:register_defaultable_list, "foo>bar>baz").should == '<input type="hidden" name="default_as_empty_list[]" value="foo>bar>baz"/>'
-  #  end
   end
 
   describe "config MD5 stuff" do

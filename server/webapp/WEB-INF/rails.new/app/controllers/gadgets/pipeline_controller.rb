@@ -20,6 +20,7 @@ module Gadgets
 
     def index
       expires_in 24.hours, :public => true
+      render layout: false
     end
 
     def content
@@ -47,6 +48,7 @@ module Gadgets
 
       @pipeline = pipeline(pipeline_history_service.getActivePipelineInstance(current_user, pipeline_name), pipeline_name)
 
+      render layout: false
     end
 
     private

@@ -3,7 +3,7 @@ Oauth2Provider::Engine.routes.draw do
   
   resources :clients
   
-  post "/authorize" => "authorize#authorize"
+  post "/authorize" => "authorize#authorize", as: :authorize_authorize
   get "/authorize" => "authorize#index", as: :authorize_index
   
   post "/token" => "tokens#get_token", as: :tokens_get_token

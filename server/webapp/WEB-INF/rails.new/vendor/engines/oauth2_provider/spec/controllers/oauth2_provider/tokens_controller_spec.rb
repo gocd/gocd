@@ -9,15 +9,14 @@ module Oauth2Provider
         end
       end
       @params = {redirect_uri: "http://test.host/redirect/here"}
-      @client = create(Oauth2Provider::Client)
-      @valid_params = {client_id: @client.id, response_type: 'code', redirect_uri: @client.redirect_uri}
     end
     
     describe 'get_token' do
       before :each do
         @authorization = create(Oauth2Provider::Authorization)
-        @client = Oauth2Provider::Client.find_by_id(@authorization.client_id)
-        @params = {code: @authorization.code, client_id: @authorization.client_id, 
+        @client = Oauth2Provider::Client.find_one(:id, @authorization.client_id)
+        @valid_params = {client_id: @client.client_id, response_type: 'code', redirect_uri: @client.redirect_uri}
+        @params = {code: @authorization.code, client_id: @client.client_id, 
           client_secret: @client.client_secret, redirect_uri: @client.redirect_uri}
       end
       

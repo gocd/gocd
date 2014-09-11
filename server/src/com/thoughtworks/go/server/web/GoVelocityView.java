@@ -17,12 +17,11 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.util.RailsAssetsHelper;
+import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.mortbay.jetty.Request;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
@@ -42,15 +41,18 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String USE_NEW_RAILS = "useNewRails";
-    public static final String COMPRESSED_JAVASCRIPT_FILE_PATH = "compressedJavascriptFilePath";
-    public static final String COMPRESSED_APPLICATION_CSS_FILE_PATH = "compressedApplicationCssFilePath";
-    public static final String COMPRESSED_VM_CSS_FILE_PATH = "compressedVmCssFilePath";
-    public static final String COMPRESSED_CSS_CSS_FILE_PATH = "compressedCssCssFilePath";
-    public static final String JAVASCRIPTS_PATH_IN_DEV_ENV = "javascriptsPathInDevEnv";
+    public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
+    public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
+    public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
+    public static final String CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH = "concatenatedCssApplicationCssFilePath";
     private final SystemEnvironment systemEnvironment;
 
     public GoVelocityView() {
-        this.systemEnvironment = new SystemEnvironment();
+        this(new SystemEnvironment());
+    }
+
+    RailsAssetsService getRailsAssetsService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(RailsAssetsService.class);
     }
 
     public GoVelocityView(SystemEnvironment systemEnvironment) {
@@ -58,6 +60,7 @@ public class GoVelocityView extends VelocityToolboxView {
     }
 
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
+        RailsAssetsService railsAssetsService = getRailsAssetsService();
         velocityContext.put(ADMINISTRATOR, true);
         velocityContext.put(GROUP_ADMINISTRATOR, true);
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
@@ -65,19 +68,14 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
         Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
         velocityContext.put(USE_NEW_RAILS, useNewRails);
+
         if (useNewRails) {
-            if (systemEnvironment.useCompressedJs()) {
-                RailsAssetsHelper helper = new RailsAssetsHelper(((Request) request).getContext());
-                velocityContext.put(COMPRESSED_JAVASCRIPT_FILE_PATH, helper.getAssetPath("application.js"));
-                velocityContext.put(COMPRESSED_APPLICATION_CSS_FILE_PATH, helper.getAssetPath("application.css"));
-                velocityContext.put(COMPRESSED_VM_CSS_FILE_PATH, helper.getAssetPath("vm/application.css"));
-                velocityContext.put(COMPRESSED_CSS_CSS_FILE_PATH, helper.getAssetPath("css/application.css"));
-            } else {
-                velocityContext.put(JAVASCRIPTS_PATH_IN_DEV_ENV, "assets");
-            }
+            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
+            velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
+            velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
+            velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
         } else {
-            velocityContext.put(COMPRESSED_JAVASCRIPT_FILE_PATH, "compressed/all.js?#include(\"admin/admin_version.txt.vm\")");
-            velocityContext.put(JAVASCRIPTS_PATH_IN_DEV_ENV, "javascripts");
+            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, "compressed/all.js?#include(\"admin/admin_version.txt.vm\")");
         }
 
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(

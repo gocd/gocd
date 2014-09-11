@@ -28,19 +28,7 @@ import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
 import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ArtifactsDirHolder;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.server.service.BuildAssignmentService;
-import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.GoLicenseService;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
-import com.thoughtworks.go.server.service.LicenseViolationChecker;
-import com.thoughtworks.go.server.service.PipelineLockService;
-import com.thoughtworks.go.server.service.PipelineScheduler;
-import com.thoughtworks.go.server.service.TimerScheduler;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
@@ -64,7 +52,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDataSource goConfigDataSource;
-    @Autowired private GoLicenseService goLicenseService;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
     @Autowired private CachedGoConfig cachedGoConfig;
@@ -83,6 +70,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private BackupService backupService;
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
+    @Autowired private RailsAssetsService railsAssetsService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -128,6 +116,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             goCasServiceProperties.initialize();
             goDiskSpaceMonitor.initialize();
             backupService.initialize();
+            railsAssetsService.initialize();
+
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

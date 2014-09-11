@@ -44,6 +44,8 @@
         </div>
         <div class="form_item">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::RUN_TYPE, l.string("RUN_TYPE"), :class => "before_tip" %>
+
+            <div class="clear"></div>
             <%= error_message_on(scope[:job], com.thoughtworks.go.config.JobConfig::RUN_TYPE, :css_class => "form_error") %>
             <div class="clear"></div>
 

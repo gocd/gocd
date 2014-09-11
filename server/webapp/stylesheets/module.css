@@ -1871,7 +1871,7 @@ fieldset.two-cols button {
 }
 
 input.small_text_field {
-    width: 45px;
+    width: 45px !important;
 }
 
 /*

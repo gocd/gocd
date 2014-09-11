@@ -18,14 +18,6 @@ module PipelinesHelper
   include RailsLocalizer
   include JavaImports
 
-  # TODO: SBD: As a part of new Rails migration, methods in this file need to be uncommented and tested.
-
-  #def stage_status_for_ui state
-  #  is_stage_unknown = state.stageResult() == StageResult::Unknown
-  #  stage_result_to_string = state.stageResult().toString()
-  #  l.string(is_stage_unknown ? "Building" : stage_result_to_string)
-  #end
-  #
   def stage_bar_url stage, action
     stage_id = stage.getIdentifier()
     stage.isScheduled() ? stage_detail_tab_path(:stage_name => stage_id.getStageName(), :stage_counter => stage_id.getStageCounter(), :pipeline_name => stage_id.getPipelineName(), :pipeline_counter => stage_id.getPipelineCounter(), :action => action) : "#"
@@ -51,10 +43,6 @@ module PipelinesHelper
       "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}".html_safe
     end
   end
-  #
-  #def clear_after(idx)
-  #  idx % 3 == 2 ? " clear_after" : ""
-  #end
 
   def pipelines_pipeline_dom_id(pipeline_model)
     "pipeline_#{pipeline_name(pipeline_model)}_panel"
@@ -72,11 +60,6 @@ module PipelinesHelper
     dependency?(material) ? 'dependency' : 'scm'
   end
 
-  #
-  #def scm?(material)
-  #  material.is_a? ScmMaterial
-  #end
-  #
   def dependency?(material)
     material.is_a? DependencyMaterial
   end
@@ -113,18 +96,4 @@ module PipelinesHelper
   def url_for_dmr(dmr)
     stage_detail_tab_path({:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter(), :action => "pipeline"})
   end
-  #
-  #def url_for_remote_pipeline(pipeline_name, remote_server)
-  #  "#{remote_server.getHostConfiguration().getHostURL()}/go/tab/pipeline/history/#{pipeline_name}"
-  #end
-  #
-  #def url_for_dmr_for_remote_pipeline(dmr, remote_server)
-  #  options = {:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter(), :action => "pipeline"}
-  #  if remote_server
-  #    port = remote_server.getHostConfiguration().getPort()
-  #    host = "#{remote_server.getHostConfiguration().getHost()}#{port == 80 ? '' : ':' + port.to_s}"
-  #    options.merge!({:only_path => false, :host => host})
-  #  end
-  #  stage_detail_tab_url(options)
-  #end
 end

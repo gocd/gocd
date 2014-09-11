@@ -23,14 +23,12 @@ describe UsersHelper do
     user_search_model = UserSearchModel.new(User.new("foo", "Mr. Foo", "foo@bar.com"))
 
     expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. Foo', 'foo@bar.com']")
-
   end
 
   #support ticket 7044
-  it "should escape apostrophe in dispaly name" do
+  it "should escape apostrophe in display name" do
     user_search_model = UserSearchModel.new(User.new("foo", "Mr. O' Brien", "foo@bar.com"))
 
     expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. O\\' Brien', 'foo@bar.com']")
-
   end
 end

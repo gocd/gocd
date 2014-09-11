@@ -17,7 +17,7 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper")
 
 def params
-  {:pipeline_group => 'pipeline_gropu_stuff', :plugin_stuff => "other", :other_go_stuff => "also_incl"}
+  {:pipeline_group => 'pipeline_group_stuff', :plugin_stuff => "other", :other_go_stuff => "also_incl"}
 end
 
 describe Admin::ConfigContextHelper do
@@ -28,5 +28,5 @@ describe Admin::ConfigContextHelper do
     expect(plugin_params[:pipeline_group]).to be_nil
     expect(plugin_params[:plugin_stuff]).to eq("other")
     expect(plugin_params[:other_go_stuff]).to eq("also_incl")
-    end
+  end
 end

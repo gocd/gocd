@@ -43,12 +43,12 @@ describe PipelinesHelper do
     it "should show Rerun for scheduled stage" do
       stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
       stage = stages.get(0)
-      run_stage_label(stage).should == "rerun"
+      expect(run_stage_label(stage)).to eq("rerun")
     end
 
     it "should show Trigger for stage not yet scheduled" do
       stage = NullStageHistoryItem.new("stage_name")
-      run_stage_label(stage).should == "trigger"
+      expect(run_stage_label(stage)).to eq("trigger")
     end
   end
 
@@ -132,7 +132,7 @@ describe PipelinesHelper do
 
   it "should return the url for value stream map of given pipeline instance" do
     pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-    url_for_pipeline_value_stream_map(pim).should == "/pipelines/value_stream_map/blah-pipeline/5"
+    expect(url_for_pipeline_value_stream_map(pim)).to eq("/pipelines/value_stream_map/blah-pipeline/5")
   end
 
   it "should return the pipeline instance identifier" do
@@ -162,17 +162,17 @@ describe PipelinesHelper do
   describe "revision_for" do
     it "should return short revision for scm material" do
       revision = ModificationsMother.createHgMaterialRevisions().getRevisions().get(0)
-      revision_for(revision).should == revision.getLatestShortRevision()
+      expect(revision_for(revision)).to eq(revision.getLatestShortRevision())
     end
 
     it "should return pipeline identifier for pipeline material" do
       revision = ModificationsMother.createPipelineMaterialRevision("p1/2/s2/1")
-      revision_for(revision).should == "p1/2"
+      expect(revision_for(revision)).to eq("p1/2")
     end
 
     it "should return package revision when material type is package" do
       revision = ModificationsMother.createPackageMaterialRevision("go-agent-13.1.noarch.rpm")
-      revision_for(revision).should == "go-agent-13.1.noarch.rpm"
+      expect(revision_for(revision)).to eq("go-agent-13.1.noarch.rpm")
     end
   end
 end

@@ -20,24 +20,12 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
 #if($useNewRails)
-    #if ($useCompressJS)
-        <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico"/>
-        <link href="$req.getContextPath()/$compressedCssCssFilePath" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/$compressedVmCssFilePath" rel="stylesheet" type="text/css"></link>
-        <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
-        <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
-        <script src="$req.getContextPath()/$compressedApplicationCssFilePath" type="text/javascript"></script>
-    #else
-        <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico"/>
-        <link href="$req.getContextPath()/assets/css/reset-fonts-grids-fix.css" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/assets/css/rounded_corner.css" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/assets/css/application-old.css" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/assets/vm/structure_for_old_ui.css" rel="stylesheet" type="text/css"></link>
-        <!--[if lte IE 7]>
-        <link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
-        <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
-        <script src="$req.getContextPath()/compressed/all.js" type="text/javascript"></script>
-    #end
+    <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico"/>
+    <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
+    <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
+    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
+    <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
+    <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
 #else
     <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
     <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
@@ -47,7 +35,6 @@
     <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
     <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
     <script src="$req.getContextPath()/compressed/all.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-
 #end
     <style type="text/css">
         body {

@@ -35,107 +35,9 @@
             <link href="$req.getContextPath()/$compressedCssCssFilePath" media="all" rel="stylesheet" />
             <link href="$req.getContextPath()/$compressedVmCssFilePath" media="all" rel="stylesheet" />
         #else
-            <link href="$req.getContextPath()/assets/structure/reset.css?body=1" media="all" rel="stylesheet" />
-
-            <link href="$req.getContextPath()/assets/css_sass/base/mixins.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/base/reset-g9.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/base/sprites.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/base/variables.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/alerts.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/labels-badges.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/messages.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/navbar.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/pagination.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/treenav.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/components/wizard.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/breadcrumb.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/button-groups.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/docked-toolbar.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/dropdowns.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/forms.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/layouts.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/modals.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/popovers.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/progress-bars.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/scaffolding.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/tabs.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/gadgets/tooltip.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/global/layout.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/global/responsive.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/global/typography.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/admin.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/admin/templates.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/agent.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/history-panel.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/pipeline.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/plugin-infra.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/css_sass/go-pages/vsm.css?body=1" media="all" rel="stylesheet" />
-
-            <link href="$req.getContextPath()/assets/application.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/main.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/layout.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/structure.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/ie_hacks.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/module.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/structure/application.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/plugins/jquery.autocomplete.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/plugins/treeview.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_jobs.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_dependency.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_git.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_hg.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_p4.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_shared.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_materials_svn.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_pipeline_groups.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_pipelines.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_pipelines_materials.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_pipelines_snippet.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_shared.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_stages.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_ant.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_exec.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_fetch.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_nant.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_rake.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_tasks_shared.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_templates.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/admin_user_roles.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/agents.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/backup.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/comparison.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/config_server.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/environments.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/failures.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/gadgets_pipeline.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/pipelines.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/server.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/shared.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/shared_go_license_about_to_expire.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/stages.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/users.css?body=1" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/assets/views/views.css?body=1" media="all" rel="stylesheet" />
-
-            #if($extra_css_list)
-                #foreach($css_name in $extra_css_list)
-                <link href="$req.getContextPath()/assets/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
-                #end
-            #end
-
-            <link href="$req.getContextPath()/assets/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/css/application-old.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/css/mycruise-tab.css?" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/css/sub_tab.css?" rel="stylesheet" type="text/css"></link>
-
-            <link href="$req.getContextPath()/assets/vm/rails_like.css" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/vm/old_ui_hack.css" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/vm/structure_for_old_ui.css" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/vm/layout_for_old_ui.css" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/assets/vm/jef_override_for_old_ui.css" rel="stylesheet" type="text/css"></link>
-
+            <link href="$req.getContextPath()/assets/application.css" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/css/application.css" media="all" rel="stylesheet" />
+            <link href="$req.getContextPath()/assets/vm/application.css" media="all" rel="stylesheet" />
         #end
     #else
         <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
@@ -167,72 +69,73 @@
         #end
 
     #end
-
-
-
+    #if ($useCompressJS)
+        <script src="$req.getContextPath()/$compressedJavascriptFilePath" type="text/javascript">
+    #else
+        #if($useNewRails)
+            <script type="text/javascript" src="$req.getContextPath()/assets/application.js"></script>
+        #else
+            <script src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery_no_conflict.js"></script>
+            <script src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/effects-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/accordion-2.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/controls-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/dragdrop-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/modalbox-1.6.1.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/slider-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/trimpath-template-1.0.38.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/build_base_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/json_to_css.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/admin.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/agent.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/agent_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/enhanced_modalbox.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/ajax_refresher.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/application.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/build_detail.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/build_detail_properties.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/builder.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/build_output_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/cookie_utils.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/dashboard_global.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/dashboard_periodical_executer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/filters.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/flash.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/i18n.js" charset="UTF-8"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/i18n_support.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/log_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/material.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/my_cruise.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/pagination.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline_history.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline_selector_cookie.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/sidebar.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/simple-pipeline.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/stage_detail_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/tabs.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/test_helper.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/time_converter.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/timer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/timer_observer.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/toolkit.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/transmessage.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/word_break_inserter.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/inplace-editor.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/server_configuration.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/micro_content_popup.js"></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/util.js" ></script>
+            <script type="text/javascript" src="$req.getContextPath()/javascripts/user_options_on_header.js" ></script>
+        #end
+    #end
 
     <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
     <!--[if IE 6]><script type="text/javascript">window.cruise_is_running_in_ie6 = true;</script><![endif]-->
-    #if ($useCompressJS)
-        <script src="$req.getContextPath()/$compressedJavascriptFilePath" type="text/javascript"></script>
-    #else
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/jquery-1.7.2.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/bootstrap-2.3.2.min.js" type="text/javascript"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/jquery_no_conflict.js"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/prototype-1.6.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/scriptaculous-1.8.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/effects-1.8.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/accordion-2.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/controls-1.8.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/dragdrop-1.8.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/modalbox-1.6.1.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/slider-1.8.0.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/trimpath-template-1.0.38.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/angular.1.0.8.min.js" type="text/javascript"></script>
-        <script src="$req.getContextPath()/$javascriptsPathInDevEnv/lib/angular-resource.1.0.8.min.js" type="text/javascript"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/build_base_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/json_to_css.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/admin.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/agent.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/agent_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/enhanced_modalbox.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/ajax_refresher.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/application.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/build_detail.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/build_detail_properties.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/builder.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/build_output_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/cookie_utils.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/dashboard_global.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/dashboard_periodical_executer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/filters.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/flash.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/i18n.js" charset="UTF-8"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/i18n_support.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/log_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/material.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/my_cruise.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/pagination.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/pipeline_history.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/pipeline.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/pipeline_selector_cookie.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/sidebar.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/simple-pipeline.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/stage_detail_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/tabs.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/test_helper.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/time_converter.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/timer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/timer_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/toolkit.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/transmessage.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/word_break_inserter.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/inplace-editor.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/server_configuration.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/micro_content_popup.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/util.js" ></script>
-        <script type="text/javascript" src="$req.getContextPath()/$javascriptsPathInDevEnv/user_options_on_header.js" ></script>
-    #end
     <title>
         #if($title)
         $title

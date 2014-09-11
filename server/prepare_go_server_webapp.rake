@@ -99,6 +99,7 @@ task :handle_assets_rails2 do
 end
 
 task :handle_assets_rails4 do
+  rm_rf("target/webapp/WEB-INF/rails.new/tmp")
   task('precompile_assets').invoke
   assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
@@ -203,7 +204,7 @@ end
 task :precompile_assets do
   ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
   classpath = File.read("target/server-test-dependencies")
-  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile tmp:cache:clear"
+  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
 end
 
 task :create_all_js_rails2 do

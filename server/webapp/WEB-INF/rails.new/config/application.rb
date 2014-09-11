@@ -6,6 +6,7 @@ require "oauth2_provider"
 require "dynamic_form"
 require "gadgets"
 require "sprockets/railtie"
+require "sass"
 
 module Go
   class Application < Rails::Application

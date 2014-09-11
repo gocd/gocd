@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -323,7 +324,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             artifactPlans.setConfigAttributes(attributesMap.get(ARTIFACT_PLANS));
         }
         setTimeoutAttribute(attributesMap);
-		setJobRunTypeAttribute(attributesMap);
+		if (new SystemEnvironment().get(SystemEnvironment.USE_NEW_RAILS)) {
+			setJobRunTypeAttribute(attributesMap);
+		} else {
+			if (attributesMap.containsKey(RUN_ON_ALL_AGENTS)) {
+				runOnAllAgents = "1".equals(attributesMap.get(RUN_ON_ALL_AGENTS));
+			}
+		}
     }
 
     private void setTimeoutAttribute(Map attributesMap) {

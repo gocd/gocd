@@ -42,11 +42,6 @@ public class DelegatingServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Request req = (Request) request;
-        if ("Y".equals(System.getProperty("use.new.rails")) && (req.getRequestURI().contains("go/javascripts/lib") || req.getRequestURI().contains("go/compressed/all.js"))) {
-            req.setRequestURI(req.getRequestURI().replaceAll("^/go/compressed/all.js", "/go/assets/application.js"));
-            req.setRequestURI(req.getRequestURI().replaceAll("^/go/javascripts/lib/", "/go/assets/"));
-        }
-
         req.setRequestURI(req.getRequestURI().replaceAll("^/go/rails/", "/go/"));
         rackServlet.service(request, response);
     }

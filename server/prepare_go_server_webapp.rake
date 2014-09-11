@@ -106,15 +106,15 @@ task :handle_assets_rails4 do
   cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
 
   #delete assets used by rails2
-  rm_f("target/webapp/javascripts") #if File.exist?("target/webapp/javascripts")
-  rm_f("target/webapp/css") #if File.exist?("target/webapp/css")
-  rm_f("target/webapp/stylesheets") #if File.exist?("target/webapp/stylesheets")
-  rm_f("target/webapp/sass") #if File.exist?("target/webapp/sass")
-  rm_f("target/webapp/images") #if File.exist?("target/webapp/images")
+  rm_rf("target/webapp/javascripts")
+  rm_rf("target/webapp/css")
+  rm_rf("target/webapp/stylesheets")
+  rm_rf("target/webapp/sass")
+  rm_rf("target/webapp/images")
 end
 
 task :handle_assets do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2')
+  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
 end
 
 #prepare help docs

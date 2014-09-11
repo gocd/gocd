@@ -63,7 +63,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
-        velocityContext.put("jyoti", this);
         Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
         velocityContext.put(USE_NEW_RAILS, useNewRails);
         if (useNewRails) {

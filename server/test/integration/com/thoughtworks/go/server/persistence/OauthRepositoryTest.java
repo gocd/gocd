@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -462,6 +460,37 @@ public class OauthRepositoryTest {
         assertThat(dto.getClientSecret(), is(clientSecret));
         assertThat(dto.getRedirectUri(), is(redirectUri));
         assertThat(dto.getId(), is(not(PersistentObject.NOT_PERSISTED)));
+    }
+
+    @Test
+    public void shouldSaveAuthorization_ForEngineFlow() throws Exception {
+        OauthClient client = new OauthClient("mingle09", "client_id", "client_secret", "http://something");
+        template.save(client);
+        long expiresAt = new Date().getTime();
+        Map<String, String> attributes = m("authenticity_token", "eJkmGwpHh045A/h5uhme+4Pqdr+E8b+jgRq1+vt/s6M=", "authorize", "Yes", "client_id", String.valueOf(client.getDTO().getId()),
+                "redirect_uri", "https://mingle05.thoughtworks.com/gadgets/oauthcallback", "response_type", "code",
+                "state", "eyJvYXV0aF9hdXRob3JpemVfdXJsIjoiaHR0cHM6Ly8xOTIuMTY4Ljk5LjU5\nOjgxNTQvZ28vYWRtaW4vb2F1dGgvYXV0aG9yaXplIn0=",
+                "code", "ABCD", "expires_at", expiresAt, "user_id", "1");
+        OauthDataSource.OauthAuthorizationDTO dto = repo.saveAuthorization(attributes);
+        assertThat(dto.getId(), is(not(Matchers.nullValue())));
+        assertThat(dto.getClientId(), is(String.valueOf(client.getDTO().getId())));
+        assertThat(dto.getExpiresAt(), is(expiresAt));
+        assertThat(dto.getCode(), is("ABCD"));
+        assertThat(dto.getOauthClientId(), is(String.valueOf(client.getDTO().getId())));
+        assertThat(dto.getUserId(), is("1"));
+    }
+
+    @Test
+    public void shouldSaveToken_ForEngineFlow() throws Exception {
+        OauthClient client = new OauthClient("mingle09", "client_id", "client_secret", "http://something");
+        template.save(client);
+        String accessToken = UUID.randomUUID().toString();
+        String refreshToken = UUID.randomUUID().toString();
+        long expiresAt = new Date().getTime();
+        Map<String, String> attributes = m("user_id", "1", "client_id", String.valueOf(client.getDTO().getId()), "access_token", accessToken,
+                "refresh_token", refreshToken, "expires_at", expiresAt);
+        OauthDataSource.OauthTokenDTO dto = repo.saveToken(attributes);
+        assertThat(dto.getUserId(), is("1"));
     }
 
     static void assertHasIdAndMatches(Object loaded, Object unpersistentExpected) throws NoSuchFieldException, IllegalAccessException {

@@ -201,7 +201,7 @@
                 <div class="checkbox_row">
                     <%= form.radio_button :timeoutType, "overrideTimeout", :id => "hungjobs_overrideTimeout" -%>
                     <%= label_tag 'hungjobs_overrideTimeout', l.string("ALL_JOBS_OVERRIDE_TIMEOUT_PREFIX") -%>
-                    <%= form.text_field :jobTimeout, :size => 4, :maxLength => 64, :class => "small_text_field in_between_text" -%>
+                    <%= form.text_field :jobTimeout, :size => 4, :maxLength => 64, :class => "small_text_field" -%>
                     <%= label_tag 'hungjobs_overrideTimeout', l.string("ALL_JOBS_OVERRIDE_TIMEOUT_SUFFIX") -%>
                 </div>
             </div>

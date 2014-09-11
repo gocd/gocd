@@ -14,11 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Api::FeedsHelper do
-  include Api::FeedsHelper
-  it "should return the url to pipeline resource given pipeline id" do
-    expect(pipeline_details_url("cruise/1/dev/1", 1)).to eq("http://test.host/api/pipelines/cruise/1.xml")
+describe UsersHelper do
+  include UsersHelper
+
+  it "should create an array from user search model attributes" do
+    user_search_model = UserSearchModel.new(User.new("foo", "Mr. Foo", "foo@bar.com"))
+
+    expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. Foo', 'foo@bar.com']")
+  end
+
+  #support ticket 7044
+  it "should escape apostrophe in display name" do
+    user_search_model = UserSearchModel.new(User.new("foo", "Mr. O' Brien", "foo@bar.com"))
+
+    expect(user_search_model_to_array(user_search_model)).to eq("['foo', 'Mr. O\\' Brien', 'foo@bar.com']")
   end
 end

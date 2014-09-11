@@ -1,6 +1,6 @@
 <div class="content_wrapper_outer">
   <div class="content_wrapper_inner">
-    <% form_for(url_for(:action => :authorize), :html => {:id => 'oauth_authorize_form'}) do |f| -%>
+    <%= form_for(@client, url: oauth_engine.authorize_authorize_path, method: :post, html: {id: 'oauth_authorize_form'}) do |f| -%>
       <div class="label">Do you wish to allow the service named '<%= @client.name %>' to access this application on your behalf?</div>
       <div>
         <%= link_to_function 'Yes', 'document.getElementById("oauth_authorize_allow").value="Yes";document.getElementById("oauth_authorize_form").submit()', {:class => 'link_as_button primary_link_as_button primary', :href => 'javascript:void(0)', :id => 'authorize-yes'} %>

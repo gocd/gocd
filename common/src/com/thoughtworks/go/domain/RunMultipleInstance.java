@@ -66,8 +66,25 @@ public class RunMultipleInstance implements JobType {
 	public void createJobInstances(JobInstances jobs, SchedulingContext context, JobConfig config, String stageName, final JobNameGenerator nameGenerator, final Clock clock, InstanceFactory instanceFactory) {
 		Integer totalInstances = context.isRerun() ? 1 : config.getRunInstanceCountValue();
 		for (int counter = 1; counter <= totalInstances; counter++) {
-			instanceFactory.reallyCreateJobInstance(config, jobs, null, nameGenerator.generateName(counter), false, true, context, clock);
+			String jobName = nameGenerator.generateName(counter);
+
+			context = setEnvironmentVariables(context, config, jobName, counter);
+
+			instanceFactory.reallyCreateJobInstance(config, jobs, null, jobName, false, true, context, clock);
 		}
+	}
+
+	private SchedulingContext setEnvironmentVariables(SchedulingContext context, JobConfig config, String jobName, int counter) {
+		EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
+		int index = context.isRerun() ? getOldJobIndex(jobName) : counter;
+		environmentVariablesConfig.add(new EnvironmentVariableConfig("GO_JOB_RUN_INDEX", Integer.toString(index)));
+		environmentVariablesConfig.add(new EnvironmentVariableConfig("GO_JOB_RUN_COUNT", Integer.toString(config.getRunInstanceCountValue())));
+		context = context.overrideEnvironmentVariables(environmentVariablesConfig);
+		return context;
+	}
+
+	private Integer getOldJobIndex(String jobName) {
+		return Integer.valueOf(jobName.split("-" + RunMultipleInstanceJobTypeConfig.MARKER + "-")[1]);
 	}
 
 	private static class IdentityNameGenerator implements JobNameGenerator {

@@ -1871,7 +1871,7 @@ fieldset.two-cols button {
 }
 
 input.small_text_field {
-    width: 45px;
+    width: 45px !important;
 }
 
 /*
@@ -2726,7 +2726,7 @@ li.task_property {
 .vsm-entity.pipeline .instances {
     float: none;
     height: 46px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .vsm-entity.pipeline .instance {
@@ -2805,10 +2805,10 @@ li.task_property {
 
 .vsm-entity.pipeline .message {
     white-space: normal;
-    background: #F6F6F6;
-    font-size: 11px;
-    line-height: 15px;
-    padding: 7px;
+    background: #FFFBBF;
+    font-size: 9px;
+    line-height: 11px;
+    padding: 5px;
 }
 
 .material_revisions {

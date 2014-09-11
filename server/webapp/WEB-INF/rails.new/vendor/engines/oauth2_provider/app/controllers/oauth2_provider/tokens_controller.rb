@@ -24,7 +24,7 @@ module Oauth2Provider
         return
       end
 
-      client = Oauth2Provider::Client.find_one(:id, params[:client_id])
+      client = Oauth2Provider::Client.find_one(:client_id, params[:client_id])
 
       if client.nil? || client.client_secret != params[:client_secret]
         render_error('invalid-client-credentials', 'Invalid client credentials!')

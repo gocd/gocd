@@ -37,6 +37,7 @@ describe Gadgets::PipelineController do
     it "should set the page expiration to 1 day" do
       get :index, :format => 'xml'
       expect(response.headers["Cache-Control"]).to eq("max-age=86400, public")
+      assert_template layout: false
     end
   end
 
@@ -112,6 +113,7 @@ describe Gadgets::PipelineController do
       expect(response.code).to eq("400")
       expect(response.body).to eq("Parameter 'pipeline_name' is empty. Please specify the name of the pipeline.\n")
       expect(assigns[:pipeline]).to be_nil
+      assert_template layout: false
     end
 
     it "should respond with unauthorised if the user does not view permission on the pipeline" do
@@ -129,6 +131,7 @@ describe Gadgets::PipelineController do
       expect(response.code).to eq("403")
       expect(response.body).to eq("User 'user' does not have view permission on pipeline 'pipeline1'\n")
       expect(assigns[:pipeline]).to be_nil
+      assert_template layout: false
     end
   end
 end

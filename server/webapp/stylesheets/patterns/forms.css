@@ -254,7 +254,11 @@ label.inline {
 
 
 .form_item .checkbox_row {
+    margin: 5px 0;
+}
 
+.form_item .checkbox_row label {
+    margin-right: 0;
 }
 
 .checkbox_row * {
@@ -313,18 +317,9 @@ input.extra_small{
 select.small {
   width: 125px;
 }
-
-
 input.full {
   width: 100%;
 }
-
 label.disabled {
    color : #999;
-}
-
-
-
-input.in_between_text {
-    margin-left: -9px;
 }

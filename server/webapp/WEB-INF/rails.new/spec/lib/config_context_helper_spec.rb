@@ -14,11 +14,19 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require File.join(File.dirname(__FILE__), "..", "spec_helper")
 
-describe Api::FeedsHelper do
-  include Api::FeedsHelper
-  it "should return the url to pipeline resource given pipeline id" do
-    expect(pipeline_details_url("cruise/1/dev/1", 1)).to eq("http://test.host/api/pipelines/cruise/1.xml")
+def params
+  {:pipeline_group => 'pipeline_group_stuff', :plugin_stuff => "other", :other_go_stuff => "also_incl"}
+end
+
+describe Admin::ConfigContextHelper do
+  include Admin::ConfigContextHelper
+
+  it "should create plugin params" do
+    plugin_params = create_config_context(nil).getPluginAttributeMap
+    expect(plugin_params[:pipeline_group]).to be_nil
+    expect(plugin_params[:plugin_stuff]).to eq("other")
+    expect(plugin_params[:other_go_stuff]).to eq("also_incl")
   end
 end

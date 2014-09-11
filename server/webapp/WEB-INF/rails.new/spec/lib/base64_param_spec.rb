@@ -14,11 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe Api::FeedsHelper do
-  include Api::FeedsHelper
-  it "should return the url to pipeline resource given pipeline id" do
-    expect(pipeline_details_url("cruise/1/dev/1", 1)).to eq("http://test.host/api/pipelines/cruise/1.xml")
+describe ParamEncoder do
+  include ParamEncoder
+  it "should encode" do
+    expect(enc("foo/bar")).to eq("Zm9vL2Jhcg%3D%3D%0A")
+  end
+
+  it "should decode" do
+    expect(dec("Zm9vL2Jhcg%3D%3D%0A")).to eq("foo/bar")
   end
 end

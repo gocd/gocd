@@ -23,33 +23,24 @@ describe ApplicationController do
     UserHelper.stub(:getUserId).and_return(1)
   end
 
-  #describe "error_handling" do
-  #  before do
-  #    class << @controller
-  #      include ActionRescue
-  #      RAILS_DEFAULT_LOGGER = 'logger'
-  #    end
-  #  end
-  #
-  #  it "should handle InvalidAuthenticityToken by redirecting to root_url" do
-  #    exception = ActionController::InvalidAuthenticityToken.new
-  #    exception.should_receive(:backtrace).and_return([])
-  #    nil.bomb rescue exception
-  #    RAILS_DEFAULT_LOGGER.should_receive(:error).with(anything)
-  #    @controller.should_receive(:redirect_to).with(root_url)
-  #    @controller.rescue_action(exception)
-  #  end
-  #end
+  describe "error_handling" do
+    before do
+      class << controller
+        include ActionRescue
+      end
+    end
 
-  #it "should check for licensed agent validity" do
-  #  Spring.should_receive(:bean).with('licensedAgentCountValidator').and_return(licensed_agent_count_validator = mock())
-  #
-  #  state = ServerHealthState::warning("Number of approved agents exceeds licensed number", "Your license allows you to use 2 remote agents, but you are trying to use 3. " + "Please disable agents to comply with your license, or <a href='http://www.thoughtworks.com/products/go-continuous-delivery/compare'>contact our sales team</a> to buy more agents.",
-  #                                     HealthStateType::exceedsAgentLimit(HealthStateScope::GLOBAL))
-  #
-  #  licensed_agent_count_validator.should_receive(:updateServerHealth)
-  #  controller.licensed_agent_limit
-  #end
+    it "should handle InvalidAuthenticityToken by redirecting to root_url" do
+      exception = ActionController::InvalidAuthenticityToken.new
+      exception.should_receive(:backtrace).and_return([])
+      nil.bomb rescue exception
+
+      expect(Rails.logger).to receive(:error).with(anything)
+      expect(controller).to receive(:redirect_to).with(root_url)
+
+      controller.rescue_action(exception)
+    end
+  end
 
   describe ApplicationController do
     context "with license agent validity stubbed" do

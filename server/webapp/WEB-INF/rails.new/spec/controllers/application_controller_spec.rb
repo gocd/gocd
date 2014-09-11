@@ -42,6 +42,17 @@ describe ApplicationController do
     end
   end
 
+  describe :java_routes do
+    it "should generate run stage url" do
+      expect(run_stage_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10)).to eq("/run/pipeline_name/10/stage_name")
+    end
+
+    it "should generate cancel stage url" do
+      expect(:post => "/api/stages/10/cancel").to route_to(:controller => "api/stages", :action => "cancel", :id => "10", :no_layout => true)
+      cancel_stage_path(:id => 10).should == "/api/stages/10/cancel"
+    end
+  end
+
   describe ApplicationController do
     context "with license agent validity stubbed" do
       controller do
@@ -283,16 +294,6 @@ describe ApplicationController do
           expect(flash.flashClass()).to eq(nil)
         end
       end
-
-      #describe :java_routes do
-      #  it "should generate run stage url" do
-      #    run_stage_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10).should == "/run/pipeline_name/10/stage_name"
-      #  end
-      #
-      #  it "should generate cancel stage url" do
-      #    cancel_stage_path(:id => 10).should == "/api/stages/10/cancel"
-      #  end
-      #end
 
       describe "local request recognition" do
         before :all do

@@ -103,96 +103,6 @@ describe ApplicationController do
         expect(controller.current_user).to eq("foo")
       end
 
-
-      #it "should load go config service" do
-      #  Spring.should_receive(:bean).with('goConfigService').and_return(mock_go_config_service = Object.new)
-      #  controller.go_config_service.should == mock_go_config_service
-      #end
-      #
-      #it "should load pipeline stages feed service" do
-      #  Spring.should_receive(:bean).with('pipelineStagesFeedService').and_return(mock_feed_service = Object.new)
-      #  controller.pipeline_stages_feed_service.should == mock_feed_service
-      #end
-      #
-      #it "should load material service" do
-      #  Spring.should_receive(:bean).with('materialService').and_return(mock_material_service = Object.new)
-      #  controller.material_service.should == mock_material_service
-      #end
-      #
-      #it "should load pipeline_history_service" do
-      #  Spring.should_receive(:bean).with('pipelineHistoryService').and_return(mock_phs = Object.new)
-      #  controller.pipeline_history_service.should == mock_phs
-      #end
-      #
-      #it "should load agent_service" do
-      #  Spring.should_receive(:bean).with('agentService').and_return(agent_service = Object.new)
-      #  controller.agent_service.should == agent_service
-      #end
-      #
-      #it "should load shine_dao" do
-      #  Spring.should_receive(:bean).with('shineDao').and_return(shine_dao = Object.new)
-      #  controller.shine_dao.should == shine_dao
-      #end
-      #
-      #it "should load xml_api_service" do
-      #  Spring.should_receive(:bean).with('xmlApiService').and_return(xml_api_service = Object.new)
-      #  controller.xml_api_service.should == xml_api_service
-      #end
-      #
-      #it "should load dependency_material_service" do
-      #  Spring.should_receive(:bean).with('dependencyMaterialService').and_return(dependency_material_service = Object.new)
-      #  controller.dependency_material_service.should == dependency_material_service
-      #end
-      #
-      #it "should load failure_service" do
-      #  Spring.should_receive(:bean).with('failureService').and_return(service = Object.new)
-      #  controller.failure_service.should == service
-      #end
-      #
-      #it "should load pipeline_lock_service" do
-      #  Spring.should_receive(:bean).with('pipelineUnlockApiService').and_return(service = Object.new)
-      #  controller.pipeline_unlock_api_service.should == service
-      #end
-      #
-      #it "should load schedule_service" do
-      #  Spring.should_receive(:bean).with('scheduleService').and_return(service = Object.new)
-      #  controller.schedule_service.should == service
-      #end
-      #
-      #it "should load user_service" do
-      #  Spring.should_receive(:bean).with('userService').and_return(service = Object.new)
-      #  controller.user_service.should == service
-      #end
-      #
-      #it "should load flash_message_service" do
-      #  controller.flash_message_service.should be_a(com.thoughtworks.go.server.web.FlashMessageService)
-      #end
-      #
-      #it "should load user_search_service" do
-      #  Spring.should_receive(:bean).with('userSearchService').and_return(service = Object.new)
-      #  controller.user_search_service.should == service
-      #end
-      #
-      #it "should load go_license_service" do
-      #  Spring.should_receive(:bean).with('goLicenseService').and_return(service = Object.new)
-      #  controller.go_license_service.should == service
-      #end
-      #
-      #it "should load viewRenderingService" do
-      #  Spring.should_receive(:bean).with('viewRenderingService').and_return(service = Object.new)
-      #  controller.view_rendering_service.should == service
-      #end
-      #
-      #it "should have task_view_service method available" do
-      #  Spring.should_receive(:bean).with('taskViewService').and_return(service = Object.new)
-      #  controller.task_view_service.should == service
-      #end
-      #
-      #it "should load mingle_config_service" do
-      #  Spring.should_receive(:bean).with('mingleConfigService').and_return(service = Object.new)
-      #  controller.mingle_config_service.should == service
-      #end
-
       it "should render_operation_result_if_failure" do
         result = HttpOperationResult.new
         result.unauthorized("Unauthorized", "the real cause", nil)
@@ -410,6 +320,97 @@ describe ApplicationController do
           @controller.request.env["REMOTE_ADDR"] = "8.8.8.8"
           expect(@controller.send(:request_from_localhost?)).to be_false
         end
+      end
+    end
+
+    context "services" do
+      it "should load go config service" do
+        expect(Spring).to receive(:bean).with('goConfigService').and_return(mock_go_config_service = "MOCK GO CONFIG")
+        expect(controller.go_config_service).to eq(mock_go_config_service)
+      end
+
+      it "should load pipeline stages feed service" do
+        expect(Spring).to receive(:bean).with('pipelineStagesFeedService').and_return(mock_feed_service = Object.new)
+        expect(controller.pipeline_stages_feed_service).to eq(mock_feed_service)
+      end
+
+      it "should load material service" do
+        expect(Spring).to receive(:bean).with('materialService').and_return(mock_material_service = Object.new)
+        expect(controller.material_service).to eq(mock_material_service)
+      end
+
+      it "should load pipeline_history_service" do
+        expect(Spring).to receive(:bean).with('pipelineHistoryService').and_return(mock_phs = Object.new)
+        expect(controller.pipeline_history_service).to eq(mock_phs)
+      end
+
+      it "should load agent_service" do
+        expect(Spring).to receive(:bean).with('agentService').and_return(agent_service = Object.new)
+        expect(controller.agent_service).to eq(agent_service)
+      end
+
+      it "should load shine_dao" do
+        expect(Spring).to receive(:bean).with('shineDao').and_return(shine_dao = Object.new)
+        expect(controller.shine_dao).to eq(shine_dao)
+      end
+
+      it "should load xml_api_service" do
+        expect(Spring).to receive(:bean).with('xmlApiService').and_return(xml_api_service = Object.new)
+        expect(controller.xml_api_service).to eq(xml_api_service)
+      end
+
+      it "should load dependency_material_service" do
+        expect(Spring).to receive(:bean).with('dependencyMaterialService').and_return(dependency_material_service = Object.new)
+        expect(controller.dependency_material_service).to eq(dependency_material_service)
+      end
+
+      it "should load failure_service" do
+        expect(Spring).to receive(:bean).with('failureService').and_return(service = Object.new)
+        expect(controller.failure_service).to eq(service)
+      end
+
+      it "should load pipeline_lock_service" do
+        expect(Spring).to receive(:bean).with('pipelineUnlockApiService').and_return(service = Object.new)
+        expect(controller.pipeline_unlock_api_service).to eq(service)
+      end
+
+      it "should load schedule_service" do
+        expect(Spring).to receive(:bean).with('scheduleService').and_return(service = Object.new)
+        expect(controller.schedule_service).to eq(service)
+      end
+
+      it "should load user_service" do
+        expect(Spring).to receive(:bean).with('userService').and_return(service = Object.new)
+        expect(controller.user_service).to eq(service)
+      end
+
+      it "should load flash_message_service" do
+        controller.flash_message_service.should be_a(com.thoughtworks.go.server.web.FlashMessageService)
+      end
+
+      it "should load user_search_service" do
+        expect(Spring).to receive(:bean).with('userSearchService').and_return(service = Object.new)
+        expect(controller.user_search_service).to eq(service)
+      end
+
+      it "should load go_license_service" do
+        expect(Spring).to receive(:bean).with('goLicenseService').and_return(service = Object.new)
+        expect(controller.go_license_service).to eq(service)
+      end
+
+      it "should load viewRenderingService" do
+        expect(Spring).to receive(:bean).with('viewRenderingService').and_return(service = Object.new)
+        expect(controller.view_rendering_service).to eq(service)
+      end
+
+      it "should have task_view_service method available" do
+        expect(Spring).to receive(:bean).with('taskViewService').and_return(service = Object.new)
+        expect(controller.task_view_service).to eq(service)
+      end
+
+      it "should load mingle_config_service" do
+        expect(Spring).to receive(:bean).with('mingleConfigService').and_return(service = Object.new)
+        expect(controller.mingle_config_service).to eq(service)
       end
     end
   end

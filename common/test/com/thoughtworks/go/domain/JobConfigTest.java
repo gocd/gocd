@@ -47,6 +47,7 @@ public class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         config.injectTasksForTest(tasks);
         doNothing().when(tasks).setConfigAttributes(Matchers.<Object>anyObject(), Matchers.<TaskFactory>any());
+		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, false);
     }
     
     @Test

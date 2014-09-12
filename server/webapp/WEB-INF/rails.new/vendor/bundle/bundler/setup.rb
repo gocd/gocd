@@ -35,6 +35,7 @@ $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/rail
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/validatable-1.6.7/lib")
 $:.unshift File.expand_path("#{path}/../../engines/gadgets/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/jasmine-core-2.0.2/lib")
+$:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/jasmine-jquery-rails-2.0.3/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/phantomjs-1.9.7.1/lib")
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/jasmine-rails-0.10.2/lib")
 $:.unshift File.expand_path("#{path}/../../engines/oauth2_provider/lib")

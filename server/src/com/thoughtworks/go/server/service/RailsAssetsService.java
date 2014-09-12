@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -80,8 +81,8 @@ public class RailsAssetsService {
         String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
         return StringUtil.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
     }
-
-    private class RailsAssetsManifest {
+    class RailsAssetsManifest {
+        @SerializedName("assets")
         private HashMap<String, String> assets = new HashMap<String, String>();
 
         public String getAssetWithDigest(String name) {

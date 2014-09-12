@@ -1,16 +1,27 @@
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.server.util.CollectionUtil;
+import com.thoughtworks.go.util.*;
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -94,6 +105,28 @@ public class RailsAssetsServiceTest {
         when(systemEnvironment.useCompressedJs()).thenReturn(false);
         railsAssetsService.initialize();
         assertThat(railsAssetsService.getAssetPath("junk.js"), is("assets/junk.js"));
+    }
+
+    @Test
+    public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo(){
+        List<Field> fields = ArrayUtil.asList(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields());
+        ArrayList<Field> fieldsAnnotatedWithSerializedNameAsAssets = new ArrayList<Field>();
+        ListUtil.filterInto(fieldsAnnotatedWithSerializedNameAsAssets, fields, new Filter<Field>() {
+            @Override
+            public boolean matches(Field field) {
+                if (field.isAnnotationPresent(SerializedName.class)) {
+                    SerializedName annotation = field.getAnnotation(SerializedName.class);
+                    if (annotation.value().equals("assets")) {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+        });
+        assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName(), is(HashMap.class.getCanonicalName()));
     }
 
     private String json = "{\n" +

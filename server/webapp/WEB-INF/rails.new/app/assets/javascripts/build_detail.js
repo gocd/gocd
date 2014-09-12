@@ -73,7 +73,7 @@ var BuildDetail = {
 
 var BuildOutputDetector = Class.create({
     initialize: function(pipelineId, stageName, debugMode){
-        this.url = context_path('/files/pipeline/' + pipelineId + '/stage/' + stageName + '/cruise-output/console.log');
+        this.url = context_path('files/pipeline/' + pipelineId + '/stage/' + stageName + '/cruise-output/console.log');
         if(debugMode != undefined){
             this.checkIfOutputAvailable();
         } else {

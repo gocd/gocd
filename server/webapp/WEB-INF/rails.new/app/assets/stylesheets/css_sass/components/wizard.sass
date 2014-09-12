@@ -1,0 +1,41 @@
+.andare
+	.wizard
+		.navigation
+			li
+				background: none repeat scroll 0 0 white
+				border: 1px solid #DDDDDD
+				display: inline-block
+				height: 90px
+				cursor: pointer
+				margin-right: 4px
+				padding: 10px
+				top: 1px
+				width: 242px
+				&:last-child
+					margin-right: 0
+				&.current
+					background: #f9f9f9
+		.steps
+			.content
+				background: none repeat scroll 0 0 #F9F9F9
+				border: 1px solid #DDDDDD
+				clear: both
+				height: 350px
+				margin-top: -1px
+			> div
+				display: none
+				&.current
+					display: block
+		.footer
+			padding: 20px
+			.next
+				float: right
+
+
+#getting-started
+	background: white
+	margin: 30px auto 0
+	min-height: 500px
+	padding: 5px
+	position: relative
+	width: 800px

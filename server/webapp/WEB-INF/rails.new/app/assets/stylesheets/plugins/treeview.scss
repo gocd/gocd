@@ -1,0 +1,154 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+.admin_sidebar {
+  float: left;
+  width: 200px;
+}
+
+.admin_workspace.has_tree_view {
+  margin-left: 215px; /* add 15px to width of sidebar for the gutter */
+}
+
+#pipeline_config_tree{
+	
+	width: 190px;
+	overflow: hidden;
+}
+
+.treeview, .treeview ul {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+	font-size: 12px;
+}
+.treeview a{
+	display: block;
+	margin: 3px 0;
+}
+
+.treeview a{
+	margin-top: -4px;
+}
+
+.treeview .hitarea {
+    background: image_url("g9/prototype/treeview-default.gif") no-repeat scroll -64px -25px transparent;
+    cursor: pointer;
+    float: left;
+    height: 16px;
+    margin-left: -16px;
+    width: 16px;
+}
+* html .hitarea {
+    display: inline;
+    float: none;
+}
+.treeview li {
+    margin: 0;
+    padding: 3px 0 3px 16px;
+}
+.treeview a{
+	color: #333;
+}
+.treeview a.parent_selected,
+.treeview a.selected {
+    background-color: #D2EBF0;
+    color: #333;
+	-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+.treeview a.parent_selected {
+    background: #E0E0E0;
+}
+#treecontrol {
+    display: none;
+    margin: 1em 0;
+}
+.treeview .hover {
+    cursor: pointer;
+}
+.treeview li {
+   background: image_url("g9/prototype/treeview-default-line.gif") no-repeat scroll 0 0 transparent;
+}
+.treeview li.collapsable, .treeview li.expandable {
+    background-position: 0 -176px;
+}
+
+.treeview .expandable-hitarea {
+    background-position: -80px -3px;
+}
+.treeview li.last {
+    background-position: 0 -1766px;
+}
+.treeview li.lastCollapsable, .treeview li.lastExpandable {
+   background-image: image_url("g9/prototype/treeview-default.gif");
+}
+.treeview li.lastCollapsable {
+    background-position: 0 -111px;
+}
+.treeview li.lastExpandable {
+    background-position: -32px -67px;
+}
+.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea {
+    background-position: 0 50%;
+}
+.treeview-gray li  {
+   background-image: image_url("g9/prototype/treeview-gray-line.gif");
+}
+.treeview-gray .hitarea, .treeview-gray li.lastCollapsable, .treeview-gray li.lastExpandable {
+   background-image: image_url("g9/prototype/treeview-gray.gif");
+}
+.treeview .placeholder {
+    background: image_url("g9/prototype/ajax-loader.gif") no-repeat scroll 0 0 transparent;
+    display: block;
+    height: 16px;
+    width: 16px;
+}
+.treeview ul,
+.treeview li{
+  float: none;
+}
+.treeview li.open a,
+.treeview li.closed a,
+.treeview .open li a,
+.treeview li a{
+  padding: 4px;
+}
+
+.treeview .preview_icon_wobg{
+    width: 16px;
+    position: absolute;
+    right: 0;
+    top: 5px;
+    padding: 0;
+}
+/*
+
+.treeview .collapsable-hitarea,
+.treeview-gray .hitarea, .treeview-gray li.lastCollapsable{
+	background: image_url('g9/icons/arrow_open.png') 0 50% no-repeat #FFF;
+}
+
+.treeview .expandable-hitarea,
+.treeview-gray .hitarea, .treeview-gray li.lastExpandable {
+	background: image_url('g9/icons/arrow_closed.png') 0 50% no-repeat #FFF;
+}
+*/
+
+.treeview .hidden {
+    display: none;
+}

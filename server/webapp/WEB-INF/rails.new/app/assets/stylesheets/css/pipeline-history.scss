@@ -1,0 +1,407 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+table.pipeline-history-group {
+    width: 100%;
+}
+
+span.pipeline-buttons {
+    float: right;
+    margin: 0;
+}
+
+span.pipeline-buttons a.link_as_button {
+    margin: 5px 0 0 5px;
+    min-width: 80px;
+}
+
+#page_links {
+    margin-top: 0;
+}
+
+.pages {
+    padding: 15px;
+    text-align:left;
+    background-color: #FFF;
+
+}
+
+
+table.pipeline-history-group  td,
+table.pipeline-history-group  th {
+    border-top: 1px dotted #CCC;
+    padding: 5px 8px;
+    vertical-align:top;
+}
+
+
+table.pipeline-history-group  td .wrapper {
+    margin-top: 10px;
+}
+
+table.pipeline-history-group thead th {
+    
+}
+
+.pipeline-history-group .spacer
+{
+    background-image: none;
+    border-right: 0;
+    width: 100%;
+}
+
+.pipeline-label a {
+font-size: 18px;
+}
+
+
+.pipeline-history-group .wrapper
+{
+    width: auto;
+    min-width: 100px;
+    position: relative;
+    /* For IE6's quirks */
+    _width: 100px;
+}
+*+html .pipeline-history-group .wrapper{
+    width: 100px;
+}
+
+
+.pipeline-history-group .column-header
+{
+    *width: 180px;
+    *white-space: nowrap;
+}
+
+.pipeline-history-group .pipeline-name
+{
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+    *width: 10em;
+    zoom: 1;
+}
+
+.pipeline-history-group .pipeline-name .wrapper
+{
+    width: 12em;
+    min-width: 12em;
+    /* width works similar with min-width in IE6, the container will expand when content is long */
+    _width: 12em;
+}
+
+.pipeline-history-group .pipeline-info {
+    font-size: 12px;
+    font-weight:normal;
+    color: #333;
+    position: relative; /* for popup */
+}
+
+.pipeline-history-group .pipeline-info.revision{
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.empty-stage,
+.passed-stage,
+.failed-stage,
+.failing-stage,
+.cancelled-stage,
+.building-stage
+{
+    background-image: image_url('icons-pipeline-history_new.png');
+    background-color: transparent;
+    background-repeat: no-repeat;
+    width: 82px;
+    height: 12px;
+    display: block;
+    position: relative;
+    cursor: default;
+    border-bottom: 25px solid #FFF; /* to increase target size */
+    /* for IE 6 */
+}
+
+.empty-stage {
+    background: image_url('g9/backgrounds/bg_state_unknown_big.png') no-repeat right;
+}
+
+.pipeline-history-group button
+{
+    background-image: image_url('icons-pipeline-history_new.png');
+    _background-image: image_url('ie_specific/icons-pipeline-history.png');
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+    display: block;
+    overflow: hidden;
+    text-indent: -10000px;
+    zoom: 1;
+    padding: 0;
+}
+
+.force-run-pipeline,
+.force-run-pipeline-disabled,
+.submiting-force-run-pipeline
+{
+    background-position: left -400px;
+    height: 33px;
+    left: 0;
+    position: absolute;
+    top: 5px;
+    width: 44px;
+}
+
+.force-run-pipeline
+{
+    cursor:pointer;
+}
+
+.force-run-pipeline-disabled
+{
+    background-position: left -620px;
+    cursor: auto;
+}
+
+.pipeline-history-group .submiting-force-run-pipeline
+{
+    background: transparent image_url('spinner.gif') no-repeat 50% 50%;
+}
+
+.manual-gate,
+.disabled-manual-gate
+{
+    background-position: -20px -320px;
+    width: 20px;
+    height: 30px;
+    position: absolute;
+    top: -8px;
+    left: -27px;
+}
+
+.disabled-manual-gate
+{
+    background-position: -20px -360px;
+}
+
+.pipeline-history-group .disabled-manual-gate,
+.pipeline-history-group .disabled-auto-gate
+{
+    cursor: default;
+}
+
+.auto-gate,
+.disabled-auto-gate
+{
+    background-position: -20px -240px;
+    width: 20px;
+    height: 30px;
+    position: absolute;
+    top: -8px;
+    left: -27px;
+}
+
+.disabled-auto-gate
+{
+    background-position: -20px -280px;
+    crsor: default;
+}
+
+
+
+
+.pipeline-history-group .rerun,
+.pipeline-history-group .disabled-rerun
+{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -92px -32px no-repeat transparent;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right:0;
+    top: 18px;
+    display: none;
+    zoom: 1;
+
+}
+
+a:hover.rerun
+{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -92px -2px no-repeat transparent;
+    cursor: pointer;
+}
+
+.pipeline-history-group .disabled-rerun
+{
+    background-position: left -520px;
+    /* for IE 6 */
+    _background: none;
+    _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-rerun-grey.png', sizingMethod='crop');
+}
+
+.pipeline-history-group .detail
+{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -122px -32px no-repeat transparent;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: 2px;
+    top: 18px;
+    display: none;
+    zoom: 1;
+    /* for IE 6 */
+    _background: none;
+    _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-detail.png', sizingMethod='crop');
+}
+
+.pipeline-history-group .wrapper div:hover .detail,
+.pipeline-history-group .wrapper div:hover .rerun,
+.pipeline-history-group .wrapper div:hover .disabled-rerun
+{
+    display:block;
+}
+
+a:hover.detail
+{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -122px -2px no-repeat transparent;
+    cursor: pointer;
+    /* for IE 6 */
+    _background: none;
+    _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-detail-high.png', sizingMethod='crop');
+}
+
+
+.pipeline-history-group a.cancel {
+    padding: 0;
+    margin: 0;
+    font-size: 1px;
+    text-indent: -3000px; /* hide the cancel text */
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -62px -32px no-repeat transparent;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: -2px;
+    top: 16px;
+    display: none;
+    zoom: 1;
+
+}
+
+.pipeline-history-group .wrapper div:hover .cancel
+{
+    display:block;
+}
+
+a.cancel:hover
+{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -62px -2px no-repeat transparent;
+    cursor: pointer;
+    /* for IE 6 */
+}
+
+
+
+
+.popup {
+    width: 50em;
+    color: #FFF;
+}
+
+#new-pipeline-history .popup table tbody th {
+    background: transparent;
+    font-size: 11px;
+    border: 0 !important;
+    border-bottom: 1px solid #666 !important;
+    padding: 3px 8px !important;
+    padding-right: 30px !important;
+    
+}
+
+new-pipeline-history .popup table tbody td {
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    padding-right: 30px;
+}
+
+.popup td.last
+{
+    border-right: none;
+}
+
+.popup-open .popup
+{
+    display: block;
+}
+
+.popup-closed .popup
+{
+    display: none;
+}
+
+a:link.pause-build-link
+a:hover.pause-build-link,
+a:active.pause-build-link {
+    background-position: -25px top;
+}
+
+a:link.unpause-build-link
+a:hover.unpause-build-link,
+a:active.unpause-build-link {
+    background-position: -25px -25px;
+}
+
+a.pause-build-link-disabled {
+    background-position: 0px -67px;
+    cursor:default;
+}
+
+a.unpause-build-link-disabled {
+    background-position: 0px -166px;
+    cursor:default;
+}
+
+#yui-main a.pause-build-link,
+#yui-main a.unpause-build-link
+{
+    height: 25px;
+}
+
+#yui-main a.submiting-link
+{
+    background: transparent image_url('spinner.gif') no-repeat 50% 50% !important;
+}
+
+#pipeline-history a.schedule-build-link-enabled,
+#pipeline-history a.schedule-build-link-disabled,
+#pipeline-history a.pause-build-link,
+#pipeline-history a.unpause-build-link {
+   background-image: image_url('icon_pipeline_config_operations.gif');
+}
+
+#pipeline-history a.pause-build-link-disabled,
+#pipeline-history a.unpause-build-link-disabled {
+    background-image: image_url('pause-icon.png');
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,214 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/**
+ * Modalbox.css
+ *
+ * This is a combination of the original modal box plugin and our pattern overrides.  
+ * TODO: put original plugin css into a file under stylesheets/plugins and then strip out the below to only be our
+ * specific overrides.
+**/
+
+/**
+ * TABLE OF CONTENTS
+ *
+ * =! NEEDS MIGRATING
+**/
+
+
+/**
+ * =! NEEDS MIGRATING
+**/
+.ui-widget-overlay,
+#MB_overlay {
+  background-color: #878489 !important;
+  border: 0;
+  height: 100%;
+  left: 0;
+  margin: auto;
+  opacity: 0.85;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 9999;
+}
+.ui-widget-overlay,
+#MB_overlay[id] { 
+  position: fixed; 
+}
+
+.ui-dialog,
+#MB_window {
+  border: 0 solid;
+  position: absolute;
+  text-align: left;
+  top: 10%;    
+  z-index: 10000;
+}
+
+#MB_window[id] { 
+  position: fixed !important; 
+}
+
+.ui-dialog,
+#MB_frame_content {
+  background-color: #FFF;
+  border: 2px solid #333;
+  box-shadow: 0 0 15px #000;
+    -moz-box-shadow: 0 0 15px #000;
+    -webkit-box-shadow: 0 0 15px #000;
+  position: relative;
+}
+
+.ui-dialog-titlebar,
+#MB_header {
+  background: #333 image_url('g9/backgrounds/bg_glass_gradient.png') repeat-x center center;
+  margin: 0;
+  padding: 0;
+}
+
+#MB_content {
+  overflow: visible !important; /* move all overflow auto to the inner content div */
+}
+
+
+#MB_content #body_content{
+    padding-top: 0 !important;
+}
+
+
+.ui-dialog-content {
+  padding: 15px;
+}
+
+.ui-dialog-title {
+  display:block;
+}
+
+.ui-dialog-title,
+#MB_caption {
+  color: #FFF;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  padding: 10px;
+  text-align: left;
+}
+
+.ui-dialog-titlebar-close,
+#MB_close {
+  background-image: image_url('g9/icons/sprite_modal_close.png');
+  background-position: 0 -30px;
+  display: block;
+  font-size: 1px;
+  font-weight: bold;
+  height: 23px;
+  padding: 0;
+  position: absolute;
+  right: 9px;
+  text-decoration: none;
+  text-indent: -3000px;
+  top: 9px;
+  width: 23px;
+  zoom: 1;
+}
+
+ui-dialog-titlebar-close,
+#MB_close:hover {
+  background-position: 0 0;
+}
+
+#MB_loading {
+  background: transparent image_url('spinner.gif') 50% 0 no-repeat;
+  text-indent: -10000px;
+  padding: 1.5em;
+}
+
+/* Color scheme */
+#MB_window {
+
+}
+#MB_frame {
+}
+
+
+
+/* Alert message */
+.MB_alert {
+  margin: 10px 0;
+  text-align: center;
+}
+
+
+#MB_content .sub_tabs_container {
+  border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+  margin-bottom: 0 !important;
+}
+
+#MB_content .sub_tab_container,
+#MB_content .form_content,
+#MB_content .new_form_content
+{
+    height: 360px;
+    overflow: auto;
+    padding: 15px;
+}
+#MB_content .new_form_content{
+    background-color: #f6f6f6;
+}
+
+#MB_content .content_wrapper_inner{
+    max-height: 400px;
+}
+
+#MB_content #footer{
+    display: none;
+}
+
+#MB_content .content_wrapper_outer .content_wrapper_inner {
+    margin: 0;
+    border-bottom:0 none;
+    padding: 0;
+}
+
+
+/* action row and buttons */
+.ui-dialog-buttonpane,
+#MB_content .actions {
+  background: #EEEEE9 image_url('g9/backgrounds/overlay_modal_action_row.png') repeat-x;
+  border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+  border-top: 1px solid #CCC;
+  bottom: 0;
+  box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;  
+  margin: 0;
+  padding: 12px 0 11px 0;
+  *padding: 10px 0;
+  text-align: left;
+
+}
+
+
+/* janky way to add margin on the close button */
+#MB_content .actions button {
+  margin-left: 10px;
+}

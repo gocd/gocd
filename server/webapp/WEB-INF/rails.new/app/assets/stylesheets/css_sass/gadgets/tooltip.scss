@@ -1,0 +1,38 @@
+
+.instant-tooltip{
+  display:inline;
+  position:relative;
+  &:hover{
+    text-decoration:none;
+    &:after{
+      font-style: normal;
+      background: #111;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 5px;
+      bottom: 18px;
+      color: #fff;
+      content: attr(title);
+      display: block;
+      left: 0;
+      line-height: 16px;
+      right:0;
+      margin:auto;
+      width:250px;
+      padding: 10px 15px;
+      position: absolute;
+      z-index: 98;
+      font-size: 11px;
+    }
+    &:before{
+      border:solid;
+      border-color:#111 transparent;
+      border-width:6px 6px 0 6px;
+      bottom:12px;
+      content:"";
+      display:block;
+      left:75%;
+      position:absolute;
+      z-index:99
+    }
+  }
+}

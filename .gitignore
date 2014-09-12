@@ -120,7 +120,7 @@ agent/config/agent.jks
 agent/config/trust.jks
 agent/pipelines
 server/config/shine_truststore.jks
-server/config/gadget_truststore.jks
+**/config/gadget_truststore.jks
 server/db/shine/rdf-files
 server/logs/
 server/go-server.log*
@@ -221,3 +221,4 @@ intellij-out/
 server/webapp/WEB-INF/rails/spec/javascripts/test_out/*
 server/webapp/WEB-INF/rails/spec/javascripts/node_modules/*
 **/*/target/*
+server/webapp/WEB-INF/rails.new/public/assets/*

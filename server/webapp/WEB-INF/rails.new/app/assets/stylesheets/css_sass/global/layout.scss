@@ -1,0 +1,147 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*
+ * layout
+ */
+
+body {
+    background-color: #333;
+    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+#body_content {
+    padding-top:91px;
+    background-color: #ffffff;
+}
+
+#environments, #pipelines{
+     h2.entity_title{
+        border: 0 none;
+        margin-bottom: 0;
+    }
+
+    .content_wrapper_inner {
+        border-bottom: 1px dotted #888;
+        margin-left: 15px;
+        margin-right: 15px;
+
+        padding-bottom: 5px; /* compensate for bottom margin of pipeline */
+        padding-top: 10px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #body_content{
+        background-color: #eeeeee;
+    }
+}
+
+.content_wrapper_inner {
+    border: 0;
+    padding: 15px;
+}
+
+
+/*
+ * Footer
+ */
+
+/*todo: refactoring of below classes*/
+#footer {
+    background-color: transparent;
+    text-align: right;
+    color: #BBB !important;
+    margin: 0 15px;
+    padding: 10px 0 35px 0;
+    border-top: 1px solid #333;
+
+    a {
+        color: #fff;
+    }
+
+    ul li {
+        display: inline;
+        padding: 0 .5em;
+        color: #BBB !important;
+        border-right: 1px dotted #ccc;
+    }
+
+    ul{
+        li.last{
+            border:0 none !important;
+        }
+    }
+
+    ul li, ul li a, ul li span {
+        font-size: 11px !important
+    }
+
+    .copyright{
+        float:left;
+    }
+
+    ul.links {
+        float: right;
+    }
+
+    #copyright {
+        font-size: 0.9em;
+        clear: both;
+        color: #1f2314;
+        width: 20em;
+        padding-left: 2em;
+        float: left;
+
+        a, a:visited
+        {
+            color: #1f2314;
+        }
+    }
+}
+
+
+
+.form_submit_errors .errors {
+  background: image_url('g9/icons/icon_error_16.png') no-repeat scroll 0 0 #F8D1D8;
+  font-size: 12px;
+  border-radius: 3px;
+  overflow: auto;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  background-position: 10px 9px !important;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #333333;
+  margin: 10px 0px 10px 0px;
+  padding: 10px 10px 10px 36px;
+}
+
+.form_submit_errors .errors h3 {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.errors ul {
+  margin-left: 15px;
+}
+
+.errors ul li {
+  float: none;
+  list-style: disc;
+}

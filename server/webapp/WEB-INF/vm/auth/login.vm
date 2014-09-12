@@ -19,6 +19,14 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+#if($useNewRails)
+    <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico"/>
+    <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
+    <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
+    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
+    <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
+    <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
+#else
     <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
     <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
@@ -27,6 +35,7 @@
     <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
     <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
     <script src="$req.getContextPath()/compressed/all.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+#end
     <style type="text/css">
         body {
             background: #000;
@@ -34,6 +43,7 @@
         #bd {
             background: #000;
             border: none;
+            padding-top:0;
         }
         h1, h2, h3, h4 {
             font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -122,7 +132,7 @@
                 </div>
                 #end
                 <div class='clear-both'><!-- Clear floats --></div>
-                <div id="graphic-dialog-container">
+                <div id="graphic-dialog-container" style="padding-top:1px">
                     <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
                         <div id="logo-login"><h2>&nbsp;</h2></div>
                         <div id="graphic-dialog-input">

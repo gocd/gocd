@@ -1,0 +1,330 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/**
+ * Forms.css
+ */
+ 
+
+/**
+ * TABLE OF CONTENTS
+ *
+ * =FORM_ERRORS
+ * =REQUIRED_MESSAGING
+ * =TRISTATE_CHECKBOX
+ * =FORM_ITEM_PROPERTIES
+ * =! NEEDS TO BE MIGRATED
+**/
+
+
+/**
+ * =FORM_ERRORS
+**/
+.name_value_header_row {
+  padding-bottom: 5px;
+}
+.name_value_error_row {
+  padding-bottom: 6px;
+}
+.name_value_cell {
+  vertical-align: top;
+  padding-bottom: 5px;
+}
+.name_value_cell.cell_edit_reset_actions {
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.name_value_cell.icon_remove_cell {
+    vertical-align: middle;
+
+}
+.name_value_error {
+  color: #A40000;
+  font-style: italic;
+  vertical-align:top;
+  width: 250px;
+}
+label.error {
+    float: left;
+    color: #a40000;
+    width: auto;
+    max-width: 370px;
+    padding-left: 8px;
+    font-style: italic;
+}
+.form_error {
+  color: #A40000;
+  float:left;
+  font-style: italic;
+  max-width: 370px;
+  padding:7px;
+  width: auto;
+}
+textarea.error,
+input[type="text"].error,
+.fieldWithErrors textarea,
+.fieldWithErrors textarea:focus,
+.fieldWithErrors input[type="text"],
+.fieldWithErrors select,
+.fieldWithErrors input[type="text"]:focus {
+  background-color: #F6E0E0;
+  border: 1px solid #DA7272;
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+  float: left;
+}
+.fieldWithErrors label {
+  color: #A40000;
+}
+
+
+/**
+ * =REQUIRED_MESSAGING
+**/
+.required .asterisk{
+	color: #C00;
+}
+
+
+/**
+ * =TRISTATE_CHECKBOX
+**/
+.tristate {
+  background-position: 1px 3px;
+  background-repeat: no-repeat;
+  margin: 5px 0 3px 3px;
+  padding-left: 19px;
+}
+.hilighted .selectors {
+  background-color: #EE9;
+  border-bottom: 1px solid #000;
+}
+.tristate_disabled_message {
+  color: #F33;
+}
+.tristate.add {
+  background-image: image_url('tri-state-checkbox-checked.png');
+}
+.tristate.remove {
+  background-image: image_url('tri-state-checkbox-empty.png');
+}
+.tristate.nochange {
+  background-image: image_url('tri-state-checkbox-slash.png');
+}
+
+
+/**
+ * =FORM_ITEM_PROPERTIES
+**/
+
+.form_item.disabled input {
+    background-color:#D0D0D0;
+}
+
+.form_item.disabled label,
+.form_item.disabled h3 {
+   color : #999;
+}
+
+/**
+ * =! NEEDS TO BE MIGRATED
+**/
+
+label.inline {
+    display:inline;
+    margin-bottom: 0;
+    vertical-align: top;
+}
+
+.form_item {
+    margin-bottom: 10px;
+}
+
+.form_item button {
+    margin-left: 5px;
+}
+
+.form_item_block {
+  padding-bottom:15px;
+}
+
+.form_item_block:last-child {
+    padding-bottom:0;
+}
+
+.checkbox_row * {
+    vertical-align: middle;
+}
+
+.checkbox_row label.inline {
+    padding-left: 5px;
+}
+
+.checkbox_label_box label {
+    display: inline;
+}
+
+.checkbox_label_box {
+    padding: .5em 0 .5em 0;
+}
+
+
+.fieldset, fieldset {
+    -moz-border-radius: 5px 5px 5px 5px;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15) inset;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15) inset;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15) inset;
+    background-color: #EEEEEE;
+    border: 1px solid #CCCCCC;
+    clear: both;
+    margin: 0 0 0px;
+    padding: 15px 15px;
+}
+
+.fieldset.has_nested_fieldset .fieldset {
+    border: none;
+    padding: 0px;
+		-moz-border-radius: 0;
+		-moz-box-shadow: none;
+		-webkit-border-radius: 0;
+		-webkit-box-shadow: none;
+		border-radius: 0;
+		box-shadow: none;
+}
+
+.nested_form_fragment .fieldset, .nested_form_fragment fieldset {
+    border: none;
+    clear: both;
+    margin: 0 0 0px;
+    padding: 0px;
+}
+
+.fieldset {
+  clear: none;
+  margin-bottom: 15px;
+}
+
+
+.fieldset .form_item_block input,
+.fieldset .form_item_block select {
+    float: left;
+}
+
+.fieldset .form_item_block input[type=radio],
+.fieldset .form_item_block input[type=checkbox] {
+    float:none;
+}
+
+
+.form_item {
+  margin: 0;
+  padding-bottom: 20px;
+  overflow: hidden;
+}
+
+.fieldset .form_item {
+  padding-bottom: 10px;
+  border-bottom: 1px dotted #CCC;
+  margin-bottom: 10px;
+}
+
+.fieldset .form_item:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border: 0;
+}
+
+
+.form_item .checkbox_row {
+
+}
+
+.checkbox_row * {
+  vertical-align: baseline !important;
+}
+
+.checkbox_row label {
+  display: inline;
+  margin: 0 10px 0 0;
+  color: #333;
+  font-weight: normal;
+}
+
+
+.form_item_block {
+  margin-right: 10px;
+}
+
+.form_buttons{
+    overflow:hidden;
+}
+
+.form_buttons.actions {
+/*    direction: rtl;*/
+}
+
+
+.form_item_block {
+  margin-right: 10px;
+  overflow: hidden;
+  border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+textarea.template{
+  display: none;
+}
+
+input[type="text"].searchbox {
+  background: image_url("g9/icon_search.png") transparent no-repeat right;
+  padding-right: 16px;
+}
+
+select.large,
+textarea.large,
+input.large{
+  width:500px;
+}
+input.small{
+  width:100px;
+}
+input.extra_small{
+  width:50px;
+}
+
+select.small {
+  width: 125px;
+}
+
+
+input.full {
+  width: 100%;
+}
+
+label.disabled {
+   color : #999;
+}
+
+
+
+input.in_between_text {
+    margin-left: -9px;
+}

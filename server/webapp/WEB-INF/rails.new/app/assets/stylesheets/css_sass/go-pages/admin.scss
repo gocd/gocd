@@ -1,0 +1,326 @@
+/*************************GO-LICENSE-START********************************
+* Copyright 2014 ThoughtWorks, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or a-qgreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************GO-LICENSE-END**********************************/
+
+.new_form_content{
+    p.required{
+        margin-top: 30px;
+    }
+
+        .new_form_item{
+             margin-top: 10px;
+
+            .error_message{word-break: break-all;}
+            #check_package{margin-left: 0;}
+
+            .fieldWithErrors, &.fieldWithErrors{
+                input{
+                    float: none;
+
+                  &:focus{
+                    float: none;
+                  }
+                }
+            }
+
+          &.fieldWithErrors select{
+               float: none;
+           }
+
+          .form_error{
+            display: inline-block;
+            float: none;
+            padding: 0;
+            margin:7px;
+          margin-bottom: 10px;
+          }
+        }
+    }
+
+.vtop{
+  input,select{
+    vertical-align: top;
+  }
+}
+
+.new_form_control{
+    display: table-cell;
+}
+
+.new_form_label{
+    display: table-cell;
+    text-align: right;
+    padding-right: 10px;
+    width: 300px;
+}
+
+#MB_content {
+  .new_form_label{
+    width: 170px;
+  }
+  .fieldset .form_item .form_item_block select{
+    margin-bottom: 0;
+  }
+}
+
+
+
+.new-admin-title{
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    border-bottom: 1px solid #ccc;
+
+    .help{
+    float: right;
+    font-size: 0.6em;
+    margin-top: 3px;
+    }
+}
+
+.new-admin-subtitle{
+    border-bottom: 2px solid #ccc;
+    margin-top:30px;
+    margin-bottom:20px;
+
+    span{
+      padding: 3px;
+      background-color: #f6f6f6;
+      font-size: 0.7em;
+      display: inline-block;
+      position: relative;
+      margin-top: 0px;
+      margin-left: 20px;
+      top: 10px;
+    }
+}
+
+.admin_holder{
+    background: none repeat scroll 0 0 #EEEEEE;
+    border-radius: 5px 5px 5px 5px;
+    padding: 5px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+}
+#content_area pre{
+    background: none repeat scroll 0 0 white;
+    padding: 10px;
+    white-space:pre-wrap;
+    border: 1px solid #ccc;
+}
+
+#content_area .conflicted_content textarea{
+    float: right;
+    margin-top: 21px;
+    width: 40%;
+}
+.heading {
+    h2{
+        display: inline;
+    }
+    .label{
+        color: #999;
+    }
+    span{
+        float: right;
+        font-size: 1.1em;
+        margin-top: 2px;
+        white-space: nowrap;
+    }
+}
+
+#admin-holder-for-admin-config-source-xml pre ,#content_area textarea{
+    height:600px;
+    padding: 10px;
+    margin-bottom: 15px;
+    overflow: auto;
+}
+#admin-holder-for-admin-config-source-xml pre {
+    border: 1px solid #ccc;
+    margin-top: 5px;
+}
+#content_area textarea{
+    height: 620px;
+    background-color:#fffacd;
+}
+#admin-holder-for-admin-config-source-xml .conflicted_content h3{
+    margin-top: 10px;
+}
+
+#admin-holder-for-admin-config-source-xml .buttons-group > * {
+    min-width: 100px;
+}
+
+/*start : added this class because ellipses*/
+#admin-holder-for-admin-config-source-xml .buttons-group{
+
+    #cancel_edit,#save_config{
+        position: absolute;
+        margin-top: -20px;
+    }
+    #cancel_edit{
+        margin-right: 24px;
+        right: 0;
+    }
+    #save_config{
+        right: 150px;
+    }
+    #edit_config{
+        margin-top: -18px;
+        position: absolute;
+        right: 21px;
+    }
+}
+/*end : added this class because ellipses*/
+
+
+.config_change_timestamp{
+    color: #999999;
+    font-size: 1.1em;
+    margin-right: 250px;
+    overflow: hidden;
+    padding-top: 5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 16px;
+}
+
+#config_editor_form #content_area{
+    clear: both;
+}
+
+.conflicted_content + .current_content {
+    #content_area,.buttons-group{
+        clear:none !important;
+        width: 48%;
+        padding: 10px 1% 0;
+        background-color: #eee;
+        float: right;
+    }
+}
+.conflicted_content + .current_content .buttons-group{
+    #cancel_edit,#save_config{
+        margin-top:-17px !important;
+    }
+    #cancel_edit{
+        margin-right:33px !important;
+    }
+    #save_config{
+        right:158px !important;
+    }
+}
+
+.conflicted_content{
+    width: 49%;
+    float: left;
+
+    pre{
+        white-space: pre-wrap;
+        margin-top: 21px !important;
+    }
+}
+
+select#select_template {
+    float: left
+}
+
+
+/*plugins*/
+
+.plugins{
+    float: none;
+    margin-top: 20px;
+    line-height: 1.3em;
+    overflow: auto;
+        .plugin{
+            padding: 10px;
+            float: none;
+            border-top: 1px solid #ccc;
+
+            &.disabled{
+                background: #f1f1f1;
+                span{
+                    color: #999;
+                }
+                img{
+                    opacity: 0.5;
+                }
+            }
+            .show-info{
+                margin-top: 5px;
+                display: block;
+            }
+            .plugin-logo {
+                display: inline-block;
+                height: 60px;
+                width: 60px;
+                float: left;
+                background-color: white;
+            }
+            .more-info-detail {
+                float: none;
+                display: block;
+                overflow: auto;
+                margin-top: 5px;
+                li{
+                    float: none;
+                    line-height: 18px;
+                    .key{
+                         width: 150px;
+                        display: inline-block;
+                    }
+                }
+            }
+            .key {
+                color: #bbb;
+                font-weight: bold;
+                margin-right: 1ex;
+            }
+            .plugin-details {
+                font-size: 14pt;
+            }
+            .plugin-messages {
+                margin-top:5px;
+                span{
+                    font-weight:bold;
+                }
+                ul{
+                    float: none;
+                    margin-left: 15px;
+                }
+                li {
+                    list-style: circle;
+                    margin-top: 5px;
+                    float: none;
+                }
+            }
+        }
+        .description{
+            margin-top: 5px;
+        }
+        .plugin-author{
+            float: right
+        }
+        .version{
+            color: #999;
+        }
+        .smaller{
+            font-size: 0.6em;;
+        }
+
+}
+.plugin-data {
+    margin-left: 70px;
+}

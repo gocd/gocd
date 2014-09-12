@@ -1,0 +1,123 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+ 
+/* Tab bar styles */
+
+#menu {
+	margin-left: 4px;
+	padding: 0;
+	background: transparent;
+	voice-family: "\"}\"";
+	voice-family: inherit;
+	padding-left: 5px;
+	margin-bottom: 0;
+	min-height: 62px;
+}
+
+/* The tabs are an unordered list */
+
+#menu ul {
+	font: 13px verdana, arial, geneva, helvetica, sans-serif;
+	margin-top: 10px;
+    list-style: none;
+	clear : both;
+}
+
+#menu li {
+	float: left;
+	margin-right: .75em;
+	list-style: none;
+	text-align : center;
+	padding : 0;
+}
+
+/* The active tab gets a class of currenttab */
+
+#menu li.currenttab a {
+	background-color : #87c0d4;
+	color : #003;
+	font-weight : bold;
+}
+
+#menu a {
+	float: left;
+	background-color: #538aa7;
+	text-decoration: none;
+	text-align: center;
+	color : white;
+}
+
+#menu a span {
+	display: block;
+	padding: 1px 2em 4px 2em;
+}
+
+#menu a:hover {
+	color: #999;
+}
+
+/* Drop shadow under the tab bar. Some elements in the body of the page are given a top margin of -14px so as to come up directly to the bottom of the tab bar */
+
+#menu_bottom {
+	border-top: 4px solid #87c0d4;
+	clear: both;
+	background : image_url('menu_shadow.gif') left bottom repeat-x;
+	padding-bottom : 14px;
+}
+
+#menu .rtop, .rbottom {
+	display: block;
+	background: white;
+}
+
+#menu .rtop *, .rbottom * {
+	display: block;
+	height: 1px;
+	overflow: hidden;
+	background: white;
+}
+
+
+/* Rounded corners on menu tab - currently selected */
+
+#menu li.currenttab .r1, #menu li.currenttab .r2, #menu li.currenttab .r3, #menu li.currenttab .r4 {
+	background : #87c0d4;
+}
+
+/* Rounded corners on unselected menu tabs */
+
+#menu .r1 {
+	margin: 0 5px;
+	background: #538aa7;
+}
+
+#menu .r2 {
+	margin: 0 3px;
+	background: #538aa7;
+}
+
+#menu .r3 {
+	margin: 0 2px;
+	background: #538aa7;
+}
+
+#menu .r4 {
+	margin: 0 1px;
+	height: 2px;
+	background: #538aa7;
+}
+

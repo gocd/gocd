@@ -1,0 +1,147 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+@import "../base/mixins";
+
+
+
+
+.page_header,.pipeline_history,
+.yui-b .Job,
+.yui-b .Server,
+#admin-page .Administration,
+#my-cruise-page .Preferences  {
+    background: #f7f7f7;
+    /*@include box-shadow(0,1px,1px,rgba(33, 33, 33, 0.1));*/
+    @include gradient(#f7f7f7, #eeeeee);
+    @include box-shadow(0,0,2px,#ccc);
+    .ie9 &{-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(opacity=99)';}
+    border-bottom:1px solid #ccc;
+    .ie8 & {border-bottom: 1px solid #ddd;}
+    .ie7 & {border-bottom: 1px solid #ddd;}
+    position: fixed;
+    height:25px;
+    top: 45px;
+    z-index: 1000;
+    right: 0;
+    left: 0;
+    padding: 10px 15px;
+}
+
+.shadow{
+    @include box-shadow(0,3px,3px,rgba(33, 33, 33, 0.2));
+    border-bottom:0 none;
+    .ie8 & {border-bottom: 1px solid #bbb;}
+    .ie7 & {border-bottom: 1px solid #bbb;}
+}
+
+
+.pipeline_history,
+.yui-b .Job,
+.yui-b .Server,
+#admin-page .Administration,
+#my-cruise-page .Preferences {
+    padding: 10px 15px;
+    overflow: hidden;
+}
+
+ul.entity_title li a{
+   font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;
+    line-height: 27px;
+}
+
+ul.entity_title li {
+    background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll right 10px transparent;
+    padding-right: 12px;
+    margin-right: 6px;
+    line-height: 27px;
+}
+ul.entity_title li.last {
+    padding-right: 0;
+    margin-right: 0;
+    background: none;
+}
+ul.entity_title li.last > * , h1.entity_title {
+    color: #3D3D3D !important;
+    font-size: 21px !important;
+    font-weight: 400 !important;
+    line-height: 1.2em;
+}
+h1.entity_title {
+    float: left;
+}
+#yui-main .page_header a {
+    font-weight: bold;
+}
+#yui-main .page_header .label a {
+    font-size: 20px;
+}
+#yui-main .page_header a:hover {
+    color: #2980ec;
+}
+#pipeline_header .feed {
+    background: image_url("icon-rss.png") no-repeat;
+    height: 18px;
+    margin-top: 3px;
+    padding-right: 15px;
+    float: right;
+}
+.admin_pause_info_and_controls {
+    /*color: #FFF;*/
+
+    margin-left: 15px;
+    margin-top: 3px;
+}
+.admin_pause_info_and_controls .pause_description {
+    font-size: 11px;
+}
+#pause_info_and_controls > span {
+    float: left;
+    padding: 6px;
+}
+.admin_pause_info_and_controls .operate {
+    float: left;
+}
+.pause_reason input[type=text] {
+    display: block;
+    margin-top: 10px;
+    width: 250px;
+}
+/*
+ * Pipeline/Stage Details Header
+ */
+#body_content .locked_instance {
+    float: right;
+    margin: 8px 0 0 10px;
+    padding: 0 0 0 0px;
+    border-left: 1px dotted #999;
+    color: #ccc;
+}
+
+#body_content .page_header .locked_instance {
+    float: left;
+    margin: 8px 0 0 10px;
+    padding: 0 0 0 10px;
+    border-left: 1px dotted #999;
+    color: #ccc;
+}
+#body_content .deploy .locked_instance,
+#body_content .pipeline_operations .locked_instance {
+    float: right;
+    border: none;
+    margin: 6px 0 0 10px;
+    color: #555555;
+}

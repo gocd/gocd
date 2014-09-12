@@ -1,0 +1,119 @@
+.andare
+
+	.treenav
+		float: none
+		ul
+			clear: both
+			display: block
+			float: none
+			overflow: hidden
+		li
+			background: image_url('andare/component-treenav.png') no-repeat 3px -48px transparent
+			clear: both
+			margin-top: 3px
+			padding-top: 2px
+			display: block
+			float: none
+			.entity
+				border-radius: 3px
+				margin-left: 25px
+				padding-left: 5px
+				form
+					display: none
+				&:hover
+					background-color: #eee
+					form
+						display: block
+			a
+				display: block
+				overflow: hidden
+				text-overflow: ellipsis
+				white-space: nowrap
+				color: #333
+
+				span
+					padding: 0px 4px
+					overflow: hidden
+					text-overflow: ellipsis
+					white-space: nowrap
+					-webkit-border-radius: 3px
+					-moz-border-radius: 3px
+					border-radius: 3px
+					line-height: 24px
+					display: block
+
+			&.empty-node
+				background: none
+				margin: 0px 15px 5px 15px
+				padding: 10px 0px 5px 0px
+				&:hover span
+					background: none
+				a
+					margin-left: 0px
+					&.add
+						span
+							padding-left: 20px
+			&.last
+				background-position: 3px -72px
+			&.selected, &.grey_selected
+				> div > form
+					display: inline-block !important
+				> div
+					background-color: #D2EBF0
+			&.grey_selected
+				> div
+					background-color: #eee
+			ul
+				background: #FFFFFF
+				padding-left: 25px
+				li.empty-node
+					color: #ccc
+			&.has-children
+				background-position: 5px -19px
+
+				&.collapsed
+					background-position: 5px 3px
+					> ul
+						display: none
+		&.accordion
+			> li
+				border-top: 1px solid #EEE
+				a
+					line-height: 25px
+					font-weight: bold
+					width: 190px
+					display: inline-block
+				.handle
+					width: 25px
+					height: 25px
+					cursor: pointer
+					float: left
+				small
+					font-weight: normal
+	.navigation
+		.add
+			background: image_url('andare/icon-mix.png') no-repeat 5px 7px
+			padding: 3px 3px 3px 25px
+			display: block
+			overflow: hidden
+			text-overflow: ellipsis
+			white-space: nowrap
+			border-radius: 3px
+			color: #333
+			font-weight: bold
+			line-height: 25px
+			&:hover
+				background-color: #EEE
+			&.selected
+				background-color: #D2EBF0
+			span
+				display: block
+		> .no-items
+			margin: 10px 0 5px
+			color: #CCC
+		.search
+			width: 250px
+			background-image: image_url('andare/ico-search-16x16.png')
+			background-repeat: no-repeat
+			background-position: right center
+			margin: 10px 0px 5px

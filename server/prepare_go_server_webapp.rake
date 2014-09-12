@@ -72,17 +72,7 @@ task :prepare_webapp do
   #copy
   task('copy_files').invoke
 
-  # js
-  task('create_all_js').invoke
-  task('copy_compressed_js_to_webapp').invoke
-
-  # css
-  task('pull_latest_sass').invoke
-
-  task('version-image-urls-in-css').invoke
-
-  task('create_all_css').invoke
-  task('copy_compressed_css_to_webapp').invoke
+  task('handle_assets').invoke
 
   # rails
   task('copy-code-to-be-interpolated').invoke
@@ -92,6 +82,39 @@ task :prepare_webapp do
   #prepare for production mode
   task('write_revision_number').invoke
   task('change_rails_env_to_production').invoke
+end
+
+task :handle_assets_rails2 do
+  # js
+  task('create_all_js_rails2').invoke
+  task('copy_compressed_js_to_webapp_rails2').invoke
+
+  # css
+  task('pull_latest_sass').invoke
+
+  task('version-image-urls-in-css').invoke
+
+  task('create_all_css_rails2').invoke
+  task('copy_compressed_css_to_webapp_rails2').invoke
+end
+
+task :handle_assets_rails4 do
+  rm_rf("target/webapp/WEB-INF/rails.new/tmp")
+  task('precompile_assets').invoke
+  assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
+  rm_rf assets_location_in_target if File.exist? assets_location_in_target
+  cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
+
+  #delete assets used by rails2
+  rm_rf("target/webapp/javascripts")
+  rm_rf("target/webapp/css")
+  rm_rf("target/webapp/stylesheets")
+  rm_rf("target/webapp/sass")
+  rm_rf("target/webapp/images")
+end
+
+task :handle_assets do
+  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
 end
 
 #prepare help docs
@@ -177,12 +200,19 @@ def put_first(lib_paths, files_to_put_first)
   files_to_put_first + (lib_paths - files_to_put_first)
 end
 
-task :create_all_js do
+
+task :precompile_assets do
+  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+  classpath = File.read("target/server-test-dependencies")
+  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+end
+
+task :create_all_js_rails2 do
   yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
   yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
 
   priority_libs = ["es5-shim.min.js", "jquery-1.7.2.js", "jquery.timeago-1.2.3.js", "jquery.url-1.0.js", "jquery_no_conflict.js", "prototype-1.6.0.js",
-  "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
+                   "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
   libs_to_load_first = []
   priority_libs.each do |lib|
     libs_to_load_first << File.join(JS_LIB_DIR, lib)
@@ -200,7 +230,7 @@ task :create_all_js do
   end
 end
 
-task :copy_compressed_js_to_webapp do
+task :copy_compressed_js_to_webapp_rails2 do
   safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
   safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
   FileUtils.remove_dir("target/webapp/javascripts", true)
@@ -224,7 +254,7 @@ task :pull_latest_sass do
   FileUtils.remove_dir("target/webapp/sass", true)
 end
 
-task :create_all_css do
+task :create_all_css_rails2 do
   main_dir = "target/webapp/stylesheets/"
   yui_compress_all(YUI_CSS_OUTPUT, main_dir, "*.css")
   File.open("target/all.css", "w") do |handle|
@@ -259,9 +289,8 @@ task :create_all_css do
   yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/stylesheets/structure", "*.css")
 end
 
-task :copy_compressed_css_to_webapp do
+task :copy_compressed_css_to_webapp_rails2 do
   cp "target/all.css", "target/webapp/stylesheets"
-
   COMPRESSED_ALL_DOT_CSS.each do |file|
     name = File.basename(file).gsub(File.extname(file), '')
     cp file, "target/webapp/stylesheets/#{name}"

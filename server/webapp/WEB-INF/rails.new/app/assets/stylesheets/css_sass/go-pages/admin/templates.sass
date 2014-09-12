@@ -1,0 +1,60 @@
+#templates
+	&.view
+		height: 400px
+		overflow: hidden
+		.navigation, .content
+			height: 390px
+		.navigation
+			overflow: hidden
+			&:hover
+				overflow-y: auto
+		.content
+			overflow-y: auto
+			.section
+				clear: both
+				padding: 5px 0 0
+		h2, h3
+			font-weight: normal
+		h3
+			font-size: 12px
+		.summary
+			margin-bottom: 3px
+			.hint
+				height: 14px
+				white-space: nowrap
+				text-overflow: ellipsis
+				overflow: hidden
+
+
+	.tasks_view_list
+		clear: both
+		float: none
+		> li
+			margin-top: 5px
+			&:hover
+				background-color: #FEFEFE
+		li
+			padding: 4px
+			border-bottom: 1px dotted #999
+			float: none
+			clear: both
+			.condition
+				background: #F6F6F6
+				padding: 3px
+				border-radius: 3px
+				float: right
+				color: #999999
+			ul
+				background: image_url("andare/component-treenav.png") no-repeat scroll 0 -70px transparent
+				float: none
+				clear: both
+				padding-left: 15px
+				li
+					border-bottom: none
+		code
+			clear: both
+			color: #999999
+			.working_dir
+			.command, .arguments, .pipeline, .stage, .job, .source, .destination
+				color: #666666
+				font-weight: bold

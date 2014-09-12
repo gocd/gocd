@@ -1,0 +1,144 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+.yui-ge.build_summary_page {
+    margin-top : 0;
+}
+
+.relative_box{
+    position:relative;
+}
+
+/* Define status colours across the entire site */
+
+.passed {
+    background-color: #F6FFE4;
+    background-color: transparent;
+    color : #000;
+}
+
+.scheduled,
+.assigned,
+.preparing,
+.building,
+.completing
+{
+    background-color: #FFFEE2;
+    background-color: transparent;
+}
+
+.failed,
+.failing,
+.cancelled
+{
+    background-color: #FFE1E0;
+    background-color: transparent;
+    color: #000;
+}
+
+.inactive,
+.discontinued,
+.unknown,
+.building_unknown
+{
+    background-color: #ECE9D8;
+    background-color: transparent;
+    color : #666;
+}
+
+/* Only one grade of colour for building and inactive projects */
+
+.building_passed {
+    background-color: #B6FFB1;
+    color : #030;
+}
+
+.building_failed {
+    background-color: #FFC2C9;
+}
+
+.projects_summary .info {
+    font-weight : bold;
+    border : 0px;
+}
+
+.projects_summary .rate {
+    font-size : 1em;
+}
+
+.tabContent {
+    clear : both;
+    background-color : #FFF;
+}
+
+.entry img {
+    margin-right : 5px;
+}
+
+
+.subtitle {
+    font-weight:bold;
+}
+
+/* Modifications style for build detail and stage detail */
+.modifications {
+    border: none;
+    width: 100%;
+    *width: 95%;
+    font-size: 0.85em;
+}
+
+.modifications .summary {
+    padding-top:1em;
+    padding-bottom:0.5em;
+}
+
+.modifications th,
+.modifications th .highlight-false,
+.modifications td {
+    border: none;
+    padding: 0.25em 0;
+    line-height: 1em;
+}
+
+.modifications .highlight-true {
+    font-style: italic;
+    /*background-color: #F9F0B5;*/
+}
+
+.modifications .odd {
+    background-color: #FFF;
+}
+
+.modifications .even {
+    background-color: #FFF;
+}
+
+.modifications .user {
+    background: transparent image_url('user.gif') no-repeat left 50%;
+    padding-left:18px;
+    font-weight: bold;
+    line-height: 1.22em;
+}
+
+.modifications .comment {
+    line-height: 1.22em;
+}
+
+.modifications .normal {
+    font-weight:normal;
+    line-height: 1.22em;
+}

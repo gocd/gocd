@@ -1,0 +1,438 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/** 
+ * Application.css
+ *
+ * application-wide style standards, mostly related to html elements but also layouts
+ */
+ 
+/**
+ * TABLE OF CONTENTS
+ *
+ * =BODY
+ * =TITLES
+ * =FORMS
+ * =PRE/CODE
+ * =LINKS
+ * =LISTS
+ * =PARAGRAPHS
+ * =TABLES
+ * =HELPER_CLASSES
+ * =LAYOUTS
+ * ==APPLICATION
+ * ==IN PLAN
+ * ==PARTIALS
+ * ===PLAN_NAV
+ * =FLOAT CLEARING
+ * ==COMPLIANT FLOAT CLEARING
+ * ==IE7 FLOAT CLEARING HACK STANDARDS
+ */
+
+
+/**
+ * =BODY
+ */
+*{
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1;
+}
+
+/*html {
+  height: 100%;
+}*/
+
+
+
+/**
+ * =TITLES
+**/
+h1, h2, h3, h4 {
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-weight: 500;
+}
+h1{
+  font-size: 24px;
+  font-weight: normal;
+}
+h2{
+  font-size: 22px;
+  font-weight: 300;
+}
+h3{
+  font-size:14px;
+  margin-bottom:0.5em;
+}
+/*
+h2 span {
+  font-weight:700;
+}
+.heading {
+  border-bottom:1px solid #CCCCCC;
+  margin:10px 0;
+  padding:0 0 10px;
+}
+.heading h1 {
+  border:0;
+  color:#E57700;
+  margin:0;
+  padding:0;
+}*/
+
+
+
+
+
+
+/**
+ * =FORMS
+**/
+input,
+button {
+  font-family: Arial, Helvetica, sans-serif;
+}
+input,
+select,
+button,
+textarea {
+  /* this allows you to declare a size regardless of padding and border attributes  */
+  box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+input:focus,
+textarea:focus {
+  border-color: #78D2F0;
+  background-color: #ECF4F9;
+  box-shadow: inset 0 0 3px #78D2F0;
+    -moz-box-shadow: inset 0 0 3px #78D2F0;
+    -webkit-box-shadow: inset 0 0 3px #78D2F0;
+    -o-box-shadow: inset 0 0 3px #78D2F0;
+}
+label {
+  display:block;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+input[disabled],input:disabled{
+    opacity: 0.8;
+    background-color: #eee;
+    color: #666;
+    cursor: default;
+}
+select {
+  outline: none;
+  margin: 1px 0;
+  *margin: 2px 0;
+  padding: 2px 4px;
+  width: 250px;
+}
+textarea {
+  width: 100%;
+  *width: 99%;
+  overflow: auto;
+  *padding: 0;
+  resize: none;
+}
+button a {
+  color: #FFF;
+}
+input[type="text"], 
+input[type="password"], 
+input[type="file"],
+input[type="url"],
+textarea {
+  border: 1px solid #CCC;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
+    -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
+  display: inline;
+  font-size: 12px;
+  outline: none;
+  padding: 4px;
+}
+input[type="text"],
+input[type="url"],
+input[type="password"] {
+  width: 250px;
+}
+input[type="radio"],
+input[type="checkbox"]{
+  margin: 4px;
+}
+button[disabled] {
+  opacity: 0.5;
+}
+
+.inline_checkbox_row {
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+.inline_checkbox_row input{float:left; margin: 0; margin-right: 3px;}
+.inline_checkbox_row label{ white-space: nowrap; }
+
+
+/**
+ * =LINKS
+**/
+a{
+  color: #1F66BD;
+  cursor: pointer;
+  text-decoration: none;
+}
+a:hover{
+    color: #2980EC;
+} 
+/*
+
+a.icon {
+  background-repeat: no-repeat;
+  background-position:  left center;
+  display: inline-block;
+  padding:  3px 3px 3px 21px;
+  line-height: 16px;
+  color: #333;
+  font-size: 12px;
+  height: auto;
+  width: auto;
+  margin-right: 10px;
+  zoom: 1;
+  *display: inline;
+  vertical-align: top;
+}
+a.delete_link {
+
+}
+a.edit_link {
+
+}
+a.add_link {
+
+}
+a.arrow_link {
+
+}
+a.delete_parent {
+  display: block;
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+}
+*/
+/**
+ * =LISTS
+**/
+
+ul{
+  float: left;
+}
+li{
+  float: left;
+  list-style: none;
+}
+
+/**
+ * =PARAGRAPHS
+ */
+/*
+p {
+  line-height: 130%;
+  margin-bottom: 10px;
+}
+*/
+
+
+/**
+ * =TABLES
+**/
+table{
+  border-collapse: collapse;
+}
+table th{
+  text-align: left;
+}
+table td {
+  vertical-align: middle;
+}
+
+
+/*
+table {
+  width:100%;
+}
+th, td {
+  border-collapse:collapse;
+  border:1px solid #CCC;
+  color:#333333;
+  padding:8px 10px;
+  vertical-align:top;
+}
+th {
+  background-color:#EEEEEE;
+  font-weight:bold;
+}
+*/
+
+
+/**
+ * =HELPER_CLASSES
+**/
+.hidden {
+  display: none;
+}
+ 
+/**
+ * =LAYOUTS
+ */
+/**
+ * ==APPLICATION
+ */
+/*
+#header {
+  background: #FF7800;
+}
+#header_wrapper {
+  min-height: 61px;
+  padding: 10px 10px 0 10px;
+}
+#header .plan_header .logo {
+  display: block;
+  float: left;
+  height: 45px;
+  width: 135px;
+}
+#header .plan_header a.plan_name {
+  color: #FFF;
+  float: left;
+  font-size: 21px;
+  font-family: "Helvetica Neue";
+  font-weight: 300;
+  line-height: .75;
+  margin-top: 14px;
+}
+.content {
+  min-height: 400px;
+  padding: 15px;
+  background:none repeat scroll 0 0 #FFFFFF;
+}
+#ft {
+  padding: 10px;
+  font-size: 11px;
+  overflow: hidden;
+  border-top: 1px solid #CCC;
+  color: #666;
+}
+#ft a {
+  color: #333;
+}
+#ft #copyright {
+  float: left;
+}
+#ft #support {
+  float: right;
+}
+*/
+
+
+
+/**
+ * ==PARTIALS
+ */
+/**
+ * ===???
+ */
+
+
+
+/**
+ * =FLOAT CLEARING
+ * NOTE: DO NOT ADD NEW STYLES BELOW THIS SECTION
+ */
+
+/**
+ * ==STANDARDS COMPLIANT FLOAT CLEARING
+ */
+.clear_float:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+
+/**
+ * ==IE7 FLOAT CLEARING HACK 
+ */
+*+html .clear_float {
+  display: inline-block;
+  zoom: 1;
+}
+
+.back_to_top{
+    padding: 10px;
+    border-radius: 10px;
+    padding-top: 30px;
+    background-position: center 10px;
+    background-repeat: no-repeat;
+    background-image: image_url('back-to-top.png');
+    background-color: #000000;
+    color: #ffffff;
+    bottom: 60px;
+    right: 20px;
+    z-index: 10000;
+    display: none;
+    width: 30px;
+    text-align: center;
+    position: fixed;
+    opacity: 0.8;
+}
+.back_to_top:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+#stage_job_form .form_item_block{
+    width: 720px;
+}
+#stage_job_form textarea{
+    width: 400px;
+}
+
+/* config changes */
+
+.config-changes{
+    overflow: auto;
+    max-height: 400px;
+    padding: 10px 0;
+    font-size: 1.2em;
+    color: #555;
+}
+.config-changes  pre{
+    padding: 3px;
+}
+.config-changes .line-info pre {
+    background-color: #ececec;
+    color: #9e9e9e;
+}
+.config-changes .add pre{
+    color: #2e9202;
+    background-color: #ddffdd;
+}
+.config-changes .remove pre{
+    color: #b20000;
+    background-color: #ffd4d4;
+}

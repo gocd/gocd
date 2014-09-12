@@ -5,6 +5,8 @@ require "rails"
 require "oauth2_provider"
 require "dynamic_form"
 require "gadgets"
+require "sprockets/railtie"
+require "sass"
 
 module Go
   class Application < Rails::Application
@@ -32,5 +34,7 @@ module Go
         match '*url', via: :all, to: 'application#unresolved'
       end
     end
+    config.assets.enabled = true
+    config.serve_static_assets = true
   end
 end

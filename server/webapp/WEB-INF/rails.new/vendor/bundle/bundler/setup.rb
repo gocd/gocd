@@ -35,3 +35,6 @@ $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/rail
 $:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/validatable-1.6.7/lib")
 $:.unshift File.expand_path("#{path}/../../engines/gadgets/lib")
 $:.unshift File.expand_path("#{path}/../../engines/oauth2_provider/lib")
+$:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/sass-3.3.12/lib")
+$:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/sass-rails-4.0.1/lib")
+$:.unshift File.expand_path("#{path}/../#{ruby_engine}/#{ruby_version}/gems/yui-compressor-0.12.0/lib")

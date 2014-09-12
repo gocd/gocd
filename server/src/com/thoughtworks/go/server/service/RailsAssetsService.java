@@ -25,25 +25,25 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.ServletContextAware;
+
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.regex.Pattern;
 
 @Service
-public class RailsAssetsService {
+public class RailsAssetsService implements ServletContextAware {
     private static final Pattern MANIFEST_FILE_PATTERN = Pattern.compile("^manifest.*\\.json$");
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RailsAssetsService.class);
     private RailsAssetsManifest railsAssetsManifest;
-    private final ServletContext servletContext;
+    private ServletContext servletContext;
     private final SystemEnvironment systemEnvironment;
 
     @Autowired
-    public RailsAssetsService(ServletContext servletContext, SystemEnvironment systemEnvironment) {
-        this.servletContext = servletContext;
+    public RailsAssetsService(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
 
@@ -77,6 +77,12 @@ public class RailsAssetsService {
         String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
         return StringUtil.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
     }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
     class RailsAssetsManifest {
         @SerializedName("assets")
         private HashMap<String, String> assets = new HashMap<String, String>();

@@ -1,23 +1,16 @@
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.util.*;
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +37,8 @@ public class RailsAssetsServiceTest {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
-        railsAssetsService = new RailsAssetsService(context, systemEnvironment);
+        railsAssetsService = new RailsAssetsService(systemEnvironment);
+        railsAssetsService.setServletContext(context);
         assetsDir = FileUtil.createTempFolder("assets-" + UUID.randomUUID().toString());
     }
 

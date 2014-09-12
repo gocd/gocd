@@ -22,11 +22,13 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Pattern;
@@ -54,18 +56,12 @@ public class RailsAssetsService {
         if (!assetsDir.exists()) {
             throw new RuntimeException(String.format("Assets directory does not exist %s", assetsDirPath));
         }
-        File manifestFile = null;
-        Iterator iterator = FileUtils.iterateFiles(assetsDir, new String[]{"json"}, false);
-        while (iterator.hasNext()) {
-            File next = (File) iterator.next();
-            if (MANIFEST_FILE_PATTERN.matcher(next.getName()).matches()) {
-                manifestFile = next;
-                break;
-            }
-        }
-        if (manifestFile == null) {
+        Collection files = FileUtils.listFiles(assetsDir, new RegexFileFilter(MANIFEST_FILE_PATTERN), null);
+        if (files.isEmpty()) {
             throw new RuntimeException(String.format("Manifest json file was not found at %s", assetsDirPath));
         }
+        
+        File manifestFile = (File) files.iterator().next();
 
         LOG.info(String.format("Found rails assets manifest file named %s ", manifestFile.getName()));
         String manifest = FileUtil.readContentFromFile(manifestFile);

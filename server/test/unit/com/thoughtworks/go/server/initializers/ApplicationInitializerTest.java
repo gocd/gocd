@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.GoConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
+import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -28,21 +29,8 @@ import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
 import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ArtifactsDirHolder;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.server.service.BuildAssignmentService;
-import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.GoLicenseService;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
-import com.thoughtworks.go.server.service.LicenseViolationChecker;
-import com.thoughtworks.go.server.service.PipelineLockService;
-import com.thoughtworks.go.server.service.PipelineScheduler;
-import com.thoughtworks.go.server.service.TimerScheduler;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,10 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationInitializerTest {
@@ -91,6 +76,7 @@ public class ApplicationInitializerTest {
     @Mock private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Mock private BackupService backupService;
     @Mock private ArtifactsService artifactsService;
+    @Mock private RailsAssetsService railsAssetsService;
 
     @Mock private ContextRefreshedEvent contextRefreshedEvent;
 

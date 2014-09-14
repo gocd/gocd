@@ -1,0 +1,17 @@
+Style/LeadingCommentSpace:
+  Description: 'Comments should start with a space.'
+  Enabled: false
+
+Style/TrailingBlankLines:
+  Description: 'Checks trailing blank lines and final newline.'
+  Enabled: false
+
+Style/LineLength: 
+  Description: 'Limit lines to 150 characters.'
+  Max: 150
+  Enabled: true
+
+Style/StringLiterals:
+  Enabled: false
+
+ShowCopNames: true

@@ -17,37 +17,33 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 require 'action_view/helpers/form_helper'
 
-describe ActionView::Helpers::InstanceTag do
+describe ActionView::Helpers::Tags::Base do
 
   it "should delete the id key when 'omit_id_generation' is true" do
-    options = {:omit_id_generation => true}
-    new_tag = ActionView::Helpers::InstanceTag.new("object_name", "put", self)
-    input_tag = new_tag.to_input_field_tag("text", options)
-    input_tag.should == "<input name=\"object_name[put]\" size=\"30\" type=\"text\" />"
+    options = {:size => 30, :omit_id_generation => true}
+    input_tag = ActionView::Helpers::Tags::TextField.new("object_name", "put", self, options).render
+
+    expect(input_tag).to eq("<input name=\"object_name[put]\" size=\"30\" type=\"text\" />")
   end
 
   it "should not delete the id key when 'omit_id_generation' is false" do
-    options = {:omit_id_generation => false}
-    new_tag = ActionView::Helpers::InstanceTag.new("object_name", "put", self)
-    input_tag = new_tag.to_input_field_tag("text", options)
-    input_tag.should == "<input id=\"object_name_put\" name=\"object_name[put]\" size=\"30\" type=\"text\" />"
+    options = {:size => 30, :omit_id_generation => false}
+    input_tag = ActionView::Helpers::Tags::TextField.new("object_name", "put", self, options).render
+
+    expect(input_tag).to eq("<input id=\"object_name_put\" name=\"object_name[put]\" size=\"30\" type=\"text\" />")
   end
 
-  it "should remove the first input tag (with type hidden) when drop_hidden_field is true" do
-    options = {:drop_hidden_field => true}
-    new_tag = ActionView::Helpers::InstanceTag.new("object_name", "put", self)
-    checkbox_tag = new_tag.to_check_box_tag(options)
+  it "should remove the first input tag (with type hidden) when include_hidden field is false" do
+    options = {:include_hidden => false}
+    checkbox_tag = ActionView::Helpers::Tags::CheckBox.new("object_name", "put", self, 1, 0, options).render
 
-    checkbox_tag.should == "<input id=\"object_name_put\" name=\"object_name[put]\" type=\"checkbox\" value=\"1\" />"
+    expect(checkbox_tag).to eq("<input id=\"object_name_put\" name=\"object_name[put]\" type=\"checkbox\" value=\"1\" />")
   end
 
-  it "should not remove the first input tag (with type hidden) when drop_hidden_field is true" do
-    options = {:drop_hidden_field => false}
-    new_tag = ActionView::Helpers::InstanceTag.new("object_name", "put", self)
-    checkbox_tag = new_tag.to_check_box_tag(options)
+  it "should not remove the first input tag (with type hidden) when include_hidden field is true" do
+    options = {:include_hidden => true}
+    checkbox_tag = ActionView::Helpers::Tags::CheckBox.new("object_name", "put", self, 1, 0, options).render
 
-    checkbox_tag.should == "<input name=\"object_name[put]\" type=\"hidden\" value=\"0\" /><input id=\"object_name_put\" name=\"object_name[put]\" type=\"checkbox\" value=\"1\" />"
-
+    expect(checkbox_tag).to eq("<input name=\"object_name[put]\" type=\"hidden\" value=\"0\" /><input id=\"object_name_put\" name=\"object_name[put]\" type=\"checkbox\" value=\"1\" />")
   end
-
 end

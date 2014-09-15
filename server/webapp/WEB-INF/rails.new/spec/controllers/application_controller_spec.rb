@@ -45,12 +45,14 @@ describe ApplicationController do
 
   describe :java_routes do
     it "should generate run stage url" do
-      expect(run_stage_path(:pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10)).to eq("/run/pipeline_name/10/stage_name")
+      expect(run_stage_path(pipeline_name: "pipeline_name", stage_name: "stage_name",
+                            pipeline_counter: 10)).to eq("/run/pipeline_name/10/stage_name")
     end
 
     it "should generate cancel stage url" do
-      expect(:post => "/api/stages/10/cancel").to route_to(:controller => "api/stages", :action => "cancel", :id => "10", :no_layout => true)
-      cancel_stage_path(:id => 10).should == "/api/stages/10/cancel"
+      expect(post: "/api/stages/10/cancel").to route_to(controller: "api/stages", action: "cancel",
+          id: "10", no_layout: true)
+      cancel_stage_path(id: 10).should == "/api/stages/10/cancel"
     end
   end
 
@@ -171,9 +173,9 @@ describe ApplicationController do
     end
 
     it "should understand loaded config-file md5" do
-      lambda {
+      lambda do
         @controller.send(:cruise_config_md5)
-      }.should raise_error("md5 for config file has not been loaded yet")
+      end.should raise_error("md5 for config file has not been loaded yet")
     end
 
     it "should get servlet request" do
@@ -329,23 +331,27 @@ describe ApplicationController do
       end
 
       it "should return only the path to a given resource and not the whole url" do
-        controller.url_for(:controller => "java", :action => "null", :foo => "junk").should == "/rails/java/null?foo=junk"
+        expect(controller.url_for(controller: "java", action: "null", foo: "junk")).to eq("/rails/java/null?foo=junk")
       end
 
       it "should cache the url if options is an active-record object" do
         obj = TestObject.new
         controller.should_receive(:test_object_url).with(obj).and_return("some-url")
-        controller.url_for(obj).should == "some-url"
+        expect(controller.url_for(obj)).to eq("some-url")
       end
 
       it "should return full path when requested explicitly" do
-        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/rails/java/null?foo=junk"
+        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
+            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
       end
 
       it "should use ssl base url from server config when requested" do
-        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'https').should == "https://ssl.host:443/rails/java/null?foo=junk"
-        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false, :protocol => 'http').should == "http://test.host/rails/java/null?foo=junk"
-        controller.url_for(:controller => "java", :action => "null", :foo => "junk", :only_path => false).should == "http://test.host/rails/java/null?foo=junk"
+        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
+            only_path: false, protocol: 'https')).to eq("https://ssl.host:443/rails/java/null?foo=junk")
+        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
+            only_path: false, protocol: 'http')).to eq("http://test.host/rails/java/null?foo=junk")
+        expect(controller.url_for(controller: "java", action: "null", foo: "junk",
+            only_path: false)).to eq("http://test.host/rails/java/null?foo=junk")
       end
     end
 
@@ -372,7 +378,7 @@ describe ApplicationController do
             str.join("|")
           end
         end
-        stub_service(:server_config_service).stub(:siteUrlFor) do |url, force_ssl|
+        stub_service(:server_config_service).stub(:siteUrlFor) do |url, _force_ssl|
           url
         end
       end
@@ -393,10 +399,10 @@ describe ApplicationController do
       end
 
       it "should cache the url based on params" do
-        controller.stub(:params).and_return({:foo => "foo", :bar => "bar"})
-        controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
-        controller.stub(:params).and_return({:bar => "bar", :foo => "foo"})
-        controller.url_for().should == "1 - bar=bar|foo=foo - only_path=true - http:// - test.host"
+        controller.stub(:params).and_return({ foo: "foo", bar: "bar" })
+        expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
+        controller.stub(:params).and_return({ bar: "bar", foo: "foo" })
+        expect(controller.url_for).to eq("1 - bar=bar|foo=foo - only_path=true - http:// - test.host")
       end
 
       it "should cache the url based on params and options" do
@@ -442,10 +448,13 @@ describe ApplicationController do
       end
 
       it "should not mistake pipeline_counter and stage_counter for caching" do
-        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
-        controller.url_for(:format => "json").should == "1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host"
-        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo", "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
-        controller.url_for(:format => "json").should == "2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host"
+        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
+                                            "pipeline_counter" => "2", "stage_name" => "bar", "stage_counter" => "1")
+        expect(controller.url_for(format: "json")).to eq("1 - action=stage|controller=stages|pipeline_counter=2|pipeline_name=foo|stage_counter=1|stage_name=bar - format=json|only_path=true - http:// - test.host")
+
+        controller.stub(:params).and_return(:controller => "stages", :action => "stage", "pipeline_name" => "foo",
+                                            "pipeline_counter" => "1", "stage_name" => "bar", "stage_counter" => "2")
+        expect(controller.url_for(format: "json")).to eq("2 - action=stage|controller=stages|pipeline_counter=1|pipeline_name=foo|stage_counter=2|stage_name=bar - format=json|only_path=true - http:// - test.host")
       end
 
       it "should sort symbols after string" do

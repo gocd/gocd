@@ -44,8 +44,8 @@ describe "environments/edit_variables.html.erb" do
   # Capybara does not understand how to search for an input tag *inside* a textarea.
   it "should have a template for newly added environment variables" do
     textarea_tag = 'textarea id="environment_variables_template"'
-    name_input = 'input class=".*environment_variable_name" id="environment_variables__name"'
-    value_input = 'input class="form_input environment_variable_value" id="environment_variables__valueForDisplay"'
+    name_input = 'input class=".*environment_variable_name" name="environment\[variables\]\[\]\[name\]"'
+    value_input = 'input class="form_input environment_variable_value" name="environment\[variables\]\[\]\[valueForDisplay\]"'
 
     expect(response.body).to match Regexp.new("#{textarea_tag}.*\n.*#{name_input}.*\n.*#{value_input}")
   end

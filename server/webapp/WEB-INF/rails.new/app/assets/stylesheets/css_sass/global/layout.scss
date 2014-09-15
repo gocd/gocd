@@ -46,11 +46,20 @@ body {
         padding-left: 0;
         padding-right: 0;
     }
-
     #body_content{
         background-color: #eeeeee;
     }
+
+    #body_content .content_wrapper_inner {
+      padding: 15px;
+      margin: 0;
+    }
+    #body_content.admin_body_content{
+        background-color: white !important;
+    }
 }
+
+
 
 .content_wrapper_inner {
     border: 0;

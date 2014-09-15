@@ -15,8 +15,8 @@
  *= require "layout.css"
  *= require "structure.css"
  *= require "ie_hacks.css"
- *= require "module.css"
  *= require "structure/application.css"
+ *= require "module.css"
  *= require_tree ./plugins
  *= require_tree ./views
  */

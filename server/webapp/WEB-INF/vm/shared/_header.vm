@@ -40,7 +40,6 @@
         <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
         <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
         <link href="$req.getContextPath()/css/application-old.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/css/application-old.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
 
         <link href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
         <link href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>

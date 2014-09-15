@@ -136,9 +136,9 @@ module ApplicationHelper
   def select_button name, options
     options[:class] = add_class(options[:class], 'select')
     options[:type] = "button"
-    image_url = '/images/g9/button_select_icon.png'
+    image_url = 'g9/button_select_icon.png'
     if options[:text_color] == 'dark'
-      image_url = '/images/g9/button_select_icon_dark.png'
+      image_url = 'g9/button_select_icon_dark.png'
     end
     content_tag(:button, button_content(name, tag(:img, :src => image_path(image_url))), button_options(options), false)
   end
@@ -332,7 +332,7 @@ module ApplicationHelper
   def check_for_cancelled_contents(state, options={} )
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
-      contents =  "<img src='#{image_path('/images/g9/stage_bar_cancelled_icon.png')}' alt='' />"
+      contents =  "<img src='#{image_url('g9/stage_bar_cancelled_icon.png')}' alt='' />"
     else
       contents = ""
     end

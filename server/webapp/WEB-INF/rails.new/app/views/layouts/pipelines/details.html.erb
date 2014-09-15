@@ -11,7 +11,7 @@
         <%= render :partial => "shared/header", :locals => {:scope => {:admin_tab_url => '/tab/admin'}} %>
     </div>
 
-    <div id='body_content'>
+    <div id='body_content' class="admin_body_content">
         <div class="messaging_wrapper" id="messaging_wrapper">
             <%= render :partial => "shared/flash_message" %>
             <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>

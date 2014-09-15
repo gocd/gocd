@@ -106,10 +106,11 @@ input[type="text"].error,
  * =TRISTATE_CHECKBOX
 **/
 .tristate {
-  background-position: 1px 3px;
+  background-position: 0 1px;
   background-repeat: no-repeat;
   margin: 5px 0 3px 3px;
   padding-left: 19px;
+  cursor: pointer;
 }
 .hilighted .selectors {
   background-color: #EE9;

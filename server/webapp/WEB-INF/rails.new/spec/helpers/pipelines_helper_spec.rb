@@ -94,29 +94,6 @@ describe PipelinesHelper do
       expect(message).to have_selector(".label", "Automatically triggered")
       expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
     end
-
-    #  it "should report result as is for results other than Unknown" do
-    #    [StageState::Cancelled, StageState::Failed, StageState::Failing, StageState::Passed].each do |state|
-    #      stage_status_for_ui(state).should == state.stageResult().toString()
-    #    end
-    #  end
-    #
-    #  it "should report result as Building for result Unknown" do
-    #    [StageState::Building, StageState::Unknown].each do |state|
-    #      stage_status_for_ui(state).should == "Building"
-    #    end
-    #  end
-    #
-    #  describe "mock" do
-    #    it "should return internationalized result" do
-    #      localizer = mock('localizer')
-    #      stub!(:l).and_return(localizer)
-    #      localizer.should_receive(:string).with("Building").and_return("Eng Building")
-    #      localizer.should_receive(:string).with("Passed").and_return("Eng Passed")
-    #      stage_status_for_ui(StageState::Building).should == "Eng Building"
-    #      stage_status_for_ui(StageState::Passed).should == "Eng Passed"
-    #    end
-    #  end
   end
 
   it "should return the type of the material" do

@@ -31,6 +31,10 @@ class ApplicationController < ActionController::Base
 
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
+  if Rails.env.production?
+    include ActionRescue
+  end
+
   # user
   def set_current_user
     @user = com.thoughtworks.go.server.util.UserHelper.getUserName()

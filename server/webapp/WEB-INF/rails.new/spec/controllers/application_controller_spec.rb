@@ -52,7 +52,7 @@ describe ApplicationController do
     it "should generate cancel stage url" do
       expect(post: "/api/stages/10/cancel").to route_to(controller: "api/stages", action: "cancel",
           id: "10", no_layout: true)
-      cancel_stage_path(id: 10).should == "/api/stages/10/cancel"
+      expect(cancel_stage_path(id: 10)).to eq("/api/stages/10/cancel")
     end
   end
 
@@ -179,7 +179,7 @@ describe ApplicationController do
     end
 
     it "should get servlet request" do
-      expect(controller).to receive(:request).and_return(req = mock('request'))
+      expect(controller).to receive(:request).and_return(req = double('request'))
       expect(req).to receive(:env).and_return(env = {})
       env['java.servlet_request'] = :holy_cow
       controller.send(:servlet_request).should == :holy_cow
@@ -247,7 +247,7 @@ describe ApplicationController do
   context "with license agent validity stubbed" do
     controller do
       def test_action
-        render :text => "Some test action"
+        render text: "Some test action"
       end
     end
 
@@ -260,7 +260,7 @@ describe ApplicationController do
       end
       @controller.stub(:licensed_agent_limit)
       config_service = stub_service(:go_config_service)
-      config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
     end
 
     it "should set the current user as @user on set_current_user" do
@@ -304,7 +304,7 @@ describe ApplicationController do
     end
 
     it "should not render_operation_result when result hasn't failed" do
-      result = double('result', :httpCode => 302)
+      result = double('result', httpCode: 302)
       expect(controller).to receive(:render).never
 
       controller.render_operation_result_if_failure(result)
@@ -406,16 +406,16 @@ describe ApplicationController do
       end
 
       it "should cache the url based on params and options" do
-        controller.stub(:params).and_return({:bar => "bar", :baz => "baz"})
-        controller.url_for(:foo => "foo", :quux => "quux").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+        controller.stub(:params).and_return({ bar: "bar", baz: "baz" })
+        expect(controller.url_for(foo: "foo", quux: "quux")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
-        controller.stub(:params).and_return({:baz => "baz", :bar => "bar"})
-        controller.url_for(:quux => "quux", :foo => "foo").should == "1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host"
+        controller.stub(:params).and_return({ baz: "baz", bar: "bar" })
+        expect(controller.url_for(quux: "quux", foo: "foo")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
-        controller.url_for(:foo => "foo").should == "2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host"
+        expect(controller.url_for(foo: "foo")).to eq("2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host")
 
-        controller.stub(:params).and_return({:bar => "bar"})
-        controller.url_for(:foo => "foo").should == "3 - bar=bar - foo=foo|only_path=true - http:// - test.host"
+        controller.stub(:params).and_return(bar: "bar")
+        expect(controller.url_for(foo: "foo")).to eq("3 - bar=bar - foo=foo|only_path=true - http:// - test.host")
       end
 
       it "should cache the url based on values" do
@@ -430,11 +430,11 @@ describe ApplicationController do
 
       it "should cache the url based on host_and_port request reached on" do
         controller.request.stub(:host_with_port).and_return("local-host:8153")
-        controller.url_for(:foo => "foo").should == "1 -  - foo=foo|only_path=true - http:// - local-host:8153"
+        expect(controller.url_for(foo: "foo")).to eq("1 -  - foo=foo|only_path=true - http:// - local-host:8153")
         controller.request.stub(:host_with_port).and_return("local-ghost:8154")
-        controller.url_for(:foo => "foo").should == "2 -  - foo=foo|only_path=true - http:// - local-ghost:8154"
+        expect(controller.url_for(foo: "foo")).to eq("2 -  - foo=foo|only_path=true - http:// - local-ghost:8154")
         controller.request.stub(:host_with_port).and_return("local-ghost:8153")
-        controller.url_for(:foo => "foo").should == "3 -  - foo=foo|only_path=true - http:// - local-ghost:8153"
+        expect(controller.url_for(foo: "foo")).to eq("3 -  - foo=foo|only_path=true - http:// - local-ghost:8153")
       end
 
       it "should cache the url based on protocol request reached on" do
@@ -471,10 +471,10 @@ describe ApplicationController do
           expect(options[:params][:sort]).to eq("b")
           guid = options[:params][:fm]
         end
-        controller.redirect_with_flash("Flash message", :action => :index, :params => {:column => "a", :sort => "b"}, :class => "warning")
+        controller.redirect_with_flash("Flash message", action: :index, params: { column: "a", sort: "b" }, class: "warning")
         flash = controller.flash_message_service.get(guid)
         expect(flash.to_s).to eq("Flash message")
-        expect(flash.flashClass()).to eq("warning")
+        expect(flash.flashClass).to eq("warning")
       end
 
       it "should contain flash message in the session upon redirect with empty params" do

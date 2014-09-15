@@ -7,8 +7,8 @@ Style/TrailingBlankLines:
   Enabled: false
 
 Style/LineLength: 
-  Description: 'Limit lines to 150 characters.'
-  Max: 150
+  Description: 'Limit lines to 200 characters.'
+  Max: 200
   Enabled: true
 
 Style/StringLiterals:

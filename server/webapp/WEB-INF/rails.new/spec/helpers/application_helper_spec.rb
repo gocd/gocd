@@ -428,6 +428,10 @@ describe ApplicationHelper do
     selections.should == []
   end
 
+  it "should mark defaultable field by adding a hidden input" do
+    expect(register_defaultable_list("foo>bar>baz")).to eq('<input type="hidden" name="default_as_empty_list[]" value="foo>bar>baz"/>')
+  end
+
   describe "unauthorized_access" do
 
     it "should return true if status is 401" do

@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe GadgetsOauthClientsController, :type => :controller do
+describe GadgetsOauthClientsController, type: :controller do
   it "should set the tab_name" do
     controller.send(:set_tab_name)
     controller.instance_variable_get("@tab_name").should == "gadget-providers"

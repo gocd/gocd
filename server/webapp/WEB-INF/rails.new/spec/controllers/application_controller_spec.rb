@@ -406,10 +406,10 @@ describe ApplicationController do
       end
 
       it "should cache the url based on params and options" do
-        controller.stub(:params).and_return({ bar: "bar", baz: "baz" })
+        controller.stub(:params).and_return(bar: "bar", baz: "baz")
         expect(controller.url_for(foo: "foo", quux: "quux")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
-        controller.stub(:params).and_return({ baz: "baz", bar: "bar" })
+        controller.stub(:params).and_return(baz: "baz", bar: "bar")
         expect(controller.url_for(quux: "quux", foo: "foo")).to eq("1 - bar=bar|baz=baz - foo=foo|only_path=true|quux=quux - http:// - test.host")
 
         expect(controller.url_for(foo: "foo")).to eq("2 - bar=bar|baz=baz - foo=foo|only_path=true - http:// - test.host")

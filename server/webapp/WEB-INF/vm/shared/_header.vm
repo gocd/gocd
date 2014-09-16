@@ -63,7 +63,7 @@
 
     #end
     #if ($useCompressJS || $useNewRails)
-        <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript">
+        <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
     #else
         <script src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
         <script src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>

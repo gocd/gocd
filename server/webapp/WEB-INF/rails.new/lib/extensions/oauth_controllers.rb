@@ -14,23 +14,17 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module ::GoSslHelper
-  def self.included base
-    base.alias_method_chain :mandatory_ssl, :config_enforcement
+Oauth2Provider::ClientsController.class_eval do
+  layout 'admin'
+  prepend_before_filter :set_tab_name, :set_view_title
+
+  private
+
+  def set_tab_name
+    @tab_name = "oauth-clients"
   end
 
-  def mandatory_ssl_with_config_enforcement
-    if Thread.current[:ssl_base_url].nil?
-      @message = l.string("SSL_ENFORCED_BUT_BASE_NOT_FOUND")
-      @status = 404
-      render 'shared/ssl_not_configured_error', :status => @status, :layout => true
-      return false
-    end
-    mandatory_ssl_without_config_enforcement
+  def set_view_title
+    @view_title = "Administration"
   end
 end
-
-[Gadgets::SslHelper, Oauth2Provider::SslHelper].each do |helper|
-  helper.class_eval { include ::GoSslHelper }
-end
-

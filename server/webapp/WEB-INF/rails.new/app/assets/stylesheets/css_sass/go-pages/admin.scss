@@ -25,7 +25,8 @@
             .error_message{word-break: break-all;}
             #check_package{margin-left: 0;}
 
-            .fieldWithErrors, &.fieldWithErrors{
+            .fieldWithErrors, &.fieldWithErrors,
+            .field_with_errors, &.field_with_errors{
                 input{
                     float: none;
 
@@ -35,7 +36,8 @@
                 }
             }
 
-          &.fieldWithErrors select{
+          &.fieldWithErrors select,
+          &.field_with_errors select{
                float: none;
            }
 

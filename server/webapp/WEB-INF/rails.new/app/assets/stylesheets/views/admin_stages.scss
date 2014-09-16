@@ -49,7 +49,8 @@
 /**
  * =SETTINGS
 **/
-#stage_edit_form .checkbox_row .fieldWithErrors {
+#stage_edit_form .checkbox_row .fieldWithErrors ,
+#stage_edit_form .checkbox_row .field_with_errors {
     display: inline;
 }
 

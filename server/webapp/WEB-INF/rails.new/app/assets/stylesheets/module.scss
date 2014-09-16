@@ -727,13 +727,17 @@ span.contextual_help.stage_approval{
 }
 
 .artifacts_plan_section .fieldWithErrors,
-.environment_variables_section .fieldWithErrors {
+.environment_variables_section .fieldWithErrors,
+.artifacts_plan_section .field_with_errors,
+.environment_variables_section .field_with_errors {
     display:inline;
     padding: 0px;
 }
 
 .artifacts_plan_section .fieldWithErrors input,
-.environment_variables_section .fieldWithErrors input {
+.environment_variables_section .fieldWithErrors input,
+.artifacts_plan_section .field_with_errors input,
+.environment_variables_section .field_with_errors input {
     border: 1px solid red;
     padding: 4px;
     margin: 1px;

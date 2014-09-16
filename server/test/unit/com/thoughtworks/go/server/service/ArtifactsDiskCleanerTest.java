@@ -81,6 +81,7 @@ public class ArtifactsDiskCleanerTest {
         configDbStateRepository = mock(ConfigDbStateRepository.class);
 
         artifactCleanupExtension = mock(ArtifactCleanupExtension.class);
+        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(new ArrayList<StageDetailsArtifactCleanup>());
         artifactsDiskCleaner = new ArtifactsDiskCleaner(sysEnv, goConfigService, diskSpaceChecker, artifactService, stageService, configDbStateRepository, artifactCleanupExtension);
     }
 
@@ -212,7 +213,7 @@ public class ArtifactsDiskCleanerTest {
     public void shouldGetStagesFromExtensionForArtifactDeletion() throws Exception {
         serverConfig.setPurgeLimits(20.0, 30.0);
         StageDetailsArtifactCleanup stageDetails = new StageDetailsArtifactCleanup(1, "pipeline", 1, "stage", 1);
-        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails));
+        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails)).thenReturn(new ArrayList<StageDetailsArtifactCleanup>());
 
         artifactsDiskCleaner.deleteOldArtifacts();
 
@@ -232,7 +233,7 @@ public class ArtifactsDiskCleanerTest {
         serverConfig.setPurgeLimits(20.0, 30.0);
         List<String> paths = asList("artifact-path");
         StageDetailsArtifactCleanup stageDetails = new StageDetailsArtifactCleanup(1, "pipeline", 1, "stage", 1, paths, true);
-        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails));
+        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails)).thenReturn(new ArrayList<StageDetailsArtifactCleanup>());
 
         artifactsDiskCleaner.deleteOldArtifacts();
 
@@ -252,7 +253,7 @@ public class ArtifactsDiskCleanerTest {
         serverConfig.setPurgeLimits(20.0, 30.0);
         List<String> paths = asList("artifact-path");
         StageDetailsArtifactCleanup stageDetails = new StageDetailsArtifactCleanup(1, "pipeline", 1, "stage", 1, paths, false);
-        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails));
+        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails)).thenReturn(new ArrayList<StageDetailsArtifactCleanup>());
 
         artifactsDiskCleaner.deleteOldArtifacts();
 
@@ -272,7 +273,7 @@ public class ArtifactsDiskCleanerTest {
         serverConfig.setPurgeLimits(20.0, 30.0);
 
         StageDetailsArtifactCleanup stageDetails = new StageDetailsArtifactCleanup(1, "pipeline", 1, "stage", 1);
-        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails));
+        when(artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion()).thenReturn(asList(stageDetails)).thenReturn(new ArrayList<StageDetailsArtifactCleanup>());
 
         final Stage stageForArtifactDeletion = StageMother.passedStageInstance("stage", "build", "pipeline");
         when(stageService.oldestStagesWithDeletableArtifacts(new ArrayList<StageConfigIdentifier>())).thenReturn(asList(stageForArtifactDeletion)).thenReturn(new ArrayList<Stage>());
@@ -280,7 +281,7 @@ public class ArtifactsDiskCleanerTest {
 
         artifactsDiskCleaner.deleteOldArtifacts();
 
-        verify(artifactCleanupExtension).listOfStageInstanceIdsForArtifactDeletion();
+        verify(artifactCleanupExtension, times(2)).listOfStageInstanceIdsForArtifactDeletion();
         verify(artifactService, times(2)).purgeArtifactsForStage(any(Stage.class));
         verifyNoMoreInteractions(artifactService);
     }
@@ -292,7 +293,6 @@ public class ArtifactsDiskCleanerTest {
         when(artifactCleanupExtension.listOfStagesHandledByExtension()).thenReturn(asList(new StageConfigDetailsArtifactCleanup("stage-two", "pipeline")));
 
         final Stage stageOne = StageMother.passedStageInstance("stage-one", "build", "pipeline");
-        final Stage stageTwo = StageMother.passedStageInstance("stage-two", "build", "pipeline");
         when(stageService.oldestStagesWithDeletableArtifacts(asList(new StageConfigIdentifier("pipeline", "stage-two")))).thenReturn(asList(stageOne)).thenReturn(new ArrayList<Stage>());
 
 

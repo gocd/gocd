@@ -76,7 +76,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         if (serverConfig.isArtifactPurgingAllowed()) {
             double requiredSpace = requiredSpaceInGb * GoConstants.GIGA_BYTE;
             LOGGER.info(String.format("Clearing old artifacts as the disk space is low. Current space: '%s'. Need to clear till we hit: '%s'.", availableSpace(), requiredSpace));
-            purgeArtifactCleanupExtensionStages();
+            purgeArtifactCleanupExtensionStages(requiredSpace);
             if (availableSpace() > requiredSpace) return;
 
             List<StageConfigIdentifier> stagesFilter = stagesToFilter();
@@ -101,17 +101,20 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         }
     }
 
-    private void purgeArtifactCleanupExtensionStages() {
-        List<StageDetailsArtifactCleanup> stageDetailsArtifactCleanups = artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion();
-        for (StageDetailsArtifactCleanup stageDetails : stageDetailsArtifactCleanups) {
-            if (!stageDetails.getArtifactsPathsToBeRetained().isEmpty()) {
-                artifactService.purgeArtifactsForStageExcept(stageFrom(stageDetails), stageDetails.getArtifactsPathsToBeRetained());
-            } else if (!stageDetails.getArtifactsPathsToBeDeleted().isEmpty()) {
-                artifactService.purgeArtifactsForStage(stageFrom(stageDetails), stageDetails.getArtifactsPathsToBeDeleted());
-            } else {
-                artifactService.purgeArtifactsForStage(stageFrom(stageDetails));
+    private void purgeArtifactCleanupExtensionStages(double requiredSpace) {
+        List<StageDetailsArtifactCleanup> stageDetailsArtifactCleanups;
+        do {
+            stageDetailsArtifactCleanups = artifactCleanupExtension.listOfStageInstanceIdsForArtifactDeletion();
+            for (StageDetailsArtifactCleanup stageDetails : stageDetailsArtifactCleanups) {
+                if (!stageDetails.getArtifactsPathsToBeRetained().isEmpty()) {
+                    artifactService.purgeArtifactsForStageExcept(stageFrom(stageDetails), stageDetails.getArtifactsPathsToBeRetained());
+                } else if (!stageDetails.getArtifactsPathsToBeDeleted().isEmpty()) {
+                    artifactService.purgeArtifactsForStage(stageFrom(stageDetails), stageDetails.getArtifactsPathsToBeDeleted());
+                } else {
+                    artifactService.purgeArtifactsForStage(stageFrom(stageDetails));
+                }
             }
-        }
+        } while (availableSpace() < requiredSpace && !stageDetailsArtifactCleanups.isEmpty());
     }
 
     private List<StageConfigIdentifier> stagesToFilter() {

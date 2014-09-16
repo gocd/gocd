@@ -145,6 +145,7 @@ task :copy_files do
 
   if ENV['USE_NEW_RAILS'] == "Y"
     FileUtils.remove_dir("target/webapp/WEB-INF/rails", true)
+    FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
   else
     FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true)
 

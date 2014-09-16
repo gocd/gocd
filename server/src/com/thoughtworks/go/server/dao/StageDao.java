@@ -33,9 +33,10 @@ public interface StageDao extends JobDurationStrategy {
     String stageNameByStageId(long stageId);
 
     Stage save(Pipeline pipeline, Stage stage);
+
     @Deprecated
-    // This is only used in test for legacy purpose.
-    // Please call pipelineService.save(aPipeline) instead
+        // This is only used in test for legacy purpose.
+        // Please call pipelineService.save(aPipeline) instead
     Stage saveWithJobs(Pipeline pipeline, Stage stage);
 
     int getCount(String pipelineName, String stageName);
@@ -108,7 +109,7 @@ public interface StageDao extends JobDurationStrategy {
 
     List<StageIdentity> findLatestStageInstances();
 
-    List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, long fromId);
+    List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, Long fromId, Long toId, boolean ascending);
 
     List<StageConfigIdentifier> getAllDistinctStages();
 }

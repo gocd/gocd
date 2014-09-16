@@ -161,15 +161,17 @@ public class StageSqlMapDaoTest {
     }
 
     @Test
-    public void shouldGetAllStagesInstancesWithArtifactsForGivenStageNameAndPipelineName() throws Exception {
+    public void shouldGetAllStagesInstancesWithArtifactsForGivenStageNameAndPipelineNameInAscendingOrder() throws Exception {
         String pipelineName = "some_pipeline_name";
         String stageName = "stage_name";
-        long fromId = 100;
+        Long fromId = 100L;
+        Long toId = 200L;
+        boolean ascending = true;
 
         List<Stage> expectedResult = Arrays.asList(new Stage());
         when(sqlMapClientTemplate.queryForList(eq("getStagesWithArtifactsGivenPipelineAndStage"), anyObject())).thenReturn(expectedResult);
 
-        List<Stage> result = stageSqlMapDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+        List<Stage> result = stageSqlMapDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending);
         assertThat(result, is(expectedResult));
 
         ArgumentCaptor<Map> args = ArgumentCaptor.forClass(Map.class);
@@ -177,6 +179,31 @@ public class StageSqlMapDaoTest {
         assertThat(((String) args.getValue().get("pipelineName")), is(pipelineName));
         assertThat(((String) args.getValue().get("stageName")), is(stageName));
         assertThat(((Long) args.getValue().get("fromId")), is(fromId));
+        assertThat(((Long) args.getValue().get("toId")), is(toId));
+        assertThat(((String) args.getValue().get("order")), is("ASC"));
+    }
+
+    @Test
+    public void shouldGetAllStagesInstancesWithArtifactsForGivenStageNameAndPipelineNameInDescendingOrder() throws Exception {
+        String pipelineName = "some_pipeline_name";
+        String stageName = "stage_name";
+        Long fromId = 100L;
+        Long toId = 200L;
+        boolean ascending = false;
+
+        List<Stage> expectedResult = Arrays.asList(new Stage());
+        when(sqlMapClientTemplate.queryForList(eq("getStagesWithArtifactsGivenPipelineAndStage"), anyObject())).thenReturn(expectedResult);
+
+        List<Stage> result = stageSqlMapDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending);
+        assertThat(result, is(expectedResult));
+
+        ArgumentCaptor<Map> args = ArgumentCaptor.forClass(Map.class);
+        verify(sqlMapClientTemplate).queryForList(eq("getStagesWithArtifactsGivenPipelineAndStage"), args.capture());
+        assertThat(((String) args.getValue().get("pipelineName")), is(pipelineName));
+        assertThat(((String) args.getValue().get("stageName")), is(stageName));
+        assertThat(((Long) args.getValue().get("fromId")), is(fromId));
+        assertThat(((Long) args.getValue().get("toId")), is(toId));
+        assertThat(((String) args.getValue().get("order")), is("DESC"));
     }
 
     @Test

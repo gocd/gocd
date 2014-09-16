@@ -390,10 +390,13 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
-    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, long fromId) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).
-                and("stageName", stageName).
-                and("fromId", fromId).asMap();
+    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, Long fromId, Long toId, boolean ascending) {
+        Map<String, Object> args =
+                arguments("pipelineName", pipelineName).
+                        and("stageName", stageName).
+                        and("fromId", fromId).
+                        and("toId", toId).
+                        and("orderBy", ascending ? "ASC" : "DESC").asMap();
         return getSqlMapClientTemplate().queryForList("getStagesWithArtifactsGivenPipelineAndStage", args);
     }
 

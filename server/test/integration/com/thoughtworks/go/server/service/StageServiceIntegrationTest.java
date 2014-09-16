@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -58,7 +57,10 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.hamcrest.CoreMatchers;
@@ -75,7 +77,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -595,7 +600,8 @@ public class StageServiceIntegrationTest {
 
 
         PipelineConfig pipelineCfg2 = configFileHelper.addPipeline("pipeline-2", "stage", "job");
-        dbHelper.pass(dbHelper.schedulePipeline(pipelineCfg2, new TimeProvider()));
+        Pipeline p2Run1 = dbHelper.schedulePipeline(pipelineCfg2, new TimeProvider());
+        dbHelper.passStage(p2Run1.getFirstStage());
 
 
         PipelineConfig pipelineCfg1 = configFileHelper.addPipeline("pipeline-1", "stage", "job");
@@ -616,17 +622,28 @@ public class StageServiceIntegrationTest {
         dbHelper.buildingBuildInstance(p1Run5.getFirstStage());
 
 
-        List<Stage> result = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage");
+        // with stage name and pipeline name in ascending order
+        List<Stage> result = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage", null, null, true);
 
         assertThat(result.size(), is(3));
         assertStageDetails(result.get(0), p1Run2);
         assertStageDetails(result.get(1), p1Run3);
         assertStageDetails(result.get(2), p1Run4);
 
-        List<Stage> resultWithFromId = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage", p1Run2.getFirstStage().getId());
-        assertThat(resultWithFromId.size(), is(2));
-        assertStageDetails(resultWithFromId.get(0), p1Run3);
-        assertStageDetails(resultWithFromId.get(1), p1Run4);
+        //with stage name, pipeline name, from-id and to-id in ascending order
+        List<Stage> resultWithFromAndToId = stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline-1", "stage", p1Run3.getFirstStage().getId(), p1Run4.getFirstStage().getId(), true);
+        assertThat(resultWithFromAndToId.size(), is(2));
+        assertStageDetails(resultWithFromAndToId.get(0), p1Run3);
+        assertStageDetails(resultWithFromAndToId.get(1), p1Run4);
+
+        // no filter only descending order
+        List<Stage> resultInDescendingOrder = stageService.getStagesWithArtifactsGivenPipelineAndStage(null, null, null, null, false);
+
+        assertThat(resultInDescendingOrder.size(), is(4));
+        assertStageDetails(resultInDescendingOrder.get(0), p1Run4);
+        assertStageDetails(resultInDescendingOrder.get(1), p1Run3);
+        assertStageDetails(resultInDescendingOrder.get(2), p1Run2);
+        assertStageDetails(resultInDescendingOrder.get(3), p2Run1);
     }
 
     private void assertStageDetails(Stage stage, Pipeline expectedRunDetails) {

@@ -758,12 +758,27 @@
         s.state as stageState,
         *
         FROM _stages s
-        WHERE name = #stageName#
-        AND pipelineName = #pipelineName#
+        WHERE state in ('Passed','Failed','Cancelled')
         AND artifactsdeleted = FALSE
-        AND state in ('Passed','Failed','Cancelled')
-        AND id > #fromId#
-        ORDER BY id ASC
+        <isNotNull property="stageName" prepend="AND">
+            name = #stageName#
+        </isNotNull>
+        <isNotNull property="pipelineName" prepend="AND">
+            pipelineName = #pipelineName#
+        </isNotNull>
+        <isNotNull property="fromId" prepend="AND">
+            id &gt;= #fromId#
+        </isNotNull>
+        <isNotNull property="toId" prepend="AND">
+            id &lt;= #toId#
+        </isNotNull>
+        <isEqual property="orderBy" compareValue="ASC">
+            ORDER BY id ASC
+        </isEqual>
+        <isEqual property="orderBy" compareValue="DESC">
+            ORDER BY id DESC
+        </isEqual>
+        LIMIT 100
     </select>
 
     <select id="getDistinctStages" resultMap="result-distinct-stages">

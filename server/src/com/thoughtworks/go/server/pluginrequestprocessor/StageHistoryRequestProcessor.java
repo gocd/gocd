@@ -18,7 +18,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.json.JsonHelper.DATE_FORMAT;
 import static com.thoughtworks.go.util.json.JsonHelper.toJsonString;
-import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.math.NumberUtils.isDigits;
@@ -29,6 +28,8 @@ public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor
     static final String PIPELINE_NAME = "pipeline-name";
     static final String STAGE_NAME = "stage-name";
     static final String FROM_ID = "from-id";
+    static final String TO_ID = "to-id";
+    static final String ORDER = "order";
     static final String REQUEST = "stage-history";
     StageService stageService;
 
@@ -45,15 +46,15 @@ public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor
         } catch (Exception exception) {
             return DefaultGoApiResponse.incompleteRequest(exception.getMessage());
         }
+
         String pipeLineName = goPluginApiRequest.requestParameters().get(PIPELINE_NAME);
         String stageName = goPluginApiRequest.requestParameters().get(STAGE_NAME);
-        List<Stage> stageInstances;
-        String fromId = goPluginApiRequest.requestParameters().get(FROM_ID);
-        if (isEmpty(fromId)) {
-            stageInstances = stageService.getStagesWithArtifactsGivenPipelineAndStage(pipeLineName, stageName);
-        } else {
-            stageInstances = stageService.getStagesWithArtifactsGivenPipelineAndStage(pipeLineName, stageName, parseLong(fromId));
-        }
+        Long fromId = isEmpty(goPluginApiRequest.requestParameters().get(FROM_ID)) ? null : Long.parseLong(goPluginApiRequest.requestParameters().get(FROM_ID));
+        Long toId = isEmpty(goPluginApiRequest.requestParameters().get(TO_ID)) ? null : Long.parseLong(goPluginApiRequest.requestParameters().get(TO_ID));
+        boolean ascending = "DESC".equalsIgnoreCase(goPluginApiRequest.requestParameters().get(ORDER)) ? false : true;
+
+        List<Stage> stageInstances = stageService.getStagesWithArtifactsGivenPipelineAndStage(pipeLineName, stageName, fromId, toId, ascending);
+
         return DefaultGoApiResponse.success(toJsonString(toMap(stageInstances), DATE_FORMAT));
     }
 
@@ -77,12 +78,16 @@ public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor
     private void validateRequestParams(Map<String, String> requestParams) {
         String pipeLineName = requestParams.get(PIPELINE_NAME);
         String stageName = requestParams.get(STAGE_NAME);
-        if (isEmpty(pipeLineName) || isEmpty(stageName)) {
+        if ((isEmpty(pipeLineName) && !isEmpty(stageName)) || (!isEmpty(pipeLineName) && isEmpty(stageName))) {
             throw new RuntimeException(String.format("Expected to provide both pipeline name and stage name, but got Pipeline name as [%s] and stage name as [%s]", pipeLineName, stageName));
         }
         String fromId = requestParams.get(FROM_ID);
         if (!isEmpty(fromId) && !isDigits(fromId)) {
             throw new RuntimeException("Invalid from-id");
+        }
+        String toId = requestParams.get(TO_ID);
+        if (!isEmpty(toId) && !isDigits(toId)) {
+            throw new RuntimeException("Invalid to-id");
         }
     }
 }

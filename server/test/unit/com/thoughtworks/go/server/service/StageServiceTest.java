@@ -561,31 +561,16 @@ public class StageServiceTest {
                 goCache);
         String pipelineName = "pipeline-name";
         String stageName = "stage-name";
-        int fromId = 0;
+        Long fromId = 0L;
+        Long toId = 10L;
+        boolean ascending = true;
         List<Stage> expectedResult = new ArrayList<Stage>();
-        when(stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId)).thenReturn(expectedResult);
+        when(stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending)).thenReturn(expectedResult);
 
-        List<Stage> actualResult = service.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName);
+        List<Stage> actualResult = service.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending);
 
         assertThat(actualResult, is(expectedResult));
-        verify(stageDao).getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
-    }
-
-    @Test
-    public void shouldGetStageInstanceDetailsForGivenPipelineAndStageAndFromId() throws Exception {
-
-        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
-        String pipelineName = "pipeline-name";
-        String stageName = "stage-name";
-        int fromId = 100;
-        List<Stage> expectedResult = new ArrayList<Stage>();
-        when(stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId)).thenReturn(expectedResult);
-
-        List<Stage> actualResult = service.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
-
-        assertThat(actualResult, is(expectedResult));
-        verify(stageDao).getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
+        verify(stageDao).getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending);
     }
 
     @Test

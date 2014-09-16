@@ -497,12 +497,8 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findLatestStageInstances();
     }
 
-    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, long fromId) {
-        return stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId);
-    }
-
-    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName) {
-        return this.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, 0);
+    public List<Stage> getStagesWithArtifactsGivenPipelineAndStage(String pipelineName, String stageName, Long fromId, Long toId, boolean ascending) {
+        return stageDao.getStagesWithArtifactsGivenPipelineAndStage(pipelineName, stageName, fromId, toId, ascending);
     }
 
     public List<StageConfigIdentifier> getAllDistinctStages() {

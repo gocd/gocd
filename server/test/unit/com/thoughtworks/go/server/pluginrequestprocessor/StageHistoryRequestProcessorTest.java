@@ -38,7 +38,7 @@ public class StageHistoryRequestProcessorTest {
     }
 
     @Test
-    public void shouldReturnResponseWithIncompleteRequestMessageWhenStageNameIsMissing() throws Exception {
+    public void shouldReturnResponseWithIncompleteRequestMessageWhenStageNameIsMissingAndPipelineNameIsAvailable() throws Exception {
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put(StageHistoryRequestProcessor.PIPELINE_NAME, "pipeline");
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
@@ -48,11 +48,11 @@ public class StageHistoryRequestProcessorTest {
 
         assertThat(response.responseCode(), is(412));
         assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name, but got Pipeline name as [pipeline] and stage name as [null]"));
-        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong());
+        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
-    public void shouldReturnResponseWithIncompleteRequestMessageWhenPipelineNameIsMissing() throws Exception {
+    public void shouldReturnResponseWithIncompleteRequestMessageWhenPipelineNameIsMissingAndStageNameIsAvailable() throws Exception {
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put(StageHistoryRequestProcessor.STAGE_NAME, "stage");
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
@@ -62,7 +62,7 @@ public class StageHistoryRequestProcessorTest {
 
         assertThat(response.responseCode(), is(412));
         assertThat(response.responseBody(), is("Expected to provide both pipeline name and stage name, but got Pipeline name as [null] and stage name as [stage]"));
-        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong());
+        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -78,7 +78,23 @@ public class StageHistoryRequestProcessorTest {
 
         assertThat(response.responseCode(), is(412));
         assertThat(response.responseBody(), is("Invalid from-id"));
-        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong());
+        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong(), anyLong(), anyBoolean());
+    }
+
+    @Test
+    public void shouldReturnResponseWithIncompleteRequestMessageWhenInvalidToIdIsProvided() throws Exception {
+        HashMap<String, String> requestParams = new HashMap<String, String>();
+        requestParams.put(StageHistoryRequestProcessor.PIPELINE_NAME, "pipeline");
+        requestParams.put(StageHistoryRequestProcessor.STAGE_NAME, "stage");
+        requestParams.put(StageHistoryRequestProcessor.TO_ID, "12.2");
+        GoApiRequest goApiRequest = mock(GoApiRequest.class);
+        when(goApiRequest.requestParameters()).thenReturn(requestParams);
+
+        GoApiResponse response = requestProcessor.process(goApiRequest);
+
+        assertThat(response.responseCode(), is(412));
+        assertThat(response.responseBody(), is("Invalid to-id"));
+        verify(stageService, never()).getStagesWithArtifactsGivenPipelineAndStage(anyString(), anyString(), anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -88,7 +104,7 @@ public class StageHistoryRequestProcessorTest {
         requestParams.put(StageHistoryRequestProcessor.STAGE_NAME, "stage");
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
         when(goApiRequest.requestParameters()).thenReturn(requestParams);
-        when(stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline", "stage")).thenReturn(new ArrayList<Stage>());
+        when(stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline", "stage", null, null, true)).thenReturn(new ArrayList<Stage>());
 
         GoApiResponse response = requestProcessor.process(goApiRequest);
 
@@ -97,23 +113,45 @@ public class StageHistoryRequestProcessorTest {
     }
 
     @Test
-    public void shouldReturnSuccessResponseWhenPipelineNameAndStageNameAndFromIdProvided() throws Exception {
+    public void shouldReturnSuccessResponseWhenPipelineNameAndStageNameFromIdAndToIdProvided() throws Exception {
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put(StageHistoryRequestProcessor.PIPELINE_NAME, "pipeline");
         requestParams.put(StageHistoryRequestProcessor.STAGE_NAME, "stage");
         requestParams.put(StageHistoryRequestProcessor.FROM_ID, "100");
+        requestParams.put(StageHistoryRequestProcessor.TO_ID, "200");
         GoApiRequest goApiRequest = mock(GoApiRequest.class);
         when(goApiRequest.requestParameters()).thenReturn(requestParams);
         Stage stage = custom("stage");
         stage.setPipelineId(1L);
-        when(stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline", "stage", 100L)).thenReturn(asList(stage));
+        when(stageService.getStagesWithArtifactsGivenPipelineAndStage("pipeline", "stage", 100L, 200L, true)).thenReturn(asList(stage));
 
         GoApiResponse response = requestProcessor.process(goApiRequest);
 
         assertThat(response.responseCode(), is(200));
         String expectedResponseBody = String.format(
                 "[{\"stageId\":\"%s\",\"pipelineCounter\":\"1\",\"stageName\":\"stage\",\"stageCounter\":\"1\",\"pipelineId\":\"1\",\"lastTransitionTime\":\"%s\",\"pipelineName\":\"pipeline-name\",\"stageResult\":\"Passed\"}]",
-                stage.getId(),new SimpleDateFormat(DATE_FORMAT).format(stage.getLastTransitionedTime()));
+                stage.getId(), new SimpleDateFormat(DATE_FORMAT).format(stage.getLastTransitionedTime()));
+        assertThat(response.responseBody(), is(expectedResponseBody));
+    }
+
+    @Test
+    public void shouldReturnSuccessResponseWithStageInstanceDetailsInDescendingOrder() throws Exception {
+        HashMap<String, String> requestParams = new HashMap<String, String>();
+        requestParams.put(StageHistoryRequestProcessor.FROM_ID, "100");
+        requestParams.put(StageHistoryRequestProcessor.TO_ID, "200");
+        requestParams.put(StageHistoryRequestProcessor.ORDER, "DESC");
+        GoApiRequest goApiRequest = mock(GoApiRequest.class);
+        when(goApiRequest.requestParameters()).thenReturn(requestParams);
+        Stage stage = custom("stage");
+        stage.setPipelineId(1L);
+        when(stageService.getStagesWithArtifactsGivenPipelineAndStage(null, null, 100L, 200L, false)).thenReturn(asList(stage));
+
+        GoApiResponse response = requestProcessor.process(goApiRequest);
+
+        assertThat(response.responseCode(), is(200));
+        String expectedResponseBody = String.format(
+                "[{\"stageId\":\"%s\",\"pipelineCounter\":\"1\",\"stageName\":\"stage\",\"stageCounter\":\"1\",\"pipelineId\":\"1\",\"lastTransitionTime\":\"%s\",\"pipelineName\":\"pipeline-name\",\"stageResult\":\"Passed\"}]",
+                stage.getId(), new SimpleDateFormat(DATE_FORMAT).format(stage.getLastTransitionedTime()));
         assertThat(response.responseBody(), is(expectedResponseBody));
     }
 }

@@ -171,5 +171,9 @@
         <url-pattern>/help/*</url-pattern>
     </servlet-mapping>
 
+    <!-- Do not timeout idle/stale sessions for 14 days: 60 * 24 * 14 minutes. -->
+    <session-config>
+        <session-timeout>20160</session-timeout>
+    </session-config>
 </web-app>
 

@@ -57,15 +57,18 @@ body {
     #body_content.admin_body_content{
         background-color: white !important;
     }
+
+    #MB_content{
+      #body_content {
+        background: #fff;
+      }
+    }
 }
-
-
 
 .content_wrapper_inner {
     border: 0;
     padding: 15px;
 }
-
 
 /*
  * Footer
@@ -123,8 +126,6 @@ body {
         }
     }
 }
-
-
 
 .form_submit_errors .errors {
   background: image_url('g9/icons/icon_error_16.png') no-repeat scroll 0 0 #F8D1D8;

@@ -20,12 +20,12 @@ PipelineHistoryObserver.prototype = {
     initialize : function(keyOfListObjects) {
     },
     notify : function(json) {
-        $('pipeline-history').innerHTML = this.getTempate().process({ data : json });
+        $('pipeline-history').innerHTML = this.getTemplate().process({ data : json });
         if (window.paginator) {
             this.renderPagination(json);
         }
     },
-    getTempate: function() {
+    getTemplate: function() {
         if (!this._template) {
             this._template = TrimPath.parseDOMTemplate('pipeline-history-list-template');
         }

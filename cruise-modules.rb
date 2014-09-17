@@ -476,7 +476,9 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     mkdir_p _(:target, 'jsunit/compressed')
     filter_files(project('cruise:server').path_to("jsunit"), _(:target, "jsunit"))
     cp project('cruise:server').path_to("jsunit.xml"), _(:target)
-    cp js_file, _(:target, 'jsunit/compressed')
+    dest_file = _(:target, 'jsunit/compressed') + "/all.js"
+    rm dest_file if File.exist?(dest_file)
+    cp js_file, dest_file
     cp "server/webapp/javascripts/lib/d3-3.1.5.min.js", _(:target, 'jsunit/compressed')
     cp "server/webapp/javascripts/test_helper.js", _(:target, 'jsunit/compressed')
     cp project('cruise:server').path_to('webapp/stylesheets/module.css'), _(:target, 'jsunit/css/module.css')

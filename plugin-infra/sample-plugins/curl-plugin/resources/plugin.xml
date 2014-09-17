@@ -19,7 +19,7 @@
     <about>
         <name>Curl Task Plugin</name>
         <version>1.0</version>
-        <target-go-version>14.2.0</target-go-version>
+        <target-go-version>14.3.0</target-go-version>
         <description>
            Task plugin that supports configuration and execution of curl tasks in Go
         </description>

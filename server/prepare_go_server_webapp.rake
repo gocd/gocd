@@ -114,7 +114,7 @@ task :handle_assets_rails4 do
 end
 
 task :handle_assets do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
+  ENV['USE_NEW_RAILS'] != "N" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
 end
 
 #prepare help docs
@@ -143,7 +143,7 @@ CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_versio
 task :copy_files do
   safe_cp "webapp", "target"
 
-  if ENV['USE_NEW_RAILS'] == "Y"
+  if ENV['USE_NEW_RAILS'] != "N"
     FileUtils.remove_dir("target/webapp/WEB-INF/rails", true)
     FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
   else
@@ -311,7 +311,7 @@ task "version-image-urls-in-css" do
 end
 
 # inline partials
-RAILS_DIR = ENV['USE_NEW_RAILS'] == "Y" ? "rails.new" : "rails"
+RAILS_DIR = ENV['USE_NEW_RAILS'] != "N" ? "rails.new" : "rails"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
 RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"

@@ -43,8 +43,7 @@
             .error_message{word-break: break-all;}
             #check_package{margin-left: 0;}
 
-            .fieldWithErrors, &.fieldWithErrors,
-            .field_with_errors, &.field_with_errors{
+            .fieldWithErrors, &.fieldWithErrors{
                 input{
                     float: none;
 
@@ -54,8 +53,7 @@
                 }
             }
 
-          &.fieldWithErrors select,
-          &.field_with_errors select{
+          &.fieldWithErrors select{
                float: none;
            }
 
@@ -259,7 +257,7 @@ select#select_template {
 
 /*plugins*/
 
-ul.plugins{
+.plugins{
     float: none;
     margin-top: 20px;
     line-height: 1.3em;

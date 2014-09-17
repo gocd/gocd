@@ -114,7 +114,7 @@ task :handle_assets_rails4 do
 end
 
 task :handle_assets do
-  ENV['USE_NEW_RAILS'] == "Y" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
+  ENV['USE_NEW_RAILS'] != "N" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
 end
 
 #prepare help docs

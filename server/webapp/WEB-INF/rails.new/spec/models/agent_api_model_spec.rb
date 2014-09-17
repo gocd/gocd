@@ -17,27 +17,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe AgentAPIModel do
-  before(:each) do
-    @agent_view_model = double(AgentViewModel)
-    @agent_view_model.stub(:getUuid).and_return("uuid3")
-    @agent_view_model.stub(:getHostname).and_return("CCeDev01")
-    @agent_view_model.stub(:getIpAddress).and_return("127.0.0.1")
-    @agent_view_model.stub(:getLocation).and_return("/var/lib/go-server")
-    @agent_view_model.stub(:getStatusForDisplay).and_return("Idle")
-    @agent_view_model.stub(:buildLocator).and_return("/pipeline/1/stage/1/job")
-    @agent_view_model.stub(:getOperatingSystem).and_return("Linux")
-    disk_space = DiskSpace.new(0)
-    @agent_view_model.stub(:freeDiskSpace).and_return(disk_space)
-    resources_arr = Array.new
-    resources_arr << "java"
-    @agent_view_model.stub(:getResources).and_return(resources_arr)
-    environments_arr = Array.new
-    environments_arr << "foo"
-    @agent_view_model.stub(:getEnvironments).and_return(environments_arr)
-  end
+  include APIModelMother
 
   describe "should initialize correctly" do
     it "should populate correct data" do
+      @agent_view_model = create_agent_model
       agent_api = AgentAPIModel.new(@agent_view_model)
       agent_api.uuid.should == "uuid3"
       agent_api.agent_name.should == "CCeDev01"
@@ -50,10 +34,26 @@ describe AgentAPIModel do
       agent_api.resources[0].should == "java"
       agent_api.environments[0].should == "foo"
     end
+
+    it "should handle empty data" do
+        @agent_view_model = create_empty_agent_model
+        agent_api = AgentAPIModel.new(@agent_view_model)
+        agent_api.uuid.should == nil
+        agent_api.agent_name.should == nil
+        agent_api.ip_address.should == nil
+        agent_api.sandbox.should == nil
+        agent_api.status.should == nil
+        agent_api.build_locator.should == nil
+        agent_api.os.should == nil
+        agent_api.free_space.should == nil
+        agent_api.resources.should == nil
+        agent_api.environments.should == nil
+      end
   end
 
   describe "should convert to json correctly" do
     it "should have all fields correctly" do
+      @agent_view_model = create_agent_model
       agents_api_arr = Array.new
       agents_api_arr << AgentAPIModel.new(@agent_view_model)
       ActiveSupport::JSON.decode(agents_api_arr.to_json).should == [

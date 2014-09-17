@@ -157,11 +157,12 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public OauthAuthorizationDTO saveOauthAuthorization(Map attributes) {
-        return saveAuthorization(attributes);
+        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        return persistenceHelper.saveOrUpdateEntity(authorization);
     }
 
     public OauthAuthorizationDTO saveAuthorization(Map attributes) {
-        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        OauthAuthorization authorization = new OauthAuthorization(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("client_id"))));
         return persistenceHelper.saveOrUpdateEntity(authorization);
     }
 
@@ -214,11 +215,12 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public OauthTokenDTO saveOauthToken(Map attributes) {
-        return saveToken(attributes);
+        OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        return persistenceHelper.saveOrUpdateEntity(token);
     }
 
     public OauthTokenDTO saveToken(Map attributes) {
-        OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("oauth_client_id"))));
+        OauthToken token = new OauthToken(attributes, persistenceHelper.loadDomainEntity(OauthClient.class, Long.parseLong((String) attributes.get("client_id"))));
         return persistenceHelper.saveOrUpdateEntity(token);
     }
 

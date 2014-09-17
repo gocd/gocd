@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -26,8 +23,12 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @understands configuratin for a job
@@ -53,21 +54,27 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators();
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
+    @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
     @ConfigAttribute(value = "timeout", optional = true, allowNull = true) private String timeout;
+
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
     public static final String TASKS = "tasks";
     public static final String RESOURCES = "resources";
     public static final String TABS = "tabs";
     public static final String ENVIRONMENT_VARIABLES = "variables";
-    public static final String RUN_ON_ALL_AGENTS = "runOnAllAgents";
     public static final String ARTIFACT_PLANS = "artifactPlans";
     public static final String DEFAULT_NAME = "defaultJob";
     public static final String TIMEOUT = "timeout";
     public static final String DEFAULT_TIMEOUT = "defaultTimeout";
     public static final String OVERRIDE_TIMEOUT = "overrideTimeout";
     public static final String NEVER_TIMEOUT = "neverTimeout";
-    private static final String JOB_NAME_PATTERN = "[a-zA-Z0-9_\\-.]+";
+	public static final String RUN_TYPE = "runType";
+	public static final String RUN_SINGLE_INSTANCE = "runSingleInstance";
+	public static final String RUN_ON_ALL_AGENTS = "runOnAllAgents";
+	public static final String RUN_MULTIPLE_INSTANCE = "runMultipleInstance";
+	public static final String RUN_INSTANCE_COUNT = "runInstanceCount";
+	private static final String JOB_NAME_PATTERN = "[a-zA-Z0-9_\\-.]+";
     private static final Pattern JOB_NAME_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", JOB_NAME_PATTERN));
 
     public JobConfig() {
@@ -175,7 +182,23 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.runOnAllAgents = runOnAllAgents;
     }
 
-    public boolean isInstanceOf(String jobInstanceName, boolean ignoreCase) {
+	public boolean isRunMultipleInstanceType() {
+		return getRunInstanceCountValue() > 0;
+	}
+
+	public Integer getRunInstanceCountValue() {
+		return runInstanceCount == null ? 0 : Integer.valueOf(runInstanceCount);
+	}
+
+	public String getRunInstanceCount() {
+		return runInstanceCount;
+	}
+
+	public void setRunInstanceCount(Integer runInstanceCount) {
+		this.runInstanceCount = Integer.toString(runInstanceCount);
+	}
+
+	public boolean isInstanceOf(String jobInstanceName, boolean ignoreCase) {
         return jobTypeConfig().isInstanceOf(jobInstanceName, ignoreCase, CaseInsensitiveString.str(jobName));
     }
 
@@ -186,7 +209,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private JobTypeConfig jobTypeConfig() {
         if (runOnAllAgents) {
             return new RunOnAllAgentsJobTypeConfig();
-        } else {
+		} else if (isRunMultipleInstanceType()) {
+			return new RunMultipleInstanceJobTypeConfig();
+		} else {
             return new SingleJobTypeConfig();
         }
     }
@@ -197,6 +222,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 "jobName='" + jobName + '\'' +
                 ", resources=" + resources +
                 ", runOnAllAgents=" + runOnAllAgents +
+                ", runInstanceCount=" + runInstanceCount +
                 '}';
     }
 
@@ -233,7 +259,20 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                     NameTypeValidator.MAX_LENGTH);
             errors.add(NAME, message);
         }
-        if (timeout != null) {
+		if (runInstanceCount != null) {
+			try {
+				int runInstanceCountForValidation = Integer.parseInt(this.runInstanceCount);
+				if (runInstanceCountForValidation < 0) {
+					errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime.");
+				}
+			} catch (NumberFormatException e) {
+				errors().add(RUN_TYPE, "'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime.");
+			}
+		}
+		if (isRunOnAllAgents() && isRunMultipleInstanceType()) {
+			errors.add(RUN_TYPE, "Job cannot be 'run on all agents' type and 'run multiple instance' type together.");
+		}
+		if (timeout != null) {
             try {
                 double timeoutForValidation = Double.parseDouble(this.timeout);
                 if (timeoutForValidation < 0) {
@@ -265,10 +304,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         Map attributesMap = (Map) attributes;
-        if (attributesMap.containsKey(RUN_ON_ALL_AGENTS)) {
-            runOnAllAgents = "1".equals(attributesMap.get(RUN_ON_ALL_AGENTS));
-        }
-        if (attributesMap.containsKey(NAME)) {
+		if (attributesMap.containsKey(NAME)) {
             String nameString = (String) attributesMap.get(NAME);
             jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
         }
@@ -288,6 +324,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             artifactPlans.setConfigAttributes(attributesMap.get(ARTIFACT_PLANS));
         }
         setTimeoutAttribute(attributesMap);
+		if (new SystemEnvironment().get(SystemEnvironment.USE_NEW_RAILS)) {
+			setJobRunTypeAttribute(attributesMap);
+		} else {
+			if (attributesMap.containsKey(RUN_ON_ALL_AGENTS)) {
+				runOnAllAgents = "1".equals(attributesMap.get(RUN_ON_ALL_AGENTS));
+			}
+		}
     }
 
     private void setTimeoutAttribute(Map attributesMap) {
@@ -309,6 +352,24 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             }
         }
     }
+
+	private void setJobRunTypeAttribute(Map attributesMap) {
+		this.runOnAllAgents = false;
+		this.runInstanceCount = null;
+		if (attributesMap.containsKey(RUN_TYPE)) {
+			String jobRunType = (String) attributesMap.get(RUN_TYPE);
+			if (RUN_ON_ALL_AGENTS.equals(jobRunType)) {
+				this.runOnAllAgents = true;
+			} else if (RUN_MULTIPLE_INSTANCE.equals(jobRunType)) {
+				String runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
+				if (StringUtil.isBlank(runInstanceCount)) {
+					this.runInstanceCount = null;
+				} else {
+					this.runInstanceCount = runInstanceCount;
+				}
+			}
+		}
+	}
 
     public void validateNameUniqueness(Map<String, JobConfig> visitedConfigs) {
         String currentJob = name().toLower();
@@ -340,6 +401,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     public String getTimeoutType() {
         return timeout == null ? DEFAULT_TIMEOUT : timeout.equals("0") ? NEVER_TIMEOUT : OVERRIDE_TIMEOUT;
     }
+
+	public String getRunType() {
+		if (isRunOnAllAgents())
+			return RUN_ON_ALL_AGENTS;
+		if (isRunMultipleInstanceType())
+			return RUN_MULTIPLE_INSTANCE;
+		return RUN_SINGLE_INSTANCE;
+	}
 
     public void injectTasksForTest(Tasks tasks) {
         this.tasks = tasks;

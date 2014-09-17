@@ -1,0 +1,366 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+* {
+    font-size: 12px;
+}
+
+#yui-main {
+    min-width: 900px;
+}
+
+#yui-main .content_wrapper_outer,
+#yui-main .content_wrapper_inner  {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #1f66bd;
+}
+
+/* remove padding and margin for background */
+
+
+
+
+/* old velocity stuff */
+#bd {
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
+    line-height: 125%;
+    background-color: transparent;
+    padding-top: 91px;
+}
+
+/* fix typography */
+
+
+
+/*
+ * fake to get the header inside the rounded white box
+ */
+
+
+/*
+ * Application Navigation
+ */
+
+
+
+
+
+/* new page header */
+
+
+
+/*
+ * kill rounded corner graphics and other cruft
+ */
+ 
+.c1, .c2, .c3, .c4 {
+    display: none !important;
+}
+.rounded-corner-grey-border, 
+.rounded-corner-for-body, 
+.rounded-corner-for-pipeline, 
+.rounded-corner-for-pipe-conf, 
+.rounded-corner-for-pipe-conf-stage, 
+.rounded-corner-for-tab-container {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+/*
+ * build the rounded white box.
+ */
+ 
+
+#yui-main {
+    margin: 0;
+} 
+
+.container-in-body{
+  border: 0;
+  
+  position: relative;
+  top: 0;
+  left: 0;
+  padding: 0 15px 15px 15px;
+  margin: 0;
+  
+}
+.admin-rounded-container, /* admin section; new class just for this baby */
+#yui-main .content_wrapper_inner,
+.my-cruise-rounded-container,
+#server-page .rounded-corner-for-pipeline {
+    border: 0;
+    background-color: #FFF;
+    padding: 0 15px 15px 15px;
+}
+
+
+.admin-rounded-container,
+.my-cruise-rounded-container,
+#server-page .rounded-corner-for-pipeline {
+    padding-top: 15px;
+}
+
+#yui-main .content_wrapper_inner {
+    padding: 15px;    
+}
+
+
+
+
+#pipeline-history {
+    background-color: #FFF;
+}
+
+#content_wrapper_outer_pipeline_history #content_wrapper_inner_pipeline_history {
+    padding: 15px 0 0 0;
+    margin: 0;
+}
+
+
+
+
+
+/* fake h2 for my cruise */
+
+
+.wizard h1,
+.wizard h1 strong,
+#tab-content-of-source-xml h1,
+#tab-content-of-source-xml h1 span,
+#my-cruise-page .sub_tab_container_content .wizard h1,
+h2#pipeline_activity_header,
+#server-page h1 {
+    background-color: transparent;
+    color: #3F2559;
+    font-weight: 300;
+    margin-bottom: 10px;
+    font-size: 21px;
+    color:#3F2559;
+    margin-bottom:10px;
+    padding-bottom: 0;
+}
+
+
+#my-cruise-page .sub_tab_container_content .wizard h1 strong {
+    font-weight: inherit;
+    font-size: inherit;
+}
+
+
+/*
+ * Global Pass/Fail colors and pipeline details
+ */
+
+
+#new-pipeline-history .passed-stage {
+    background: none;
+    background-image: image_url('g9/backgrounds/bg_status_gradient.png');
+    background-repeat: repeat-x;
+    background-color: #78c42d;
+}
+
+#new-pipeline-history .failed-stage {
+    background: none;
+    background-image: image_url('g9/backgrounds/bg_status_gradient.png');
+    background-repeat: repeat-x;
+    background-color: #fa2d2d;
+}
+
+#new-pipeline-history .failing-stage {
+    background: none;
+    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-repeat: repeat-x;
+    background-color: #fa2d2d;
+}
+
+#new-pipeline-history .building-stage {
+    background: none;
+    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-repeat: repeat-x;
+    background-color: #ffc11b;
+    text-align: center;
+}
+
+#new-pipeline-history .cancelled-stage {
+    background: none;
+    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background-repeat: repeat-x;
+    background-color: #ffc11b;
+    text-align: center;
+}
+
+
+ol#pipelines {
+    border: 1px solid #ccc;
+    background-color: #eee;
+    float:right;
+    max-width:250px;
+    min-width:250px;
+    padding:15px;
+    margin-left: 10px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow: inset 0 0 8px #ddd;
+    -webkit-box-shadow:inset 0 0 8px #ddd;
+    box-shadow:inset 0 0 8px #ddd;
+}
+
+ol#pipelines  {
+    float:left;
+    overflow:hidden;
+    width:200px;
+    min-width: 200px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+
+
+/**
+ * Jobs
+ */
+ 
+
+
+
+
+
+
+
+/*
+ * Warning icon
+ */
+
+
+
+/*
+ * Admin
+ */
+
+
+
+.build h4 {
+    background-position: center;
+    padding: 0.25em 1em 0.25em 25px;
+    padding-left: 35px;
+    font-weight: bold;
+    border-bottom: 1px solid white;
+}
+.build h4 a {
+    font-weight: normal;
+    /*text-decoration: underline;*/
+}
+
+
+/*- Menu Tabs B--------------------------- */
+
+.sub_tab_container_menu {
+    display: block;
+/* IE hack: remove the extra white space between tab & content */
+    zoom: 1;
+}
+
+
+.sub-tabs-container {
+    list-style: none;
+    padding-top: 1em;
+}
+
+.sub-tabs-container{
+    background: #999 image_url('g9/backgrounds/overlay_bottom_inside_shadow.png') bottom repeat-x !important;
+    border: 0 !important;
+    padding: 10px;
+    padding-bottom: 0;
+    margin-bottom: 10px !important;
+    -moz-border-radius-topright: 6px;
+    -moz-border-radius-topleft: 6px;
+    -webkit-border-top-right-radius: 6px;
+    -webkit-border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+}
+
+.sub-tabs-container ul {
+    overflow: hidden;
+}
+
+.sub-tabs-container li {
+    display: block;
+    float: left;
+    margin-right: 5px;
+    padding: 0;
+}
+
+.sub-tabs-container .current_tab {
+    background:none !important;
+    bottom:0;
+    position: relative;
+}
+
+.sub-tabs-container li a {
+    font-size: 11px;
+    padding: 7px 12px;
+    display: block;
+    border: 0 !important;
+    background-color: #333;
+    color: #fff;
+    -moz-border-radius-topright: 4px;
+    -moz-border-radius-topleft: 4px;
+    -webkit-border-top-right-radius: 4px;
+    -webkit-border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.sub-tabs-container li a:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+
+.sub-tabs-container li.current_tab a,
+.sub-tabs-container li.current_tab a:hover {
+    background-color: #fff;
+    color: #000;
+    font-weight: normal;
+}
+
+
+.sub-tabs-container li.updated a {
+    background: transparent image_url('icon-12-alert.png') no-repeat 100% 50%;
+}
+
+#yui-main h1, h2, h3, h4 {
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-weight: 500;
+}
+#yui-main h1, h1 strong{
+    font-size: 2em;
+    font-weight: 400;
+}
+
+
+

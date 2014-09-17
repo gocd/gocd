@@ -45,10 +45,8 @@ describe FailuresHelper do
     end
 
     it "should render anchor and js for failed_test details" do
-      job_id = JobIdentifier.new("foo", 12, "label-1020", "bar", "34", "baz")
-      failure_details_link(job_id, "suite", "test").should == <<VAR
-<a href='#{failure_details_path(job_id, "suite", "test")}' id="for_fbh_failure_details_foo/12/bar/34/baz_suite_test" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>
-VAR
+      job_id = JobIdentifier.new("pipeline1", 1234, "pip-label-1", "defaultStage", "5678", "defaultJob")
+      failure_details_link(job_id, "cruise.testing.JUnit", "a").should == %Q{<a href='/failures/pipeline1/1234/defaultStage/5678/defaultJob/Y3J1aXNlLnRlc3RpbmcuSlVuaXQ%253D%250A/YQ%253D%253D%250A' id="for_fbh_failure_details_pipeline1/1234/defaultStage/5678/defaultJob_cruise.testing.JUnit_a" class="fbh_failure_detail_button" title='View failure details'>[Trace]</a>\n}
     end
   end
 end

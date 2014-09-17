@@ -21,6 +21,8 @@ describe Api::JobsController do
   include JobMother
 
   before do
+    @job_instance_service = double('job_instance_service')
+    controller.stub(:job_instance_service).and_return(@job_instance_service)
     controller.stub(:set_locale)
     controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
@@ -81,5 +83,39 @@ describe Api::JobsController do
 
     context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, nil)
     expect(assigns[:doc].asXML()).to eq(JobPlanXmlViewModel.new(waitingJobPlans).toXml(context).asXML())
+  end
+
+  describe :history do
+    include APIModelMother
+
+    it "should route to history" do
+      expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
+      expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
+    end
+
+    it "should render history json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @job_instance_service.should_receive(:getJobHistoryCount).and_return(10)
+      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_model])
+
+      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :offset => '5', :no_layout => true
+
+      expect(response.body).to eq(JobHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_job_model]).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @job_instance_service.should_receive(:getJobHistoryCount).and_return(10)
+      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything) do |pipeline_name, stage_name, job_name, pagination, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
+    end
   end
 end

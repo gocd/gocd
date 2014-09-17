@@ -1,0 +1,50 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require_self
+ *= require "./agents-tab.scss"
+ *= require "./application.scss"
+ *= require "./application-old.scss"
+ *= require "./build_list.scss"
+ *= require "./changes.scss"
+ *= require "./global.scss"
+ *= require "./ie_hacks.scss"
+ *= require "./mbean_console.scss"
+ *= require "./menu.scss"
+ *= require "./pipeline-history.scss"
+ *= require "./pipeline-tab.scss"
+ *= require "./rounded_corner.scss"
+ *= require "./stage-detail.scss"
+ *= require "./build_common.scss"
+ *= require "./build_detail.scss"
+ *= require "./build_detail_summary.scss"
+ *= require "./toolkit.scss"
+ *= require "./transparent_message.scss"
+ *= require "./ui.scss"
+ *= require "./mycruise-tab.scss"
+ *= require "./sub_tab.scss"
+ */
+

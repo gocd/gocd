@@ -1,0 +1,336 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*
+ * Structure.css
+ * This file contains OLD structure for the application.
+ * All universal conponents that don't need page specific namespacing should go below.
+ * Examples of things that should go in structure:
+ * - setting default html styles
+ * - resuable javascript components' default styles
+ * - page level messaging
+ * - application navigation styles
+ */
+
+
+
+a.tab_button_body_match_text {
+    display: none !important;
+}
+
+.secondary{
+    font-size: .9166em;
+    color: #555;
+    font-weight: normal;
+}
+
+/*
+ * Misc from Notifications
+ */
+#config_save_actions label{
+    font-size: 12px;
+    line-height: 27px;
+    color: #777777;
+    font-weight: bold;
+}
+#config_save_actions {
+    padding: 3px 10px 3px 10px;
+}
+.loading{
+    background: image_url('new/ajax_loader_small.gif') 50% 50% no-repeat transparent;
+}
+
+
+.pipeline_counter_information {
+    background: image_url('g9/icons/icon_warning_16.png') no-repeat scroll;
+    background-position:0 10px;
+    color: black;
+    font-size: 1em;
+    padding: 10px;
+    padding-left: 25px;
+    text-align:left;
+}
+
+
+
+
+/**
+ *  Gadgets
+ */
+
+#gadget_content {
+    background-color: white;
+    overflow: hidden;
+    padding:1em;
+}
+
+#gadget_content #popup {
+    padding: 0;
+}
+
+body[dir='ltr'] {
+    background-color: white;
+}
+
+
+/**
+ * Oauth
+ */
+#oauth_authorize_form label {
+    font-size: 12px;
+    vertical-align: middle;
+}
+#oauth_authorize_form input {
+    vertical-align: middle;
+}
+.error-box {
+    padding: 10px 10px 10px 36px !important;
+    margin: 15px;
+    color: #333;
+    background-position: 10px 9px !important;
+    background-repeat: no-repeat;
+    border: 1px solid #CCC;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px
+}
+.error-box {
+    background: #ddebf3 image_url('g9/icons/icon_error_16.png') no-repeat
+}
+
+
+
+
+
+/*
+ * Misc Pipeline stuff?
+ */
+.stage_history .stage.selected {
+    border: 1px solid #CCC;
+}
+
+
+/* Stage bars for pipeline groups/environments */
+
+
+.pipeline .stages .stage_bar{
+    height: 12px;
+    margin-top: 10px;
+    display: block;
+    line-height: 12px;
+    margin-right: 4px;
+}
+
+.pipeline .stages .stage_bar:hover {
+    opacity: 0.9;
+}
+
+.pipeline .stages .last_run_stage {
+    border-bottom: 5px solid #999;
+    padding-bottom: .25em;
+    margin-right: 4px;
+}
+.pipeline .stages .last_run_stage .stage_bar{
+    margin-right: 0;
+}
+
+
+
+
+/*
+ * Pipeline/Stage Details Header - stages bar
+ */
+.pipeline .stages .stage {
+    float: left;
+    position:relative;
+}
+#stages #pipeline_status_bar .pipeline .stages .stage {
+    width: 14%;
+    min-width: 150px;
+}
+
+.pipeline_flow .pipeline .stages {
+    width: 100%;
+}
+*+html #pipelines .pipeline_flow .stage_bar,
+*+html #stages .pipeline_flow .stage_bar,{
+    height: 1em;
+}
+.pipeline_flow .pipeline .stages .stage .stage_name{
+    font-size: 12px;
+}
+.pipeline_flow .pipeline .stages .stage .operate{
+    font-size: 0.75em;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+}
+.pipeline_flow .pipeline .stages .stage .operate .stage_action{
+    color: #CCC;
+    position: relative;
+    top: .0833em;
+}
+.pipeline_flow .pipeline .stages .selected .operate .stage_action{
+    color: #666;
+}
+.pipeline_flow .pipeline .stages .stage .row1{
+    overflow: hidden;
+    padding: 5px 20px 5px 0;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pipeline_flow .pipeline .stages .stage .spinny{
+    position: relative;
+    margin-top: -3px;
+}
+.pipeline_flow .pipeline .stages .stage .action_rerun .stage_action,
+.pipeline_flow .pipeline .stages .stage .action_rerun .stage_action:hover,
+.pipeline_flow .pipeline .stages .stage .action_cancel .stage_action,
+.pipeline_flow .pipeline .stages .stage .action_cancel .stage_action:hover
+{
+    width: 20px;
+    height: 20px;
+    display:block;
+    position: absolute;
+    top: -3px;
+    left: 0;
+}
+
+.pipeline_flow .pipeline .stages .stage .action_rerun .stage_action{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -92px -32px no-repeat transparent;
+}
+.pipeline_flow .pipeline .stages .stage .action_rerun .stage_action:hover{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -92px -2px no-repeat transparent;
+}
+
+.pipeline_flow .pipeline .stages .stage .action_cancel .stage_action{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -62px -32px no-repeat transparent;
+}
+.pipeline_flow .pipeline .stages .stage .action_cancel .stage_action:hover{
+    background: image_url('g9/icons/bg_sprite_gateway_icons.png') -62px -2px no-repeat transparent;
+}
+
+
+/**** 
+ * Icons
+ */
+
+
+.tasks_list_table .icon_remove,
+.jobs_list_table .icon_remove{
+  margin-top: -13px;
+}
+
+
+
+
+
+/***
+ * new structure styles from edit pipeline prototyp
+ */
+
+
+.instructions {
+  margin-bottom: 10px;
+  color: #666;
+  font-style: italic;
+}
+
+.inline_instruction {
+  margin-bottom: 10px;
+  color: #666;
+  font-style: italic;
+  clear:left;
+}
+
+
+
+.task-type {
+    margin-bottom: 10px;
+}
+
+
+
+#MB_content .form_buttons {
+  text-align: left;
+  padding: 10px;
+}
+
+#MB_window {
+  width: 760px !important;
+}
+
+
+/* sort list */
+
+.groups_table .add_link {
+    float: left;
+    display: inline;
+    padding: 2px 0 2px 20px;
+}
+
+
+.admin_workspace .sub_tabs_container{
+  clear: none;
+}
+div.clear {
+    clear: both;
+}
+
+@media only screen and (max-width : 1050px) {
+    #stages #pipeline_status_bar .pipeline .stages .stage{
+        width: 16%;
+    }
+}
+@media only screen and (max-width : 1250px) {
+    #stages #pipeline_status_bar .pipeline .stages .stage{
+        width: 18%;
+    }
+}
+
+
+/*
+ * ======= ADD ALL NEW STYLES ABOVE THIS LINE.  ONLY FLOAT CLEARING SHOULD GO BELOW ============
+ */
+
+/*
+ * Float Clearing
+ */
+.clear_float:after,
+#header:after,
+#body:after,
+#footer:after,
+#content_statusbar:after,
+#environments .environments:after,
+.content:after,
+#header .pipeline_flow .pipeline:after,
+.page_title_bar:after,
+.content_wrapper_inner:after,
+.content_wrapper_outer:after,
+.overview_widget:after,
+.pipeline_flow .pipeline .stages .stage .row1:after,
+.sub_tabs_container:after,
+.sub_tab_container_content:after,
+.form_item_block:after
+{
+	clear:both;
+	content:".";
+	display:block;
+	height:0;
+	visibility:hidden;
+}

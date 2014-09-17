@@ -17,35 +17,50 @@
 package com.thoughtworks.go.server.web;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.handler.ContextHandler;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
+import java.io.File;
+import java.util.UUID;
+
 public class GoVelocityViewTest {
     private GoVelocityView view;
     private HttpServletRequest request;
     private Context velocityContext;
     private SecurityContextImpl securityContext;
+    private RailsAssetsService railsAssetsService;
 
     @Before
     public void setUp() throws Exception {
-        view = new GoVelocityView();
+        railsAssetsService = mock(RailsAssetsService.class);
+        view = spy(new GoVelocityView());
+        doReturn(railsAssetsService).when(view).getRailsAssetsService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
         securityContext = new SecurityContextImpl();
@@ -142,5 +157,59 @@ public class GoVelocityViewTest {
                         null, null));
         view.exposeHelpers(velocityContext, request);
         assertThat((String) velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
+    }
+
+    @Test
+    public void shouldSetAssetsPathVariableWhenRailsNewWithCompressedJavascriptsIsUsed() throws Exception {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
+        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application-digest.js");
+        when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application-digest.css");
+        when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application-digest.css");
+        when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application-digest.css");
+        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
+        doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        Request servletRequest = mock(Request.class);
+        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+
+        view.exposeHelpers(velocityContext, servletRequest);
+
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application-digest.js"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application-digest.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application-digest.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application-digest.css"));
+    }
+
+    @Test
+    public void shouldSetAssetsPathVariableWhenRailsNewIsUsedInDevelopmentEnvironment() throws Exception {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
+        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application.js");
+        when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application.css");
+        when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application.css");
+        when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application.css");
+        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
+        doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        Request servletRequest = mock(Request.class);
+        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+
+        view.exposeHelpers(velocityContext, servletRequest);
+
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application.js"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application.css"));
+    }
+
+    @Test
+    public void shouldSetJavascriptsPathVariableWhenRails2IsUsed() throws Exception {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
+        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
+        doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        view.exposeHelpers(velocityContext, request);
+        assertThat((String)velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("compressed/all.js?#include(\"admin/admin_version.txt.vm\")"));
     }
 }

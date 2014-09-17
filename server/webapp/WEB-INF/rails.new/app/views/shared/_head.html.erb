@@ -2,7 +2,8 @@
     <%= @view_title %> - Go
 </title>
 <%= yield :before_stylesheets %>
-<%= render :partial => "shared/css" %>
+<%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
+<%= stylesheet_link_tag "patterns/application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
 <!-- START: prototype hooks for css injection -->
 <% if params[:controller] == "prototype" %>
@@ -14,59 +15,13 @@
 
 <!-- END: prototype hooks for css injection -->
 
-<% if use_compressed_js? %>
-    <%= javascript_include_tag '/go/compressed/all.js' %>
-    <![if !IE]>
-    <%= javascript_include_tag '/go/compressed/d3.js' %>
-    <![endif]>
-    <!--[if gt IE 8]><!-->
-    <%= javascript_include_tag '/go/compressed/d3.js' %>
-    <!--<![endif]-->
-<% else %>
-    <%= javascript_include_tag 'lib/es5-shim.min.js' %>
-
-    <%= javascript_include_tag 'lib/jquery-1.7.2.js' %>
-    <%= javascript_include_tag 'lib/bootstrap-2.3.2.min.js' %>
-    <%= javascript_include_tag 'lib/highcharts-2.3.3.min.js' %>
-    <%= javascript_include_tag 'lib/jquery.autocomplete-1.1.js' %>
-    <%= javascript_include_tag 'lib/jquery.ba-throttle-debounce-1.1.min.js' %>
-    <%= javascript_include_tag 'lib/jquery.dirtyform.js' %>
-    <%= javascript_include_tag 'lib/jquery.highlight-3.0.js' %>
-    <%= javascript_include_tag 'lib/jquery.timeago-1.2.3.js' %>
-    <%= javascript_include_tag 'lib/jquery.tipTip-1.3.js' %>
-    <%= javascript_include_tag 'lib/jquery.treeview-1.5pre.js' %>
-    <%= javascript_include_tag 'lib/jquery.url-1.0.js' %>
-    <%= javascript_include_tag 'lib/jquery.validate-1.5.5.js' %>
-    <%= javascript_include_tag 'lib/jquery-ui-1.7.3.custom.min.js' %>
-    <%= javascript_include_tag 'lib/ui.core-1.7.3.js' %>
-    <%= javascript_include_tag 'lib/ui.dialog-1.7.3.js' %>
-    <%= javascript_include_tag 'lib/jquery_no_conflict.js' %>
-
-    <%= javascript_include_tag 'lib/prototype-1.6.0.js' %>
-    <%= javascript_include_tag 'lib/effects-1.8.0.js' %>
-    <%= javascript_include_tag 'lib/accordion-2.0.js' %>
-    <%= javascript_include_tag 'lib/controls-1.8.0.js' %>
-    <%= javascript_include_tag 'lib/modalbox-1.6.1.js' %>
-
-    <%= javascript_include_tag 'lib/angular.1.0.8.min.js' %>
-    <%= javascript_include_tag 'lib/angular-resource.1.0.8.min.js' %>
-
-        <%= javascript_include_tag  "util", "cookie_utils", "application", "agent_filter",
-                                   "edit_popup_handler", "tristate_checkbox", "ajax_refresher", "ajax_refreshers", "agents_ajax_refresher", "default_text", "agent_util", "env_edit_form",
-                                   "field_state_replicator", "css_toggling", "micro_content_popup" , "ajax_popup_handler", "autocomplete", "controls", "stage_detail_ajax_refresher", 'form_fields_table',
-                                   "pipeline_visualization", "helpers","pipeline_material_revision", "dashboard_ajax_refresher.js", "tabs.js", "dirty_tracker","pipeline_selector", "element_aligner",
-                                   "environment_variables_form_field_validator", "server_configuration", "ajax_microcontent_popup_util", "environment_variables", "env_edit_form",
-                                   "compare_pipelines", "task_editor", "stage_history", "group_permissions", "simple-pipeline", "tabs_wizard", "check_connection",
-                                   "command_snippet_lookup", "enhanced_modalbox", "vsm", "vsm_renderer", "package_material_definition", "package_repository_configuration","package_material_check_connection", "custom_tree_view", "view_template",
-                                   "choose_existing_package_definition_state", "add_new_package_definition_state","fetch_pipelines_using_given_package", "user_options_on_header",
-                                   "package_material_definition_for_new_pipeline_wizard", "choose_existing_package_definition_state_for_new_pipeline_wizard", "add_new_package_definition_state_for_new_pipeline_wizard",
-                                   "jquery.listsearch", "jquery.wizard", "jquery.go-tabs",
-                                   "pipeline_search", "angular_helper", "task_plugin_view"
-
-        %>
-    <%= javascript_include_tag 'lib/d3-3.1.5.min.js' %>
-
-<% end %>
+<%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
+<![if !IE]>
+    <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
+<![endif]>
+<!--[if gt IE 8]><!-->
+    <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
+<!--<![endif]-->
 
 <%= yield :after_javascript %>
-<link rel="shortcut icon" href="<%=image_path('cruise.ico')%>"/>
+<link rel="shortcut icon" href="<%=asset_path('cruise.ico')%>"/>

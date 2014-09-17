@@ -16,20 +16,22 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.StringWriter;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.StringWriter;
+
+import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 
 public class GoVelocityView extends VelocityToolboxView {
     public static final String PRINCIPAL = "principal";
@@ -38,14 +40,44 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
+    public static final String USE_NEW_RAILS = "useNewRails";
+    public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
+    public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
+    public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
+    public static final String CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH = "concatenatedCssApplicationCssFilePath";
+    private final SystemEnvironment systemEnvironment;
 
+    public GoVelocityView() {
+        this(new SystemEnvironment());
+    }
+
+    RailsAssetsService getRailsAssetsService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(RailsAssetsService.class);
+    }
+
+    public GoVelocityView(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
 
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
+        RailsAssetsService railsAssetsService = getRailsAssetsService();
         velocityContext.put(ADMINISTRATOR, true);
         velocityContext.put(GROUP_ADMINISTRATOR, true);
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
-        velocityContext.put(USE_COMPRESS_JS, new SystemEnvironment().useCompressedJs());
+        velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
+        Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
+        velocityContext.put(USE_NEW_RAILS, useNewRails);
+
+        if (useNewRails) {
+            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
+            velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
+            velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
+            velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
+        } else {
+            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, "compressed/all.js?#include(\"admin/admin_version.txt.vm\")");
+        }
+
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);
         if (securityContext == null || securityContext.getAuthentication() == null) {
@@ -73,7 +105,7 @@ public class GoVelocityView extends VelocityToolboxView {
     }
 
     private void removeViewAdminRightsFromContextIfNecessary(Context context) {
-        if(!(context.containsKey(ADMINISTRATOR) || context.containsKey(GROUP_ADMINISTRATOR) || context.containsKey(TEMPLATE_ADMINISTRATOR)))
+        if (!(context.containsKey(ADMINISTRATOR) || context.containsKey(GROUP_ADMINISTRATOR) || context.containsKey(TEMPLATE_ADMINISTRATOR)))
             context.remove(VIEW_ADMINISTRATOR_RIGHTS);
     }
 

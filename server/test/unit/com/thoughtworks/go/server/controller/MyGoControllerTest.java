@@ -31,6 +31,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
+import com.thoughtworks.go.util.GoConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -82,9 +83,10 @@ public class MyGoControllerTest {
         assertThat((Localizer) modelAndView.getModel().get("l"), is(localizer));
 
         assertThat((String) modelAndView.getModel().get("pipelines"),
-                is("[{\"name\":\"pipeline1-1\",\"stages\":[{\"stageName\":\"stage1-1\"},{\"stageName\":\"stage1-2\"}]},"
-                        + "{\"name\":\"PIPELINE2-1\",\"stages\":[{\"stageName\":\"stage2-1\"}]},"
-                        + "{\"name\":\"pipeline3-1\",\"stages\":[{\"stageName\":\"stage3-1\"}]}]"));
+                is("[{\"name\":\"" + GoConstants.ANY_PIPELINE + "\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"}]},"
+                        + "{\"name\":\"pipeline1-1\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"},{\"stageName\":\"stage1-1\"},{\"stageName\":\"stage1-2\"}]},"
+                        + "{\"name\":\"PIPELINE2-1\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"},{\"stageName\":\"stage2-1\"}]},"
+                        + "{\"name\":\"pipeline3-1\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"},{\"stageName\":\"stage3-1\"}]}]"));
     }
 
     private class MyGoControllerWithMockedUser extends MyGoController {

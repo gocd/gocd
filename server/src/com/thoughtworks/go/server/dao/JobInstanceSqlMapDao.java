@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
@@ -48,6 +43,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
@@ -373,6 +373,25 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
         return new JobInstances(results);
     }
+
+	public int getJobHistoryCount(String pipelineName, String stageName, String jobName) {
+		Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).and("jobConfigName", jobName).asMap();
+		Integer count = (Integer) getSqlMapClientTemplate().queryForObject("getJobHistoryCount", toGet);
+		return count;
+	}
+
+	public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset) {
+		Map params = new HashMap();
+		params.put("pipelineName", pipelineName);
+		params.put("stageName", stageName);
+		params.put("jobConfigName", jobConfigName);
+		params.put("count", count);
+		params.put("offset", offset);
+
+		List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
+
+		return new JobInstances(results);
+	}
  
     public List<JobPlan> orderedScheduledBuilds() {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");

@@ -38,7 +38,7 @@
             <div class="override_timeout checkbox_row">
                 <%= scope[:form].radio_button 'timeoutType', com.thoughtworks.go.config.JobConfig::OVERRIDE_TIMEOUT, :id => "jobTimeout_override" -%>
                 <%= label_tag "jobTimeout_override", l.string("OVERRIDE_TIMEOUT_PREFIX")  -%>
-                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::TIMEOUT, :class => "inline in_between_text small_text_field" %>
+                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::TIMEOUT, :class => "inline small_text_field" %>
                 <%= label_tag "jobTimeout_override", l.string("OVERRIDE_TIMEOUT_SUFFIX") -%>
             </div>
         </div>

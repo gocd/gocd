@@ -1,0 +1,224 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/* actions bar style */
+.list-view {
+    background:transparent image_url('list-off.gif') no-repeat left 50%;
+}
+.list-on .list-view {
+    background:transparent image_url('list-on.gif') no-repeat left 50%;
+}
+.icons-view {
+    background:transparent image_url('icon-off.gif') no-repeat left 50%;
+}
+.icons-on .icons-view {
+    background:transparent image_url('icon-on.gif') no-repeat left 50%;
+}
+
+/* styles for page grid */
+.install-agent {
+    background: transparent image_url('icon-add-pipeline.gif') no-repeat left 50%;
+    padding-left: 25px;
+    float: right;
+    color: #4B220E;
+}
+
+#agent-list li.agent {
+    display: block;
+    padding: 0.7em;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #bbb;
+    border-top: 1px solid #F5F5F5;
+    clear: both;
+}
+
+#agent-list li.idle{
+    background: #bee6a7;
+    zoom: 1;/* Fix IE6 background-image will move when clone the position bug */
+}
+
+#agent-list li.building, #agent-list li.cancelled {
+    background: #f2cf99;
+    zoom: 1;
+}
+
+#agent-list li.pending,
+#agent-list li.disabled {
+    background: #DDDDDD;
+    zoom: 1;
+}
+
+#agent-list li.lostcontact {
+    background: #FFCCCC;
+    zoom: 1;
+}
+
+#agent-list li.missing {
+    background: #FFFFCC;
+    zoom: 1;
+}
+
+#agent-list h2 {
+    font-weight: bold;
+    margin-top:1em;
+    margin-bottom:0.5em;
+}
+
+#agent-list h3 {
+    font-weight: bold;
+}
+
+#agent-list .name, #agent-list .ip-address {
+    font-size: 1.1em;
+}
+
+#agent-list .ip-address,#agent-list .location, #agent-list .diskspace {
+    border-left: 1px solid #999;
+    padding-left: 0.5em;
+    margin-left: 0.3em;
+}
+
+#agent-list .lowdiskspace {
+    color: red;
+}
+
+#agent-list .divider {
+    padding-right: 1em;
+    margin-left: 1em;
+    line-height: 0.8em;
+}
+
+#agent-list .status {
+    border-left: 1px solid #999;
+    padding-left: 0.5em;
+    font-weight: normal;
+    font-size: 1em;
+}
+
+#agent-list .status .build-status {
+    padding-left: 0.25em;
+    font-weight: bold;
+}
+
+a.add-resource,
+span.add-resource
+{
+    padding: 0 10px 0 21px;
+    margin-right: 10px;
+    background: transparent image_url('icon-add-resources.gif') no-repeat left 50%;
+    border-right: 1px solid #999;
+    color: #000;
+    text-decoration: underline;
+}
+
+span.add-resource {
+    text-decoration: none;
+    color: #888;
+}
+
+.resources-container {
+    float: left;
+}
+
+.resources {
+    display: inline;
+    margin-right: 3.5em;
+}
+
+.resources a,
+.resources a.visited {
+    text-decoration: none;
+}
+
+.resources a img {
+    vertical-align: middle;
+}
+
+.resources li {
+    float: left;
+    white-space:nowrap;
+    padding: 0 0.8em;
+    zoom: 1;
+}
+
+.agent-actions {
+    float: right;
+}
+
+.agent-actions a
+.agent-actions span
+{
+    text-decoration: underline;
+    color: black;
+    padding-left: 1em;
+}
+
+.agent-actions span
+{
+    text-decoration: none;
+    color: #888;
+}
+
+.agents-of-group
+{
+    margin-left: 1em;
+}
+
+
+
+
+
+.ami-template h4
+{
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #BEE6A7;
+    padding: 0.45em 0.9em;
+}
+
+.ami-template .resources-container
+{
+    background-color: #BEE6A7;
+    padding: 0 1em 0.5em 1em;
+    float: none;
+}
+
+.instances
+{
+    margin: 0.5em 0.6em;
+}
+
+.instances li
+{
+    padding: 0.25em 1em;
+    background-color: #E4F3D4;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.instances li span
+{
+    border-left:1px solid #999999;
+    padding-left: 0.5em;
+    margin-left: 0.3em;
+}
+
+.instances .name
+{
+    padding-left: 0;
+    margin-left: 0;
+    border-left: none;
+}

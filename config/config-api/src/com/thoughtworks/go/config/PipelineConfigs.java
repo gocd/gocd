@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -290,6 +290,10 @@ public class PipelineConfigs extends BaseCollection<PipelineConfig> implements V
     public ConfigErrors errors() {
         return configErrors;
     }
+
+	public List<PipelineConfig> getPipelines() {
+		return this;
+	}
 
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);

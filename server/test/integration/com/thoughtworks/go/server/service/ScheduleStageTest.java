@@ -268,7 +268,7 @@ public class ScheduleStageTest {
         Stage newStage = scheduleService.rerunJobs(oldStage, a("foo3"), result);
 
         assertThat(result.canContinue(), is(false));
-        assertThat(result.message(), containsString("Cannot rerun job, configuration for job named 'foo3' doesn't exist."));
+        assertThat(result.message(), containsString("Cannot rerun job 'foo3'. Configuration for job doesn't exist."));
         assertThat(newStage, is(nullValue()));
     }
 

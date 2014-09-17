@@ -156,13 +156,15 @@ Go::Application.routes.draw do
     end
 
     get ':action' => 'pipelines#:action', constraints: {:action => /index|show|build_cause|select_pipelines/}
-    post ":action" => 'pipelines#:action', constraints: {:action => /select_pipelines/}, as: :pipeline
+    post ':action' => 'pipelines#:action', constraints: {:action => /select_pipelines|show/}, as: :pipeline
   end
 
   get "pipelines(.:format)" => 'pipelines#index', defaults: {:format => "html"}, as: :pipeline_dashboard
+  get "dashboard.json" => 'pipelines#dashboard', format: 'json'
   get 'home' => 'pipelines#index'
 
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
+  get "materials/value_stream_map/:material_fingerprint/:revision(.:format)" => "value_stream_map#show_material", defaults: {:format => :html}, as: :vsm_show_material
 
   scope 'compare' do
     get ':pipeline_name/:from_counter/with/:to_counter' => 'comparison#show', constraints: {from_counter: PIPELINE_COUNTER_FORMAT, to_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines
@@ -203,6 +205,22 @@ Go::Application.routes.draw do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
 
+      # history
+      get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
+      get 'stages/:pipeline_name/:stage_name/history/(:offset)' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :stage_history_api
+      get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
+      get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api
+      get "materials/:fingerprint/modifications/(:offset)" => 'materials#modifications', defaults: {:offset => '0'}, as: :material_modifications_api
+
+      # status
+      get 'pipelines/:pipeline_name/status' => 'pipelines#status', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_status_api
+
+      # config
+      get 'config/pipeline_groups' => 'pipeline_groups#list_configs', as: :pipeline_group_config_list_api
+      get 'config/materials' => 'materials#list_configs', as: :material_config_list_api
+      get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
+      get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
+
       # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
       post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
@@ -232,7 +250,7 @@ Go::Application.routes.draw do
 
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'
-        get 'server.xml' => 'server#info'
+        get 'server.xml' => 'server#info', as: :server
 
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage
@@ -283,66 +301,9 @@ get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", 
   get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
 
+  get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
+  get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
+
   # dummy mappings. for specs to pass
-  get 'test' => 'test/test#index', as: :gadget_rendering
-  get 'test' => 'test/test#index', as: :gadgets_oauth_clients
   get 'test' => 'test/test#index', as: :oauth_clients
-
-  # catch all route
-  match '*url', via: :all, to: 'application#unresolved'
-
-# The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
 end

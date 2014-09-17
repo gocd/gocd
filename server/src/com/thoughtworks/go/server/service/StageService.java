@@ -28,6 +28,7 @@ import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -40,6 +41,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.MingleCard;
@@ -79,6 +81,7 @@ public class StageService implements StageRunFinder, StageFinder {
     private StageStatusCache stageStatusCache;
     private Cloner cloner = new Cloner();
     private GoCache goCache;
+	private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     @Autowired
     public StageService(StageDao stageDao, JobInstanceService jobInstanceService, StageStatusTopic stageStatusTopic, StageStatusCache stageStatusCache,
@@ -392,6 +395,19 @@ public class StageService implements StageRunFinder, StageFinder {
     public StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize) {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
+
+	public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination, String username, OperationResult result) {
+		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
+		}
+		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			return null;
+		}
+
+		return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+	}
 
     public Long findStageIdByLocator(String locator) {
         String[] parts = locator.split("/");

@@ -2,10 +2,11 @@ require File.expand_path('../boot', __FILE__)
 
 require "action_controller/railtie"
 require "rails"
-# require "gadgets"
 require "oauth2_provider"
 require "dynamic_form"
-
+require "gadgets"
+require "sprockets/railtie"
+require "sass"
 
 module Go
   class Application < Rails::Application
@@ -26,5 +27,14 @@ module Go
 
     # Replacement for "helper :all", used to make all helper methods available to controllers.
     config.action_controller.include_all_helpers = true
+
+    # Add catch-all route, after all Rails routes and Engine routes are initialized.
+    initializer :add_catch_all_route, :after => :add_routing_paths do |app|
+      app.routes.append do
+        match '*url', via: :all, to: 'application#unresolved'
+      end
+    end
+    config.assets.enabled = true
+    config.serve_static_assets = true
   end
 end

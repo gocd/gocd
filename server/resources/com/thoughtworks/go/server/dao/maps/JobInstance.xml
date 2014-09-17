@@ -30,6 +30,7 @@
         <result property="agentUuid" column="agentUuid"/>
         <result property="ignored" column="ignored"/>
         <result property="runOnAllAgents" column="runOnAllAgents"/>
+        <result property="runMultipleInstance" column="runMultipleInstance"/>
         <result property="originalJobId" column="originalJobId"/>
         <result property="rerun" column="rerun"/>
     </resultMap>
@@ -81,6 +82,7 @@
         <parameter property="agentUuid"/>
         <parameter property="stageId"/>
         <parameter property="runOnAllAgents"/>
+        <parameter property="runMultipleInstance"/>
         <parameter property="originalJobId"/>
         <parameter property="rerun"/>
     </parameterMap>
@@ -104,6 +106,26 @@
             AND originalJobId IS NULL
         ORDER BY id DESC
         LIMIT #count#
+    </select>
+
+    <select id="getJobHistoryCount" resultClass="java.lang.Integer" cacheModel="latest-completed-job-instances">
+        SELECT COUNT(1)
+        FROM _builds
+            WHERE name = #jobConfigName#
+                AND pipelineName = #pipelineName#
+                AND stageName = #stageName#
+                AND originalJobId IS NULL
+    </select>
+
+    <select id="findJobHistoryPage" resultMap="select-build-with-identifier" cacheModel="latest-completed-job-instances">
+        SELECT *, id AS buildId
+        FROM _builds
+        WHERE name = #jobConfigName#
+            AND pipelineName = #pipelineName#
+            AND stageName = #stageName#
+            AND originalJobId IS NULL
+        ORDER BY id DESC
+        LIMIT #count# OFFSET #offset#
     </select>
 
     <sql id="select-job-id">
@@ -274,8 +296,8 @@
     </update>
 
     <insert id="insertBuild" parameterMap="insert-build-param">
-        INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, originalJobId, rerun)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, runMultipleInstance, originalJobId, rerun)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey resultClass="long" keyProperty="id" type="post">
             CALL IDENTITY();
         </selectKey>
@@ -329,6 +351,7 @@
         joined.stageId,
         joined.ignored,
         joined.runOnAllAgents,
+        joined.runMultipleInstance,
         joined.originalJobId,
         joined.rerun,
         joined.pipelineName,

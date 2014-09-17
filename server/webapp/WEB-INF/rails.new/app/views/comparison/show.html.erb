@@ -1,4 +1,3 @@
-<%= javascript_include_tag "tw_gadget" -%>
 <%- scope = {} -%>
 <script src="/go/gadgets/js/rpc.js?v=1.1-beta5" type="text/javascript"></script>
 <script type="text/javascript">
@@ -14,8 +13,8 @@
                 nocache: 0,
                 debug: 1,
                 up_card_number_list_url: '<%= card_activity_url(:only_path => false, :pipeline_name => @pipeline_name, :from_pipeline_counter => @from_pipeline.getCounter(), :to_pipeline_counter => @to_pipeline.getCounter(), :show_bisect => show_bisect?) -%>',
-                up_project: <%= @mingle_config.getQuotedProjectIdentifier() -%>,
-                up_grouping_conditions: <%= @mingle_config.getQuotedMql() -%>,
+                up_project: <%== @mingle_config.getQuotedProjectIdentifier() %>,
+                up_grouping_conditions: <%== @mingle_config.getQuotedMql() %>,
                 width: '100%',
                 height: '850px'
             };

@@ -67,27 +67,9 @@ class NonApiController < ApplicationController
     render_localized_operation_result(hor)
   end
 
-  def double_render
-    @error_rendered = true
-    render :text => "first render"
-    render :text => "second render"
-  end
-
-  def redirect_after_render
-    @error_rendered = true
-    render :text => "render before redirect"
-    redirect_to pipeline_dashboard_url
-  rescue
-    @exception_in_action = $! #something is stupid enough to catch and gobble exceptions, assert on copy
-  end
-
   def double_render_without_error
     render :text => "first render"
     render :text => "second render"
-  end
-
-  def exception_out
-    raise "foo bar"
   end
 
   def encoded_param_user_action

@@ -1,0 +1,95 @@
+$basecolor: #333333
+$comfortable: 10px
+$fontsize: 12px
+
+@import "../base/mixins"
+
+.hidden
+	display: none
+
+.layout
+	&.admin-entity
+		.navigation, nav
+			width: 250px
+			float: left
+			overflow-y: auto
+			padding: 5px
+			> *:last-child
+				margin-bottom: 20px
+			form
+				background: transparent
+				padding: 4px
+				float: right
+				display: inline
+
+			form button.remove
+				@include -go-opacity(0.75)
+				background: image_url('andare/icon-mix.png') no-repeat -5px -127px
+				height: 16px
+				width: 16px
+				&:hover
+					@include -go-opacity(1)
+				&[disabled]
+					@include -go-opacity(0.25)
+					cursor: default
+			h2
+				font-size: $fontsize + 2
+				line-height: $fontsize + 4
+				padding: 4px
+			.packages li
+				.entity
+					margin-left: 18px
+				margin-bottom: 4px
+				a
+					width: 175px
+					display: inline-block
+
+		.content
+			padding: 5px 5px 5px 10px
+			margin-left: 260px
+			.entity_title
+				font-size: 12px
+				padding: 5px
+				font-weight: normal
+				border-bottom: 1px dotted #999999
+				margin-bottom: 5px
+				ul
+					display: block
+					line-height: 15px
+					float: none
+					li
+						display: inline-block
+						float: none
+						background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll right 5px transparent
+						margin-right: 3px
+						padding-right: 12px
+						max-width: 175px
+						white-space: nowrap
+						overflow: hidden
+						text-overflow: ellipsis
+					li:last-child
+						background-image: none
+			.list_table
+				margin-top: 5px
+		&.view
+			.navigation, nav
+				width: 200px
+			.content
+				width: 525px
+				margin-left: 210px
+			.treenav
+				overflow-x: hidden
+				li
+					overflow-x: hidden
+					text-overflow: ellipsis
+
+/*treeview fix for the template view*/
+#MB_content .navigation .treenav
+	li
+		&.selected > a
+			background-color: #D2EBF0
+		&:hover > a
+			background-color: #eee
+		a
+			border-radius: 3px
+			margin-left: 25px

@@ -58,6 +58,10 @@
     <entry key="RERUN">RERUN</entry>
     <entry key="PIPELINE_CANNOT_VIEW">You do not have view permissions for pipeline ''{0}''.</entry>
     <entry key="MATERIAL_WITH_FINGERPRINT_NOT_FOUND">Pipeline ''{0}'' does not contain material with fingerprint ''{1}''.</entry>
+    <entry key="MATERIAL_CANNOT_VIEW">You do not have view permissions for material with fingerprint ''{0}''.</entry>
+    <entry key="MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND">Material with fingerprint ''{0}'' not found.</entry>
+    <entry key="MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND">Material Instance with fingerprint ''{0}'' not found.</entry>
+    <entry key="MATERIAL_MODIFICATION_NOT_FOUND">Modification ''{1}'' for material with fingerprint ''{0}'' not found.</entry>
     <entry key="STAGE_DETAIL">Stage Detail</entry>
     <entry key="PIPELINE_DETAIL">Pipeline Detail</entry>
     <entry key="RUN:">Run:</entry>
@@ -345,7 +349,12 @@
     <entry key="JOB">Job</entry>
     <entry key="RESOURCES">Resources</entry>
     <entry key="RUN_ON_ALL">Run on all</entry>
+    <entry key="RUN_TYPE">Run Type</entry>
+    <entry key="RUN_SINGLE_INSTANCE">Run one instance</entry>
     <entry key="RUN_ON_ALL_AGENTS">Run on all agents</entry>
+    <entry key="RUN_MULTIPLE_INSTANCES">Run multiple instances</entry>
+    <entry key="RUN_MULTIPLE_INSTANCES_PREFIX">Run</entry>
+    <entry key="RUN_MULTIPLE_INSTANCES_SUFFIX">instances</entry>
     <entry key="TASKS">Tasks</entry>
     <entry key="TABS">Custom Tabs</entry>
     <entry key="TASK">Task</entry>
@@ -404,6 +413,7 @@
     <entry key="TOOLTIP_TAB_NAME">Name of the tab which will appear in the Job Detail Page.</entry>
     <entry key="TOOLTIP_TAB_PATH">The artifact that will be rendered in the custom tab. This is typically a html or xml file.</entry>
     <entry key="TOOLTIP_RUN_ON_ALL"> Job will run on all agents that match its resources (if any). If you’re using the Enterprise Edition, only agents in the same environment as this job’s pipeline will pick up the job. This option is particularly useful when deploying to multiple servers.</entry>
+    <entry key="TOOLTIP_RUN_MULTIPLE_INSTANCE"> Specified number of instances of job will be created during schedule time.</entry>
     <entry key="TOOLTIP_ARTIFACT_SOURCE">The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).</entry>
     <entry key="TOOLTIP_ARTIFACT_DESTINATION">The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory</entry>
     <entry key="TOOLTIP_TEST_ARTIFACT">When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs.</entry>
@@ -728,6 +738,7 @@
     <entry key="VSM_UNSUPPORTED_ON_IE8"><![CDATA[Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='/go/help/value_stream_map.html' target='_blank'>Value Stream Map</a>.]]></entry>
     <entry key="VSM_CYCLIC_DEPENDENCY">Value Stream Map of Pipeline ''{0}'' with counter ''{1}'' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.</entry>
     <entry key="VSM_INTERNAL_SERVER_ERROR">Value Stream Map of pipeline ''{0}'' with counter ''{1}'' can not be rendered. Please check the server log for details.</entry>
+    <entry key="VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL">Value Stream Map of material with fingerprint ''{0}'' with revision ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="USER_DELETE_SUCCESSFUL">User ''{0}'' was deleted successfully.</entry>
     <entry key="USER_NOT_FOUND">User ''{0}'' not found.</entry>
     <entry key="USER_NOT_DISABLED">User ''{0}'' is not disabled.</entry>

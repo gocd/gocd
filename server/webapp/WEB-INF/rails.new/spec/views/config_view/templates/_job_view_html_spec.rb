@@ -47,6 +47,12 @@ describe "config_view/templates/_job_view.html.erb" do
           end
           expect(run).to have_selector("span.value", :text => "No")
         end
+        list.find("li.field.run_multiple_instances").tap do |run|
+          run.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Run multiple instances")
+          end
+          expect(run).to have_selector("span.value", :text => "No")
+        end
       end
     end
   end
@@ -114,6 +120,23 @@ describe "config_view/templates/_job_view.html.erb" do
         list.find("li.field.run_on_all_agents").tap do |item|
           item.find("label").tap do |label|
             expect(label).to have_selector("span.key", :text => "Run on all agents")
+          end
+          expect(item).to have_selector("span.value", :text => "Yes")
+        end
+      end
+    end
+  end
+
+  it "should render when job is configured to run multiple instances" do
+    job = JobConfig.new('build_job')
+    job.setRunInstanceCount(2)
+    job.addTask(ant_task)
+    render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".summary fieldset.job_summary ul").tap do |list|
+        list.find("li.field.run_multiple_instances").tap do |item|
+          item.find("label").tap do |label|
+            expect(label).to have_selector("span.key", :text => "Run multiple instances")
           end
           expect(item).to have_selector("span.value", :text => "Yes")
         end

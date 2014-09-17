@@ -1,0 +1,257 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+@import "../base/mixins.sass";
+
+.header #application_logo {
+    background-image: image_url('g9/logo_go.png');
+    background-repeat: no-repeat;
+    background-position: 0px 4px;
+    float:left;
+    height: 35px;
+    width: 114px;
+}
+
+.application_nav {
+    .icon{
+        background: image_url('andare/nav-sprites.png') no-repeat ;
+    }
+
+    a,.user li{
+        color: #999;
+    }
+    .current {
+        a{
+            color: #AAAAAA;
+        }
+    }
+
+    .tabs{
+        margin-top: 5px;
+
+        .current{
+            > a {
+                 background-color: #86569A;
+                color: white;
+                @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.3), true);
+
+            }
+        }
+
+        span {
+            color: #666;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+            display: block;
+            font-size: 11px;
+            font-weight: 200;
+            line-height: 26px;
+            padding: 0 15px;
+        }
+
+        li {
+            &.open > a{
+                color: #FFF;
+                background-color:#777;
+                border: 0;
+                @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.3), true);
+            }
+            a{
+                border-radius: 10px;
+                -moz-border-radius: 10px;
+                -webkit-border-radius: 10px;
+                display: block;
+                font-size: 11px;
+                font-weight: 200;
+                line-height: 26px;
+                padding: 0 15px;
+                    &:hover {
+                        color: #FFF;
+                        background-color: #777 !important;
+                        border: 0;
+                        @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.3), true);
+                    }
+                }
+        }
+
+    }
+
+.dropdown-arrow-icon{
+    background:image_url("andare/nav-user-triangle.png") no-repeat scroll right 10px transparent;
+    padding-right: 20px !important;
+}
+    .user {
+        float: right;
+        margin-right: -20px;
+        margin-top:5px;
+        li {
+            padding: 0px 10px;
+            border-left: 1px solid #575757;
+            margin-left: 0;
+            &:first-child {
+               border: 0;
+            }
+            &.help{
+                margin-right: 9px;
+                margin-top: 9px;
+            }
+            &.current_user:hover{
+                background-color: #777;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) inset;
+                a{
+                    color: white;
+                }
+            }
+            &.current_user {
+                    position:relative;
+                    border-radius:8px;
+                    background-position: -25px -12px;
+                    padding-left:30px;
+                    padding-right: 0;
+                    margin-right: 5px;
+                    cursor: pointer;
+
+                    &.current_user:hover, &.selected{
+                        background-color: #86569A;
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) inset;
+                        background-position:-25px -84px;
+                        > .current_user_name{
+                            background-position: right -21px;
+                        }
+                    }
+                    .current_user_name{
+                        border-radius: 10px;
+                        display: block;
+                        font-size: 11px;
+                        font-weight: 200;
+                        line-height: 19px;
+                        padding: 4px;
+                        padding-right:13px;
+                        color: #AAAAAA;
+                    }
+                    .enhanced_dropdown{
+                        background-color: #222 !important;
+                        border: 1px solid #555555;
+                        border-radius: 4px 4px 4px 4px;
+                        @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.6));
+                        overflow: visible;
+                        padding: 6px !important;
+                        position: absolute;
+                        text-transform: none;
+                        width: auto !important;
+                        li{
+                            a{
+                                display: block;
+                                padding: 7px;
+                                line-height: 1em;
+                            }
+                            border-radius: 3px;
+                            padding: 0;
+                            &:hover{
+                                background-color: #777777;
+                            }
+                        }
+
+                    }
+                    li{
+                        border: 0 none !important;
+                        float:none;
+                        border-bottom: 1px solid #555 !important;
+
+                        a{
+                            color: white;
+                        }
+                        &:last-child{
+                            border-bottom: 0 none !important;
+                        }
+
+                        &:hover a{
+                            color: black;
+                        }
+                    }
+                }
+          }
+
+    }
+
+
+    .cruise_messages {
+        bottom: 0;
+        box-shadow: 0 0 8px rgba(0,0,0,.5);
+        -moz-box-shadow: 0 0 8px rgba(0,0,0,.5);
+        -webkit-box-shadow: 0 0 8px rgba(0,0,0,.5);
+        position:fixed;
+        right:0;
+        z-index:9999;
+        a {
+            background-color:#400;
+            background-image:image_url("g9/icons/icon_error_16.png");
+            background-position:6px 4px;
+            background-repeat:no-repeat;
+            border-left: 1px solid #800;
+            border-top: 1px solid #800;
+            color:#FFF;
+            display:block;
+            font-size:11px;
+            font-weight:200;
+            padding:6px 10px 6px 30px;
+            &:hover {background-color:#600;}
+        }
+     }
+
+    li{
+        float: left;
+        margin-left: 10px
+    }
+}
+.user {
+    a:hover{
+        color:#ffffff;
+    }
+}
+
+.current_user.selected {
+    a{
+        color:white !important;
+    }
+}
+
+/* dropdown nav starts*/
+.dropdown-menu{
+    position: absolute;
+    width: 200px;
+    top: 46px;
+    display: none;
+    padding: 5px;
+    border-radius: 0 0 10px 10px;
+    background: #222;
+    li{
+        margin-left:0 !important;
+        float:none !important;
+        a{
+            border-radius: 5px !important;
+            padding: 0 10px !important;
+        }
+    }
+}
+.open{
+    .dropdown-menu{
+        display:block
+    }
+}
+
+/* dropdown nav ends*/

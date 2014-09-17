@@ -39,8 +39,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -67,18 +71,24 @@ public class PackageMaterialUpdaterIntegrationTest {
 
     @Test
     public void shouldUpdateMaterialInstanceWhenPluginIsUpgraded() throws Exception {
-        PackageMaterial material = MaterialsMother.packageMaterial();
-        MaterialInstance materialInstance = material.createMaterialInstance();
+        final PackageMaterial material = MaterialsMother.packageMaterial();
+        final MaterialInstance materialInstance = material.createMaterialInstance();
         materialRepository.saveOrUpdate(materialInstance);
 
         addMetadata(material, "fieldX", false);
         material.getPackageDefinition().getConfiguration().addNewConfiguration("fieldX", true);
-        List<Modification> modifications = ModificationsMother.multipleModificationList();
+        final List<Modification> modifications = ModificationsMother.multipleModificationList();
 
-        packageMaterialUpdater.insertLatestOrNewModifications(material, materialInstance,new File(""), new Modifications(modifications));
+		transactionTemplate.execute(new TransactionCallback() {
+			@Override
+			public Object doInTransaction(TransactionStatus transactionStatus) {
+				packageMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
+				return null;
+			}
+		});
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
-        Assert.assertThat(actualInstance.getConfiguration(), is(material.createMaterialInstance().getConfiguration()));
+        assertThat(actualInstance.getConfiguration(), is(material.createMaterialInstance().getConfiguration()));
     }
 
     private void addMetadata(PackageMaterial material, String field, boolean partOfIdentity) {

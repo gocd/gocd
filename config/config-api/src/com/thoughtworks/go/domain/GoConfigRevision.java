@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GoConfigRevision {
     private static final String DELIMITER_CHAR = "|";
@@ -74,6 +74,7 @@ public class GoConfigRevision {
     private final String xml;
     private Date time;
     private int schemaVersion;
+	private String commitSHA;
 
     public GoConfigRevision(String configXml, String md5, String username, String goVersion, Edition goEdition, TimeProvider provider) {
         this(configXml);
@@ -141,7 +142,15 @@ public class GoConfigRevision {
         return schemaVersion;
     }
 
-    @Override
+	public String getCommitSHA() {
+		return commitSHA;
+	}
+
+	public void setCommitSHA(String commitSHA) {
+		this.commitSHA = commitSHA;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

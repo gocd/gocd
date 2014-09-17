@@ -1,4 +1,5 @@
 class GadgetsOauthClient < Gadgets::ModelBase
+  self.db_columns = self.db_columns.dup
   columns :oauth_authorize_url, :client_id, :client_secret, :service_name
 
   validates_presence_of :service_name, :client_secret
@@ -7,17 +8,17 @@ class GadgetsOauthClient < Gadgets::ModelBase
   validates_uniqueness_of :service_name
   validates_uniqueness_of :oauth_authorize_url, :humanized_name => 'OAuth Authorization URL'
 
-  validates_each :oauth_authorize_url, :key => :oauth_authorize_url_http, :logic => lambda {
+  validates_each :oauth_authorize_url, :key => :oauth_authorize_url_http do |record, attr, value|
     if Gadgets::Configuration.use_ssl_for_oauth
-      errors.add(:oauth_authorize_url, 'must be a valid https url', 'OAuth Authorization URL') if oauth_authorize_url !~ Regexp.new("^https://(.+)$")
+      record.errors.add(attr, 'must be a valid https url', 'OAuth Authorization URL') if value !~ Regexp.new("^https://(.+)$")
     else
-      errors.add(:oauth_authorize_url, 'must be a valid http url', 'OAuth Authorization URL') if oauth_authorize_url !~ Regexp.new("^http://(.+)$")
+      record.errors.add(attr, 'must be a valid http url', 'OAuth Authorization URL') if value !~ Regexp.new("^http://(.+)$")
     end
     unless Gadgets::Configuration.allow_localhost_authorize_url
-      errors.add(:oauth_authorize_url, 'must not be localhost', 'OAuth Authorization URL') if oauth_authorize_url =~ Regexp.new("^http(s)?://localhost")
-      errors.add(:oauth_authorize_url, 'must not be localhost', 'OAuth Authorization URL') if oauth_authorize_url =~ Regexp.new("^http(s)?://127.0.0.[0-9]{1,3}")
+      record.errors.add(attr, 'must not be localhost', 'OAuth Authorization URL') if value =~ Regexp.new("^http(s)?://localhost")
+      record.errors.add(attr, 'must not be localhost', 'OAuth Authorization URL') if value =~ Regexp.new("^http(s)?://127.0.0.[0-9]{1,3}")
     end
-  }
+  end
 
   def find_oauth_access_tokens_by_user_id(user_id)
     # FIXME: talking to the datasource is fugly. Just a quick fix to get tests passing.

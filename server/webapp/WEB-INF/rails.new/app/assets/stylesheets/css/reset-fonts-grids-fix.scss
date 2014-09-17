@@ -1,0 +1,293 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/*reset.css*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,input,textarea,p,blockquote,th,td
+{
+  margin:0;padding:0;
+}
+
+table
+{
+  border-collapse:collapse;border-spacing:0;
+}
+
+img
+{
+  border:0;
+}
+
+address,caption,cite,code,dfn,em,strong,th,var
+{
+  font-style:normal;font-weight:normal;
+}
+
+ol,ul
+{
+  list-style:none;
+}
+
+caption,th
+{
+  text-align:left;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+   /*font-size:100%;*/
+   /*font-weight:normal;*/
+}
+
+q:before,q:after
+{
+  content:'';
+}
+
+abbr,acronym
+{
+  border:0;
+}
+
+
+/*fonts.css*/
+body
+{
+  /*font:13px verdana,arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;*/
+}
+
+table
+{
+  /*font-size:inherit;font:100%;*/
+}
+
+select, input, textarea
+{
+  font:99% arial, helvetica;
+}
+
+body *
+{
+  line-height:1.22em;
+}
+
+/*grids.css*/
+
+body
+{
+  text-align:center;
+}
+
+#ft
+{
+  clear:both;
+}
+
+#doc,#doc2,#doc3,.yui-t1,.yui-t2,.yui-t3,.yui-t4,.yui-t5,.yui-t6,.yui-t7
+{
+  margin:auto;text-align:left;width:57.69em;*width:56.3em;min-width:1000px;
+}
+
+#doc3,
+.yui-t7
+{
+  margin:auto;text-align:left; width: auto; min-width: 0;
+}
+
+#doc2
+{
+  width:73.074em;*width:71.313em;min-width:950px;
+}
+
+#doc3
+{
+  margin:auto 10px;width:auto;
+}
+
+.yui-b
+{
+  position:relative;
+}
+
+.yui-b
+{
+  _position:static;
+}
+
+#yui-main .yui-b
+{
+  position:static;
+}
+
+#yui-main
+{
+}
+
+.yui-t1 #yui-main,.yui-t2 #yui-main,.yui-t3 #yui-main
+{
+  float:right;margin-left:-25em;
+}
+
+/* The margin-right must match the sidebar's size */
+
+.yui-t4 #yui-main,.yui-t5 #yui-main,.yui-t6 #yui-main
+{
+  float:left;margin-right:-25em;min-width: 44em;/* min-width is an addition */
+}
+
+.yui-t1 .yui-b
+{
+  float:left;width:12.3207em;*width:12.0106em;
+}
+
+.yui-t1 #yui-main .yui-b
+{
+  margin-left:13.3207em;*margin-left:13.0106em;
+}
+
+.yui-t2 .yui-b
+{
+  float:left;width:13.8456em;*width:13.512em;
+}
+
+.yui-t2 #yui-main .yui-b
+{
+  margin-left:14.8456em;*margin-left:14.512em;
+}
+
+.yui-t3 .yui-b
+{
+  float:left;width:23.0759em;*width:22.52em;
+}
+
+.yui-t3 #yui-main .yui-b
+{
+  margin-left:24.0759em;*margin-left:23.52em;
+}
+
+.yui-t4 .yui-b
+{
+  float:right;width:13.8456em;*width:13.512em;
+}
+
+.yui-t4 #yui-main .yui-b
+{
+  margin-right:14.8456em;*margin-right:14.512em;
+}
+
+.yui-t5 .yui-b
+{
+  float:right;width:18.4608em;*width:18.016em;
+}
+
+.yui-t5 #yui-main .yui-b
+{
+  margin-right:18.4608em;*margin-right:18.016em;padding-top:0.5em;
+}
+
+/* Yahoo's standard grid gives you a 2em gutter between the two columns and no 0.5em padding - this version reduces the gutter to 1em and adds a 1em padding - this is the size of the sidebar*/
+
+.yui-t6 .yui-b
+{
+  float:right;
+  width:25em;
+}
+
+.yui-t6 #yui-main .yui-b
+{
+  margin-right:25em;
+  padding-top:0.5em;
+}
+
+.yui-t7 #yui-main .yui-b
+{
+  display:block;margin:0em;
+  padding-top: 1px;/* void collision of margin */
+}
+
+/* Yahoo's standard grid has a 1em bottom border*/
+
+#yui-main .yui-b
+{
+  float:none;width:auto;
+}
+
+.yui-g .yui-u,.yui-g .yui-g,.yui-gc .yui-u,.yui-gc .yui-g .yui-u,.yui-ge .yui-u,.yui-gf .yui-u
+{
+  float:right;display:inline;
+}
+
+.yui-g div.first,.yui-gc div.first,.yui-gc div.first div.first,.yui-gd div.first,.yui-ge div.first,.yui-gf div.first
+{
+  float:left;
+}
+
+.yui-g .yui-u,.yui-g .yui-g
+{
+  width:49.1%;
+}
+
+.yui-g .yui-g .yui-u,.yui-gc .yui-g .yui-u
+{
+  width:48.1%;
+}
+
+.yui-gb .yui-u,.yui-gc .yui-u,.yui-gd .yui-u
+{
+  float:left;margin-left:2%;*margin-left:1.895%;width:32%;
+}
+
+.yui-gb div.first,.yui-gc div.first,.yui-gd div.first
+{
+  margin-left:0;
+}
+
+.yui-gc div.first,.yui-gd .yui-u
+{
+  width:66%;
+}
+
+.yui-gd div.first{
+  width:32%;
+}
+
+.yui-ge .yui-u{
+  width:24%;
+}
+
+.yui-ge div.first,.yui-gf .yui-u
+{
+  width:74.2%;
+}
+
+.yui-gf div.first
+{
+  width:24%;
+}
+
+.yui-ge div.first
+{
+  width:74.2%;
+}
+
+#bd:after,.yui-g:after,.yui-gb:after,.yui-gc:after,.yui-gd:after,.yui-ge:after,.yui-gf:after
+{
+  content:".";display:block;height:0;clear:both;visibility:hidden;
+}
+
+#bd,.yui-g,.yui-gb,.yui-gc,.yui-gd,.yui-ge,.yui-gf
+{
+  zoom:1;
+}

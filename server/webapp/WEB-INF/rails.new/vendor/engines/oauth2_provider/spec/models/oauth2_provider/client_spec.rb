@@ -30,5 +30,12 @@ module Oauth2Provider
       expect(result).to eq(false)
       expect(new_client.errors).to have_key(:name)
     end
+    
+    it "should not validate unique name when existing client is edited" do
+      client = create(Oauth2Provider::Client)
+      client.update_attributes({name: client.name, redirect_uri: "http://new.url"})
+      client.reload
+      expect(client.redirect_uri).to eq("http://new.url")
+    end
   end
 end

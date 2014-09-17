@@ -144,7 +144,7 @@
         buildtime of pkg-1.1 is less than that of pkg-1.0, then the plugin will not register pkg-1.1 as a newer package.</item>
 		<item>The only way to update an rpm is to change the version or release. <exref url="http://unix.stackexchange.com/questions/71288/does-yum-use-package-buildtime-to-decide-if-a-package-is-newer">Republishing</exref> a different file with the same name and different buildtime won't do.</item>
 		<item>Package groups are not supported.</item>
-		<item>The <exref url="https://github.com/goteam/go-command-repo/tree/master/package/rpm">Go command repository</exref> has a bunch of commands related to rpm packages.</item>
+		<item>The <exref url="https://github.com/gocd/go-command-repo/tree/master/package/rpm">Go command repository</exref> has a bunch of commands related to rpm packages.</item>
         </steps>
     </section>
 </chapter>

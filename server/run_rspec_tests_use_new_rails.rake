@@ -1,4 +1,5 @@
 RUNNING_TESTS = 'running_tests'
+ENV["RAILS_ENV"]="test"
 
 def running_tests?
   ENV[RUNNING_TESTS] == 'true'

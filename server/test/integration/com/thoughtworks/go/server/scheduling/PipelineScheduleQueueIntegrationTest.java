@@ -21,12 +21,7 @@ import java.util.List;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.RunOnAllAgents;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -361,6 +356,32 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 3)))));
         assertThat(plans.size(), is(3));
     }
+
+	@Test
+	public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
+		JobConfigs jobConfigs = new JobConfigs();
+		ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
+		generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+		JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), new ArtifactPlans(), generators);
+		jobConfig.setRunInstanceCount(3);
+		jobConfigs.add(jobConfig);
+
+		StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
+		MaterialConfigs materialConfigs = new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig());
+		PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("test-pipeline"), materialConfigs, stage);
+		BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
+		saveRev(cause);
+
+		configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
+
+		queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+
+		List<JobPlan> plans = jobService.orderedScheduledBuilds();
+		assertThat(plans.size(), is(3));
+		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 1)))));
+		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 2)))));
+		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 3)))));
+	}
 
     @Test
     public void shouldPersistTriggerTimeEnvironmentVariable() {

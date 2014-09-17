@@ -16,33 +16,12 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.JobConfigIdentifier;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobPlanLoader;
-import com.thoughtworks.go.domain.NullJobInstance;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.WaitingJobPlan;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.domain.JobStatusListener;
-import com.thoughtworks.go.server.messaging.JobResultMessage;
-import com.thoughtworks.go.server.messaging.JobResultTopic;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.ui.JobInstancesModel;
-import com.thoughtworks.go.server.ui.SortOrder;
-import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPostCompletionHook;
 import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPreScheduleHook;
 import com.thoughtworks.go.plugin.api.hook.joblifecycle.JobContext;
@@ -51,12 +30,28 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.dao.JobInstanceDao;
+import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.messaging.JobResultMessage;
+import com.thoughtworks.go.server.messaging.JobResultTopic;
+import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.ui.JobInstancesModel;
+import com.thoughtworks.go.server.ui.SortOrder;
+import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class JobInstanceService implements JobPlanLoader {
@@ -69,17 +64,19 @@ public class JobInstanceService implements JobPlanLoader {
     private final JobResolverService jobResolverService;
     private final EnvironmentConfigService environmentConfigService;
     private final GoConfigService goConfigService;
+	private SecurityService securityService;
     private PluginManager pluginManager;
     private final List<JobStatusListener> listeners;
+	private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     private static Logger LOGGER = Logger.getLogger(JobInstanceService.class);
     private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
     JobInstanceService(JobInstanceDao jobInstanceDao, PropertiesService buildPropertiesService, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
-                       TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
-                       EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
-                       PluginManager pluginManager, JobStatusListener... listener) {
+					   TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
+					   EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
+					   SecurityService securityService, PluginManager pluginManager, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
         this.buildPropertiesService = buildPropertiesService;
         this.jobResultTopic = jobResultTopic;
@@ -89,6 +86,7 @@ public class JobInstanceService implements JobPlanLoader {
         this.jobResolverService = jobResolverService;
         this.environmentConfigService = environmentConfigService;
         this.goConfigService = goConfigService;
+		this.securityService = securityService;
         this.pluginManager = pluginManager;
         this.listeners = new ArrayList<JobStatusListener>(Arrays.asList(listener));
     }
@@ -96,6 +94,23 @@ public class JobInstanceService implements JobPlanLoader {
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
         return jobInstanceDao.latestCompletedJobs(pipelineName, stageName, jobConfigName, 25);
     }
+
+	public int getJobHistoryCount(String pipelineName, String stageName, String jobConfigName) {
+		return jobInstanceDao.getJobHistoryCount(pipelineName, stageName, jobConfigName);
+	}
+
+	public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
+		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+			return null;
+		}
+		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+			return null;
+		}
+
+		return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
+	}
 
     public JobInstance buildByIdWithTransitions(long buildId) {
         return jobInstanceDao.buildByIdWithTransitions(buildId);
@@ -296,17 +311,25 @@ public class JobInstanceService implements JobPlanLoader {
     }
 
     public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, int pageNumber, int pageSize) {
-        int total = jobInstanceDao.totalCompletedJobsOnAgent(uuid);
+        int total = totalCompletedJobsCountOn(uuid);
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);
-        List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pageSize);
-        CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        for (JobInstance jobInstance : jobInstances) {
-            jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
-        }
-        return new JobInstancesModel(new JobInstances(jobInstances), pagination);
+		return completedJobsOnAgent(uuid, columnName, order, pagination);
     }
 
-    public static enum JobHistoryColumns {
+	public int totalCompletedJobsCountOn(String uuid) {
+		return jobInstanceDao.totalCompletedJobsOnAgent(uuid);
+	}
+
+	public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, Pagination pagination) {
+		List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pagination.getPageSize());
+		CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
+		for (JobInstance jobInstance : jobInstances) {
+			jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
+		}
+		return new JobInstancesModel(new JobInstances(jobInstances), pagination);
+	}
+
+	public static enum JobHistoryColumns {
         pipeline("pipelineName"), stage("stageName"), job("name"), result("result"), completed("lastTransitionTime");
 
         private final String columnName;

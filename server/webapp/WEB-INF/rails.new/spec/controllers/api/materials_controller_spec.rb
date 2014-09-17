@@ -17,6 +17,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::MaterialsController do
+  include APIModelMother
 
   describe :routes do
     it "should generate the route" do
@@ -59,6 +60,64 @@ describe Api::MaterialsController do
       post :notify, @params
       expect(response.status).to eq(400)
       expect(response.body).to eq("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.\n")
+    end
+  end
+
+  describe :list_materials_config do
+    before :each do
+      controller.stub(:material_config_service).and_return(@material_config_service = double('material_config_service'))
+    end
+
+    it "should resolve" do
+      expect(:get => "/api/config/materials").to route_to(:controller => "api/materials", :action => "list_configs", :no_layout=>true)
+    end
+
+    it "should render material list json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @material_config_service.should_receive(:getMaterialConfigs).with("loser").and_return([create_material_config_model])
+
+      get :list_configs, :no_layout => true
+
+      expect(response.body).to eq([MaterialConfigAPIModel.new(create_material_config_model)].to_json)
+    end
+  end
+
+  describe :list_material_modifications do
+    before :each do
+      controller.stub(:material_config_service).and_return(@material_config_service = double('material_config_service'))
+      controller.stub(:material_service).and_return(@material_service = double('material_service'))
+    end
+
+    it "should resolve" do
+      expect(:get => "/api/materials/fingerprint/modifications").to route_to(:controller => "api/materials", :action => "modifications", :fingerprint => "fingerprint", :offset => "0", :no_layout => true)
+      expect(:get => "/api/materials/fingerprint/modifications/1").to route_to(:controller => "api/materials", :action => "modifications", :fingerprint => "fingerprint", :offset => "1", :no_layout => true)
+    end
+
+    it "should render material modification list json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      material_config = create_material_view_model
+      @material_config_service.should_receive(:getMaterialConfig).with("loser", "fingerprint", anything).and_return(material_config)
+      @material_service.should_receive(:getTotalModificationsFor).with(material_config).and_return(10)
+      @material_service.should_receive(:getModificationsFor).with(material_config, anything).and_return([create_modification_view_model])
+
+      get :modifications, :fingerprint => "fingerprint", :offset => "5", :no_layout => true
+
+      expect(response.body).to eq(MaterialHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_modification_view_model]).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @material_config_service.should_receive(:getMaterialConfig).with("loser", "fingerprint", anything) do |username, fingerprint, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :modifications, :fingerprint => "fingerprint", :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
     end
   end
 end

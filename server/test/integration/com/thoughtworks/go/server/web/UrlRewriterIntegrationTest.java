@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.server.util.HttpTestUtil;
@@ -48,6 +41,13 @@ import org.mortbay.resource.Resource;
 import org.mortbay.util.UrlEncoded;
 import org.springframework.web.context.WebApplicationContext;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -252,6 +252,8 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_INDEX = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage");
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
     @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
+    @DataPoint public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
+    @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/dashboard.json", "http://127.1.1.1:" + HTTP + "/go/rails/dashboard.json", METHOD.GET);
 
     public static String enc(String str) {
         return UrlEncoded.encodeString(str);

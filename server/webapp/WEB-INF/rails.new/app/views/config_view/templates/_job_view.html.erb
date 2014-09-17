@@ -30,6 +30,12 @@
                 </label>
                 <span class="input value"><%= scope[:job].isRunOnAllAgents() ? l.string('YES') : l.string('NO') %></span>
             </li>
+            <li class="field run_multiple_instances">
+                <label>
+                    <span class="key"><%= l.string("RUN_MULTIPLE_INSTANCES") %></span>
+                </label>
+                <span class="input value"><%= scope[:job].isRunMultipleInstanceType() ? l.string('YES') : l.string('NO') %></span>
+            </li>
         </ul>
     </fieldset>
 </div>

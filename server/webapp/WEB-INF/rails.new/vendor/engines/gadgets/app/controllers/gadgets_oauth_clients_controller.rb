@@ -1,5 +1,7 @@
 class GadgetsOauthClientsController < ApplicationController
 
+  layout "admin"
+
   include Gadgets::SslHelper
   include Gadgets::TransactionHelper
   include Gadgets::ConfigValidator

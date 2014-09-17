@@ -1,0 +1,265 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/**
+ * Shared.css
+ */
+ 
+
+/**
+ * TABLE OF CONTENTS
+ *
+ * =CONFIG_ERROR
+ * =ERROR
+ * =SSL_NOT_CONFIGURED_ERROR
+ * =PARTIALS
+ * ==AJAX_REFRESHER
+ * ==APPLICATION_NAV
+ * ==BARE_STAGE
+ * ==BARE_STAGE_BAR
+ * ==BARE_STAGE_IN_PIPELINE_BAR
+ * ==BUILD_CAUSE
+ * ==BUILD_CAUSE_POPUP
+ * ==CONFIG_SAVE_ACTIONS
+ * ==CONVERT_TOOL_TIPS
+ * ==ERROR_MESSAGING_COUNTER
+ * ==FLASH_MESSAGE
+ * ==FOOTER
+ * ==FORM_BUTTONS
+ * ==FORM_REQUIRED_MESSAGE
+ * ==HEADER
+ * ==MODIFICATION
+ * ==MODIFICATION_FOR_TABLE
+ * ==PAUSE_CONTROL
+ * ==PAUSE_INFO
+ * ==PAUSE_INFO_AND_CONTROL
+ * ==PIPELINE
+ * ==PIPELINE_BREADCRUMB
+ * ==SELECTOR
+ * ==SELECTORS
+ * ==STAGE
+ * ==STAGE_BAR
+ * ==STAGE_DETAILS_CHART
+ * ==TABS
+ * ==TRIGGER_PIPELINE
+ * ==TRIGGER_PIPELINE_WITH_OPTIONS
+ */
+ 
+
+/**
+ * =CONFIG_ERROR
+**/
+
+
+/**
+ * =ERROR
+**/
+
+/**
+ * =SSL_NOT_CONFIGURED_ERROR
+**/
+
+/**
+ * =PARTIALS
+**/
+
+
+/**
+ * ==AJAX_REFRESHER
+**/
+
+
+/**
+ * ==APPLICATION_NAV
+**/
+
+/**
+ * ==BARE_STAGE
+**/
+
+
+/**
+ * ==BARE_STAGE_BAR
+**/
+
+
+/**
+ * ==BARE_STAGE_IN_PIPELINE_BAR
+**/
+
+
+/**
+ * ==BUILD_CAUSE
+**/
+
+
+/**
+ * ==BUILD_CAUSE_POPUP
+**/
+
+
+/**
+ * ==CONFIG_SAVE_ACTIONS
+**/
+
+
+/**
+ * ==CONVERT_TOOL_TIPS
+**/
+
+
+/**
+ * ==ERROR_MESSAGING_COUNTER
+**/
+#cruise_message_body{
+  max-height: 400px;
+  padding: 10px;
+  overflow: auto;
+}
+*+html #cruise_message_body{
+  height: expression(this.scrollHeight >  400 ? "400px" : "auto");
+  overflow: auto;
+}
+#cruise_message_body .error {
+  margin-bottom: 10px;
+  border-bottom: 1px dotted #CCC;
+  padding-bottom: 10px;
+}
+#cruise_message_body .warning {
+  margin-bottom: 10px;
+  border-bottom: 1px dotted #CCC;
+  padding-bottom: 10px;
+}
+#cruise_message_body .message {
+  font-weight: bold;
+   font-size: 12px;
+}
+#cruise_message_body .error .description {
+  border-left: 5px solid #f7d4d4;
+  padding-left: 10px;
+  font-size: 11px;
+  margin-top: 5px;
+  color: #555;
+}
+#cruise_message_body .warning .description {
+  border-left: 5px solid #FFF0C0;
+  padding-left: 10px;
+  font-size: 11px;
+  margin-top: 5px;
+  color: #555;
+}
+#cruise_message_body .messages {
+  overflow: scroll;
+}
+
+
+/**
+ * ==FLASH_MESSAGE
+**/
+
+
+/**
+ * ==FOOTER
+**/
+
+
+/**
+ * ==FORM_BUTTONS
+**/
+
+
+/**
+ * ==FORM_REQUIRED_MESSAGE
+**/
+
+
+/**
+ * ==HEADER
+**/
+
+/**
+ * ==MODIFICATION
+**/
+
+
+/**
+ * ==MODIFICATION_FOR_TABLE
+**/
+
+
+/**
+ * ==PAUSE_CONTROL
+**/
+
+
+/**
+ * ==PAUSE_INFO
+**/
+
+
+/**
+ * ==PAUSE_INFO_AND_CONTROL
+**/
+
+
+/**
+ * ==PIPELINE
+**/
+
+
+/**
+ * ==PIPELINE_BREADCRUMB
+**/
+
+
+/**
+ * ==SELECTOR
+**/
+
+
+/**
+ * ==SELECTORS
+**/
+
+
+/**
+ * ==STAGE
+**/
+
+
+/**
+ * ==STAGE_BAR
+**/
+
+
+/**
+ * ==STAGE_DETAILS_CHART
+**/
+
+
+/**
+ * ==TABS
+**/
+
+
+/**
+ * ==TRIGGER_PIPELINE
+**/
+
+
+/**
+ * ==TRIGGER_PIPELINE_WITH_OPTIONS
+**/

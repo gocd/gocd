@@ -1,0 +1,236 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+/**
+ * Stages.css
+ */
+ 
+
+/**
+ * TABLE OF CONTENTS
+ *
+ * =STAGE
+ * =PARTIALS
+ * ==CURRENT_STAGE_RUN
+ * ==ELAPSED_TIME
+ * ==JOB_LISTING
+ * ==JOBS
+ * ==JOBS_BREAKDWON
+ * ==NON_PASSING_TESTS
+ * ==OTHER_STAGE_RUNS
+ * ==OVERVIEW
+ * ==RUN_DETAILS
+ * ==SCHEDULE_INFO
+ * ==STAGE_HISTORY
+ * ==STAGE_RESULT
+ * ==STATUS_BAR
+ * ==CONFIG
+ * ==STATS
+ */
+ 
+
+/**
+ * =STAGE
+**/
+
+
+/**
+ * =PARTIALS
+**/
+
+
+/**
+ * ==CURRENT_STAGE_RUN
+**/
+
+
+/**
+ * ==ELAPSED_TIME
+**/
+
+
+/**
+ * ==JOB_LISTING
+**/
+
+
+/**
+ * ==JOBS
+**/
+
+
+/**
+ * ==JOBS_BREAKDWON
+**/
+
+
+/**
+ * ==NON_PASSING_TESTS
+**/
+
+
+/**
+ * ==OTHER_STAGE_RUNS
+**/
+
+
+/**
+ * ==OVERVIEW
+**/
+
+
+/**
+ * ==RUN_DETAILS
+**/
+
+
+/**
+ * ==SCHEDULE_INFO
+**/
+
+
+/**
+ * ==STAGE_HISTORY
+**/
+.stage_history .config_change {
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-top: 1px solid #ccc;
+}
+.stage_history .config_change span a{
+    display: block;
+}
+
+.stage_history .config_change span {
+    background: image_url('g9/icon_config_changed_16.png') no-repeat left center transparent;
+    font-size: 10px;
+    margin:0;
+    padding: 3px 0 3px 20px;
+    display: block;
+}
+
+.stage_history .stage {
+    clear: left;
+    position: relative;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+    border-top: 1px solid #DDDDDD;
+    display: block;
+}
+.stage_history .stage > a{
+    display: block;
+    text-decoration: none;
+    color: #333;
+    padding:12px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    background: #f7f7f7; /* Old browsers */
+    background: -moz-linear-gradient(top,  #f7f7f7 0%, #eeeeee 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#eeeeee)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #f7f7f7 0%,#eeeeee 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
+}
+.stage_history .stage > a:hover{
+    background: #dedede;
+}
+
+.stage_history div.stage a.selected,
+.stage_history div.stage a.selected:hover {
+    background: #fff;
+    border-radius: 3px;
+    -moz-box-shadow: inset 0 0 3px #ccc;
+    -webkit-box-shadow: inset 0 0 3px #ccc;
+    box-shadow: inset 0 0 3px #ccc;
+}
+
+.stage_history .pagination{
+    margin-right:10px;
+    margin-left:10px;
+}
+
+.has_rerun_jobs_icon {
+    margin: 5px 0px 0px -15px;
+    position: absolute;
+}
+.stage_history .label_counter_wrapper {
+    display: inline;
+}
+
+.stage_history h3{
+    padding-bottom: 5px;
+    padding-left: 10px;
+}
+
+/**
+ * ==STAGE_RESULT
+**/
+
+
+
+/**
+ * ==STATUS_BAR
+**/
+
+.config_changed_info .information{
+    margin: 0 !important;
+    margin-bottom: 20px !important;
+}
+
+/**
+ * ==CONFIG
+**/
+.config pre#content_container{
+    height: 500px;
+    overflow: auto;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+/**
+ * ==STATS
+**/
+.stats #chart_details_container {
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.stats .graph_navigation_buttons .newer{
+    float: right;
+    margin-right: 10px;
+}
+
+.stats .reset_zoom_link {
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    right: 12px;
+    margin: 0;
+    float: none;
+}
+.stats .reset_zoom_link:hover {
+  margin: 0;
+}
+
+.stats .graph_navigation_buttons .older{
+    margin-left: 52px;
+
+}

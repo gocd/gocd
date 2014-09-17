@@ -8,6 +8,40 @@
 // compiled file.
 //
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
-// about supported directives.
-//
-//= require_tree .
+// about supported directives
+
+//= require "lib/es5-shim.min.js"
+//= require "lib/jquery-1.7.2.js"
+//= require "lib/jquery.timeago-1.2.3.js"
+//= require "lib/jquery.url-1.0.js"
+//= require "lib/jquery_no_conflict.js"
+//= require "lib/prototype-1.6.0.js"
+//= require "lib/scriptaculous-1.8.0.js"
+//= require "lib/bootstrap-2.3.2.min.js"
+//= require "lib/angular.1.0.8.min.js"
+//= require "lib/angular-resource.1.0.8.min.js"
+//= require "lib/effects-1.8.0.js"
+//= require "lib/accordion-2.0.js"
+//= require "lib/controls-1.8.0.js"
+//= require "lib/dragdrop-1.8.0.js"
+//= require "lib/highcharts-2.3.3.min.js"
+//= require "lib/jquery-ui-1.7.3.custom.min.js"
+//= require "lib/jquery.autocomplete-1.1.js"
+//= require "lib/jquery.ba-throttle-debounce-1.1.min.js"
+//= require "lib/jquery.dirtyform.js"
+//= require "lib/jquery.highlight-3.0.js"
+//= require "lib/jquery.tipTip-1.3.js"
+//= require "lib/jquery.treeview-1.5pre.js"
+//= require "lib/jquery.validate-1.5.5.js"
+//= require "lib/modalbox-1.6.1.js"
+//= require "lib/slider-1.8.0.js"
+//= require "lib/trimpath-template-1.0.38.js"
+//= require "lib/ui.core-1.7.3.js"
+//= require "lib/ui.dialog-1.7.3.js"
+//= require "build_base_observer.js"
+//= require "json_to_css.js"
+//= require "util.js"
+//= require "micro_content_popup.js"
+//= require "ajax_popup_handler.js"
+//= require "compare_pipelines.js"
+//= require_directory .

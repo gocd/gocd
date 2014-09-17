@@ -64,7 +64,7 @@ public class GoConstants {
 
     public static final String PRODUCT_NAME = "go";
 
-    public static final int CONFIG_SCHEMA_VERSION = 73;
+    public static final int CONFIG_SCHEMA_VERSION = 74;
 
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";
@@ -90,4 +90,6 @@ public class GoConstants {
     public static final String AGENT_PLUGINS_MD5 = "agent.plugins.md5";
     public static final String GIVEN_AGENT_LAUNCHER_JAR_MD5 = "agent.launcher.md5";
     public static final String AGENT_LAUNCHER_VERSION = "agent.launcher.version";
+    public static final String ANY_PIPELINE = "[Any Pipeline]";
+    public static final String ANY_STAGE = "[Any Stage]";
 }

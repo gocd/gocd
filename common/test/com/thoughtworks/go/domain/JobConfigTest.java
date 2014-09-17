@@ -16,28 +16,18 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.HashMap;
-
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.Tab;
-import com.thoughtworks.go.config.Tasks;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.DataStructureUtils;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+
+import java.util.HashMap;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -46,10 +36,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JobConfigTest {
     JobConfig config;
@@ -60,6 +47,7 @@ public class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         config.injectTasksForTest(tasks);
         doNothing().when(tasks).setConfigAttributes(Matchers.<Object>anyObject(), Matchers.<TaskFactory>any());
+		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, false);
     }
     
     @Test
@@ -145,6 +133,40 @@ public class JobConfigTest {
         assertThat(configErrors.on(JobConfig.NAME), is("Invalid job name 'name pavan'. This must be alphanumeric and can contain underscores and periods. The maximum allowed length is 255 characters."));
     }
 
+	@Test
+	public void shouldValidateAgainstSettingRunInstanceCountToIncorrectValue() {
+		JobConfig jobConfig1 = new JobConfig(new CaseInsensitiveString("test"));
+		jobConfig1.setRunInstanceCount(-1);
+
+		jobConfig1.validate(ValidationContext.forChain(new CruiseConfig()));
+
+		ConfigErrors configErrors1 = jobConfig1.errors();
+		assertThat(configErrors1.isEmpty(), is(false));
+		assertThat(configErrors1.on(JobConfig.RUN_TYPE), is("'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."));
+
+		JobConfig jobConfig2 = new JobConfig(new CaseInsensitiveString("test"));
+		ReflectionUtil.setField(jobConfig2, "runInstanceCount", "abcd");
+
+		jobConfig2.validate(ValidationContext.forChain(new CruiseConfig()));
+
+		ConfigErrors configErrors2 = jobConfig2.errors();
+		assertThat(configErrors2.isEmpty(), is(false));
+		assertThat(configErrors2.on(JobConfig.RUN_TYPE), is("'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime."));
+	}
+
+	@Test
+	public void shouldValidateAgainstSettingRunOnAllAgentsAndRunInstanceCountSetTogether() {
+		JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"));
+		jobConfig.setRunOnAllAgents(true);
+		jobConfig.setRunInstanceCount(10);
+
+		jobConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+
+		ConfigErrors configErrors = jobConfig.errors();
+		assertThat(configErrors.isEmpty(), is(false));
+		assertThat(configErrors.on(JobConfig.RUN_TYPE), is("Job cannot be 'run on all agents' type and 'run multiple instance' type together."));
+	}
+
     @Test
     public void shouldValidateEmptyAndNullResources()
     {
@@ -218,16 +240,96 @@ public class JobConfigTest {
         assertThat(jobConfig.getTabs().get(1).getPath(), is("path2"));
     }
 
-    @Test
-    public void shouldSetPrimitiveAttributes() {
-        HashMap map = new HashMap();
-        map.put(JobConfig.RUN_ON_ALL_AGENTS, "1");
-        JobConfig jobConfig = new JobConfig();
+	@Test
+	public void shouldSetJobRunTypeCorrectly_forRails4() {
+		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, true);
+		// single instance
+		HashMap map1 = new HashMap();
+		map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
+		map1.put(JobConfig.RUN_INSTANCE_COUNT, "10"); // should be ignored
+		JobConfig jobConfig1 = new JobConfig();
 
-        jobConfig.setConfigAttributes(map);
+		jobConfig1.setConfigAttributes(map1);
 
-        assertThat(jobConfig.isRunOnAllAgents(), is(true));
-    }
+		assertThat(jobConfig1.isRunOnAllAgents(), is(false));
+		assertThat(jobConfig1.isRunMultipleInstanceType(), is(false));
+		assertThat(jobConfig1.getRunInstanceCount(), is(nullValue()));
+
+		// run on all agents
+		HashMap map2 = new HashMap();
+		map2.put(JobConfig.RUN_TYPE, JobConfig.RUN_ON_ALL_AGENTS);
+		JobConfig jobConfig2 = new JobConfig();
+
+		jobConfig2.setConfigAttributes(map2);
+
+		assertThat(jobConfig2.isRunOnAllAgents(), is(true));
+		assertThat(jobConfig2.isRunMultipleInstanceType(), is(false));
+		assertThat(jobConfig2.getRunInstanceCount(), is(nullValue()));
+
+		// run multiple instance
+		HashMap map3 = new HashMap();
+		map3.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
+		map3.put(JobConfig.RUN_INSTANCE_COUNT, "10");
+		JobConfig jobConfig3 = new JobConfig();
+
+		jobConfig3.setConfigAttributes(map3);
+
+		assertThat(jobConfig3.isRunMultipleInstanceType(), is(true));
+		assertThat(jobConfig3.getRunInstanceCountValue(), is(10));
+		assertThat(jobConfig3.isRunOnAllAgents(), is(false));
+
+		HashMap map4 = new HashMap();
+		map4.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
+		map4.put(JobConfig.RUN_INSTANCE_COUNT, "");
+		JobConfig jobConfig4 = new JobConfig();
+
+		jobConfig4.setConfigAttributes(map4);
+
+		assertThat(jobConfig4.isRunMultipleInstanceType(), is(false));
+		assertThat(jobConfig4.getRunInstanceCount(), is(nullValue()));
+		assertThat(jobConfig4.isRunOnAllAgents(), is(false));
+	}
+
+	@Test
+	public void shouldSetJobRunTypeCorrectly_ForRails2() {
+		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, false);
+
+		// run on all agents
+		HashMap map = new HashMap();
+		map.put(JobConfig.RUN_ON_ALL_AGENTS, "1");
+		JobConfig jobConfig = new JobConfig();
+
+		jobConfig.setConfigAttributes(map);
+
+		assertThat(jobConfig.isRunOnAllAgents(), is(true));
+		assertThat(jobConfig.isRunMultipleInstanceType(), is(false));
+		assertThat(jobConfig.getRunInstanceCount(), is(nullValue()));
+	}
+
+	@Test
+	public void shouldResetJobRunTypeCorrectly() {
+		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, true);
+		HashMap map1 = new HashMap();
+		map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
+		map1.put(JobConfig.RUN_INSTANCE_COUNT, "10");
+		JobConfig jobConfig = new JobConfig();
+
+		jobConfig.setConfigAttributes(map1);
+
+		assertThat(jobConfig.getRunInstanceCountValue(), is(10));
+		assertThat(jobConfig.isRunMultipleInstanceType(), is(true));
+		assertThat(jobConfig.isRunOnAllAgents(), is(false));
+
+		// reset value for same job config
+		HashMap map2 = new HashMap();
+		map2.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
+
+		jobConfig.setConfigAttributes(map2);
+
+		assertThat(jobConfig.isRunMultipleInstanceType(), is(false));
+		assertThat(jobConfig.getRunInstanceCount(), is(nullValue()));
+		assertThat(jobConfig.isRunOnAllAgents(), is(false));
+	}
 
     @Test
     public void shouldPopulateArtifactPlansFromAttributeMap() {
@@ -270,6 +372,17 @@ public class JobConfigTest {
         job.setTimeout("10");
         assertThat(job.getTimeoutType(), is(JobConfig.OVERRIDE_TIMEOUT));
     }
+
+	@Test
+	public void shouldReturnRunTypeCorrectly() {
+		JobConfig job = new JobConfig("job");
+		assertThat(job.getRunType(), is(JobConfig.RUN_SINGLE_INSTANCE));
+		job.setRunOnAllAgents(true);
+		assertThat(job.getRunType(), is(JobConfig.RUN_ON_ALL_AGENTS));
+		job.setRunOnAllAgents(false);
+		job.setRunInstanceCount(10);
+		assertThat(job.getRunType(), is(JobConfig.RUN_MULTIPLE_INSTANCE));
+	}
 
     @Test
     public void shouldErrorOutWhenTimeoutIsANegativeNumber() {

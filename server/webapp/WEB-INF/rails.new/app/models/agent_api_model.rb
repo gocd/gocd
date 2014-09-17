@@ -25,7 +25,7 @@ class AgentAPIModel
     @status = agent_view_model.getStatusForDisplay()
     @build_locator = agent_view_model.buildLocator()
     @os = agent_view_model.getOperatingSystem()
-    @free_space = agent_view_model.freeDiskSpace().toString()
+    @free_space = agent_view_model.freeDiskSpace().to_s unless agent_view_model.freeDiskSpace() == nil
     @resources  = agent_view_model.getResources()
     @environments = agent_view_model.getEnvironments()
   end

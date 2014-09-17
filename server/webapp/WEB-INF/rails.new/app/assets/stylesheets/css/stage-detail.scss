@@ -1,0 +1,195 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
+
+.files .directory,
+.files .opened_directory
+{
+    /*background-image: image_url('icon-build-plan-16.gif');*/
+    background-repeat: no-repeat;
+    padding-left: 20px;
+    margin-bottom: 1em;
+}
+
+.files .subdir-container .directory {
+    background-image: image_url('directory.gif');
+}
+
+.files .subdir-container .opened_directory {
+    background-image: image_url('opened_directory.gif');
+}
+
+.files .subdir-container .opened_directory,
+.files .subdir-container .directory
+{
+    margin-bottom: 0.4em;
+}
+
+.stage-detail {
+    background: #FFF;
+}
+
+#stage-detail-header {
+    margin: 0.7em;
+}
+
+.stage-detail-summary {
+    margin: 0;
+    padding: 0;
+}
+
+.stage-detail-summary .summary {
+    margin: 0.3em 1em 0 3.4em;
+    color: #FFF;
+    font-size: 0.9em;
+}
+
+.stage-detail-summary h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0.2em 0.909em;
+    zoom: 1;
+}
+
+/* fix wired IE6/IE7 rendering bug */
+.stage-detail-summary h3 * {
+    *float: left;
+}
+
+.stage-detail-summary h3 .complete-time {
+    font-weight: normal;
+}
+
+#stage-buildplans-histories
+{
+    padding: 0.7em 0.7em 0.7em 3em;
+    background-color: #FFF;
+    zoom: 1;
+}
+
+/* Stage status color */
+.stage-detail-status-failed,
+.stage-detail-status-failing,
+.stage-detail-status-cancelled
+{
+    background: #CD5447;
+    color: #FFF;
+}
+
+.stage-detail-status-passed {
+    background: #6CA62E;
+    color: #FFF;
+}
+
+.stage-detail-status-unknown,
+.stage-detail-status-discontinued
+{
+    background: #EEEEEE;
+    color: #000;
+}
+
+.stage-detail-status-building,
+.stage-detail-status-scheduled
+{
+    background: #ebc26d;
+    color: #000;
+}
+
+/* build status color */
+.build-plan-failed,
+.build-plan-failing,
+.build-plan-cancelled
+{
+    background-color: #FFCCCC;
+}
+
+.build-plan-passed {
+    background-color: #E4F3D3;
+}
+
+.build-plan-unknown,
+.build-plan-discontinued
+{
+    background-color: #ECE9D8;
+}
+
+.build-plan-building,
+.build-plan-scheduled
+{
+    background-color: #ffe4c6;
+}
+
+/* stages list */
+.stages a {
+    display: block;
+    font-size: 1.1em;
+    padding: 0.3em 1.8em;
+    margin-bottom: 2px; 
+    zoom: 1;
+}
+
+.stages a:link,
+.stages a:visited {
+    color: black;
+}
+
+.stages a:hover {
+    background-color: #fffdb9;
+    text-decoration: none;
+}
+
+.build-plan-name {
+    font-weight: bold;
+}
+
+#stage-sidebar {
+    display: none;
+}
+
+ul.summary li {
+    line-height: 1.2em;
+    margin-bottom: 0.5em;
+    float: none;
+}
+
+.revision_revision_highlight-false {
+    font-weight:bold
+}
+
+.revision_revision_highlight-true {
+    font-style: italic;
+    background-color: #F9F0B5
+}
+
+#collapse-or-expand-builds-button {
+    background-image: image_url('icon_stage_twist.gif');
+    background-color:transparent;
+    background-repeat: no-repeat;
+    width: 23px;
+    text-indent: -10000px;
+    zoom: 1;
+    overflow: hidden;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.collapsed {
+    background-position: -3px 50%;
+}
+
+.expended {
+    background-position: -23px 50%;
+}

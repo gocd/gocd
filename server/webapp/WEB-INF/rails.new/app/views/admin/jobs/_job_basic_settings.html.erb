@@ -38,14 +38,35 @@
             <div class="override_timeout checkbox_row">
                 <%= scope[:form].radio_button 'timeoutType', com.thoughtworks.go.config.JobConfig::OVERRIDE_TIMEOUT, :id => "jobTimeout_override" -%>
                 <%= label_tag "jobTimeout_override", l.string("OVERRIDE_TIMEOUT_PREFIX")  -%>
-                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::TIMEOUT, :class => "inline in_between_text small_text_field" %>
+                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::TIMEOUT, :class => "inline small_text_field" %>
                 <%= label_tag "jobTimeout_override", l.string("OVERRIDE_TIMEOUT_SUFFIX") -%>
             </div>
         </div>
-        <div class="form_item_block checkbox_row run_on_all_agents">
-            <%= scope[:form].check_box :runOnAllAgents, :title => "#{l.string("TOOLTIP_RUN_ON_ALL")}" %>
-            <label for="job_runOnAllAgents" title="<%= l.string("TOOLTIP_RUN_ON_ALL") %>"><%= l.string('RUN_ON_ALL_AGENTS') -%></label>
-            <%= error_message_on(scope[:job].isRunOnAllAgents(), "type", :css_class => "form_error") %>
+        <div class="form_item">
+            <%= scope[:form].label com.thoughtworks.go.config.JobConfig::RUN_TYPE, l.string("RUN_TYPE"), :class => "before_tip" %>
+
+            <div class="clear"></div>
+            <%= error_message_on(scope[:job], com.thoughtworks.go.config.JobConfig::RUN_TYPE, :css_class => "form_error") %>
+            <div class="clear"></div>
+
+            <div class="checkbox_row">
+                <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_SINGLE_INSTANCE, :id => "jobRunType_runSingleInstance" -%>
+                <%= label_tag "jobRunType_runSingleInstance", l.string("RUN_SINGLE_INSTANCE") -%>
+            </div>
+
+            <div class="checkbox_row">
+                <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS, :id => "jobRunType_runOnAllAgents" -%>
+                <%= label_tag "jobRunType_runOnAllAgents", l.string("RUN_ON_ALL_AGENTS") -%>
+                <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RUN_ON_ALL") -%>"></span>
+            </div>
+
+            <div class="override_timeout checkbox_row">
+                <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_MULTIPLE_INSTANCE, :id => "jobRunType_runMultipleInstances" -%>
+                <%= label_tag "jobRunType_runMultipleInstances", l.string("RUN_MULTIPLE_INSTANCES_PREFIX") -%>
+                <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT, :class => "inline in_between_text small_text_field" %>
+                <%= label_tag "jobRunType_runMultipleInstances", l.string("RUN_MULTIPLE_INSTANCES_SUFFIX") -%>
+                <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RUN_MULTIPLE_INSTANCE") -%>"></span>
+            </div>
         </div>
     </div>
     <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>

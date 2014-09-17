@@ -16,26 +16,30 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.valuestreammap.Node;
+
+import java.util.List;
 
 public class ValueStreamMapPresentationModel {
     private Node currentPipeline;
+	private final Node currentMaterial;
     private List<List<Node>> nodeLevels;
 
-    public ValueStreamMapPresentationModel(Node currentPipeline, List<List<Node>> nodeLevels) {
-
+    public ValueStreamMapPresentationModel(Node currentPipeline, Node currentMaterial, List<List<Node>> nodeLevels) {
         this.currentPipeline = currentPipeline;
+		this.currentMaterial = currentMaterial;
         this.nodeLevels = nodeLevels;
     }
-
 
     public Node getCurrentPipeline() {
         return currentPipeline;
     }
 
-    public List<List<Node>> getNodesAtEachLevel() {
+	public Node getCurrentMaterial() {
+		return currentMaterial;
+	}
+
+	public List<List<Node>> getNodesAtEachLevel() {
         return nodeLevels;
     }
 

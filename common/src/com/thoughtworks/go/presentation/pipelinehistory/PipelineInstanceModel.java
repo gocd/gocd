@@ -16,24 +16,18 @@
 
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullMaterialRevision;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.PipelineInfo;
-import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.TimeConverter;
+
+import java.util.Date;
 
 public class PipelineInstanceModel implements PipelineInfo {
     private long id;

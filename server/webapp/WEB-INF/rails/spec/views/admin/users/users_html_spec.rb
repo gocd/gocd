@@ -39,7 +39,6 @@ describe '/admin/users.html.erb' do
     response.should have_tag("div ul.user_counts") do
         with_tag("li.enabled", "Enabled: 20")
         with_tag("li.disabled", "Disabled: 10")
-        with_tag("li.license_usage", "License Usage: 20/30")
     end
   end
 

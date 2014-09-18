@@ -794,6 +794,7 @@
                                 <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false" haltonerror="false" showoutput="true" fork="true" maxmemory="2048m">
                                     <sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.dir}/cobertura.ser" />
                                     <sysproperty key="go.enforce.serverId.immutability" value="N"/>
+                                    <sysproperty key="rails.use.compressed.js" value="false"/>
                                     <sysproperty key="go.database.provider" value="${go.database.provider}"/>
                                     <sysproperty key="db.host" value="${db.host}"/>
                                     <sysproperty key="db.user" value="${db.user}"/>

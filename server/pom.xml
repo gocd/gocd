@@ -729,6 +729,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <go.enforce.serverId.immutability>N</go.enforce.serverId.immutability>
+                        <rails.use.compressed.js>false</rails.use.compressed.js>
                         <go.database.provider>${go.database.provider}</go.database.provider>
                         <db.host>${db.host}</db.host>
                         <db.user>${db.user}</db.user>

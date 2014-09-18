@@ -66,6 +66,7 @@ def execute_under_rails command
             ' -J-Dplugins.go.provided.path=' + bundled_plugins_dir +
             ' -J-Dplugins.external.provided.path=' + external_plugins_dir +
             ' -J-Dplugins.work.path=' + plugins_work_dir +
+            ' -J-Drails.use.compressed.js=false ' +
             (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
             ' -S ' + command
 
@@ -82,6 +83,7 @@ def execute_under_rails command
             ' -J-Dplugins.go.provided.path=' + bundled_plugins_dir +
             ' -J-Dplugins.external.provided.path=' + external_plugins_dir +
             ' -J-Dplugins.work.path=' + plugins_work_dir +
+            ' -J-Drails.use.compressed.js=false ' +
             (running_tests? ? ' -J-Dgo.enforce.serverId.immutability=N ' : '') +
             ' -S ' + command
 

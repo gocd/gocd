@@ -48,6 +48,36 @@ public class RailsAssetsServiceTest {
     }
 
     @Test
+    public void shouldNotInitializeAssetManifestWhenUsingRails2InProductionMode() throws IOException {
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
+        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        railsAssetsService = new RailsAssetsService(systemEnvironment);
+        railsAssetsService.setServletContext(context);
+        railsAssetsService.initialize();
+        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotInitializeAssetManifestWhenUsingRails2InDevelopmentMode() throws IOException {
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
+        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        railsAssetsService = new RailsAssetsService(systemEnvironment);
+        railsAssetsService.setServletContext(context);
+        railsAssetsService.initialize();
+        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotInitializeAssetManifestWhenUsingRails4InDevelopmentMode() throws IOException {
+        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
+        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        railsAssetsService = new RailsAssetsService(systemEnvironment);
+        railsAssetsService.setServletContext(context);
+        railsAssetsService.initialize();
+        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
+    }
+
+    @Test
     public void shouldGetAssetPathFromManifestJson() throws IOException {
         FileUtil.writeContentToFile(json, new File(assetsDir, "manifest-digest.json"));
         when(context.getInitParameter("rails.root")).thenReturn("");

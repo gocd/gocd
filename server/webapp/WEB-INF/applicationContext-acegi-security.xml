@@ -270,6 +270,7 @@
                 /**/addresources.json=ROLE_SUPERVISOR
                 /**/registeragent.json=ROLE_SUPERVISOR
                 /api/feeds/**=ROLE_SUPERVISOR
+                /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER
                 /api/*/*.xml=ROLE_USER
                 /api/users.xml=ROLE_SUPERVISOR

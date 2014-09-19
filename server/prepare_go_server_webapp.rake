@@ -204,8 +204,17 @@ end
 
 task :precompile_assets do
   ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-  classpath = File.read("target/server-test-dependencies")
-  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  if Gem.win_platform?
+    server_test_dependency_file_path = File.join("target", "server-test-dependencies")
+    system <<END
+    cd #{File.join("webapp/WEB-INF/rails.new")};
+    set /p CLASSPATH=<#{server_test_dependency_file_path};
+    RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile;
+END
+  else
+    classpath = File.read("target/server-test-dependencies")
+    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  end
 end
 
 task :create_all_js_rails2 do

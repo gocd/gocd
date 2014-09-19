@@ -205,7 +205,7 @@ end
 task :precompile_assets do
   ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
   if Gem.win_platform?
-    server_test_dependency_file_path = File.expand_path(File.dirname(__FILE__), File.join("target", "server-test-dependencies"))
+    server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
     sh <<END
     set /p CLASSPATH=<#{server_test_dependency_file_path};
     cd #{File.join("webapp/WEB-INF/rails.new")};

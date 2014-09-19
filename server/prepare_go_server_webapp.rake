@@ -201,14 +201,34 @@ def put_first(lib_paths, files_to_put_first)
   files_to_put_first + (lib_paths - files_to_put_first)
 end
 
+def create_pathing_jar classpath_file
+  pathing_jar = File.expand_path(File.join(File.dirname(classpath_file), "pathing.jar"))
+  manifest_file = File.expand_path(File.join(File.dirname(classpath_file), "MANIFEST.MF"))
+  rm manifest_file if File.exists? manifest_file
+  rm pathing_jar if File.exist? pathing_jar
+  classpath_contents = File.read(classpath_file).split(File::PATH_SEPARATOR)
+  to_be_written = ''
+  classpath_contents.each_with_index do |entry, i|
+    to_be_written += entry + File::SEPARATOR if File.directory? entry
+    to_be_written += entry unless File.directory? entry
+    to_be_written += " \n " if i < classpath_contents.length
+  end
+  File.open(manifest_file, 'w') do |f|
+    f.write("Class-Path: #{to_be_written}")
+    f.write("\n")
+  end
+  sh "jar cmf #{manifest_file} #{pathing_jar}"
+  pathing_jar
+end
 
 task :precompile_assets do
-  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
+  ruby = File.expand_path(File.join("..", "..", "tools", "bin", __FILE__, (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
   if Gem.win_platform?
     server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
+    pathing_jar = create_pathing_jar server_test_dependency_file_path
     sh <<END
-    set /p CLASSPATH=<#{server_test_dependency_file_path};
-    cd #{File.join("webapp/WEB-INF/rails.new")};
+    set /p CLASSPATH=#{pathing_jar};
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))};
     RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile;
 END
   else

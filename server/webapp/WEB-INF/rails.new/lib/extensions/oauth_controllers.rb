@@ -28,3 +28,13 @@ Oauth2Provider::ClientsController.class_eval do
     @view_title = "Administration"
   end
 end
+
+Oauth2Provider::UserTokensController.class_eval do
+  layout 'my-cruise'
+
+  prepend_before_filter :set_tab_name
+
+  def set_tab_name
+    @current_tab_name = "preferences"
+  end
+end

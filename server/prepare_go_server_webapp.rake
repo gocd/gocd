@@ -217,6 +217,7 @@ def create_pathing_jar classpath_file
     f.write("Class-Path: #{to_be_written}")
     f.write("\n")
   end
+  raise "File not found: #{manifest_file}" unless File.exists? manifest_file
   sh "jar cmf #{manifest_file} #{pathing_jar}"
   pathing_jar
 end
@@ -231,7 +232,7 @@ task :precompile_assets do
 END
   else
     classpath = File.read("target/server-test-dependencies")
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=\"#{classpath}\" && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=\"#{classpath}\" RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
   end
 end
 

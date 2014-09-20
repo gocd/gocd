@@ -209,7 +209,7 @@ def create_pathing_jar classpath_file
   classpath_contents = File.read(classpath_file).split(File::PATH_SEPARATOR)
   to_be_written = ''
   classpath_contents.each_with_index do |entry, i|
-    to_be_written += entry + File::SEPARATOR if File.directory? entry
+    to_be_written += entry + '\\' if File.directory? entry
     to_be_written += entry unless File.directory? entry
     to_be_written += " \n " if i < classpath_contents.length
   end

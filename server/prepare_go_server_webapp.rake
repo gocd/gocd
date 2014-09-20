@@ -222,7 +222,7 @@ def create_pathing_jar classpath_file
 end
 
 task :precompile_assets do
-  ruby = File.expand_path(File.join("..", "..", "tools", "bin", __FILE__, (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  ruby = File.expand_path(File.join("..", "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
   if Gem.win_platform?
     server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
     pathing_jar = create_pathing_jar server_test_dependency_file_path

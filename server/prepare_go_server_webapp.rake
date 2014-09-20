@@ -228,7 +228,10 @@ task :precompile_assets do
     server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
     pathing_jar = create_pathing_jar server_test_dependency_file_path
     sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && set CLASSPATH=\"#{pathing_jar}\" && set RAILS_ENV=production && #{ruby} -S rake assets:clobber assets:precompile
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))}
+    set CLASSPATH=\"#{pathing_jar}\"
+    set RAILS_ENV=production
+    #{ruby} -S rake assets:clobber assets:precompile
 END
   else
     classpath = File.read("target/server-test-dependencies")

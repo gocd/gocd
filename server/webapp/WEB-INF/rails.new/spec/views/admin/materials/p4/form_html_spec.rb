@@ -131,7 +131,7 @@ describe "_form.html.erb" do
 
     in_params(:pipeline_name => "pipeline_name")
 
-    render :partial => "admin/materials/p4/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
+    render partial: "admin/materials/p4/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
 
     Capybara.string(response.body).find('.popup_form').tap do |popup_form|
       expect(popup_form).to have_selector("div.field_with_errors textarea[name='material[#{com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW}]']", :text => "view")
@@ -140,7 +140,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for url, username and view fields" do
-    render :partial => "admin/materials/p4/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
+    render partial: "admin/materials/p4/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")

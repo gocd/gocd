@@ -65,7 +65,7 @@ describe "_form.html.erb" do
 
     in_params(:pipeline_name => "pipeline_name")
 
-    render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
+    render partial: "admin/materials/hg/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
 
     Capybara.string(response.body).find('.popup_form').tap do |popup_form|
       expect(popup_form).to have_selector("div.field_with_errors input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
@@ -86,7 +86,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for input text of url field" do
-    render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
+    render partial: "admin/materials/hg/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[0]).to_not have_selector("input[type='text'][class='form_input url'][id]")

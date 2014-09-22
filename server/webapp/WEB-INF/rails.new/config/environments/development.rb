@@ -27,4 +27,5 @@ Go::Application.configure do
   config.assets.raise_runtime_errors=true
 
   config.java_services_cache = :ServiceCache
+  config.fail_if_unable_to_register_renderer = false
 end

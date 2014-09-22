@@ -34,7 +34,9 @@ module Go
         match '*url', via: :all, to: 'application#unresolved'
       end
     end
+
     config.assets.enabled = true
     config.serve_static_assets = true
+    config.fail_if_unable_to_register_renderer = true
   end
 end

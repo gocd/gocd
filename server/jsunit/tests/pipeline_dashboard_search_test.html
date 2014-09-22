@@ -112,7 +112,7 @@
             var invisiblePipelines = [];
 
             allPipelines.each(function () {
-                if (jQuery(this).css('opacity') == 1) {
+                if (jQuery(this).css('display') == 'block') {
                     visiblePipelines.push(jQuery(this).find("h3 a").text());
                 } else {
                     invisiblePipelines.push(jQuery(this).find("h3 a").text());

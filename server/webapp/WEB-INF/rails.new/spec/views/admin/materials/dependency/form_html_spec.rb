@@ -54,4 +54,12 @@ describe "_form.html.erb" do
       expect(popup_form).to have_selector("div.form_error", :text => "Pipeline stage name is wrong")
     end
   end
+
+  it "should not generate the id for input text field of material name" do
+    render :partial => "admin/materials/dependency/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
+
+    Capybara.string(response.body).all(".form_item .form_item_block").tap do |material_name_text_field|
+      expect(material_name_text_field[0]).to_not have_selector("input[type='text'][id]")
+    end
+  end
 end

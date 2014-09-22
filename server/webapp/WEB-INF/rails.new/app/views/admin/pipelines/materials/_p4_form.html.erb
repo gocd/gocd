@@ -1,12 +1,12 @@
 <div class="form_item_block required">
     <%= required_label(scope[:form], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, l.string('P4_SERVER_AND_PORT')) -%>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, {:class => "form_input required p4_url", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, {:class => "form_input required p4_url", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::SERVER_AND_PORT, :css_class => "form_error") %>
 </div>
 
 <div class="form_item_block">
     <label><%= l.string('USERNAME') -%></label>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME, {:class => "form_input p4_username", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME, {:class => "form_input p4_username", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::USERNAME, :css_class => "form_error") %>
 </div>
 
@@ -19,7 +19,7 @@
            scope[:material].errors().add(com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, error)
        end
     %>
-    <%= scope[:form].text_area com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, {:class => "form_input required p4_view", :omit_id_generation => true, :rows => 4} -%>
+    <%= scope[:form].text_area com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, {:class => "form_input required p4_view", :id => nil, :rows => 4} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.perforce.P4MaterialConfig::VIEW, :css_class => "form_error") %>
 </div>
 

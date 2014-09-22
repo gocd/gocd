@@ -1,11 +1,11 @@
 <div class="form_item_block required">
     <%= required_label(scope[:form], com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL, l.string('URL')) -%>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL, {:class => "form_input required git_url", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL, {:class => "form_input required git_url", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL, :css_class => "form_error") %>
 </div>
 <div class="form_item_block">
     <label><%= l.string('BRANCH') -%></label>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, {:class => "form_input", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, {:class => "form_input", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, :css_class => "form_error") %>
 </div>
 

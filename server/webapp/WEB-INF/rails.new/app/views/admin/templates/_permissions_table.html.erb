@@ -3,11 +3,11 @@
 <textarea id="<%= scope[:permission_type] %>_users_and_roles_template" class="template">
     <%= scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, empty_permission, :index => "" do |permission_form| %>
         <td>
-            <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :class => "form_input permissions_#{scope[:permission_type]}_name", :omit_id_generation => true %>
-            <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :omit_id_generation => true %>
+            <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :class => "form_input permissions_#{scope[:permission_type]}_name", :id => nil %>
+            <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :id => nil %>
 
             <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
-                <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :omit_id_generation => true %>
+                <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :id => nil %>
             <% end %>
         </td>
         <td>
@@ -29,10 +29,10 @@
         <%= scope[:f].fields_for com.thoughtworks.go.config.PipelineConfigs::AUTHORIZATION, permission, :index => "" do |permission_form| %>
             <tr id="<%= "#{scope[:permission_type]}_#{permission.getName()}" -%>">
                 <td>
-                    <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :class => "form_input permissions_#{scope[:permission_type]}_name", :omit_id_generation => true %>
-                    <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :omit_id_generation => true %>
+                    <%= permission_form.text_field com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :class => "form_input permissions_#{scope[:permission_type]}_name", :id => nil %>
+                    <%= permission_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::TYPE, :id => nil %>
                     <%= permission_form.fields_for com.thoughtworks.go.config.Authorization::PRIVILEGES, empty_permission, :index => "" do |privileges_form| %>
-                        <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :omit_id_generation => true %>
+                        <%= privileges_form.hidden_field com.thoughtworks.go.config.Authorization::PresentationElement::ADMIN_PRIVILEGE, :value => com.thoughtworks.go.config.Authorization::PrivilegeState::ON, :id => nil %>
                     <% end %>
                     <%= error_message_on(permission, com.thoughtworks.go.config.Authorization::PresentationElement::NAME, :css_class => "name_value_error") %>
                 </td>

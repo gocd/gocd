@@ -4,7 +4,7 @@
         <textarea id="<%=template_row_id_prefix-%>_variables_template" class="template">
             <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
                 <td class="name_value_cell">
-                    <%= var_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
+                    <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
                 </td>
                 <td class="name_value_cell">
                     <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
@@ -12,11 +12,11 @@
                 <td class="name_value_cell">
                     <div>
                         <% if scope[:secure] %>
-                            <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+                            <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
                             <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
                             <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", true%>
                         <% else %>
-                            <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+                            <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
                         <% end %>
                     </div>
 
@@ -40,7 +40,7 @@
                 <%= scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| %>
                     <tr>
                         <td class="name_value_cell">
-                            <%= var_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
+                            <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
                             <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::NAME, :css_class => "name_value_error") %>
                             <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", variable.getName() %>
                         </td>
@@ -56,12 +56,12 @@
                                        secure_variable_is_changed_class_name = random_dom_id("secure_variable")
                                        secure_variable_action_class_name = random_dom_id("secure_variable")
                                     %>
-                                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value #{secure_variable_value_field_class_name}", :omit_id_generation => true, :readonly => 'readonly'-%>
+                                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value #{secure_variable_value_field_class_name}", :id => nil, :readonly => 'readonly'-%>
                                     <%= hidden_field_tag("pipeline[variables][][originalValue]", variable.getValueForDisplay(), :class => secure_variable_hidden_field_class_name) -%>
                                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
                                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => secure_variable_is_changed_class_name %>
                                 <% else %>
-                                    <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+                                    <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
                                 <% end %>
 
                                 <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::VALUE, :css_class => "name_value_error") %>

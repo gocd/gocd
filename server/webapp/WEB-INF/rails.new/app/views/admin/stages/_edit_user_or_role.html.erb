@@ -3,7 +3,7 @@
         <textarea id="<%= scope[:id_prefix] %>_users_and_roles_template" class="template">
             <%= scope[:form].fields_for scope[:field_name], :index => "" do |permissions_form| %>
                 <td class="name_cell">
-                    <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :omit_id_generation => true -%>
+                    <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :id => nil -%>
                 </td>
                 <td class="name_cell">
                     <span class="icon_remove delete_parent"></span>
@@ -16,7 +16,7 @@
                 <%= scope[:form].fields_for scope[:field_name], permission, :index => "" do |permissions_form| %>
                     <tr>
                         <td class="name_cell">
-                            <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :omit_id_generation => true -%>
+                            <%= permissions_form.text_field :name, :class => "form_input permissions_#{scope[:id_prefix]}_name", :id => nil -%>
                             <%= error_message_on(permission, "name", :css_class => "name_value_error") %>
                         </td>
                         <td class="name_cell align_top">

@@ -39,6 +39,7 @@ describe "config.html.erb" do
       expect(response.body).to have_selector(".field input[type='hidden'][name='package_repository[configuration][1][encryptedValue][value]'][value='2AmGllf3Wbc=']")
       expect(response.body).to have_selector(".field input[type='checkbox'][id='checkbox_field_1'][name='package_repository[configuration][1][isChanged]'][value='1']")
       expect(response.body).to have_selector(".field label[for='checkbox_field_1']")
+      expect(response.body).to have_selector(".field label[for='checkbox_field_1'] span", :text=>'Change Key 2')
 
       expect(response.body).to have_selector("button.submit span", :text => "CHECK CONNECTION")
       expect(response.body).to have_selector("span#repository_connection_message")

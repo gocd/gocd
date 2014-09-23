@@ -10,7 +10,7 @@ module Oauth2Provider
     EXPIRY_TIME = 90.days
 
     def oauth_client
-      Client.find_by_id(:client_id)
+      Client.find_by_id(client_id)
     end
 
     def access_token_attributes
@@ -27,8 +27,7 @@ module Oauth2Provider
 
     def refresh
       self.destroy
-      client = Oauth2Provider::Client.find_one(:id, client_id)
-      client.create_token_for_user_id(user_id)
+      oauth_client.create_token_for_user_id(user_id)
     end
 
     def before_create

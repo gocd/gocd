@@ -24,6 +24,7 @@ xdescribe("micro_content_on_agents_rails_new", function () {
     var xhr = null;
 
     beforeEach(function () {
+        AjaxRefreshers.clear();
         setFixtures("<div class='under_test'>\n" +
             "<div class='page_header' style='overflow:inherit;'><h1 class='entity_title'>Agents</h1>\n" +
             "\n" +
@@ -305,12 +306,7 @@ xdescribe("micro_content_on_agents_rails_new", function () {
             "    </div>\n" +
             "</div>\n" +
             "</div>");
-    });
-    function resource_validator(value) {
-        return /.*?X.*/.test(value);
-    }
 
-    Event.observe(window, 'load', function () {
         resource_popup_handler = new EditPopupHandler.AddEditHandler('http://foo/bar', $('agents_form'), Util.are_any_rows_selected('.agents .agent_select'), resource_validator, 'agent_edit_operation', 'Apply_Resource', 'Add_Resource');
         resources_widget = new MicroContentPopup($('resources_panel'), resource_popup_handler);
         resources_widget_shower = new MicroContentPopup.ClickShower(resources_widget);
@@ -321,6 +317,10 @@ xdescribe("micro_content_on_agents_rails_new", function () {
         environment_widget_shower = new MicroContentPopup.ClickShower(environment_widget);
         environment_widget_shower.bindShowButton($('show_environments_panel'));
     });
+    function resource_validator(value) {
+        return /.*?X.*/.test(value);
+    }
+
     var actual_ajax_updater = Ajax.Updater;
     var actual_ajax_request = jQuery.ajax;
 

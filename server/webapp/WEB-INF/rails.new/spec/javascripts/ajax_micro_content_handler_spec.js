@@ -14,19 +14,10 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("ajax_micro_content_handler", function () {
+describe("ajax_micro_content_handler", function () {
     var popup = null;
     var popup_shower = null;
     var show_link = null;
-
-    Event.observe(window, 'load', function () {
-        var content_box = jQuery('#content_box').get(0);
-        popup = new MicroContentPopup(content_box, new AjaxPopupHandler('http://foo/baz', content_box));
-        popup_shower = new MicroContentPopup.ClickShower(popup);
-        show_link = jQuery('#show_popup').get(0);
-        popup_shower.bindShowButton(show_link);
-    });
-
     var actual_ajax_request = jQuery.ajax;
     var periodical_opts = null;
 
@@ -42,7 +33,14 @@ xdescribe("ajax_micro_content_handler", function () {
             periodical_opts = options;
         };
         jQuery('#content_box').html("stale text");
+
+        var content_box = jQuery('#content_box').get(0);
+        popup = new MicroContentPopup(content_box, new AjaxPopupHandler('http://foo/baz', content_box));
+        popup_shower = new MicroContentPopup.ClickShower(popup);
+        show_link = jQuery('#show_popup').get(0);
+        popup_shower.bindShowButton(show_link);
     });
+
     afterEach(function () {
         jQuery.ajax = actual_ajax_request;
         periodical_opts = null;

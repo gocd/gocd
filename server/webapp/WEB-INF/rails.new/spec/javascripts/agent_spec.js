@@ -14,11 +14,13 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("agent", function () {
+describe("agent", function () {
     var agent;
     var agentPage;
 
+    var originalStringProcess = String.prototype.process;
     beforeEach(function () {
+        String.prototype.process = originalStringProcess;
         setFixtures("<div id=\"uuid\">\n" +
                 "    <a title=\"Add Resources\" ></a>\n" +
                 "    <ul class=\"resources\">\n" +
@@ -39,7 +41,6 @@ xdescribe("agent", function () {
                 "            <input id=\"agentId\" type=\"hidden\"/>\n" +
                 "            <input id=\"resources\" class=\"field\"/>\n" +
                 "            <div id=\"edit_resources_panel_error\" class=\"error\" style=\"display: ;\">only a-z, A-Z, 0-9, _, -, |, dot, whitespace is available in tag name.</div>\n" +
-                "            <script type=\"text/javascript\">var checker = new InputChecker('resources', 'edit_resources_panel_error');</script>\n" +
                 "            <p>\n" +
                 "                <input type=\"button\" id=\"editResources\" onclick=\"agentPage.addResources()\" value=\"Add resources\"/>\n" +
                 "                <input type=\"button\" onclick=\"$('edit_resources_panel').hide()\" value=\"Close\"/>\n" +
@@ -50,15 +51,21 @@ xdescribe("agent", function () {
                 "        </textarea>\n" +
                 "    <div id=\"agent-list\"></div>\n" +
                 "</div>"
-        )
+        );
+
+        checker = new InputChecker('resources', 'edit_resources_panel_error');
+
         agentPage = new AgentPage();
         agent = new Agent('uuid');
         $("edit_resources_panel").hide();
         $("agentId").value = "";
     });
-    afterEach(function () {
 
+    afterEach(function () {
+        checker = undefined;
+        String.prototype.process = originalStringProcess;
     });
+
     it("test_should_get_resources", function () {
         assertEquals("ajax", agent.get_resources()[0]);
         assertEquals("php", agent.get_resources()[1]);

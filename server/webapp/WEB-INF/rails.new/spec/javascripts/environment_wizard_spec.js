@@ -16,6 +16,7 @@
 
 describe("environment_wizard", function () {
     var init;
+    var originalSubTabsPrototypeOpen = SubTabs.prototype.open;
 
     beforeEach(function () {
         setFixtures("<div class='under_test'>\n" +
@@ -56,6 +57,7 @@ describe("environment_wizard", function () {
             "        <button id=\"finish\" name=\"FINISH\" type=\"submit\"></button>\n" +
             "    </div>\n" +
             "</div>");
+        SubTabs.prototype.open = originalSubTabsPrototypeOpen;
     });
 
 
@@ -76,6 +78,7 @@ describe("environment_wizard", function () {
 
     afterEach(function() {
         $$(".under_test").first().innerHTML = init;
+        SubTabs.prototype.open = originalSubTabsPrototypeOpen;
     });
 
     function setValue(variable, value) {

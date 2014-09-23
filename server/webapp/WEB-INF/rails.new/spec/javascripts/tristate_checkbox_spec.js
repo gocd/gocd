@@ -29,30 +29,31 @@ describe("tristate_checkbox", function () {
     });
     var panel_looked_up_with = null;
     var panel = null;
-
-    MicroContentPopup = {
-        lookupHandler: function (child_dom) {
-            panel_looked_up_with = child_dom;
-            return panel;
-        }
-    };
+    var originalMicrocontentPopup = MicroContentPopup;
 
     beforeEach(function () {
+        panel = null;
+        MicroContentPopup = {
+            lookupHandler: function (child_dom) {
+                panel_looked_up_with = child_dom;
+                return panel;
+            }
+        };
         tristate_view = $('check_box_view');
         tristate = $('tristate');
         checkbox = new TriStateCheckbox(tristate_view, tristate, true);
-        panel = null;
     });
 
-    function tearDown() {
+    function tearDown(shouldReassignOriginals) {
         tristate.options[0].selected = true;
         tristate_view.stopObserving();
         delete checkbox;
+        if(shouldReassignOriginals) MicroContentPopup = originalMicrocontentPopup;
     }
 
 
     afterEach(function () {
-        tearDown();
+        tearDown(true);
     });
 
     function assertState(state) {
@@ -73,7 +74,7 @@ describe("tristate_checkbox", function () {
     });
 
     it("test_clicking_tristate_does_not_toggle_value_when_disabled", function () {
-        tearDown();
+        tearDown(false);
         checkbox = new TriStateCheckbox(tristate_view, tristate, false);
         assertState('state-1');
         fire_event(tristate_view, 'mousedown');
@@ -109,7 +110,7 @@ describe("tristate_checkbox", function () {
             }
         };
 
-        tearDown();
+        tearDown(false);
         assertState('state-1');
         checkbox = new TriStateCheckbox(tristate_view, tristate, true);
         fire_event(tristate_view, 'mousedown');
@@ -123,7 +124,7 @@ describe("tristate_checkbox", function () {
             tristate_clicked: "not a function"
         };
 
-        tearDown();
+        tearDown(false);
         assertState('state-1');
         checkbox = new TriStateCheckbox(tristate_view, tristate, true);
         fire_event(tristate_view, 'mousedown');

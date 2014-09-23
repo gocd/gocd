@@ -59,10 +59,12 @@ describe("package_repository_configuration", function () {
     });
 
     var orignialAjax = jQuery.ajax;
+    var original_jquery_ajax_submit = AjaxForm.jquery_ajax_submit;
     var plugins = ["yum", "deb", "foo"];
 
     afterEach(function () {
         jQuery.ajax = orignialAjax;
+        AjaxForm.jquery_ajax_submit = original_jquery_ajax_submit;
     });
 
     beforeEach(function () {

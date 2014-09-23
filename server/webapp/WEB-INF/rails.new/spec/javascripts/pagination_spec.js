@@ -75,11 +75,16 @@ describe("pagination", function () {
             "<script type=\"text/javascript\">\n" +
             "setupForPaginationSpec();\n" +
             "</script>");
+
+        contextPath = "/go";
+        pipelinePage = new PipelinePage();
     });
 
-    var contextPath = "/go";
+    afterEach(function(){
+        contextPath = undefined;
+    });
     var paginator;
-    var pipelinePage = new PipelinePage();
+    var pipelinePage;
 
     function render_the_page_again_immediately() {
         $('build-pipelines').innerHTML = $('new-pipeline-list-template').value.process({data: window.last_transfered_json });

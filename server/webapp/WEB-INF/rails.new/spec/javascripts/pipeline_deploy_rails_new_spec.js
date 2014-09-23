@@ -73,23 +73,6 @@ describe("pipeline_deploy_rails_new", function () {
             "                                                <input id='material-number-0-original' type='hidden' class='original-revision' name='original_fingerprint[36284ebcd009959b86b5e0c30be7e3803d0328f3ae5b8608285f2223de07faa7]' value='1234'/>\n" +
             "                                                <input id='material-number-0-autocomplete' type='text' class='autocomplete-input' name='material_fingerprint[36284ebcd009959b86b5e0c30be7e3803d0328f3ae5b8608285f2223de07faa7]'/>\n" +
             "                                                <div id='material-number-0-autocomplete-content' class='autocomplete bring_to_front'></div>\n" +
-            "                                                <script type=\"text/javascript\">\n" +
-            "                                                Util.on_load(function() {\n" +
-            "                                                    CruiseAutocomplete.materialSearch(true, 'pipline-name', '70fd7f3da3a0e91de9a2bc0a9e02efc96134271fd7574b925028f9692aa61405', 'material-number-0-autocomplete',\n" +
-            "                                                        function (short_revision, long_revision) {\n" +
-            "                                                            var external_revision = $('material-number-0');\n" +
-            "                                                            external_revision.update(short_revision);\n" +
-            "                                                            external_revision.writeAttribute('title', long_revision);\n" +
-            "                                                            if ($(\"currently-deployed-0\").title == long_revision) {\n" +
-            "                                                                external_revision.removeClassName('updated');\n" +
-            "                                                                materialDirtyTracker.undoUpdate(0);\n" +
-            "                                                            } else {\n" +
-            "                                                                external_revision.addClassName('updated');\n" +
-            "                                                                materialDirtyTracker.update(0);\n" +
-            "                                                            }\n" +
-            "                                                        });\n" +
-            "                                                    });\n" +
-            "                                                </script>\n" +
             "                                            </dd>\n" +
             "                                        </dl>\n" +
             "                                    </div>\n" +
@@ -116,23 +99,6 @@ describe("pipeline_deploy_rails_new", function () {
             "                                                <input id='material-number-1-original' type='hidden' class='original-revision' name='original_fingerprint[28fc4e7dda814b71db7fd4f4fbb781583155d64d7bbf526ae740687999286e1e]' value='9fdcf27f16eadc362733328dd481d8a2c29915e1'/>\n" +
             "                                                <input id='material-number-1-autocomplete' type='text' class='autocomplete-input' name='material_fingerprint[28fc4e7dda814b71db7fd4f4fbb781583155d64d7bbf526ae740687999286e1e]'/>\n" +
             "                                                <div id='material-number-1-autocomplete-content' class='autocomplete bring_to_front'></div>\n" +
-            "                                                <script type=\"text/javascript\">\n" +
-            "                                                Util.on_load(function() {\n" +
-            "                                                    CruiseAutocomplete.materialSearch(false, 'pipline-name', '4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515', 'material-number-1-autocomplete',\n" +
-            "                                                        function (short_revision, long_revision) {\n" +
-            "                                                            var external_revision = $('material-number-1');\n" +
-            "                                                            external_revision.update(short_revision);\n" +
-            "                                                            external_revision.writeAttribute('title', long_revision);\n" +
-            "                                                            if ($(\"currently-deployed-1\").title == long_revision) {\n" +
-            "                                                                external_revision.removeClassName('updated');\n" +
-            "                                                                materialDirtyTracker.undoUpdate(1);\n" +
-            "                                                            } else {\n" +
-            "                                                                external_revision.addClassName('updated');\n" +
-            "                                                                materialDirtyTracker.update(1);\n" +
-            "                                                            }\n" +
-            "                                                        });\n" +
-            "                                                    });\n" +
-            "                                                </script>\n" +
             "                                            </dd>\n" +
             "                                        </dl>\n" +
             "                                    </div>\n" +
@@ -175,51 +141,63 @@ describe("pipeline_deploy_rails_new", function () {
             "        </div>\n" +
             "\n" +
             "    </form>\n" +
-            "    <script type='text/javascript'>\n" +
-            "    Util.on_load(function() {\n" +
-            "        init_trigger_popup();\n" +
-            "        materialDirtyTracker = new DirtyTracker('materials_tab');\n" +
-            "        environmentVariableDirtyTracker = new DirtyTracker('environment_variables_tab');\n" +
-            "        new TabsManager('materials_tab', 'material_popup', 'UNIQUE_ID');\n" +
-            "        });   </script>\n" +
             "</div>");
     });
     var actual_timeout = setTimeout;
-
-    function setTimeout(fn) {
-        fn();
-    }
 
     var material_detail_panes = null;
     var material_summary_panes = null;
 
     var actual_ajax_request = Ajax.Request;
-    var foo_value, bar_value;
 
     beforeEach(function () {
+        setTimeout = function(fn) {
+            fn();
+        }
         material_detail_panes = $$(".materials .material_details .material_detail");
         material_summary_panes = $$(".materials .material_summaries .material_summary");
 
-        material_detail_panes.each(function (details_pane) {
-            details_pane.addClassName('hidden');
-        });
+        init_trigger_popup();
+        CruiseAutocomplete.materialSearch(true, 'pipline-name', '70fd7f3da3a0e91de9a2bc0a9e02efc96134271fd7574b925028f9692aa61405', 'material-number-0-autocomplete',
+            function (short_revision, long_revision) {
+                var external_revision = $('material-number-0');
+                external_revision.update(short_revision);
+                external_revision.writeAttribute('title', long_revision);
+                if ($("currently-deployed-0").title == long_revision) {
+                    external_revision.removeClassName('updated');
+                    materialDirtyTracker.undoUpdate(0);
+                } else {
+                    external_revision.addClassName('updated');
+                    materialDirtyTracker.update(0);
+                }
+            });
 
-        material_summary_panes.each(function (summary_pane) {
-            summary_pane.removeClassName('selected');
-        });
 
-        material_detail_panes[0].removeClassName("hidden");
-        material_summary_panes[0].addClassName("selected");
-        MaterialDetailsToggler.reset();
-        foo_value = $$("input[name='variables[foo]']")[0].value;
-        bar_value = $$("input[name='variables[bar]']")[0].value;
+        CruiseAutocomplete.materialSearch(false, 'pipline-name', '4290e91721d0a0be34955725cfd754113588d9c27c39f9bd1a97c15e55832515', 'material-number-1-autocomplete',
+            function (short_revision, long_revision) {
+                var external_revision = $('material-number-1');
+                external_revision.update(short_revision);
+                external_revision.writeAttribute('title', long_revision);
+                if ($("currently-deployed-1").title == long_revision) {
+                    external_revision.removeClassName('updated');
+                    materialDirtyTracker.undoUpdate(1);
+                } else {
+                    external_revision.addClassName('updated');
+                    materialDirtyTracker.update(1);
+                }
+            });
+
+
+        materialDirtyTracker = new DirtyTracker('materials_tab');
+        environmentVariableDirtyTracker = new DirtyTracker('environment_variables_tab');
+        new TabsManager('materials_tab', 'material_popup', 'UNIQUE_ID');
     });
 
     afterEach(function () {
         Ajax.Request = actual_ajax_request;
         setTimeout = actual_timeout;
-        $$("input[name='variables[foo]']")[0].value = foo_value;
-        $$("input[name='variables[bar]']")[0].value = bar_value;
+        materialDirtyTracker = null;
+        environmentVariableDirtyTracker = null;
     });
 
     it("test_should_toggle_display_between_materials", function () {
@@ -244,7 +222,7 @@ describe("pipeline_deploy_rails_new", function () {
 
     it("test_should_update_revision_to_deploy_when_selected", function () {
         Ajax.Request = function (url, options) {
-            options.onComplete({responseText: '<ul class="smartfill_content">>'
+            options.onComplete({responseText: '<ul class="smartfill_content">'
                 + '<li id="matched-revision-0">'
                 + '  <div class="revision" title="long-revision1">rev1</div>'
                 + '  <div class="user">user1</div>'
@@ -268,7 +246,7 @@ describe("pipeline_deploy_rails_new", function () {
 
     it("test_should_update_navigation_bar_with_selected_revision", function () {
         Ajax.Request = function (url, options) {
-            options.onComplete({responseText: '<ul class="smartfill_content">>'
+            options.onComplete({responseText: '<ul class="smartfill_content">'
                 + '<li id="matched-revision-0">'
                 + '  <div class="revision" title="long-revision1">rev1</div>'
                 + '  <div class="user">user1</div>'

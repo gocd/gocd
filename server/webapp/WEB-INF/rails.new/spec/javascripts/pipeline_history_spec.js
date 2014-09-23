@@ -15,11 +15,15 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("pipeline_history", function () {
-    var page, pipelineActions;
+    var page;
 
     beforeEach(function () {
         page = new PipelineHistoryPage();
         pipelineActions = new PipelineActions();
+    });
+
+    afterEach(function () {
+        pipelineActions = undefined;
     });
 
     it("testCompleteAutomatically", function () {

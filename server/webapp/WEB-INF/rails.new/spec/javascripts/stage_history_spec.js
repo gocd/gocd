@@ -16,6 +16,7 @@
 
 describe("stage_history", function () {
     beforeEach(function () {
+        AjaxRefreshers.clear();
         setFixtures("<a href=\"#\" id=\"stage_history_3\">3</a>\n" +
             "<input id=\"stage-history-page\" name=\"stage-history-page\">");
     });
@@ -37,6 +38,7 @@ describe("stage_history", function () {
     });
 
     afterEach(function () {
+        AjaxRefreshers.clear();
         Ajax.Updater = actual_ajax_updater;
         $j.ajax = actual_jquery_ajax;
     });

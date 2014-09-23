@@ -1,5 +1,8 @@
 jQuery.browser.msie = false;
 
+function fail(failureMessage) {
+    throw "Call to fail()" + failureMessage;
+}
 
 function fire_event(element, event, before) {
     if( document.createEvent ) {
@@ -125,14 +128,36 @@ function assertNull() {
     expect(actual).toBeNull();
 }
 
-function assertUndefined(actual) {
+function assertUndefined() {
+    var actual = null;
+    if(arguments.length >1){
+        actual = arguments[1];
+    }else{
+        actual = arguments[0];
+    }
     expect(actual).toBe(undefined);
 }
 
-function assertNotUndefined(actual) {
+function assertNotUndefined() {
+    var actual = null;
+    if(arguments.length >1){
+        actual = arguments[1];
+    }else{
+        actual = arguments[0];
+    }
     expect(actual).not.toBe(undefined);
 }
 
-function assertContains(textToBeSearched, maintext) {
+function assertContains() {
+    var textToBeSearched = null;
+    var maintext = null;
+
+    if(arguments.length > 2){
+        textToBeSearched = arguments[1];
+        maintext = arguments[2];
+    }else{
+        textToBeSearched = arguments[0];
+        maintext = arguments[1];
+    }
     expect(maintext).toContain(textToBeSearched);
 }

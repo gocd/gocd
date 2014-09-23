@@ -72,12 +72,8 @@ describe("task_plugin_view", function () {
 
     var html;
     var appName = "task_app";
-    jQuery(document).ready(function () {
-        html = jQuery("#form_id").html();
-    });
 
     beforeEach(function () {
-        jQuery("#form_id").html(html);
         jQuery('#plugged_task_angular_app_id input').val("").trigger("input");
         jQuery('#empty_plugged_task_angular_app_id input').val("").trigger("input");
     });

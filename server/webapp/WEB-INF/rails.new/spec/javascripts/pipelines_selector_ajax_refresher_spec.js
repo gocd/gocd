@@ -15,7 +15,12 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("pipelines_selector_ajax_refresher", function () {
+    afterEach(function () {
+        AjaxRefreshers.clear();
+    });
+
     beforeEach(function () {
+        AjaxRefreshers.clear();
         setFixtures("<div class='under_test'>\n" +
             "    <button class='select submit button' id='show_pipelines_selector' type='button' value='Edit View'>\n" +
             "        <span>EDIT VIEW<img src='/images/g9/button_select_icon.png?N/A'/></span>\n" +
@@ -88,15 +93,9 @@ describe("pipelines_selector_ajax_refresher", function () {
             "            </div>\n" +
             "        </form>\n" +
             "    </div>\n" +
-            "    <script type='text/javascript'> Util.on_load(function() {\n" +
-            "        PipelineFilter.initialize();\n" +
-            "        fire_event($('show_pipelines_selector'), 'click');\n" +
-            "    }); </script>\n" +
             "</div>");
-    });
-
-    beforeEach(function () {
-        $('show_pipelines_selector').disabled = false;
+        PipelineFilter.initialize();
+        fire_event($('show_pipelines_selector'), 'click');
     });
 
     it("test_should_disable_ajax_while_micro_content_is_visible", function () {

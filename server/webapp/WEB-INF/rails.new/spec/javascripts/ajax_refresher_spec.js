@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("ajax_refresher", function () {
+describe("ajax_refresher", function () {
     var actual_ajax_updater = Ajax.Updater;
     var actual_ajax_request = jQuery.ajax;
     var after_called = false;

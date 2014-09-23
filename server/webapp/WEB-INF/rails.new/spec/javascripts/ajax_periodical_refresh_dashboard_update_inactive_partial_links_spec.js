@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("ajax_periodical_refresh_dashboard_update_inactive_partial_links", function () {
+describe("ajax_periodical_refresh_dashboard_update_inactive_partial_links", function () {
 
     beforeEach(function () {
         contextPath = "dashboard";

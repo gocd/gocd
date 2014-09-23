@@ -18,6 +18,7 @@ describe("dashboard_periodical_executer", function(){
     var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json');
 
     beforeEach(function(){
+        contextPath = "/go";
         setFixtures("<div id=\"project1_profile\">\n" +
             "    <div id=\"control_panel\">\n" +
             "        <a id=\"project1_forcebuild\"></a>\n" +
@@ -30,6 +31,7 @@ describe("dashboard_periodical_executer", function(){
     });
 
     afterEach(function(){
+        contextPath = null;
     });
 
     it("test_should_call_observer_notify_when_success", function(){

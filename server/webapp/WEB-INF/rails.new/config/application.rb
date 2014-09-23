@@ -8,6 +8,7 @@ require "gadgets"
 require "sprockets/railtie"
 require "sass"
 require "jasmine-rails" if ENV['RAILS_ENV']!= 'production'
+require "jasmine-core" if ENV['RAILS_ENV']!= 'production'
 
 module Go
   class Application < Rails::Application

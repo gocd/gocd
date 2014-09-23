@@ -14,14 +14,14 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("ajax_refreshers", function () {
+describe("ajax_refreshers", function () {
     var first, second;
-
     beforeEach(function () {
         setFixtures("<div class='under_test'>\n" +
                 "    <div id=\"elem_id\"></div>\n" +
                 "</div>"
         );
+        AjaxRefreshers.clear();
         first = mockRefresher();
         second = mockRefresher();
         AjaxRefreshers.addRefresher(first);

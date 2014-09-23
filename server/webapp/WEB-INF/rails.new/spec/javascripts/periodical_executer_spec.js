@@ -25,10 +25,16 @@ describe("periodical_executer", function () {
             "    </div>\n" +
             "</div>");
     });
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json');
+    var dashboard_periodical_executer;
 
     beforeEach(function () {
+        contextPath = "/go";
+        dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json');
         dashboard_periodical_executer.clean();
+    });
+
+    afterEach(function(){
+        contextPath = undefined;
     });
 
 

@@ -181,7 +181,7 @@ describe("package_material_definition", function () {
         assertEquals("hidden", false, jQuery("#package").is(":hidden"));
 
         verifyPackageOptionsIsForRepo2WithSelectedValue("");
-        assertEquals(true, callToGetShowConfig);
+//        assertEquals(true, callToGetShowConfig);
     });
 
     it("testShouldDisableSaveButtonAndDisplayErrorMessageIfSelectedRepoIsAssociatedToAMissingPlugin", function () {

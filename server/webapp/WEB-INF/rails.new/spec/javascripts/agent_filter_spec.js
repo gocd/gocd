@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("agent_filter", function () {
+describe("agent_filter", function () {
     var agentFilter;
     var orignialAjax;
     var url = "http://foo.bar/go/autocomplete";

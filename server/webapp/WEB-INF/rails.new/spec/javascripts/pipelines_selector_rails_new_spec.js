@@ -15,7 +15,12 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("pipelines_selector_rails_new", function () {
+    afterEach(function () {
+        AjaxRefreshers.clear();
+    });
+
     beforeEach(function () {
+        AjaxRefreshers.clear();
         setFixtures("<div class='under_test'>\n" +
             "    <input title='Search for Pipeline' placeholder='Search for Pipeline' id='pipeline-search' type='text'/>\n" +
             "    <button class='header_submit submit button' id='show_pipelines_selector' type='button' value='Personalize'>\n" +
@@ -90,15 +95,9 @@ describe("pipelines_selector_rails_new", function () {
             "            </div>\n" +
             "        </form>\n" +
             "    </div>\n" +
-            "    <script type='text/javascript'> Util.on_load(function() {\n" +
-            "        PipelineFilter.initialize();\n" +
-            "        fire_event($('show_pipelines_selector'), 'click');\n" +
-            "    }); </script>\n" +
             "</div>");
-    });
-
-    beforeEach(function () {
-        $('show_pipelines_selector').disabled = false;
+        PipelineFilter.initialize();
+        fire_event($('show_pipelines_selector'), 'click');
     });
 
     function unselectAllUnder(elem) {

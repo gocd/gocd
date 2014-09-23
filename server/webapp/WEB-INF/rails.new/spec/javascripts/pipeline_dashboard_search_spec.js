@@ -15,6 +15,8 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("pipeline_dashboard_search", function () {
+
+    var originalDeBounceHandler = deBounceHandler;
     beforeEach(function () {
         setFixtures("<div class='under_test'>\n" +
             "    <input  placeholder='Search for Pipeline' id='pipeline-search' type=\"text\"/>\n" +
@@ -32,21 +34,22 @@ describe("pipeline_dashboard_search", function () {
             "        <h3><a href=\"#\">Pipeline2-2</a></h3>\n" +
             "    </div>\n" +
             "</div>");
+
+        deBounceHandler = {
+            deBounceSearch: function (callback) {
+                return callback;
+            }
+        };
+
+        PipelineSearch.initialize('#pipeline-search');
     });
-    var deBounceHandler = {
-        deBounceSearch: function (callback) {
-            return callback;
-        }
-    };
 
     afterEach(function () {
         jQuery(".should-delete-later").remove();
+        deBounceHandler = originalDeBounceHandler;
     });
 
     it("test_should_search_the_pipeline_with_text_entered_in_textbox", function () {
-        var searchBox = jQuery('#pipeline-search');
-
-        searchBox.listsearch({elementsClass: '.pipeline', searchForTextIn: '.pipeline h3 a', highlight: true, highlightClass: 'highlight', clearButton: 'clear'});
         searchFor('pipeline1');
 
         assertVisiblePipelines("pipeline1", 2);
@@ -61,8 +64,6 @@ describe("pipeline_dashboard_search", function () {
     it("test_should_get_all_hidden_pipeline_back_if_we_click_on_crossbutton", function () {
         var searchBox = jQuery('#pipeline-search');
         var clearButton = jQuery('.clear');
-
-        searchBox.listsearch({elementsClass: '.pipeline', searchForTextIn: '.pipeline h3 a', highlight: true, highlightClass: 'highlight', clearButton: 'clear'});
         searchFor('pipeline1');
 
         clearButton.click();
@@ -75,8 +76,6 @@ describe("pipeline_dashboard_search", function () {
 
     it("test_should_clear_the_textbox_if_we_press_esckey", function () {
         var searchBox = jQuery('#pipeline-search');
-
-        searchBox.listsearch({elementsClass: '.pipeline', searchForTextIn: '.pipeline h3 a', highlight: true, highlightClass: 'highlight', clearButton: 'clear'});
         searchFor('pipeline1');
 
         var esc = jQuery.Event("keyup", { keyCode: 27 });
@@ -89,8 +88,6 @@ describe("pipeline_dashboard_search", function () {
 
 
     it("test_should_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_modifications", function () {
-        PipelineSearch.initialize('#pipeline-search');
-
         searchFor('pipeline1');
         assertHighlightedPipelines(2);
         assertVisiblePipelines("pipeline1", 2);
@@ -104,8 +101,6 @@ describe("pipeline_dashboard_search", function () {
 
 
     it("test_should_not_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_no_modifications", function () {
-        PipelineSearch.initialize('#pipeline-search');
-
         searchFor('pipeline1');
         assertVisiblePipelines("pipeline1", 2);
 

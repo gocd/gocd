@@ -16,6 +16,7 @@
 
 describe("pipeline_dashboard_rails_new", function () {
     beforeEach(function () {
+        AjaxRefreshers.clear();
         setFixtures("<div class='under_test'>\n" +
             "    <div class=\"dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups\">\n" +
             "        <div class=\"hidden changes enhanced_dropdown\" id=\"dashboard_build_cause_content\">&nbsp;</div>\n" +
@@ -402,6 +403,7 @@ describe("pipeline_dashboard_rails_new", function () {
         };
     });
     afterEach(function () {
+        AjaxRefreshers.clear();
         Util.loadPage = util_load_page_fn;
         jQuery.ajax = originalAjaxRequest;
         $$('.under_test').first().update(element_under_test);

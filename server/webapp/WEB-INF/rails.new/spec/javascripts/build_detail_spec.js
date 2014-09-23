@@ -16,7 +16,9 @@
 
 describe("build_detail", function(){
 
+    var originalBuildDetail = BuildDetail;
     beforeEach(function(){
+        BuildDetail = originalBuildDetail;
         contextPath = "/go";
         setFixtures("<div id=\"dashboard_download_project1_log123.xml_abc_0\" class=\"subdir-container\" style=\"display:none\"></div>\n" +
             "<div class=\"dir-container\">\n" +
@@ -42,10 +44,14 @@ describe("build_detail", function(){
             "<div id=\"collapsible\" class=\"title_message_collapsed\"></div>\n" +
             "<iframe id=\"build-output-console-iframe\"></iframe>\n" +
             "<div class=\"widget\" id=\"build-output-console-warnning\" style=\"display: none;\">No build output.</div>");
+
         window.tabsManager = new TabsManager();
     });
 
     afterEach(function(){
+        BuildDetail = originalBuildDetail;
+        contextPath = undefined;
+        window.tabsManager = undefined;
     });
 
     it("test_should_expand_the_directory", function(){

@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-xdescribe("ajax_form_submit", function(){
+describe("ajax_form_submit", function(){
     var orignialAjax = jQuery.ajax;
 
     beforeEach(function(){

@@ -16,6 +16,14 @@
 
 describe("pipeline_plan", function () {
     beforeEach(function () {
+        contextPath = "/go";
+        pipelinePage = new PipelinePage();
+        pipelineActions = new PipelineActions();
+
+        window.last_transfered_json = pipelinesJson;
+        window.pipelineObserver = new PipelineObserver();
+        pipelinePage.initializeCollapsedStageArrayWhenNeeded([pipeline1stageJson.uniqueStageId]);
+
         setFixtures("<textarea id=\"new-pipeline-list-template\" style=\"display: none;\" rows=\"0\" cols=\"0\">\n" +
             "{eval}\n" +
             "    pipelinePage.fixIEZIndexBugs(300);\n" +
@@ -215,17 +223,25 @@ describe("pipeline_plan", function () {
             "<!-- pipeline start -->\n" +
             "<div id=\"build-pipelines\">\n" +
             "<!-- pipeline end -->\n" +
-            "</div>\n" +
-            "\n" +
-            "<script type=\"text/javascript\">\n" +
-            "    setUp();\n" +
-            "</script>");
+            "</div>\n"
+);
+
+        render_the_page_again_immediately();
+//        new PeriodicalExecuter(function (pe) {
+//            render_the_page_again_immediately();
+//        }, 1);
+
+    });
+
+    afterEach(function(){
+        contextPath = undefined;
+        pipelinePage = undefined;
+        pipelineActions = undefined;
     });
 
     var statisticsObserver;
-    var contextPath = "/go";
-    var pipelinePage = new PipelinePage();
-    var pipelineActions = new PipelineActions();
+//    var pipelinePage;
+//    var pipelineActions;
     var build1 = { "agent": "Not yet assigned", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "8", "is_completed": "true" };
     var build2 = { "agent": "Not yet assigned", "current_status": "failed", "result": "Failed", "name": "functional", "build_completed_date": "Mon Apr 21 16:36:16 CST 2008", "id": "9", "is_completed": "true" };
 
@@ -261,16 +277,6 @@ describe("pipeline_plan", function () {
     function render_the_page_again_immediately() {
         $('build-pipelines').innerHTML = $('new-pipeline-list-template').value.process({data: window.last_transfered_json });
     }
-
-    beforeEach(function () {
-        window.last_transfered_json = pipelinesJson;
-        window.pipelineObserver = new PipelineObserver();
-        pipelinePage.initializeCollapsedStageArrayWhenNeeded([pipeline1stageJson.uniqueStageId]);
-        render_the_page_again_immediately();
-        new PeriodicalExecuter(function (pe) {
-            render_the_page_again_immediately();
-        }, 1);
-    });
 
     it("test_should_toggle_content_of_pipeline_when_click_collapse", function () {
         //assume it's already collapsed

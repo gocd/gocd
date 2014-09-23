@@ -209,13 +209,12 @@ def create_pathing_jar classpath_file
   classpath_contents = File.read(classpath_file).split(File::PATH_SEPARATOR)
   to_be_written = ''
   classpath_contents.each_with_index do |entry, i|
-    to_be_written += entry + '\\' if File.directory? entry
-    to_be_written += entry unless File.directory? entry
-    to_be_written += " \n " if i < classpath_contents.length
+    to_be_written += "\r\n \\" + entry + '\\ ' if File.directory? entry
+    to_be_written += "\r\n \\" + entry + ' ' unless File.directory? entry
   end
   File.open(manifest_file, 'w') do |f|
     f.write("Class-Path: #{to_be_written}")
-    f.write("\n")
+    f.write("\r\n")
   end
   raise "File not found: #{manifest_file}" unless File.exists? manifest_file
   sh "jar cmf #{manifest_file} #{pathing_jar}"

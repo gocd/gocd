@@ -23,6 +23,8 @@ class ValueStreamMapModel
 
   def initialize(vsm, error, localizer, vsm_path_partial = proc do
     ""
+  end, vsm_material_path_partial = proc do
+    ""
   end, stage_detail_path_partial = proc do
     ""
   end)
@@ -40,7 +42,7 @@ class ValueStreamMapModel
           if (node_type == NODE_TYPE_FOR_MATERIAL)
             level.nodes << VSMSCMDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().collect { |child| child.getId() },
                                                          node.getParents().collect { |parent| parent.getId() }, node.getMaterialType().upcase,
-                                                         node.getDepth(), node.getMaterialNames(), node.revisions())
+                                                         node.getDepth(), node.getMaterialNames(), node.revisions(), vsm_material_path_partial)
           elsif (node_type == NODE_TYPE_FOR_PIPELINE)
             level.nodes << VSMPipelineDependencyNodeModel.new(node.getId(), node.getName(), node.getChildren().collect { |child| child.getId() },
                                                               node.getParents().collect { |parent| parent.getId() }, node_type,
@@ -92,11 +94,11 @@ end
 class VSMSCMDependencyNodeModel < VSMDependencyNodeModel
   attr_accessor :name, :id, :dependents, :parents, :node_type, :depth, :material_names, :instances, :locator
 
-  def initialize(id, name, dependents, parents, node_type, depth, material_names, revisions)
+  def initialize(id, name, dependents, parents, node_type, depth, material_names, revisions, vsm_material_path_partial)
     super(id, name, dependents, parents, node_type, depth)
 
     @material_names = material_names.collect { |material_name| String.new(material_name) } unless material_names.isEmpty()
-    @instances = revisions.collect { |revision| VSMSCMMaterialInstanceModel.new(revision) }
+    @instances = revisions.collect { |revision| VSMSCMMaterialInstanceModel.new(id, revision, vsm_material_path_partial) }
   end
 end
 
@@ -115,13 +117,14 @@ end
 class VSMSCMMaterialInstanceModel
   include RailsLocalizer
 
-  attr_accessor :revision, :user, :comment, :modified_time
+  attr_accessor :revision, :user, :comment, :modified_time, :locator
 
-  def initialize(revision)
+  def initialize(material_fingerprint, revision, vsm_material_path_partial)
     @revision = revision.getRevisionString
     @user = revision.getUser
     @comment = revision.getComment()
     @modified_time=com.thoughtworks.go.util.TimeConverter.convert(revision.getModifiedTime).default_message
+    @locator = vsm_material_path_partial.call material_fingerprint, revision.getRevisionString
   end
 end
 

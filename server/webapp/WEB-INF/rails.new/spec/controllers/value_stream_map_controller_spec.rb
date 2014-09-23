@@ -29,6 +29,16 @@ describe ValueStreamMapController do
     @user = double('some user')
     controller.stub(:current_user).and_return(@user)
     controller.stub(:is_ie8?).and_return(false)
+
+    @vsm_path_partial = proc do |name, counter|
+      vsm_show_path(name, counter)
+    end
+    @vsm_material_path_partial = proc do |material_fingerprint, revision|
+      vsm_show_material_path(material_fingerprint, revision)
+    end
+    @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
+      stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
+    end
   end
 
   describe :redirect_to_stage_pdg_if_ie8 do
@@ -113,7 +123,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial).to_json)
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
@@ -175,7 +185,8 @@ describe ValueStreamMapController do
                     "comment": "comment",
                     "revision": "r1",
                     "user": "user",
-                    "modified_time": "less than a minute ago"
+                    "modified_time": "less than a minute ago",
+                    "locator": "/materials/value_stream_map/git1/r1"
                   }
                 ],
                 "dependents": [
@@ -195,7 +206,8 @@ describe ValueStreamMapController do
                     "comment": "comment",
                     "revision": "r1",
                     "user": "user",
-                    "modified_time": "less than a minute ago"
+                    "modified_time": "less than a minute ago",
+                    "locator": "/materials/value_stream_map/git2/r1"
                   }
                 ],
                 "dependents": [
@@ -289,7 +301,7 @@ describe ValueStreamMapController do
 
         expect(response.status).to eq(200)
 
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l).to_json)
+        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @l, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial).to_json)
       end
 
       it "should display error message when the pipeline does not exist" do

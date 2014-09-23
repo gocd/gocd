@@ -54,10 +54,11 @@ class ValueStreamMapController < ApplicationController
 
   def render_vsm_json(vsm, result)
     vsm_path_partial = proc do |name, counter| vsm_show_path(name, counter) end
+    vsm_material_path_partial = proc do |material_fingerprint, revision| vsm_show_material_path(material_fingerprint, revision) end
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
        stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
     end
-    ValueStreamMapModel.new(vsm, result.message(localizer), localizer, vsm_path_partial, stage_detail_path_partial).to_json
+    ValueStreamMapModel.new(vsm, result.message(localizer), localizer, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial).to_json
   end
 
   def redirect_to_stage_pdg_if_ie8

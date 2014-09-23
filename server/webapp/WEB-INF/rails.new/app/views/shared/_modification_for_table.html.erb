@@ -6,6 +6,6 @@
         <%= render_comment(scope[:modification], scope[:pipeline_name]) %>
     </td>
     <td class="revision">
-        <%= smart_word_breaker(scope[:modification].getRevision()) -%>
+        <%= smart_word_breaker(scope[:modification].getRevision()) -%> - <%= link_to('vsm', vsm_show_material_path(:material_fingerprint => scope[:material].getFingerprint(), :revision => scope[:modification].getRevision())) -%>
     </td>
 </tr>

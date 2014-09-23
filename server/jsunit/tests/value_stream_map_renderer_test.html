@@ -402,7 +402,7 @@ function testShouldShowTrackbackUrlAsNotProvidedWhenItIsEmpty() {
 
 function testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4IsConfiguredWithDifferentCredentials() {
     var svn_material_1 = scmMaterialNode('svn_fingerprint_1', 'http://username1:password1@svn.com', "svn", '["p1"]', 1,
-            '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+            '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1","locator":"test_locator"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
     var svn_material_2 = scmMaterialNode('svn_fingerprint_2', 'http://username2:password2@svn.com', "svn", '["p1"]', 1,
             '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
     var node_p1 = pipelineNode("p1", '["svn_fingerprint_1", "svn_fingerprint_2"]', '[]', 1, "", '[]');
@@ -416,6 +416,9 @@ function testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4
     jQuery(jQuery("#svn_fingerprint_2 .more")).trigger('click');
     assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
     assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
+
+    assertEquals("revision details should contain revision string", "revision1", jQuery(jQuery(".instances[data-materialname='svn_fingerprint_1'] .instance .revision a")[0]).text());
+    assertEquals("revision details should contain revision link", "test_locator", jQuery(jQuery(".instances[data-materialname='svn_fingerprint_1'] .instance .revision a")[0]).attr("href"));
 }
 
 function testShouldDisplayAllDetailsForPipelineNodes() {

@@ -199,7 +199,7 @@ Graph_Renderer = function (container) {
         }
 
         return '<li class="instance">'
-                + '<div title="' + instance.revision + '" class="icon revision">' + instance.revision + ' </div>'
+                + '<div title="' + instance.revision + '" class="icon revision">' + '<a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
                 + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
                 + '<div class="author">'
                 + '<p>' + userName + ' </p>'

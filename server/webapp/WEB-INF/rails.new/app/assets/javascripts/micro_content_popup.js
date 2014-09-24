@@ -27,9 +27,7 @@ MicroContentPopup = function() {
     });
 
     init.register = function(){
-        $j(document).click(function () {
-            close_opened_popup();
-        });
+        Event.observe($(document), 'click', close_opened_popup);
     }
 
     function reset_opened_popup(new_popup) {

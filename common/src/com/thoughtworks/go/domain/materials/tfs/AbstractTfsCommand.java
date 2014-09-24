@@ -17,17 +17,17 @@
 package com.thoughtworks.go.domain.materials.tfs;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
@@ -128,8 +128,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     }
 
     @Override public final void checkConnection() {
-        LOGGER.info(String.format(String.format("[TFS] Checking Connection: Server %s, Domain %s, User %s, Project Path %s",
-                url, domain, userName, projectPath)));
+        LOGGER.info(String.format("[TFS] Checking Connection: Server %s, Domain %s, User %s, Project Path %s",
+                url, domain, userName, projectPath));
         try {
             List<Modification> modifications = latestInHistory();
             if (modifications.isEmpty()) {

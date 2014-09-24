@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.tfs;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -31,12 +24,16 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AbstractTfsCommandTest {
 
@@ -52,7 +49,15 @@ public class AbstractTfsCommandTest {
 
     @Before
     public void setUp() {
-        tfsCommand = spy(new AbstractTfsCommand(null, url, domain, user, password, workspace, projectPath) {
+        tfsCommand = tfsCommandFor(null, url, domain, user, password, workspace, projectPath);
+        assertThat(workDir.exists(), is(true));
+    }
+
+    private AbstractTfsCommand tfsCommandFor(final String materialFingerprint, final UrlArgument urlArgument,
+                                             final String domain, final String user, final String password,
+                                             final String workspace, final String projectPath) {
+        return spy(new AbstractTfsCommand(materialFingerprint, urlArgument, domain, user, password,
+                workspace, projectPath) {
             @Override protected void unMap() throws IOException {
             }
 
@@ -66,7 +71,6 @@ public class AbstractTfsCommandTest {
             @Override protected void initializeWorkspace(File workDir) {
             }
         });
-        assertThat(workDir.exists(), is(true));
     }
 
     public void verifyMocks() throws IOException {
@@ -103,6 +107,12 @@ public class AbstractTfsCommandTest {
 
     @Test
     public void testCheckConnection() throws Exception {
+        tfsCommand.checkConnection();
+    }
+
+    @Test
+    public void shouldNotFailToCheckConnectionForUrlWithURLEncodedSpaceInIt() throws Exception {
+        tfsCommand = tfsCommandFor(null, new UrlArgument("abc%20def"), domain, user, password, workspace, projectPath);
         tfsCommand.checkConnection();
     }
 }

@@ -87,6 +87,7 @@ ContextualPropagatingAjaxPopupHandler =  function() {
 
     return init;
 }();
+
 AjaxPopupHandler = function() {
     function self_url(self) {
         return function(_) {

@@ -16,38 +16,31 @@
 
 package com.thoughtworks.go.server.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.ContextHandler;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
-import static org.mockito.Mockito.*;
-import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
-import java.io.File;
-import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 
 public class GoVelocityViewTest {
     private GoVelocityView view;
@@ -168,6 +161,7 @@ public class GoVelocityViewTest {
         when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application-digest.css");
         when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application-digest.css");
         when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application-digest.css");
+        when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         Request servletRequest = mock(Request.class);
@@ -179,6 +173,7 @@ public class GoVelocityViewTest {
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application-digest.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application-digest.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application-digest.css"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
     }
 
     @Test

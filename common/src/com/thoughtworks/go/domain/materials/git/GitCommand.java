@@ -79,7 +79,7 @@ public class GitCommand extends SCMCommand {
                 fetchAndResetToHead(outputStreamConsumer);
             }
         } catch (Exception e) {
-            throw new RuntimeException(outputStreamConsumer.getStdError(), e);
+            throw new RuntimeException(String.format("Working directory: %s\n%s", workingDir, outputStreamConsumer.getStdError()), e);
         }
 
         CommandLine gitCmd = git().withArg("log").withArgs(args).withWorkingDir(workingDir);
@@ -119,6 +119,7 @@ public class GitCommand extends SCMCommand {
 
 
     public void fetchAndReset(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
+        outputStreamConsumer.stdOutput(String.format("[GIT] Fetch and reset in working directory %s", workingDir));
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
         fetch(outputStreamConsumer);

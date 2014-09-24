@@ -103,6 +103,7 @@ module Admin
         @errors = flatten_all_errors(all_errors)
         @task_view_model = task_view_service.getViewModel(@task, 'edit')
         @on_cancel_task_vms = task_view_service.getOnCancelTaskViewModels(@task)
+        @config_store = config_store
         render :template => "/admin/tasks/plugin/edit", :status => result.httpCode(), :layout => false
       end
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do

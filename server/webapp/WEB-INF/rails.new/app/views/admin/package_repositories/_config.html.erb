@@ -25,8 +25,7 @@
                             <%- if !scope[:isNewRepo] %>
                                 <div>
                                     <% chkbox = check_box_tag("package_repository[#{com.thoughtworks.go.domain.config.Configuration::CONFIGURATION}][#{index}][#{com.thoughtworks.go.domain.config.ConfigurationProperty::IS_CHANGED}]", "1", false, {:class => "password_changed", :id => "checkbox_field_#{index}"}) -%>
-
-                                    <%= label_tag "checkbox_field_#{index}", chkbox + "<span>Change #{package_property_model.display_name}</span>", :class=> 'checkbox' -%>
+                                    <label for="checkbox_field_<%==index-%>" class="checkbox"><%==chkbox-%><span>Change <%==package_property_model.display_name-%></span></label>
                                     <script type="text/javascript">
                                         var passwordField = "<%="#secure_field_#{index}"-%>";
                                         var checkBox = "<%="#checkbox_field_#{index}"-%>";

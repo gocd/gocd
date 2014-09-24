@@ -45,6 +45,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
     public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
     public static final String CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH = "concatenatedCssApplicationCssFilePath";
+    public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
     private final SystemEnvironment systemEnvironment;
 
     public GoVelocityView() {
@@ -74,6 +75,7 @@ public class GoVelocityView extends VelocityToolboxView {
             velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
             velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
             velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
+            velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
         } else {
             velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, "compressed/all.js?#include(\"admin/admin_version.txt.vm\")");
         }

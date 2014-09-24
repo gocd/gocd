@@ -36,7 +36,6 @@ describe "/admin/users/users.html.erb" do
     Capybara.string(response.body).find("div ul.user_counts").tap do |div|
         expect(div).to have_selector("li.enabled", "Enabled: 20")
         expect(div).to have_selector("li.disabled", "Disabled: 10")
-        expect(div).to have_selector("li.license_usage", "License Usage: 20/30")
     end
   end
 

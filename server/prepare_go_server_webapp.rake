@@ -201,11 +201,40 @@ def put_first(lib_paths, files_to_put_first)
   files_to_put_first + (lib_paths - files_to_put_first)
 end
 
+def create_pathing_jar classpath_file
+  pathing_jar = File.expand_path(File.join(File.dirname(classpath_file), "pathing.jar"))
+  manifest_file = File.expand_path(File.join(File.dirname(classpath_file), "MANIFEST.MF"))
+  rm manifest_file if File.exists? manifest_file
+  rm pathing_jar if File.exist? pathing_jar
+  classpath_contents = File.read(classpath_file).split(File::PATH_SEPARATOR)
+  to_be_written = ''
+  classpath_contents.each_with_index do |entry, i|
+    to_be_written += "\r\n \\" + entry + '\\ ' if File.directory? entry
+    to_be_written += "\r\n \\" + entry + ' ' unless File.directory? entry
+  end
+  File.open(manifest_file, 'w') do |f|
+    f.write("Class-Path: #{to_be_written}")
+    f.write("\r\n")
+  end
+  raise "File not found: #{manifest_file}" unless File.exists? manifest_file
+  sh "jar cmf #{manifest_file} #{pathing_jar}"
+  pathing_jar
+end
 
 task :precompile_assets do
-  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-  classpath = File.read("target/server-test-dependencies")
-  sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=#{classpath} RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  if Gem.win_platform?
+    server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
+    pathing_jar = create_pathing_jar server_test_dependency_file_path
+    ENV['CLASSPATH'] = pathing_jar
+    ENV['RAILS_ENV'] = "production"
+    sh <<END
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake assets:clobber assets:precompile
+END
+  else
+    classpath = File.read("target/server-test-dependencies")
+    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=\"#{classpath}\" RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  end
 end
 
 task :create_all_js_rails2 do

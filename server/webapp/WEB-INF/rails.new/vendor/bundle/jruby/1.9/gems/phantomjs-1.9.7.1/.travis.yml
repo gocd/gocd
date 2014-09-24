@@ -1,0 +1,12 @@
+script:
+  - bundle
+  - bundle exec rspec
+rvm:
+  - 1.9
+  - 2.0
+  - 2.1
+  - jruby-19mode
+notifications:
+  email:
+    on_success: always
+    on_failure: always

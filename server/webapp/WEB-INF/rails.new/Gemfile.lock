@@ -44,12 +44,20 @@ GEM
     erubis (2.7.0)
     hike (1.2.3)
     i18n (0.6.9)
+    jasmine-core (2.0.2)
+    jasmine-jquery-rails (2.0.3)
+    jasmine-rails (0.10.2)
+      jasmine-core (>= 1.3, < 3.0)
+      phantomjs
+      railties (>= 3.1.0)
+      sprockets-rails
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.25.1)
     minitest (4.7.5)
     multi_json (1.10.0)
+    phantomjs (1.9.7.1)
     polyglot (0.3.4)
     rack (1.5.2)
     rack-test (0.6.2)
@@ -97,6 +105,8 @@ PLATFORMS
 DEPENDENCIES
   dynamic_form
   gadgets (= 0.0.1)!
+  jasmine-jquery-rails
+  jasmine-rails
   oauth2_provider (= 1.0.3)!
   rails (= 4.0.4)
   sass-rails

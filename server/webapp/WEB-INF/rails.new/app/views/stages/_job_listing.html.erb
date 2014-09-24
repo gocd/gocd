@@ -17,7 +17,7 @@
                 <%= check_for_cancelled_contents(job.getStatus()) %>
             </div>
             <%- if job.isRerun() -%>
-                <img class="rerun_job_icon" src="<%=image_path('/images/g9/icons/icon_rerun_flag.png')%>">
+                <img class="rerun_job_icon" src="<%=image_path('g9/icons/icon_rerun_flag.png')%>">
             <%- end -%>
             <%= l.string(job.getStatus()) -%>
         </td>

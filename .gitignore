@@ -223,3 +223,4 @@ server/webapp/WEB-INF/rails/spec/javascripts/test_out/*
 server/webapp/WEB-INF/rails/spec/javascripts/node_modules/*
 **/*/target/*
 server/webapp/WEB-INF/rails.new/public/assets/*
+server/webapp/WEB-INF/rails.new/config/cipher

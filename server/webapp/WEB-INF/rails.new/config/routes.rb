@@ -15,6 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 Go::Application.routes.draw do
+  mount JasmineRails::Engine => '/specs' if defined?(JasmineRails)
   unless defined?(CONSTANTS)
     USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/

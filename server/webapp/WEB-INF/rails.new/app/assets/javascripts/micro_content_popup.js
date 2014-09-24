@@ -23,8 +23,12 @@ MicroContentPopup = function() {
     var ignoreNextClose = false;
 
     Event.observe(window, 'load', function () {
-        Event.observe($(document), 'click', close_opened_popup);
+        init.register();
     });
+
+    init.register = function(){
+        Event.observe($(document), 'click', close_opened_popup);
+    }
 
     function reset_opened_popup(new_popup) {
         close_opened_popup();

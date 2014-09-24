@@ -28,9 +28,9 @@ FROM builds b
 
 --//@UNDO
 
-alter table builds drop column runMultipleInstance;
-
 DROP VIEW _builds;
+
+alter table builds drop column runMultipleInstance;
 
 CREATE VIEW _builds AS
 SELECT b.*,

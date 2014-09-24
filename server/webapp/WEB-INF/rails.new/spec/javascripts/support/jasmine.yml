@@ -1,0 +1,113 @@
+# path to parent directory of src_files
+# relative path from Rails.root
+# defaults to app/assets/javascripts
+src_dir: "app/assets/javascripts"
+
+# path to additional directory of source file that are not part of assets pipeline and need to be included
+# relative path from Rails.root
+# defaults to []
+# include_dir:
+#   - ../mobile_app/public/js
+
+# path to parent directory of css_files
+# relative path from Rails.root
+# defaults to app/assets/stylesheets
+css_dir: "app/assets/stylesheets"
+
+# list of file expressions to include as source files
+# relative path from src_dir
+src_files:
+  - "application.js"
+  - "patterns/application.js"
+  - "lib/d3-3.1.5.min.js"
+
+
+# list of file expressions to include as css files
+# relative path from css_dir
+css_files:
+  - "application.scss"
+
+# path to parent directory of spec_files
+# relative path from Rails.root
+#
+# Alternatively accept an array of directory to include external spec files
+# spec_dir:
+#   - spec/javascripts
+#   - ../engine/spec/javascripts
+#
+# defaults to spec/javascripts
+spec_dir: spec/javascripts
+
+# list of file expressions to include as helpers into spec runner
+# relative path from spec_dir
+helpers:
+  - "helpers/**/*.{js.coffee,js,coffee}"
+
+# list of file expressions to include as specs into spec runner
+# relative path from spec_dir
+spec_files:
+  - "agent_filter_spec.js"
+  - "check_connection_spec.js"
+  - "environment_wizard_spec.js"
+  - "ajax_micro_content_handler_spec.js"
+  - "stage_history_spec.js"
+  - "elements_aligner_spec.js"
+  - "pipelines_selector_rails_new_spec.js"
+  - "pipeline_dashboard_search_spec.js"
+  - "pipelines_selector_ajax_refresher_spec.js"
+  - "helpers_spec.js"
+  - "pipeline_dashboard_rails_new_spec.js"
+  - "dirty_tracker_spec.js"
+  - "environment_dashboard_spec.js"
+  - "ajax_refreshers_spec.js"
+  - "ajax_refresher_spec.js"
+  - "stage_details_ajax_refresher_spec.js"
+  - "pipeline_deploy_rails_new_spec.js"
+  - "micro_content_on_agents_rails_new_spec.js"
+  - "micro_content_popup_live_shower_spec.js"
+  - "task_plugin_view_spec.js"
+  - "toggle_css_class_spec.js"
+  - "util_spec.js"
+  - "default_text_spec.js"
+  - "tristate_checkbox_spec.js"
+  - "field_state_replicator_spec.js"
+#  - "form_fields_table.html
+  - "pipeline_history_spec.js"
+  - "agent_spec.js"
+  - "i18n_spec.js"
+  - "build_detail_observer_spec.js"
+  - "build_base_observer_spec.js"
+  - "json_to_css_spec.js"
+  - "word_break_inserter_spec.js"
+  - "build_detail_spec.js"
+  - "dashboard_periodical_executer_spec.js"
+  - "timer_spec.js"
+  - "display_toolkit_spec.js"
+  - "get_link_by_building_status_spec.js"
+  - "pipeline_plan_spec.js"
+  - "material_spec.js"
+  - "value_stream_map_renderer_spec.js"
+  - "value_stream_map_spec.js"
+  - "command_auto_complete_spec.js"
+  - "pagination_spec.js"
+  - "periodical_executer_spec.js"
+  - "stage_detail_spec.js"
+  - "time_converter_spec.js"
+  - "package_material_definition_spec.js"
+  - "package_material_definition_for_new_pipeline_wizard_spec.js"
+  - "package_material_check_connection_spec.js"
+  - "package_repository_treeview_spec.js"
+  - "view_template_spec.js"
+  - "user_options_on_header_spec.js"
+  - "package_repository_configuration_spec.js"
+  - "jquery_wizard_plugin_spec.js"
+  - "angular_helper_spec.js"
+  - "fetch_pipelines_using_given_package_spec.js"
+  - "add_new_package_definition_state_spec.js"
+  - "ajax_form_submit_spec.js"
+#  - "**/*[Ss]pec.{js.coffee,js,coffee}"
+
+# path to directory of temporary files
+# (spec runner and asset cache)
+# defaults to tmp/jasmine
+tmp_dir: "tmp/jasmine"

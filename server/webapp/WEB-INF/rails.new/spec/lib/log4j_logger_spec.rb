@@ -20,12 +20,12 @@ describe "Log4jLogger" do
   before(:each) do
     @message = 'A debug message'
     @integer_message = 12345
-    @test_appender = LogFixture.startListening()
+    @test_appender = LogFixture.startListening
     @logger = Log4jLogger.new
   end
 
   after(:each) do
-    @test_appender.stopListening()
+    @test_appender.stopListening
   end
 
   it "test_should_log_debugging_message_when_debugging" do
@@ -48,7 +48,7 @@ describe "Log4jLogger" do
 
   it "test_should_add_message_passed_as_block_when_using_add" do
     @logger.level = Logger::INFO
-    @logger.info {@message}
+    @logger.info { @message }
     expect(@test_appender.getMessages.include?(@message)).to eq(true)
   end
 
@@ -60,7 +60,7 @@ describe "Log4jLogger" do
 
   it "test_should_convert_message_to_string_when_passed_in_block" do
     @logger.level = Logger::INFO
-    @logger.info {@integer_message}
+    @logger.info { @integer_message }
     expect(@test_appender.getMessages.include?(@integer_message.to_s)).to eq(true)
   end
 

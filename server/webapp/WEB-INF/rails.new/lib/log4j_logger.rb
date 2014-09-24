@@ -34,8 +34,7 @@ class Log4jLogger
   end
 
   @@severities = init_severities_map
-  
-  ##
+
   # :singleton-method:
   # Set to false to disable the silencer
   @@silencer = true
@@ -66,7 +65,7 @@ class Log4jLogger
 
   def initialize(level = DEBUG)
     @level = level
-    @logger = org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails");
+    @logger = org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails")
   end
 
   def add(severity, message = nil, progname = nil, &block)
@@ -79,7 +78,7 @@ class Log4jLogger
     message
   end
 
-  for severity in Severity.constants
+  Severity.constants.each do |severity|
     class_eval <<-EOT, __FILE__, __LINE__
       def #{severity.downcase}(message = nil, progname = nil, &block)  # def debug(message = nil, progname = nil, &block)
         add(#{severity}, message, progname, &block)                    #   add(DEBUG, message, progname, &block)
@@ -95,11 +94,12 @@ class Log4jLogger
   end
 
   protected
+
   def to_log4j_level(severity)
     org.apache.log4j.Level.toLevel(severity_from(severity).to_s, org.apache.log4j.Level::WARN)
   end
 
   def severity_from(severity)
-    @@severities[severity]    
+    @@severities[severity]
   end
 end

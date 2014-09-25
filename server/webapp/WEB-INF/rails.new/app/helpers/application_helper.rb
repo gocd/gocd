@@ -225,7 +225,7 @@ module ApplicationHelper
   end
 
   def page_name
-    @page_name = controller.controller_name.gsub("/", "_")
+    @page_name = params[:controller].gsub("/", "_")
     if !flash[:error].nil?
       @page_name= @page_name + " page_error"
     end

@@ -386,7 +386,6 @@
     <entry key="SSL_ENFORCED_BUT_BASE_NOT_FOUND">There is currently no 'https' URL configured. For this feature to work please configure the server's siteUrl or secureSiteUrl with an 'https' URL.</entry>
     <entry key="RELOAD">Reload</entry>
     <entry key="REFRESH_CONFIG">This will refresh the page and you will lose your changes on this page.</entry>
-    <entry key="NO_OAUTH_TOKEN_MESSAGE">There are no tokens.</entry>
     <entry key="MERCURIAL">Mercurial</entry>
     <entry key="SUBVERSION">Subversion</entry>
     <entry key="GIT">Git</entry>

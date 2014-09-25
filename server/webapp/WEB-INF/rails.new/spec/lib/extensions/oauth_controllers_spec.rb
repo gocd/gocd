@@ -35,3 +35,14 @@ describe Oauth2Provider::ClientsController, type: :controller do
     expect(controller.class._process_action_callbacks.map(&:filter)).to include(:set_view_title)
   end
 end
+
+describe Oauth2Provider::UserTokensController, type: :controller do
+  it "should use set tab as a before filter" do
+    expect(controller.class._process_action_callbacks.map(&:filter)).to include(:set_tab_name)
+  end
+
+  it "should set the tab_name" do
+    controller.send(:set_tab_name)
+    expect(controller.instance_variable_get("@current_tab_name")).to eq("preferences")
+  end
+end

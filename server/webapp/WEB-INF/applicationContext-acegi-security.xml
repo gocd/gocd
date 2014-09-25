@@ -252,10 +252,6 @@
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-launcher.jar=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-plugins.zip=IS_AUTHENTICATED_ANONYMOUSLY
-                /admin/oauth/token=IS_AUTHENTICATED_ANONYMOUSLY
-                /admin/oauth/authorize=ROLE_USER
-                /admin/oauth/user_tokens=ROLE_USER
-                /admin/oauth/user_tokens/revoke/**=ROLE_USER
                 /tab/admin/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/configuration/file/**=ROLE_SUPERVISOR
                 /admin/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
@@ -274,22 +270,19 @@
                 /**/addresources.json=ROLE_SUPERVISOR
                 /**/registeragent.json=ROLE_SUPERVISOR
                 /api/feeds/**=ROLE_SUPERVISOR
+                /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER
                 /api/*/*.xml=ROLE_USER
                 /api/users.xml=ROLE_SUPERVISOR
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /*/environments/*=ROLE_SUPERVISOR
 
-                /admin/oauth/clients=ROLE_SUPERVISOR
-                /admin/oauth/clients/**=ROLE_SUPERVISOR
-
-                /admin/user_tokens/revoke_by_admin=ROLE_SUPERVISOR
-                /admin/user_tokens/revoke_by_admin/**=ROLE_SUPERVISOR
-
-                /admin/gadgets/oauth_clients=ROLE_SUPERVISOR
-                /admin/gadgets/oauth_clients/**=ROLE_SUPERVISOR
+                /oauth/admin/**=ROLE_SUPERVISOR
 
                 /oauth/token=IS_AUTHENTICATED_ANONYMOUSLY
+                /oauth/authorize=ROLE_USER
+                /oauth/user_tokens=ROLE_USER
+                /oauth/user_tokens/revoke/**=ROLE_USER
 
                 /gadgets/pipeline.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /gadgets/pipeline/**=ROLE_OAUTH_USER,ROLE_USER

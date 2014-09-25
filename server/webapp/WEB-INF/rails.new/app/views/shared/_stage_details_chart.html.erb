@@ -125,14 +125,14 @@
                 {
                     name: "Failed",
                     color: '#FA2D2D',
-                    data: <%= scope[:chart_stage_duration_failed] -%>,
-                    tooltipData: <%= scope[:chart_tooltip_data_failed] -%>
+                    data: <%== scope[:chart_stage_duration_failed] -%>,
+                    tooltipData: <%== scope[:chart_tooltip_data_failed] -%>
                 },
                 {
                     name: "Passed",
                     color: '#78C42D',
-                    data: <%= scope[:chart_stage_duration_passed] -%>,
-                    tooltipData: <%= scope[:chart_tooltip_data_passed] -%>
+                    data: <%== scope[:chart_stage_duration_passed] -%>,
+                    tooltipData: <%== scope[:chart_tooltip_data_passed] -%>
                 }
             ]
         }, function(chart) {

@@ -48,8 +48,14 @@
         </ul>
     </div>
     <script type="text/javascript">
+    #if($useNewRails)
         #foreach( $listPresenter in $presenter.recent25 )
-            json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()");
+            json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath");
         #end
+    #else
+        #foreach( $listPresenter in $presenter.recent25 )
+        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()");
+        #end
+    #end
     </script>
 </div>

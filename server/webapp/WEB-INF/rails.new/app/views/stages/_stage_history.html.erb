@@ -27,7 +27,7 @@
                         <%= check_for_cancelled_contents(stage_in_stage_history.getState()) %>
                     </div>
                     <%- if stage_in_stage_history.hasRerunJobs() -%>
-                        <img class="has_rerun_jobs_icon" src="<%=image_path('/images/g9/icons/icon_rerun_flag.png')%>">
+                        <img class="has_rerun_jobs_icon" src="<%=image_path('g9/icons/icon_rerun_flag.png')%>">
                      <%- end -%>
                     <span class="pipeline_label"><%= smart_word_breaker(stage_in_stage_history.getIdentifier().getPipelineLabel()) %></span>
                     <% if stage_in_stage_history.getIdentifier().getStageCounter().to_i > 1 %>

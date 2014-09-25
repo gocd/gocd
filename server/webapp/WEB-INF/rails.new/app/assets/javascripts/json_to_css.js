@@ -58,16 +58,12 @@ JsonToCss.prototype = {
         this._renew_class_name('build_detail_summary_container', [css_class_name]);
     },
 
-	update_build_list : function(json, id, requestPath) {
+	update_build_list : function(json, id, imgSrc) {
 		var elementId = "build_list_" + id
 		var css_class_name = json.building_info.current_status.toLowerCase();
         this._renew_class_name(elementId, [css_class_name]);
         if( css_class_name == "cancelled"){
             var colorCodeElement = $(elementId).getElementsByClassName("color_code_small")[0];
-
-
-            var imgSrc = requestPath+"/images/g9/stage_bar_cancelled_icon.png";
-            
             var img = document.createElement('img');
             img.setAttribute('src', imgSrc);
             colorCodeElement.appendChild(img);

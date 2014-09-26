@@ -225,7 +225,12 @@ module ApplicationHelper
   end
 
   def page_name
-    @page_name = params[:controller].gsub("/", "_")
+    controller_name = params[:controller]
+    #required for view specs
+    if controller_name == nil
+      controller_name = controller.controller_path
+    end
+    @page_name = controller_name.gsub("/", "_")
     if !flash[:error].nil?
       @page_name= @page_name + " page_error"
     end

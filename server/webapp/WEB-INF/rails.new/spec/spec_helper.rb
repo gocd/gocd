@@ -44,6 +44,7 @@ RSpec.configure do |config|
 
   # clear flash messages for every spec
   config.before(:each) do
+    params[:controller] = controller.controller_path
     com.thoughtworks.go.server.web.FlashMessageService.useFlash(com.thoughtworks.go.server.web.FlashMessageService::Flash.new)
     setup_base_urls
   end

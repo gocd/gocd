@@ -36,7 +36,12 @@ class Spring
       MUTEX.synchronize do
         if (!@context)
           @context =  load_context
-          self.bean("viewRenderingService").registerRenderer(com.thoughtworks.go.plugins.presentation.Renderer.ERB, ErbRenderer.new) if @context
+          begin
+            self.bean("viewRenderingService").registerRenderer(com.thoughtworks.go.plugins.presentation.Renderer.ERB, ErbRenderer.new) if @context
+          rescue => e
+            raise $! if Rails.configuration.fail_if_unable_to_register_renderer
+            puts "WARNING: Failed to register renderer. Continuing, though: #{e}"
+          end
         end
       end
     end

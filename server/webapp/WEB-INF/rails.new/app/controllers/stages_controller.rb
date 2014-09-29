@@ -30,6 +30,7 @@ class StagesController < ApplicationController
 
   def history
     load_stage_history_for_page params[:page]
+    render layout: nil
   end
 
   def overview

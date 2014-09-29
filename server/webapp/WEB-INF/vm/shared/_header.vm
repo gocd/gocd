@@ -30,9 +30,14 @@
 
 ##    new files from less starts
     #if($useNewRails)
-            <link href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" rel="stylesheet" />
+        #if($extra_css_list)
+            #foreach($css_name in $extra_css_list)
+                <link href="$req.getContextPath()/$stylesheetsCssFolderPath/${css_name}.css" media="all" rel="stylesheet" />
+            #end
+        #end
     #else
         <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     ##    new files from less ends

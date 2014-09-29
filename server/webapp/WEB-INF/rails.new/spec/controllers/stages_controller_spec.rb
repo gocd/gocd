@@ -396,6 +396,17 @@ describe StagesController do
       @stage_service.stub(:findStageHistoryPageByNumber).and_return(:stage_history_page)
     end
 
+    it "should render without layout" do
+      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+      pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)
+      @stage_service.should_receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
+      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
+
+      get :history, {page: '3', pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: 10, stage_counter: 5, tab: 'jobs'}
+
+      expect(response).to render_template(layout: nil)
+    end
+
     it "should load stage history page" do
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
       pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)

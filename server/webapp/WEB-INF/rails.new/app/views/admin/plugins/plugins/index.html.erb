@@ -12,8 +12,8 @@
                vendor = about.vendor()
             %>
             <li class="plugin <%= descriptor.isInvalid() ? 'disabled' : 'enabled' %>" id="<%= descriptor.id() %>">
-                <img src="../images/andare/<%= descriptor.isBundledPlugin() ? 'icon-plugin-default-bundled.png' : '/icon-plugin-default.png' %>" class="plugin-logo" alt="<%= about.name() %>"/>
-
+                <%- icon_url = descriptor.isBundledPlugin() ? 'andare/icon-plugin-default-bundled.png' : 'andare/icon-plugin-default.png' %>
+                <img src="<%= image_path(icon_url) %>" class="plugin-logo" alt="<%= about.name() %>"/>
                 <div class="plugin-data">
                     <div class="plugin-details">
                         <span class="name"><%= about.name() %></span>

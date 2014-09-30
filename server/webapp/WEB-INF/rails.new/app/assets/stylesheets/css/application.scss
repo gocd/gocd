@@ -25,6 +25,7 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
+ *= require "./reset-fonts-grids-fix"
  *= require "./agents-tab.scss"
  *= require "./application.scss"
  *= require "./application-old.scss"

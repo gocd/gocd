@@ -395,7 +395,7 @@ describe "/environments/_environment_pipeline.html.erb" do
         expect(materials[1]).to_not have_selector("img")
 
         expect(materials[2]).to have_selector(".material_name[title='hg-url']")
-        expect(materials[2]).to have_selector("img.has_new_material_revisions[src='/images/icon-12-alert.png']")
+        expect(materials[2]).to have_selector("img.has_new_material_revisions[src='/assets/icon-12-alert.png']")
       end
     end
 
@@ -405,7 +405,7 @@ describe "/environments/_environment_pipeline.html.erb" do
 
       render environments_partial
 
-      expect(response.body).to have_selector(".deployed_revisions .materials img.has_new_material_revisions[src='/images/icon-12-alert.png']")
+      expect(response.body).to have_selector(".deployed_revisions .materials img.has_new_material_revisions[src='/assets/icon-12-alert.png']")
     end
 
     it "should not show new revisions available image at aggregation level when none" do

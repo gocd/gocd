@@ -75,7 +75,7 @@
 		    <items>
 		    <item>Go to System Preferences->Personal->Security &amp; Privacy. </item> <item>Launch the Security and Privacy applet. </item>
 		    <item>Click on the General tab to highlight it. </item>
-		    <item>Click ont he lock icon to allow changes. </item>
+		    <item>Click on the lock icon to allow changes. </item>
 		    <item>Under the heading "Allow applications downloaded from:" click on the <strong>Anywhere</strong> radio button. </item>
 		    <item>The installation will proceed as normal.</item>
 		    <item>When it is finished, you can change the Security &amp; Privacy setting back to the previous setting.

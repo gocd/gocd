@@ -24,11 +24,11 @@ public class HostNameValidator implements Validator<String> {
     static final String HOSTNAME_PATTERN = "([-_0-9\\w]*\\.)*[-_0-9\\w]+";
     public static final String HOSTNAME_ERROR_MESSAGE = "Not a legal hostname or IP address. "
             + "A legal hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)";
-
+    public static final String INVALID_HOSTNAME_KEY = "INVALID_HOSTNAME";
 
     public void validate(String hostname, LocalizedResult result) {
-        if (!hostname.matches(HOSTNAME_PATTERN) && !hostname.matches(IPV6_ADDRESS_PATTERN)) {
-            result.invalid("INVALID_HOSTNAME", hostname);
+        if (hostname == null || (!hostname.matches(HOSTNAME_PATTERN) && !hostname.matches(IPV6_ADDRESS_PATTERN))) {
+            result.invalid(INVALID_HOSTNAME_KEY, String.valueOf((Object) hostname));
         }
     }
 }

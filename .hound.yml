@@ -15,3 +15,6 @@ Style/StringLiterals:
   Enabled: false
 
 ShowCopNames: true
+
+java_script:
+  enabled: true

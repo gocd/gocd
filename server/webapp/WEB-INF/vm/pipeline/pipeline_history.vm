@@ -54,7 +54,12 @@
         <!-- pipeline start -->
 
         <div id="pipeline-history">
-            Loading... <img src="$req.getContextPath()/images/spinner.gif" alt="loading..."/>
+            Loading...
+            #if($useNewRails)
+                <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
+            #else
+                <img src="$req.getContextPath()/images/spinner.gif" alt="loading..."/>
+            #end
         </div>
 
         #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")

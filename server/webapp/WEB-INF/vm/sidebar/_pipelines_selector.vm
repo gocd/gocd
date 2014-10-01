@@ -37,7 +37,13 @@
     <div class="clear"></div>
 </textarea>
 <div id="pipeline-selector" class="sidebar-container">
-    <h2><a href="javascript:void(0)">Pipeline Selector<img id="pipeline-selector-spinner" src="$req.getContextPath()/images/spinner.gif" alt="loading..." style="display: none; margin-left: 1em;"/></a></h2>
+    <h2><a href="javascript:void(0)">Pipeline Selector
+        #if($useNewRails)
+            <img id="pipeline-selector-spinner" src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..." style="display: none; margin-left: 1em;"/>
+        #else
+            <img id="pipeline-selector-spinner" src="$req.getContextPath()/images/spinner.gif" alt="loading..." style="display: none; margin-left: 1em;"/>
+        #end
+    </a></h2>
     <div id="pipeline-selector-content" class="actions_bar sidebar-content"></div>
     <div class="ab-bg">
         <span class="ab-corner lvl4"></span>

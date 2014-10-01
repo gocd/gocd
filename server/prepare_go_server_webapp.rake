@@ -352,7 +352,7 @@ def inline_partials dir = RAILS_INTERPOLATED_VIEWS
 end
 
 def erb_ruby call
-  return call.scan(/\A<%=\s*(.+?)\s*-?%>\Z/m).flatten[0]
+  return call.scan(/\A<%==*\s*(.+?)\s*-?%>\Z/m).flatten[0]
 end
 
 def args_of_fn fn_name, call
@@ -377,7 +377,7 @@ def locals_hash call
 end
 
 def inline_partial_render_calls file, depth
-  inline_render_calls(File.read(file), file, /<%=\s*render\s*\:partial.*?%>/m, depth)
+  inline_render_calls(File.read(file), file, /<%==*\s*render[\s(]*\:partial.*?%>/m, depth)
 end
 
 def inline_render_calls buffer, file, scanned_by, depth
@@ -411,7 +411,7 @@ def actual_partial_path partial_path
 end
 
 def inline_json_render_calls buffer, file, depth
-  buffer = inline_render_calls(buffer, file, /<%=\s*render_json\s*\:partial.*?%>/m, depth) do |sub_buffer|
+  buffer = inline_render_calls(buffer, file, /<%==*\s*render_json[\s(]*\:partial.*?%>/m, depth) do |sub_buffer|
     placeholder_map = {}
     sub_buffer.scan(/<%.*?%>/m).flatten.each do |match_ruby|
       key = SecureRandom.uuid

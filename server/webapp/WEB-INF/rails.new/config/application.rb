@@ -40,5 +40,8 @@ module Go
     config.assets.enabled = true
     config.serve_static_assets = true
     config.fail_if_unable_to_register_renderer = true
+
+    require Rails.root.join("lib", "log4j_logger.rb")
+    config.logger = Log4jLogger.new
   end
 end

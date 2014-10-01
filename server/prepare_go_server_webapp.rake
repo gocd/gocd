@@ -352,7 +352,7 @@ def inline_partials dir = RAILS_INTERPOLATED_VIEWS
 end
 
 def erb_ruby call
-  return call.scan(/\A<%==*\s*(.+?)\s*-?%>\Z/m).flatten[0]
+  return call.scan(/\A<%=\s*(.+?)\s*-?%>\Z/m).flatten[0]
 end
 
 def args_of_fn fn_name, call
@@ -370,21 +370,30 @@ end
 #:locals => ({:scope => ({foo => bar}).merge(:baz => quux)})
 #:object =>
 
-def locals_hash call
+def locals_hash file, call
   render_arguments = render_args(call)
-  scope_map = render_arguments.scan(/:locals\s*=>\s*\{\s*:scope\s*=>\s*(.*?)\s*\}\s*\Z/m)
-  scope_map.flatten[0]
+  scope_map = render_arguments.scan(/:locals\s*=>\s*\{\s*:scope\s*=>\s*(.*?)\s*\}[\s)]*\Z/m)
+  locals_hash_value = scope_map.flatten[0]
+
+  parser_says_there_are_no_locals = locals_hash_value.nil?
+  probably_has_locals = render_arguments =~ /locals.*scope/
+  scope_is_not_empty = render_arguments !~ /:locals\s*=>\s*:scope\s*=>\s*\{\s*\}/
+  if parser_says_there_are_no_locals && probably_has_locals && scope_is_not_empty
+    raise "ERROR: Inlining partials of #{file}. Parser says there are no locals here: #{call}"
+  end
+
+  locals_hash_value
 end
 
 def inline_partial_render_calls file, depth
-  inline_render_calls(File.read(file), file, /<%==*\s*render[\s(]*\:partial.*?%>/m, depth)
+  inline_render_calls(File.read(file), file, /<%=\s*render[\s(]*\:partial.*?%>/m, depth)
 end
 
 def inline_render_calls buffer, file, scanned_by, depth
   render_partial_calls = buffer.scan(scanned_by)
   render_partial_calls.each do |call|
     ruby_code = erb_ruby(call)
-    local_hash = locals_hash(call)
+    local_hash = locals_hash(file, call)
     partial_path = ruby_code.scan(/\:partial\s*=>\s*("|')(.+?)\1/m).flatten[1] #make me locals style
     partial_path = (partial_path =~ /\//m ? File.join(RAILS_INTERPOLATED_VIEWS, File.dirname(partial_path), "_" + File.basename(partial_path)) : File.join(File.dirname(file), "_" + File.basename(partial_path)))
     actual_partial_path = actual_partial_path(partial_path)
@@ -411,7 +420,7 @@ def actual_partial_path partial_path
 end
 
 def inline_json_render_calls buffer, file, depth
-  buffer = inline_render_calls(buffer, file, /<%==*\s*render_json[\s(]*\:partial.*?%>/m, depth) do |sub_buffer|
+  buffer = inline_render_calls(buffer, file, /<%=\s*render_json[\s(]*\:partial.*?%>/m, depth) do |sub_buffer|
     placeholder_map = {}
     sub_buffer.scan(/<%.*?%>/m).flatten.each do |match_ruby|
       key = SecureRandom.uuid

@@ -213,6 +213,15 @@ describe PipelinesController do
       expect(assigns[:pipeline]).to eq(@pim)
       expect(assigns[:variables]).to eq(expected)
     end
+
+    it "should skip verify authenticity token" do
+      @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
+      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new())
+
+      controller.should_not_receive(:verify_authenticity_token)
+
+      post 'show', :pipeline_name => 'blah-pipeline-name'
+    end
   end
 
   describe "action show_for_trigger" do
@@ -223,13 +232,22 @@ describe PipelinesController do
       expected.add("bar","bar_value")
       @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
 
-      get 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
+      post 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
 
       expect(assigns[:pipeline]).to eq(@pim)
     end
 
     it "should resolve POST to /pipelines/show_for_trigger as a call" do
       expect({:post => "/pipelines/show_for_trigger"}).to route_to(:controller => 'pipelines', :action => 'show_for_trigger', :no_layout => true)
+    end
+
+    it "should skip verify authenticity token" do
+      @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
+      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new())
+
+      controller.should_not_receive(:verify_authenticity_token)
+
+      post 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
     end
   end
 

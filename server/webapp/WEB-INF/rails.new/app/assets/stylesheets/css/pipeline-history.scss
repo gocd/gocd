@@ -346,6 +346,7 @@ new-pipeline-history .popup table tbody td {
 .popup-open .popup
 {
     display: block;
+    z-index: 5000;
 }
 
 .popup-closed .popup

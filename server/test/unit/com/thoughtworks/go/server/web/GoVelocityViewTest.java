@@ -162,6 +162,7 @@ public class GoVelocityViewTest {
         when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application-digest.css");
         when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application-digest.css");
         when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
+        when(railsAssetsService.getAssetPath("spinner.gif")).thenReturn("assets/spinner.gif");
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         Request servletRequest = mock(Request.class);
@@ -174,6 +175,7 @@ public class GoVelocityViewTest {
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application-digest.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application-digest.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
+        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
     }
 
     @Test

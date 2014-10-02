@@ -310,25 +310,30 @@ Graph_Renderer = function (container) {
                 gui += '<h4 title="' + instance.label + '"><i class="label">Label: </i><a href="' + instance.locator + '">' + instance.label + '</a></h4>';
             }
         }
-        gui += '<ul class="stages">';
-        stagesCount = instance.stages.length;
-        for (var i = 0; i < stagesCount; i++) {
-            var stagesWidth = (node_id == current) ? 238 : 196;
-            gui += '<li class="stage_bar ';
-            gui += ((instance.stages[i].status != undefined) ? instance.stages[i].status : 'Unknown');
-            if (instance.stages[i].status == 'Unknown') {
-                gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span>' + instance.stages[i].name + '</span></li>'
+        if(instance.locator.trim() != "") {
+            gui += '<ul class="stages">';
+            stagesCount = instance.stages.length;
+            for (var i = 0; i < stagesCount; i++) {
+                var stagesWidth = (node_id == current) ? 238 : 196;
+                gui += '<li class="stage_bar ';
+                gui += ((instance.stages[i].status != undefined) ? instance.stages[i].status : 'Unknown');
+                if (instance.stages[i].status == 'Unknown') {
+                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><span>' + instance.stages[i].name + '</span></li>'
+                }
+                else {
+                    gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
+                }
             }
-            else {
-                gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + instance.stages[i].name + '"><a href="' + instance.stages[i].locator + '"><span>' + instance.stages[i].name + '</span></a></li>'
-            }
+            gui += '</ul>';
         }
-        gui += '</ul>'
 
-        if(instance.locator.trim() == "")
-            gui += '<div style="clear:both; margin-top:20px;" class="message waiting">' + noInstanceMessage + '</div>';
+        if(instance.locator.trim() == "") {
+            gui += "<div style='clear:both;' class='message waiting' title='"+ noInstanceMessage +"'>";
+            gui += noInstanceMessage;
+            gui += "</div>";
+        }
 
-        gui += '</li>'
+        gui += '</li>';
         return gui;
     }
 

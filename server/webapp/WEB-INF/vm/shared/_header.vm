@@ -23,38 +23,38 @@
 <html lang='en'>
 <!--<![endif]-->
 
-
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 
-
-##    new files from less starts
     #if($useNewRails)
-        <link rel="shortcut icon" href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"/>
-        <link href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" rel="stylesheet" />
-        <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" rel="stylesheet" />
-        <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")" rel="shortcut icon" />
+    ##    new files from Less/SaSS starts
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" />
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" />
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" />
     #else
-        <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
-        <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    ##    new files from less ends
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")"></link>
+    ##    new files from Less/SaSS ends
+        <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")" />
 
-        <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" type="text/css"></link>
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" type="text/css"></link>
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")"></link>
 
-        <link href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-        <link href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/structure/application.css?#include("admin/admin_version.txt.vm")"></link>
+        <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/patterns/modalbox.css?#include("admin/admin_version.txt.vm")"></link>
         #if ($useCompressJS)
-            <link href="$req.getContextPath()/stylesheets/vm/vm.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/vm.css?#include("admin/admin_version.txt.vm")"></link>
         #else
-            <link href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/stylesheets/vm/old_ui_hack.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-            <link href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/rails_like.css?#include("admin/admin_version.txt.vm")"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/old_ui_hack.css?#include("admin/admin_version.txt.vm")"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")"></link>
+            <link rel="stylesheet" type="text/css" href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")"></link>
         #end
-    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
+        <!--[if lte IE 7]>
+          <link rel="stylesheet" type="text/css" href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")"></link>
+        <![endif]-->
     #end
 
     ## Some VM pages specify extra CSS files they need.
@@ -71,22 +71,22 @@
     #end
 
     #if ($useCompressJS || $useNewRails)
-        <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
+        <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
     #else
-        <script src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")"></script>
         <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery_no_conflict.js"></script>
-        <script src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/effects-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/accordion-2.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/controls-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/dragdrop-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/modalbox-1.6.1.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/slider-1.8.0.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/trimpath-template-1.0.38.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-        <script src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/effects-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/accordion-2.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/controls-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/dragdrop-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/modalbox-1.6.1.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/slider-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/trimpath-template-1.0.38.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")"></script>
+        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")"></script>
         <script type="text/javascript" src="$req.getContextPath()/javascripts/build_base_observer.js"></script>
         <script type="text/javascript" src="$req.getContextPath()/javascripts/json_to_css.js"></script>
         <script type="text/javascript" src="$req.getContextPath()/javascripts/admin.js"></script>

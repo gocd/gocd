@@ -54,16 +54,22 @@
             <link href="$req.getContextPath()/stylesheets/vm/layout_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
             <link href="$req.getContextPath()/stylesheets/vm/jef_override_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
         #end
-
-
     <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
-        #if($extra_css_list)
+    #end
+
+    ## Some VM pages specify extra CSS files they need.
+    #if($extra_css_list)
+        #if($useNewRails)
             #foreach($css_name in $extra_css_list)
-            <link href="$req.getContextPath()/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
+                <link href="$req.getContextPath()/$pathResolver.getAssetPath("css/${css_name}.css")" rel="stylesheet" type="text/css"/>
+            #end
+        #else
+            #foreach($css_name in $extra_css_list)
+                <link href="$req.getContextPath()/css/${css_name}.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"/>
             #end
         #end
-
     #end
+
     #if ($useCompressJS || $useNewRails)
         <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
     #else

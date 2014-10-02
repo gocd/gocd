@@ -178,6 +178,7 @@ public class GoVelocityViewTest {
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
+        assertThat((RailsAssetsService) velocityContext.get(GoVelocityView.PATH_RESOLVER), is(railsAssetsService));
     }
 
     @Test

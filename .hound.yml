@@ -18,3 +18,4 @@ ShowCopNames: true
 
 java_script:
   enabled: true
+  config_file: .hound.javascript.json

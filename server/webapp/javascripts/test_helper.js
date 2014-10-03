@@ -15,53 +15,84 @@
  *************************GO-LICENSE-END**********************************/
 
 var MockXHR = Class.create({
-  initialize: function(responseHeaders, responseText){
-    this.status = 0;
-    this.readyState = 0;
-    this.onreadystatechange = Prototype.emptyFunction;
-    this.headers = responseHeaders ? responseHeaders : {};
-    this.setResponseCode();
-    this.responseText = responseText ? responseText : '';
-  },
-  setResponseHeaders: function(headers){
-    this.headers;
-  },
-  setResponseText: function(text){
-    this.responseText = text;
-  },
-  setResponseCode: function(){
-    if(this.headers.status){
-      this.status = this.headers.status;
+    initialize: function(responseHeaders, responseText){
+        this.status = 0;
+        this.readyState = 0;
+        this.onreadystatechange = Prototype.emptyFunction;
+        this.headers = responseHeaders ? responseHeaders : {};
+        this.setResponseCode();
+        this.responseText = responseText ? responseText : '';
+
+        this.headersSentInRequest = {};
+        this.bodyOfRequest = "";
+        this.urlOfRequest = "";
+        this.methodOfRequest = "";
+    },
+    setResponseHeaders: function(headers){
+        this.headers;
+    },
+    setResponseText: function(text){
+        this.responseText = text;
+    },
+    setResponseCode: function(){
+        if(this.headers.status){
+            this.status = this.headers.status;
+        }
+        if(this.headers.statusText){
+            this.statusText = this.headers.statusText;
+        }
+    },
+    process: function(){
+        if(this.readyState < 0 || this.readyState > 4){
+            return;
+        }
+        this.readyState++;
+        this.onreadystatechange();
+        this.process();
+    },
+    /* mock methods */
+    getResponseHeader: function(name){
+        return this.headers[name];
+    },
+    setRequestHeader: function(name, value){
+        console.log("Got header: " + name + " " + value);
+        this.headersSentInRequest[name] = value;
+    },
+    open: function(method, url, asynchronous){
+        this.urlOfRequest = url;
+        this.methodOfRequest = url;
+    },
+    send: function(body){
+        this.bodyOfRequest = body;
+        this.process();
     }
-    if(this.headers.statusText){
-      this.statusText = this.headers.statusText;
-    }
-  },
-  process: function(){
-    if(this.readyState < 0 || this.readyState > 4){
-      return;
-    }
-    this.readyState++;
-    this.onreadystatechange();
-    this.process();
-  },
-  /* mock methods */
-  getResponseHeader: function(name){
-    return this.headers[name];
-  },
-  setRequestHeader: function(name, value){
-    //do nothing
-  },
-  open: function(method, url, asynchronous){
-    
-  },
-  send: function(body){
-    this.process();
-  }
 });
 
+function getReadyToMockRequests() {
+    window.originalTransport = window.Ajax.getTransport;
+}
+
+function cleanUpMockRequests() {
+    window.Ajax.getTransport = window.originalTransport;
+    window.originalTransport = null;
+    window.currentTransport = null;
+}
+
 function prepareMockRequest(responseHeaders, responseText){
-  window.Ajax.getTransport = function(){
-    return new MockXHR(responseHeaders, responseText);
-  };
+    window.Ajax.getTransport = function() {
+        window.currentTransport = new MockXHR(responseHeaders, responseText);
+        return window.currentTransport;
+    };
+}
+
+function getHeadersOfPreviousRequest() {
+    return window.currentTransport.headersSentInRequest;
+}
+
+function getBodyOfPreviousRequest() {
+    return window.currentTransport.bodyOfRequest;
+}
+
+function getUrlOfPreviousRequest() {
+    return window.currentTransport.urlOfRequest;
 }

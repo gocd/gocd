@@ -125,7 +125,6 @@ describe "_form.html.erb" do
   it "should not generate the id for url and username fields" do
     render :partial => "admin/materials/svn/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "foo"}}
 
-    puts response.body
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")
       expect(text_field[3]).to_not have_selector("input[type='text'][class='form_input username'][id]")

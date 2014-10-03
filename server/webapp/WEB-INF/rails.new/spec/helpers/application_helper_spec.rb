@@ -175,10 +175,15 @@ describe ApplicationHelper do
   end
 
   it "should honor system property to choose between compressed js or individual files" do
-    SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, false.to_s)
-    use_compressed_js?.should be_false
-    SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, true.to_s)
-    use_compressed_js?.should be_true
+    original_value = SystemEnvironment.new.getPropertyImpl(GoConstants::USE_COMPRESSED_JAVASCRIPT)
+    begin
+      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, false.to_s)
+      use_compressed_js?.should be_false
+      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, true.to_s)
+      use_compressed_js?.should be_true
+    ensure
+      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, original_value)
+    end
   end
 
   it "should generate object_id based dom id" do

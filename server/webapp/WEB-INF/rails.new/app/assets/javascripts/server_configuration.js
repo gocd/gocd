@@ -44,12 +44,12 @@ ServerConfiguration = function(validation_url) {
         $(elementId).removeClassName("ok_message").addClassName("error_message").update(message).show();
     };
 
-    var reloadCommandRepoCache = function(url, statusElementId, csrf_token) {
+    var reloadCommandRepoCache = function(url, statusElementId, csrfToken) {
         showMessage(statusElementId, "Reloading ...");
         new Ajax.Request(url, {
             method: 'POST',
             requestHeaders: {
-                'X-CSRF-Token': csrf_token
+                'X-CSRF-Token': csrfToken
             },
             onSuccess: function() {
                 showSuccess(statusElementId, "Done!");
@@ -67,7 +67,7 @@ ServerConfiguration = function(validation_url) {
         validateHostName: function(id, error_id) {
             validate(id, error_id, "hostName");
         },
-        sendTestEmail: function(form, url, csrf_token) {
+        sendTestEmail: function(form, url, csrfToken) {
             showSuccess('admin_mail_error_message', 'Sending...');
             new Ajax.Request(url, {
                 method: 'POST',
@@ -81,7 +81,7 @@ ServerConfiguration = function(validation_url) {
                     '&server_configuration_form[from]=' + encodeURIComponent($('server_configuration_form_from').value) +
                     '&server_configuration_form[adminMail]=' + encodeURIComponent($('server_configuration_form_adminMail').value),
                 requestHeaders: {
-                    'X-CSRF-Token': csrf_token
+                    'X-CSRF-Token': csrfToken
                 },
                 onSuccess: function(transport) {
                     var jsonText = transport.responseText;
@@ -94,8 +94,8 @@ ServerConfiguration = function(validation_url) {
                 }
             });
         },
-        validateLdapSettings: function(form, url, message_id, csrf_token) {
-            showMessage(message_id, 'Testing ldap connectivity...');
+        validateLdapSettings: function(form, url, messageId, csrfToken) {
+            showMessage(messageId, 'Testing ldap connectivity...');
             new Ajax.Request(url, {
                 method: 'POST',
                 parameters: 'server_configuration_form[ldap_uri]=' + encodeURIComponent($('server_configuration_form_ldap_uri').value) +
@@ -106,15 +106,15 @@ ServerConfiguration = function(validation_url) {
                     '&server_configuration_form[ldap_search_base]=' + encodeURIComponent($('server_configuration_form_ldap_search_base').value) +
                     '&server_configuration_form[ldap_search_filter]=' + encodeURIComponent($('server_configuration_form_ldap_search_filter').value),
                 requestHeaders: {
-                    'X-CSRF-Token': csrf_token
+                    'X-CSRF-Token': csrfToken
                 },
                 onSuccess: function(transport) {
                     var jsonText = transport.responseText;
                     var value = jsonText.evalJSON();
                     if (value.error) {
-                        showFailure(message_id, value.error);
+                        showFailure(messageId, value.error);
                     } else {
-                        showSuccess(message_id, value.success);
+                        showSuccess(messageId, value.success);
                     }
                 }
             });

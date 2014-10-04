@@ -26,14 +26,16 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
+
 
 ##    new files from less starts
     #if($useNewRails)
-            <link href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" rel="stylesheet" />
-            <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link rel="shortcut icon" href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"/>
+        <link href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" rel="stylesheet" />
+        <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" rel="stylesheet" />
     #else
+        <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
         <link href="$req.getContextPath()/stylesheets/css_sass/css_sass.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
     ##    new files from less ends
 

@@ -57,9 +57,7 @@
             {for file in modification.modifiedFiles}
             <tr class="{if file_index%2==0} even {else} odd {/if}">
                 <td title="${%file.action%}" class="${%file.action%}">
-                        <span class="modified_file">
-                            <img src="$req.getContextPath()/images/table_${%file.action%}.gif" alt="${%file.action%}" hspace="4"/>${%file.fileName%}
-                        </span>
+                        <span class="modified_file">${%file.fileName%}</span>
                 </td>
             </tr>
             {/for}

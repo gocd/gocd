@@ -216,11 +216,11 @@ describe PipelinesController do
 
     it "should skip verify authenticity token" do
       @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
-      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new())
+      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new)
 
       controller.should_not_receive(:verify_authenticity_token)
 
-      post 'show', :pipeline_name => 'blah-pipeline-name'
+      post 'show', pipeline_name: 'blah-pipeline-name'
     end
   end
 
@@ -232,7 +232,7 @@ describe PipelinesController do
       expected.add("bar","bar_value")
       @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(expected)
 
-      post 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
+      post 'show_for_trigger', pipeline_name: 'blah-pipeline-name'
 
       expect(assigns[:pipeline]).to eq(@pim)
     end
@@ -243,11 +243,11 @@ describe PipelinesController do
 
     it "should skip verify authenticity token" do
       @pipeline_history_service.should_receive(:latest).with("blah-pipeline-name", @user).and_return(@pim)
-      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new())
+      @go_config_service.should_receive(:variablesFor).with("blah-pipeline-name").and_return(EnvironmentVariablesConfig.new)
 
       controller.should_not_receive(:verify_authenticity_token)
 
-      post 'show_for_trigger', :pipeline_name => 'blah-pipeline-name'
+      post 'show_for_trigger', pipeline_name: 'blah-pipeline-name'
     end
   end
 

@@ -39,9 +39,9 @@ describe 'gadgets/pipeline/index.xml.erb' do
       Nokogiri::XML(response.body).xpath("/Module/ModulePrefs[@title='Pipeline Status']").tap do |module_prefs|
         module_prefs.xpath("OAuth").tap do |oauth|
           oauth.xpath("Service[@name='Go']").tap do |service|
-            expect(service.xpath("Request[@method='GET'][@url='http://test.host/admin/oauth/token']")).to_not be_nil_or_empty
-            expect(service.xpath("Access[@method='GET'][@url='http://test.host/admin/oauth/token']")).to_not be_nil_or_empty
-            expect(service.xpath("Authorization[@url='http://test.host/admin/oauth/authorize']")).to_not be_nil_or_empty
+            expect(service.xpath("Request[@method='GET'][@url='http://test.host/oauth/token']")).to_not be_nil_or_empty
+            expect(service.xpath("Access[@method='GET'][@url='http://test.host/oauth/token']")).to_not be_nil_or_empty
+            expect(service.xpath("Authorization[@url='http://test.host/oauth/authorize']")).to_not be_nil_or_empty
           end
         end
       end

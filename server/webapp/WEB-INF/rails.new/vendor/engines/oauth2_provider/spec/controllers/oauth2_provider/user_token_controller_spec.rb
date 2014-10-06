@@ -2,7 +2,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "spec_hel
 
 module Oauth2Provider
   describe Oauth2Provider::UserTokensController do
-    describe 'index' do
+    describe "index" do
       before :each do
         @user_id = 42
         allow(@controller).to receive(:current_user_id_for_oauth).and_return(@user_id)
@@ -18,7 +18,7 @@ module Oauth2Provider
       end
     end
   
-    describe 'revoke' do
+    describe "revoke" do
       before :each do
         @token = create(Oauth2Provider::Token)
         allow(@controller).to receive(:current_user_id_for_oauth).and_return(@token.user_id)
@@ -26,7 +26,7 @@ module Oauth2Provider
     
       it "should revoke token" do
         delete :revoke, {use_route: :oauth_engine}.merge({token_id: @token.id})
-        expect(response).to redirect_to("/oauth2_provider/user_tokens")
+        expect(response).to redirect_to("/oauth2_provider/for-user/user_tokens")
       end
       
       it "should not revoke if token is invalid" do
@@ -44,7 +44,7 @@ module Oauth2Provider
       end
     end
     
-    describe 'revoke_by_admin' do
+    describe "revoke_by_admin" do
       before :each do
         @token = create(Oauth2Provider::Token)
         allow(@controller).to receive(:current_user_id_for_oauth).and_return(@token.user_id)
@@ -65,13 +65,13 @@ module Oauth2Provider
       
       it "should revoke token by admin" do
         delete :revoke_by_admin, {use_route: :oauth_engine}.merge({user_id: @token.user_id, token_id: @token.id})
-        expect(response).to redirect_to("/oauth2_provider/user_tokens")
+        expect(response).to redirect_to("/oauth2_provider/for-user/user_tokens")
         expect(flash[:notice]).to eq("OAuth access token was successfully deleted.")
       end
       
       it "should revoke all tokens for user" do
         delete :revoke_by_admin, {use_route: :oauth_engine}.merge({user_id: @token.user_id})
-        expect(response).to redirect_to("/oauth2_provider/user_tokens")
+        expect(response).to redirect_to("/oauth2_provider/for-user/user_tokens")
         expect(flash[:notice]).to eq("OAuth access token was successfully deleted.")
       end
     end

@@ -94,7 +94,7 @@
                                 <a>User Summary</a>
                             </li>
 
-                            <li id="oauth-clients-tab-button" class="$server_configuration_css_class external_pointing" onclick="location.href = '/go/admin/oauth/clients';">
+                            <li id="oauth-clients-tab-button" class="$server_configuration_css_class external_pointing" onclick="location.href = '/go/oauth/admin/clients';">
                                 <a class="tab_button_body_match_text">oauth-clients</a>
                                 <a>OAuth Clients</a>
                             </li>

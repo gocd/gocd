@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.SchedulingContext;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -32,11 +30,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.PipelineScheduleQueue;
-import com.thoughtworks.go.server.service.PipelineScheduler;
-import com.thoughtworks.go.server.service.PipelineService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -46,6 +40,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.utils.Assertions.assertAlwaysHappens;
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
@@ -84,10 +81,14 @@ public class ScheduleHelper {
     }
 
     public Pipeline schedule(final PipelineConfig pipelineConfig, final BuildCause buildCause, final String approvedBy) {
+        return schedule(pipelineConfig, buildCause, approvedBy, new DefaultSchedulingContext(approvedBy));
+    }
+
+    public Pipeline schedule(final PipelineConfig pipelineConfig, final BuildCause buildCause, final String approvedBy, final SchedulingContext schedulingContext) {
         return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 materialRepository.save(buildCause.getMaterialRevisions());
-                Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy), "md5-test", new TimeProvider());
+                Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, schedulingContext, "md5-test", new TimeProvider());
                 pipeline = pipelineService.save(pipeline);
                 return pipeline;
             }

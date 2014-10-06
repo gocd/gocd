@@ -184,7 +184,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public void save(long jobId, JobPlan plan) {
         for (Resource resource : plan.getResources()) {
             resource.setBuildId(jobId);
-            resourceRepository.save(resource);
+            resourceRepository.saveCopyOf(resource);
         }
         for (ArtifactPropertiesGenerator generator : plan.getPropertyGenerators()) {
             generator.setJobId(jobId);

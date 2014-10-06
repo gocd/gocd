@@ -22,16 +22,12 @@ module Oauth2Provider
       token_2 = create(Oauth2Provider::Token)
       @tokens = [token_1, token_2]
 
-      expect(view).to receive(:url_for).
-        with(action: :revoke,
-             token_id: token_1.id,
-             controller: "user_tokens").
+      expect(view).to receive(:user_tokens_revoke_path).
+        with(token_id: token_1.id).
         and_return("/revoke/token_1")
 
-      expect(view).to receive(:url_for).
-        with(action: :revoke,
-             token_id: token_2.id,
-             controller: "user_tokens").
+      expect(view).to receive(:user_tokens_revoke_path).
+        with(token_id: token_2.id).
         and_return("/revoke/token_2")
 
       render
@@ -41,15 +37,13 @@ module Oauth2Provider
           rows[1].all("td").tap do |columns|
             expect(columns[0].text).to eq(token_1.oauth_client.name)
             expect(columns[1]).
-              to have_selector("a.delete_link[@href='/revoke/token_1']",
-                               text: "Delete")
+              to have_selector("form#delete_token_0[@action='/revoke/token_1']")
           end
 
           rows[2].all("td").tap do |columns|
             expect(columns[0].text).to eq(token_2.oauth_client.name)
             expect(columns[1]).
-              to have_selector("a.delete_link[@href='/revoke/token_2']",
-                               text: "Delete")
+              to have_selector("form#delete_token_1[@action='/revoke/token_2']")
           end
         end
     end

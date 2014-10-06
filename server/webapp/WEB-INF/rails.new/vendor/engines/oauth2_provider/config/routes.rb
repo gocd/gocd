@@ -21,7 +21,7 @@ Oauth2Provider::Engine.routes.draw do
 
     post "/token" => "tokens#get_token", as: :tokens_get_token
 
-    delete "/user_tokens/revoke/:token_id" => "user_tokens#revoke"
+    delete "/user_tokens/revoke/:token_id" => "user_tokens#revoke", as: :user_tokens_revoke
     get "/user_tokens" => "user_tokens#index", as: :user_tokens_index
   end
 end

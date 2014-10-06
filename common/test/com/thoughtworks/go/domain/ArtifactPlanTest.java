@@ -16,22 +16,26 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
+import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -162,6 +166,20 @@ public class ArtifactPlanTest {
         assertThat(existingPlan.errors().isEmpty(), is(false));
         assertThat(existingPlan.errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
         assertThat(existingPlan.errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
+    }
 
+    @Test
+    public void shouldBeAbleToCreateACopyOfItself() throws Exception {
+        ArtifactPlan existingPlan = new ArtifactPlan(ArtifactType.file, "src1", "dest1");
+        existingPlan.setId(2);
+        existingPlan.setBuildId(10);
+        existingPlan.addError("abc", "def");
+
+        ArtifactPlan newPlan = new ArtifactPlan(existingPlan);
+
+        String reason = "\nExpected: " + reflectionToString(existingPlan) + "\n but was: " + reflectionToString(newPlan);
+        assertThat(reason, existingPlan, equalTo(newPlan));
+        assertThat(reason, EqualsBuilder.reflectionEquals(existingPlan, newPlan), is(true));
+        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingPlan), newPlan), is(true));
     }
 }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.domain.*;
@@ -40,8 +39,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNot.not;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -145,4 +143,33 @@ public class ArtifactPlanRepositoryIntegrationTest {
         assertThat(loadedArtifactPlan, is(savedArtifactPlan));
     }
 
+    @Test
+    public void shouldSaveACopyOfAnArtifactPlan() {
+        // Arrange
+        JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
+        JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
+        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+
+        // Act
+        artifactPlan.setBuildId(firstJobInstance.getId());
+        ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(artifactPlan);
+
+        artifactPlan.setBuildId(secondJobInstance.getId());
+        ArtifactPlan artifactPlanOfSecondJob = artifactPlanRepository.saveCopyOf(artifactPlan);
+
+        // Assert
+        List<ArtifactPlan> firstJobArtifactPlans = artifactPlanRepository.findByBuildId(firstJobInstance.getId());
+        assertThat(firstJobArtifactPlans.size(), is(1));
+        assertThat(firstJobArtifactPlans.get(0).getId(), equalTo(artifactPlanOfFirstJob.getId()));
+        assertThat(firstJobArtifactPlans, hasItem(artifactPlanOfFirstJob));
+        assertThat(artifactPlan.getId(), is(not(nullValue())));
+
+        List<ArtifactPlan> secondJobArtifactPlans = artifactPlanRepository.findByBuildId(secondJobInstance.getId());
+        assertThat(secondJobArtifactPlans.size(), is(1));
+        assertThat(secondJobArtifactPlans.get(0).getId(), equalTo(artifactPlanOfSecondJob.getId()));
+        assertThat(secondJobArtifactPlans, hasItem(artifactPlanOfSecondJob));
+        assertThat(artifactPlan.getId(), is(not(nullValue())));
+
+        assertThat(artifactPlanOfFirstJob.getId(), not(equalTo(artifactPlanOfSecondJob.getId())));
+    }
 }

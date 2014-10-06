@@ -39,4 +39,10 @@ public class ArtifactPlanRepository extends HibernateDaoSupport {
     public List<ArtifactPlan> findByBuildId(long buildId) {
         return (List<ArtifactPlan>) getHibernateTemplate().find(GET_ARTIFACT_PLANS_BY_BUILD_ID, buildId);
     }
+
+    public ArtifactPlan saveCopyOf(ArtifactPlan artifactPlan) {
+        ArtifactPlan copyOfArtifactPlan = new ArtifactPlan(artifactPlan);
+        save(copyOfArtifactPlan);
+        return copyOfArtifactPlan;
+    }
 }

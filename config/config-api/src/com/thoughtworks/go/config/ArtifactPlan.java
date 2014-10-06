@@ -16,19 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.List;
-
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
-import com.thoughtworks.go.domain.Artifact;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PersistentObject;
-import com.thoughtworks.go.domain.WildcardScanner;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.List;
 
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
@@ -59,6 +55,13 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
         setSrc(source);
         setDest(destination);
         this.artifactType = artifactType;
+    }
+
+    public ArtifactPlan(ArtifactPlan other) {
+        this(other.artifactType, other.src, other.dest);
+        this.id = other.id;
+        this.buildId = other.buildId;
+        this.errors = other.errors;
     }
 
     public File getSource(File rootPath) {

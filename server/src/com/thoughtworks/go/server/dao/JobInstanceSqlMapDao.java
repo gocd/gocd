@@ -192,7 +192,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
         for (ArtifactPlan artifactPlan : plan.getArtifactPlans()) {
             artifactPlan.setBuildId(jobId);
-            artifactPlanRepository.save(artifactPlan);
+            artifactPlanRepository.saveCopyOf(artifactPlan);
         }
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
     }

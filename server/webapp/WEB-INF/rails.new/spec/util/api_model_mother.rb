@@ -218,6 +218,7 @@ module APIModelMother
     @stage_view_model.stub(:hasOperatePermission).and_return('yes')
     @stage_view_model.stub(:getCanRun).and_return(true)
     @stage_view_model.stub(:getBuildHistory).and_return([create_job_history_model])
+    @stage_view_model.stub(:getIdentifier).and_return('random')
     @stage_view_model.stub(:getPipelineName).and_return('pipeline')
     @stage_view_model.stub(:getPipelineCounter).and_return(1)
     @stage_view_model
@@ -236,8 +237,9 @@ module APIModelMother
     @stage_view_model.stub(:hasOperatePermission).and_return(nil)
     @stage_view_model.stub(:getCanRun).and_return(nil)
     @stage_view_model.stub(:getBuildHistory).and_return([create_empty_job_history_model])
-    @stage_view_model.stub(:getPipelineName).and_return(nil)
-    @stage_view_model.stub(:getPipelineCounter).and_return(nil)
+    @stage_view_model.stub(:getIdentifier).and_return(nil)
+    @stage_view_model.stub(:getPipelineName).and_return('not-required')
+    @stage_view_model.stub(:getPipelineCounter).and_return('not-required')
     @stage_view_model
   end
 

@@ -28,8 +28,8 @@ class StageInstanceAPIModel
     @rerun_of_counter = stage_instance_model.getRerunOfCounter()
     @operate_permission = stage_instance_model.hasOperatePermission()
     @can_run = stage_instance_model.getCanRun()
-    @pipeline_name = stage_instance_model.getPipelineName()
-    @pipeline_counter = stage_instance_model.getPipelineCounter()
+    @pipeline_name = stage_instance_model.getPipelineName() unless stage_instance_model.getIdentifier() == nil
+    @pipeline_counter = stage_instance_model.getPipelineCounter() unless stage_instance_model.getIdentifier() == nil
     @jobs = stage_instance_model.getBuildHistory().collect do |job_instance_model|
       JobHistoryItemAPIModel.new(job_instance_model)
     end

@@ -44,10 +44,13 @@ ServerConfiguration = function(validation_url) {
         $(elementId).removeClassName("ok_message").addClassName("error_message").update(message).show();
     };
 
-    var reloadCommandRepoCache = function(url, statusElementId) {
+    var reloadCommandRepoCache = function(url, statusElementId, csrfToken) {
         showMessage(statusElementId, "Reloading ...");
         new Ajax.Request(url, {
             method: 'POST',
+            requestHeaders: {
+                'X-CSRF-Token': csrfToken
+            },
             onSuccess: function() {
                 showSuccess(statusElementId, "Done!");
             },
@@ -64,19 +67,22 @@ ServerConfiguration = function(validation_url) {
         validateHostName: function(id, error_id) {
             validate(id, error_id, "hostName");
         },
-        sendTestEmail: function(form, url) {
+        sendTestEmail: function(form, url, csrfToken) {
             showSuccess('admin_mail_error_message', 'Sending...');
             new Ajax.Request(url, {
                 method: 'POST',
                 parameters: 'server_configuration_form[hostName]=' + encodeURIComponent($('server_configuration_form_hostName').value) +
-                        '&server_configuration_form[port]=' + encodeURIComponent($('server_configuration_form_port').value) +
-                        '&server_configuration_form[username]=' + encodeURIComponent($('server_configuration_form_username').value) +
-                        '&server_configuration_form[encrypted_password]=' + encodeURIComponent($('server_configuration_form_encrypted_password').value) +
-                        '&server_configuration_form[password_changed]=' + encodeURIComponent($('server_configuration_form_password_changed').checked) +
-                        '&server_configuration_form[password]=' + encodeURIComponent($('server_configuration_form_password').value) +
-                        '&server_configuration_form[tls]=' + $('server_configuration_form_tls').checked +
-                        '&server_configuration_form[from]=' + encodeURIComponent($('server_configuration_form_from').value) +
-                        '&server_configuration_form[adminMail]=' + encodeURIComponent($('server_configuration_form_adminMail').value),
+                    '&server_configuration_form[port]=' + encodeURIComponent($('server_configuration_form_port').value) +
+                    '&server_configuration_form[username]=' + encodeURIComponent($('server_configuration_form_username').value) +
+                    '&server_configuration_form[encrypted_password]=' + encodeURIComponent($('server_configuration_form_encrypted_password').value) +
+                    '&server_configuration_form[password_changed]=' + encodeURIComponent($('server_configuration_form_password_changed').checked) +
+                    '&server_configuration_form[password]=' + encodeURIComponent($('server_configuration_form_password').value) +
+                    '&server_configuration_form[tls]=' + $('server_configuration_form_tls').checked +
+                    '&server_configuration_form[from]=' + encodeURIComponent($('server_configuration_form_from').value) +
+                    '&server_configuration_form[adminMail]=' + encodeURIComponent($('server_configuration_form_adminMail').value),
+                requestHeaders: {
+                    'X-CSRF-Token': csrfToken
+                },
                 onSuccess: function(transport) {
                     var jsonText = transport.responseText;
                     var value = jsonText.evalJSON();
@@ -88,24 +94,27 @@ ServerConfiguration = function(validation_url) {
                 }
             });
         },
-        validateLdapSettings: function(form, url, message_id) {
-            showMessage(message_id, 'Testing ldap connectivity...');
+        validateLdapSettings: function(form, url, messageId, csrfToken) {
+            showMessage(messageId, 'Testing ldap connectivity...');
             new Ajax.Request(url, {
                 method: 'POST',
                 parameters: 'server_configuration_form[ldap_uri]=' + encodeURIComponent($('server_configuration_form_ldap_uri').value) +
-                        '&server_configuration_form[ldap_username]=' + encodeURIComponent($('server_configuration_form_ldap_username').value) +
-                        '&server_configuration_form[ldap_password]=' + encodeURIComponent($('server_configuration_form_ldap_password').value) +
-                        '&server_configuration_form[ldap_password_changed]=' + encodeURIComponent($('server_configuration_form_ldap_password_changed').checked) +
-                        '&server_configuration_form[ldap_encrypted_password]=' + encodeURIComponent($('server_configuration_form_ldap_encrypted_password').value) +
-                        '&server_configuration_form[ldap_search_base]=' + encodeURIComponent($('server_configuration_form_ldap_search_base').value) +
-                        '&server_configuration_form[ldap_search_filter]=' + encodeURIComponent($('server_configuration_form_ldap_search_filter').value),
+                    '&server_configuration_form[ldap_username]=' + encodeURIComponent($('server_configuration_form_ldap_username').value) +
+                    '&server_configuration_form[ldap_password]=' + encodeURIComponent($('server_configuration_form_ldap_password').value) +
+                    '&server_configuration_form[ldap_password_changed]=' + encodeURIComponent($('server_configuration_form_ldap_password_changed').checked) +
+                    '&server_configuration_form[ldap_encrypted_password]=' + encodeURIComponent($('server_configuration_form_ldap_encrypted_password').value) +
+                    '&server_configuration_form[ldap_search_base]=' + encodeURIComponent($('server_configuration_form_ldap_search_base').value) +
+                    '&server_configuration_form[ldap_search_filter]=' + encodeURIComponent($('server_configuration_form_ldap_search_filter').value),
+                requestHeaders: {
+                    'X-CSRF-Token': csrfToken
+                },
                 onSuccess: function(transport) {
                     var jsonText = transport.responseText;
                     var value = jsonText.evalJSON();
                     if (value.error) {
-                        showFailure(message_id, value.error);
+                        showFailure(messageId, value.error);
                     } else {
-                        showSuccess(message_id, value.success);
+                        showSuccess(messageId, value.success);
                     }
                 }
             });

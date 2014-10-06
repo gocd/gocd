@@ -61,7 +61,8 @@
                                 <%= form.check_box :ldap_password_changed, {}, "true", "false" %>
                             <label for="server_configuration_form_ldap_password_changed"><%= l.string("CHANGE_PASSWORD") -%></label>
                             </span>
-                        <button type="button" class="submit tertiary " id="testLDAPSettings" onclick="serverConfiguration.validateLdapSettings(this, '<%=validate_ldap_settings_path%>', 'ldap_settings_validation')">
+                        <button type="button" class="submit tertiary " id="testLDAPSettings"
+                                onclick="serverConfiguration.validateLdapSettings(this, '<%= validate_ldap_settings_path %>', 'ldap_settings_validation', '<%= form_authenticity_token %>')">
                             <span><%= l.string("LDAP_VALIDATE") -%></span>
                         </button>
                         <span id="ldap_settings_validation"></span>
@@ -155,7 +156,8 @@
 
                         <label for="server_configuration_form_adminMail"><%= required_label_text(l.string("MAIL_HOST_ADMIN_MAIL")) -%></label>
                         <%= form.text_field :adminMail, :size => 30, :maxLength => 64, :onblur => "serverConfiguration.validateEmail('server_configuration_form_adminMail', 'admin_mail_error_message')" %>
-                        <button type="button" class="submit tertiary" id="testNotification" onclick="serverConfiguration.sendTestEmail(this, '<%=send_test_email_path%>')">
+                        <button type="button" class="submit tertiary" id="testNotification"
+                                onclick="serverConfiguration.sendTestEmail(this, '<%= send_test_email_path %>', '<%= form_authenticity_token %>')">
                             <span><%= l.string("MAIL_HOST_SEND_TEST_EMAIL") -%></span>
                         </button>
                         <span id="admin_mail_error_message"></span>
@@ -224,7 +226,8 @@
 
             <div class="form_item" id="lookup-command-reload">
                 <div class="button_row_with_help">
-                    <button type="button" class="submit tertiary" id="reloadCommandRepoCache" onclick="serverConfiguration.reloadCommandRepoCache('<%= admin_command_cache_reload_path -%>', 'command_repo_reload_result')">
+                    <button type="button" class="submit tertiary" id="reloadCommandRepoCache"
+                            onclick="serverConfiguration.reloadCommandRepoCache('<%= admin_command_cache_reload_path -%>', 'command_repo_reload_result', '<%= form_authenticity_token %>')">
                         <span><%= l.string("RELOAD_COMMAND_REPO_CACHE") -%></span>
                     </button>
                     <div class="contextual_help has_go_tip_right" style='float:right;' title="<%= l.string("TOOLTIP_COMMAND_REPOSITORY_CACHE_RELOAD") -%>"></div>

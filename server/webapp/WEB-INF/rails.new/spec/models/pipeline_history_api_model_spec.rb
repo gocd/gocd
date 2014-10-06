@@ -37,9 +37,6 @@ describe PipelineHistoryAPIModel do
       pipeline_instance_api_model.natural_order.should == 1
       pipeline_instance_api_model.can_run.should == true
       pipeline_instance_api_model.preparing_to_schedule.should == false
-      pipeline_instance_api_model.currently_locked.should == false
-      pipeline_instance_api_model.lockable.should == true
-      pipeline_instance_api_model.can_unlock.should == false
 
       build_cause_api_model = pipeline_instance_api_model.build_cause
       build_cause_api_model.trigger_message.should == 'message'
@@ -62,10 +59,6 @@ describe PipelineHistoryAPIModel do
       modification_api_model.user_name.should == 'user name'
       modification_api_model.comment.should == 'comment'
       modification_api_model.email_address.should == 'test@test.com'
-
-      modified_file_api_model = modification_api_model.modified_files[0]
-      modified_file_api_model.file_name.should == 'file-name'
-      modified_file_api_model.action.should == 'add'
 
       stage_instance_api_model = pipeline_instance_api_model.stages[0]
       stage_instance_api_model.id.should == 456
@@ -113,9 +106,6 @@ describe PipelineHistoryAPIModel do
       pipeline_instance_api_model.natural_order.should == nil
       pipeline_instance_api_model.can_run.should == nil
       pipeline_instance_api_model.preparing_to_schedule.should == nil
-      pipeline_instance_api_model.currently_locked.should == nil
-      pipeline_instance_api_model.lockable.should == nil
-      pipeline_instance_api_model.can_unlock.should == nil
 
       build_cause_api_model = pipeline_instance_api_model.build_cause
       build_cause_api_model.trigger_message.should == nil
@@ -138,10 +128,6 @@ describe PipelineHistoryAPIModel do
       modification_api_model.user_name.should == nil
       modification_api_model.comment.should == nil
       modification_api_model.email_address.should == nil
-
-      modified_file_api_model = modification_api_model.modified_files[0]
-      modified_file_api_model.file_name.should == nil
-      modified_file_api_model.action.should == nil
 
       stage_instance_api_model = pipeline_instance_api_model.stages[0]
       stage_instance_api_model.id.should == nil

@@ -36,10 +36,6 @@ describe MaterialHistoryAPIModel do
       modification_api_model.user_name.should == 'user name'
       modification_api_model.comment.should == 'comment'
       modification_api_model.email_address.should == 'test@test.com'
-
-      modified_file_api_model = modification_api_model.modified_files[0]
-      modified_file_api_model.file_name.should == 'file-name'
-      modified_file_api_model.action.should == 'add'
     end
 
     it "should handle empty data" do
@@ -58,10 +54,6 @@ describe MaterialHistoryAPIModel do
       modification_api_model.user_name.should == nil
       modification_api_model.comment.should == nil
       modification_api_model.email_address.should == nil
-
-      modified_file_api_model = modification_api_model.modified_files[0]
-      modified_file_api_model.file_name.should == nil
-      modified_file_api_model.action.should == nil
     end
   end
 end

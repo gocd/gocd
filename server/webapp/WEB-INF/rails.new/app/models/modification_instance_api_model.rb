@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class ModificationInstanceAPIModel
-  attr_reader :id, :revision, :modified_time, :user_name, :comment, :email_address, :modified_files
+  attr_reader :id, :revision, :modified_time, :user_name, :comment, :email_address
 
   def initialize(modification_instance_model)
     @id = modification_instance_model.getId()
@@ -24,10 +24,5 @@ class ModificationInstanceAPIModel
     @user_name = modification_instance_model.getUserName()
     @comment = modification_instance_model.getComment()
     @email_address = modification_instance_model.getEmailAddress()
-    if modification_instance_model.getModifiedFiles() != nil
-      @modified_files = modification_instance_model.getModifiedFiles().collect do |modified_file|
-        ModifiedFileAPIModel.new(modified_file)
-      end
-    end
   end
 end

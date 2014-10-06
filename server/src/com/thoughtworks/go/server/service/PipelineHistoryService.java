@@ -129,6 +129,11 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return history;
     }
 
+	/*
+	 * Load just enough data for Pipeline History API. The API is complete enough to build Pipeline History Page. Does following:
+	 * Exists check, Authorized check, Loads paginated pipeline data, Populates build-cause,
+	 * Populates future stages as empty, Populates can run for pipeline & each stage, Populate stage run permission
+	 */
 	public PipelineInstanceModels loadMinimalData(String pipelineName, Pagination pagination, String username, OperationResult result) {
 		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
 			result.notFound("Not Found", "Pipeline " + pipelineName + " not found", HealthStateType.general(HealthStateScope.GLOBAL));

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
+
+import java.io.Serializable;
 
 @ConfigTag("resource")
 public class Resource extends PersistentObject implements Serializable, Comparable<Resource>, Validatable {
@@ -37,6 +37,13 @@ public class Resource extends PersistentObject implements Serializable, Comparab
 
     public Resource(String name) {
         setName(name);
+    }
+
+    public Resource(Resource resource) {
+        this(resource.name);
+        this.id = resource.id;
+        this.buildId = resource.buildId;
+        this.configErrors = resource.configErrors;
     }
 
     public String getName() {

@@ -41,8 +41,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNot.not;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -111,5 +110,32 @@ public class ArtifactPropertiesGeneratorRepositoryIntegrationTest {
         // Assert
         assertThat(artifactPropertiesGeneratorList.size(), is(1));
         assertThat(artifactPropertiesGeneratorList.get(0), is(savedArtifactPropertiesGenerator));
+    }
+
+    @Test
+    public void shouldSaveACopyOfAnArtifactPropertiesGenerator() {
+        // Arrange
+        JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
+        JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
+        ArtifactPropertiesGenerator generator = new ArtifactPropertiesGenerator("test", "src", "//xpath");
+
+        // Act
+        generator.setJobId(firstJobInstance.getId());
+        ArtifactPropertiesGenerator generatorOfFirstJob = artifactPropertiesGeneratorRepository.saveCopyOf(generator);
+
+        generator.setJobId(secondJobInstance.getId());
+        ArtifactPropertiesGenerator generatorOfSecondJob = artifactPropertiesGeneratorRepository.saveCopyOf(generator);
+
+        // Assert
+        List<ArtifactPropertiesGenerator> firstJobGenerators = artifactPropertiesGeneratorRepository.findByBuildId(firstJobInstance.getId());
+        assertThat(firstJobGenerators.size(), is(1));
+        assertThat(firstJobGenerators.get(0).getId(), equalTo(generatorOfFirstJob.getId()));
+        assertThat(firstJobGenerators, hasItem(generatorOfFirstJob));
+
+        List<ArtifactPropertiesGenerator> secondJobGenerators = artifactPropertiesGeneratorRepository.findByBuildId(secondJobInstance.getId());
+        assertThat(secondJobGenerators.size(), is(1));
+        assertThat(secondJobGenerators, hasItem(generatorOfSecondJob));
+
+        assertThat(generatorOfFirstJob.getId(), not(equalTo(generatorOfSecondJob.getId())));
     }
 }

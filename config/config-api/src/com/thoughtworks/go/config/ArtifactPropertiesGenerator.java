@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.Serializable;
-import javax.xml.xpath.XPathExpressionException;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
-import com.thoughtworks.go.util.ExceptionUtils;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.Serializable;
 
 import static java.lang.String.format;
 
@@ -52,6 +52,13 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
         this.name = name;
         this.src = src;
         this.xpath = xpath;
+    }
+
+    public ArtifactPropertiesGenerator(ArtifactPropertiesGenerator other) {
+        this(other.name, other.src, other.xpath);
+        this.id = other.id;
+        this.jobId = other.jobId;
+        this.configErrors = other.configErrors;
     }
 
     public String getName() {

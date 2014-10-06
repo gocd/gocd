@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.helper;
 
-import java.net.UnknownHostException;
-import java.net.InetAddress;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Resource;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -55,5 +56,13 @@ public class AgentMother {
 
     public static AgentConfig remoteAgent() {
         return new AgentConfig("uuid-remote-" + UUID.randomUUID(), "remoteAgent", "254.254.254.254");
+    }
+
+    public static AgentConfig localAgentWithResources(String... resources) {
+        AgentConfig agentConfig = localAgent();
+        for (String resource : resources) {
+            agentConfig.addResource(new Resource(resource));
+        }
+        return agentConfig;
     }
 }

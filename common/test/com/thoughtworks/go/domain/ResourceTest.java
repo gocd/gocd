@@ -16,18 +16,17 @@
 
 package com.thoughtworks.go.domain;
 
-import java.lang.reflect.Field;
-
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.TemplatesConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+
+import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -124,5 +123,18 @@ public class ResourceTest {
         assertThat(resourceA.compareTo(resourceA), is(0));        
     }
 
+    @Test
+    public void shouldBeAbleToCreateACopyOfItself() throws Exception {
+        Resource existingResource = new Resource("some-name");
+        existingResource.setId(2);
+        existingResource.setBuildId(10);
+        existingResource.addError("abc", "def");
 
+        Resource newResource = new Resource(existingResource);
+
+        String reason = "\nExpected: " + reflectionToString(existingResource) + "\n but was: " + reflectionToString(newResource);
+        assertThat(reason, existingResource, equalTo(newResource));
+        assertThat(reason, EqualsBuilder.reflectionEquals(existingResource, newResource), is(true));
+        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingResource), newResource), is(true));
+    }
 }

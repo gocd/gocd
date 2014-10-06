@@ -28,6 +28,12 @@ public class ResourceRepository extends HibernateDaoSupport {
         }
     }
 
+    public Resource saveCopyOf(Resource resource) {
+        Resource copyOfResource = new Resource(resource);
+        save(copyOfResource);
+        return copyOfResource;
+    }
+
     public List<Resource> findByBuildId(long buildId) {
         return (List<Resource>) getHibernateTemplate().find(GET_RESOURCES_BY_BUILD_ID, buildId);
     }

@@ -41,8 +41,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNot.not;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -111,5 +110,32 @@ public class ResourceRepositoryIntegrationTest {
         // Assert
         assertThat(resourceList.size(), is(1));
         assertThat(resourceList.get(0), is(savedResource));
+    }
+
+    @Test
+    public void shouldSaveACopyOfAResource() {
+        // Arrange
+        JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
+        JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
+        Resource resource = new Resource("something");
+
+        // Act
+        resource.setBuildId(firstJobInstance.getId());
+        Resource resourceOfFirstJob = resourceRepository.saveCopyOf(resource);
+
+        resource.setBuildId(secondJobInstance.getId());
+        Resource resourceOfSecondJob = resourceRepository.saveCopyOf(resource);
+
+        // Assert
+        List<Resource> firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());
+        assertThat(firstJobResources.size(), is(1));
+        assertThat(firstJobResources.get(0).getId(), equalTo(resourceOfFirstJob.getId()));
+        assertThat(firstJobResources, hasItem(resourceOfFirstJob));
+
+        List<Resource> secondJobResources = resourceRepository.findByBuildId(secondJobInstance.getId());
+        assertThat(secondJobResources.size(), is(1));
+        assertThat(secondJobResources, hasItem(resourceOfSecondJob));
+
+        assertThat(resourceOfFirstJob.getId(), not(equalTo(resourceOfSecondJob.getId())));
     }
 }

@@ -16,11 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
@@ -31,10 +27,18 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -118,6 +122,20 @@ public class ArtifactPropertiesGeneratorTest {
         assertThat(generator.errors().on("src"), is("Source invalid"));
     }
 
+    @Test
+    public void shouldBeAbleToCreateACopyOfItself() throws Exception {
+        ArtifactPropertiesGenerator existingGenerator = new ArtifactPropertiesGenerator("prop1", "props.xml", "//some_xpath");
+        existingGenerator.setId(2);
+        existingGenerator.setJobId(10);
+        existingGenerator.addError("abc", "def");
+
+        ArtifactPropertiesGenerator newGenerator = new ArtifactPropertiesGenerator(existingGenerator);
+
+        String reason = "\nExpected: " + reflectionToString(existingGenerator) + "\n but was: " + reflectionToString(newGenerator);
+        assertThat(reason, existingGenerator, equalTo(newGenerator));
+        assertThat(reason, EqualsBuilder.reflectionEquals(existingGenerator, newGenerator), is(true));
+        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingGenerator), newGenerator), is(true));
+    }
 
     private File createSrcFile() throws IOException {
         String content = "<buildplans>\n"

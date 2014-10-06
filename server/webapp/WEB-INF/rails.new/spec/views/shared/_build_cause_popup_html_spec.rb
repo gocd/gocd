@@ -63,39 +63,42 @@ describe "/shared/_build_cause_popup.html.erb" do
         expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", :text => "Subversion - #{SVN_MATERIAL_NAME}")
       end
       build_cause.find("##{@svn_material_id}_0.change.changed").tap do |first_svn_material_modification|
-        expect(first_svn_material_modification).to have_selector(".revision", :text => "1234 - vsm")
-        expect(first_svn_material_modification).to have_selector(".revision a[href='/materials/value_stream_map/#{@svn_revisions.materials().get(0).getFingerprint()}/1234']", :text => "vsm")
-        expect(first_svn_material_modification).to have_selector(".modified_by", :text => "username#{@date.iso8601}")
+        expect(first_svn_material_modification).to have_selector(".revision", text: "1234 - vsm")
+        vsm_url = "/materials/value_stream_map/#{@svn_revisions.materials().get(0).getFingerprint()}/1234"
+        expect(first_svn_material_modification).to have_selector(".revision a[href='#{vsm_url}']", text: "vsm")
+        expect(first_svn_material_modification).to have_selector(".modified_by", text: "username#{@date.iso8601}")
         #expect(first_svn_material_modification.find(".comment").text.strip).to eq("<p><a href=\"http://pavan/42\" target=\"story_tracker\">#42</a> I changed something</p>")
         expect(first_svn_material_modification).to_not have_selector(".modified_files")
       end
 
       build_cause.find("##{@hg_material_id}").tap do |hg_material|
-        expect(hg_material).to have_selector("#material_#{@hg_revisions.materials().get(0).getPipelineUniqueFingerprint()}", :text => "Mercurial - #{HG_MATERIAL_NAME}")
+        expect(hg_material).to have_selector("#material_#{@hg_revisions.materials().get(0).getPipelineUniqueFingerprint()}", text: "Mercurial - #{HG_MATERIAL_NAME}")
       end
       build_cause.find("##{@hg_material_id}_0.change").tap do |first_hg_material_modification|
-        expect(first_hg_material_modification).to have_selector(".revision", :text => "9fdcf27f16eadc362733328dd481d8a2c29915e1 - vsm")
-        expect(first_hg_material_modification).to have_selector(".revision a[href='/materials/value_stream_map/#{@hg_revisions.materials().get(0).getFingerprint()}/9fdcf27f16eadc362733328dd481d8a2c29915e1']", :text => "vsm")
-        expect(first_hg_material_modification).to have_selector(".modified_by", :text => "user2#{ModificationsMother::TODAY_CHECKIN.iso8601}")
+        expect(first_hg_material_modification).to have_selector(".revision", text: "9fdcf27f16eadc362733328dd481d8a2c29915e1 - vsm")
+        vsm_url = "/materials/value_stream_map/#{@hg_revisions.materials().get(0).getFingerprint()}/9fdcf27f16eadc362733328dd481d8a2c29915e1"
+        expect(first_hg_material_modification).to have_selector(".revision a[href='#{vsm_url}']", text: "vsm")
+        expect(first_hg_material_modification).to have_selector(".modified_by", text: "user2#{ModificationsMother::TODAY_CHECKIN.iso8601}")
         expect(first_hg_material_modification.find(".comment").text.strip).to eq("comment2")
         expect(first_hg_material_modification).to_not have_selector(".modified_files")
       end
       build_cause.find("##{@hg_material_id}_1.change").tap do |second_hg_material_modification|
-        expect(second_hg_material_modification).to have_selector(".revision", :text => "eef77acd79809fc14ed82b79a312648d4a2801c6 - vsm")
-        expect(second_hg_material_modification).to have_selector(".revision a[href='/materials/value_stream_map/#{@hg_revisions.materials().get(0).getFingerprint()}/eef77acd79809fc14ed82b79a312648d4a2801c6']", :text => "vsm")
-        expect(second_hg_material_modification).to have_selector(".modified_by", :text => "user1#{ModificationsMother::TWO_DAYS_AGO_CHECKIN.iso8601}")
+        expect(second_hg_material_modification).to have_selector(".revision", text: "eef77acd79809fc14ed82b79a312648d4a2801c6 - vsm")
+        vsm_url = "/materials/value_stream_map/#{@hg_revisions.materials().get(0).getFingerprint()}/eef77acd79809fc14ed82b79a312648d4a2801c6"
+        expect(second_hg_material_modification).to have_selector(".revision a[href='#{vsm_url}']", text: "vsm")
+        expect(second_hg_material_modification).to have_selector(".modified_by", text: "user1#{ModificationsMother::TWO_DAYS_AGO_CHECKIN.iso8601}")
         expect(second_hg_material_modification.find(".comment").text.strip).to eq("comment1")
         expect(second_hg_material_modification).to_not have_selector(".modified_files")
       end
 
       dependency_material = @dependency_revisions.getMaterial()
       build_cause.find("##{@dependency_material_id}").tap do |dependency_material_node|
-        expect(dependency_material_node).to have_selector("#material_#{dependency_material.getPipelineUniqueFingerprint()}.changed", :text => "Pipeline - #{dependency_material.getDisplayName()}")
+        expect(dependency_material_node).to have_selector("#material_#{dependency_material.getPipelineUniqueFingerprint()}.changed", text: "Pipeline - #{dependency_material.getDisplayName()}")
       end
       build_cause.find("##{@dependency_material_id}_0.change.changed").tap do |first_dependency_material_modification|
-        expect(first_dependency_material_modification).to have_selector(".revision a[href='/pipelines/up_pipeline/10/up_stage/5']", :text => "up_pipeline/10/up_stage/5")
-        expect(first_dependency_material_modification).to have_selector(".label a[href='/pipelines/up_pipeline/10/up_stage/5/pipeline']", :text => "label-10")
-        expect(first_dependency_material_modification).to have_selector(".completed_at", :text => "#{@dependency_revisions.getModification(0).getModifiedTime().iso8601}")
+        expect(first_dependency_material_modification).to have_selector(".revision a[href='/pipelines/up_pipeline/10/up_stage/5']", text: "up_pipeline/10/up_stage/5")
+        expect(first_dependency_material_modification).to have_selector(".label a[href='/pipelines/up_pipeline/10/up_stage/5/pipeline']", text: "label-10")
+        expect(first_dependency_material_modification).to have_selector(".completed_at", text: "#{@dependency_revisions.getModification(0).getModifiedTime().iso8601}")
       end
     end
   end
@@ -112,10 +115,10 @@ describe "/shared/_build_cause_popup.html.erb" do
 
     Capybara.string(response.body).find(".build_cause").tap do |build_cause|
       build_cause.find("##{@svn_material_id}").tap do |svn_material|
-        expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", :text => "Subversion - #{SVN_MATERIAL_NAME}")
+        expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", text: "Subversion - #{SVN_MATERIAL_NAME}")
       end
       build_cause.find("##{@svn_material_id}_0.change.changed") do |first_svn_material_modification|
-        expect(first_svn_material_modification).to have_selector(".modified_by", :text => "&lt;script&gt;alert('Check-in user')&lt;/script&gt;#{@date.iso8601}")
+        expect(first_svn_material_modification).to have_selector(".modified_by", text: "&lt;script&gt;alert('Check-in user')&lt;/script&gt;#{@date.iso8601}")
         expect(first_svn_material_modification.find(".comment").text.strip).to eq("&lt;script&gt;alert('Check-in comment')&lt;/script&gt;")
       end
     end
@@ -131,10 +134,10 @@ describe "/shared/_build_cause_popup.html.erb" do
 
     Capybara.string(response.body).find(".build_cause").tap do |build_cause|
       build_cause.find("##{@svn_material_id}").tap do |svn_material|
-        expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", :text => "Subversion - #{SVN_MATERIAL_NAME}")
+        expect(svn_material).to have_selector("#material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed", text: "Subversion - #{SVN_MATERIAL_NAME}")
       end
       build_cause.find("##{@svn_material_id}_0.change.changed") do |first_svn_material_modification|
-        expect(first_svn_material_modification).to have_selector(".modified_by", :text => "anonymous#{@date.iso8601}")
+        expect(first_svn_material_modification).to have_selector(".modified_by", text: "anonymous#{@date.iso8601}")
       end
     end
   end
@@ -160,7 +163,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
         package_material_name_row_node = all_rows[1]
         expect(package_material_name_row_node[:id]).to eq(@package_material_id)
-        expect(package_material_name_row_node).to have_selector("#material_#{revisions.materials().get(0).getPipelineUniqueFingerprint()}", :text => "Package - #{@package_material_name}")
+        expect(package_material_name_row_node).to have_selector("#material_#{revisions.materials().get(0).getPipelineUniqueFingerprint()}", text: "Package - #{@package_material_name}")
 
         package_material_modification_row_node = all_rows[2]
         expect(package_material_modification_row_node[:id]).to eq("#{@package_material_id}_0")
@@ -182,7 +185,7 @@ describe "/shared/_build_cause_popup.html.erb" do
 
         package_material_name_row_node = all_rows[1]
         expect(package_material_name_row_node[:id]).to eq(@package_material_id)
-        expect(package_material_name_row_node).to have_selector("#material_#{revisions.materials().get(0).getPipelineUniqueFingerprint()}", :text => "Package - #{@package_material_name}")
+        expect(package_material_name_row_node).to have_selector("#material_#{revisions.materials().get(0).getPipelineUniqueFingerprint()}", text: "Package - #{@package_material_name}")
 
         package_material_modification_row_node = all_rows[2]
         expect(package_material_modification_row_node[:id]).to eq("#{@package_material_id}_0")

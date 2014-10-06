@@ -53,8 +53,8 @@ class ValueStreamMapController < ApplicationController
   end
 
   def render_vsm_json(vsm, result)
-    vsm_path_partial = proc do |name, counter| vsm_show_path(name, counter) end
-    vsm_material_path_partial = proc do |material_fingerprint, revision| vsm_show_material_path(material_fingerprint, revision) end
+    vsm_path_partial = proc { |name, counter| vsm_show_path(name, counter) }
+    vsm_material_path_partial = proc { |material_fingerprint, revision| vsm_show_material_path(material_fingerprint, revision) }
     stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
        stage_detail_tab_path(:pipeline_name => pipeline_name, :pipeline_counter => pipeline_counter, :stage_name => stage_name, :stage_counter => stage_counter)
     end

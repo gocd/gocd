@@ -120,7 +120,9 @@ public class GoServer {
 
     private void addResourceHandler(JettyServer server, WebAppContext webAppContext) throws IOException {
         if (!(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS) && systemEnvironment.useCompressedJs())) return;
-        server.addHandler(new AssetsContextHandler(systemEnvironment, webAppContext));
+        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
+        server.addHandler(handler);
+        webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
     }
 
     JettyServer createServer() {

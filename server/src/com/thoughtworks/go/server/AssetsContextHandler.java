@@ -14,9 +14,12 @@ import java.io.IOException;
 public class AssetsContextHandler extends ContextHandler {
     private SystemEnvironment systemEnvironment;
 
-    public AssetsContextHandler(SystemEnvironment systemEnvironment, WebAppContext webAppContext) throws IOException {
+    public AssetsContextHandler(SystemEnvironment systemEnvironment) throws IOException {
         super(systemEnvironment.getWebappContextPath() + "/assets");
         this.systemEnvironment = systemEnvironment;
+    }
+
+    public void init(WebAppContext webAppContext) throws IOException {
         ResourceHandler resourceHandler = new ResourceHandler();
         String railsRootDirName = webAppContext.getInitParameter("rails.root").replaceAll("/WEB-INF/", "");
         String assetsDir = webAppContext.getWebInf().addPath(String.format("%s/public/assets/", railsRootDirName)).getName();

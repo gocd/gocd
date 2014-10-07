@@ -21,7 +21,8 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment, webAppContext);
+        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
+        handler.init(webAppContext);
         assertThat(handler.getHandler() instanceof ResourceHandler, is(true));
         ResourceHandler resourceHandler = (ResourceHandler) handler.getHandler();
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
@@ -37,7 +38,8 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment, webAppContext));
+        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
@@ -54,7 +56,8 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment, webAppContext));
+        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
@@ -71,7 +74,8 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment, webAppContext));
+        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
@@ -88,7 +92,8 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment, webAppContext));
+        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);

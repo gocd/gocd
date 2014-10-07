@@ -119,10 +119,13 @@ describe ValueStreamMapModel do
     vsm_path_partial = proc do |pipeline_name, counter|
       "some/path/to/#{pipeline_name}/#{counter}"
     end
+    vsm_material_path_partial = proc do |fingerprint, revision|
+      "some/path/to/#{fingerprint}/#{revision}"
+    end
     stage_detail_path_partial = proc do |pipeline_name, counter, stage_name, stage_counter|
       "path/to/stage/#{pipeline_name}/#{counter}/#{stage_name}/#{stage_counter}"
     end
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, stage_detail_path_partial)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
     nodeThatTheGraphIsBuiltFor.id.should == "current"
@@ -187,6 +190,7 @@ describe ValueStreamMapModel do
     git_instance = nodeGit.instances[0]
     modification = modifications.get(0)
     git_instance.revision.should == modification.getRevision()
+    git_instance.locator.should == "some/path/to/git/r1"
   end
 
 
@@ -216,10 +220,13 @@ describe ValueStreamMapModel do
     vsm_path_partial = proc do |pipeline_name, counter|
       "some/path/to/#{pipeline_name}/#{counter}"
     end
+    vsm_material_path_partial = proc do |fingerprint, revision|
+      "some/path/to/#{fingerprint}/#{revision}"
+    end
     stage_detail_path_partial = proc do |pipeline_name, counter, stage_name, stage_counter|
       "path/to/stage/#{pipeline_name}/#{counter}/#{stage_name}/#{stage_counter}"
     end
-    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, stage_detail_path_partial)
+    graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
     nodeThatTheGraphIsBuiltFor.id.should == "current"
@@ -264,6 +271,7 @@ describe ValueStreamMapModel do
     nodeGit.node_type.should == "GIT"
     nodeGit.instances.size.should == 1
     nodeGit.instances[0].revision.should == "r1"
+    nodeGit.instances[0].locator.should == "some/path/to/git/r1"
   end
 
   it "should populate details of material modification like revision, user, comment and modified_time" do

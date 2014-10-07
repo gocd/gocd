@@ -25,9 +25,6 @@ class PipelineInstanceAPIModel
     @natural_order = pipeline_instance_model.getNaturalOrder()
     @can_run = pipeline_instance_model.getCanRun()
     @preparing_to_schedule = pipeline_instance_model.isPreparingToSchedule()
-    @currently_locked = pipeline_instance_model.isCurrentlyLocked()
-    @lockable = pipeline_instance_model.isLockable()
-    @can_unlock = pipeline_instance_model.canUnlock()
     @build_cause = BuildCauseAPIModel.new(pipeline_instance_model.getBuildCause())
     @stages = pipeline_instance_model.getStageHistory().collect do |stage_instance_model|
       StageInstanceAPIModel.new(stage_instance_model)

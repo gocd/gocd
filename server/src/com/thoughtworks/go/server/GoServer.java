@@ -109,12 +109,20 @@ public class GoServer {
 
         server.addHandler(welcomeFileHandler());
         server.addHandler(legacyRequestHandler());
-        server.addWebAppHandler(webApp());
-
+        WebAppContext webAppContext = webApp();
+        addResourceHandler(server, webAppContext);
+        server.addWebAppHandler(webAppContext);
         performCustomConfiguration(server);
 
         server.setStopAtShutdown(true);
         return server;
+    }
+
+    private void addResourceHandler(JettyServer server, WebAppContext webAppContext) throws IOException {
+        if (!(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS) && systemEnvironment.useCompressedJs())) return;
+        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
+        server.addHandler(handler);
+        webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
     }
 
     JettyServer createServer() {
@@ -171,7 +179,6 @@ public class GoServer {
         addExtraJarsToClasspath(wac);
         addJRubyContextInitParams(wac);
         addStopServlet(wac);
-
         return wac;
     }
 
@@ -312,5 +319,4 @@ public class GoServer {
             }
         }
     }
-
 }

@@ -104,6 +104,7 @@ task :handle_assets_rails4 do
   assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
   cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
+  rm_rf "target/webapp/WEB-INF/rails.new/app/assets"
 
   #delete assets used by rails2
   rm_rf("target/webapp/javascripts")

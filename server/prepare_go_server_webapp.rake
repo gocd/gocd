@@ -278,10 +278,11 @@ end
 task :pull_latest_sass do
   # Clear css_sass folder before regenerating new css files
   FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
+  FileUtils.remove_dir("webapp/stylesheets/css_sass", true)
 
   ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
   sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
-
+  cp_r("target/webapp/stylesheets/css_sass", "webapp/stylesheets/css_sass")
   FileUtils.remove_dir("target/webapp/sass", true)
 end
 

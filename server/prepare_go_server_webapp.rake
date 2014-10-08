@@ -221,20 +221,39 @@ def create_pathing_jar classpath_file
   sh "jar cmf #{manifest_file} #{pathing_jar}"
   pathing_jar
 end
+def set_classpath
+  server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
+  if Gem.win_platform?
+    classpath = create_pathing_jar server_test_dependency_file_path
+  else
+    classpath = File.read(server_test_dependency_file_path)
+  end
+  ENV['CLASSPATH'] = classpath
+end
 
 task :precompile_assets do
   ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  set_classpath
   if Gem.win_platform?
-    server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
-    pathing_jar = create_pathing_jar server_test_dependency_file_path
-    ENV['CLASSPATH'] = pathing_jar
     ENV['RAILS_ENV'] = "production"
     sh <<END
     cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake assets:clobber assets:precompile
 END
   else
-    classpath = File.read("target/server-test-dependencies")
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && CLASSPATH=\"#{classpath}\" RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  end
+end
+
+task :jasmine_tests do
+  ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  ENV['RAILS_ENV'] = "test"
+  set_classpath
+  if Gem.win_platform?
+    sh <<END
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake spec:javascript
+END
+  else
+    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && #{ruby} -S rake spec:javascript"
   end
 end
 

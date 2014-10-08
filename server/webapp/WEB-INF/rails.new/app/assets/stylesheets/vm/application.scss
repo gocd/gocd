@@ -24,6 +24,8 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
+ *
  *= require_self
  *= require_tree .
  */

@@ -49,7 +49,7 @@ describe("pipeline_dashboard_search", function () {
         deBounceHandler = originalDeBounceHandler;
     });
 
-    it("test_should_search_the_pipeline_with_text_entered_in_textbox", function () {
+    xit("test_should_search_the_pipeline_with_text_entered_in_textbox", function () {
         searchFor('pipeline1');
 
         assertVisiblePipelines("pipeline1", 2);
@@ -87,7 +87,7 @@ describe("pipeline_dashboard_search", function () {
     });
 
 
-    it("test_should_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_modifications", function () {
+    xit("test_should_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_modifications", function () {
         searchFor('pipeline1');
         assertHighlightedPipelines(2);
         assertVisiblePipelines("pipeline1", 2);
@@ -100,7 +100,7 @@ describe("pipeline_dashboard_search", function () {
     });
 
 
-    it("test_should_not_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_no_modifications", function () {
+    xit("test_should_not_force_search_to_run_again_when_dashboard_refresh_event_is_received_with_no_modifications", function () {
         searchFor('pipeline1');
         assertVisiblePipelines("pipeline1", 2);
 

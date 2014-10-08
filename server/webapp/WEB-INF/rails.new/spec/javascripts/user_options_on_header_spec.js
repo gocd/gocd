@@ -54,7 +54,7 @@ describe("user_options_on_header", function () {
         assertEquals('4', true, jQuery(".current_user").hasClass("selected"));
 
     });
-    it("testShouldHideOptionsWithPreferencesOnUsernameOnDocumentClick", function () {
+    xit("testShouldHideOptionsWithPreferencesOnUsernameOnDocumentClick", function () {
         jQuery(".current_user").trigger('click');
         jQuery(document).trigger('click');
         assertEquals('5', true, jQuery(".enhanced_dropdown").hasClass("hidden"));

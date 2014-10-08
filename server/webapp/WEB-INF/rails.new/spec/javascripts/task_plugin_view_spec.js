@@ -68,15 +68,12 @@ describe("task_plugin_view", function () {
             "    <button class=\"submit finish\"/>\n" +
             "\n" +
             "</form>");
+        jQuery('#plugged_task_angular_app_id input').val("").trigger("input");
+        jQuery('#empty_plugged_task_angular_app_id input').val("").trigger("input");
     });
 
     var html;
     var appName = "task_app";
-
-    beforeEach(function () {
-        jQuery('#plugged_task_angular_app_id input').val("").trigger("input");
-        jQuery('#empty_plugged_task_angular_app_id input').val("").trigger("input");
-    });
 
     // retain this test at the top, because once new TaskPluginView().initialize() is called purpose this test will be void
     it("test_should_not_bootstrap_angular_when_app_not_defined", function () {

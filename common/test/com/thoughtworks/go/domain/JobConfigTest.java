@@ -320,11 +320,20 @@ public class JobConfigTest {
 		assertThat(jobConfig.isRunMultipleInstanceType(), is(true));
 		assertThat(jobConfig.isRunOnAllAgents(), is(false));
 
-		// reset value for same job config
+		// should not reset value when correct key not present
 		HashMap map2 = new HashMap();
-		map2.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
 
 		jobConfig.setConfigAttributes(map2);
+
+		assertThat(jobConfig.getRunInstanceCountValue(), is(10));
+		assertThat(jobConfig.isRunMultipleInstanceType(), is(true));
+		assertThat(jobConfig.isRunOnAllAgents(), is(false));
+
+		// reset value for same job config
+		HashMap map3 = new HashMap();
+		map3.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
+
+		jobConfig.setConfigAttributes(map3);
 
 		assertThat(jobConfig.isRunMultipleInstanceType(), is(false));
 		assertThat(jobConfig.getRunInstanceCount(), is(nullValue()));

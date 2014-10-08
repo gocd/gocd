@@ -354,9 +354,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
 	private void setJobRunTypeAttribute(Map attributesMap) {
-		this.runOnAllAgents = false;
-		this.runInstanceCount = null;
 		if (attributesMap.containsKey(RUN_TYPE)) {
+			this.runOnAllAgents = false;
+			this.runInstanceCount = null;
+
 			String jobRunType = (String) attributesMap.get(RUN_TYPE);
 			if (RUN_ON_ALL_AGENTS.equals(jobRunType)) {
 				this.runOnAllAgents = true;

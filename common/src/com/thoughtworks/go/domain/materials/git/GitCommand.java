@@ -149,7 +149,7 @@ public class GitCommand extends SCMCommand {
         run(gitCmd, outputStreamConsumer);
     }
 
-    private void resetHard(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
+    public void resetHard(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
         outputStreamConsumer.stdOutput("[GIT] Updating working copy to revision " + revision.getRevision());
         String[] args = new String[]{"reset", "--hard", revision.getRevision()};
         CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
@@ -172,9 +172,17 @@ public class GitCommand extends SCMCommand {
             return;
         }
         outputStreamConsumer.stdOutput("[GIT] Updating git sub-modules");
-        String[] args = new String[]{"submodule", "update", "--init"};
-        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitCmd);
+
+        String[] initArgs = new String[]{"submodule", "init"};
+        CommandLine initCmd = git().withArgs(initArgs).withWorkingDir(workingDir);
+        runOrBomb(initCmd);
+
+        submoduleSync();
+
+        String[] updateArgs = new String[]{"submodule", "update"};
+        CommandLine updateCmd = git().withArgs(updateArgs).withWorkingDir(workingDir);
+        runOrBomb(updateCmd);
+
         outputStreamConsumer.stdOutput("[GIT] Cleaning unversioned files and sub-modules");
         printSubmoduleStatus(outputStreamConsumer);
     }
@@ -259,7 +267,7 @@ public class GitCommand extends SCMCommand {
         runOrBomb(gitCmd);
     }
 
-    private void fetch(ProcessOutputStreamConsumer outputStreamConsumer) {
+    public void fetch(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
         CommandLine gitFetch = git().withArgs("fetch", "origin").withWorkingDir(workingDir);
 
@@ -356,5 +364,21 @@ public class GitCommand extends SCMCommand {
         CommandLine getCurrentBranchCommand = git().withArg("rev-parse").withArg("--abbrev-ref").withArg("HEAD").withWorkingDir(workingDir);
         ConsoleResult consoleResult = runOrBomb(getCurrentBranchCommand);
         return consoleResult.outputAsString();
+    }
+
+    public void changeSubmoduleUrl(String submoduleName, String newUrl) {
+        String[] args = new String[]{"config", "--file", ".gitmodules", "submodule." + submoduleName + ".url", newUrl};
+        CommandLine gitConfig = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitConfig);
+    }
+
+    public void submoduleSync() {
+        String[] syncArgs = new String[]{"submodule", "sync"};
+        CommandLine syncCmd = git().withArgs(syncArgs).withWorkingDir(workingDir);
+        runOrBomb(syncCmd);
+
+        String[] foreachArgs = new String[]{"submodule", "foreach", "--recursive", "git", "submodule", "sync"};
+        CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
+        runOrBomb(foreachCmd);
     }
 }

@@ -274,7 +274,9 @@ module SolarisPackageHelper
       end
 
       ["#{package}.sh", "go-#{package}"].each do |file_name|
-        sh "/usr/bin/chmod a+x #{sol_pkg_file(name_with_version, file_name)}"
+        sol_pkg_file = sol_pkg_file(name_with_version, file_name)
+        puts "CHMOD 777 for file #{sol_pkg_file}"
+        FileUtils.chmod 0777, sol_pkg_file
       end
 
       sh "cd #{sol_pkg_dir(name_with_version)} && /usr/bin/pkgproto .=go-#{package} >> #{sol_prototype_file(name_with_version)}"

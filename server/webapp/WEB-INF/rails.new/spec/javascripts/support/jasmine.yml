@@ -6,8 +6,11 @@ src_dir: "app/assets/javascripts"
 # path to additional directory of source file that are not part of assets pipeline and need to be included
 # relative path from Rails.root
 # defaults to []
-# include_dir:
-#   - ../mobile_app/public/js
+include_dir:
+  - "vendor/bundle/jruby/1.9/gems/jasmine-junitreporter-0.0.1/vendor/assets/javascripts/"
+  - "vendor/bundle/jruby/1.9/gems/jasmine-core-2.0.2/lib/jasmine-core/"
+  - "spec/javascripts/reporters/"
+
 
 # path to parent directory of css_files
 # relative path from Rails.root
@@ -111,3 +114,8 @@ spec_files:
 # (spec runner and asset cache)
 # defaults to tmp/jasmine
 tmp_dir: "tmp/jasmine"
+
+reporters:
+  junit:
+    - "JUnitReporter.js"
+    - "JUnitReporter.boot.js"

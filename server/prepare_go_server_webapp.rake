@@ -247,6 +247,7 @@ end
 task :jasmine_tests do
   ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
   ENV['RAILS_ENV'] = "test"
+  ENV['REPORTERS'] = "console,junit"
   set_classpath
   if Gem.win_platform?
     sh <<END

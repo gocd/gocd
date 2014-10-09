@@ -15,4 +15,5 @@ gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 group :development, :test do
   gem "jasmine-rails"
   gem 'jasmine-jquery-rails'
+  gem 'jasmine-junitreporter'
 end

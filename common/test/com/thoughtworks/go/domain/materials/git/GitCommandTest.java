@@ -445,6 +445,24 @@ public class GitCommandTest {
         clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD"));
     }
 
+    @Test
+    public void shouldAllowSubmoduleUrlstoChange() throws Exception {
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
+        String submoduleDirectoryName = "local-submodule";
+        File cloneDirectory = createTempWorkingDirectory();
+
+        File remoteSubmoduleLocation = submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
+
+        GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false);
+        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        clonedCopy.fetchAndResetToHead(outputStreamConsumer);
+
+        submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
+
+        clonedCopy.fetchAndResetToHead(outputStreamConsumer);
+    }
+
     private List<File> allFilesIn(File directory, String prefixOfFiles) {
         return new ArrayList<File>(FileUtils.listFiles(directory, andFileFilter(fileFileFilter(), prefixFileFilter(prefixOfFiles)), null));
     }

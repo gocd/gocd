@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 
@@ -136,5 +137,19 @@ public class GitSubmoduleRepos extends TestRepo {
 
     @Override public GitMaterial material() {
         return new GitMaterial(remoteRepoDir.getAbsolutePath());
+    }
+
+    public void changeSubmoduleUrl(String submoduleName) throws Exception {
+        File newSubmodule = createRepo("new-submodule");
+        addAndCommitNewFile(newSubmodule, "new", "make a commit");
+
+        git(remoteRepoDir).changeSubmoduleUrl(submoduleName, newSubmodule.getAbsolutePath());
+        git(remoteRepoDir).submoduleSync();
+
+        git(new File(remoteRepoDir, "local-submodule")).fetch(inMemoryConsumer());
+        git(new File(remoteRepoDir, "local-submodule")).resetHard(inMemoryConsumer(), new StringRevision("origin/master"));
+        git(remoteRepoDir).add(new File(".gitmodules"));
+        git(remoteRepoDir).add(new File("local-submodule"));
+        git(remoteRepoDir).commit("change submodule url");
     }
 }

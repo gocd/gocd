@@ -56,7 +56,6 @@ spec_files:
   - "stage_history_spec.js"
   - "elements_aligner_spec.js"
   - "pipelines_selector_rails_new_spec.js"
-  - "pipeline_dashboard_search_spec.js"
   - "pipelines_selector_ajax_refresher_spec.js"
   - "helpers_spec.js"
   - "pipeline_dashboard_rails_new_spec.js"

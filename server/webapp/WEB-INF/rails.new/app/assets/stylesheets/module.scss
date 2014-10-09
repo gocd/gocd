@@ -2914,6 +2914,7 @@ li.task_property {
     height: 110px;
     width: 110px;
     overflow: hidden;
+    z-index: 1;
 }
 
 .vsm-entity.material .icon {
@@ -2928,7 +2929,6 @@ li.task_property {
     width: inherit;
     margin: 0;
     height: 30px;
-    position: static;
 }
 
 .vsm-entity.material .more {

@@ -276,7 +276,7 @@ module SolarisPackageHelper
       ["#{package}.sh", "go-#{package}"].each do |file_name|
         sol_pkg_file = sol_pkg_file(name_with_version, file_name)
         puts "CHMOD 777 for file #{sol_pkg_file}"
-        FileUtils.chmod 0777, sol_pkg_file
+        FileUtils.chmod 0755, sol_pkg_file
       end
 
       Dir.chdir(sol_pkg_dir(name_with_version)) do

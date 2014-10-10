@@ -42,7 +42,7 @@ describe Api::JobsController do
   end
 
   it "should answer to /api/jobs/id.xml" do
-    expect(:post => "/api/jobs/blah_id.xml").to route_to(:id => "blah_id", :action => "index", :controller => 'api/jobs', :format=>"xml", :no_layout => true)
+    expect(:get => "/api/jobs/blah_id.xml").to route_to(:id => "blah_id", :action => "index", :controller => 'api/jobs', :format=>"xml", :no_layout => true)
   end
 
   it "should load job and properties based on passed on id param" do

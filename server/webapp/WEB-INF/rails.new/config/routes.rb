@@ -264,7 +264,7 @@ Go::Application.routes.draw do
 
         #job api's
         get 'jobs/scheduled.xml' => 'jobs#scheduled'
-        post 'jobs/:id.xml' => 'jobs#index'
+        get 'jobs/:id.xml' => 'jobs#index'
       end
     end
 end

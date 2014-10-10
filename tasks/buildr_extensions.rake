@@ -274,10 +274,16 @@ module SolarisPackageHelper
       end
 
       ["#{package}.sh", "go-#{package}"].each do |file_name|
-        sh "/usr/bin/chmod a+x #{sol_pkg_file(name_with_version, file_name)}"
+        sol_pkg_file = sol_pkg_file(name_with_version, file_name)
+        puts "CHMOD 0755 for file #{sol_pkg_file}"
+        FileUtils.chmod 0755, sol_pkg_file
       end
 
-      sh "cd #{sol_pkg_dir(name_with_version)} && /usr/bin/pkgproto .=go-#{package} >> #{sol_prototype_file(name_with_version)}"
+      Dir.chdir(sol_pkg_dir(name_with_version)) do
+        command = "/usr/bin/pkgproto .=go-#{package} >> #{sol_prototype_file(name_with_version)}"
+        puts "Executing command #{command} from #{`pwd`}"
+        sh command
+      end
 
       user_name = `/usr/xpg4/bin/id -u -n`.strip
       user_group = `/usr/xpg4/bin/id -g -n`.strip

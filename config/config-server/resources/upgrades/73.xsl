@@ -77,4 +77,11 @@
             </xsl:call-template>
         </xsl:attribute>
     </xsl:template>
+    <xsl:template match="/cruise/templates/pipeline/stage/jobs/job/tasks/exec/@command">
+        <xsl:attribute name="{name()}">
+            <xsl:call-template name="string-trim">
+                <xsl:with-param name="string" select="." />
+            </xsl:call-template>
+        </xsl:attribute>
+    </xsl:template>
 </xsl:stylesheet>

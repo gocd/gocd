@@ -1086,6 +1086,37 @@ public class GoConfigMigrationIntegrationTest {
         assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
 
+    @Test
+    public void shouldTrimLeadingAndTrailingWhitespaceFromCommandsInTemplates_asPartOfMigration73() throws Exception {
+        String configXml =
+            "<cruise schemaVersion='72'>" +
+                "  <pipelines group='first'>" +
+                "    <pipeline name='Test' template='test_template'>" +
+                "      <materials>" +
+                "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                "      </materials>" +
+                "     </pipeline>" +
+                "  </pipelines>" +
+                "  <templates>" +
+                "    <pipeline name='test_template'>" +
+                "      <stage name='Functional'>" +
+                "        <jobs>" +
+                "          <job name='Functional'>" +
+                "            <tasks>" +
+                "              <exec command='  c:\\program files\\cmd.exe    ' args='arguments' />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </templates>" +
+                "</cruise>";
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
+        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
+        assertThat(task, is(instanceOf(ExecTask.class)));
+        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

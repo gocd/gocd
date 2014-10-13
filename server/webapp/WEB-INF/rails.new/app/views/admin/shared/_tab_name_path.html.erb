@@ -3,12 +3,12 @@
         <textarea id="<%= scope[:collection_name] -%>_template" class="template">
             <%= scope[:form].fields_for scope[:collection_name], :index => "" do |tab_form| %>
                 <td class="name_value_cell name">
-                    <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
+                    <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
                 </td>
 
                 <td class="name_value_cell path">
                     <div>
-                        <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+                        <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :id => nil -%>
                     </div>
                 </td>
                 <td class="name_value_cell">
@@ -34,13 +34,13 @@
                 <%= scope[:form].fields_for scope[:collection_name], tab, :index => "" do |tab_form| %>
                     <tr>
                         <td class="name_value_cell name">
-                            <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :omit_id_generation => true -%>
+                            <%= tab_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
                             <%= error_message_on(tab, com.thoughtworks.go.config.Tab::NAME, :css_class => "name_value_error") %>
                             <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", tab.getName() %>
                         </td>
                         <td class="name_value_cell path">
                             <div>
-                                <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :omit_id_generation => true -%>
+                                <%= tab_form.text_field :path, :class => "form_input environment_variable_value", :id => nil -%>
                                 <%= error_message_on(tab, com.thoughtworks.go.config.Tab::PATH, :css_class => "name_value_error") %>
                             </div>
                         </td>

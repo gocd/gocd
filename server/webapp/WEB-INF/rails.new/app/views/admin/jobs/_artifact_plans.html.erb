@@ -3,10 +3,10 @@
         <textarea id="artifact_template" class="template">
             <%= scope[:form].fields_for :artifactPlans, :index => "" do |var_form| %>
                 <td class="name_value_cell">
-                    <%= var_form.text_field :src, :class => "form_input artifact_source", :omit_id_generation => true -%>
+                    <%= var_form.text_field :src, :class => "form_input artifact_source", :id => nil -%>
                 </td>
                 <td class="name_value_cell">
-                    <%= var_form.text_field :dest, :class => "form_input artifact_destination", :omit_id_generation => true -%>
+                    <%= var_form.text_field :dest, :class => "form_input artifact_destination", :id => nil -%>
                 </td>
                 <td class="name_value_cell">
                     <%= var_form.select "artifactTypeValue",  ["Build Artifact", "Test Artifact"], {}, :class => "small" -%>
@@ -37,11 +37,11 @@
                 <%= scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_PLANS, variable, :index => "" do |var_form| %>
                     <tr>
                         <td class="name_value_cell">
-                            <%= var_form.text_field com.thoughtworks.go.config.ArtifactPlan::SRC, :class => "form_input artifact_source", :omit_id_generation => true-%>
+                            <%= var_form.text_field com.thoughtworks.go.config.ArtifactPlan::SRC, :class => "form_input artifact_source", :id => nil-%>
                             <%= error_message_on(variable, com.thoughtworks.go.config.ArtifactPlan::SRC, :css_class => "form_error") %>
                         </td>
                         <td class="name_value_cell">
-                            <%= var_form.text_field com.thoughtworks.go.config.ArtifactPlan::DEST, :class => "form_input artifact_destination", :omit_id_generation => true-%>
+                            <%= var_form.text_field com.thoughtworks.go.config.ArtifactPlan::DEST, :class => "form_input artifact_destination", :id => nil-%>
                             <%= error_message_on(variable, com.thoughtworks.go.config.ArtifactPlan::DEST, :css_class => "form_error") %>
                         </td>
                         <td class="name_value_cell">

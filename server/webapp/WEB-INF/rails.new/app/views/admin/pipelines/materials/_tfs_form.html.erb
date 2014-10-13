@@ -1,18 +1,18 @@
 <div class="form_item_block required">
     <%= required_label(scope[:form], com.thoughtworks.go.config.materials.ScmMaterialConfig::URL, l.string('URL')) -%>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.ScmMaterialConfig::URL, {:class => "form_input required tfs_url", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.ScmMaterialConfig::URL, {:class => "form_input required tfs_url", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.ScmMaterialConfig::URL, :css_class => "form_error") %>
 </div>
 
 <div class="form_item_block">
     <label><%= l.string('DOMAIN') -%></label>
-    <%= scope[:form].text_field(com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, {:include_blank => true, :class => "form_input tfs_domain", :omit_id_generation => true}) -%>
+    <%= scope[:form].text_field(com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, {:include_blank => true, :class => "form_input tfs_domain", :id => nil}) -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, :css_class => "form_error") %>
 </div>
 
 <div class="form_item_block required">
     <%= required_label(scope[:form], com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME, l.string('USERNAME')) -%>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME, {:class => "form_input required tfs_username", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME, {:class => "form_input required tfs_username", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.ScmMaterialConfig::USERNAME, :css_class => "form_error") %>
 </div>
 
@@ -20,7 +20,7 @@
 
 <div class="form_item_block required">
     <%= required_label(scope[:form], com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH, l.string('TFS_PROJECT_PATH')) -%>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH, {:class => "form_input required tfs_project_path", :omit_id_generation => true} -%>
+    <%= scope[:form].text_field com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH, {:class => "form_input required tfs_project_path", :id => nil} -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::PROJECT_PATH, :css_class => "form_error") %>
 </div>
 

@@ -121,4 +121,13 @@ describe "_form.html.erb" do
       expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
     end
   end
+
+  it "should not generate the id for url and username fields" do
+    render partial: "admin/materials/svn/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
+
+    Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
+      expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")
+      expect(text_field[3]).to_not have_selector("input[type='text'][class='form_input username'][id]")
+    end
+  end
 end

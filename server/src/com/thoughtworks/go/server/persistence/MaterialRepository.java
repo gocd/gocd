@@ -448,7 +448,7 @@ public class MaterialRepository extends HibernateDaoSupport {
 	}
 
 	String materialModificationsWithPaginationSubKey(Pagination pagination) {
-		return String.format("%s-%s", pagination.getCurrentPage(), pagination.getPageSize());
+		return String.format("%s-%s", pagination.getOffset(), pagination.getPageSize());
 	}
 
     public void saveOrUpdate(MaterialInstance materialInstance) {

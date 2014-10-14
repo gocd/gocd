@@ -16,49 +16,14 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.lang.reflect.Method;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.sql.DataSource;
-
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.JobStateTransition;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
@@ -72,7 +37,6 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -87,32 +51,28 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.util.ReflectionUtils;
 
+import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.sql.SQLException;
+import java.util.*;
+
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.PipelineMother.custom;
 import static com.thoughtworks.go.helper.PipelineMother.twoBuildPlansWithResourcesAndMaterials;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
+import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -1852,6 +1812,74 @@ public class StageSqlMapDaoIntegrationTest {
 
 		assertThat(reprimedDetailedStageHistoryPage, is(not(sameInstance(primedDetailedStageHistoryPage))));
 	}
+
+    @Test
+    public void shouldPaginateBasedOnOffset() throws Exception{
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1", "h2", "h3"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
+
+        String pipelineName = "p1";
+        String stageName = "stage_name";
+
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg));
+        String run1 = scheduleUtil.runAndPass(p1, "h1");
+        String run2 = scheduleUtil.runAndPass(p1, "h2");
+        String run3 = scheduleUtil.runAndPass(p1, "h3");
+        String run4 = scheduleUtil.runAndPass(p1, "h1", "h2");
+        String run5 = scheduleUtil.runAndPass(p1, "h2", "h3");
+        String run6 = scheduleUtil.runAndPass(p1, "h3", "h1");
+        String run7 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3");
+
+        Pagination pagination = Pagination.pageStartingAt(0, 7, 3);
+        StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run7, run6, run5);
+
+        pagination = Pagination.pageStartingAt(1, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run6, run5, run4);
+
+        pagination = Pagination.pageStartingAt(2, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run5, run4, run3);
+
+        pagination = Pagination.pageStartingAt(3, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run4, run3, run2);
+
+        pagination = Pagination.pageStartingAt(4, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run3, run2, run1);
+
+        pagination = Pagination.pageStartingAt(5, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run2, run1);
+
+        pagination = Pagination.pageStartingAt(6, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run1);
+
+        pagination = Pagination.pageStartingAt(7, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertThat("Expected no models. Found: " + stageInstanceModels, stageInstanceModels.size(), is(0));
+
+        pagination = Pagination.pageStartingAt(20, 7, 3);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertThat("Expected no models. Found: " + stageInstanceModels, stageInstanceModels.size(), is(0));
+
+        pagination = Pagination.pageStartingAt(1, 7, 4);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        assertStageModels(stageInstanceModels, run6, run5, run4, run3);
+    }
+
+    private void assertStageModels(StageInstanceModels stageInstanceModels, String... runIdentifiers) {
+        String message = "Expected: " + stageInstanceModels + " to match: " + Arrays.asList(runIdentifiers);
+        assertThat(message, stageInstanceModels.size(), is(runIdentifiers.length));
+
+        for (int i = 0; i < runIdentifiers.length; i++) {
+            assertThat(message + ". Failed at index: " + i, stageInstanceModels.get(i).getIdentifier().getStageLocator(), is(runIdentifiers[i]));
+        }
+    }
 
     private Method getMethodViaReflection(String methodName, Class<?>... classes) {
         Method method = ReflectionUtils.findMethod(stageDao.getClass(), methodName, classes);

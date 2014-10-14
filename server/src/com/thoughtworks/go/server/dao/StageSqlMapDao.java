@@ -401,7 +401,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 		String mutex = mutexForStageHistory(pipelineName, stageName);
 		readWriteLock.acquireReadLock(mutex);
 		try {
-			String subKey = String.format("%s-%s", pagination.getCurrentPage(), pagination.getPageSize());
+			String subKey = String.format("%s-%s", pagination.getOffset(), pagination.getPageSize());
 			String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
 			StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
 			if (stageInstanceModels == null) {

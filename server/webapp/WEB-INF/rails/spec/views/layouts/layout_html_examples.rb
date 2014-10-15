@@ -42,7 +42,7 @@ shared_examples_for :layout do
     response.should have_tag(".current_user a[href='/tab/mycruise/user']", "Preferences")
     response.should have_tag(".current_user .logout a[href='/auth/logout']", "Sign out")
 
-    response.should have_tag(".user .help a[href='/help/index.html']", "Help")
+    response.should have_tag(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
   end
 
   it "should not display username and logout botton if anonymous user is logged in" do
@@ -50,7 +50,7 @@ shared_examples_for :layout do
 
     render :inline => '<div>content</div>', :layout => @layout_name
 
-    response.should have_tag(".user .help a[href='/help/index.html']", "Help")
+    response.should have_tag(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
     response.should_not have_tag(".current_user a[href='#']", "maulik suchak")
     response.should_not have_tag(".current_user a[href='/tab/mycruise/user']", "Preferences")
     response.should_not have_tag(".current_user a[href='/auth/logout']", "Sign out")
@@ -62,7 +62,7 @@ shared_examples_for :layout do
     response.should have_tag("a[href='/pipelines']", 'PIPELINES')
     response.should have_tag("a[href='/agents']", 'AGENTS')
     response.should have_tag("a[href='/environments']", 'ENVIRONMENTS')
-    response.should have_tag("a[href='/help/index.html']", 'Help')
+    response.should have_tag("a[href='http://www.go.cd/documentation/user/current']", 'Help')
     response.should(have_tag("a[data-toggle='dropdown']", 'ADMIN'))
   end
 

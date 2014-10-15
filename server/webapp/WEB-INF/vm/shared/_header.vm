@@ -173,13 +173,13 @@
                         </li>
 
                         <li class="help">
-                          <a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a>
+                          <a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a>
                         </li>
                     </ul>
                     #else
                     <ul class="user">
                         <li class="help">
-                          <a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a>
+                          <a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a>
                         </li>
                     </ul>
                     #end

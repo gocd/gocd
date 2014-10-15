@@ -25,7 +25,7 @@
                     <li><a target="_blank" href="$req.getContextPath()/cctray.xml">(cc) $l.localize("CCTRAY_FEED")</a></li>
                     <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community">$l.localize("COMMUNITY")</a></li>
-                    <li class="last"><a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a></li>
+                    <li class="last"><a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a></li>
                 </ul>
                 <ul id="footer-links">
                 </ul>

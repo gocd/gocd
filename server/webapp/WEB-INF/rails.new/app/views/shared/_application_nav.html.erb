@@ -3,7 +3,7 @@
     <% if @user.anonymous? %>
         <ul class="user">
             <li class="help">
-                <%= link_to(l.string("HELP_SMALL"), url_for_path('help/index.html'), :target => "_blank") %>
+                <%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") %>
             </li>
         </ul>
     <% else %>
@@ -20,7 +20,7 @@
                 </ul>
             </li>
             <li class="help">
-                <%= link_to(l.string("HELP_SMALL"), url_for_path('help/index.html'), :target => "_blank") %>
+                <%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") %>
             </li>
         </ul>
     <% end %>

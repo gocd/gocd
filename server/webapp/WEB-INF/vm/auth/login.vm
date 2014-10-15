@@ -151,7 +151,7 @@
                                 </p>
 
                                 <p id="login-actions">
-                                    <a target="_blank" href="$req.getContextPath()/help/index.html"
+                                    <a target="_blank" href="http://www.go.cd/documentation/user/current"
                                        title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
 ##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
 
@@ -176,7 +176,7 @@
                 </ul>
                 <ul class="links">
                     <li><a target="_blank" href="http://www.go.cd/community">$l.localize("COMMUNITY")</a></li>
-                    <li class="last"><a href="$req.getContextPath()/help/index.html" target="_blank">$l.localize("HELP_SMALL")</a></li>
+                    <li class="last"><a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a></li>
                 </ul>
                 <div class="clear"></div>
                 <script type="text/javascript">

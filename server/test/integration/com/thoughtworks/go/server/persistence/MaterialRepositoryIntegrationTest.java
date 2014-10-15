@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -37,32 +31,17 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineMaterialRevision;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.MatchedRevision;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.ModifiedAction;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -96,23 +75,18 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.util.*;
+
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -136,14 +110,14 @@ public class MaterialRepositoryIntegrationTest {
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
-	private ScheduleTestUtil u;
+    private ScheduleTestUtil u;
 
     @Before
     public void setUp() throws Exception {
         originalTemplate = repo.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
-		u = new ScheduleTestUtil(transactionTemplate, repo, dbHelper, new GoConfigFileHelper());
+        u = new ScheduleTestUtil(transactionTemplate, repo, dbHelper, new GoConfigFileHelper());
     }
 
     @After
@@ -292,7 +266,7 @@ public class MaterialRepositoryIntegrationTest {
         SvnMaterial material = MaterialsMother.svnMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
-        
+
         Modification mod = ModificationsMother.oneModifiedFile("file3");
         mod.setId(8);
 
@@ -366,7 +340,7 @@ public class MaterialRepositoryIntegrationTest {
                 super.saveOrUpdate(material);
             }
         };
-        
+
         repo.setHibernateTemplate(mockTemplate);
         List<Thread> threads = new ArrayList<Thread>();
         for (int i = 0; i < 10; i++) {
@@ -975,123 +949,134 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(materialRevision.getLatestRevisionString(), is(second.getLatestRevisionString()));
     }
 
-	@Test
-	public void shouldCacheModificationCountsForMaterialCorrectly() throws Exception {
-		ScmMaterial material = material();
-		MaterialInstance materialInstance = material.createMaterialInstance();
-		repo.saveOrUpdate(materialInstance);
-		saveOneScmModification("1", material, "user1", "1.txt", "comment1");
-		saveOneScmModification("2", material, "user2", "2.txt", "comment2");
-		saveOneScmModification("3", material, "user3", "3.txt", "comment3");
-		saveOneScmModification("4", material, "user4", "4.txt", "comment4");
-		saveOneScmModification("5", material, "user5", "5.txt", "comment5");
+    @Test
+    public void shouldCacheModificationCountsForMaterialCorrectly() throws Exception {
+        ScmMaterial material = material();
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        repo.saveOrUpdate(materialInstance);
+        saveOneScmModification("1", material, "user1", "1.txt", "comment1");
+        saveOneScmModification("2", material, "user2", "2.txt", "comment2");
+        saveOneScmModification("3", material, "user3", "3.txt", "comment3");
+        saveOneScmModification("4", material, "user4", "4.txt", "comment4");
+        saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-		Long totalCount = repo.getTotalModificationsFor(materialInstance);
+        Long totalCount = repo.getTotalModificationsFor(materialInstance);
 
-		assertThat(totalCount, is(5L));
-	}
+        assertThat(totalCount, is(5L));
+    }
 
-	@Test
-	public void shouldCacheModificationsForMaterialCorrectly() throws Exception {
-		final ScmMaterial material = material();
-		MaterialInstance materialInstance = material.createMaterialInstance();
-		repo.saveOrUpdate(materialInstance);
-		saveOneScmModification("1", material, "user1", "1.txt", "comment1");
-		saveOneScmModification("2", material, "user2", "2.txt", "comment2");
-		saveOneScmModification("3", material, "user3", "3.txt", "comment3");
-		saveOneScmModification("4", material, "user4", "4.txt", "comment4");
-		saveOneScmModification("5", material, "user5", "5.txt", "comment5");
+    @Test
+    public void shouldCacheModificationsForMaterialCorrectly() throws Exception {
+        final ScmMaterial material = material();
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        repo.saveOrUpdate(materialInstance);
+        saveOneScmModification("1", material, "user1", "1.txt", "comment1");
+        saveOneScmModification("2", material, "user2", "2.txt", "comment2");
+        saveOneScmModification("3", material, "user3", "3.txt", "comment3");
+        saveOneScmModification("4", material, "user4", "4.txt", "comment4");
+        saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-		Long totalCount = repo.getTotalModificationsFor(materialInstance);
+        Long totalCount = repo.getTotalModificationsFor(materialInstance);
 
-		totalCount = (Long) goCache.get(repo.materialModificationCountKey(materialInstance));
+        totalCount = (Long) goCache.get(repo.materialModificationCountKey(materialInstance));
 
-		final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
-		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus status) {
-				MaterialInstance foo = repo.findOrCreateFrom(material);
+        final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                MaterialInstance foo = repo.findOrCreateFrom(material);
 
-				repo.saveModifications(foo, Arrays.asList(modOne));
-			}
-		});
+                repo.saveModifications(foo, Arrays.asList(modOne));
+            }
+        });
 
-		totalCount = (Long) goCache.get(repo.materialModificationCountKey(materialInstance));
+        totalCount = (Long) goCache.get(repo.materialModificationCountKey(materialInstance));
 
-		assertThat(totalCount, is(nullValue()));
-	}
+        assertThat(totalCount, is(nullValue()));
+    }
 
-	@Test
-	public void shouldGetPaginatedModificationsForMaterialCorrectly() throws Exception {
-		ScmMaterial material = material();
-		MaterialInstance materialInstance = material.createMaterialInstance();
-		repo.saveOrUpdate(materialInstance);
-		MaterialRevision first = saveOneScmModification("1", material, "user1", "1.txt", "comment1");
-		MaterialRevision second = saveOneScmModification("2", material, "user2", "2.txt", "comment2");
-		MaterialRevision third = saveOneScmModification("3", material, "user3", "3.txt", "comment3");
-		MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
-		MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
+    @Test
+    public void shouldGetPaginatedModificationsForMaterialCorrectly() throws Exception {
+        ScmMaterial material = material();
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        repo.saveOrUpdate(materialInstance);
+        MaterialRevision first = saveOneScmModification("1", material, "user1", "1.txt", "comment1");
+        MaterialRevision second = saveOneScmModification("2", material, "user2", "2.txt", "comment2");
+        MaterialRevision third = saveOneScmModification("3", material, "user3", "3.txt", "comment3");
+        MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
+        MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-		Modifications modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(0, 5, 3));
+        Modifications modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(0, 5, 3));
 
-		assertThat(modifications.size(), is(3));
-		assertThat(modifications.get(0).getRevision(), is(fifth.getLatestRevisionString()));
-		assertThat(modifications.get(1).getRevision(), is(fourth.getLatestRevisionString()));
-		assertThat(modifications.get(2).getRevision(), is(third.getLatestRevisionString()));
+        assertThat(modifications.size(), is(3));
+        assertThat(modifications.get(0).getRevision(), is(fifth.getLatestRevisionString()));
+        assertThat(modifications.get(1).getRevision(), is(fourth.getLatestRevisionString()));
+        assertThat(modifications.get(2).getRevision(), is(third.getLatestRevisionString()));
 
-		modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(3, 5, 3));
+        modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(3, 5, 3));
 
-		assertThat(modifications.size(), is(2));
-		assertThat(modifications.get(0).getRevision(), is(second.getLatestRevisionString()));
-		assertThat(modifications.get(1).getRevision(), is(first.getLatestRevisionString()));
-	}
+        assertThat(modifications.size(), is(2));
+        assertThat(modifications.get(0).getRevision(), is(second.getLatestRevisionString()));
+        assertThat(modifications.get(1).getRevision(), is(first.getLatestRevisionString()));
+    }
 
-	@Test
-	public void shouldCachePaginatedModificationsForMaterialCorrectly() throws Exception {
-		final ScmMaterial material = material();
-		MaterialInstance materialInstance = material.createMaterialInstance();
-		repo.saveOrUpdate(materialInstance);
-		MaterialRevision first = saveOneScmModification("1", material, "user1", "1.txt", "comment1");
-		MaterialRevision second = saveOneScmModification("2", material, "user2", "2.txt", "comment2");
-		MaterialRevision third = saveOneScmModification("3", material, "user3", "3.txt", "comment3");
-		MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
-		MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
+    @Test
+    public void shouldCachePaginatedModificationsForMaterialCorrectly() throws Exception {
+        final ScmMaterial material = material();
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        repo.saveOrUpdate(materialInstance);
+        MaterialRevision first = saveOneScmModification("1", material, "user1", "1.txt", "comment1");
+        MaterialRevision second = saveOneScmModification("2", material, "user2", "2.txt", "comment2");
+        MaterialRevision third = saveOneScmModification("3", material, "user3", "3.txt", "comment3");
+        MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
+        MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-		repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(0, 5, 3));
+        Pagination page = Pagination.pageStartingAt(0, 5, 3);
+        repo.getModificationsFor(materialInstance, page);
+        Modifications modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
-		Modifications modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(0, 5, 3)));
+        assertThat(modificationsFromCache.size(), is(3));
+        assertThat(modificationsFromCache.get(0).getRevision(), is(fifth.getLatestRevisionString()));
+        assertThat(modificationsFromCache.get(1).getRevision(), is(fourth.getLatestRevisionString()));
+        assertThat(modificationsFromCache.get(2).getRevision(), is(third.getLatestRevisionString()));
 
-		assertThat(modificationsFromCache.size(), is(3));
-		assertThat(modificationsFromCache.get(0).getRevision(), is(fifth.getLatestRevisionString()));
-		assertThat(modificationsFromCache.get(1).getRevision(), is(fourth.getLatestRevisionString()));
-		assertThat(modificationsFromCache.get(2).getRevision(), is(third.getLatestRevisionString()));
 
-		repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(3, 5, 3));
+        page = Pagination.pageStartingAt(1, 5, 3);
+        repo.getModificationsFor(materialInstance, page);
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
-		modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(3, 5, 3)));
+        assertThat(modificationsFromCache.size(), is(3));
+        assertThat(modificationsFromCache.get(0).getRevision(), is(fourth.getLatestRevisionString()));
+        assertThat(modificationsFromCache.get(1).getRevision(), is(third.getLatestRevisionString()));
+        assertThat(modificationsFromCache.get(2).getRevision(), is(second.getLatestRevisionString()));
 
-		assertThat(modificationsFromCache.size(), is(2));
-		assertThat(modificationsFromCache.get(0).getRevision(), is(second.getLatestRevisionString()));
-		assertThat(modificationsFromCache.get(1).getRevision(), is(first.getLatestRevisionString()));
 
-		final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
-		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus status) {
-				MaterialInstance foo = repo.findOrCreateFrom(material);
+        page = Pagination.pageStartingAt(3, 5, 3);
+        repo.getModificationsFor(materialInstance, page);
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
-				repo.saveModifications(foo, Arrays.asList(modOne));
-			}
-		});
+        assertThat(modificationsFromCache.size(), is(2));
+        assertThat(modificationsFromCache.get(0).getRevision(), is(second.getLatestRevisionString()));
+        assertThat(modificationsFromCache.get(1).getRevision(), is(first.getLatestRevisionString()));
 
-		modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(0, 5, 3)));
+        final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                MaterialInstance foo = repo.findOrCreateFrom(material);
 
-		assertThat(modificationsFromCache, is(nullValue()));
+                repo.saveModifications(foo, Arrays.asList(modOne));
+            }
+        });
 
-		modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(3, 5, 3)));
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(0, 5, 3)));
 
-		assertThat(modificationsFromCache, is(nullValue()));
-	}
+        assertThat(modificationsFromCache, is(nullValue()));
+
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(3, 5, 3)));
+
+        assertThat(modificationsFromCache, is(nullValue()));
+    }
 
     @Test
     public void shouldFindlatestModificationRunByPipeline() {

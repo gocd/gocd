@@ -253,8 +253,8 @@ describe "/pipelines/dashboard.json.erb" do
       group.getPipelineModels[0].updateAdministrability(can_administer)
       groups_json = render_json_for group
 
-      the_instance = groups_json[0]["pipelines"][0]["instances"][0]
-      expect(the_instance["can_administer"]).to eq(true)
+      the_pipeline = groups_json[0]["pipelines"][0]
+      expect(the_pipeline["can_administer"]).to eq(true)
     end
 
     it 'should have can_administer set to false when user does not have administration permission on pipeline' do
@@ -265,8 +265,8 @@ describe "/pipelines/dashboard.json.erb" do
       group.getPipelineModels[0].updateAdministrability(can_administer)
       groups_json = render_json_for group
 
-      the_instance = groups_json[0]["pipelines"][0]["instances"][0]
-      expect(the_instance["can_administer"]).to eq(false)
+      the_pipeline = groups_json[0]["pipelines"][0]
+      expect(the_pipeline["can_administer"]).to eq(false)
     end
   end
 
@@ -379,6 +379,7 @@ end
 def assert_pipeline_details the_pipeline, name, expected_number_of_instances
   expect(the_pipeline["name"]).to eq(name)
   expect(the_pipeline["instances"].length).to eq(expected_number_of_instances)
+  expect(the_pipeline["settings_path"]).to eq("/admin/pipelines/#{name}/general")
 end
 
 def assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, latest_stage_name = "cruise", latest_stage_state = "Passed"
@@ -386,7 +387,6 @@ def assert_instance_details the_instance, pipeline_name, pipeline_label, pipelin
   expect(the_instance["label"]).to eq(pipeline_label)
   expect(is_time_within_minutes(6, the_instance["scheduled_time"])).to be_true
   expect(the_instance["history_path"]).to eq("/tab/pipeline/history/#{pipeline_name}")
-  expect(the_instance["settings_path"]).to eq("/admin/pipelines/#{pipeline_name}/general")
   expect(the_instance["vsm_path"]).to eq("/pipelines/value_stream_map/#{pipeline_name}/#{pipeline_counter}")
   expect(the_instance["compare_path"]).to eq("/compare/#{pipeline_name}/#{pipeline_counter - 1}/with/#{pipeline_counter}")
   expect(the_instance["build_cause_path"]).to eq("/pipelines/#{pipeline_name}/#{pipeline_counter}/build_cause")

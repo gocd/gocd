@@ -59,7 +59,7 @@ describe "/shared/_application_nav.html.erb" do
       response.should have_tag(".current_user a[href='#']", "maulik suchak")
       response.should have_tag(".current_user a[href='/tab/mycruise/user']", "Preferences")
       response.should have_tag(".current_user a[href='/auth/logout']", "Sign out")
-      response.should have_tag(".user .help a[href='/help/index.html']", "Help")
+      response.should have_tag(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
     end
 
     it "should not display username and logout botton if anonymous user is logged in" do
@@ -71,7 +71,7 @@ describe "/shared/_application_nav.html.erb" do
       response.should_not have_tag(".current_user a[href='#']", "maulik suchak")
       response.should_not have_tag(".current_user a[href='/tab/mycruise/user']", "Preferences")
       response.should_not have_tag(".current_user a[href='/auth/logout']", "Sign out")
-      response.should have_tag(".user .help a[href='/help/index.html']", "Help")
+      response.should have_tag(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
     end
   end
   describe "server health messages" do

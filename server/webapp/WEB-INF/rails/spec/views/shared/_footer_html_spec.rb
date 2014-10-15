@@ -39,7 +39,7 @@ describe "/shared/_footer.html" do
         without_tag("a[href='http://www.thoughtworks.com/products/support']", "Support")
       end
       with_tag("li.last") do
-        with_tag("a[href='/help/index.html']", "Help")
+        with_tag("a[href='http://www.go.cd/documentation/user/current']", "Help")
       end
     end
   end

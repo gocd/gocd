@@ -66,9 +66,6 @@ task :prepare_webapp do
     next
   end
 
-  #prepare help docs
-  task('generate_help_documents').invoke unless ENV['BUILD_DOC'] == 'no'
-
   #copy
   task('copy_files').invoke
 
@@ -116,25 +113,6 @@ end
 
 task :handle_assets do
   ENV['USE_NEW_RAILS'] != "N" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
-end
-
-#prepare help docs
-task :generate_help_documents do
-  plugin_api_target_dir = "../plugin-infra/go-plugin-api/target/"
-  api_doc_files=[]
-  Dir.glob(plugin_api_target_dir+'/*current.jar') do |file_name|
-    api_doc_files << file_name
-  end
-  api_doc_files << File.join(plugin_api_target_dir, "javadoc")
-  api_doc_files << File.join(plugin_api_target_dir, "classes/plugin-descriptor.xsd")
-  api_doc_files << File.join("..", "plugin-infra", "sample-plugins", "target", "go-sample-plugins.zip")
-
-  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-  sh "cd #{File.join("../helper/")} && #{ruby} -S rake site build_sitemap"
-
-  require 'fileutils'
-  FileUtils::mkdir_p(File.join("../helper/build/resources"))
-  cp_r api_doc_files, File.join("../helper", "build/resources")
 end
 
 #copy

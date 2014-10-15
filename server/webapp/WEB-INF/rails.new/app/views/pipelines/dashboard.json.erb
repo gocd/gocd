@@ -21,6 +21,7 @@
             "label": <%== active_instance.getLabel().to_json %>,
             "scheduled_time": <%== active_instance.getScheduledDate().getTime().to_json %>,
             "history_path": <%== url_for_pipeline(active_instance.getName()).to_json %>,
+            "can_administer": <%== pipeline_model.canAdminister().to_json %>,
             "settings_path": <%== pipeline_edit_path(:pipeline_name => active_instance.getName(), :current_tab => "general").to_json %>,
             "vsm_path": <%== url_for_pipeline_value_stream_map(active_instance, :only_path => true).to_json %>,
             "compare_path": <%== compare_pipelines_path(:pipeline_name => active_instance.getName(), :from_counter => active_instance.getCounter() - 1, :to_counter => active_instance.getCounter()).to_json %>,

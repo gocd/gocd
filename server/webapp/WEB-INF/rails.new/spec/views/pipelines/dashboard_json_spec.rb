@@ -244,6 +244,30 @@ describe "/pipelines/dashboard.json.erb" do
       expect(operations[2]["operation"]).to eq("unpause")
       expect(operations[2]["operation_path"]).to eq("/api/pipelines/pip1/unpause")
     end
+
+    it 'should have can_administer set to true when user has administration permission on pipeline' do
+      can_administer = true
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, true))
+      group.getPipelineModels[0].updateAdministrability(can_administer)
+      groups_json = render_json_for group
+
+      the_instance = groups_json[0]["pipelines"][0]["instances"][0]
+      expect(the_instance["can_administer"]).to eq(true)
+    end
+
+    it 'should have can_administer set to false when user does not have administration permission on pipeline' do
+      can_administer = false
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, true))
+      group.getPipelineModels[0].updateAdministrability(can_administer)
+      groups_json = render_json_for group
+
+      the_instance = groups_json[0]["pipelines"][0]["instances"][0]
+      expect(the_instance["can_administer"]).to eq(false)
+    end
   end
 
   context 'in JSON, information about pause,' do

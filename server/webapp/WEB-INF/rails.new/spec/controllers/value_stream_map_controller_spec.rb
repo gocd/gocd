@@ -279,7 +279,7 @@ describe ValueStreamMapController do
   end
 
   describe "show material" do
-    it "should route to pdg show path" do
+    it "should route to VSM show material path" do
       expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision', format: "json" })).to eq("/materials/value_stream_map/fingerprint/revision.json")
       expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision', format: "html" })).to eq("/materials/value_stream_map/fingerprint/revision")
       expect(controller.send(:vsm_show_material_path, { material_fingerprint: "fingerprint", revision: 'revision' })).to eq("/materials/value_stream_map/fingerprint/revision")
@@ -287,6 +287,10 @@ describe ValueStreamMapController do
       expect(get: "/materials/value_stream_map/fingerprint/revision.json").to route_to({ controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision", format: "json" })
       expect(get: "/materials/value_stream_map/fingerprint/revision.html").to route_to({ controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision", format: "html" })
       expect(get: "/materials/value_stream_map/fingerprint/revision").to route_to({ format: :html, controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision" })
+
+      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots.json").to route_to({ format: "json", controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
+      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots.html").to route_to({ format: "html", controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
+      expect(get: "/materials/value_stream_map/fingerprint/revision.with.dots").to route_to({ format: :html, controller: "value_stream_map", action: 'show_material', material_fingerprint: "fingerprint", revision: "revision.with.dots" })
     end
 
     describe "render json" do

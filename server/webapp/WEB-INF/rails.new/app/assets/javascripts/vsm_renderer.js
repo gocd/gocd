@@ -103,7 +103,7 @@ Graph_Renderer = function (container) {
         if (node.instances != null && node.instances != undefined) {
             nodeClassName = node.node_type.toLowerCase();
             gui += '<div class= "material_revisions ' + nodeClassName + '"></div>'
-            if (node.node_type == 'PACKAGE') {
+            if (node.node_type == 'PACKAGE' && typeof(node.material_names) !== "undefined") {
                 node_name = node.material_names.join();
             } else {
                 node_name = node.name;

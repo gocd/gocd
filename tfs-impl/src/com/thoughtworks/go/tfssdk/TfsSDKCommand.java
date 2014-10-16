@@ -77,7 +77,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     @Override protected void initializeWorkspace(File workDir) {
-        GoTfsWorkspace workspace = initAndGetWorkSpace();
+        GoTfsWorkspace workspace = initAndGetWorkSpace(workDir);
         mapWorkingDirectory(workspace, workDir);
     }
 
@@ -112,13 +112,13 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
 
-    GoTfsWorkspace initAndGetWorkSpace() {
+    GoTfsWorkspace initAndGetWorkSpace(File workDir) {
         String workspaceName = getWorkspace();
-        GoTfsWorkspace[] workspaces = client.queryWorkspaces(workspaceName, getUserName());
-        if (workspaces.length == 0) {
+        GoTfsWorkspace workspace = client.queryWorkspace(workspaceName, workDir);
+        if (workspace == null) {
             return createWorkspace();
         }
-        return workspaces[0];
+        return workspace;
     }
 
     private GoTfsWorkspace createWorkspace() {

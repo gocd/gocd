@@ -17,13 +17,17 @@
 package com.thoughtworks.go.tfssdk.wrapper;
 
 import com.microsoft.tfs.core.clients.versioncontrol.VersionControlClient;
+import com.microsoft.tfs.core.clients.versioncontrol.WorkspaceLocation;
+import com.microsoft.tfs.core.clients.versioncontrol.WorkspaceOptions;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Changeset;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.RecursionType;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Workspace;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.ChangesetVersionSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersionSpec;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GoTfsVersionControlClient {
     private final VersionControlClient client;
@@ -40,6 +44,16 @@ public class GoTfsVersionControlClient {
         client.deleteWorkspace(workspace.getWorkspace());
     }
 
+    public GoTfsWorkspace queryWorkspace(String workspaceName, File workDir) {
+        AtomicReference<String> workspace = new AtomicReference<String>();
+        AtomicReference<String> owner = new AtomicReference<String>();
+
+        client.determineWorkspaceNameAndOwner(workDir.getPath(), workspace, owner);
+
+        String userName = owner.get();
+        return queryWorkspace(workspaceName, userName);
+    }
+
     public GoTfsWorkspace[] queryWorkspaces(String workspaceName, String userName) {
         ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<GoTfsWorkspace>();
         Workspace[] workspaces = client.queryWorkspaces(workspaceName, userName, null);
@@ -50,7 +64,10 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace createWorkspace(String workspace) {
-        return new GoTfsWorkspace(client.createWorkspace(null, workspace, ""));
+        WorkspaceLocation location = null;
+        WorkspaceOptions options = null;
+
+        return new GoTfsWorkspace(client.createWorkspace(null, workspace, "", location, options));
     }
 
     public Changeset[] queryHistory(String projectPath, ChangesetVersionSpec uptoRevision, int revsToLoad) {

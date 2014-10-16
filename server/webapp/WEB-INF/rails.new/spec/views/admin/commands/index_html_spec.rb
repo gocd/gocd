@@ -70,4 +70,13 @@ describe "admin/commands/index.html.erb" do
     end
   end
 
+  it "should show message about old style args" do
+    render
+
+    expect(response.body).to have_selector("div.gist_based_auto_complete div.error-message-for-old-args", :text =>
+        "The lookup feature is only available for the new style of custom commands.", :visible => false)
+    expect(response.body).to have_selector("div.gist_based_auto_complete div.error-message-for-old-args a[href='/go/help/command_repository.html#args']", :text =>
+        "new style", :visible => false)
+  end
+
 end

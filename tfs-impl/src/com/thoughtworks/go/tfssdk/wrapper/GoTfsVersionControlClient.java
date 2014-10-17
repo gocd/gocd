@@ -45,13 +45,20 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace queryWorkspace(String workspaceName, File workDir) {
-        AtomicReference<String> workspace = new AtomicReference<String>();
-        AtomicReference<String> owner = new AtomicReference<String>();
+        try
+        {
+            AtomicReference<String> workspace = new AtomicReference<String>();
+            AtomicReference<String> owner = new AtomicReference<String>();
 
-        client.determineWorkspaceNameAndOwner(workDir.getPath(), workspace, owner);
+            client.determineWorkspaceNameAndOwner(workDir.getPath(), workspace, owner);
 
-        String userName = owner.get();
-        return queryWorkspace(workspaceName, userName);
+            String userName = owner.get();
+            return queryWorkspace(workspaceName, userName);
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 
     public GoTfsWorkspace[] queryWorkspaces(String workspaceName, String userName) {

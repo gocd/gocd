@@ -93,7 +93,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("[TFS SDK] Getting Files for TFS workspace %s for user %s ", getWorkspace(), getUserName()));
         }
-        GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
+        GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), workDir);
         ItemSpec spec = new ItemSpec(FileUtil.getCanonicalPath(workDir), RecursionType.FULL);
         VersionSpec versionSpec = getVersionSpec(revision);
         GetRequest request = new GetRequest(spec, versionSpec);

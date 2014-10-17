@@ -2,7 +2,7 @@
     <%= label_tag 'lookup_command', l.string("LABEL_COMMAND_REPOSITORY") -%>
     <%= text_field_tag nil, nil, :placeholder => l.string("COMMAND_LOOKUP_PLACEHOLDER_TEXT"), :class => "lookup_command" -%>
     <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_COMMAND_LOOKUP") -%>"></div>
-    <div class="error-message-for-old-args hidden"><%= l.string("MESSAGE_ABOUT_COMMAND_LOOKUP_DISABLED_DUE_TO_OLD_STYLE_ARGS") -%></div>
+    <div class="error-message-for-old-args hidden"><%== l.string("MESSAGE_ABOUT_COMMAND_LOOKUP_DISABLED_DUE_TO_OLD_STYLE_ARGS") -%></div>
 </div>
 <div class="snippet_details hidden">
     <div class="name">

@@ -19,6 +19,14 @@ class GoCacheStore < ActiveSupport::Cache::Store
     cache.get(*key(name, options))
   end
 
+  def write(name, value, options = nil)
+    if name.start_with? "view_" and value.is_a? String
+      super(name, value.to_java(:string), options)
+      return
+    end
+    super(name, value, options)
+  end
+
   def write_entry(name, value, options = nil)
     cache.put(*(key(name, options) << value))
   end

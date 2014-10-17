@@ -16,15 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -33,13 +24,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -60,6 +45,10 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
@@ -216,7 +205,7 @@ public class ScheduleTestUtil {
     }
 
     public RevisionsForMaterial[] rs(String... revs) {
-        return new RevisionsForMaterial[]{ new RevisionsForMaterial(Arrays.asList(revs)) };
+        return new RevisionsForMaterial[]{new RevisionsForMaterial(Arrays.asList(revs))};
     }
 
     public List<String> revisions(String... revs) {
@@ -375,6 +364,14 @@ public class ScheduleTestUtil {
 
     public AddedPipeline saveConfigWith(String pipelineName, String stageName, MaterialDeclaration... materialDecls) {
         return saveConfigWith(DEFAULT_GROUP, pipelineName, stageName, materialDecls);
+    }
+
+    public AddedPipeline saveConfigWith(String pipelineName, String stageName, MaterialDeclaration materialDeclaration, String[] builds) {
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(materialDeclaration.material.config());
+        materialConfigs.add(materialConfig);
+        PipelineConfig cfg = configHelper.addPipelineWithGroup(DEFAULT_GROUP, pipelineName, materialConfigs, stageName, builds);
+        return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(stageName)));
     }
 
     public void addPackageDefinition(PackageMaterialConfig pkgMaterialConfig) {

@@ -87,5 +87,35 @@ describe GoCacheStore do
     @store.clear
     expect(@go_cache.get("key")).to eq nil
   end
+
+  it "should convert Ruby strings into Java strings for view fragments (name starting with view_)" do
+    @store.write("view_a", "value")
+
+    expect(@store.fetch("view_a").is_a? java.lang.String).to be_true
+    expect(@store.fetch("view_a")).to eq(java.lang.String.new("value"))
+
+    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_true
+    expect(@go_cache.get("view_a").value).to eq(java.lang.String.new("value"))
+  end
+
+  it "should NOT convert objects which are not Ruby strings into Java string for view fragments (name starting with view_)" do
+    @store.write("view_a", ["ABC", "DEF"])
+
+    expect(@store.fetch("view_a").is_a? java.lang.String).to be_false
+    expect(@store.fetch("view_a")).to eq(["ABC", "DEF"])
+
+    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_false
+    expect(@go_cache.get("view_a").value).to eq(["ABC", "DEF"])
+  end
+
+  it "should NOT convert Ruby strings into Java strings for non-view-fragments (name NOT starting with view_)" do
+    @store.write("notview_a", "value")
+
+    expect(@store.fetch("notview_a").is_a? java.lang.String).to be_false
+    expect(@store.fetch("notview_a")).to eq("value")
+
+    expect(@go_cache.get("notview_a").value.is_a? java.lang.String).to be_false
+    expect(@go_cache.get("notview_a").value).to eq("value")
+  end
 end
 

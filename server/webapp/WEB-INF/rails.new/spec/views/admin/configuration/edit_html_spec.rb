@@ -35,12 +35,10 @@ describe "admin/configuration/edit.html.erb" do
     end
   end
 
-
   it "should render edit" do
     assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
     date = java.util.Date.new(1366866649)
-    current_date = java.util.Date.new()
-    difference = current_date.getYear() - date.getYear()
+    difference = "#{time_ago_in_words(date.to_string)} #{l.string('AGO')}"
     cruise_config_revision = double("cruise config revision")
     cruise_config_revision.should_receive(:getTime).and_return(date)
     cruise_config_revision.should_receive(:getUsername).and_return("Ali")
@@ -54,8 +52,8 @@ describe "admin/configuration/edit.html.erb" do
           admin.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |config_editor|
             expect(config_editor).to have_selector("input[name='_method'][value='put']")
             config_editor.find("div.form_heading").tap do |form_heading|
-              expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: over #{difference} years ago by Ali")
-              expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: over #{difference} years ago by Ali']")
+              expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: #{difference} by Ali")
+              expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: #{difference} by Ali']")
               form_heading.find("div.buttons-group").tap do |buttons_group|
                 expect(buttons_group).to have_selector("input#save_config[class='link_as_button primary'][type='submit'][value='SAVE'][disabled='disabled']")
                 expect(buttons_group).to have_selector("a#cancel_edit[class='link_as_button'][href='config_xml_view_path']", :text => "Cancel")

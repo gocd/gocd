@@ -939,7 +939,7 @@ public class GoConfigServiceTest {
 
         long pipelineSelectionId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"));
 
-        assertThat(pipelineSelections.getUnselectedPipelines(), is("pipeline1,pipeline2"));
+        assertThat(pipelineSelections.getSelections(), is("pipeline1,pipeline2"));
         assertThat(pipelineSelectionId, is(2l));
         verify(pipelineRepository).saveSelectedPipelines(pipelineSelections);
         verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());

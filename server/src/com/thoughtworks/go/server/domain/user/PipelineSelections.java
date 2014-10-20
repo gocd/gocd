@@ -61,7 +61,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     public void update(List<String> unselectedPipelines, Date date, Long userId) {
         this.userId = userId;
-        this.setUnselectedPipelines(ListUtil.join(unselectedPipelines, ","));
+        this.setSelections(ListUtil.join(unselectedPipelines, ","));
         this.lastUpdate = date;
     }
 
@@ -91,11 +91,11 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
 
-    public String getUnselectedPipelines() {
+    public String getSelections() {
         return ListUtil.join(pipelineList(), ",");
     }
 
-    public void setUnselectedPipelines(String unselectedPipelines) {
+    public void setSelections(String unselectedPipelines) {
         this.pipelines = ListUtil.split(unselectedPipelines, ",");
         List<CaseInsensitiveString> pipelineList = new ArrayList<CaseInsensitiveString>();
         for (String pipeline : pipelines) {

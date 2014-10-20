@@ -123,6 +123,58 @@ public class DbMigrationTest {
         }
     }
 
+    @Test
+    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
+    public void testMigration_1501001_should_rename_pipelineselections_unselected_pipelines_to_selections() throws Exception {
+        dbFixture.copyDeltas();
+        dbFixture.copyH2Db("with-usernames-in-different-cases.zip");
+        h2Database = new H2Database(dbFixture.env());
+
+        h2Database.startDatabase();
+        h2Database.upgrade();
+
+        doesNotHaveColumn("PIPELINESELECTIONS", "UNSELECTEDPIPELINES");
+        hasColumn("PIPELINESELECTIONS", "SELECTIONS");
+    }
+
+    @Test
+    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
+    public void testMigration_1501001_add_column_isblacklist_to_pipelineselections() throws Exception {
+        dbFixture.copyDeltas();
+        dbFixture.copyH2Db("with-usernames-in-different-cases.zip");
+        h2Database = new H2Database(dbFixture.env());
+
+        h2Database.startDatabase();
+
+        doesNotHaveColumn("PIPELINESELECTIONS", "ISBLACKLIST");
+
+        h2Database.upgrade();
+
+        hasColumn("PIPELINESELECTIONS", "ISBLACKLIST");
+        columnHasType("PIPELINESELECTIONS", "ISBLACKLIST", "BOOLEAN");
+        columnHasDefault("PIPELINESELECTIONS", "ISBLACKLIST", "TRUE");
+    }
+
+    private void columnHasDefault(String table, String column, String defaultValue) {
+        assertThat(DatabaseFixture.query(String.format("SELECT COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE COLUMN_NAME='%s' AND TABLE_NAME='%s' AND TABLE_SCHEMA='PUBLIC'", column, table), h2Database),
+                is(new Object[][]{{defaultValue}}));
+    }
+
+    private void columnHasType(String table, String column, String type) {
+        assertThat(DatabaseFixture.query(String.format("SELECT TYPE_NAME FROM information_schema.COLUMNS WHERE COLUMN_NAME='%s' AND TABLE_NAME='%s' AND TABLE_SCHEMA='PUBLIC'", column, table), h2Database),
+                is(new Object[][]{{type}}));
+    }
+
+    private void hasColumn(String table, String column) {
+        assertThat(DatabaseFixture.query(String.format("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE COLUMN_NAME='%s' AND TABLE_NAME='%s' AND TABLE_SCHEMA='PUBLIC'", column, table), h2Database),
+                is(new Object[][]{{1L}}));
+    }
+
+    private void doesNotHaveColumn(String table, String column) {
+        assertThat(DatabaseFixture.query(String.format("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE COLUMN_NAME='%s' AND TABLE_NAME='%s' AND TABLE_SCHEMA='PUBLIC'", column, table), h2Database),
+                is(new Object[][]{{0L}}));
+    }
+
     private void matchUserAttributesForUsername(final String username, final String email, final boolean enabled, final String actualName) {
         assertThat(DatabaseFixture.query("select name, email, enabled from users where name = '" + username + "'", h2Database), is(new Object[][]{{actualName, email, enabled}}));
     }

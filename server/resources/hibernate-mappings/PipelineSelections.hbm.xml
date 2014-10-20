@@ -26,5 +26,6 @@
         <property name="selections" access="property"/>
         <property name="userId" access="field"/>
         <property name="lastUpdate"/>
+        <property name="isBlacklist" access="field"/>
     </class>
 </hibernate-mapping>

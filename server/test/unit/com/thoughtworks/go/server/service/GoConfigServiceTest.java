@@ -886,27 +886,6 @@ public class GoConfigServiceTest {
         */
     }
 
-    private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
-        pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));
-        return pipeline;
-    }
-
-    private JobConfigs jobConfigs(String... buildNames) {
-        JobConfigs jobConfigs = new JobConfigs();
-        for (String buildName : buildNames) {
-            jobConfigs.add(new JobConfig(buildName));
-        }
-        return jobConfigs;
-    }
-
-    private GoConfigService goConfigServiceWithInvalidStatus() throws Exception {
-        goConfigFileDao = mock(GoConfigFileDao.class, "badCruiseConfigManager");
-        when(goConfigFileDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
-        return new GoConfigService(goConfigFileDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null, userDao,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, instanceFactory);
-    }
-
     @Test
     public void shouldDetermineIfStageExistsInCurrentConfig() throws Exception {
         PipelineConfigs pipelineConfigs = new PipelineConfigs();
@@ -933,7 +912,7 @@ public class GoConfigServiceTest {
         when(clock.currentTime()).thenReturn(date);
         mockConfigWithSecurity();
         User user = getUser("badger", 10L);
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline2"), new Date(), user.getId());
+        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline2"), new Date(), user.getId(), true);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
 
@@ -964,40 +943,6 @@ public class GoConfigServiceTest {
         verify(pipelineRepository, never()).findPipelineSelectionsById("1");
     }
 
-    private User getUser(final String userName, long id) {
-        long userId = id;
-        User user = new User(userName);
-        user.setId(userId);
-        when(userDao.findUser(userName)).thenReturn(user);
-        return user;
-    }
-
-    private Matcher<PipelineSelections> hasValues(final List<String> have, final List<String> doesntHave, final Date today, final Long userId) {
-        return new BaseMatcher<PipelineSelections>() {
-            public boolean matches(Object o) {
-                PipelineSelections pipelineSelections = (PipelineSelections) o;
-                assertHasSelected(pipelineSelections, have);
-                assertHasSelected(pipelineSelections, doesntHave, false);
-                assertThat(pipelineSelections.lastUpdated(), is(today));
-                assertThat(pipelineSelections.userId(), is(userId));
-                return true;
-            }
-
-            public void describeTo(Description description) {
-            }
-        };
-    }
-
-    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines) {
-        assertHasSelected(pipelineSelections, pipelines, true);
-    }
-
-    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines, boolean has) {
-        for (String pipeline : pipelines) {
-            assertThat(pipelineSelections.includesPipeline(pipelineConfig(pipeline)), is(has));
-        }
-    }
-
     @Test
     public void shouldPersistPipelineSelectionsShouldRemovePipelinesFromSelectedGroups() {
         CruiseConfig config = configWith(
@@ -1007,6 +952,36 @@ public class GoConfigServiceTest {
         when(goConfigFileDao.load()).thenReturn(config);
         goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipeline1", "pipeline2", "pipeline3"));
         verify(pipelineRepository).saveSelectedPipelines(argThat(hasValues(Arrays.asList("pipeline1", "pipeline2", "pipeline3"), Arrays.asList("pipelineX", "pipeline4"), clock.currentTime(), null)));
+    }
+
+    @Test
+    public void shouldPersistInvertedListOfPipelineSelections_WhenBlacklistIsEnabled() {
+        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
+        when(clock.currentTime()).thenReturn(date);
+        mockConfigWithSecurity();
+
+        User user = getUser("badger", 10L);
+        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
+        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
+
+        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+
+        verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(true, "pipeline1", "pipeline2")));
+    }
+
+    @Test
+    public void shouldPersistInvertedListOfPipelineSelections_WhenWhitelistIsEnabled() {
+        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
+        when(clock.currentTime()).thenReturn(date);
+        mockConfigWithSecurity();
+
+        User user = getUser("badger", 10L);
+        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), false);
+        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
+
+        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+
+        verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipelineX", "pipeline3")));
     }
 
     @Test
@@ -1148,21 +1123,6 @@ public class GoConfigServiceTest {
         goConfigService.scheduleStage("foo-pipeline", "foo-stage", schedulingContext);
 
         verify(instanceFactory).createStageInstance(pipelineConfig, new CaseInsensitiveString("foo-stage"), schedulingContext, md5, clock);
-    }
-
-    private CruiseConfig mockConfig() {
-        CruiseConfig config = configWith(
-                createGroup("group0", pipelineConfig("pipeline1"), pipelineConfig("pipeline2")),
-                createGroup("group1", pipelineConfig("pipelineX")),
-                createGroup("group2", pipelineConfig("pipeline3")));
-        when(goConfigFileDao.load()).thenReturn(config);
-        return config;
-    }
-
-    private CruiseConfig mockConfigWithSecurity() {
-        CruiseConfig config = mockConfig();
-        config.server().useSecurity(new SecurityConfig(null, new PasswordFileConfig("path"), true));
-        return config;
     }
 
     @Test
@@ -1354,14 +1314,6 @@ public class GoConfigServiceTest {
         assertThat(configUpdateResponse.getCruiseConfig().getMd5(), is("old-md5"));
     }
 
-    private GoConfigInvalidException getGoConfigInvalidException() {
-        ConfigErrors configErrors = new ConfigErrors();
-        configErrors.add("command", "command cannot be empty");
-        ArrayList<ConfigErrors> list = new ArrayList<ConfigErrors>();
-        list.add(configErrors);
-        return new GoConfigInvalidException(new CruiseConfig(), list);
-    }
-
     @Test
     public void configShouldContainOldMD5_WhenConfigMergeFailed(){
         when(goConfigFileDao.loadForEditing()).thenReturn(new CruiseConfig());
@@ -1472,6 +1424,50 @@ public class GoConfigServiceTest {
 		verify(cruiseConfig).pipelines("group");
 	}
 
+    private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
+        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
+        pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));
+        return pipeline;
+    }
+
+    private JobConfigs jobConfigs(String... buildNames) {
+        JobConfigs jobConfigs = new JobConfigs();
+        for (String buildName : buildNames) {
+            jobConfigs.add(new JobConfig(buildName));
+        }
+        return jobConfigs;
+    }
+
+    private GoConfigService goConfigServiceWithInvalidStatus() throws Exception {
+        goConfigFileDao = mock(GoConfigFileDao.class, "badCruiseConfigManager");
+        when(goConfigFileDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
+        return new GoConfigService(goConfigFileDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null, userDao,
+                ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, instanceFactory);
+    }
+
+    private CruiseConfig mockConfig() {
+        CruiseConfig config = configWith(
+                createGroup("group0", pipelineConfig("pipeline1"), pipelineConfig("pipeline2")),
+                createGroup("group1", pipelineConfig("pipelineX")),
+                createGroup("group2", pipelineConfig("pipeline3")));
+        when(goConfigFileDao.load()).thenReturn(config);
+        return config;
+    }
+
+    private CruiseConfig mockConfigWithSecurity() {
+        CruiseConfig config = mockConfig();
+        config.server().useSecurity(new SecurityConfig(null, new PasswordFileConfig("path"), true));
+        return config;
+    }
+
+    private GoConfigInvalidException getGoConfigInvalidException() {
+        ConfigErrors configErrors = new ConfigErrors();
+        configErrors.add("command", "command cannot be empty");
+        ArrayList<ConfigErrors> list = new ArrayList<ConfigErrors>();
+        list.add(configErrors);
+        return new GoConfigInvalidException(new CruiseConfig(), list);
+    }
+
     private Matcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {
         return new Matcher<UpdateConfigCommand>() {
             @Override
@@ -1508,6 +1504,57 @@ public class GoConfigServiceTest {
         };
     }
 
+    private User getUser(final String userName, long id) {
+        long userId = id;
+        User user = new User(userName);
+        user.setId(userId);
+        when(userDao.findUser(userName)).thenReturn(user);
+        return user;
+    }
+
+    private Matcher<PipelineSelections> hasValues(final List<String> isVisible, final List<String> isNotVisible, final Date today, final Long userId) {
+        return new BaseMatcher<PipelineSelections>() {
+            public boolean matches(Object o) {
+                PipelineSelections pipelineSelections = (PipelineSelections) o;
+                assertHasSelected(pipelineSelections, isVisible);
+                assertHasSelected(pipelineSelections, isNotVisible, false);
+                assertThat(pipelineSelections.lastUpdated(), is(today));
+                assertThat(pipelineSelections.userId(), is(userId));
+                return true;
+            }
+
+            public void describeTo(Description description) {
+            }
+        };
+    }
+
+    private Matcher<PipelineSelections> isAPipelineSelectionsInstanceWith(final boolean isBlacklist, final String... pipelineSelectionsInInstance) {
+        return new BaseMatcher<PipelineSelections>() {
+            public boolean matches(Object o) {
+                PipelineSelections pipelineSelections = (PipelineSelections) o;
+                assertThat(pipelineSelections.isBlacklist(), is(isBlacklist));
+
+                List<String> expectedSelectionsAsList = Arrays.asList(pipelineSelectionsInInstance);
+                assertEquals(pipelineSelections.getSelections(), ListUtil.join(expectedSelectionsAsList, ","));
+
+                return true;
+            }
+
+            public void describeTo(Description description) {
+            }
+        };
+    }
+
+    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines) {
+        assertHasSelected(pipelineSelections, pipelines, true);
+    }
+
+    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines, boolean has) {
+        String message = "Expected: " + pipelines + " to include " + pipelineSelections + ": (" + has + ").";
+        for (String pipeline : pipelines) {
+            assertThat(message + ". Failed to find: " + pipeline, pipelineSelections.includesPipeline(pipelineConfig(pipeline)), is(has));
+        }
+    }
 
     private String groupXml(final String groupName) {
         return "<pipelines group=\"" + groupName + "\">\n"

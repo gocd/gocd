@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.domain.PersistentObject;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
 
@@ -42,16 +43,18 @@ public class PipelineSelections extends PersistentObject implements Serializable
     private List<String> pipelines;
     private Long userId;
     private List<CaseInsensitiveString> caseInsensitivePipelineList = new ArrayList<CaseInsensitiveString>();
+    private boolean isBlacklist;
 
     public PipelineSelections() {
         this(new ArrayList<String>());
     }
 
     public PipelineSelections(List<String> unselectedPipelines) {
-        this(unselectedPipelines, new Date(), null);
+        this(unselectedPipelines, new Date(), null, true);
     }
 
-    public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId) {
+    public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
+        this.isBlacklist = isBlacklist;
         update(unselectedPipelines, date, userId);
     }
 
@@ -128,4 +131,12 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return userId;
     }
 
+    public boolean isBlacklist() {
+        return isBlacklist;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 }

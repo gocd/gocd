@@ -17,11 +17,11 @@
 class Api::ProcessListController < Api::ApiController
   def process_list
     @process_list = ProcessManager.getInstance().currentProcessListForDisplay();
-    @str = "<html><body><table border=\"1\">"
+    list = Array.new
     @process_list.each do |process|
-      @str += "<tr><td>" + process.getCommand() + "</td><td>" + process.getStartTimeForDisplay() + "</td><td>" + (process.getIdleTime() / 60000).to_s + " minutes</td></tr>"
+      list.push("{\"command\":\"#{process.getCommand()}\", \"start_time\":\"#{process.getStartTimeForDisplay()}\", \"idle_time\":\"#{(process.getIdleTime() / 60000).to_s} minutes\"}")
     end
-    @str += "</table></body></html>"
+    @str = "{\"process-list\":[#{list.join(",")}]}"
     render text: @str
   end
 end

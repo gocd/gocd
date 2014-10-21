@@ -294,24 +294,44 @@ describe PipelinesController do
     end
     
     it "should set cookies for a selected pipelines" do
-      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"]).and_return(1234)
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
-      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}
+
+      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
 
     it "should set cookies when no pipelines selected" do
-      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, []).and_return(1234)
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, [], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
-      post "select_pipelines", "selector" => {}
+
+      post "select_pipelines", "selector" => {}, show_new_pipelines: "true"
+
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
     end
 
     it "should set cookies when no pipelines or groups selected" do
-      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, []).and_return(1234)
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, [], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
-      post "select_pipelines"
+
+      post "select_pipelines", show_new_pipelines: "true"
+
       expect(cookiejar[:selected_pipelines]).to eq({:value=>1234, :expires=>1.year.from_now.beginning_of_day})
+    end
+
+    it "should persist the value of 'show_new_pipelines' when it is true" do
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
+
+      post "select_pipelines", "selector" => { pipeline: ["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+    end
+
+    it "should persist the value of 'show_new_pipelines' when it is false" do
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], false).and_return(1234)
+
+      post "select_pipelines", "selector" => { pipeline: ["pipeline1", "pipeline2"]}
     end
   end
 
@@ -321,16 +341,20 @@ describe PipelinesController do
     end
     
     it "should not update set cookies for selected pipelines when security enabled" do
-      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"]).and_return(1234)
+      @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
-      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}
+
+      post "select_pipelines", "selector" => {:pipeline=>["pipeline1", "pipeline2"]}, show_new_pipelines: "true"
+
       expect(cookiejar[:selected_pipelines]).to eq("456")
     end
 
     it "should not set cookies when selected pipeline cookie is absent when security enabled" do
-      @go_config_service.should_receive(:persistSelectedPipelines).with(nil, @user_id, []).and_return(1234)
+      @go_config_service.should_receive(:persistSelectedPipelines).with(nil, @user_id, [], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar = {})
-      post "select_pipelines", "selector" => {}
+
+      post "select_pipelines", "selector" => {}, show_new_pipelines: "true"
+
       expect(cookiejar[:selected_pipelines]).to eq(nil)
     end
   end

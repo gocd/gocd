@@ -843,14 +843,14 @@ public class GoConfigService {
         return pipelineSelections;
     }
 
-    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines) {
+    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
 
-        if (pipelineSelections.isBlacklist()) {
+        if (isBlacklist) {
             List<String> unselectedPipelines = invertSelections(selectedPipelines);
-            pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId);
+            pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId, isBlacklist);
         } else {
-            pipelineSelections.update(selectedPipelines, clock.currentTime(), userId);
+            pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
         }
 
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
@@ -884,15 +884,6 @@ public class GoConfigService {
         if (pipelineSelections == null) {
             pipelineSelections = pipelineRepository.findPipelineSelectionsById(id);
         }
-        return pipelineSelections;
-    }
-
-    private PipelineSelections getPipelineSelections(String id, Long userId, List<String> unselectedPipelines) {
-        PipelineSelections pipelineSelections = isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
-        if (pipelineSelections == null) {
-            return new PipelineSelections(unselectedPipelines, clock.currentTime(), userId, true);
-        }
-        pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId);
         return pipelineSelections;
     }
 

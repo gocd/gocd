@@ -54,16 +54,16 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
     public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
-        this.isBlacklist = isBlacklist;
-        update(unselectedPipelines, date, userId);
+        update(unselectedPipelines, date, userId, isBlacklist);
     }
 
     public Date lastUpdated() {
         return lastUpdate;
     }
 
-    public void update(List<String> unselectedPipelines, Date date, Long userId) {
+    public void update(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
         this.userId = userId;
+        this.isBlacklist = isBlacklist;
         this.setSelections(ListUtil.join(unselectedPipelines, ","));
         this.lastUpdate = date;
     }

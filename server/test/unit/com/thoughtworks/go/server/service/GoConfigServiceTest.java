@@ -902,7 +902,7 @@ public class GoConfigServiceTest {
         mockConfig();
         Matcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, null);
         when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
-        assertThat(goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipelineX", "pipeline3")), is(2l));
+        assertThat(goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipelineX", "pipeline3"), true), is(2l));
         verify(pipelineRepository).saveSelectedPipelines(argThat(pipelineSelectionsMatcher));
     }
 
@@ -916,7 +916,7 @@ public class GoConfigServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
 
-        long pipelineSelectionId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+        long pipelineSelectionId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
 
         assertThat(pipelineSelections.getSelections(), is("pipeline1,pipeline2"));
         assertThat(pipelineSelectionId, is(2l));
@@ -935,7 +935,7 @@ public class GoConfigServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
 
-        long pipelineSelectionsId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+        long pipelineSelectionsId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
 
         assertThat(pipelineSelectionsId, is(2l));
         verify(pipelineRepository).saveSelectedPipelines(argThat(pipelineSelectionsMatcher));
@@ -950,36 +950,36 @@ public class GoConfigServiceTest {
                 createGroup("group2", pipelineConfig("pipelineX")),
                 createGroup("group3", pipelineConfig("pipeline3"), pipelineConfig("pipeline4")));
         when(goConfigFileDao.load()).thenReturn(config);
-        goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipeline1", "pipeline2", "pipeline3"));
+        goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipeline1", "pipeline2", "pipeline3"), true);
         verify(pipelineRepository).saveSelectedPipelines(argThat(hasValues(Arrays.asList("pipeline1", "pipeline2", "pipeline3"), Arrays.asList("pipelineX", "pipeline4"), clock.currentTime(), null)));
     }
 
     @Test
-    public void shouldPersistInvertedListOfPipelineSelections_WhenBlacklistIsEnabled() {
+    public void shouldPersistInvertedListOfPipelineSelections_WhenBlacklistIsSelected() {
         Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
         when(clock.currentTime()).thenReturn(date);
         mockConfigWithSecurity();
 
         User user = getUser("badger", 10L);
-        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
+        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), false);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(blacklistPipelineSelections);
 
-        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
 
         verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(true, "pipeline1", "pipeline2")));
     }
 
     @Test
-    public void shouldPersistNonInvertedListOfPipelineSelections_WhenWhitelistIsEnabled() {
+    public void shouldPersistNonInvertedListOfPipelineSelections_WhenWhitelistIsSelected() {
         Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
         when(clock.currentTime()).thenReturn(date);
         mockConfigWithSecurity();
 
         User user = getUser("badger", 10L);
-        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), false);
+        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
 
-        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"));
+        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), false);
 
         verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipelineX", "pipeline3")));
     }
@@ -993,7 +993,7 @@ public class GoConfigServiceTest {
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
         List<String> newPipelines = Arrays.asList("pipeline1", "pipeline2");
 
-        goConfigService.persistSelectedPipelines("123", null, newPipelines);
+        goConfigService.persistSelectedPipelines("123", null, newPipelines, true);
 
         assertHasSelected(pipelineSelections, newPipelines);
         assertThat(pipelineSelections.lastUpdated(), is(date));

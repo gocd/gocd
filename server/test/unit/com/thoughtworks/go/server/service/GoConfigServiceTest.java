@@ -1169,7 +1169,6 @@ public class GoConfigServiceTest {
         }
     }
 
-
     @Test
     public void shouldReturnTrueIfUserIsTheAdminForGroup() {
         CaseInsensitiveString adminName = new CaseInsensitiveString("admin");

@@ -28,23 +28,23 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 
 public class PipelineSelectionsTest {
     @Test
-    public void shouldIncludePipelineWhenGroupIsIncluded() {
+    public void shouldIncludePipelineWhenGroupIsIncluded_whenBlacklistIsEnabled() {
         PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline1"));
-        assertThat(pipelineSelections.includesGroup(createGroup("group1",pipelineConfig("pipelineX"))),is(true));
-        assertThat(pipelineSelections.includesGroup(createGroup("group2",pipelineConfig("pipeline2"),  pipelineConfig("pipeline1"))),is(false));
-        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline1")),is(false));
-        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline2")),is(true));
+        assertThat(pipelineSelections.includesGroup(createGroup("group1", pipelineConfig("pipelineX"))), is(true));
+        assertThat(pipelineSelections.includesGroup(createGroup("group2", pipelineConfig("pipeline2"), pipelineConfig("pipeline1"))), is(false));
+        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline1")), is(false));
+        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline2")), is(true));
     }
 
     @Test
-    public void shouldIncludePipelinesCaseInsensitively() {
+    public void shouldIncludePipelinesCaseInsensitively_whenBlacklistIsEnabled() {
         PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline1"));
         assertThat(pipelineSelections.includesPipeline("pipeline1"), is(false));
         assertThat(pipelineSelections.includesPipeline("Pipeline1"), is(false));
     }
 
     @Test
-    public void shouldReturnASelectionForASinglePipeline() {
+    public void shouldReturnASelectionForASinglePipeline_whenBlacklistIsEnabled() {
         PipelineSelections selections = PipelineSelections.singleSelection("pipeline");
         assertThat(selections.includesPipeline("pipeline"), is(true));
         assertThat(selections.includesPipeline(pipelineConfig("pipeline")), is(true));
@@ -54,5 +54,18 @@ public class PipelineSelectionsTest {
 
         assertThat(selections.includesPipeline("foo"), is(false));
         assertThat(selections.includesPipeline(pipelineConfig("foo")), is(false));
+    }
+
+    @Test
+    public void shouldIncludePipelineWhenGroupIsIncluded_whenWhitelistIsEnabled() {
+        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline1", "pipelineY"), null, null, false);
+        assertThat(pipelineSelections.includesGroup(createGroup("group1", pipelineConfig("pipelineX"))), is(false));
+        assertThat(pipelineSelections.includesGroup(createGroup("group2", pipelineConfig("pipeline2"), pipelineConfig("pipeline1"))), is(false));
+        assertThat(pipelineSelections.includesGroup(createGroup("group3", pipelineConfig("pipeline2"), pipelineConfig("pipelineY"), pipelineConfig("pipeline1"))), is(false));
+        assertThat(pipelineSelections.includesGroup(createGroup("group4", pipelineConfig("pipeline1"))), is(true));
+        assertThat(pipelineSelections.includesGroup(createGroup("group5", pipelineConfig("pipeline1"), pipelineConfig("pipelineY"))), is(true));
+
+        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline1")), is(true));
+        assertThat(pipelineSelections.includesPipeline(pipelineConfig("pipeline2")), is(false));
     }
 }

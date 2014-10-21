@@ -961,8 +961,8 @@ public class GoConfigServiceTest {
         mockConfigWithSecurity();
 
         User user = getUser("badger", 10L);
-        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
+        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
+        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(blacklistPipelineSelections);
 
         goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"));
 
@@ -970,7 +970,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldPersistInvertedListOfPipelineSelections_WhenWhitelistIsEnabled() {
+    public void shouldPersistNonInvertedListOfPipelineSelections_WhenWhitelistIsEnabled() {
         Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
         when(clock.currentTime()).thenReturn(date);
         mockConfigWithSecurity();

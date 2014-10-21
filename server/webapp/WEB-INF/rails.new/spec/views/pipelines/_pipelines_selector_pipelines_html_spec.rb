@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe "/pipelines/pipelines_selector.html.erb" do
+describe "/pipelines/_pipeline_selector_pipelines.html.erb" do
   include PipelineModelMother
 
   before do

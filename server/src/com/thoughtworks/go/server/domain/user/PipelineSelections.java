@@ -61,10 +61,10 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return lastUpdate;
     }
 
-    public void update(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
+    public void update(List<String> selections, Date date, Long userId, boolean isBlacklist) {
         this.userId = userId;
         this.isBlacklist = isBlacklist;
-        this.setSelections(ListUtil.join(unselectedPipelines, ","));
+        updateSelections(selections);
         this.lastUpdate = date;
     }
 
@@ -103,7 +103,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return ListUtil.join(pipelineList(), ",");
     }
 
-    public void setSelections(String unselectedPipelines) {
+    private void setSelections(String unselectedPipelines) {
         this.pipelines = ListUtil.split(unselectedPipelines, ",");
         List<CaseInsensitiveString> pipelineList = new ArrayList<CaseInsensitiveString>();
         for (String pipeline : pipelines) {
@@ -143,5 +143,18 @@ public class PipelineSelections extends PersistentObject implements Serializable
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    public PipelineSelections addPipelineToSelections(CaseInsensitiveString pipelineToAdd) {
+        ArrayList<String> updatedListOfPipelines = new ArrayList<String>();
+        updatedListOfPipelines.addAll(pipelines);
+        updatedListOfPipelines.add(CaseInsensitiveString.str(pipelineToAdd));
+
+        this.updateSelections(updatedListOfPipelines);
+        return this;
+    }
+
+    private void updateSelections(List<String> selections) {
+        this.setSelections(ListUtil.join(selections, ","));
     }
 }

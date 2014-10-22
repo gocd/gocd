@@ -1045,6 +1045,14 @@ public class GoConfigService {
         return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
     }
 
+    public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
+        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+        if (!currentSelections.isBlacklist()) {
+            currentSelections.addPipelineToSelections(pipelineToAdd);
+            pipelineRepository.saveSelectedPipelines(currentSelections);
+        }
+    }
+
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;

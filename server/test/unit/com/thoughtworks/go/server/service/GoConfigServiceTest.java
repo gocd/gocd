@@ -1423,6 +1423,57 @@ public class GoConfigServiceTest {
 		verify(cruiseConfig).pipelines("group");
 	}
 
+    @Test
+    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasNeverSelectedPipelines() {
+        goConfigService.updateUserPipelineSelections(null, null, new CaseInsensitiveString("pipelineNew"));
+
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+    }
+
+    @Test
+    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasSelectedPipelines_WithBlacklist() {
+        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, true));
+
+        goConfigService.updateUserPipelineSelections("1", null, new CaseInsensitiveString("pipelineNew"));
+
+        verify(pipelineRepository).findPipelineSelectionsById("1");
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+    }
+
+    @Test
+    public void shouldUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasSelectedPipelines_WithWhitelist() {
+        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, false));
+
+        goConfigService.updateUserPipelineSelections("1", null, new CaseInsensitiveString("pipelineNew"));
+
+        verify(pipelineRepository).findPipelineSelectionsById("1");
+        verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
+    }
+
+    @Test
+    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsLoggedIn_WithBlacklist() {
+        mockConfigWithSecurity();
+
+        when(pipelineRepository.findPipelineSelectionsByUserId(1L)).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, true));
+
+        goConfigService.updateUserPipelineSelections(null, 1L, new CaseInsensitiveString("pipelineNew"));
+
+        verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
+        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
+    }
+
+    @Test
+    public void shouldUpdatePipelineSelectionsWhenTheUserIsLoggedIn_WithWhitelist() {
+        mockConfigWithSecurity();
+
+        when(pipelineRepository.findPipelineSelectionsByUserId(1L)).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, false));
+
+        goConfigService.updateUserPipelineSelections(null, 1L, new CaseInsensitiveString("pipelineNew"));
+
+        verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
+        verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
+    }
+
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));

@@ -90,6 +90,7 @@ module Admin
           @group = cruise_config.findGroupOfPipeline(pipeline)
         end
       end.new(params, current_user, security_service, pipeline, package_definition_service, pluggable_task_service)
+
       save_page(params[:config_md5], nil, {:action => :new, :layout => 'application'}, save_action, l.string("PIPELINE_SAVED_SUCCESSFULLY")) do
         assert_load(:task_view_models, task_view_service.getTaskViewModels()) if !@update_result.isSuccessful()
         assert_load(:pipeline, @subject)
@@ -100,6 +101,7 @@ module Admin
           task_view_model1 = task_view_service.getModelOfType(@task_view_models, task.getTaskType())
           task_view_model1.setModel(task_view_model.getModel())
         end
+
         group = save_action.group
         group = @cruise_config.findGroup(params[:pipeline_group][:group]) if group.nil?
         assert_load(:pipeline_group, group)
@@ -109,7 +111,12 @@ module Admin
         load_pause_info
         load_autocomplete_suggestions
         set_save_redirect_url(pipeline_edit_path(:pipeline_name => @pipeline.name(), :stage_parent=>"pipelines", :current_tab => "general")) if @update_result.isSuccessful()
+
         pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful() #The if check is important now as we want consistency across config and db save. If config save fails, we do not want to insert it in the DB.
+
+        if @update_result.isSuccessful()
+          go_config_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
+        end
 
         @original_cruise_config = @cruise_config
         if @pipeline.material_configs.size() > 0 && @pipeline.material_configs.get(0).type == PackageMaterialConfig::TYPE
@@ -181,6 +188,10 @@ module Admin
         assert_load(:group_name, save_action.group.getGroup())
         load_group_list
         pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful()
+
+        if @update_result.isSuccessful()
+          go_config_service.updateUserPipelineSelections(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())
+        end
       end
     end
 

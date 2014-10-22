@@ -41,7 +41,7 @@ PipelineFilter = function() {
 
     function setCheckedStateTo(value) {
         return function() {
-            jQuery("#pipelines_selector input[type='checkbox']").attr('checked', value);
+            jQuery("#pipelines_selector_pipelines input[type='checkbox']").attr('checked', value);
         };
     }
 

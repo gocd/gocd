@@ -45,7 +45,7 @@ public class ArtifactsDiskSpaceFullChecker extends DiskSpaceChecker {
     }
 
     protected SendEmailMessage createEmail() {
-        return EmailMessageDrafter.noArtifactsDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath(), constructHelpUrl());
+        return EmailMessageDrafter.noArtifactsDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath());
     }
 
     protected long limitInMb() {

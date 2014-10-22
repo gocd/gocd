@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * Please refer to the Go Plugin documentation for more details on how to use
  * this annotation.
  *
- * @see <a href="http://www.thoughtworks-studios.com/docs/go/current/help/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
+ * @see <a href="http://www.go.cd/documentation/user/current/extension_points/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  *
  * @author Go Team
  */

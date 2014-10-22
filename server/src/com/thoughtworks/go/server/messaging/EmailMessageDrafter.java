@@ -32,7 +32,7 @@ public class EmailMessageDrafter {
                     + "When the available space goes below %sMb, Go will stop scheduling. "
                     + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
                     + "including our recommendation to create a separate partition for it at "
-                    + "%s\n";
+                    + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n";
 
     private static final String NO_ARTIFACTS_DISK_SPACE_EMAIL =
             "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
@@ -41,7 +41,7 @@ public class EmailMessageDrafter {
                     + "because it has less than %sMb of disk space available at %s to store artifacts. "
                     + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
                     + "including our recommendation to create a separate partition for it at "
-                    + "%s\n";
+                    + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n";
 
     private static final String LOW_DATABASE_DISK_SPACE_EMAIL =
             "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
@@ -58,23 +58,22 @@ public class EmailMessageDrafter {
                     + "Please ensure enough space is available.\n";
 
     public static SendEmailMessage lowArtifactsDiskSpaceMessage(SystemEnvironment systemEnvironment, String adminMail,
-                                                                String targetFolder, String hostSiteUrl) {
+                                                                String targetFolder) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         return new SendEmailMessage(
                 "Low artifacts disk space warning message from Go Server at " + ipAddress, String.format(
                         LOW_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, systemEnvironment.getArtifactReposiotryWarningLimit(),
                         targetFolder,
-                        systemEnvironment.getArtifactReposiotryFullLimit(),
-                        hostSiteUrl), adminMail);
+                        systemEnvironment.getArtifactReposiotryFullLimit()), adminMail);
     }
 
     public static SendEmailMessage noArtifactsDiskSpaceMessage(SystemEnvironment systemEnvironment, String adminMail,
-                                                               String targetFolder, String hostSiteUrl) {
+                                                               String targetFolder) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         long size = systemEnvironment.getArtifactReposiotryFullLimit();
         return new SendEmailMessage(
                 "No artifacts disk space error message from Go Server at " + ipAddress, String.format(
-                        NO_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, size, targetFolder, hostSiteUrl), adminMail);
+                        NO_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, size, targetFolder), adminMail);
     }
 
     public static SendEmailMessage lowDatabaseDiskSpaceMessage(SystemEnvironment systemEnvironment, String adminMail,

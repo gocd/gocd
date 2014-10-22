@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.web;
 
+import org.apache.commons.lang.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
 
 public class IgnoreResolver {
     private static final String[] STATIC_FILE_EXT = new String[]{".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".psd", ".ico"};
@@ -36,16 +36,10 @@ public class IgnoreResolver {
                     isGoingToServerInfo(request) ||
                     isPost(request) ||
                     isPut(request) ||
-                    isStaticFile(request) ||
-                    isHelp(request);
+                    isStaticFile(request);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private boolean isHelp(HttpServletRequest request) throws URISyntaxException {
-        String path = new URI(request.getRequestURI()).getPath().toLowerCase();
-        return path.startsWith(request.getContextPath() + "/help/");
     }
 
     private boolean isStaticFile(HttpServletRequest request) throws URISyntaxException {

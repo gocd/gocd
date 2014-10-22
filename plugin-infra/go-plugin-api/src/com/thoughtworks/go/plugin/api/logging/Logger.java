@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.plugin.api.logging;
 
-import java.lang.reflect.Field;
-
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
+
+import java.lang.reflect.Field;
 
 /**
  * Logger for use by the plugin developers.
  *
  * @author Go Team
- * @see <a href="http://www.thoughtworks-studios.com/docs/go/current/help/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
+ * @see <a href="http://www.go.cd/documentation/user/current/extension_points/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  */
 public class Logger {
     private String pluginId;

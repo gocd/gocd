@@ -40,7 +40,7 @@ describe 'environments/index.html.erb' do
     template.stub!(:environments_allowed?).and_return(true)
     render 'environments/index.html.erb'
     response.should have_tag("div.unused_feature") do
-      with_tag("a[href='/help/managing_environments.html']", "More Information")
+      with_tag("a[href='http://www.go.cd/documentation/user/current/configuration/managing_environments.html']", "More Information")
     end
   end
 

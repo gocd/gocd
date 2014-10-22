@@ -121,7 +121,7 @@
                     </div>
                     <div id="error-box">
                         $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
-                        <a target="_blank" href="$req.getContextPath()/help/dev_authentication.html#common_errors">Help Topic: Authentication</a>
+                        <a target="_blank" href="http://www.go.cd/documentation/user/current/configuration/dev_authentication.html#common-errors">Help Topic: Authentication</a>
                     </div>
                     <div class="ab-bg">
                         <span class="ab-corner lvl4"></span>

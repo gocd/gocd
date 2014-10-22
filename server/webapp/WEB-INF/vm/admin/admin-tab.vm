@@ -34,7 +34,7 @@
         #parse("shared/_page_intro_top.vm")
         <p>This page gives administrators the ability to manage and configure Go Server,
             including the means to change security as well as add and edit pipelines, stages, and jobs.
-            <a href="$req.getContextPath()/help/administration_page.html" target="_blank" title="Learn more from help documentation" class="more">more...</a>
+            <a href="http://www.go.cd/documentation/user/current/navigations/administration_page.html" target="_blank" title="Learn more from help documentation" class="more">more...</a>
         </p>
         #parse("shared/_page_intro_bottom.vm")
 

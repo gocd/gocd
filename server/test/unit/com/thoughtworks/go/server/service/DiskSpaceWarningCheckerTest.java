@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -35,14 +31,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import static com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullCheckerTest.mockGoConfigServiceToHaveSiteUrl;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DiskSpaceWarningCheckerTest {
@@ -108,7 +106,7 @@ public class DiskSpaceWarningCheckerTest {
     
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "http://test.host/go/help/installing_go_server.html";
+        String expectedHelpUrl = "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html";
 
         GoConfigService goConfigService = mockGoConfigServiceToHaveSiteUrl();
 
@@ -127,6 +125,5 @@ public class DiskSpaceWarningCheckerTest {
         assertThat(result.getServerHealthState().isSuccess(), is(true));
         assertThat(result.getServerHealthState().getMessage(), is("Go Server's artifact repository is running low on disk space"));
         assertThat(result.getServerHealthState().getType(), is(HealthStateType.artifactsDiskFull()));
-
     }
 }

@@ -41,7 +41,7 @@
             <%= render :partial => "bisect_warning.html", :locals => {:scope => {:to_pipeline => @to_pipeline, :from_pipeline => @from_pipeline}} -%>
             <div id="card_activity_gadget" class="gadget-container">
                 <% unless @mingle_config %>
-                    <div class="information"><%= l.string("NO_MINGLE_CONFIG_FOUND") %> <%= link_to l.string("MORE_INFORMATION"), url_for_path('/help/mingle_card_activity_gadget.html'), :target => "_blank" %></div>
+                    <div class="information"><%= l.string("NO_MINGLE_CONFIG_FOUND") %> <%= link_to l.string("MORE_INFORMATION"), "http://www.go.cd/documentation/user/current/integration/mingle_card_activity_gadget.html", :target => "_blank" %></div>
                 <% end %>
                 <!-- gadget goes here -->
             </div>

@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @understands when disk space is too low to be safe on server
@@ -133,21 +130,6 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
 
     protected String getAdminMail() {
         return goConfigService.adminEmail();
-    }
-
-    protected String constructHelpUrl() {
-        String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        int port = systemEnvironment.getServerPort();
-        String helpUrl = String.format("http://%s:%s/go/help/installing_go_server.html", ipAddress, port);
-        ServerSiteUrlConfig siteHelpUrl;
-        siteHelpUrl = goConfigService.currentCruiseConfig().server().getSiteUrl();
-        String constructedHelpUrl;
-        try {
-            constructedHelpUrl = siteHelpUrl.siteUrlFor(helpUrl);
-        } catch (URISyntaxException e) {
-            constructedHelpUrl = helpUrl;
-        }
-        return constructedHelpUrl;
     }
 
     public OperationResult resultFor(OperationResult result) {

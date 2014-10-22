@@ -39,11 +39,11 @@ public class EmailMessageDrafterTest {
         int noDiskSpaceSize = 100;
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT, size);
         String email = "admin@mail.com";
-        SendEmailMessage message = EmailMessageDrafter.lowArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot, "http://test.host/go/help/installing_go_server.html");
+        SendEmailMessage message = EmailMessageDrafter.lowArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot);
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         assertThat(message, is(new SendEmailMessage(
                 "Low artifacts disk space warning message from Go Server at " + ip,
-                lowArtifactDiskSpaceEmail(ip, size, noDiskSpaceSize, "test.host"), email
+                lowArtifactDiskSpaceEmail(ip, size, noDiskSpaceSize), email
         )));
     }
 
@@ -52,30 +52,30 @@ public class EmailMessageDrafterTest {
         String size = "2345";
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, size);
         String email = "admin@mail.com";
-        SendEmailMessage message = EmailMessageDrafter.noArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot, "http://test.host/go/help/installing_go_server.html");
+        SendEmailMessage message = EmailMessageDrafter.noArtifactsDiskSpaceMessage(new SystemEnvironment(), email, artifactRoot);
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         assertThat(message, is(new SendEmailMessage(
                 "No artifacts disk space error message from Go Server at " + ip,
-                noArtifactDiskSpaceEmail(ip, size, "test.host"), email
+                noArtifactDiskSpaceEmail(ip, size), email
         )));
     }
 
-    private String lowArtifactDiskSpaceEmail(String ip, String size, int noDiskSpaceSize, String hostSiteUrl) {
+    private String lowArtifactDiskSpaceEmail(String ip, String size, int noDiskSpaceSize) {
         return String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
             + "\n"
             + "This server has less than %sMb of disk space available at %s to store artifacts. "
             + "When the available space goes below %sMb, Go will stop scheduling. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "http://%s/go/help/installing_go_server.html\n", ip, size, artifactRoot, noDiskSpaceSize, hostSiteUrl);
+            + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot, noDiskSpaceSize);
     }
 
-    private String noArtifactDiskSpaceEmail(String ip, String size, String hostSiteUrl) {
+    private String noArtifactDiskSpaceEmail(String ip, String size) {
         return String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
             + "\n"
             + "This server has stopped scheduling because it has less than %sMb of disk space available at %s to store artifacts. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "http://%s/go/help/installing_go_server.html\n", ip, size, artifactRoot, hostSiteUrl);
+            + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot);
     }
 }

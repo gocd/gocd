@@ -39,7 +39,7 @@
         #parse("shared/_page_intro_top.vm")
         <p>This view shows basic configuration information for Go Server.
             Administrators can also manage the license information from here.
-            <a href="$req.getContextPath()/help/server_details_page.html" title="Learn more from help documentation" target="_blank" class="more">more...</a>
+            <a href="http://www.go.cd/documentation/user/current/navigations/stage_details_page.html" title="Learn more from help documentation" target="_blank" class="more">more...</a>
         </p>
         #parse("shared/_page_intro_bottom.vm")
 

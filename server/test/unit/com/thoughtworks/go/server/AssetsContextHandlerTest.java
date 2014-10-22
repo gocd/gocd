@@ -26,7 +26,7 @@ public class AssetsContextHandlerTest {
         assertThat(handler.getHandler() instanceof ResourceHandler, is(true));
         ResourceHandler resourceHandler = (ResourceHandler) handler.getHandler();
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
-        assertThat(resourceHandler.getResourceBase(), is("file:" + new File("WEB-INF/rails.root/public/assets").getAbsolutePath()));
+        assertThat(resourceHandler.getResourceBase(), is(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
     }
 
     @Test

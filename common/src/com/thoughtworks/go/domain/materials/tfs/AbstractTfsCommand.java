@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.tfs;
 
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
@@ -26,6 +25,8 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,18 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
 
     protected CommandArgument getUrl() {
         return url;
+    }
+
+    protected URI getUri() {
+        try {
+            return new URI(url.toString());
+        } catch (URISyntaxException e) {
+            String message = String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url,
+                    projectPath,
+                    userName,
+                    domain);
+            throw new RuntimeException(message, e);
+        }
     }
 
     protected String getUserName() {

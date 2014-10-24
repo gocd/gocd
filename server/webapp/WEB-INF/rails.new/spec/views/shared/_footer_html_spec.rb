@@ -26,7 +26,7 @@ describe "/shared/_footer.html" do
       ul.first('li').tap do |li|
         expect(li).to have_selector("a[href='http://www.thoughtworks.com/products'][target='_blank']", 'ThoughtWorks, Inc.')
         expect(li).to have_selector("a[href='http://www.apache.org/licenses/LICENSE-2.0'][target='_blank']", 'Apache License, Version 2.0')
-        expect(li).to have_selector("a[href='/help/resources/NOTICE/cruise_notice_file.pdf'][target='_blank']", 'third-party software')
+        expect(li).to have_selector("a[href='/NOTICE/cruise_notice_file.pdf'][target='_blank']", 'third-party software')
       end
     end
   end

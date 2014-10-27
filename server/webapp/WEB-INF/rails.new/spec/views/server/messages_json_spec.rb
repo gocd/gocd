@@ -19,7 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe "/server/messages.json.erb" do
   it "should render errors if there are any in the header" do
     first = ServerHealthState.error("first error", "first description", HealthStateType.invalidConfig())
-    second = ServerHealthState.error("second error", "second description", HealthStateType.invalidConfig())
+    second = ServerHealthState.error("second error", 'second description <a>link</a>', HealthStateType.invalidConfig())
     third = ServerHealthState.warning("first warning", "third description", HealthStateType.artifactsDirChanged())
     assign(:current_server_health_states, ServerHealthStates.new([first, second, third]))
 
@@ -29,12 +29,13 @@ describe "/server/messages.json.erb" do
     counts = json["cruise_message_counts"]["html"]
     body = json["cruise_message_body"]["html"]
 
-    expect(counts).to have_selector('.messages .error_count', "Errors: 2")
-    expect(counts).to have_selector('.messages .warning_count', "Warnings: 1")
+    expect(counts).to have_selector('.messages .error_count', text: "Errors: 2")
+    expect(counts).to have_selector('.messages .warning_count', text: "Warnings: 1")
 
     Capybara.string(body).all('.error').tap do |errors|
       assert_message_and_desc errors[0], first.getMessageWithTimestamp(), 'first description'
-      assert_message_and_desc errors[1], second.getMessageWithTimestamp(), 'second description'
+      assert_message_and_desc errors[1], second.getMessageWithTimestamp(), 'second description link'
+      expect(errors[1]).to have_selector('.description a', text: 'link')
     end
 
     Capybara.string(body).all('.warning').tap do |warnings|
@@ -57,7 +58,7 @@ describe "/server/messages.json.erb" do
   end
 
   def assert_message_and_desc tag, message, desc
-    expect(tag).to have_selector('.message', message)
-    expect(tag).to have_selector('.description', desc)
+    expect(tag).to have_selector('.message', text: message)
+    expect(tag).to have_selector('.description', text: desc)
   end
 end

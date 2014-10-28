@@ -497,6 +497,8 @@ public class PipelineInstanceModel implements PipelineInfo {
         return getMaterials().findDependencyMaterial(pipelineName);
     }
 
+    public void setComment(String comment) { this.comment = comment; }
+
     public String getComment() {
         return comment;
     }

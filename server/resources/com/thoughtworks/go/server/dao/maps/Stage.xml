@@ -363,7 +363,7 @@
 
     <select id="allCompletedStages" resultMap="stage-feed-entry">
         <include refid="selectForFeed"/>
-        WHERE completedByTransitionId IS NOT NULL 
+        WHERE completedByTransitionId IS NOT NULL
         ORDER BY completedByTransitionId DESC
         LIMIT #pageLimit#
     </select>
@@ -548,10 +548,16 @@
         FROM stages
         JOIN pipelines ON pipelines.id = stages.pipelineId
         INNER JOIN builds ON stages.id = builds.stageId AND builds.ignored != true
-        WHERE stages.name = #stageName#
-        AND pipelines.name = #pipelineName#
+        WHERE stages.id IN (
+            SELECT
+            id
+            FROM _stages
+            WHERE name = #stageName#
+            AND pipelineName = #pipelineName#
+            ORDER BY id DESC
+            LIMIT #limit# OFFSET #offset#
+        )
         ORDER BY stages.id DESC
-        LIMIT #limit# OFFSET #offset#
     </select>
 
     <select id="allPassedStagesByName" resultMap="select-stage-with-identifier-jobs">

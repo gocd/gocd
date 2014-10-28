@@ -90,7 +90,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (Stage) transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         String pipelineName = pipeline.getName();
                         String stageName = stage.getName();
 
@@ -122,7 +123,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 goCache.remove(cacheKeyForStageOffset(stage));
             }
             goCache.remove(cacheKeyForStageHistories(pipelineName, stage.getName()));
-			goCache.remove(cacheKeyForDetailedStageHistories(pipelineName, stage.getName()));
+            goCache.remove(cacheKeyForDetailedStageHistories(pipelineName, stage.getName()));
         } finally {
             readWriteLock.releaseWriteLock(mutex);
         }
@@ -279,7 +280,8 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public void updateResult(final Stage stage, final StageResult result) {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 StageIdentifier identifier = stage.getIdentifier();
                 clearStageHistoryPageCaches(stage, identifier.getPipelineName(), true);
                 clearJobStatusDependentCaches(stage.getId(), identifier);
@@ -397,22 +399,22 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
-	public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination) {
-		String mutex = mutexForStageHistory(pipelineName, stageName);
-		readWriteLock.acquireReadLock(mutex);
-		try {
-			String subKey = String.format("%s-%s", pagination.getOffset(), pagination.getPageSize());
-			String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
-			StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
-			if (stageInstanceModels == null) {
-				stageInstanceModels = findDetailedStageHistory(pipelineName, stageName, pagination);
-				goCache.put(key, subKey, stageInstanceModels);
-			}
-			return cloner.deepClone(stageInstanceModels);
-		} finally {
-			readWriteLock.releaseReadLock(mutex);
-		}
-	}
+    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, final Pagination pagination) {
+        String mutex = mutexForStageHistory(pipelineName, stageName);
+        readWriteLock.acquireReadLock(mutex);
+        try {
+            String subKey = String.format("%s-%s", pagination.getOffset(), pagination.getPageSize());
+            String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
+            StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
+            if (stageInstanceModels == null) {
+                stageInstanceModels = findDetailedStageHistory(pipelineName, stageName, pagination);
+                goCache.put(key, subKey, stageInstanceModels);
+            }
+            return cloner.deepClone(stageInstanceModels);
+        } finally {
+            readWriteLock.releaseReadLock(mutex);
+        }
+    }
 
     public StageHistoryPage findStageHistoryPage(final Stage stage, final int pageSize) {
         final StageIdentifier id = stage.getIdentifier();
@@ -462,9 +464,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return String.format("%s_stageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
-	private String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
-		return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
-	}
+    private String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
+        return String.format("%s_detailedStageHistories_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
+    }
 
     public Long findStageIdByPipelineAndStageNameAndCounter(long pipelineId, String name, String counter) {
         Map<String, Object> toGet = arguments("pipelineId", pipelineId)
@@ -490,16 +492,16 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (List<StageHistoryEntry>) getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
     }
 
-	StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
-		Map<String, Object> args = arguments("pipelineName", pipelineName).
-				and("stageName", stageName).
-				and("limit", pagination.getPageSize()).
-				and("offset", pagination.getOffset()).asMap();
-		List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
-		StageInstanceModels stageInstanceModels = new StageInstanceModels();
-		stageInstanceModels.addAll(detailedStageHistory);
-		return stageInstanceModels;
-	}
+    StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).
+                and("stageName", stageName).
+                and("limit", pagination.getPageSize()).
+                and("offset", pagination.getOffset()).asMap();
+        List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
+        StageInstanceModels stageInstanceModels = new StageInstanceModels();
+        stageInstanceModels.addAll(detailedStageHistory);
+        return stageInstanceModels;
+    }
 
     private int findOffsetForStage(Stage stage) {
         String key = cacheKeyForStageOffset(stage);

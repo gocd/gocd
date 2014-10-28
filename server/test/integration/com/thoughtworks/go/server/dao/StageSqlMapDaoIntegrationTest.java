@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
@@ -1733,20 +1734,14 @@ public class StageSqlMapDaoIntegrationTest {
 		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(3));
 		assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
 		assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(0).getName(), is("job1"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(0).getResult(), is(JobResult.Passed));
-        assertThat(stageInstanceModels.get(0).getBuildHistory().get(1).getName(), is("job2"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(1).getResult(), is(JobResult.Passed));
+		assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
 
 		assertThat(stageInstanceModels.get(1).getResult(), is(StageResult.Passed));
 		assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineName(), is(pipelineName));
 		assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineCounter(), is(2));
 		assertThat(stageInstanceModels.get(1).getIdentifier().getStageName(), is(stageName));
 		assertThat(stageInstanceModels.get(1).getIdentifier().getStageCounter(), is("1"));
-		assertThat(stageInstanceModels.get(1).getBuildHistory().get(0).getName(), is("job1"));
-		assertThat(stageInstanceModels.get(1).getBuildHistory().get(0).getResult(), is(JobResult.Passed));
-        assertThat(stageInstanceModels.get(1).getBuildHistory().get(1).getName(), is("job2"));
-		assertThat(stageInstanceModels.get(1).getBuildHistory().get(1).getResult(), is(JobResult.Passed));
+		assertJobDetails(stageInstanceModels.get(1).getBuildHistory());
 
 		pagination = Pagination.pageStartingAt(2, 3, 2);
 		stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
@@ -1758,10 +1753,15 @@ public class StageSqlMapDaoIntegrationTest {
 		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(1));
 		assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
 		assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(0).getName(), is("job1"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(0).getResult(), is(JobResult.Passed));
-        assertThat(stageInstanceModels.get(0).getBuildHistory().get(1).getName(), is("job2"));
-		assertThat(stageInstanceModels.get(0).getBuildHistory().get(1).getResult(), is(JobResult.Passed));
+		assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
+	}
+
+	private void assertJobDetails(JobHistory buildHistory) {
+		assertThat(buildHistory.size(), is(2));
+		Set<String> jobNames = new HashSet<String>(Arrays.asList(buildHistory.get(0).getName(), buildHistory.get(1).getName()));
+		assertThat(jobNames, hasItems("job2", "job1"));
+		assertThat(buildHistory.get(0).getResult(), is(JobResult.Passed));
+		assertThat(buildHistory.get(1).getResult(), is(JobResult.Passed));
 	}
 
 	@Test

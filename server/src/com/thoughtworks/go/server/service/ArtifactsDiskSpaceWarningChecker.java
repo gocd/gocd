@@ -47,7 +47,7 @@ public class ArtifactsDiskSpaceWarningChecker extends DiskSpaceChecker {
     }
 
     protected SendEmailMessage createEmail() {
-        return EmailMessageDrafter.lowArtifactsDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath(), constructHelpUrl());
+        return EmailMessageDrafter.lowArtifactsDiskSpaceMessage(systemEnvironment, getAdminMail(), targetFolderCanonicalPath());
     }
 
     @Override public void check(OperationResult result) {

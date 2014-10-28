@@ -48,9 +48,7 @@ public class IgnoreResolverTest {
     @DataPoint public static final String GIF = "/go/images/quux.gif";
     @DataPoint public static final String PSD = "/go/images/quux.psd";
     @DataPoint public static final String ICO = "/go/images/hello.ico";
-    //help files
-    @DataPoint public static final String HELP_FILES = "/go/help/quux/foo_bar.html?baz=hello";
-    
+
     private MockHttpServletRequest mockHttpServletRequest;
     private IgnoreResolver ignoreResolver = new IgnoreResolver();
 

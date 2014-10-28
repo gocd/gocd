@@ -24,7 +24,7 @@ describe "/shared/_footer.html" do
       with_tag("li", "Copyright &copy; 2014 ThoughtWorks, Inc. Licensed under Apache License, Version 2.0. Go includes third-party software.") do
         with_tag("a[href='http://www.thoughtworks.com/products'][target='_blank']", 'ThoughtWorks, Inc.')
         with_tag("a[href='http://www.apache.org/licenses/LICENSE-2.0'][target='_blank']", 'Apache License, Version 2.0')
-        with_tag("a[href='/help/resources/NOTICE/cruise_notice_file.pdf'][target='_blank']", 'third-party software')
+        with_tag("a[href='/NOTICE/cruise_notice_file.pdf'][target='_blank']", 'third-party software')
       end
     end
   end

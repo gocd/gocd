@@ -57,7 +57,7 @@
     <rule>
         <name>Static content when backup in progress</name>
         <note>Serve static content when backup in progress</note>
-        <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/help/.*)|(/compressed/.*))$</from>
+        <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/compressed/.*))$</from>
         <to last="true">$1</to>
     </rule>
 

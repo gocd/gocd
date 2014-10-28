@@ -45,7 +45,7 @@ $esc.html(${content})
 
             #if($errorMessage && $errorMessage != "")
             <script type="text/javascript">
-                FlashMessageLauncher.error("$esc.javascript("$errorMessage")" + " <a target='_blank' href='/go/help/configuration_reference.html'>Help Topic: Configuration</a>", null, true);
+                FlashMessageLauncher.error("$esc.javascript("$errorMessage")" + " <a target='_blank' href='http://www.go.cd/documentation/user/current/configuration/configuration_reference.html'>Help Topic: Configuration</a>", null, true);
                 $('content').value = "$esc.javascript(${content})"
                 $('editing_content').value = "$esc.javascript(${editing_content})"
             </script>

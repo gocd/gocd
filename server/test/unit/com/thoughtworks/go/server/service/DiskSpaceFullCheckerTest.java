@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.net.URISyntaxException;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -27,22 +24,18 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.SystemEnvironment;
-
-import static org.hamcrest.core.Is.is;
-
 import org.hamcrest.Matchers;
 import org.junit.After;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.net.URISyntaxException;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class DiskSpaceFullCheckerTest {
     private EmailSender sender;
@@ -135,7 +128,7 @@ public class DiskSpaceFullCheckerTest {
 
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "http://test.host/go/help/installing_go_server.html";
+        String expectedHelpUrl = "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html";
         ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
         CruiseConfig cruiseConfig = new CruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);

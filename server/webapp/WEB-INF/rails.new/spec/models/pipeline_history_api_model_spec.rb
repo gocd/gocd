@@ -60,33 +60,31 @@ describe PipelineHistoryAPIModel do
       modification_api_model.comment.should == 'comment'
       modification_api_model.email_address.should == 'test@test.com'
 
-      stage_instance_api_model = pipeline_instance_api_model.stages[0]
-      stage_instance_api_model.id.should == 456
-      stage_instance_api_model.name.should == 'stage name'
-      stage_instance_api_model.counter.should == '1'
-      stage_instance_api_model.scheduled.should == false
-      stage_instance_api_model.approval_type.should == 'manual'
-      stage_instance_api_model.approved_by.should == 'me'
-      stage_instance_api_model.result.should == 'passed'
-      stage_instance_api_model.rerun_of_counter.should == 1
-      stage_instance_api_model.operate_permission.should == 'yes'
-      stage_instance_api_model.can_run.should == true
-      stage_instance_api_model.pipeline_name.should == 'pipeline'
-      stage_instance_api_model.pipeline_counter.should == 1
+      stage_history_item_api_model = pipeline_instance_api_model.stages[0]
+      stage_history_item_api_model.id.should == 456
+      stage_history_item_api_model.name.should == 'stage name'
+      stage_history_item_api_model.counter.should == '1'
+      stage_history_item_api_model.scheduled.should == false
+      stage_history_item_api_model.approval_type.should == 'manual'
+      stage_history_item_api_model.approved_by.should == 'me'
+      stage_history_item_api_model.result.should == 'passed'
+      stage_history_item_api_model.rerun_of_counter.should == 1
+      stage_history_item_api_model.operate_permission.should == 'yes'
+      stage_history_item_api_model.can_run.should == true
 
-      job_instance_api_model = stage_instance_api_model.jobs[0]
-      job_instance_api_model.id.should == 543
-      job_instance_api_model.name.should == 'job name'
-      job_instance_api_model.state.should == 'state'
-      job_instance_api_model.result.should == 'result'
-      job_instance_api_model.scheduled_date.should == 12345678
-      job_instance_api_model.rerun.should == nil
-      job_instance_api_model.original_job_id.should == nil
-      job_instance_api_model.agent_uuid.should == nil
-      job_instance_api_model.pipeline_name.should == nil
-      job_instance_api_model.pipeline_counter.should == nil
-      job_instance_api_model.stage_name.should == nil
-      job_instance_api_model.stage_counter.should == nil
+      job_history_item_api_model = stage_history_item_api_model.jobs[0]
+      job_history_item_api_model.id.should == 543
+      job_history_item_api_model.name.should == 'job name'
+      job_history_item_api_model.state.should == 'state'
+      job_history_item_api_model.result.should == 'result'
+      job_history_item_api_model.scheduled_date.should == 12345678
+      job_history_item_api_model.rerun.should == nil
+      job_history_item_api_model.original_job_id.should == nil
+      job_history_item_api_model.agent_uuid.should == nil
+      job_history_item_api_model.pipeline_name.should == nil
+      job_history_item_api_model.pipeline_counter.should == nil
+      job_history_item_api_model.stage_name.should == nil
+      job_history_item_api_model.stage_counter.should == nil
     end
 
     it "should handle empty data" do
@@ -129,33 +127,31 @@ describe PipelineHistoryAPIModel do
       modification_api_model.comment.should == nil
       modification_api_model.email_address.should == nil
 
-      stage_instance_api_model = pipeline_instance_api_model.stages[0]
-      stage_instance_api_model.id.should == nil
-      stage_instance_api_model.name.should == nil
-      stage_instance_api_model.counter.should == nil
-      stage_instance_api_model.scheduled.should == nil
-      stage_instance_api_model.approval_type.should == nil
-      stage_instance_api_model.approved_by.should == nil
-      stage_instance_api_model.result.should == nil
-      stage_instance_api_model.rerun_of_counter.should == nil
-      stage_instance_api_model.operate_permission.should == nil
-      stage_instance_api_model.can_run.should == nil
-      stage_instance_api_model.pipeline_name.should == nil
-      stage_instance_api_model.pipeline_counter.should == nil
+      stage_history_item_api_model = pipeline_instance_api_model.stages[0]
+      stage_history_item_api_model.id.should == nil
+      stage_history_item_api_model.name.should == nil
+      stage_history_item_api_model.counter.should == nil
+      stage_history_item_api_model.scheduled.should == nil
+      stage_history_item_api_model.approval_type.should == nil
+      stage_history_item_api_model.approved_by.should == nil
+      stage_history_item_api_model.result.should == nil
+      stage_history_item_api_model.rerun_of_counter.should == nil
+      stage_history_item_api_model.operate_permission.should == nil
+      stage_history_item_api_model.can_run.should == nil
 
-      job_instance_api_model = stage_instance_api_model.jobs[0]
-      job_instance_api_model.id.should == nil
-      job_instance_api_model.name.should == nil
-      job_instance_api_model.state.should == nil
-      job_instance_api_model.result.should == nil
-      job_instance_api_model.scheduled_date.should == nil
-      job_instance_api_model.rerun.should == nil
-      job_instance_api_model.original_job_id.should == nil
-      job_instance_api_model.agent_uuid.should == nil
-      job_instance_api_model.pipeline_name.should == nil
-      job_instance_api_model.pipeline_counter.should == nil
-      job_instance_api_model.stage_name.should == nil
-      job_instance_api_model.stage_counter.should == nil
+      job_history_item_api_model = stage_history_item_api_model.jobs[0]
+      job_history_item_api_model.id.should == nil
+      job_history_item_api_model.name.should == nil
+      job_history_item_api_model.state.should == nil
+      job_history_item_api_model.result.should == nil
+      job_history_item_api_model.scheduled_date.should == nil
+      job_history_item_api_model.rerun.should == nil
+      job_history_item_api_model.original_job_id.should == nil
+      job_history_item_api_model.agent_uuid.should == nil
+      job_history_item_api_model.pipeline_name.should == nil
+      job_history_item_api_model.pipeline_counter.should == nil
+      job_history_item_api_model.stage_name.should == nil
+      job_history_item_api_model.stage_counter.should == nil
     end
   end
 end

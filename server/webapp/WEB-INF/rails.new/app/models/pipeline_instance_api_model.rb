@@ -27,7 +27,7 @@ class PipelineInstanceAPIModel
     @preparing_to_schedule = pipeline_instance_model.isPreparingToSchedule()
     @build_cause = BuildCauseAPIModel.new(pipeline_instance_model.getBuildCause())
     @stages = pipeline_instance_model.getStageHistory().collect do |stage_instance_model|
-      StageInstanceAPIModel.new(stage_instance_model)
+      StageHistoryItemAPIModel.new(stage_instance_model)
     end
   end
 end

@@ -386,4 +386,10 @@ public class PipelineInstanceModelTest {
         assertThat(pim.hasStage(new StageIdentifier("pipeline",1,"1", "stagex", "2")), is(false));
 
     }
+
+    @Test
+    public void shouldGetComment() {
+        PipelineInstanceModel pim = PipelineInstanceModel.createEmptyModel();
+        assertThat("pim.getComment()", pim.getComment(), is(nullValue()));
+    }
 }

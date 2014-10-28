@@ -68,6 +68,11 @@ class PipelinesController < ApplicationController
     render :nothing => true
   end
 
+  def update_comment
+    pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment])
+    render json: { status: 'success' }
+  end
+
   private
   def populate_and_show should_show
     pipeline_name = params[:pipeline_name]

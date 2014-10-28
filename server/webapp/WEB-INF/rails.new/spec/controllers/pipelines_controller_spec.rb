@@ -371,4 +371,22 @@ describe PipelinesController do
       expect(assigns[:current_tab_name]).to eq('pipelines')
     end
   end
+
+  describe 'update_comment' do
+    context 'when the update is successful' do
+      it 'updates the comment using the pipeline history service' do
+        expect(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment')
+
+        post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
+      end
+
+      it 'renders success json' do
+        allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment')
+
+        post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json
+
+        expect(JSON.load(response.body)).to eq({'status' => 'success'})
+      end
+    end
+  end
 end

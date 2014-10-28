@@ -85,4 +85,17 @@ public class PipelineSqlMapDaoTest {
         verify(goCache, times(1)).put(anyString(), eq(expected));
         verify(goCache, times(2)).get(anyString());
     }
+
+    @Test
+    public void shouldUpdateComment() throws Exception {
+        String pipelineName = "wholetthedogsout";
+        int pipelineCounter = 42;
+        String comment = "This song is from the 90s.";
+        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).and("comment", comment).asMap();
+
+        pipelineSqlMapDao.updateComment(pipelineName, pipelineCounter, comment);
+
+        verify(sqlMapClientTemplate, times(1)).update("updatePipelineComment", args);
+    }
+
 }

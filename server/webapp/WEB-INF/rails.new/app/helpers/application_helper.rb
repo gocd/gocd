@@ -337,7 +337,7 @@ module ApplicationHelper
   def check_for_cancelled_contents(state, options={} )
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
-      contents =  "<img src='#{image_url('g9/stage_bar_cancelled_icon.png')}' alt='' />"
+      contents =  "<img src='#{image_path('g9/stage_bar_cancelled_icon.png')}' alt='' />"
     else
       contents = ""
     end

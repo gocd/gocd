@@ -116,6 +116,22 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     @Test
+    public void shouldContainPipelineHistoryComments() throws Exception {
+        JsonMap json = presenter.toJson();
+        JsonTester jsonTester = new JsonTester(json);
+        jsonTester.shouldContain(
+                "{    'groups' : [ {"
+                        + "      'history' : ["
+                        + "         { 'pipelineId' : '1',"
+                        + "           'comment' : 'build comment'"
+                        + "         }"
+                        + "       ]"
+                        + "    } ] "
+                        + "}"
+        );
+    }
+
+    @Test
     public void shouldContainPipelinePageInfo() throws Exception {
         JsonTester jsonTester = new JsonTester(presenter.toJson());
         jsonTester.shouldContain(

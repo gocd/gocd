@@ -603,6 +603,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         model.setMaterialRevisionsOnBuildCause(materialRepository.findMaterialRevisionsForPipeline(model.getId()));
     }
 
+    public void updateComment(String pipelineName, int pipelineCounter, String comment) {
+        pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
+    }
+
     private static class PipelineGroupModels {
         List<PipelineGroupModel> groupModels = new ArrayList<PipelineGroupModel>();
         

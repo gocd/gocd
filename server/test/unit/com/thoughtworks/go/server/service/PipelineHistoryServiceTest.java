@@ -891,6 +891,13 @@ public class PipelineHistoryServiceTest {
 		assertThat(result.canContinue(), is(true));
 	}
 
+    @Test
+    public void shouldUpdateCommentUsingPipelineDao() {
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment");
+
+        verify(pipelineDao, times(1)).updateComment("pipeline_name", 1, "test comment");
+    }
+
     private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {
         when(goConfigService.materialConfigsFor(new CaseInsensitiveString(downPipelineName))).thenReturn(downPipelineMaterial);
         stubConfigServiceToReturnPipeline(downPipelineName, down1Config);

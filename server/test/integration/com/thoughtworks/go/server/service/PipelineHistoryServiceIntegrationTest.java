@@ -971,6 +971,20 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(result.httpCode(), is(401));
     }
 
+    @Test
+    public void updateComment_shouldUpdateTheCommentInTheDatabase() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
+        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+
+        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment");
+
+        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
+
+        assertThat(pim.getComment(), is("test comment"));
+    }
+
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {
         assertThat(operationResult.toString(), operationResult.canContinue(), is(true));
         assertThat(pipelineInstance.getCounter(), is(instance.getCounter()));

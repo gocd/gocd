@@ -27,7 +27,7 @@ module AgentsHelper
   end
 
   def cell_with_title value, klass, title = value
-    "<td class='#{klass}' title='#{title}'><span>#{value}</span></td>"
+    "<td class='#{ERB::Util.h(klass)}' title='#{ERB::Util.h(title)}'><span>#{ERB::Util.h(value)}</span></td>".html_safe
   end
 
   def to_display_name(status)

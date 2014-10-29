@@ -122,7 +122,6 @@ module JavaImports
   java_import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels unless defined? StageInstanceModels
   java_import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel unless defined? StageInstanceModel
   java_import com.thoughtworks.go.presentation.TriStateSelection unless defined? TriStateSelection
-  java_import com.thoughtworks.go.presentation.TriStateSelection unless defined? TriStateSelection
   java_import com.thoughtworks.go.presentation.UserModel unless defined? UserModel
   java_import com.thoughtworks.go.presentation.UserSearchModel unless defined? UserSearchModel
   java_import com.thoughtworks.go.presentation.UserSourceType unless defined? UserSourceType

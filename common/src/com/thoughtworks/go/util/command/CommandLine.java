@@ -121,7 +121,7 @@ public class CommandLine {
     private String encoding;
     public static final long NO_TIMEOUT = -1;
     private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
-    private final String ERROR_STREAM_PREFIX_FOR_CMDS = "ERROR: ";
+    private final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
 
     private CommandLine(String executable) {
         this.executable = executable;

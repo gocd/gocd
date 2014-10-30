@@ -62,7 +62,7 @@ public abstract class P4CommandTestBase extends PerforceFixture {
         }
         catch(Exception e) {
             assertThat(e, is(instanceOf(RuntimeException.class)));
-            assertThat(e.getMessage(), containsString("ERROR: //client/... - no such file(s)"));
+            assertThat(e.getMessage(), containsString("STDERR: //client/... - no such file(s)"));
         }
     }
 

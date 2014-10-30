@@ -405,4 +405,14 @@ public class CommandLineTest {
         String[] commandLineArgs = command.getCommandLine();
         assertThat(commandLineArgs[0], is(file));
     }
+
+    @Test
+    public void shouldPrefixStderrOutput() {
+        CommandLine line = CommandLine.createCommandLine("rmdir").withArg("/a/directory/that/does/not/exist");
+        InMemoryStreamConsumer output = new InMemoryStreamConsumer();
+        ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
+        processWrapper.waitForExit();
+
+        assertThat(output.getAllOutput(), containsString("STDERR: "));
+    }
 }

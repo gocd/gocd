@@ -62,4 +62,43 @@ describe "/agents/index" do
     expect(response.body).to have_selector("tr.Idle")
     expect(response.body).to have_selector("tr.Disabled")
   end
+
+  it "should sanitize agent details before showing them on the UI" do
+    dangerous_hostname_value = '<script>HOST</script>'
+    dangerous_location_value = '<script>LOCATION</script>'
+    dangerous_os_value = "<script>OS</script>"
+    dangerous_uuid_value = "<script>UUID</script>"
+    dangerous_resources_value = "<script>RESOURCES</script>"
+    dangerous_environments_value = "<script>ENVIRONMENTS</script>"
+    agent_with_dangerous_values = idle_agent(
+        :hostname => dangerous_hostname_value,
+        :location => dangerous_location_value,
+        :operating_system => dangerous_os_value,
+        :uuid => dangerous_uuid_value,
+        :resources => dangerous_resources_value,
+        :environments => [dangerous_environments_value]
+    )
+
+    assign(:agents, AgentsViewModel.new([agent_with_dangerous_values].to_java(AgentViewModel)))
+
+
+    render :partial => "agents/agents_table.html",:locals => {:scope => {}}
+
+
+    sanitize = proc {|val| val.gsub('<', '&lt;').gsub('>', '&gt;')}
+    expect(response.body).to_not include(dangerous_hostname_value)
+    expect(response.body).to include(sanitize.call dangerous_hostname_value)
+
+    expect(response.body).to_not match(dangerous_location_value)
+    expect(response.body).to include(sanitize.call dangerous_location_value)
+
+    expect(response.body).to_not match(dangerous_os_value)
+    expect(response.body).to include(sanitize.call dangerous_os_value)
+
+    expect(response.body).to_not match(dangerous_resources_value)
+    expect(response.body).to include(sanitize.call dangerous_resources_value)
+
+    expect(response.body).to_not match(dangerous_environments_value)
+    expect(response.body).to include(sanitize.call dangerous_environments_value)
+  end
 end

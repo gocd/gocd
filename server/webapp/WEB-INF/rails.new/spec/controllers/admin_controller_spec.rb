@@ -112,6 +112,17 @@ describe AdminController do
       controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
     end
 
+    it "should NOT render error twice in same flow, when an error occurs" do
+      controller.should_receive(:action_has_layout?).and_return(true)
+
+      controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 404})
+
+      controller.send(:assert_load, :foo, nil)
+      controller.send(:assert_load, :bar, nil)
+
+      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+    end
+
     it "should catch exceptions and render error when eval_loading fails" do
       controller.should_receive(:action_has_layout?).and_return(true)
       controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
@@ -159,14 +170,42 @@ describe AdminController do
     stub_save_for_validation_error do |result, _, _|
       result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", ["message"].to_java(java.lang.String)))
     end
-    controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
     controller.stub(:response).and_return(response = double('response'))
-    response.should_receive(:headers).and_return(header = {})
-    response.should_receive(:committed?).and_return(true)
+    response.should_not_receive(:headers)
+
+    controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
+
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)
     end
-    header[AdminController::GO_CONFIG_ERROR_HEADER].should == "Save failed. message"
+  end
+
+  it "should NOT continue and do render or redirect when assert_load fails during save_page but update was successful" do
+    stub_save_for_success
+    controller.stub(:response).and_return(response = double('response'))
+
+    response.should_not_receive(:headers)
+    controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
+    controller.should_not_receive(:redirect_to)
+
+    controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
+      assert_load(:foo, nil)
+      assert_load(:bar, nil)
+    end
+  end
+
+  it "should NOT continue and do render or redirect when assert_load fails during save_popup but update was successful" do
+    stub_save_for_success
+    controller.stub(:response).and_return(response = double('response'))
+
+    response.should_not_receive(:headers)
+    controller.should_receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
+    controller.should_not_receive(:render).with(:text => "Saved successfully")
+
+    controller.send(:save_popup, "md5", UpdateCommand.new, {:action => "foo", :controller => "bar"}) do
+      assert_load(:foo, nil)
+      assert_load(:bar, nil)
+    end
   end
 
   it "should use flash-message to report successful save" do

@@ -66,6 +66,8 @@ class AdminController < ApplicationController
   end
 
   def render_assertion_failure(options)
+    return if @error_rendered
+
     @message = options.delete(:message) || l.string("ERROR_OCCURRED_WHILE_UPDATING_CONFIG")
     @error_rendered = true
     options[:status] ||= (@update_result && @update_result.httpCode()) || 404
@@ -107,12 +109,15 @@ class AdminController < ApplicationController
       @config_file_conflict = (@update_result.httpCode() == HttpStatus::SC_CONFLICT)
       flash.now[:error] = @update_result.message(localizer)
     end
+
     begin
       load_data.call
     rescue
       Rails.logger.error $!
       render_assertion_failure({})
     end
+    return if @error_rendered
+
     if @update_result.isSuccessful()
       success_message = "#{success_message} #{l.string("CONFIG_MERGED")}" if update_response.wasMerged()
       yield success_message

@@ -55,7 +55,6 @@ var MockXHR = Class.create({
         return this.headers[name];
     },
     setRequestHeader: function(name, value){
-        console.log("Got header: " + name + " " + value);
         this.headersSentInRequest[name] = value;
     },
     open: function(method, url, asynchronous){

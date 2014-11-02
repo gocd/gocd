@@ -338,6 +338,20 @@ describe Admin::StagesController do
       end
     end
 
+    describe "edit" do
+      before do
+        @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      end
+
+      it "should render error page if stage does not exist" do
+        get :edit, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "does_not_exist", :current_tab => "permissions"
+        assert_template "shared/config_error.html"
+        assert_template layout: "layouts/application"
+      end
+    end
+
     describe "edit_permissions" do
 
       before do

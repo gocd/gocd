@@ -172,10 +172,12 @@ describe Admin::JobsController do
     end
 
     describe "edit" do
-      it "should load job" do
+      before(:each) do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      end
 
+      it "should load job" do
         add_resource("job-2", "anything")
         add_resource("job-2", "windows-xp ")
         add_resource("job-2", "solaris")
@@ -189,6 +191,12 @@ describe Admin::JobsController do
         assigns[:autocomplete_resources].should == ["Foo","anything","fluff","solaris","windows-xp"].to_json
         assert_template layout: "pipelines/job"
       end
+
+        it "should render error page if job does not exist" do
+          get :edit, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "does_not_exist", :current_tab => "settings",:config_md5 => "1234abcd", :stage_parent => "pipelines"
+          assert_template "shared/config_error.html"
+          assert_template layout: "layouts/application"
+        end
     end
 
     describe "update" do

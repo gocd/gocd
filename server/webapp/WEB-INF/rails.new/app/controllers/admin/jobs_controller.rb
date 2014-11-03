@@ -38,7 +38,7 @@ module Admin
     def edit
       load_resources_for_autocomplete
       assert_load :job, @jobs.getJob(CaseInsensitiveString.new(params[:job_name]))
-      render with_layout(:action => params[:current_tab])
+      render with_layout(:action => params[:current_tab]) unless @error_rendered
     end
 
     def create
@@ -84,6 +84,7 @@ module Admin
           job.setConfigAttributes(params[:job])
         end
       end.new(params, current_user.getUsername(), security_service), failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
+        @should_not_render_layout = true
         load_pipeline_and_stage
         assert_load :job, @node
       end

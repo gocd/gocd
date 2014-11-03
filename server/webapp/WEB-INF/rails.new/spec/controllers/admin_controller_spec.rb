@@ -26,6 +26,10 @@ describe AdminController do
     @user = current_user
   end
 
+  after(:each) do
+    controller.instance_variable_set(:@should_not_render_layout, false)
+  end
+
   class UpdateCommand
     include com.thoughtworks.go.config.update.UpdateConfigFromUI
 
@@ -140,6 +144,14 @@ describe AdminController do
       end.should be_false
       controller.instance_variable_get('@message').should == "custom message"
     end
+
+    it "should not render layout for error page if should_not_render_layout is explicitly set on the controller" do
+      controller.should_receive(:action_has_layout?).and_return(true)
+      controller.instance_variable_set(:@should_not_render_layout, true)
+      controller.should_receive_render_with({:template => "shared/config_error.html", :layout => nil, :status => 404})
+      controller.send(:assert_load, :junk, nil).should be_false
+      controller.instance_variable_get('@message').should == "Error occurred while trying to complete your request."
+    end
   end
 
   it "should render error response for exceptions in after update block" do
@@ -171,13 +183,13 @@ describe AdminController do
       result.conflict(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", ["message"].to_java(java.lang.String)))
     end
     controller.stub(:response).and_return(response = double('response'))
-    response.should_not_receive(:headers)
-
+    response.stub(:headers).and_return({})
     controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
 
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
       assert_load(:foo, nil)
     end
+    expect(response.headers["Go-Config-Error"]).to eq "Save failed. message"
   end
 
   it "should NOT continue and do render or redirect when assert_load fails during save_page but update was successful" do

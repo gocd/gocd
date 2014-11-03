@@ -57,6 +57,9 @@ class AdminController < ApplicationController
     args.inject(@asserted_variables ||= {}) do |map, name|
       unless (var = instance_variable_get("@#{name}"))
         Rails.logger.warn("Could not load '#{name}', rendering failure #{caller[0..10].join("\n")}")
+        if(@should_not_render_layout)
+          options = options.merge(:layout => nil)
+        end
         render_assertion_failure(options)
         successful = false
       end
@@ -67,7 +70,6 @@ class AdminController < ApplicationController
 
   def render_assertion_failure(options)
     return if @error_rendered
-
     @message = options.delete(:message) || l.string("ERROR_OCCURRED_WHILE_UPDATING_CONFIG")
     @error_rendered = true
     options[:status] ||= (@update_result && @update_result.httpCode()) || 404
@@ -108,6 +110,7 @@ class AdminController < ApplicationController
     unless @update_result.isSuccessful()
       @config_file_conflict = (@update_result.httpCode() == HttpStatus::SC_CONFLICT)
       flash.now[:error] = @update_result.message(localizer)
+      response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
     end
 
     begin
@@ -122,7 +125,6 @@ class AdminController < ApplicationController
       success_message = "#{success_message} #{l.string("CONFIG_MERGED")}" if update_response.wasMerged()
       yield success_message
     else
-      response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
       all_errors_on_other_objects = update_response.getCruiseConfig().getAllErrorsExceptFor(@subject)
       if render_error_options_or_proc.is_a?(Proc)
         render_error_options_or_proc.call(@update_result, all_errors_on_other_objects)

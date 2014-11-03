@@ -77,18 +77,20 @@ module Admin
           stage.setConfigAttributes(params[:stage])
         end
       end.new(params, current_user.getUsername(), security_service), {:action => params[:current_tab], :layout => nil}, {:current_tab => params[:current_tab], :action => :edit, :stage_name => params[:stage][:name] || params[:stage_name]}) do
+        @should_not_render_layout = true
         assert_load(:pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config))
         assert_load(:stage, @node)
+
         load_data_for_permissions
         load_pause_info
       end
+
     end
 
     def edit
-      load_stage
-      load_data_for_permissions
-
-      render(with_layout(:action => params[:current_tab]))
+        load_stage
+        load_data_for_permissions
+        render(with_layout(:action => params[:current_tab])) unless @error_rendered
     end
 
     def destroy

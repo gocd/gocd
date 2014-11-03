@@ -22,6 +22,6 @@ class Api::ProcessListController < Api::ApiController
       list.push("{\"command\":\"#{process.getCommand()}\", \"start_time\":\"#{process.getStartTimeForDisplay()}\", \"idle_time\":\"#{(process.getIdleTime() / 60000).to_s} minutes\"}")
     end
     @str = "{\"process-list\":[#{list.join(",")}]}"
-    render text: @str
+    render json: @str
   end
 end

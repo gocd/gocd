@@ -73,7 +73,7 @@ class AdminController < ApplicationController
     @message = options.delete(:message) || l.string("ERROR_OCCURRED_WHILE_UPDATING_CONFIG")
     @error_rendered = true
     options[:status] ||= (@update_result && @update_result.httpCode()) || 404
-    render({:template => "shared/config_error.html", :layout => action_has_layout? ? "application" : nil}.merge(options)) and return
+    render({:template => "shared/config_error.html", :layout => action_has_layout? ? "application" : nil}.merge(options))
     false
   end
 

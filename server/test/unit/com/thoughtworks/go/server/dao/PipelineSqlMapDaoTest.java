@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import java.util.Map;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -87,15 +88,20 @@ public class PipelineSqlMapDaoTest {
     }
 
     @Test
-    public void shouldUpdateComment() throws Exception {
+    public void shouldUpdateCommentAndRemoveItFromPipelineHistoryCache() throws Exception {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
         String comment = "This song is from the 90s.";
         Map<String, Object> args = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).and("comment", comment).asMap();
 
+        Pipeline expected = mock(Pipeline.class);
+        when(sqlMapClientTemplate.queryForObject("findPipelineByNameAndCounter", arguments("name", pipelineName).and("counter", pipelineCounter).asMap())).thenReturn(expected);
+        when(expected.getId()).thenReturn(102413L);
+
         pipelineSqlMapDao.updateComment(pipelineName, pipelineCounter, comment);
 
         verify(sqlMapClientTemplate, times(1)).update("updatePipelineComment", args);
+        verify(goCache, times(1)).remove("com.thoughtworks.go.server.dao.PipelineSqlMapDao_pipelineHistory_102413");
     }
 
 }

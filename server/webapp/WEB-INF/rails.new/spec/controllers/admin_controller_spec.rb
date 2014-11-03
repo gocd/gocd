@@ -184,8 +184,6 @@ describe AdminController do
     end
     controller.stub(:response).and_return(response = double('response'))
     response.stub(:headers).and_return({})
-    # response.should_not_receive(:headers)
-
     controller.should_receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
 
     controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do

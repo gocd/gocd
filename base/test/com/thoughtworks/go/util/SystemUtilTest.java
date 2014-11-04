@@ -32,7 +32,15 @@ public class SystemUtilTest {
 
     @Test
     public void shouldDetermineIfAddressIsLocal() throws UnknownHostException {
-        InetAddress local = InetAddress.getLocalHost();
+        InetAddress local;
+
+        try {
+            local = InetAddress.getLocalHost();
+        }
+        catch (UnknownHostException e) {
+            local = InetAddress.getByName("localhost");
+        }
+
         assertThat("Localhost (" + local.getHostName() + ") should be a local address.", SystemUtil.isLocalhost(local.getHostAddress()), is(true));
     }
 

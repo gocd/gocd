@@ -1,22 +1,21 @@
-describe("pipeline history comments", function() {
+describe("PipelineHistoryComment", function() {
     var fakeModalBox = jasmine.createSpyObj('Modalbox', ['hide', 'show']);
     var fakeDashboardPeriodicalExecuter = jasmine.createSpyObj('DashboardPeriodicalExecuter', [ 'fireNow' ]);
 
     var pipelineHistoryComment = initPipelineHistoryComment(jQuery, fakeModalBox, fakeDashboardPeriodicalExecuter);
 
-    describe("#showBuildCommentModals", function() {
+    describe("#showModal", function() {
         beforeEach(function() {
             setFixtures('<div id="comment-form-1"></div>');
         });
 
         it("shows the modal with the correct build comment form", function () {
-            pipelineHistoryComment.showModal('1');
-            expect(fakeModalBox.show).toHaveBeenCalledWith(jQuery('#comment-form-1')[0]);
+            pipelineHistoryComment.showModal('test-pipeline', '1');
+            expect(fakeModalBox.show).toHaveBeenCalledWith(jQuery('#comment-form-1')[0], { title: 'Comment on test-pipeline build 1' });
         });
-
     });
 
-    describe("#submitPipelineComment", function() {
+    describe("#submit", function() {
         beforeEach(function() {
             setFixtures('<input type="text" id="comment-input" value="This is the comment."/>');
         });

@@ -1,17 +1,19 @@
 function initPipelineHistoryComment(jQuery, Modalbox, dashboardPeriodicalExecuter) {
     var my = {};
 
-    my.showModal = function (pipelineLabel) {
+    my.showModal = function (pipelineName, pipelineLabel) {
         var div = jQuery('#comment-form-' + pipelineLabel)[0];
+        var title = 'Comment on ' + pipelineName + ' build ' + pipelineLabel;
 
-        Modalbox.show(div);
+        Modalbox.show(div, { title: title });
     };
 
     my.submit = function (pipelineName, pipelineLabel) {
         var commentText = jQuery('#comment-input').val();
+        var url = '/go/pipelines/' + pipelineName + '/' + pipelineLabel + '/comment';
 
         jQuery.post(
-            '/go/pipelines/' + pipelineName + '/' + pipelineLabel + '/comment',
+            url,
             { comment: commentText },
             my.onCommentSuccessCloseModalAndRefreshPipelineHistory,
             'json'

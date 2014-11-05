@@ -119,6 +119,22 @@ font-size: 18px;
     display: inline-block;
 }
 
+.pipeline-comment-button {
+  margin-top: 10px;
+}
+
+#comment-input {
+  width: 100%;
+}
+
+#comment-box-wrapper {
+  padding: 10px;
+}
+
+#comment-button {
+  margin-top: 10px;
+}
+
 .empty-stage,
 .passed-stage,
 .failed-stage,

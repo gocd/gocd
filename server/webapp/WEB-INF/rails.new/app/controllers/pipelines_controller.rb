@@ -18,7 +18,7 @@ class PipelinesController < ApplicationController
   include ApplicationHelper
   layout "application", :except => ["show", "material_search", "show_for_trigger"]
 
-  skip_before_action :verify_authenticity_token, only: [:show_for_trigger, :show]
+  skip_before_action :verify_authenticity_token, only: [:show_for_trigger, :show, :update_comment]
 
   before_filter :set_tab_name
 

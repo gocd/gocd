@@ -11,10 +11,11 @@ function initPipelineHistoryComment(jQuery, Modalbox, dashboardPeriodicalExecute
         var commentText = jQuery('#comment-input').val();
 
         jQuery.post(
-                '/go/pipelines/' + pipelineName + '/' + pipelineLabel + '/comment',
+            '/go/pipelines/' + pipelineName + '/' + pipelineLabel + '/comment',
             { comment: commentText },
             my.onCommentSuccessCloseModalAndRefreshPipelineHistory,
-            'json');
+            'json'
+        );
     };
 
     my.onCommentSuccessCloseModalAndRefreshPipelineHistory = function () {

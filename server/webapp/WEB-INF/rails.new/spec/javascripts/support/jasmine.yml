@@ -75,6 +75,7 @@ spec_files:
   - "field_state_replicator_spec.js"
 #  - "form_fields_table.html
   - "pipeline_history_spec.js"
+  - "pipeline_history_comment_spec.js"
   - "agent_spec.js"
   - "i18n_spec.js"
   - "build_detail_observer_spec.js"

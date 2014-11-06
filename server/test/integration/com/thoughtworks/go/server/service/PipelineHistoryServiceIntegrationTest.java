@@ -975,14 +975,33 @@ public class PipelineHistoryServiceIntegrationTest {
     public void updateComment_shouldUpdateTheCommentInTheDatabase() throws Exception {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
+        configHelper.setAdminPermissionForGroup("pipeline-group", "valid-user");
+
+        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment", new Username(new CaseInsensitiveString("valid-user")), result);
+        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
+        assertThat(pim.getComment(), is("test comment"));
+    }
+
+    @Test
+    public void updateComment_shouldNotUpdateTheCommentInTheDatabaseIfTheUserIsUnauthorized() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
+        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
 
         dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
 
-        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment",
+                new Username(new CaseInsensitiveString("invalid-user")), result);
 
         PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
 
-        assertThat(pim.getComment(), is("test comment"));
+        assertThat(pim.getComment(), is(nullValue()));
+        assertThat(result.httpCode(), is(401));
     }
 
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {

@@ -603,8 +603,12 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         model.setMaterialRevisionsOnBuildCause(materialRepository.findMaterialRevisionsForPipeline(model.getId()));
     }
 
-    public void updateComment(String pipelineName, int pipelineCounter, String comment) {
-        pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
+    public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username, HttpLocalizedOperationResult result) {
+        if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
+            pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
+        } else {
+            result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        }
     }
 
     private static class PipelineGroupModels {

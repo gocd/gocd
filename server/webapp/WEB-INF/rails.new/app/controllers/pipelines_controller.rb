@@ -69,8 +69,14 @@ class PipelinesController < ApplicationController
   end
 
   def update_comment
-    pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment])
-    render json: { status: 'success' }
+    result = HttpLocalizedOperationResult.new
+
+    pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment], current_user, result)
+    if result.isSuccessful()
+      render json: { status: 'success' }
+    else
+      render_localized_operation_result(result)
+    end
   end
 
   private

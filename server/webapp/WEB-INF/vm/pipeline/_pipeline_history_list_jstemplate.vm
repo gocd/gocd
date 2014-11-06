@@ -192,7 +192,7 @@
                         <div class="comment-form" id="comment-form-${% pipeline.label %}" style="display: none;">
                             <div id="comment-box-wrapper">
                                 <input type="text" id="comment-input" value="${%pipeline.comment|h|escapeQuotes%}">
-                                <button type="button" id="comment-button" class="image submit"
+                                <button type="button" id="comment-button" class="image submit primary"
                                    onClick="PipelineHistoryComment.submit('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}');">
                                     Submit
                                 </button>

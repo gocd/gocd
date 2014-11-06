@@ -184,14 +184,14 @@
                     </td>
                     {/for}
                     <td>
-                        <p class="pipeline-info pipeline-history-build-comment">${% pipeline.comment %}</p>
+                        <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
 
                         <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Comment"
                                 onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
 
                         <div class="comment-form" id="comment-form-${% pipeline.label %}" style="display: none;">
                             <div id="comment-box-wrapper">
-                                <input type="text" id="comment-input" value="${% pipeline.comment %}">
+                                <input type="text" id="comment-input" value="${%pipeline.comment|h|escapeQuotes%}">
                                 <button type="button" id="comment-button" class="image submit"
                                    onClick="PipelineHistoryComment.submit('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}');">
                                     Submit

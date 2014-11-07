@@ -186,8 +186,13 @@
                     <td>
                         <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
 
-                        <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Comment"
-                                onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
+                        {if pipeline.comment == ""}
+                        <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Add Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
+                        {else}
+                        <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Edit Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
+                        {/if}
 
                         <div class="comment-form" id="comment-form-${% pipeline.label %}" style="display: none;">
                             <div id="comment-box-wrapper">

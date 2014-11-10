@@ -843,12 +843,28 @@ public class GoConfigService {
         return pipelineSelections;
     }
 
-    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines) {
-        List<String> unselectedPipelines = getUnselectedPipelines(selectedPipelines);
-        return pipelineRepository.saveSelectedPipelines(getPipelineSelections(id, userId, unselectedPipelines));
+    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
+        PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+
+        if (isBlacklist) {
+            List<String> unselectedPipelines = invertSelections(selectedPipelines);
+            pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId, isBlacklist);
+        } else {
+            pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
+        }
+
+        return pipelineRepository.saveSelectedPipelines(pipelineSelections);
     }
 
-    private List<String> getUnselectedPipelines(List<String> selectedPipelines) {
+    private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
+        PipelineSelections pipelineSelections = isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
+        if (pipelineSelections == null) {
+            pipelineSelections = new PipelineSelections(new ArrayList<String>(), clock.currentTime(), userId, true);
+        }
+        return pipelineSelections;
+    }
+
+    private List<String> invertSelections(List<String> selectedPipelines) {
         List<String> unselectedPipelines = new ArrayList<String>();
         List<PipelineConfig> pipelineConfigList = cruiseConfig().getAllPipelineConfigs();
         for (PipelineConfig pipelineConfig : pipelineConfigList) {
@@ -868,15 +884,6 @@ public class GoConfigService {
         if (pipelineSelections == null) {
             pipelineSelections = pipelineRepository.findPipelineSelectionsById(id);
         }
-        return pipelineSelections;
-    }
-
-    private PipelineSelections getPipelineSelections(String id, Long userId, List<String> unselectedPipelines) {
-        PipelineSelections pipelineSelections = isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
-        if (pipelineSelections == null) {
-            return new PipelineSelections(unselectedPipelines, clock.currentTime(), userId);
-        }
-        pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId);
         return pipelineSelections;
     }
 
@@ -1036,6 +1043,14 @@ public class GoConfigService {
 
     public boolean isAuthorizedToViewAndEditTemplates(Username username) {
         return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
+    }
+
+    public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
+        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+        if (!currentSelections.isBlacklist()) {
+            currentSelections.addPipelineToSelections(pipelineToAdd);
+            pipelineRepository.saveSelectedPipelines(currentSelections);
+        }
     }
 
     public abstract class XmlPartialSaver<T> {

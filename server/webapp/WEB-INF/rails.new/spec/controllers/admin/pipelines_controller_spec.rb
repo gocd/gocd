@@ -405,7 +405,11 @@ describe Admin::PipelinesController do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_pause_service.stub(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
       @pluggable_task_service = double('Pluggable_task_service')
+
       controller.stub(:pluggable_task_service).and_return(@pluggable_task_service)
+
+      allow(@go_config_service).to receive(:updateUserPipelineSelections)
+      allow(controller).to receive(:cookies).and_return({})
     end
 
     after(:each) do
@@ -436,6 +440,35 @@ describe Admin::PipelinesController do
       assert_save_arguments
       assert_update_command ::ConfigUpdate::SaveAction, ::ConfigUpdate::RefsAsUpdatedRefs
       response.should redirect_to anything
+    end
+
+    it "should update a users pipeline selections when that user successfully creates a new pipeline" do
+      pipeline_name = "new-pip"
+
+      current_user_entity_id = 9999
+      controller.stub(:current_user_entity_id).and_return(current_user_entity_id)
+
+      selected_pipeline_id = "456"
+      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
+
+      @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
+      @go_config_service.should_receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
+
+      stub_save_for_success
+      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
+    end
+
+    it "should NOT update a users pipeline selections when that user does not successfully creates a new pipeline" do
+      pipeline_name = "new-pip"
+
+      @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      @go_config_service.should_not_receive(:updateUserPipelineSelections)
+
+      stub_save_for_validation_error do |result, _, _|
+        result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE"), nil)
+      end
+      post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
     end
 
     it "should create a new pipeline based on a template" do
@@ -685,6 +718,10 @@ describe Admin::PipelinesController do
     end
 
     describe "save_clone" do
+      before :each do
+        allow(@pipeline_pause_service).to receive(:pause)
+        allow(@go_config_service).to receive(:updateUserPipelineSelections)
+      end
 
       it "should save cloned pipeline successfully" do
         @cruise_config.addPipeline("foo.bar", @pipeline)
@@ -731,6 +768,31 @@ describe Admin::PipelinesController do
         assigns[:errors].size.should == 1
         response.status.should == 400
         response.location.should be_nil
+      end
+
+      it "should update the user's pipeline selections when save clone is successful" do
+        @cruise_config.addPipeline("foo.bar", @pipeline)
+        stub_save_for_success
+
+        current_user_entity_id = 9999
+        controller.stub(:current_user_entity_id).and_return(current_user_entity_id)
+
+        selected_pipeline_id = "456"
+        controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
+
+        expect(@go_config_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
+
+        post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
+      end
+
+      it "should not update the user's pipeline selections when save clone is not successful" do
+        stub_save_for_validation_error do |result, _, _|
+          result.badRequest(LocalizedMessage.string("FAILED_TO_UPDATE_PIPELINE", ["pipeline-name"]))
+        end
+
+        post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
+
+        expect(@go_config_service).to_not receive(:updateUserPipelineSelections)
       end
     end
   end

@@ -108,14 +108,22 @@
     background: #999 image_url('g9/backgrounds/bg_glass_gradient.png') repeat-x center center;
     border-bottom: 1px solid #ccc;
     padding: 5px;
-    overflow: hidden
-}
+    overflow: hidden;
 
-#pipelines .pipelines_selector .enhanced_dropdown .select_all_none_panel #select_text {
-    float: left;
-    padding: 5px 5px 5px 0;
-    color: #fff;
-    font-weight: bold;
+    #select_text {
+      float: left;
+      padding: 5px 5px 5px 0;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    #show_new_pipelines_container {
+        float: right;
+
+        #show_new_pipelines_label {
+          display: inline;
+        }
+    }
 }
 
 #pipelines .pipelines_selector .enhanced_dropdown .scrollable_panel {

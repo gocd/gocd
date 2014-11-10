@@ -34,6 +34,10 @@ describe("pipelines_selector_rails_new", function () {
             "                <div id='select_text'>Select:</div>\n" +
             "                <a  class='link_as_button' href='javascript:void(0);' id='select_all_pipelines'>All</a>\n" +
             "                <a  class='link_as_button' href='javascript:void(0);' id='select_no_pipelines'>None</a>\n" +
+            "                <div id='show_new_pipelines_container'>" +
+            "                    <input id='show_new_pipelines' type='checkbox' name='show_new_pipelines'/>" +
+            "                    <label id='show_new_pipelines_label' for='show_new_pipelines'>Show New Pipelines</label>" +
+            "                </div>" +
             "            </div>\n" +
             "            <div id='pipelines_selector_pipelines' class='scrollable_panel'>\n" +
             "                <div id='selector_group_group-1' class='selector_group'>\n" +
@@ -166,7 +170,6 @@ describe("pipelines_selector_rails_new", function () {
         selectAllUnder('selector_group_group-1');
         fire_event($('select_pipeline_pipeline-1'), 'click', function (_, elem) {
             setCheckBox(elem, false);
-            ;
         });
         assertFalse("the group should not be checked if pipeline(pipeline-1) under it is unchecked", $('select_group_group-1').checked);
         fire_event($('select_pipeline_pipeline-2'), 'click', function (_, elem) {
@@ -189,8 +192,20 @@ describe("pipelines_selector_rails_new", function () {
         assertAllSelected('pipelines_selector_pipelines');
     });
 
+    it("test_ALL_should_not_select_blacklist_checkbox", function () {
+        assertFalse(jQuery("#show_new_pipelines").prop("checked"));
+        fire_event($('select_all_pipelines'), "click");
+        assertFalse(jQuery("#show_new_pipelines").prop("checked"));
+    });
+
     it("test_NONE_should_unselect_all_groups_pipelines", function () {
         fire_event($('select_no_pipelines'), "click");
         assertAllUnselected('pipelines_selector_pipelines');
+    });
+
+    it("test_NONE_should_not_unselect_blacklist_checkbox", function () {
+        jQuery("#show_new_pipelines").prop("checked", true);
+        fire_event($('select_no_pipelines'), "click");
+        assertTrue(jQuery("#show_new_pipelines").prop("checked"));
     });
 });

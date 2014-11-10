@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.domain.PersistentObject;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
 
@@ -42,26 +43,28 @@ public class PipelineSelections extends PersistentObject implements Serializable
     private List<String> pipelines;
     private Long userId;
     private List<CaseInsensitiveString> caseInsensitivePipelineList = new ArrayList<CaseInsensitiveString>();
+    private boolean isBlacklist;
 
     public PipelineSelections() {
         this(new ArrayList<String>());
     }
 
     public PipelineSelections(List<String> unselectedPipelines) {
-        this(unselectedPipelines, new Date(), null);
+        this(unselectedPipelines, new Date(), null, true);
     }
 
-    public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId) {
-        update(unselectedPipelines, date, userId);
+    public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
+        update(unselectedPipelines, date, userId, isBlacklist);
     }
 
     public Date lastUpdated() {
         return lastUpdate;
     }
 
-    public void update(List<String> unselectedPipelines, Date date, Long userId) {
+    public void update(List<String> selections, Date date, Long userId, boolean isBlacklist) {
         this.userId = userId;
-        this.setUnselectedPipelines(ListUtil.join(unselectedPipelines, ","));
+        this.isBlacklist = isBlacklist;
+        updateSelections(selections);
         this.lastUpdate = date;
     }
 
@@ -79,7 +82,12 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
     public boolean includesPipeline(String pipelineName) {
-        return !caseInsensitivePipelineList().contains(new CaseInsensitiveString(pipelineName));
+        boolean isInCurrentSelection = caseInsensitivePipelineList().contains(new CaseInsensitiveString(pipelineName));
+
+        if (isBlacklist) {
+            return !isInCurrentSelection;
+        }
+        return isInCurrentSelection;
     }
 
     private List<String> pipelineList() {
@@ -91,11 +99,11 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
 
-    public String getUnselectedPipelines() {
+    public String getSelections() {
         return ListUtil.join(pipelineList(), ",");
     }
 
-    public void setUnselectedPipelines(String unselectedPipelines) {
+    private void setSelections(String unselectedPipelines) {
         this.pipelines = ListUtil.split(unselectedPipelines, ",");
         List<CaseInsensitiveString> pipelineList = new ArrayList<CaseInsensitiveString>();
         for (String pipeline : pipelines) {
@@ -128,4 +136,25 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return userId;
     }
 
+    public boolean isBlacklist() {
+        return isBlacklist;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    public PipelineSelections addPipelineToSelections(CaseInsensitiveString pipelineToAdd) {
+        ArrayList<String> updatedListOfPipelines = new ArrayList<String>();
+        updatedListOfPipelines.addAll(pipelines);
+        updatedListOfPipelines.add(CaseInsensitiveString.str(pipelineToAdd));
+
+        this.updateSelections(updatedListOfPipelines);
+        return this;
+    }
+
+    private void updateSelections(List<String> selections) {
+        this.setSelections(ListUtil.join(selections, ","));
+    }
 }

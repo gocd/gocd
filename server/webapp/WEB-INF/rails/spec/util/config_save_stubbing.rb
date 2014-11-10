@@ -37,12 +37,6 @@ module ConfigSaveStubbing
     end
   end
 
-  def stub_save_for_authorization_error cruise_config = @cruise_config, &failure
-    stub_for_config_save_new_without_update(cruise_config, {}, proc {|_, _| subject}) do |_, result, node|
-      failure.call(result, cruise_config, node)
-    end
-  end
-
   def from_thd key
     val = Thread.current[key]
     Thread.current[key] = nil

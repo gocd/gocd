@@ -337,7 +337,7 @@ public class PipelineRepositoryIntegrationTest {
         Date date = new Date();
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
 
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, date, null));
+        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, date, null, true));
         PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
 
         assertHasPipelines(found, new String[]{"pipeline3", "pipeline4"});
@@ -351,17 +351,34 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId()));
+        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
         assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
     }
 
+    @Test
+    public void shouldSaveSelectedPipelinesWithBlacklistPreferenceFalse() {
+        User user = createUser();
+
+        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), false));
+        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(false));
+    }
+
+    @Test
+    public void shouldSaveSelectedPipelinesWithBlacklistPreferenceTrue() {
+        User user = createUser();
+
+        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
+        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(true));
+    }
 
     @Test
     public void shouldFindSelectedPipelinesByUserId() {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId()));
+        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId(), is(id));
     }
 

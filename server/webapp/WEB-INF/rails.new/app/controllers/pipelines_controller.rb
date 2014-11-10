@@ -63,8 +63,8 @@ class PipelinesController < ApplicationController
   end
 
   def select_pipelines
-    pipeline_selections_id = go_config_service.persistSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]))
-    cookies[:selected_pipelines] = {:value => pipeline_selections_id, :expires => 1.year.from_now.beginning_of_day} if !mycruise_available? 
+    pipeline_selections_id = go_config_service.persistSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
+    cookies[:selected_pipelines] = {:value => pipeline_selections_id, :expires => 1.year.from_now.beginning_of_day} if !mycruise_available?
     render :nothing => true
   end
 

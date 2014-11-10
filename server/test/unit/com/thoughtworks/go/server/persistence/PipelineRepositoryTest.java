@@ -90,7 +90,7 @@ public class PipelineRepositoryTest {
 
         PipelineSelections pipelineSelections = new PipelineSelections();
         pipelineSelections.setId(1);
-        pipelineSelections.update(new ArrayList<String>(), new Date(), 2L);
+        pipelineSelections.update(new ArrayList<String>(), new Date(), 2L, true);
         pipelineRepository.saveSelectedPipelines(pipelineSelections);
 
 

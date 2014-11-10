@@ -6,5 +6,5 @@
 	ln -s /usr/share/go-agent /usr/share/go-agent-1
 	cp /etc/default/go-agent /etc/default/go-agent-1
 	mkdir /var/{lib,log}/go-agent-1
-	chown go:go /var/{lib,log}/go-agent-1 
+	chown go:go /var/{lib,log}/go-agent-1
 ```

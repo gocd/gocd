@@ -278,7 +278,7 @@ public class BuildWork implements Work {
                 FileUtils.cleanDirectory(buildWorkingDirectory);
                 goPublisher.consumeLineWithPrefix("Cleaning working directory \"" + buildWorkingDirectory.getAbsolutePath() + "\" since stage is configured to clean working directory");
             } catch (IOException e) {
-                bomb("Clean working directory is set to true. Unable to clean working directory for agent: " + buildWorkingDirectory.getAbsolutePath());
+                bomb("Clean working directory is set to true. Unable to clean working directory for agent: " + buildWorkingDirectory.getAbsolutePath() + ", with error: " + e.getMessage());
             }
         }
         if (!buildWorkingDirectory.exists()) {

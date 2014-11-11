@@ -50,7 +50,7 @@ describe "/pipelines/_pipelines_selector.html.erb" do
       render
 
       expect(response).to have_selector("div.select_all_none_panel div#show_new_pipelines_container input#show_new_pipelines[type='checkbox'][name='show_new_pipelines']")
-      expect(response).to have_selector("div.select_all_none_panel div#show_new_pipelines_container label#show_new_pipelines_label[for='show_new_pipelines']", text: "Show New Pipelines")
+      expect(response).to have_selector("div.select_all_none_panel div#show_new_pipelines_container label#show_new_pipelines_label[for='show_new_pipelines']", text: "Show newly created pipelines")
     end
 
     it "should have the 'show new pipelines' box checked if blacklisting pipelines is enabled for the user" do

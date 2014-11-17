@@ -3,7 +3,7 @@ function initPipelineHistoryComment(jQuery, Modalbox, dashboardPeriodicalExecute
 
     my.showModal = function (pipelineName, pipelineLabel) {
         var div = jQuery('#comment-form-' + pipelineLabel)[0];
-        var title = 'Comment on ' + pipelineName + ' build ' + pipelineLabel;
+        var title = 'Comment on pipeline: ' + pipelineName + ' label: ' + pipelineLabel;
 
         Modalbox.show(div, { title: title });
     };

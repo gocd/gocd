@@ -607,7 +607,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
         } else {
-            result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         }
     }
 

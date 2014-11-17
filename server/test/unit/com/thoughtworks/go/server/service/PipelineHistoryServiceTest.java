@@ -917,7 +917,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
-        verify(result, times(1)).unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        verify(result, times(1)).unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
     }
 
     private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {

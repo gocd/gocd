@@ -392,7 +392,7 @@ describe PipelinesController do
     context 'when the update is unauthorized' do
       it 'it returns 401' do
         allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user, @localized_result) do |_, _, _, _, result|
-          result.unauthorized(LocalizedMessage.cannotViewPipeline("pipeline_name"), nil)
+          result.unauthorized(LocalizedMessage.cannotOperatePipeline("pipeline_name"), nil)
         end
 
         post :update_comment, pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json

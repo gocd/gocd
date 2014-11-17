@@ -187,14 +187,14 @@
                         <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
 
                         {if pipeline.comment == ""}
-                        <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Add Comment"
-                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
+                        <input class="pipeline-comment-button" type="button" value="Add Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
                         {else}
-                        <input class="pipeline-comment-button" id="pipeline-comment-button-${% pipeline.label %}" type="button" value="Edit Comment"
-                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}');">
+                        <input class="pipeline-comment-button" type="button" value="Edit Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
                         {/if}
 
-                        <div class="comment-form" id="comment-form-${% pipeline.label %}" style="display: none;">
+                        <div class="comment-form" id="comment-form-${% pipeline.counterOrLabel %}" style="display: none;">
                             <div id="comment-box-wrapper">
                                 <input type="text" id="comment-input" value="${%pipeline.comment|h|escapeQuotes%}">
                                 <button type="button" id="comment-button" class="image submit primary"

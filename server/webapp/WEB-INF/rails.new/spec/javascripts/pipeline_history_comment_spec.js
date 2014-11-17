@@ -10,8 +10,8 @@
         });
 
         it("shows the modal with the correct build comment form", function () {
-            pipelineHistoryComment.showModal('test-pipeline', '1');
-            expect(fakeModalBox.show).toHaveBeenCalledWith(jQuery('#comment-form-1')[0], { title: 'Comment on pipeline: test-pipeline label: 1' });
+            pipelineHistoryComment.showModal('test-pipeline', 'label', '1');
+            expect(fakeModalBox.show).toHaveBeenCalledWith(jQuery('#comment-form-1')[0], { title: 'Comment on pipeline: test-pipeline label: label' });
         });
     });
 

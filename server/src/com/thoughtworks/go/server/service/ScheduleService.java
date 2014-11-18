@@ -16,32 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.StageNotFoundException;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.CannotRerunJobException;
-import com.thoughtworks.go.domain.CannotScheduleException;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.SchedulingContext;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -67,6 +43,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -76,6 +53,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
@@ -168,9 +149,9 @@ public class ScheduleService {
     public void autoSchedulePipelinesFromRequestBuffer() {
         synchronized (autoScheduleMutex) {
             try {
-                for (Entry<String, BuildCause> entry : pipelineScheduleQueue.toBeScheduled().entrySet()) {
+                for (Entry<String, Pair<Long, BuildCause>> entry : pipelineScheduleQueue.toBeScheduled().entrySet()) {
                     String pipelineName = entry.getKey();
-                    BuildCause buildCause = entry.getValue();
+                    BuildCause buildCause = entry.getValue().last();
 
                     LOGGER.info(String.format("[Pipeline Schedule] Scheduling pipeline %s with build cause %s", pipelineName, buildCause));
 
@@ -180,7 +161,7 @@ public class ScheduleService {
 
                     if (pipeline != null) {
                         pipelineScheduledTopic.post(new PipelineScheduledMessage(pipeline.getIdentifier()));
-                        schedulingPerformanceLogger.scheduledPipeline(pipelineName, pipelineScheduleQueue.toBeScheduled().size(), schedulingStartTime, schedulingEndTime);
+                        schedulingPerformanceLogger.scheduledPipeline(entry.getValue().first(), pipelineName, pipelineScheduleQueue.toBeScheduled().size(), schedulingStartTime, schedulingEndTime);
                     }
                 }
             } catch (Throwable e) {

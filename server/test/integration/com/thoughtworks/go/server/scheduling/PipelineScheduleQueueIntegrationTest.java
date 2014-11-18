@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -33,8 +30,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.PipelineScheduleQueue;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import org.hamcrest.Description;
@@ -49,10 +46,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
-import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFilesAndTriggerAs;
-import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
+import java.util.List;
+
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasProperty;
@@ -117,20 +113,20 @@ public class PipelineScheduleQueueIntegrationTest {
 
     @Test
     public void shouldReturnToBeScheduledBuildCauseIfExists() {
-        BuildCause beforeSchedule = queue.toBeScheduled().get(fixture.pipelineName);
+        BuildCause beforeSchedule = queue.toBeScheduled().get(fixture.pipelineName).last();
         assertThat(beforeSchedule, is(nullValue()));
 
         BuildCause buildCause = BuildCause.createWithEmptyModifications();
-        queue.schedule(fixture.pipelineName, buildCause);
+        queue.schedule(fixture.pipelineName, buildCause, -1L);
 
-        BuildCause afterSchedule = queue.toBeScheduled().get(fixture.pipelineName);
+        BuildCause afterSchedule = queue.toBeScheduled().get(fixture.pipelineName).last();
         assertThat(afterSchedule, is(buildCause));
     }
 
     @Test
     public void shouldChangeToBeScheduledBuildCauseToAlreadyScheduledAfterBeenFinished() throws Exception {
         BuildCause buildCause = BuildCause.createWithEmptyModifications();
-        queue.schedule("cruise", buildCause);
+        queue.schedule("cruise", buildCause, -1L);
 
         queue.finishSchedule("cruise", buildCause, newCause);
 
@@ -141,15 +137,15 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldScheduleBuildCauseConsideringPriority() throws Exception {
         BuildCause buildCause = BuildCause.createWithModifications(multipleModifications(), "");
-        queue.schedule("cruise", buildCause);
+        queue.schedule("cruise", buildCause, -1L);
 
-        queue.schedule("cruise", BuildCause.createManualForced());
-        assertThat(queue.toBeScheduled().get("cruise").isForced(), is(true));
+        queue.schedule("cruise", BuildCause.createManualForced(), -1L);
+        assertThat(queue.toBeScheduled().get("cruise").last().isForced(), is(true));
     }
 
     @Test
     public void shouldClearToBeScheduledIfPipelineIsDeleted() {
-        queue.schedule("cruise", BuildCause.createWithEmptyModifications());
+        queue.schedule("cruise", BuildCause.createWithEmptyModifications(), -1L);
         queue.clearPipeline("cruise");
         assertThat(queue.toBeScheduled().get("cruise"), is(nullValue()));
     }
@@ -157,7 +153,7 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldClearMostRecentScheduledIfPipelineIsDeleted() {
         BuildCause buildCause = BuildCause.createWithEmptyModifications();
-        queue.schedule("cruise", buildCause);
+        queue.schedule("cruise", buildCause, -1L);
         queue.finishSchedule("cruise", buildCause, newCause);
         queue.clearPipeline("cruise");
         assertThat(queue.mostRecentScheduled("cruise").hasNeverRun(), is(true));
@@ -165,19 +161,19 @@ public class PipelineScheduleQueueIntegrationTest {
 
     @Test
     public void shouldReturnFalseIfThereIsBuildCauseWithoutModifications() throws Exception {
-        queue.schedule("cruise", BuildCause.createWithEmptyModifications());
+        queue.schedule("cruise", BuildCause.createWithEmptyModifications(), -1L);
         assertThat(queue.hasBuildCause("cruise"), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfThereIsBuildCause() throws Exception {
-        queue.schedule("cruise", BuildCause.createWithModifications(multipleModifications(), ""));
+        queue.schedule("cruise", BuildCause.createWithModifications(multipleModifications(), ""), -1L);
         assertThat(queue.hasBuildCause("cruise"), is(true));
     }
 
     @Test
     public void shouldReturnTrueIfThereIsForcedBuildCause() throws Exception {
-        queue.schedule("cruise", BuildCause.createManualForced());
+        queue.schedule("cruise", BuildCause.createManualForced(), -1L);
         assertThat(queue.hasForcedBuildCause("cruise"), is(true));
     }
 
@@ -186,7 +182,7 @@ public class PipelineScheduleQueueIntegrationTest {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig);
         saveRev(cause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
 
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(not(nullValue())));
     }
@@ -203,7 +199,7 @@ public class PipelineScheduleQueueIntegrationTest {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
         saveRev(cause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
 
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
         Stage stage = pipeline.getStages().first();
@@ -214,7 +210,7 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldReturnNullIfBuildCauseIsTrumped() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
         queue.finishSchedule(fixture.pipelineName, cause, cause);
         
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(nullValue()));
@@ -224,7 +220,7 @@ public class PipelineScheduleQueueIntegrationTest {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.finishSchedule(fixture.pipelineName, cause, cause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
 
         assertThat(fixture.pipelineName, is(scheduledOn(queue)));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(nullValue()));
@@ -234,7 +230,7 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test public void shouldFinishSchedule() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
 
         BuildCause newCause = modifySomeFiles(pipelineConfig, "somethingElse");
         queue.finishSchedule(fixture.pipelineName, cause, newCause);
@@ -249,7 +245,7 @@ public class PipelineScheduleQueueIntegrationTest {
         saveRev(cause);
 
         queue.finishSchedule(fixture.pipelineName, cause, newCause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
 
         assertThat(pipelineDao.mostRecentLabel(fixture.pipelineName), is(nullValue()));
 
@@ -392,7 +388,7 @@ public class PipelineScheduleQueueIntegrationTest {
         environmentVariablesConfig.add(new EnvironmentVariableConfig("blahVariable", "blahOverride"));
         cause.addOverriddenVariables(environmentVariablesConfig);
         saveRev(cause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
         assertThat(pipeline.scheduleTimeVariables(),is(env("blahVariable","blahOverride")));
     }
@@ -405,7 +401,7 @@ public class PipelineScheduleQueueIntegrationTest {
         environmentVariablesConfig.add(new EnvironmentVariableConfig("blahVariable", "blahOverride"));
         cause.addOverriddenVariables(environmentVariablesConfig);
         saveRev(cause);
-        queue.schedule(fixture.pipelineName, cause);
+        queue.schedule(fixture.pipelineName, cause, -1L);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
         assertThat(pipeline.getFirstStage().getConfigVersion(), is("md5-test"));
     }

@@ -18,21 +18,30 @@ package com.thoughtworks.go.server.util;
 
 import org.eclipse.jetty.server.Response;
 
+import javax.servlet.ServletResponseWrapper;
+
 public class Jetty9Response implements ServletResponse {
     private javax.servlet.ServletResponse servletResponse;
 
     public Jetty9Response(javax.servlet.ServletResponse servletResponse) {
-
         this.servletResponse = servletResponse;
     }
 
     @Override
     public int getStatus() {
-        return ((Response) servletResponse).getStatus();
+        return response().getStatus();
     }
 
     @Override
     public long getContentCount() {
-        return ((Response) servletResponse).getContentCount();
+        return response().getContentCount();
+    }
+
+    /* Handle single-level of wrapping in response (usually for gzip filtered responses). */
+    private Response response() {
+        if (servletResponse instanceof ServletResponseWrapper) {
+            return (Response) ((ServletResponseWrapper) servletResponse).getResponse();
+        }
+        return (Response) servletResponse;
     }
 }

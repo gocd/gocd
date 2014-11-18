@@ -79,7 +79,7 @@ public class SchedulingPerformanceLogger {
         performanceLogger.log("SCH-TO-BE-SCHEDULED-QUEUE-PUT {} {}", trackingId, pipelineName);
     }
 
-    public void scheduledPipeline(String pipelineName, int toBeScheduledQueueSize, long schedulePipelineStartTime, long schedulePipelineEndTime) {
-        performanceLogger.log("SCH-SCHEDULED {} {} {} {}", pipelineName, toBeScheduledQueueSize, schedulePipelineStartTime, schedulePipelineEndTime);
+    public void scheduledPipeline(Long trackingId, String pipelineName, int toBeScheduledQueueSize, long schedulePipelineStartTime, long schedulePipelineEndTime) {
+        performanceLogger.log("SCH-SCHEDULED {} {} {} {} {}", trackingId, pipelineName, toBeScheduledQueueSize, schedulePipelineStartTime, schedulePipelineEndTime);
     }
 }

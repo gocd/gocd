@@ -29,27 +29,10 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.materials.MaterialChecker;
-import com.thoughtworks.go.server.materials.MaterialUpdateCompletedMessage;
-import com.thoughtworks.go.server.materials.MaterialUpdateFailedMessage;
-import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusListener;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
-import com.thoughtworks.go.server.materials.SpecificMaterialRevisionFactory;
+import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.AutoBuild;
-import com.thoughtworks.go.server.service.BuildType;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.ManualBuild;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
-import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
-import com.thoughtworks.go.server.service.PipelineScheduleQueue;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.SchedulingCheckerService;
-import com.thoughtworks.go.server.service.TimedBuild;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -60,6 +43,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
 
@@ -212,7 +198,7 @@ public class BuildCauseProducerService {
                 buildCause.addOverriddenVariables(scheduleOptions.getVariables());
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
                 if (materialConfigurationChanged || buildType.isValidBuildCause(pipelineConfig, buildCause)) {
-                    pipelineScheduleQueue.schedule(pipelineName, buildCause);
+                    pipelineScheduleQueue.schedule(pipelineName, buildCause, trackingId);
 
                     schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
                     if (LOGGER.isDebugEnabled()) {

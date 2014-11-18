@@ -23,9 +23,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class PerformanceLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger("PerformanceLogger");
+    private final boolean isDebuggingTurnedOn;
+
+    public PerformanceLogger() {
+        isDebuggingTurnedOn = LOGGER.isDebugEnabled();
+    }
 
     public void log(String format, Object... arguments) {
         LOGGER.debug(format, arguments);
+    }
+
+    public boolean isLoggingTurnedOn() {
+        return isDebuggingTurnedOn;
     }
 }
 

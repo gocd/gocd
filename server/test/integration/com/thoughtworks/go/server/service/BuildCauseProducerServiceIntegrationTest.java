@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -37,11 +34,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -56,6 +49,7 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +59,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
@@ -217,9 +214,9 @@ public class BuildCauseProducerServiceIntegrationTest {
         final HashMap<String, String> environmentVariables = new HashMap<String, String>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
 
-        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        Map<String, Pair<Long, BuildCause>> afterLoad = scheduleHelper.waitForAnyScheduled(5);
         assertThat(afterLoad.keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(MINGLE_PIPELINE_NAME);
+        BuildCause cause = afterLoad.get(MINGLE_PIPELINE_NAME).last();
         assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
     }
 
@@ -274,7 +271,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(mingleDownstreamPipelineName));
-        BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleDownstreamPipelineName);
+        BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleDownstreamPipelineName).last();
         for (MaterialRevision materialRevision : downstreamBuildCause.getMaterialRevisions()) {
             assertThat("material revision " + materialRevision + " was marked as not changed", materialRevision.isChanged(), is(true));
         }
@@ -296,7 +293,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), m(mingleConfig.materialConfigs().get(0).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
             assertThat("material revision " + materialRevision + " should have been considered not changed.", materialRevision.isChanged(), is(false));
         }
@@ -313,7 +310,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), m(MaterialsMother.createMaterialFromMaterialConfig(mingleConfig.materialConfigs().get(0)).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
             assertThat("material revision " + materialRevision + " should have been considered changed.", materialRevision.isChanged(), is(true));
         }
@@ -339,7 +336,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         verifyChanged(svn2, mingleBuildCause, true);
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
 
@@ -349,7 +346,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
         runAndPassWith(svn1, "baz.c", svnRepository);
 
@@ -360,7 +357,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         verifyChanged(svn2, mingleBuildCause, false);
         verifyChanged(svn1, mingleBuildCause, true);
     }
@@ -373,7 +370,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         assertThat(mingleBuildCause, is(nullValue()));
 
         svn1.setFolder("another_repo");
@@ -382,7 +379,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME);
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(MINGLE_PIPELINE_NAME).last();
         verifyChanged(svn1, mingleBuildCause, false);//because material configuration changed, and not actual revisions
     }
 

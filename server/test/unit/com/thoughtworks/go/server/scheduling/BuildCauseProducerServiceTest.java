@@ -343,7 +343,7 @@ public class BuildCauseProducerServiceTest {
                 new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
                         stringStringHashMap, new HashMap<String, String>()), new ServerHealthStateOperationResult(), 12345);
 
-        verify(pipelineScheduleQueue).schedule(eq("pipeline"), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
+        verify(pipelineScheduleQueue).schedule(eq("pipeline"), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)), -1L);
     }
 
     @Test

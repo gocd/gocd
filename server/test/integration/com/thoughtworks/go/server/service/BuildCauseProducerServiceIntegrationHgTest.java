@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -33,12 +28,12 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +44,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
@@ -118,11 +118,11 @@ public class BuildCauseProducerServiceIntegrationHgTest {
                 "helper/topics/upgrading_go.xml",
                 "helper/topics/whats_new_in_go.xml");
 
-        Map<String, BuildCause> beforeLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<String, Pair<Long, BuildCause>> beforeLoad = pipelineScheduleQueue.toBeScheduled();
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
-        Map<String, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<String, Pair<Long, BuildCause>> afterLoad = pipelineScheduleQueue.toBeScheduled();
         assertThat(afterLoad.size(), is(beforeLoad.size()));
 
     }

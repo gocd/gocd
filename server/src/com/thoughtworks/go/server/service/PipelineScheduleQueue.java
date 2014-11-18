@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.NullPipeline;
@@ -29,11 +25,16 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.buildcause.BuildCauseOutOfDateException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class PipelineScheduleQueue {
@@ -41,7 +42,7 @@ public class PipelineScheduleQueue {
 
     private PipelineService pipelineService;
     private TransactionTemplate transactionTemplate;
-    private Map<String, BuildCause> toBeScheduled = new ConcurrentHashMap<String, BuildCause>();
+    private Map<String, Pair<Long,BuildCause>> toBeScheduled = new ConcurrentHashMap<String, Pair<Long,BuildCause>>();
     private Map<String, BuildCause> mostRecentScheduled = new ConcurrentHashMap<String, BuildCause>();
     private InstanceFactory instanceFactory;
 
@@ -69,11 +70,11 @@ public class PipelineScheduleQueue {
         return pipeline instanceof NullPipeline ? BuildCause.createNeverRun() : pipeline.getBuildCause();
     }
 
-    public void schedule(String pipelineName, BuildCause buildCause) {
+    public void schedule(String pipelineName, BuildCause buildCause, long trackingId) {
         synchronized (mutexForPipelineName(pipelineName)) {
-            BuildCause current = toBeScheduled.get(pipelineName);
-            if (current == null || buildCause.trumps(current)) {
-                toBeScheduled.put(pipelineName, buildCause);
+            Pair<Long,BuildCause> currentCauseWithTrackingId = toBeScheduled.get(pipelineName);
+            if (currentCauseWithTrackingId == null || currentCauseWithTrackingId.last() == null || buildCause.trumps(currentCauseWithTrackingId.last())) {
+                toBeScheduled.put(pipelineName, new Pair<Long, BuildCause>(trackingId, buildCause));
             }
         }
     }
@@ -84,13 +85,14 @@ public class PipelineScheduleQueue {
         }
     }
 
-    public synchronized Map<String, BuildCause> toBeScheduled() {
-        return new HashMap<String, BuildCause>(toBeScheduled);
+    public synchronized Map<String, Pair<Long,BuildCause>> toBeScheduled() {
+        return new HashMap<String, Pair<Long,BuildCause>>(toBeScheduled);
     }
 
     public void finishSchedule(String pipelineName, BuildCause buildCause, BuildCause newCause) {
         synchronized (mutexForPipelineName(pipelineName)) {
-            if (buildCause.equals(toBeScheduled.get(pipelineName))) {
+            Pair<Long, BuildCause> buildCauseWithTrackingId = toBeScheduled.get(pipelineName);
+            if (buildCause.equals(buildCauseWithTrackingId.last())) {
                 toBeScheduled.remove(pipelineName);
             }
             mostRecentScheduled.put(pipelineName, newCause);
@@ -106,14 +108,15 @@ public class PipelineScheduleQueue {
 
     //TODO: #5163 - this is a concurrency issue - talk to Rajesh or JJ
     public boolean hasBuildCause(String pipelineName) {
-        BuildCause buildCause = toBeScheduled.get(pipelineName);
-        return buildCause != null && buildCause.getMaterialRevisions().totalNumberOfModifications() > 0;
+        Pair<Long,BuildCause> buildCauseWithTrackingId = toBeScheduled.get(pipelineName);
+        return buildCauseWithTrackingId != null && buildCauseWithTrackingId.last() != null &&
+                buildCauseWithTrackingId.last().getMaterialRevisions().totalNumberOfModifications() > 0;
     }
 
     public boolean hasForcedBuildCause(String pipelineName) {
         synchronized (mutexForPipelineName(pipelineName)) {
-            BuildCause buildCause = toBeScheduled.get(pipelineName);
-            return buildCause != null && buildCause.isForced();
+            Pair<Long,BuildCause> buildCauseWithTrackingId = toBeScheduled.get(pipelineName);
+            return buildCauseWithTrackingId != null && buildCauseWithTrackingId.last() != null && buildCauseWithTrackingId.last().isForced();
         }
     }
 

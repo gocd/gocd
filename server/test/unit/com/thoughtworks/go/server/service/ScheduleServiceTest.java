@@ -16,30 +16,15 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.CannotScheduleException;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.SchedulingContext;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -51,18 +36,18 @@ import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -73,14 +58,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ScheduleServiceTest {
     private ScheduleService service;
@@ -270,8 +248,8 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
-        final HashMap<String, BuildCause> map = new HashMap<String, BuildCause>();
-        map.put("pipeline-quux", BuildCause.createManualForced());
+        final Map<String, Pair<Long, BuildCause>> map = new HashMap<String, Pair<Long, BuildCause>>();
+        map.put("pipeline-quux", new Pair<Long, BuildCause>(-1L, BuildCause.createManualForced()));
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();
@@ -291,8 +269,8 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.createMaterialFromMaterialConfig(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
-        final HashMap<String, BuildCause> map = new HashMap<String, BuildCause>();
-        map.put("pipeline-quux", BuildCause.createManualForced());
+        final Map<String, Pair<Long, BuildCause>> map = new HashMap<String, Pair<Long, BuildCause>>();
+        map.put("pipeline-quux", new Pair<Long, BuildCause>(-1L, BuildCause.createManualForced()));
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();
@@ -313,7 +291,7 @@ public class ScheduleServiceTest {
         PipelineConfig evolveConfig = PipelineConfigMother.createPipelineConfig("evolve", "build", "unit");
         BuildCause mingleBuildCause = modifySomeFiles(mingleConfig);
         BuildCause evolveBuildCause = modifySomeFiles(evolveConfig);
-        when(pipelineScheduleQueue.toBeScheduled()).thenReturn(m("mingle", mingleBuildCause, "evolve", evolveBuildCause));
+        when(pipelineScheduleQueue.toBeScheduled()).thenReturn(m("mingle", new Pair<Long, BuildCause>(-1L, mingleBuildCause), "evolve", new Pair<Long, BuildCause>(-1L, evolveBuildCause)));
 
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("mingle"))).thenReturn(mingleConfig);
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("evolve"))).thenReturn(evolveConfig);

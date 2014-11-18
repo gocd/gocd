@@ -196,7 +196,7 @@ public class ScheduleServiceCachedIntegrationTest {
     private Pipeline tryToScheduleAPipeline() {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(preCondition.pipelineConfig()), "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        pipelineScheduleQueue.schedule(preCondition.pipelineName, buildCause);
+        pipelineScheduleQueue.schedule(preCondition.pipelineName, buildCause, -1L);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
     }

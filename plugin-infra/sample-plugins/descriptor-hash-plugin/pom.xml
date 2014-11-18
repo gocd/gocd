@@ -24,7 +24,7 @@
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <go.version>14.3.0</go.version>
+        <go.version>14.3.1</go.version>
     </properties>
 
     <dependencies>

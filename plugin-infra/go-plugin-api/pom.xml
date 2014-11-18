@@ -22,7 +22,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>go-plugin-api</artifactId>
-    <version>14.3.0</version>
+    <version>14.3.1</version>
     <packaging>jar</packaging>
 
     <parent>

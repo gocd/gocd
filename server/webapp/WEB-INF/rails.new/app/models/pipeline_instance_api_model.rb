@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class PipelineInstanceAPIModel
-  attr_reader :id, :name, :counter, :label, :natural_order, :can_run, :preparing_to_schedule, :currently_locked, :lockable, :can_unlock, :build_cause, :stages
+  attr_reader :id, :name, :counter, :label, :natural_order, :can_run, :preparing_to_schedule, :currently_locked, :lockable, :can_unlock, :build_cause, :stages, :comment
 
   def initialize(pipeline_instance_model)
     @id = pipeline_instance_model.getId()
@@ -29,5 +29,6 @@ class PipelineInstanceAPIModel
     @stages = pipeline_instance_model.getStageHistory().collect do |stage_instance_model|
       StageHistoryItemAPIModel.new(stage_instance_model)
     end
+    @comment = pipeline_instance_model.getComment()
   end
 end

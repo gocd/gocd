@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import java.util.List;
-
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+
+import java.util.List;
 
 public interface PluginManager {
     List<GoPluginDescriptor> plugins();
@@ -40,4 +43,8 @@ public interface PluginManager {
     void stopPluginInfrastructure();
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
+
+    GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest);
+
+    List<GoPluginIdentifier> allPluginsOfType(String extension);
 }

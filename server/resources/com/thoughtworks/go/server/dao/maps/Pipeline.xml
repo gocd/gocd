@@ -386,7 +386,7 @@
      <select id="pipelineAndItsDepedenciesByNameAndCounter" resultMap="select-pipeline-history">
         SELECT
          pipelineId, pipelineName, buildCauseType, label, buildCauseMessage, pipelineCounter, pipelineLabel,
-         naturalOrder , stageName, stageCounter, stageId, approvedBy, approvalType, stageResult,
+         naturalOrder, pipelineComment, stageName, stageCounter, stageId, approvedBy, approvalType, stageResult,
          buildId, buildName, buildState, buildResult, scheduledDate, orderId, rerunOfCounter
          FROM (
             <include refid="getPipelineHistoryByNameAndCounterSQL"/>

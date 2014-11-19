@@ -50,6 +50,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     private boolean isCurrentlyLocked;
     private TrackingTool trackingTool;
     private MingleConfig mingleConfig;
+    private String comment;
 
     private PipelineInstanceModel() {
         stageHistory = new StageInstanceModels();
@@ -494,5 +495,11 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public DependencyMaterialConfig findDependencyMaterial(CaseInsensitiveString pipelineName) {
         return getMaterials().findDependencyMaterial(pipelineName);
+    }
+
+    public void setComment(String comment) { this.comment = comment; }
+
+    public String getComment() {
+        return comment;
     }
 }

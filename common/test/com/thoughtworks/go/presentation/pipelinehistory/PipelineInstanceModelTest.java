@@ -375,15 +375,22 @@ public class PipelineInstanceModelTest {
 
         PipelineInstanceModel pim = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), stages);
         pim.setLatestRevisions(MaterialRevisions.EMPTY);
-        
+
         assertThat("pim.hasNeverCheckedForRevisions()", pim.hasNeverCheckedForRevisions(), is(true));
 
     }
     @Test
     public void shouldReturnTrueIfThePipelineHasStage() {
-        PipelineInstanceModel pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "stage", new Date());        
+        PipelineInstanceModel pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "stage", new Date());
         assertThat(pim.hasStage(pim.getStageHistory().first().getIdentifier()), is(true));
         assertThat(pim.hasStage(new StageIdentifier("pipeline",1,"1", "stagex", "2")), is(false));
 
+    }
+
+    @Test
+    public void shouldSetAndGetComment() {
+        PipelineInstanceModel pim = PipelineInstanceModel.createEmptyModel();
+        pim.setComment("test comment");
+        assertThat("PipelineInstanceModel.getComment()", pim.getComment(), is("test comment"));
     }
 }

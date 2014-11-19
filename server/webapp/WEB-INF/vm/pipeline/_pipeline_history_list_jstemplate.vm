@@ -181,9 +181,31 @@
                             <a class="empty-stage" href="javascript:void(0);"></a>
                         {/if}
                     </div>
-                </td>
-                {/for}
-                <td class="spacer">&nbsp;</td>
+                    </td>
+                    {/for}
+                    <td>
+                        <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
+
+                        {if pipeline.comment == ""}
+                        <input class="pipeline-comment-button" type="button" value="Add Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
+                        {else}
+                        <input class="pipeline-comment-button" type="button" value="Edit Comment"
+                               onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
+                        {/if}
+
+                        <div class="comment-form" id="comment-form-${% pipeline.counterOrLabel %}" style="display: none;">
+                            <div id="comment-box-wrapper">
+                                <input type="text" id="comment-input" value="${%pipeline.comment|h|escapeQuotes%}">
+                                <button type="button" id="comment-button" class="image submit primary"
+                                   onClick="PipelineHistoryComment.submit('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}');">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="spacer">&nbsp;</td>
+                </div>
             </tr>
             {/for}
         </tbody>

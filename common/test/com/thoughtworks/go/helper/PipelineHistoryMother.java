@@ -78,6 +78,7 @@ public class PipelineHistoryMother {
         PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
         item.setCounter(1);
         item.setId(1);
+        item.setComment("build comment");
         history.add(item);
         return history;
     }

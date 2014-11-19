@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -32,9 +33,12 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -890,6 +894,31 @@ public class PipelineHistoryServiceTest {
 		assertThat(pipelineInstanceModels, is(not(nullValue())));
 		assertThat(result.canContinue(), is(true));
 	}
+
+    @Test
+    public void shouldUpdateCommentUsingPipelineDao() {
+        CaseInsensitiveString authorizedUser = new CaseInsensitiveString("can-access");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        when(securityService.hasOperatePermissionForPipeline(authorizedUser, "pipeline_name")).thenReturn(true);
+
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment", new Username(authorizedUser), result);
+
+        verify(pipelineDao, times(1)).updateComment("pipeline_name", 1, "test comment");
+    }
+
+    @Test
+    public void shouldNotUpdateCommentWhenUserIsUnauthorized() {
+        CaseInsensitiveString unauthorizedUser = new CaseInsensitiveString("cannot-access");
+        String pipelineName = "pipeline_name";
+        when(securityService.hasOperatePermissionForPipeline(unauthorizedUser, pipelineName)).thenReturn(false);
+
+        HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
+        pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
+
+        verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
+        verify(result, times(1)).unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+    }
 
     private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {
         when(goConfigService.materialConfigsFor(new CaseInsensitiveString(downPipelineName))).thenReturn(downPipelineMaterial);

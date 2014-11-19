@@ -34,6 +34,10 @@ public class LocalizedMessage {
         return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.PIPELINE_CANNOT_VIEW, pipelineName);
     }
 
+    public static Localizable cannotOperatePipeline(Object pipelineName) {
+        return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.PIPELINE_CANNOT_OPERATE, pipelineName);
+    }
+
 	public static Localizable cannotViewMaterial(Object materialFingerprint) {
 		return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.MATERIAL_CANNOT_VIEW, materialFingerprint);
 	}

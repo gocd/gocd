@@ -112,7 +112,7 @@ public class DbMigrationTest {
         h2Database = new H2Database(dbFixture.env());
 
         h2Database.startDatabase();
-        
+
         DatabaseFixture.update("ALTER TABLE STAGES ADD COLUMN `ARTIFACTSDELETED` Boolean DEFAULT FALSE NOT NULL", h2Database);
         assertThat(DatabaseFixture.query("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE COLUMN_NAME='ARTIFACTSDELETED' AND TABLE_NAME='STAGES' AND TABLE_SCHEMA='PUBLIC'", h2Database),
                 is(new Object[][]{{1L}}));
@@ -153,6 +153,22 @@ public class DbMigrationTest {
         hasColumn("PIPELINESELECTIONS", "ISBLACKLIST");
         columnHasType("PIPELINESELECTIONS", "ISBLACKLIST", "BOOLEAN");
         columnHasDefault("PIPELINESELECTIONS", "ISBLACKLIST", "TRUE");
+    }
+
+    @Test
+    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
+    public void testMigration_1501002_should_add_comment_column_to_pipelines() throws Exception {
+        dbFixture.copyDeltas();
+        dbFixture.copyH2Db("with-usernames-in-different-cases.zip");
+
+        h2Database = new H2Database(dbFixture.env());
+        h2Database.startDatabase();
+
+        doesNotHaveColumn("PIPELINES", "COMMENT");
+
+        h2Database.upgrade();
+
+        hasColumn("PIPELINES", "COMMENT");
     }
 
     private void columnHasDefault(String table, String column, String defaultValue) {

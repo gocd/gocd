@@ -257,6 +257,7 @@ module APIModelMother
     @pipeline_view_model.stub(:canUnlock).and_return(false)
     @pipeline_view_model.stub(:getBuildCause).and_return(create_build_cause_model)
     @pipeline_view_model.stub(:getStageHistory).and_return([create_stage_model])
+    @pipeline_view_model.stub(:getComment).and_return('pipeline comment')
     @pipeline_view_model
   end
 
@@ -274,6 +275,7 @@ module APIModelMother
     @pipeline_view_model.stub(:canUnlock).and_return(nil)
     @pipeline_view_model.stub(:getBuildCause).and_return(create_empty_build_cause_model)
     @pipeline_view_model.stub(:getStageHistory).and_return([create_empty_stage_model])
+    @pipeline_view_model.stub(:getComment).and_return(nil)
     @pipeline_view_model
   end
 

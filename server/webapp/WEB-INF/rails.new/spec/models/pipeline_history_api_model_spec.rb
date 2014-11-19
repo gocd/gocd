@@ -36,6 +36,7 @@ describe PipelineHistoryAPIModel do
       pipeline_instance_api_model.label.should == 'label'
       pipeline_instance_api_model.natural_order.should == 1
       pipeline_instance_api_model.can_run.should == true
+      pipeline_instance_api_model.comment.should == 'pipeline comment'
       pipeline_instance_api_model.preparing_to_schedule.should == false
 
       build_cause_api_model = pipeline_instance_api_model.build_cause
@@ -103,6 +104,7 @@ describe PipelineHistoryAPIModel do
       pipeline_instance_api_model.label.should == nil
       pipeline_instance_api_model.natural_order.should == nil
       pipeline_instance_api_model.can_run.should == nil
+      pipeline_instance_api_model.comment.should == nil
       pipeline_instance_api_model.preparing_to_schedule.should == nil
 
       build_cause_api_model = pipeline_instance_api_model.build_cause

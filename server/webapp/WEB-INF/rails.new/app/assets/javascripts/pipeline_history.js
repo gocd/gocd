@@ -20,7 +20,13 @@ PipelineHistoryObserver.prototype = {
     initialize : function(keyOfListObjects) {
     },
     notify : function(json) {
-        $('pipeline-history').innerHTML = this.getTemplate().process({ data : json });
+        var myModifiers = {
+            escapeQuotes: function(str) {
+                return str.replace(/"/g, '&quot;');
+            },
+        }
+        $('pipeline-history').innerHTML = this.getTemplate().process(
+            { data : json, _MODIFIERS: myModifiers});
         if (window.paginator) {
             this.renderPagination(json);
         }

@@ -18,7 +18,7 @@ class PipelinesController < ApplicationController
   include ApplicationHelper
   layout "application", :except => ["show", "material_search", "show_for_trigger"]
 
-  skip_before_action :verify_authenticity_token, only: [:show_for_trigger, :show]
+  skip_before_action :verify_authenticity_token, only: [:show_for_trigger, :show, :update_comment]
 
   before_filter :set_tab_name
 
@@ -66,6 +66,17 @@ class PipelinesController < ApplicationController
     pipeline_selections_id = go_config_service.persistSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
     cookies[:selected_pipelines] = {:value => pipeline_selections_id, :expires => 1.year.from_now.beginning_of_day} if !mycruise_available?
     render :nothing => true
+  end
+
+  def update_comment
+    result = HttpLocalizedOperationResult.new
+
+    pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment], current_user, result)
+    if result.isSuccessful()
+      render json: { status: 'success' }
+    else
+      render_localized_operation_result(result)
+    end
   end
 
   private

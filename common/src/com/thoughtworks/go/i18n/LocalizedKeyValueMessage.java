@@ -28,6 +28,7 @@ public class LocalizedKeyValueMessage implements Localizable.CurryableLocalizabl
     private final Object[] args;
 
     static final String PIPELINE_CANNOT_VIEW = "PIPELINE_CANNOT_VIEW";
+    static final String PIPELINE_CANNOT_OPERATE = "PIPELINE_CANNOT_OPERATE";
     static final String MATERIAL_CANNOT_VIEW = "MATERIAL_CANNOT_VIEW";
     static final String MATERIAL_WITH_FINGERPRINT_NOT_FOUND = "MATERIAL_WITH_FINGERPRINT_NOT_FOUND";
     static final String MODIFIED_BY_VALUE = "MODIFIED_BY_VALUE";

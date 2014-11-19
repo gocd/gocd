@@ -1020,4 +1020,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Pipelin
 			}
         }
     }
+
+    @Override
+    public void updateComment(String pipelineName, int pipelineCounter, String comment) {
+        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).and("comment", comment).asMap();
+        getSqlMapClientTemplate().update("updatePipelineComment", args);
+
+        Pipeline pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
+    }
 }

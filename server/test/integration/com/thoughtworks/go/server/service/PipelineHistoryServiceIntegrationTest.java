@@ -47,6 +47,7 @@ import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineGroupModel;
@@ -106,6 +107,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
+    @Autowired private Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithMultipleStages pipelineOne;
@@ -969,6 +971,40 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(pipelineInstances.size(), is(0));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(401));
+    }
+
+    @Test
+    public void updateComment_shouldUpdateTheCommentInTheDatabase() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
+        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
+        configHelper.setAdminPermissionForGroup("pipeline-group", "valid-user");
+
+        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment", new Username(new CaseInsensitiveString("valid-user")), result);
+        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
+        assertThat(pim.getComment(), is("test comment"));
+    }
+
+    @Test
+    public void updateComment_shouldNotUpdateTheCommentInTheDatabaseIfTheUserIsUnauthorized() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
+        goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("valid-user");
+
+        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        pipelineHistoryService.updateComment("pipeline_name", 1, "test comment",
+                new Username(new CaseInsensitiveString("invalid-user")), result);
+
+        PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
+
+        assertThat(pim.getComment(), is(nullValue()));
+        assertThat(result.httpCode(), is(401));
+        assertThat(result.message(localizer), is("You do not have operate permissions for pipeline 'pipeline_name'."));
     }
 
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {

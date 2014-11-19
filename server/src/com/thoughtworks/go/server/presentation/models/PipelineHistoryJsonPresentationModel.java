@@ -162,6 +162,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
             jsonMap.put("materialRevisions", materialRevisionsJson(item));
             jsonMap.put("stages", stageHistoryAsJson(item, item.getStageHistory()));
             jsonMap.put("revision", item.getRevisionOfLatestModification());
+            jsonMap.put("comment", item.getComment());
             json.add(jsonMap);
         }
         return json;

@@ -348,5 +348,4 @@ public class PackageRepositoryServiceTest {
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("p4", false, "v4"));
         return packageRepository;
     }
-
 }

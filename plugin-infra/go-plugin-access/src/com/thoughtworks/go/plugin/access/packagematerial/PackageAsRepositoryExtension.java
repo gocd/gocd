@@ -77,13 +77,13 @@ public class PackageAsRepositoryExtension implements PackageAsRepositoryExtensio
     }
 
     PackageAsRepositoryExtensionContract resolveBy(String pluginId) {
-        if (pluginManager.hasReference(PackageMaterialProvider.class, pluginId)) {
+        if (pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId)) {
             return apiBasedPackageRepositoryExtension;
         }
         return jsonBasedPackageRepositoryExtension;
     }
 
     boolean isPackageRepositoryPlugin(String pluginId) {
-        return pluginManager.hasReference(PackageMaterialProvider.class, pluginId) || pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, pluginId);
+        return pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId) || pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, pluginId);
     }
 }

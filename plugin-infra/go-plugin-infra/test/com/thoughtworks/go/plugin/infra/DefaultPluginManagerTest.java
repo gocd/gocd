@@ -266,7 +266,7 @@ public class DefaultPluginManagerTest {
         String pluginId = "plugin-id";
         when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)).thenReturn(true);
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, systemEnvironment);
-        assertThat(pluginManager.hasReference(GoPlugin.class, pluginId), is(true));
+        assertThat(pluginManager.hasReferenceFor(GoPlugin.class, pluginId), is(true));
     }
 
     @Test

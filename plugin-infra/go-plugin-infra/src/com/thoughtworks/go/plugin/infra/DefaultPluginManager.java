@@ -157,7 +157,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public boolean hasReference(Class serviceReferenceClass, String pluginId) {
+    public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
         return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
     }
 

@@ -181,7 +181,7 @@ public class ApiBasedPackageRepositoryExtensionTest {
             }
 
             @Override
-            public boolean hasReference(Class serviceReferenceClass, String pluginId) {
+            public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
                 return false;
             }
 

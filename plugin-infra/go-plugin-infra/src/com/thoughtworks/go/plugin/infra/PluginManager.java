@@ -48,7 +48,7 @@ public interface PluginManager {
 
     List<GoPluginIdentifier> allPluginsOfType(String extension);
 
-    boolean hasReference(Class serviceReferenceClass, String pluginId);
+    boolean hasReferenceFor(Class serviceReferenceClass, String pluginId);
 
     boolean isPluginOfType(String extension, String pluginId);
 

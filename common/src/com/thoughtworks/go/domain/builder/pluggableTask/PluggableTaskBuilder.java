@@ -16,18 +16,12 @@
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.CruiseControlException;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -38,6 +32,13 @@ import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * This class is serialized and sent over wire to agents.
@@ -69,7 +70,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
                       final EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
-            executionResult = pluginManager().doOn(Task.class, pluginId, new ActionWithReturn<Task, ExecutionResult>() {
+            TaskExtension taskExtension = new TaskExtension(pluginManager());
+            executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
                 @Override
                 public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
                     return executeTask(task, buildLogElement, publisher, environmentVariableContext);

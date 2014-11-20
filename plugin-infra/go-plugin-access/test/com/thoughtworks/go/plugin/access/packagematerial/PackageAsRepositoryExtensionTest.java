@@ -47,7 +47,7 @@ public class PackageAsRepositoryExtensionTest {
     @Test
     public void shouldResolveToApiBasedPackageRepositoryExtension() throws Exception {
         String pluginId = "plugin-id";
-        when(pluginManager.hasReference(PackageMaterialProvider.class, pluginId)).thenReturn(true);
+        when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId)).thenReturn(true);
         packageAsRepositoryExtension = new PackageAsRepositoryExtension(pluginManager);
         PackageAsRepositoryExtensionContract contract = packageAsRepositoryExtension.resolveBy(pluginId);
         assertThat(contract, IsInstanceOf.instanceOf(ApiBasedPackageRepositoryExtension.class));
@@ -56,7 +56,7 @@ public class PackageAsRepositoryExtensionTest {
     @Test
     public void shouldResolveToJsonBasedPackageRepositoryExtension() throws Exception {
         String pluginId = "plugin-id";
-        when(pluginManager.hasReference(PackageMaterialProvider.class, pluginId)).thenReturn(false);
+        when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId)).thenReturn(false);
         packageAsRepositoryExtension = new PackageAsRepositoryExtension(pluginManager);
         PackageAsRepositoryExtensionContract contract = packageAsRepositoryExtension.resolveBy(pluginId);
         assertThat(contract, IsInstanceOf.instanceOf(JsonBasedPackageRepositoryExtension.class));
@@ -123,7 +123,7 @@ public class PackageAsRepositoryExtensionTest {
 
     @Test
     public void shouldFindPluginToBeOfTypePackageRepository() throws Exception {
-        when(pluginManager.hasReference(PackageMaterialProvider.class, "plugin-one")).thenReturn(true);
+        when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, "plugin-one")).thenReturn(true);
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(true);
         assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(true));
         assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(true));
@@ -131,7 +131,7 @@ public class PackageAsRepositoryExtensionTest {
 
     @Test
     public void shouldNotFindPluginToBeOfTypePackageRepository() throws Exception {
-        when(pluginManager.hasReference(PackageMaterialProvider.class, "plugin-one")).thenReturn(false);
+        when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, "plugin-one")).thenReturn(false);
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(false);
         assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(false));
         assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(false));

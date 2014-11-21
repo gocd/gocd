@@ -50,6 +50,21 @@ class Api::PipelinesController < Api::ApiController
     end
   end
 
+  def instance_by_counter
+    pipeline_name = params[:pipeline_name]
+    pipeline_counter = params[:pipeline_counter].to_i
+    result = HttpOperationResult.new
+
+    pipeline_instance_model = pipeline_history_service.findPipelineInstance(pipeline_name, pipeline_counter, current_user, result)
+
+    if result.canContinue()
+      pipeline_instance_api_model = PipelineInstanceAPIModel.new(pipeline_instance_model)
+      render json: pipeline_instance_api_model
+    else
+      render_error_response(result.detailedMessage(), result.httpCode(), true)
+    end
+  end
+
   def status
     pipeline_name = params[:pipeline_name]
     result = HttpOperationResult.new

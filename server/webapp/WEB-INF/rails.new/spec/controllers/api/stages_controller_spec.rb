@@ -123,4 +123,39 @@ describe Api::StagesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
   end
+
+  describe :instance_by_counter do
+    include APIModelMother
+
+    before :each do
+      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+    end
+
+    it "should route to history" do
+      expect(:get => "/api/stages/pipeline/stage/instance/1/1").to route_to(:controller => 'api/stages', :action => "instance_by_counter", :pipeline_name => "pipeline", :stage_name => "stage", :pipeline_counter => "1", :stage_counter => "1", :no_layout => true)
+    end
+
+    it "should render instance json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything).and_return(create_stage_model_for_instance)
+
+      get :instance_by_counter, :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => '1', :stage_counter => '1', :no_layout => true
+
+      expect(response.body).to eq(StageAPIModel.new(create_stage_model_for_instance).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything) do |pipeline_name, pipeline_counter, stage_name, stage_counter, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :instance_by_counter, :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => '1', :stage_counter => '1', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
+    end
+  end
 end

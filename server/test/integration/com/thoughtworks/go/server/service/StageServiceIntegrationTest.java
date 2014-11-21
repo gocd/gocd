@@ -229,6 +229,17 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
+    public void shouldReturnStageWithSpecificCounter_findStageWithIdentifier() throws Exception {
+        Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
+        Stage newSavedStage = stageService.save(savedPipeline, newInstance);
+
+        StageIdentifier identifier = newSavedStage.getIdentifier();
+        Stage latestStage = stageService.findStageWithIdentifier(identifier.getPipelineName(), identifier.getPipelineCounter(), identifier.getStageName(), identifier.getStageCounter(), "admin", new HttpOperationResult());
+
+        assertThat(latestStage, is(newSavedStage));
+    }
+
+    @Test
     public void shouldReturnTrueIfStageIsActive() throws Exception {
         savedPipeline.getStages().first();
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());

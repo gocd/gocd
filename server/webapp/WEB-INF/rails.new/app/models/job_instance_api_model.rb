@@ -34,4 +34,11 @@ class JobInstanceAPIModel
       JobStateTransitionAPIModel.new(job_state_transition_model)
     end
   end
+
+  def clear_pipeline_and_stage_details
+    @pipeline_name = nil
+    @pipeline_counter = nil
+    @stage_name = nil
+    @stage_counter = nil
+  end
 end

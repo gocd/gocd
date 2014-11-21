@@ -603,6 +603,38 @@ public class StageServiceTest {
 		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
 		assertThat(stageInstanceModels, is(Matchers.nullValue()));
-		assertThat(result.canContinue(), is(false));
+        assertThat(result.httpCode(), is(401));
 	}
+
+    @Test
+    public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+        HttpOperationResult result = new HttpOperationResult();
+        Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
+
+        assertThat(stage, is(Matchers.nullValue()));
+        assertThat(result.httpCode(), is(404));
+    }
+
+    @Test
+    public void shouldPopulateErrorWhenUnauthorized_findStageWithIdentifier() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+        HttpOperationResult result = new HttpOperationResult();
+        Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
+
+        assertThat(stage, is(Matchers.nullValue()));
+        assertThat(result.httpCode(), is(401));
+    }
 }

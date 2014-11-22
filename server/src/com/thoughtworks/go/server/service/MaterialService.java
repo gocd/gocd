@@ -28,7 +28,7 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.*;
@@ -53,15 +53,15 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
-    private PluginManager pluginManager;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<Class, MaterialPoller>();
 
     @Autowired
-    public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService, PluginManager pluginManager) {
+    public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService, PackageAsRepositoryExtension packageAsRepositoryExtension) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
-        this.pluginManager = pluginManager;
+        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         populatePollerImplementations();
     }
 
@@ -72,7 +72,7 @@ public class MaterialService {
         materialPollerMap.put(TfsMaterial.class, new TfsPoller());
         materialPollerMap.put(P4Material.class, new P4Poller());
         materialPollerMap.put(DependencyMaterial.class, new DependencyMaterialPoller());
-        materialPollerMap.put(PackageMaterial.class, new PackageMaterialPoller(pluginManager));
+        materialPollerMap.put(PackageMaterial.class, new PackageMaterialPoller(packageAsRepositoryExtension));
     }
 
     public boolean hasModificationFor(Material material) {

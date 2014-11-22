@@ -8,6 +8,8 @@ import static java.util.Collections.unmodifiableMap;
 
 public class DefaultGoApiResponse extends GoApiResponse {
 
+    public static final int SUCCESS_RESPONSE_CODE = 200;
+
     private int responseCode;
     private Map<String, String> responseHeaders = new HashMap<String, String>();
     private String responseBody;
@@ -35,7 +37,7 @@ public class DefaultGoApiResponse extends GoApiResponse {
     }
 
     public static DefaultGoApiResponse success(String responseBody) {
-        DefaultGoApiResponse defaultGoApiResponse = new DefaultGoApiResponse(200);
+        DefaultGoApiResponse defaultGoApiResponse = new DefaultGoApiResponse(SUCCESS_RESPONSE_CODE);
         defaultGoApiResponse.setResponseBody(responseBody);
         return defaultGoApiResponse;
     }

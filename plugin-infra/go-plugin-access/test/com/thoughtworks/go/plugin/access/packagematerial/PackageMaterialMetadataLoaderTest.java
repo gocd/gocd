@@ -16,19 +16,13 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
-import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.infra.*;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -38,26 +32,28 @@ import static org.mockito.Mockito.*;
 public class PackageMaterialMetadataLoaderTest {
 
     private PackageMaterialMetadataLoader metadataLoader;
-    private PackageMaterialConfiguration packageMaterialConfiguration;
     private GoPluginDescriptor pluginDescriptor;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PluginManager pluginManager;
 
     @Before
     public void setUp() throws Exception {
-        PackageMaterialProvider packageMaterialProvider = mock(PackageMaterialProvider.class);
-        packageMaterialConfiguration = mock(PackageMaterialConfiguration.class);
-        when(packageMaterialProvider.getConfig()).thenReturn(packageMaterialConfiguration);
         pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
+        pluginManager = mock(PluginManager.class);
+        packageAsRepositoryExtension = mock(PackageAsRepositoryExtension.class);
+        metadataLoader = new PackageMaterialMetadataLoader(pluginManager, packageAsRepositoryExtension);
+
         RepositoryMetadataStore.getInstance().removeMetadata(pluginDescriptor.id());
         PackageMetadataStore.getInstance().removeMetadata(pluginDescriptor.id());
-        metadataLoader = new PackageMaterialMetadataLoader(dummyPluginManager(packageMaterialProvider, pluginDescriptor));
     }
 
     @Test
-        public void shouldFetchPackageMetadataForPluginsWhichImplementPackageRepositoryMaterialExtensionPoint() {
+    public void shouldFetchPackageMetadataForPluginsWhichImplementPackageRepositoryMaterialExtensionPoint() {
         RepositoryConfiguration expectedRepoConfigurations = new RepositoryConfiguration();
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration expectedPackageConfigurations = new PackageConfiguration();
-        when(packageMaterialConfiguration.getRepositoryConfiguration()).thenReturn(expectedRepoConfigurations);
-        when(packageMaterialConfiguration.getPackageConfiguration()).thenReturn(expectedPackageConfigurations);
+
+        when(packageAsRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id())).thenReturn(expectedRepoConfigurations);
+        when(packageAsRepositoryExtension.getPackageConfiguration(pluginDescriptor.id())).thenReturn(expectedPackageConfigurations);
 
 
         metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
@@ -67,9 +63,19 @@ public class PackageMaterialMetadataLoaderTest {
     }
 
     @Test
+    public void shouldHandleNullConfigurationWhileFetchingPackageMaterialMetadataForPlugins() {
+        when(packageAsRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id())).thenReturn(null);
+        when(packageAsRepositoryExtension.getPackageConfiguration(pluginDescriptor.id())).thenReturn(null);
+
+        metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
+
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()),nullValue());
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+    }
+
+    @Test
     public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
-        PluginManager pluginManager = mock(PluginManager.class);
-        metadataLoader = new PackageMaterialMetadataLoader(pluginManager);
+        metadataLoader = new PackageMaterialMetadataLoader(pluginManager, packageAsRepositoryExtension);
         verify(pluginManager).addPluginChangeListener(metadataLoader, PackageMaterialProvider.class);
     }
 
@@ -90,63 +96,4 @@ public class PackageMaterialMetadataLoaderTest {
         assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
     }
 
-    private PluginManager dummyPluginManager(final PackageMaterialProvider mock, final GoPluginDescriptor pluginDescriptor) {
-        return new PluginManager() {
-            @Override
-            public List<GoPluginDescriptor> plugins() {
-                return null;
-            }
-
-            @Override
-            public GoPluginDescriptor getPluginDescriptorFor(String pluginId) {
-                return null;
-            }
-
-            @Override
-            public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-            }
-
-            @Override
-            public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler) {
-            }
-
-            @Override
-            public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
-                return null;
-            }
-
-            @Override
-            public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-
-            }
-
-            @Override
-            public <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-                action.execute((T)mock,pluginDescriptor);
-            }
-
-            @Override
-            public void startPluginInfrastructure() {
-            }
-
-            @Override
-            public void stopPluginInfrastructure() {
-            }
-
-            @Override
-            public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-
-            }
-
-            @Override
-            public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
-                return null;
-            }
-
-            @Override
-            public List<GoPluginIdentifier> allPluginsOfType(String extension) {
-                return null;
-            }
-        };
-    }
 }

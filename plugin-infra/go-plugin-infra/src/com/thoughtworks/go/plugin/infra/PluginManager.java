@@ -47,4 +47,10 @@ public interface PluginManager {
     GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest);
 
     List<GoPluginIdentifier> allPluginsOfType(String extension);
+
+    boolean hasReference(Class serviceReferenceClass, String pluginId);
+
+    boolean isPluginOfType(String extension, String pluginId);
+
+    String resolveExtensionVersion(String pluginId, List<String> goSupportedExtensionVersions);
 }

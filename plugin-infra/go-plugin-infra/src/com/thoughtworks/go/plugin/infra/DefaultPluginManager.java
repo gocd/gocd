@@ -39,6 +39,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import static java.lang.Double.parseDouble;
 
 @Service
 public class DefaultPluginManager implements PluginManager {
@@ -153,6 +154,48 @@ public class DefaultPluginManager implements PluginManager {
             }
         });
         return list;
+    }
+
+    @Override
+    public boolean hasReference(Class serviceReferenceClass, String pluginId) {
+        return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
+    }
+
+    @Override
+    public boolean isPluginOfType(String extension, String pluginId) {
+        if (goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)) {
+            GoPluginIdentifier goPluginIdentifier = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginIdentifier>() {
+                @Override
+                public GoPluginIdentifier execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
+                    return goPlugin.pluginIdentifier();
+                }
+            });
+            if (extension.equals(goPluginIdentifier.getExtension())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String resolveExtensionVersion(String pluginId, final List<String> goSupportedExtensionVersions) {
+        String resolvedExtensionVersion = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, String>() {
+            @Override
+            public String execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
+                List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();
+                String currentMaxVersion = "0";
+                for (String pluginSupportedVersion : pluginSupportedVersions) {
+                    if (goSupportedExtensionVersions.contains(pluginSupportedVersion) && parseDouble(currentMaxVersion) < parseDouble(pluginSupportedVersion)) {
+                        currentMaxVersion = pluginSupportedVersion;
+                    }
+                }
+                return currentMaxVersion;
+            }
+        });
+        if ("0".equals(resolvedExtensionVersion)) {
+            throw new RuntimeException(String.format("Could not find matching extension version between Plugin[%s] and Go", pluginId));
+        }
+        return resolvedExtensionVersion;
     }
 
     private void removeBundleDirectory() {

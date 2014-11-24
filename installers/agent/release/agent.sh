@@ -54,8 +54,8 @@ if [ ! -d ${AGENT_WORK_DIR} ]; then
 fi
 
 if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -d /var/log/go-agent ]; then
-        LOG_DIR=/var/log/go-agent
+    if [ -d /var/log/${SERVICE_NAME} ]; then
+        LOG_DIR=/var/log/${SERVICE_NAME}
     else
 	LOG_DIR=$AGENT_WORK_DIR
     fi

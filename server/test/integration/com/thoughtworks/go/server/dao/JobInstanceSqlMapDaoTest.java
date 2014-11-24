@@ -17,11 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigFileDao;
@@ -562,18 +558,49 @@ public class JobInstanceSqlMapDaoTest {
 		JobInstances instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 0);
 		assertThat(instances.size(), is(4));
 
-		assertThat(instances.get(0).getState(), is(JobState.Building));
-		assertThat(instances.get(1).getState(), is(JobState.Completed));
-		assertThat(instances.get(2).getState(), is(JobState.Scheduled));
-		assertThat(instances.get(3).getState(), is(JobState.Completed));
+		assertJobIsBuilding(instances.get(0));
+		assertJobIsCompleted(instances.get(1));
+		assertJobIsScheduled(instances.get(2));
+		assertJobIsCompleted(instances.get(3));
+
 		assertJobHistoryCorrectness(instances, JOB_NAME);
 
 		instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 4);
 		assertThat(instances.size(), is(2));
 
-		assertThat(instances.get(0).getState(), is(JobState.Scheduled));
-		assertThat(instances.get(1).getState(), is(JobState.Scheduled));
+		assertJobIsScheduled(instances.get(0));
+		assertJobIsScheduled(instances.get(1));
+
 		assertJobHistoryCorrectness(instances, JOB_NAME);
+	}
+
+	private void assertJobIsScheduled(JobInstance jobInstance) {
+		assertThat(jobInstance.getState(), is(JobState.Scheduled));
+		assertJobStateTransitions(jobInstance, JobState.Scheduled);
+	}
+
+	private void assertJobIsBuilding(JobInstance jobInstance) {
+		assertThat(jobInstance.getState(), is(JobState.Building));
+		assertJobStateTransitions(jobInstance, JobState.Scheduled, JobState.Assigned, JobState.Preparing, JobState.Building);
+	}
+
+	private void assertJobIsCompleted(JobInstance jobInstance) {
+		assertThat(jobInstance.getState(), is(JobState.Completed));
+		assertJobStateTransitions(jobInstance, JobState.Scheduled, JobState.Assigned, JobState.Preparing, JobState.Building, JobState.Completing, JobState.Completed);
+	}
+
+	private void assertJobStateTransitions(JobInstance jobInstance, JobState... expectedStates) {
+		JobStateTransitions transitions = jobInstance.getTransitions();
+		Set<JobState> states = new HashSet<JobState>();
+		for (JobStateTransition jobStateTransition : transitions) {
+			states.add(jobStateTransition.getCurrentState());
+		}
+
+		assertThat(states.size(), is(expectedStates.length));
+
+		for (JobState expectedState : expectedStates) {
+			assertThat(states.contains(expectedState), is(true));
+		}
 	}
 
 	private void assertJobHistoryCorrectness(JobInstances instances, String jobName) {

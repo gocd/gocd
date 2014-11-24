@@ -117,15 +117,56 @@
                 AND originalJobId IS NULL
     </select>
 
-    <select id="findJobHistoryPage" resultMap="select-build-with-identifier" cacheModel="latest-completed-job-instances">
-        SELECT *, id AS buildId
-        FROM _builds
-        WHERE name = #jobConfigName#
-            AND pipelineName = #pipelineName#
-            AND stageName = #stageName#
-            AND originalJobId IS NULL
-        ORDER BY id DESC
-        LIMIT #count# OFFSET #offset#
+    <select id="findJobHistoryPage" resultMap="select-build-with-identifier-transitions" cacheModel="latest-completed-job-instances">
+        SELECT
+        joined.id,
+        joined.name,
+        joined.state,
+        joined.result,
+        joined.agentUuid,
+        joined.scheduledDate,
+        joined.stageId,
+        joined.ignored,
+        joined.runOnAllAgents,
+        joined.runMultipleInstance,
+        joined.originalJobId,
+        joined.rerun,
+        joined.pipelineName,
+        joined.pipelineLabel,
+        joined.stageName,
+        joined.pipelineCounter,
+        joined.stageCounter,
+        joined.rerunOfCounter,
+
+        buildstatetransitions.id AS stateId,
+        buildstatetransitions.buildid AS buildid,
+        buildstatetransitions.stageid AS stageid,
+        buildstatetransitions.currentstate as currentstate,
+        buildstatetransitions.stateChangeTime as stateChangeTime
+        FROM
+        (
+            SELECT
+            builds.*,
+            bst.stateChangeTime as lastTransitionTime,
+            pipelines.name AS pipelineName,
+            pipelines.label AS pipelineLabel,
+            stages.name AS stageName,
+            pipelines.counter AS pipelineCounter,
+            stages.counter AS stageCounter,
+            stages.rerunOfCounter AS rerunOfCounter
+            FROM builds
+            INNER JOIN stages on builds.stageid = stages.id
+            INNER JOIN pipelines on stages.pipelineid = pipelines.id
+            LEFT OUTER JOIN buildstatetransitions bst ON bst.buildid = builds.id AND bst.currentState = 'Completed'
+            WHERE builds.name = #jobConfigName#
+                    AND pipelines.name = #pipelineName#
+                    AND stages.name = #stageName#
+                    AND builds.originalJobId IS NULL
+            ORDER BY builds.id DESC
+            LIMIT #count#
+            OFFSET #offset#
+        ) AS joined
+        INNER JOIN buildstatetransitions on buildstatetransitions.buildid = joined.id
     </select>
 
     <sql id="select-job-id">

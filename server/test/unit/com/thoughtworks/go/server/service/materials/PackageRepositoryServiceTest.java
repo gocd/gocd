@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigAwareUpdate;
-import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.update.ConfigUpdateAjaxResponse;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -31,27 +26,26 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.*;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.api.response.Result;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,17 +54,15 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PackageRepositoryServiceTest {
@@ -413,6 +405,16 @@ public class PackageRepositoryServiceTest {
             @Override
             public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
 
+            }
+
+            @Override
+            public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
+                return null;
+            }
+
+            @Override
+            public List<GoPluginIdentifier> allPluginsOfType(String extension) {
+                return null;
             }
         };
     }

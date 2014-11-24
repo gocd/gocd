@@ -29,7 +29,7 @@ public class DefaultGoApplicationAccessor extends GoApplicationAccessor {
                 return processorMap.get(request.api()).process(request);
             } catch (Exception e) {
                 LOGGER.warn(String.format("Error while processing request api 5s", request.api()), e);
-                throw new RuntimeException(String.format("Error while processing request api 5s", request.api()), e);
+                throw new RuntimeException(String.format("Error while processing request api %s", request.api()), e);
             }
         }
         return unhandledApiRequest();

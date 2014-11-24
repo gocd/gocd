@@ -16,42 +16,23 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.MqlCriteria;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.Tasks;
-import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+
+import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -63,10 +44,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineConfigTest {
     private static final String BUILDING_PLAN_NAME = "building";
@@ -704,6 +682,26 @@ public class PipelineConfigTest {
         assertThat(config.hasTemplateApplied(), is(false));
         assertThat(config.getTemplateName(), is(new CaseInsensitiveString("template")));
         assertThat(config.isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldInlineTemplateForPipeline() {
+        StageConfig stage = StageConfigMother.stageConfig("first");
+        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(MaterialConfigsMother.gitMaterialConfig("/tmp/dummy")), stage);
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), stage);
+
+        pipeline.templatize(new CaseInsensitiveString("template"));
+        assertThat(pipeline.hasTemplate(), is(true));
+        assertThat(pipeline.hasTemplateApplied(), is(false));
+        assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("template")));
+        assertThat(pipeline.isEmpty(), is(true));
+
+        pipeline.inlineTemplate(template);
+        assertThat(pipeline.hasTemplate(), is(false));
+        assertThat(pipeline.hasTemplateApplied(), is(false));
+        assertThat(pipeline.getTemplateName(), is(CoreMatchers.nullValue()));
+        assertThat(pipeline.size(), is(1));
+        assertThat(pipeline.get(0), is(stage));
     }
 
     @Test

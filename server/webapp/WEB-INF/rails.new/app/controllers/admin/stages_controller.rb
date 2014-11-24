@@ -131,6 +131,35 @@ module Admin
       end
     end
 
+    def inline_template
+      save_action = Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
+        include ::ConfigUpdate::CruiseConfigNode
+
+        def initialize params, user, security_service, pipeline_name
+          super(params, user, security_service)
+          @pipeline_name = pipeline_name
+        end
+
+        def subject(cruise_config)
+          cruise_config.pipelineConfigByName(CaseInsensitiveString.new(@pipeline_name))
+        end
+
+        def update(cruise_config)
+          pipeline = cruise_config.pipelineConfigByName(CaseInsensitiveString.new(@pipeline_name))
+          template = cruise_config.getTemplateByName(pipeline.getTemplateName())
+          pipeline.inlineTemplate(template)
+        end
+      end.new(params, current_user.getUsername(), security_service, params[:pipeline_name])
+
+      redirect_url = admin_stage_listing_path(:pipeline_name => params[:pipeline_name], :stage_parent => "pipelines")
+      path = {:controller => 'admin/stages', :action => 'index', :pipeline_name => params[:pipeline_name], :stage_parent => "pipelines"}
+      save_page(params[:config_md5], redirect_url, path, save_action) do
+        params[:current_tab] = "stages"
+        load_stage_usage
+        load_template_list
+      end
+    end
+
     private
 
     def load_stage

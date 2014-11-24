@@ -66,6 +66,39 @@ describe "admin/stages/index.html.erb" do
     expect(response.body).to have_selector("label[class='disabled']", :text => "Define Stages")
   end
 
+  it "should display inline template option when template is selected" do
+    @pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline-name", "template-name")
+    test_template = PipelineTemplateConfigMother.createTemplate("template-name")
+    @cruise_config.stub(:getTemplateByName).and_return(test_template)
+    assign(:processed_cruise_config, @processed_cruise_config = CruiseConfig.new)
+    @processed_cruise_config.stub(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
+    assign(:pipeline, @pipeline)
+
+    render
+
+    Capybara.string(response.body).find("#template_inline_form", :visible => false).tap do |template_inline_form|
+      expect(template_inline_form).to have_selector("input[type='hidden'][name='pipeline_name'][value='pipeline-name']")
+      expect(template_inline_form).to have_selector("button.primary[id='submit_template_inline_form'][value='SAVE']")
+    end
+
+    Capybara.string(response.body).find("#template_inline_warning_prompt", :visible => false).tap do |template_inline_warning_prompt|
+      template_inline_warning_prompt.find("div.ui-dialog-content", :visible => false).tap do |ui_dialog_content|
+        expect(ui_dialog_content).to have_selector("p", :text => "Are you sure you want to inline template for pipeline 'pipeline-name'?", :visible => false)
+      end
+      template_inline_warning_prompt.find("div.form_buttons", :visible => false).tap do |form_buttons|
+        onclick = "\"$('template_inline_form').submit()\""
+        expect(form_buttons).to have_selector("button.primary[onclick=#{onclick}]", :visible => false)
+      end
+    end
+  end
+
+  it "should display inline template option when template is selected" do
+    render
+
+    expect(response.body).not_to have_selector("#template_inline_form")
+    expect(response.body).not_to have_selector("#template_inline_warning_prompt")
+  end
+
   it "should render templates dropdown always along with a edit link" do
     assign(:template_list, ["template1", "template2"])
 

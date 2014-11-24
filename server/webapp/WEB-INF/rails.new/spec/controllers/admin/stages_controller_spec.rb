@@ -100,6 +100,10 @@ describe Admin::StagesController do
       admin_stage_use_template_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages"
     end
 
+    it "should generate inline template" do
+      {:post => "/admin/pipelines/foo.bar/stages/inline_template"}.should route_to(:controller => "admin/stages", :action => "inline_template", :stage_parent => "pipelines", :pipeline_name => "foo.bar")
+      admin_stage_inline_template_path(:pipeline_name => "foo.bar", :stage_parent => "pipelines").should == "/admin/pipelines/foo.bar/stages/inline_template"
+    end
   end
 
   describe "action" do
@@ -537,6 +541,35 @@ describe Admin::StagesController do
 
         assert_save_arguments
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ConfigUpdate::PipelineNode, ConfigUpdate::NodeAsSubject, ::ConfigUpdate::RefsAsUpdatedRefs
+      end
+    end
+
+    describe "inline template action" do
+      before do
+        @cruise_config = CruiseConfig.new()
+        go_config_mother = GoConfigMother.new
+        @pipeline = go_config_mother.addPipelineWithTemplate(@cruise_config, "pipeline-name", "template-name", "stage-name", ["build-name"].to_java(java.lang.String))
+        @pipeline_group = @cruise_config.findGroup("defaultGroup")
+        @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
+
+        @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        @pipeline_pause_service.stub(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      end
+
+      it "should inline template" do
+        stub_save_for_success
+
+        @pipeline.getTemplateName().should == CaseInsensitiveString.new("template-name")
+        @pipeline.size().should == 0
+
+        put :inline_template, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd"
+
+        @pipeline.getTemplateName().should == nil
+        @pipeline.size().should == 1
+
+        assert_save_arguments
+        assert_update_command ::ConfigUpdate::SaveAsPipelineAdmin, ConfigUpdate::CruiseConfigNode
       end
     end
   end

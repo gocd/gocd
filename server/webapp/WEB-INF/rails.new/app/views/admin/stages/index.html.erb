@@ -1,5 +1,9 @@
 <h3><%= l.string("STAGES") %></h3>
 
+<% if @pipeline.getConfigurationType == com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE %>
+<%= render :partial => "inline_template", :locals => {:scope => {:pipeline => @pipeline}} %>
+<% end %>
+
 <% if (params[:stage_parent] == "pipelines") %>
     <%= form_for @pipeline, :as => :pipeline, :url => admin_stage_listing_path(), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
         <%= md5_field %>

@@ -1,0 +1,22 @@
+<% pipeline_to_be_inlined_name = scope[:pipeline].name() %>
+<%= form_for scope[:pipeline], :as => :pipeline, :url => admin_stage_inline_template_path(:pipeline_name => pipeline_to_be_inlined_name, :stage_parent => "pipelines"), :html => {:id => "template_inline_form", :method => :post} do |f| %>
+    <%= md5_field %>
+    <input type="hidden" name="pipeline_name" value="<%=pipeline_to_be_inlined_name%>" />
+
+    <%= submit_button(l.string("SAVE"), :class => 'primary skip_dirty_stop', :id => "submit_template_inline_form", :onclick => "return false;") %>
+<% end %>
+
+<script type="text/javascript">
+    $('submit_template_inline_form').observe('click', function () {
+        Modalbox.show(jQuery('#template_inline_warning_prompt')[0], {overlayClose: false, title: '<%= l.string("CONFIRM_SAVE") %>'});
+    });
+</script>
+<div id="template_inline_warning_prompt" class="warning" style="display:none;">
+    <div class="ui-dialog-content">
+        <p>Are you sure you want to inline template for pipeline '<%=pipeline_to_be_inlined_name%>'?</p>
+    </div>
+    <div class="form_buttons actions">
+        <%= submit_button(l.string("PROCEED"), :class => "primary", :onclick => "$('template_inline_form').submit()") %>
+        <%= submit_button(l.string("CANCEL"), :onclick => "Modalbox.hide()", :type => "button") %>
+    </div>
+</div>

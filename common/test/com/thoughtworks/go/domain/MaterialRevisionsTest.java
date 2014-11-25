@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
@@ -34,13 +30,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.helper.ModificationsMother.TWO_DAYS_AGO_CHECKIN;
-import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
-import static com.thoughtworks.go.helper.ModificationsMother.dependencyMaterialRevision;
-import static com.thoughtworks.go.helper.ModificationsMother.empty;
-import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
-import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -70,7 +64,7 @@ public class MaterialRevisionsTest {
     @Test
     public void shouldReturnModificationsForAGivenMaterial() {
         MaterialRevisions oneMaterialRevision = new MaterialRevisions(new MaterialRevision(material, yesterdayMod));
-        assertThat(oneMaterialRevision.getModifications(material),is(new Modifications(yesterdayMod)));
+        assertThat(oneMaterialRevision.getModifications(material), is(new Modifications(yesterdayMod)));
 
         MaterialRevisions emptyMaterialRevision = new MaterialRevisions();
         assertThat(emptyMaterialRevision.getModifications(material).isEmpty(), is(true));

@@ -24,26 +24,28 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.apache.log4j.Logger.getLogger;
-
 @Component
 public class PluggableTaskPreferenceLoader implements PluginChangeListener {
 
     private PluginManager pluginManager;
+    private TaskExtension taskExtension;
 
     @Autowired
-    public PluggableTaskPreferenceLoader(PluginManager pluginManager) {
+    public PluggableTaskPreferenceLoader(PluginManager pluginManager, TaskExtension taskExtension) {
         this.pluginManager = pluginManager;
+        this.taskExtension = taskExtension;
         pluginManager.addPluginChangeListener(this, Task.class);
     }
 
     private void loadTaskConfigIntoPreferenceStore(GoPluginDescriptor descriptor) {
-        pluginManager.doOnIfHasReference(Task.class,descriptor.id(),new Action<Task>() {
-            @Override
-            public void execute(Task task, GoPluginDescriptor pluginDescriptor) {
-                PluggableTaskConfigStore.store().setPreferenceFor(pluginDescriptor.id(), new TaskPreference(task));
-            }
-        });
+        if (pluginManager.hasReferenceFor(Task.class, descriptor.id()) || pluginManager.hasReferenceFor(PluggableJsonBasedTask.TASK_EXTENSION, descriptor.id())) {
+            taskExtension.doOnTask(descriptor.id(), new Action<Task>() {
+                @Override
+                public void execute(Task task, GoPluginDescriptor pluginDescriptor) {
+                    PluggableTaskConfigStore.store().setPreferenceFor(pluginDescriptor.id(), new TaskPreference(task));
+                }
+            });
+        }
     }
 
     @Override

@@ -37,7 +37,7 @@ public class DefaultGoPluginApiRequestTest {
     @Test
     public void shouldReturnUnmodifiableRequestParams() throws Exception {
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("extension", "1.0", "request-name");
-        Map<String, String> requestParameters = request.requestParameters();
+        Map<String, Object> requestParameters = request.requestParameters();
         try {
             requestParameters.put("new-key", "new-value");
             fail("Should not allow modification of request params");

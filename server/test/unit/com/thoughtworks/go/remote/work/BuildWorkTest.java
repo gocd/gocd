@@ -44,6 +44,7 @@ import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
@@ -192,7 +193,7 @@ public class BuildWorkTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private static MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(), new RakeTaskBuilder(),
-            new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(), new NullTaskBuilder());
+            new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(), new NullTaskBuilder());
 
     private static String willUpload(String file) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"

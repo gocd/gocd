@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -47,7 +48,7 @@ public class PluggableTaskBuilderCreatorTest {
     @Before
     public void setup() throws Exception {
         pluggableTask = new PluggableTask("test-task", new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
-        pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator();
+        pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator(mock(TaskExtension.class));
         execTaskBuilder = new ExecTaskBuilder();
         builderFactory = mock(BuilderFactory.class);
         resolver = mock(UpstreamPipelineResolver.class);

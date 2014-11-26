@@ -18,6 +18,9 @@ package com.thoughtworks.go.plugins;
 
 import java.util.List;
 
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.ExceptionHandler;
@@ -74,5 +77,25 @@ public abstract class FakePluginManager implements PluginManager {
     @Override
     public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
         throw new RuntimeException("Not implemented yet");
+    }
+
+    @Override
+    public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
+        return null;
+    }
+
+    @Override
+    public List<GoPluginIdentifier> allPluginsOfType(String extension) {
+        return null;
+    }
+
+    @Override
+    public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
+        return false;
+    }
+
+    @Override
+    public boolean hasReferenceFor(String extension, String pluginId) {
+        return false;
     }
 }

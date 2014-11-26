@@ -14,29 +14,15 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.api.task;
+package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.infra.Action;
+import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 
-/**
- * Specialization of {@link com.thoughtworks.go.plugin.api.config.Property} class, for task configuration.
- */
-public class TaskConfigProperty extends Property {
-    protected TaskConfigProperty(String key) {
-        super(key);
-        updateDefaults();
-    }
+public interface TaskExtensionContract {
+    ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn);
 
-    public TaskConfigProperty(String propertyName, String value) {
-        super(propertyName, value);
-        updateDefaults();
-    }
-
-
-    private void updateDefaults() {
-        with(REQUIRED, true);
-        with(SECURE, false);
-        with(DISPLAY_NAME, "");
-        with(DISPLAY_ORDER, 0);
-    }
+    void doOnTask(String pluginId, Action<Task> action);
 }

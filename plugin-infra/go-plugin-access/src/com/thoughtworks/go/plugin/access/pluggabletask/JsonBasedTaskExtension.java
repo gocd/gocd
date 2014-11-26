@@ -21,44 +21,23 @@ import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-
-@Component
-public class TaskExtension implements TaskExtensionContract {
-
-    private final String API_BASED = "API_BASED";
-    private final String MESSAGE_BASED = "MESSAGE_BASED";
-    private final HashMap<String, TaskExtensionContract> map;
+class JsonBasedTaskExtension implements TaskExtensionContract {
     private PluginManager pluginManager;
 
-    @Autowired
-    public TaskExtension(PluginManager pluginManager) {
+    JsonBasedTaskExtension(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
-        map = new HashMap<String, TaskExtensionContract>();
-        map.put(API_BASED, new ApiBasedTaskExtension(pluginManager));
-        map.put(MESSAGE_BASED, new JsonBasedTaskExtension(pluginManager));
     }
 
-    TaskExtensionContract getExtension(String pluginId) {
-        TaskExtensionContract extension = null;
-        if (pluginManager.hasReferenceFor(Task.class, pluginId)) {
-            extension = map.get(API_BASED);
-        } else if (pluginManager.isPluginOfType(PluggableJsonBasedTask.TASK_EXTENSION, pluginId)) {
-            extension = map.get(MESSAGE_BASED);
-        }
-        if (extension != null) return extension;
-        throw new RuntimeException(String.format("Plugin should use either message-based or api-based extension. Plugin-id: %s", pluginId));
-    }
-
+    @Override
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {
-        return getExtension(pluginId).execute(pluginId, actionWithReturn);
+        final PluggableJsonBasedTask task = new PluggableJsonBasedTask(pluginManager, pluginId);
+        return actionWithReturn.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
-        getExtension(pluginId).doOnTask(pluginId, action);
+        final PluggableJsonBasedTask task = new PluggableJsonBasedTask(pluginManager, pluginId);
+        action.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 }

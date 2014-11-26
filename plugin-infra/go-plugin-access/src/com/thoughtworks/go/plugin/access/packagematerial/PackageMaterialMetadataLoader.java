@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static java.lang.String.format;
 import static org.apache.log4j.Logger.getLogger;
 
 @Component
@@ -47,27 +48,32 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
     void fetchRepositoryAndPackageMetaData(GoPluginDescriptor pluginDescriptor) {
         try {
             RepositoryConfiguration repositoryConfiguration = packageAsRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id());
-            if (repositoryConfiguration != null) {
-                repositoryMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(repositoryConfiguration));
-            }
             com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = packageAsRepositoryExtension.getPackageConfiguration(pluginDescriptor.id());
-            if (packageConfiguration != null) {
-                packageMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(packageConfiguration));
+            if (repositoryConfiguration == null) {
+                throw new RuntimeException(format("Plugin[%s] returned null repository configuration", pluginDescriptor.id()));
             }
+            if (packageConfiguration == null) {
+                throw new RuntimeException(format("Plugin[%s] returned null package configuration", pluginDescriptor.id()));
+            }
+            repositoryMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(repositoryConfiguration));
+            packageMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(packageConfiguration));
         } catch (GoPluginFrameworkException e) {
-            LOGGER.error(String.format("Failed to fetch package metadata for plugin : %s", pluginDescriptor.id()), e);
+            LOGGER.error(format("Failed to fetch package metadata for plugin : %s", pluginDescriptor.id()), e);
         }
-
     }
 
     @Override
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-        fetchRepositoryAndPackageMetaData(pluginDescriptor);
+        if (packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())) {
+            fetchRepositoryAndPackageMetaData(pluginDescriptor);
+        }
     }
 
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        repositoryMetadataStore.removeMetadata(pluginDescriptor.id());
-        packageMetadataStore.removeMetadata(pluginDescriptor.id());
+        if (packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())) {
+            repositoryMetadataStore.removeMetadata(pluginDescriptor.id());
+            packageMetadataStore.removeMetadata(pluginDescriptor.id());
+        }
     }
 }

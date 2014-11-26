@@ -63,13 +63,26 @@ public class PackageMaterialMetadataLoaderTest {
     }
 
     @Test
-    public void shouldHandleNullConfigurationWhileFetchingPackageMaterialMetadataForPlugins() {
+    public void shouldThrowExceptionWhenNullRepositoryConfigurationReturned() {
         when(packageAsRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id())).thenReturn(null);
+        try {
+            metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null repository configuration"));
+        }
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNullPackageConfigurationReturned() {
         when(packageAsRepositoryExtension.getPackageConfiguration(pluginDescriptor.id())).thenReturn(null);
-
-        metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
-
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()),nullValue());
+        try {
+            metadataLoader.fetchRepositoryAndPackageMetaData(pluginDescriptor);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null repository configuration"));
+        }
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
         assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
     }
 
@@ -83,17 +96,38 @@ public class PackageMaterialMetadataLoaderTest {
     public void shouldFetchMetadataOnPluginLoadedCallback() throws Exception {
         PackageMaterialMetadataLoader spy = spy(metadataLoader);
         doNothing().when(spy).fetchRepositoryAndPackageMetaData(pluginDescriptor);
+        when(packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())).thenReturn(true);
         spy.pluginLoaded(pluginDescriptor);
         verify(spy).fetchRepositoryAndPackageMetaData(pluginDescriptor);
+    }
+
+    @Test
+    public void shouldNotTryToFetchMetadataOnPluginLoadedCallback() throws Exception {
+        PackageMaterialMetadataLoader spy = spy(metadataLoader);
+        when(packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())).thenReturn(false);
+        spy.pluginLoaded(pluginDescriptor);
+        verify(spy, never()).fetchRepositoryAndPackageMetaData(pluginDescriptor);
     }
 
     @Test
     public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new PackageConfigurations());
+        when(packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())).thenReturn(true);
         metadataLoader.pluginUnLoaded(pluginDescriptor);
         assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
         assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
     }
 
+    @Test
+    public void shouldNotTryRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
+        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+        PackageConfigurations packageConfigurations = new PackageConfigurations();
+        RepositoryMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), repositoryConfigurations);
+        PackageMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), packageConfigurations);
+        when(packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())).thenReturn(false);
+        metadataLoader.pluginUnLoaded(pluginDescriptor);
+        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(repositoryConfigurations));
+        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(packageConfigurations));
+    }
 }

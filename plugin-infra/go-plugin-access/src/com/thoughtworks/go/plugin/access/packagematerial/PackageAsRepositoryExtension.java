@@ -67,4 +67,7 @@ public class PackageAsRepositoryExtension implements PackageAsRepositoryExtensio
         return jsonBasedPackageRepositoryExtension;
     }
 
+    boolean isPackageRepositoryPlugin(String pluginId) {
+        return pluginManager.hasReference(PackageMaterialProvider.class, pluginId) || pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, pluginId);
+    }
 }

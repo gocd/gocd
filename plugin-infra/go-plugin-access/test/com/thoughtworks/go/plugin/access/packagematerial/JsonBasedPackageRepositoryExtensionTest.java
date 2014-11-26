@@ -18,7 +18,10 @@ import org.mockito.Mockito;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.packagematerial.JsonBasedPackageRepositoryExtension.EXTENSION_NAME;
 import static java.util.Arrays.asList;
@@ -58,11 +61,11 @@ public class JsonBasedPackageRepositoryExtensionTest {
     public void shouldTalkToPluginToGetRepositoryConfiguration() throws Exception {
         String expectedRequestBody = null;
 
-        String expectedResponseBody = "[" +
-                "{\"key\":\"key-one\"}," +
-                "{\"key\":\"key-two\",\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
-                "{\"key\":\"key-three\",\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
-                "]";
+        String expectedResponseBody = "{" +
+                "\"key-one\":{}," +
+                "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
+                "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
+                "}";
 
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
@@ -79,13 +82,13 @@ public class JsonBasedPackageRepositoryExtensionTest {
     public void shouldTalkToPluginToGetPackageConfiguration() throws Exception {
         String expectedRequestBody = null;
 
-        String responseBody = "[" +
-                "{\"key\":\"key-one\"}," +
-                "{\"key\":\"key-two\",\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
-                "{\"key\":\"key-three\",\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
-                "]";
+        String expectedResponseBody = "{" +
+                "\"key-one\":{}," +
+                "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
+                "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
+                "}";
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = jsonBasedPackageRepositoryExtension.getPackageConfiguration(PLUGIN_ID);
 
@@ -97,7 +100,7 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckIfRepositoryConfigurationIsValid() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
@@ -112,7 +115,8 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckIfPackageConfigurationIsValid() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}],\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
         String expectedResponseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
 
@@ -127,8 +131,9 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetLatestModification() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]," +
-                "\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
+
 
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
@@ -143,9 +148,10 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetLatestModificationSinceLastRevision() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]," +
-                "\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]," +
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}," +
                 "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}}";
+
 
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
@@ -166,7 +172,7 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckRepositoryConnectionSuccessful() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
@@ -180,7 +186,7 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckRepositoryConnectionFailure() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}";
 
         String expectedResponseBody = "{\"status\":\"failed\",messages=[\"message-one\",\"message-two\"]}";
 
@@ -194,8 +200,8 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckPackageConnectionSuccessful() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]," +
-                "\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
         String expectedResponseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
 
@@ -209,8 +215,8 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
     @Test
     public void shouldTalkToPluginToCheckPackageConnectionFailure() throws Exception {
-        String expectedRequestBody = "{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]," +
-                "\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}";
+        String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
         String expectedResponseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
 

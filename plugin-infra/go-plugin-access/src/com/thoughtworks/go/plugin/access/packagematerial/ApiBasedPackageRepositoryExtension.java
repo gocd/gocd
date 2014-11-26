@@ -5,13 +5,9 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ApiBasedPackageRepositoryExtension implements PackageAsRepositoryExtensionContract {
     PluginManager pluginManager;
@@ -22,28 +18,25 @@ public class ApiBasedPackageRepositoryExtension implements PackageAsRepositoryEx
     }
 
     public RepositoryConfiguration getRepositoryConfiguration(String pluginId) {
-        final List<RepositoryConfiguration> returnValue = new ArrayList<RepositoryConfiguration>();
-        Action<PackageMaterialProvider> action = new Action<PackageMaterialProvider>() {
+        ActionWithReturn<PackageMaterialProvider, RepositoryConfiguration> action = new ActionWithReturn<PackageMaterialProvider, RepositoryConfiguration>() {
             @Override
-            public void execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
-                returnValue.add(packageRepositoryMaterial.getConfig().getRepositoryConfiguration());
+            public RepositoryConfiguration execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
+                return packageRepositoryMaterial.getConfig().getRepositoryConfiguration();
 
             }
         };
-        pluginManager.doOnIfHasReference(PackageMaterialProvider.class, pluginId, action);
-        return returnValue.isEmpty() ? null : returnValue.get(0);
+        return pluginManager.doOn(PackageMaterialProvider.class, pluginId, action);
     }
 
     public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration getPackageConfiguration(String pluginId) {
-        final List<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> returnValue = new ArrayList<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>();
-        pluginManager.doOnIfHasReference(PackageMaterialProvider.class, pluginId, new Action<PackageMaterialProvider>() {
+        ActionWithReturn<PackageMaterialProvider, com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> action = new ActionWithReturn<PackageMaterialProvider, com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>() {
             @Override
-            public void execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
-                returnValue.add(packageRepositoryMaterial.getConfig().getPackageConfiguration());
+            public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
+                return packageRepositoryMaterial.getConfig().getPackageConfiguration();
 
             }
-        });
-        return returnValue.isEmpty() ? null : returnValue.get(0);
+        };
+        return pluginManager.doOn(PackageMaterialProvider.class, pluginId, action);
     }
 
     public ValidationResult isRepositoryConfigurationValid(String pluginId, final RepositoryConfiguration repositoryConfiguration) {

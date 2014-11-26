@@ -38,11 +38,11 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldBuildRepositoryConfigurationFromResponseBody() throws Exception {
-        String responseBody = "[" +
-                "{\"key\":\"key-one\"}," +
-                "{\"key\":\"key-two\",\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
-                "{\"key\":\"key-three\",\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
-                "]";
+        String responseBody = "{" +
+                "\"key-one\":{}," +
+                "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
+                "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
+                "}";
 
         RepositoryConfiguration repositoryConfiguration = messageHandler.responseMessageForRepositoryConfiguration(responseBody);
         assertPropertyConfiguration((PackageMaterialProperty) repositoryConfiguration.get("key-one"), "key-one", null, true, true, false, "", 0);
@@ -52,11 +52,11 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldBuildPackageConfigurationFromResponseBody() throws Exception {
-        String responseBody = "[" +
-                "{\"key\":\"key-one\"}," +
-                "{\"key\":\"key-two\",\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
-                "{\"key\":\"key-three\",\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
-                "]";
+        String responseBody = "{" +
+                "\"key-one\":{}," +
+                "\"key-two\":{\"default-value\":\"two\",\"part-of-identity\":true,\"secure\":true,\"required\":true,\"display-name\":\"display-two\",\"display-order\":\"1\"}," +
+                "\"key-three\":{\"default-value\":\"three\",\"part-of-identity\":false,\"secure\":false,\"required\":false,\"display-name\":\"display-three\",\"display-order\":\"2\"}" +
+                "}";
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = messageHandler.responseMessageForPackageConfiguration(responseBody);
         assertPropertyConfiguration((PackageMaterialProperty) packageConfiguration.get("key-one"), "key-one", null, true, true, false, "", 0);
@@ -67,7 +67,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForCheckRepositoryConfigurationValidRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForIsRepositoryConfigurationValid(repositoryConfiguration);
-        assertThat(requestMessage, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]}"));
+        assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}"));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForCheckPackageConfigurationValidRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForIsPackageConfigurationValid(packageConfiguration, repositoryConfiguration);
-        assertThat(requestMessage, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}],\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}"));
+        assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}"));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForCheckRepositoryConnectionRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToRepository(repositoryConfiguration);
-        assertThat(requestMessage, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]}"));
+        assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}}"));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForCheckPackageConnectionRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToPackage(packageConfiguration, repositoryConfiguration);
-        assertThat(requestMessage, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}],\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}"));
+        assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}"));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {
         String requestBody = messageHandler.requestMessageForLatestRevision(packageConfiguration, repositoryConfiguration);
-        assertThat(requestBody, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}],\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]}"));
+        assertThat(requestBody, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}"));
     }
 
     @Test
@@ -154,9 +154,10 @@ public class JsonMessageHandler1_0Test {
         data.put("data-key-two", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
         String requestBody = messageHandler.requestMessageForLatestRevisionSince(packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
-        assertThat(requestBody, is("{\"repository-configuration\":[{\"key-one\":\"value-one\"},{\"key-two\":\"value-two\"}]," +
-                "\"package-configuration\":[{\"key-three\":\"value-three\"},{\"key-four\":\"value-four\"}]," +
-                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}}"));
+        String expectedValue = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
+                "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}," +
+                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}}";
+        assertThat(requestBody, is(expectedValue));
     }
 
     @Test

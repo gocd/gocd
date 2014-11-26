@@ -24,9 +24,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public RepositoryConfiguration responseMessageForRepositoryConfiguration(String responseBody) {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
-        List<Map> configurations = parseResponseToList(responseBody);
-        for (Map configuration : configurations) {
-            repositoryConfiguration.add(toPackageMaterialProperty(configuration));
+        Map<String, Map> configurations = parseResponseToMap(responseBody);
+        for (String key : configurations.keySet()) {
+            repositoryConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
         }
         return repositoryConfiguration;
     }
@@ -58,9 +58,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public PackageConfiguration responseMessageForPackageConfiguration(String responseBody) {
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();
-        List<Map> configurations = parseResponseToList(responseBody);
-        for (Map configuration : configurations) {
-            packageConfiguration.add(toPackageMaterialProperty(configuration));
+        Map<String, Map> configurations = parseResponseToMap(responseBody);
+        for (String key : configurations.keySet()) {
+            packageConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
         }
         return packageConfiguration;
     }
@@ -131,8 +131,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return gson.toJson(object);
     }
 
-    private PackageMaterialProperty toPackageMaterialProperty(Map configuration) {
-        String key = (String) configuration.get("key");
+    private PackageMaterialProperty toPackageMaterialProperty(String key, Map configuration) {
         String defaultValue = (String) configuration.get("default-value");
         Boolean partOfIdentity = (Boolean) configuration.get("part-of-identity");
         Boolean isSecure = (Boolean) configuration.get("secure");
@@ -194,12 +193,12 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    private List<Map> propertyToMap(Configuration configuration) {
-        List<Map> configuredValuesForRepo = new ArrayList<Map>();
+    private Map propertyToMap(Configuration configuration) {
+        Map configuredValuesForRepo = new LinkedHashMap();
         for (Property property : configuration.list()) {
             Map map = new TreeMap();
-            map.put(property.getKey(), property.getValue());
-            configuredValuesForRepo.add(map);
+            map.put("value", property.getValue());
+            configuredValuesForRepo.put(property.getKey(), map);
         }
         return configuredValuesForRepo;
     }

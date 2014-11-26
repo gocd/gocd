@@ -9,6 +9,7 @@ import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -102,5 +103,21 @@ public class PackageAsRepositoryExtensionTest {
         PackageRevision packageRevision = new PackageRevision("", null, "");
         packageAsRepositoryExtension.latestModificationSince(PLUGIN_ID, packageConfiguration, repositoryConfiguration, packageRevision);
         verify(contract).latestModificationSince(PLUGIN_ID, packageConfiguration, repositoryConfiguration, packageRevision);
+    }
+
+    @Test
+    public void shouldFindPluginToBeOfTypePackageRepository() throws Exception {
+        when(pluginManager.hasReference(PackageMaterialProvider.class, "plugin-one")).thenReturn(true);
+        when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(true);
+        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(true));
+        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(true));
+    }
+
+    @Test
+    public void shouldNotFindPluginToBeOfTypePackageRepository() throws Exception {
+        when(pluginManager.hasReference(PackageMaterialProvider.class, "plugin-one")).thenReturn(false);
+        when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(false);
+        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(false));
+        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(false));
     }
 }

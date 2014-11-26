@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,24 +46,10 @@ public class ApiBasedPackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldGetNullRepositoryConfigurationWhenServiceReferenceNotFound() throws Exception {
-        PluginManager localPluginManager = mock(PluginManager.class);
-        extension = new ApiBasedPackageRepositoryExtension(localPluginManager);
-        assertThat(extension.getRepositoryConfiguration(PLUGIN_ID), nullValue());
-    }
-
-    @Test
     public void shouldGetPackageConfiguration() throws Exception {
         PackageConfiguration packageConfiguration = new PackageConfiguration();
         when(packageMaterialConfiguration.getPackageConfiguration()).thenReturn(packageConfiguration);
         assertThat(extension.getPackageConfiguration(PLUGIN_ID), is(packageConfiguration));
-    }
-
-    @Test
-    public void shouldGetNullPackageConfigurationWhenServiceReferenceNotFound() throws Exception {
-        PluginManager localPluginManager = mock(PluginManager.class);
-        extension = new ApiBasedPackageRepositoryExtension(localPluginManager);
-        assertThat(extension.getPackageConfiguration(PLUGIN_ID), nullValue());
     }
 
     @Test

@@ -239,8 +239,8 @@ public class DefaultPluginManagerTest {
 
     @Test
     public void shouldGetAllPluginsOfGivenExtension() throws Exception {
-        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("plugin-id", "extension-type", asList("1.0"));
-        GoPluginIdentifier anotherPluginIdentifier = new GoPluginIdentifier("plugin-id-2", "another-extension-type", asList("1.0"));
+        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("extension-type", asList("1.0"));
+        GoPluginIdentifier anotherPluginIdentifier = new GoPluginIdentifier("another-extension-type", asList("1.0"));
         final GoPlugin goPlugin = mock(GoPlugin.class);
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         doAnswer(new Answer() {
@@ -275,7 +275,7 @@ public class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("id", "sample-extension", new ArrayList<String>()));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", new ArrayList<String>()));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, applicationAccessor, systemEnvironment);
         assertThat(pluginManager.isPluginOfType("sample-extension", pluginId), is(true));
     }
@@ -296,7 +296,7 @@ public class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("id", "another-extension", new ArrayList<String>()));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("another-extension", new ArrayList<String>()));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, applicationAccessor, systemEnvironment);
         assertThat(pluginManager.isPluginOfType("sample-extension", pluginId), is(false));
     }
@@ -307,7 +307,7 @@ public class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("id", "sample-extension", asList("1.0", "2.0")));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, applicationAccessor, systemEnvironment);
         assertThat(pluginManager.resolveExtensionVersion(pluginId, asList("1.0", "2.0", "3.0")), is("2.0"));
 
@@ -319,7 +319,7 @@ public class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("id", "sample-extension", asList("1.0", "2.0")));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier("sample-extension", asList("1.0", "2.0")));
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, applicationAccessor, systemEnvironment);
         try {
             pluginManager.resolveExtensionVersion(pluginId, asList("3.0", "4.0"));

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
@@ -25,32 +24,22 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
-import java.util.List;
-import java.util.Map;
-
-public class MessageBasedTaskExecutor implements TaskExecutor {
+public class JsonBasedTaskExecutor implements TaskExecutor {
     private String pluginId;
     private PluginManager pluginManager;
+    private JsonBasedTaskExtensionHandler handler;
 
-    public MessageBasedTaskExecutor(String pluginId, PluginManager pluginManager) {
+    public JsonBasedTaskExecutor(String pluginId, PluginManager pluginManager, JsonBasedTaskExtensionHandler handler) {
         this.pluginId = pluginId;
         this.pluginManager = pluginManager;
+        this.handler = handler;
     }
 
     @Override
     public ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext) {
-        final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(PluggableJsonBasedTask.TASK_EXTENSION, PluggableJsonBasedTask.VERSION_1, PluggableJsonBasedTask.EXECUTION_REQUEST);
+        final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, handler.version(), JsonBasedTaskExtension.EXECUTION_REQUEST);
         request.addRequestParameter("taskExecutionContext", taskExecutionContext);
         GoPluginApiResponse response = pluginManager.submitTo(pluginId, request);
-        Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
-        if ((Boolean) result.get("success")) {
-            ExecutionResult executionResult = new ExecutionResult();
-            executionResult.withSuccessMessages((List<String>) result.get("messages"));
-            return executionResult;
-        } else {
-            ExecutionResult executionResult = new ExecutionResult();
-            executionResult.withErrorMessages((List<String>) result.get("messages"));
-            return executionResult;
-        }
+        return handler.toExecutionResult(response);
     }
 }

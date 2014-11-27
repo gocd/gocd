@@ -21,26 +21,41 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class JsonBasedTaskExtensionTest {
+
+    private PluginManager pluginManager;
+    private JsonBasedTaskExtension extension;
+    private String pluginId;
+
+    @Before
+    public void setup(){
+        pluginManager = mock(PluginManager.class);
+        extension = new JsonBasedTaskExtension(pluginManager);
+        pluginId = "plugin-id";
+        when(pluginManager.resolveExtensionVersion(eq(pluginId), any(ArrayList.class))).thenReturn("1.0");
+
+    }
+
     @Test
     public void shouldExecuteTheTask() {
         ActionWithReturn actionWithReturn = mock(ActionWithReturn.class);
-        PluginManager pluginManager = mock(PluginManager.class);
-        JsonBasedTaskExtension extension = new JsonBasedTaskExtension(pluginManager);
-        String pluginId = "plugin-id";
-        when(actionWithReturn.execute(any(PluggableJsonBasedTask.class), any(GoPluginDescriptor.class))).thenReturn(ExecutionResult.success("yay"));
+        when(actionWithReturn.execute(any(JsonBasedPluggableTask.class), any(GoPluginDescriptor.class))).thenReturn(ExecutionResult.success("yay"));
 
         ExecutionResult executionResult = extension.execute(pluginId, actionWithReturn);
 
-        verify(actionWithReturn).execute(any(PluggableJsonBasedTask.class), any(GoPluginDescriptor.class));
+        verify(actionWithReturn).execute(any(JsonBasedPluggableTask.class), any(GoPluginDescriptor.class));
         assertThat(executionResult.getMessagesForDisplay(), is("yay"));
         assertTrue(executionResult.isSuccessful());
     }
@@ -48,14 +63,28 @@ public class JsonBasedTaskExtensionTest {
     @Test
     public void shouldPerformTheActionOnTask() {
         Action action = mock(Action.class);
-        PluginManager pluginManager = mock(PluginManager.class);
-        JsonBasedTaskExtension extension = new JsonBasedTaskExtension(pluginManager);
-        String pluginId = "plugin-id";
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(descriptor);
 
         extension.doOnTask(pluginId, action);
 
-        verify(action).execute(any(PluggableJsonBasedTask.class), eq(descriptor));
+        verify(action).execute(any(JsonBasedPluggableTask.class), eq(descriptor));
+    }
+
+    @Test
+    public void shouldGetAppropriateHandlerToTask() {
+        JsonBasedTaskExtension extension = new JsonBasedTaskExtension(pluginManager);
+        final String anotherPluginId = "another-plugin-id";
+
+        assertTrue(extension.getHandler(pluginId) instanceof JsonBasedTaskExtensionHandler_V1);
+
+        when(pluginManager.resolveExtensionVersion(eq(anotherPluginId), any(ArrayList.class))).thenThrow(new RuntimeException("some error"));
+
+        try{
+            extension.getHandler(anotherPluginId);
+            fail("should have failed");
+        }catch (Exception e){
+            assertThat(e.getMessage(), is("some error"));
+        }
     }
 }

@@ -90,12 +90,7 @@ public abstract class FakePluginManager implements PluginManager {
     }
 
     @Override
-    public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId) {
-        return false;
-    }
-
-    @Override
-    public boolean hasReferenceFor(String extension, String pluginId) {
-        return false;
+    public String resolveExtensionVersion(String pluginId, List<String> goSupportedExtensionVersions) {
+        return null;
     }
 }

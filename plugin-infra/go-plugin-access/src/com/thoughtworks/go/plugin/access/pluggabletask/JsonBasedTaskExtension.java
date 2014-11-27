@@ -22,22 +22,42 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 class JsonBasedTaskExtension implements TaskExtensionContract {
+    public final static String TASK_EXTENSION = "task-plugin";
+    public final static String CONFIGURATION_REQUEST = "configuration";
+    public final static String VALIDATION_REQUEST = "validate";
+    public final static String EXECUTION_REQUEST = "execute";
+    public final static String TASK_VIEW_REQUEST = "view";
+
+    private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap;
     private PluginManager pluginManager;
+    private List<String> supportedVersions = new ArrayList<String>();
 
     JsonBasedTaskExtension(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
+        supportedVersions.add(JsonBasedTaskExtensionHandler_V1.VERSION);
+        handlerHashMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
+        handlerHashMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
     }
 
     @Override
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {
-        final PluggableJsonBasedTask task = new PluggableJsonBasedTask(pluginManager, pluginId);
+        final JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
         return actionWithReturn.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
-        final PluggableJsonBasedTask task = new PluggableJsonBasedTask(pluginManager, pluginId);
+        final JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
         action.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
+    }
+
+    JsonBasedTaskExtensionHandler getHandler(String pluginId) {
+        final String version = pluginManager.resolveExtensionVersion(pluginId, supportedVersions);
+        return handlerHashMap.get(version);
     }
 }

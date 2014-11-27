@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class MessageBasedTaskExecutorTest {
+public class JsonBasedTaskExecutorTest {
     @Test
     public void shouldExecuteAndReturnSuccessfulExecutionResultTaskThroughPlugin() {
         TaskExecutionContext context = mock(TaskExecutionContext.class);
@@ -44,15 +44,16 @@ public class MessageBasedTaskExecutorTest {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
-        ExecutionResult result = new MessageBasedTaskExecutor(pluginId, pluginManager).execute(config(), context);
+        final JsonBasedTaskExtensionHandler_V1 handler = new JsonBasedTaskExtensionHandler_V1();
+        ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginManager, handler).execute(config(), context);
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.getMessagesForDisplay(), is("message1\nmessage2"));
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        assertThat(argument.getValue().extension(), is(PluggableJsonBasedTask.TASK_EXTENSION));
-        assertThat(argument.getValue().extensionVersion(), is(PluggableJsonBasedTask.VERSION_1));
-        assertThat(argument.getValue().requestName(), is(PluggableJsonBasedTask.EXECUTION_REQUEST));
+        assertThat(argument.getValue().extension(), is(JsonBasedTaskExtension.TASK_EXTENSION));
+        assertThat(argument.getValue().extensionVersion(), is(handler.version()));
+        assertThat(argument.getValue().requestName(), is(JsonBasedTaskExtension.EXECUTION_REQUEST));
     }
 
     @Test
@@ -63,7 +64,7 @@ public class MessageBasedTaskExecutorTest {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         when(response.responseBody()).thenReturn("{\"success\":false,\"messages\":[\"error1\",\"error2\"]}");
-        ExecutionResult result = new MessageBasedTaskExecutor(pluginId, pluginManager).execute(config(), context);
+        ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginManager, new JsonBasedTaskExtensionHandler_V1()).execute(config(), context);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getMessagesForDisplay(), is("error1\nerror2"));
     }

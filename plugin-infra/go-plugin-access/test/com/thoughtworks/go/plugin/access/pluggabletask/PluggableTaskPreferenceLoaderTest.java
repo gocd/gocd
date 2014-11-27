@@ -72,7 +72,7 @@ public class PluggableTaskPreferenceLoaderTest {
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(true);
-        when(pluginManager.hasReferenceFor("task-plugin", pluginId)).thenReturn(false);
+        when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(false);
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
@@ -104,7 +104,7 @@ public class PluggableTaskPreferenceLoaderTest {
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.hasReferenceFor("task-plugin", pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(true);
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
@@ -144,7 +144,7 @@ public class PluggableTaskPreferenceLoaderTest {
         when(task.view()).thenReturn(taskView);
         PluginManager pluginManager = mock(PluginManager.class);
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.hasReferenceFor("task-plugin", pluginId)).thenReturn(false);
+        when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(false);
         final TaskExtension taskExtension = mock(TaskExtension.class);
 
         doAnswer(new Answer() {

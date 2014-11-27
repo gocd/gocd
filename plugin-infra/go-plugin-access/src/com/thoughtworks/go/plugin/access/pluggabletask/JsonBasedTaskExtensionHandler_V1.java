@@ -19,8 +19,13 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
+import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.StringUtil;
 
 import java.util.ArrayList;
@@ -28,8 +33,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TaskConfigForApi_Version1 {
-    public String toJson(TaskConfig taskConfig) {
+public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
+    public static final String VERSION = "1.0";
+
+    @Override
+    public String version() {
+        return VERSION;
+    }
+
+    @Override
+    public String convertTaskConfigToJson(TaskConfig taskConfig) {
         ArrayList<Map> properties = new ArrayList<Map>();
         for (Property property : taskConfig.list()) {
             HashMap prop = new HashMap();
@@ -44,7 +57,8 @@ public class TaskConfigForApi_Version1 {
         return new Gson().toJson(properties);
     }
 
-    public TaskConfig fromJson(String configJson) {
+    @Override
+    public TaskConfig convertJsonToTaskConfig(String configJson) {
         List<Map> list = (List<Map>) new GsonBuilder().create().fromJson(configJson, Object.class);
         TaskConfig taskConfig = new TaskConfig();
         for (Map map : list) {
@@ -59,5 +73,48 @@ public class TaskConfigForApi_Version1 {
             taskConfig.add(property);
         }
         return taskConfig;
+    }
+
+    @Override
+    public ValidationResult toValidationResult(GoPluginApiResponse response) {
+        ValidationResult validationResult = new ValidationResult();
+        Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+        List<Map> errors = (List<Map>) result.get("errors");
+        for (Map error : errors) {
+            validationResult.addError(new ValidationError((String) error.get("key"), (String) error.get("message")));
+        }
+        return validationResult;
+
+    }
+
+    @Override
+    public TaskView toTaskView(GoPluginApiResponse response) {
+        final Map map = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+        return new TaskView() {
+            @Override
+            public String displayValue() {
+                return (String) map.get("displayValue");
+            }
+
+            @Override
+            public String template() {
+                return (String) map.get("template");
+            }
+        };
+
+    }
+
+    @Override
+    public ExecutionResult toExecutionResult(GoPluginApiResponse response) {
+        Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+        if ((Boolean) result.get("success")) {
+            ExecutionResult executionResult = new ExecutionResult();
+            executionResult.withSuccessMessages((List<String>) result.get("messages"));
+            return executionResult;
+        } else {
+            ExecutionResult executionResult = new ExecutionResult();
+            executionResult.withErrorMessages((List<String>) result.get("messages"));
+            return executionResult;
+        }
     }
 }

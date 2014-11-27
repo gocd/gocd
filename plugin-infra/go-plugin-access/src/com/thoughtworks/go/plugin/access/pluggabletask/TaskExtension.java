@@ -46,7 +46,7 @@ public class TaskExtension implements TaskExtensionContract {
         TaskExtensionContract extension = null;
         if (pluginManager.hasReferenceFor(Task.class, pluginId)) {
             extension = map.get(API_BASED);
-        } else if (pluginManager.isPluginOfType(PluggableJsonBasedTask.TASK_EXTENSION, pluginId)) {
+        } else if (pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)) {
             extension = map.get(MESSAGE_BASED);
         }
         if (extension != null) return extension;

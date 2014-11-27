@@ -36,10 +36,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class PluggableJsonBasedTaskTest {
+public class JsonBasedPluggableTaskTest {
 
     private PluginManager pluginManager;
-    private PluggableJsonBasedTask task;
+    private JsonBasedPluggableTask task;
     private GoPluginApiResponse goPluginApiResponse;
     private String pluginId;
 
@@ -47,7 +47,7 @@ public class PluggableJsonBasedTaskTest {
     public void setup() {
         pluginManager = mock(PluginManager.class);
         pluginId = "plugin-id";
-        task = new PluggableJsonBasedTask(pluginManager, pluginId);
+        task = new JsonBasedPluggableTask(pluginManager, pluginId, new JsonBasedTaskExtensionHandler_V1());
         goPluginApiResponse = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(goPluginApiResponse);
     }
@@ -85,9 +85,9 @@ public class PluggableJsonBasedTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PluggableJsonBasedTask.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(PluggableJsonBasedTask.VERSION_1));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(PluggableJsonBasedTask.CONFIGURATION_REQUEST));
+        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(JsonBasedTaskExtension.TASK_EXTENSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(JsonBasedTaskExtension.CONFIGURATION_REQUEST));
     }
 
     @Test
@@ -101,9 +101,9 @@ public class PluggableJsonBasedTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PluggableJsonBasedTask.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(PluggableJsonBasedTask.VERSION_1));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(PluggableJsonBasedTask.TASK_VIEW_REQUEST));
+        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(JsonBasedTaskExtension.TASK_EXTENSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(JsonBasedTaskExtension.TASK_VIEW_REQUEST));
     }
 
     @Test
@@ -132,16 +132,15 @@ public class PluggableJsonBasedTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
-        assertThat(argument.getValue().requestParameters().containsKey("config"), is(true));
-        assertThat((String) argument.getValue().requestParameters().get("config"), is(config));
+        assertThat(argument.getValue().requestBody(), is(config));
 
-        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(PluggableJsonBasedTask.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(PluggableJsonBasedTask.VERSION_1));
-        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(PluggableJsonBasedTask.VALIDATION_REQUEST));
+        MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(JsonBasedTaskExtension.TASK_EXTENSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(JsonBasedTaskExtension.VALIDATION_REQUEST));
     }
 
     @Test
     public void shouldGetTaskExecutor() {
-        assertTrue(task.executor() instanceof MessageBasedTaskExecutor);
+        assertTrue(task.executor() instanceof JsonBasedTaskExecutor);
     }
 }

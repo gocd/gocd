@@ -50,7 +50,7 @@ public class TaskExtensionTest {
         TaskExtension taskExtension = new TaskExtension(pluginManager);
 
         when(pluginManager.hasReferenceFor(Task.class, messageBasedPluginId)).thenReturn(false);
-        when(pluginManager.hasReferenceFor(PluggableJsonBasedTask.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
 
         Assert.assertTrue(taskExtension.getExtension(messageBasedPluginId) instanceof JsonBasedTaskExtension);
     }
@@ -60,7 +60,7 @@ public class TaskExtensionTest {
         PluginManager pluginManager = mock(PluginManager.class);
         String pluginId = "messageBased-task";
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.hasReferenceFor(PluggableJsonBasedTask.TASK_EXTENSION, pluginId)).thenReturn(false);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(false);
 
         TaskExtension taskExtension = new TaskExtension(pluginManager);
         try {
@@ -79,7 +79,7 @@ public class TaskExtensionTest {
         String messageBasedPluginId = "messageBased-task";
         TaskExtension taskExtension = new TaskExtension(pluginManager);
         when(pluginManager.hasReferenceFor(Task.class, messageBasedPluginId)).thenReturn(false);
-        when(pluginManager.hasReferenceFor(PluggableJsonBasedTask.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
 
         taskExtension.execute(messageBasedPluginId, new ActionWithReturn<Task, ExecutionResult>() {
             @Override
@@ -98,7 +98,7 @@ public class TaskExtensionTest {
         String pluginId = "APIBased-task";
         TaskExtension taskExtension = new TaskExtension(pluginManager);
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(true);
-        when(pluginManager.hasReferenceFor(PluggableJsonBasedTask.TASK_EXTENSION, pluginId)).thenReturn(false);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(false);
         ActionWithReturn actionWithReturn = mock(ActionWithReturn.class);
         when(pluginManager.doOn(Task.class, pluginId, actionWithReturn)).thenReturn(ExecutionResult.success("success"));
 

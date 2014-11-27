@@ -26,20 +26,15 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
-import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialPoller;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.infra.*;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -55,7 +50,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
@@ -67,16 +61,22 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PackageRepositoryServiceTest {
 
-    @Mock private PluginManager pluginManager;
-    @Mock private GoConfigService goConfigService;
-    @Mock private SecurityService securityService;
-    @Mock private Localizer localizer;
+    @Mock
+    private PluginManager pluginManager;
+    @Mock
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private Localizer localizer;
     private PackageRepositoryService service;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new PackageRepositoryService(pluginManager, goConfigService, securityService, localizer);
+        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
     }
 
     @Test
@@ -217,6 +217,7 @@ public class PackageRepositoryServiceTest {
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("secure", true, ""));
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("not_required_not_secure", false, ""));
 
+        when(packageAsRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId),any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1.0", null, null, null, true));
         when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("mandatory field");
 
@@ -234,16 +235,14 @@ public class PackageRepositoryServiceTest {
         packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, "1.0"));
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("url", false, "junk-url"));
 
-        PackageMaterialProvider packageMaterialProvider = mock(PackageMaterialProvider.class);
-        PackageMaterialConfiguration packageMaterialConfiguration = mock(PackageMaterialConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageConfigurationsArgumentCaptor = new ArgumentCaptor<RepositoryConfiguration>();
-        when(packageMaterialProvider.getConfig()).thenReturn(packageMaterialConfiguration);
-
         ValidationResult expectedValidationResult = new ValidationResult();
         expectedValidationResult.addError(new ValidationError("url", "url format incorrect"));
 
-        when(packageMaterialConfiguration.isRepositoryConfigurationValid(packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
-        service = new PackageRepositoryService(dummyPluginManager(packageMaterialProvider), goConfigService, securityService, mock(Localizer.class));
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor("yum", "1.0", null, null, null, true));
+        when(packageAsRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
+
+        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, mock(Localizer.class));
         service.performPluginValidationsFor(packageRepository);
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("url format incorrect")));
     }
@@ -271,6 +270,7 @@ public class PackageRepositoryServiceTest {
         String pluginId = "valid";
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, new PackageConfigurations());
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1.0", null, null, null, true));
+        when(packageAsRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, ""));
         service.performPluginValidationsFor(packageRepository);
@@ -279,17 +279,14 @@ public class PackageRepositoryServiceTest {
 
     @Test
     public void shouldPerformCheckConnectionOnPlugin() throws Exception {
-        PackageRepository packageRepository = packageRepository("yum");
+        String pluginId = "yum";
+        PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageMaterialProvider packageMaterialProvider = mock(PackageMaterialProvider.class);
-        PluginManager pluginManager = dummyPluginManager(packageMaterialProvider);
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, goConfigService, securityService, localizer);
-        PackageMaterialPoller poller = mock(PackageMaterialPoller.class);
-        when(packageMaterialProvider.getPoller()).thenReturn(poller);
-        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
 
-        when(poller.checkConnectionToRepository(argumentCaptor.capture())).thenReturn(new Result().withSuccessMessages("Accessed Repo File!!!"));
+        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
+        when(packageAsRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenReturn(new Result().withSuccessMessages("Accessed Repo File!!!"));
 
         service.checkConnection(packageRepository, result);
 
@@ -298,45 +295,38 @@ public class PackageRepositoryServiceTest {
         assertThat(result.isSuccessful(), is(true));
         when(localizer.localize("CONNECTION_OK", "Accessed Repo File!!!")).thenReturn("success_msg");
         assertThat(result.message(localizer), is("success_msg"));
-        verify(poller).checkConnectionToRepository(any(RepositoryConfiguration.class));
+        verify(packageAsRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
     }
 
     @Test
     public void shouldPerformCheckConnectionOnPluginAndCatchAnyExceptionsThrownByThePlugin() throws Exception {
-        PackageRepository packageRepository = packageRepository("yum");
+        String pluginId = "yum";
+        PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageMaterialProvider packageMaterialProvider = mock(PackageMaterialProvider.class);
-        PluginManager pluginManager = dummyPluginManager(packageMaterialProvider);
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, goConfigService, securityService, localizer);
-        PackageMaterialPoller poller = mock(PackageMaterialPoller.class);
-        when(packageMaterialProvider.getPoller()).thenReturn(poller);
-        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
 
-        when(poller.checkConnectionToRepository(argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
+        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
+        when(packageAsRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
 
         service.checkConnection(packageRepository, result);
 
-        assertThat(result.isSuccessful(),is(false));
+        assertThat(result.isSuccessful(), is(false));
         when(localizer.localize("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", "Check Connection not implemented!!")).thenReturn("error_msg");
         assertThat(result.message(localizer), is("error_msg"));
-        verify(poller).checkConnectionToRepository(any(RepositoryConfiguration.class));
+        verify(packageAsRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
     }
 
     @Test
     public void shouldPopulateErrorsForCheckConnectionOnPlugin() throws Exception {
-        PackageRepository packageRepository = packageRepository("yum");
+        String pluginId = "yum";
+        PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PackageMaterialProvider packageMaterialProvider = mock(PackageMaterialProvider.class);
-        PluginManager pluginManager = dummyPluginManager(packageMaterialProvider);
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, goConfigService, securityService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
 
-        PackageMaterialPoller poller = mock(PackageMaterialPoller.class);
-        when(packageMaterialProvider.getPoller()).thenReturn(poller);
-        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = new ArgumentCaptor<RepositoryConfiguration>();
-        Result actionResult = new Result().withErrorMessages("Repo invalid!!", "Could not connect");
+        ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
-        when(poller.checkConnectionToRepository(argumentCaptor.capture())).thenReturn(actionResult);
+        when(packageAsRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenReturn(new Result().withErrorMessages("Repo invalid!!", "Could not connect"));
         service.checkConnection(packageRepository, result);
 
         RepositoryConfiguration packageConfigurations = argumentCaptor.getValue();
@@ -345,7 +335,8 @@ public class PackageRepositoryServiceTest {
 
         when(localizer.localize("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", "Repo invalid!!\nCould not connect")).thenReturn("error_msg");
         assertThat(result.message(localizer), is("error_msg"));
-        verify(poller).checkConnectionToRepository(any(RepositoryConfiguration.class));
+        verify(packageAsRepositoryExtension).checkConnectionToRepository(eq(pluginId),any(RepositoryConfiguration.class));
+
     }
 
     private PackageRepository packageRepository(String pluginId) {
@@ -358,64 +349,4 @@ public class PackageRepositoryServiceTest {
         return packageRepository;
     }
 
-    private PluginManager dummyPluginManager(final PackageMaterialProvider mock) {
-        return new PluginManager() {
-            @Override
-            public List<GoPluginDescriptor> plugins() {
-                return Arrays.asList(new GoPluginDescriptor("yum", "1.0", null, null, null, true));
-            }
-
-            @Override
-            public GoPluginDescriptor getPluginDescriptorFor(String pluginId) {
-                return new GoPluginDescriptor("yum", "1.0", null, null, null, true);
-            }
-
-            @Override
-            public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches) {
-            }
-
-            @Override
-            public <T> void doOnAll(Class<T> serviceReferenceClass, Action<T> actionToDoOnEachRegisteredServiceWhichMatches, ExceptionHandler<T> exceptionHandler) {
-            }
-
-            @Override
-            public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, ActionWithReturn<T, R> actionToDoOnTheRegisteredServiceWhichMatches) {
-                return actionToDoOnTheRegisteredServiceWhichMatches.execute((T) mock, null);
-            }
-
-            @Override
-            public <T> void doOn(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-
-            }
-
-            @Override
-            public <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action) {
-
-            }
-
-            @Override
-            public void startPluginInfrastructure() {
-            }
-
-            @Override
-            public void stopPluginInfrastructure() {
-
-            }
-
-            @Override
-            public void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass) {
-
-            }
-
-            @Override
-            public GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest) {
-                return null;
-            }
-
-            @Override
-            public List<GoPluginIdentifier> allPluginsOfType(String extension) {
-                return null;
-            }
-        };
-    }
 }

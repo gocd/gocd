@@ -35,10 +35,10 @@ import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevis
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -65,7 +65,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(Theories.class)
@@ -76,15 +75,15 @@ public class MaterialServiceTest {
     private SecurityService securityService;
 
     private static List MODIFICATIONS = new ArrayList<Modification>();
-    private PluginManager pluginManager;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
 
     @Before
     public void setUp() {
         materialRepository = mock(MaterialRepository.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        pluginManager = mock(PluginManager.class);
-        materialService = new MaterialService(materialRepository, goConfigService, securityService, pluginManager);
+        packageAsRepositoryExtension = mock(PackageAsRepositoryExtension.class);
+        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension);
     }
 
     @Test
@@ -232,7 +231,10 @@ public class MaterialServiceTest {
         material.setPackageDefinition(packageDefinition);
 
 
-        when(pluginManager.doOn(eq(PackageMaterialProvider.class), eq("plugin-id"), any(ActionWithReturn.class))).thenReturn(new PackageRevision("blah-123", new Date(), "user"));
+        when(packageAsRepositoryExtension.getLatestRevision(eq("plugin-id"),
+                any(PackageConfiguration.class),
+                any(RepositoryConfiguration.class))).thenReturn(new PackageRevision("blah-123", new Date(), "user"));
+
 
         List<Modification> modifications = materialService.latestModification(material, null, null);
         assertThat(modifications.get(0).getRevision(), is("blah-123"));
@@ -244,7 +246,10 @@ public class MaterialServiceTest {
         PackageDefinition packageDefinition = create("id", "package", new Configuration(), PackageRepositoryMother.create("id", "name", "plugin-id", "plugin-version", new Configuration()));
         material.setPackageDefinition(packageDefinition);
 
-        when(pluginManager.doOn(eq(PackageMaterialProvider.class), eq("plugin-id"), any(ActionWithReturn.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
+        when(packageAsRepositoryExtension.latestModificationSince(eq("plugin-id"),
+                any(PackageConfiguration.class),
+                any(RepositoryConfiguration.class),
+                any(PackageRevision.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
         assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
     }

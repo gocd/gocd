@@ -16,69 +16,55 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.util.json.JsonHelper;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-
 public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
 
-    private PluginManager pluginManager;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
 
-    public PackageMaterialPoller(PluginManager pluginManager) {
-        this.pluginManager = pluginManager;
+    public PackageMaterialPoller(PackageAsRepositoryExtension packageAsRepositoryExtension) {
+        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
     }
 
     @Override
     public List<Modification> latestModification(final PackageMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
-        ActionWithReturn<PackageMaterialProvider, PackageRevision> action = new ActionWithReturn<PackageMaterialProvider, PackageRevision>() {
-            @Override
-            public PackageRevision execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
-                return packageRepositoryMaterial.getPoller().getLatestRevision(buildPackageConfigurations(material.getPackageDefinition()),
-                        buildRepositoryConfigurations(material.getPackageDefinition().getRepository()));
-            }
-        };
-        return getModifications(material, action);
+        PackageConfiguration packageConfiguration = buildPackageConfigurations(material.getPackageDefinition());
+        RepositoryConfiguration repositoryConfiguration = buildRepositoryConfigurations(material.getPackageDefinition().getRepository());
+        PackageRevision packageRevision = packageAsRepositoryExtension.getLatestRevision(material.getPluginId(), packageConfiguration, repositoryConfiguration);
+        return getModifications(packageRevision);
     }
 
     @Override
     public List<Modification> modificationsSince(final PackageMaterial material, File baseDir, final Revision revision, SubprocessExecutionContext execCtx) {
-        ActionWithReturn<PackageMaterialProvider, PackageRevision> action = new ActionWithReturn<PackageMaterialProvider, PackageRevision>() {
-            @Override
-            public PackageRevision execute(PackageMaterialProvider packageRepositoryMaterial, GoPluginDescriptor pluginDescriptor) {
-                PackageMaterialRevision packageMaterialRevision = (PackageMaterialRevision) revision;
-                PackageConfiguration packageConfiguration = buildPackageConfigurations(material.getPackageDefinition());
-                RepositoryConfiguration repositoryConfiguration = buildRepositoryConfigurations(material.getPackageDefinition().getRepository());
-                PackageRevision previouslyKnownRevision = new PackageRevision(packageMaterialRevision.getRevision(), packageMaterialRevision.getTimestamp(), null, packageMaterialRevision.getData());
-
-                return packageRepositoryMaterial.getPoller().latestModificationSince(packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
-            }
-        };
-        return getModifications(material, action);
+        PackageMaterialRevision packageMaterialRevision = (PackageMaterialRevision) revision;
+        PackageRevision previouslyKnownRevision = new PackageRevision(packageMaterialRevision.getRevision(), packageMaterialRevision.getTimestamp(), null, packageMaterialRevision.getData());
+        PackageConfiguration packageConfiguration = buildPackageConfigurations(material.getPackageDefinition());
+        RepositoryConfiguration repositoryConfiguration = buildRepositoryConfigurations(material.getPackageDefinition().getRepository());
+        PackageRevision packageRevision = packageAsRepositoryExtension.latestModificationSince(material.getPluginId(), packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
+        return getModifications(packageRevision);
     }
 
-    private List<Modification> getModifications(PackageMaterial material, ActionWithReturn<PackageMaterialProvider, PackageRevision> action) {
-        PackageRevision packageRevision = pluginManager.doOn(PackageMaterialProvider.class, material.getPluginId(), action);
+    private List<Modification> getModifications(PackageRevision packageRevision) {
         if (packageRevision == null) {
             return new Modifications();
         }

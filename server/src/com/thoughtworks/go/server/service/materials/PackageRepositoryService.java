@@ -16,40 +16,39 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.update.ConfigUpdateAjaxResponse;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.api.response.Result;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.config.update.ErrorCollector.collectFieldErrors;
 import static com.thoughtworks.go.config.update.ErrorCollector.collectGlobalErrors;
@@ -62,11 +61,13 @@ public class PackageRepositoryService {
     private SecurityService securityService;
     private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
 
     @Autowired
-    public PackageRepositoryService(PluginManager pluginManager, GoConfigService goConfigService, SecurityService securityService,
+    public PackageRepositoryService(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
                                     Localizer localizer) {
         this.pluginManager = pluginManager;
+        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.localizer = localizer;
@@ -93,19 +94,14 @@ public class PackageRepositoryService {
 
     public void checkConnection(final PackageRepository packageRepository, final LocalizedOperationResult result) {
         try {
-            pluginManager.doOn(PackageMaterialProvider.class, packageRepository.getPluginConfiguration().getId(), new ActionWithReturn<PackageMaterialProvider, Boolean>() {
-                @Override
-                public Boolean execute(PackageMaterialProvider packageMaterialProvider, GoPluginDescriptor pluginDescriptor) {
-                    Result checkConnectionResult = packageMaterialProvider.getPoller().checkConnectionToRepository(populateConfiguration(packageRepository.getConfiguration()));
-                    String messages = checkConnectionResult.getMessagesForDisplay();
-                    if (!checkConnectionResult.isSuccessful()) {
-                        result.connectionError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", messages));
-                        return false;
-                    }
-                    result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
-                    return true;
-                }
-            });
+            Result checkConnectionResult = packageAsRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+            String messages = checkConnectionResult.getMessagesForDisplay();
+            if (!checkConnectionResult.isSuccessful()) {
+                result.connectionError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", messages));
+                return;
+            }
+            result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
+            return;
         } catch (Exception e) {
             result.internalServerError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", e.getMessage()));
         }
@@ -124,16 +120,11 @@ public class PackageRepositoryService {
                 }
             }
         }
-        pluginManager.doOn(PackageMaterialProvider.class, packageRepository.getPluginConfiguration().getId(), new ActionWithReturn<PackageMaterialProvider, Object>() {
-            @Override
-            public Object execute(PackageMaterialProvider packageMaterialProvider, GoPluginDescriptor pluginDescriptor) {
-                ValidationResult validationResult = packageMaterialProvider.getConfig().isRepositoryConfigurationValid(populateConfiguration(packageRepository.getConfiguration()));
-                for (ValidationError error : validationResult.getErrors()) {
-                    packageRepository.addConfigurationErrorFor(error.getKey(), error.getMessage());
-                }
-                return null;
-            }
-        });
+
+        ValidationResult validationResult = packageAsRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+        for (ValidationError error : validationResult.getErrors()) {
+            packageRepository.addConfigurationErrorFor(error.getKey(), error.getMessage());
+        }
     }
 
     private boolean validatePluginId(PackageRepository packageRepository) {

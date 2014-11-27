@@ -38,7 +38,8 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
     @Override
     public ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext) {
         final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, handler.version(), JsonBasedTaskExtension.EXECUTION_REQUEST);
-        request.addRequestParameter("taskExecutionContext", taskExecutionContext);
+        request.setRequestBody(handler.getTaskExecutionBody(config, taskExecutionContext));
+        request.addRequestParameter("console",taskExecutionContext.console());
         GoPluginApiResponse response = pluginManager.submitTo(pluginId, request);
         return handler.toExecutionResult(response);
     }

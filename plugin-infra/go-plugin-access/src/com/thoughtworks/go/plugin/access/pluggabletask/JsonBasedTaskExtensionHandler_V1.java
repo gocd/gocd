@@ -25,8 +25,10 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
+import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,32 +45,22 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     @Override
     public String convertTaskConfigToJson(TaskConfig taskConfig) {
-        ArrayList<Map> properties = new ArrayList<Map>();
-        for (Property property : taskConfig.list()) {
-            HashMap prop = new HashMap();
-            prop.put("key", property.getKey());
-            prop.put("value", property.getValue());
-            prop.put("secure", property.getOption(Property.SECURE));
-            prop.put("required", property.getOption(Property.REQUIRED));
-            prop.put("display-name", property.getOption(Property.DISPLAY_NAME));
-            prop.put("display-order", property.getOption(Property.DISPLAY_ORDER).toString());
-            properties.add(prop);
-        }
-        return new Gson().toJson(properties);
+        return new Gson().toJson(configPropertiesAsMap(taskConfig));
     }
 
     @Override
     public TaskConfig convertJsonToTaskConfig(String configJson) {
-        List<Map> list = (List<Map>) new GsonBuilder().create().fromJson(configJson, Object.class);
+        Map<String, Object> configMap = (Map) new GsonBuilder().create().fromJson(configJson, Object.class);
         TaskConfig taskConfig = new TaskConfig();
-        for (Map map : list) {
-            TaskConfigProperty property = new TaskConfigProperty((String) map.get("key"), null);
-            property.withDefault((String) map.get("default-value"));
-            property.with(Property.SECURE, (Boolean) map.get("secure"));
-            property.with(Property.REQUIRED, (Boolean) map.get("required"));
-            property.with(Property.DISPLAY_NAME, (String) map.get("display-name"));
-            if (!StringUtil.isBlank((String) map.get("display-order"))) {
-                property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) map.get("display-order")));
+        for (Map.Entry<String, Object> entry : configMap.entrySet()) {
+            TaskConfigProperty property = new TaskConfigProperty(entry.getKey(), null);
+            Map propertyValue = (Map) entry.getValue();
+            property.withDefault((String) propertyValue.get("default-value"));
+            property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
+            property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
+            property.with(Property.DISPLAY_NAME, (String) propertyValue.get("display-name"));
+            if (!StringUtil.isBlank((String) propertyValue.get("display-order"))) {
+                property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
             }
             taskConfig.add(property);
         }
@@ -116,5 +108,31 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             executionResult.withErrorMessages((List<String>) result.get("messages"));
             return executionResult;
         }
+    }
+
+    @Override
+    public String getTaskExecutionBody(TaskConfig config, TaskExecutionContext taskExecutionContext) {
+        Map requestBody = new HashMap();
+        Map contextMap = new HashMap();
+        contextMap.put("environmentVariables", taskExecutionContext.environment().asMap());
+        contextMap.put("workingDirectory", taskExecutionContext.workingDir());
+        requestBody.put("context", contextMap);
+        requestBody.put("config", configPropertiesAsMap(config));
+        return new Gson().toJson(requestBody);
+
+    }
+
+    private Map configPropertiesAsMap(TaskConfig taskConfig) {
+        HashMap properties = new HashMap();
+        for (Property property : taskConfig.list()) {
+            final HashMap propertyValue = new HashMap();
+            propertyValue.put("value", property.getValue());
+            propertyValue.put("secure", property.getOption(Property.SECURE));
+            propertyValue.put("required", property.getOption(Property.REQUIRED));
+            propertyValue.put("display-name", property.getOption(Property.DISPLAY_NAME));
+            propertyValue.put("display-order", property.getOption(Property.DISPLAY_ORDER).toString());
+            properties.put(property.getKey(), propertyValue);
+        }
+        return properties;
     }
 }

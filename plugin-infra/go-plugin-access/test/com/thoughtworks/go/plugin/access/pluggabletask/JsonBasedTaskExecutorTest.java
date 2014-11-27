@@ -16,38 +16,55 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JsonBasedTaskExecutorTest {
+
+    private TaskExecutionContext context;
+    private PluginManager pluginManager;
+    private String pluginId;
+    private GoPluginApiResponse response;
+    private JsonBasedTaskExtensionHandler handler;
+
+    @Before
+    public void setup() {
+        context = mock(TaskExecutionContext.class);
+        pluginManager = mock(PluginManager.class);
+        pluginId = "pluginId";
+        response = mock(GoPluginApiResponse.class);
+        handler = mock(JsonBasedTaskExtensionHandler.class);
+    }
+
     @Test
     public void shouldExecuteAndReturnSuccessfulExecutionResultTaskThroughPlugin() {
-        TaskExecutionContext context = mock(TaskExecutionContext.class);
-        PluginManager pluginManager = mock(PluginManager.class);
-        String pluginId = "pluginId";
-        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
-        when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
-        final JsonBasedTaskExtensionHandler_V1 handler = new JsonBasedTaskExtensionHandler_V1();
+        when(handler.toExecutionResult(response)).thenReturn(ExecutionResult.success("message1"));
+
         ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginManager, handler).execute(config(), context);
+
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessagesForDisplay(), is("message1\nmessage2"));
+        assertThat(result.getMessagesForDisplay(), is("message1"));
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
@@ -58,15 +75,68 @@ public class JsonBasedTaskExecutorTest {
 
     @Test
     public void shouldExecuteAndReturnFailureExecutionResultTaskThroughPlugin() {
-        TaskExecutionContext context = mock(TaskExecutionContext.class);
-        PluginManager pluginManager = mock(PluginManager.class);
-        String pluginId = "pluginId";
-        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
-        when(response.responseBody()).thenReturn("{\"success\":false,\"messages\":[\"error1\",\"error2\"]}");
-        ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginManager, new JsonBasedTaskExtensionHandler_V1()).execute(config(), context);
+        when(handler.toExecutionResult(response)).thenReturn(ExecutionResult.failure("error1"));
+
+        ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginManager, handler).execute(config(), context);
+
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessagesForDisplay(), is("error1\nerror2"));
+        assertThat(result.getMessagesForDisplay(), is("error1"));
+    }
+
+    @Test
+    public void shouldConstructExecutionRequestWithRequiredDetails() {
+        final String workingDir = "working-dir";
+        final Console console = mock(Console.class);
+        when(context.workingDir()).thenReturn(workingDir);
+        when(context.environment()).thenReturn(getEnvironmentVariables());
+        when(context.console()).thenReturn(console);
+        final GoPluginApiRequest[] executionRequest = new GoPluginApiRequest[1];
+        when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
+
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[1];
+                executionRequest[0] = request;
+                return response;
+            }
+        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        handler = new JsonBasedTaskExtensionHandler_V1();
+        new JsonBasedTaskExecutor(pluginId, pluginManager, handler).execute(config(), context);
+
+        assertTrue(executionRequest.length == 1);
+        Map result = (Map) new GsonBuilder().create().fromJson(executionRequest[0].requestBody(), Object.class);
+        Map context = (Map) result.get("context");
+
+        assertThat((String) context.get("workingDirectory"), is(workingDir));
+        Map environmentVariables = (Map) context.get("environmentVariables");
+        assertThat(environmentVariables.size(), is(2));
+        assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));
+        assertThat(environmentVariables.get("ENV2").toString(), is("VAL2"));
+        assertThat((Console)executionRequest[0].requestParameters().get("console"), is(console));
+    }
+
+    private EnvironmentVariables getEnvironmentVariables() {
+        return new EnvironmentVariables() {
+            @Override
+            public Map<String, String> asMap() {
+                final HashMap<String, String> map = new HashMap<String, String>();
+                map.put("ENV1", "VAL1");
+                map.put("ENV2", "VAL2");
+                return map;
+            }
+
+            @Override
+            public void writeTo(Console console) {
+            }
+
+            @Override
+            public Console.SecureEnvVarSpecifier secureEnvSpecifier() {
+                return null;
+            }
+        };
     }
 
     private TaskConfig config() {

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
 public interface JsonBasedTaskExtensionHandler {
@@ -34,4 +35,6 @@ public interface JsonBasedTaskExtensionHandler {
     TaskView toTaskView(GoPluginApiResponse response);
 
     ExecutionResult toExecutionResult(GoPluginApiResponse response);
+
+    String getTaskExecutionBody(TaskConfig config, TaskExecutionContext taskExecutionContext);
 }

@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.activity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -146,6 +147,10 @@ public class CcTrayStatusTest {
         assertThat((HashSet<String>) failedJobEntry.getBreakers(), is(breakers));
         assertThat((HashSet<String>) stageEntry.getBreakers(), is(breakers));
         assertThat((HashSet<String>) passedJobEntry.getBreakers(), is(new HashSet<String>()));
+        
+        Set<String> breakersSet = CcTrayStatus.computeBreakersIfStageFailed(failedStage, new MaterialRevisions(revision));
+        assertThat(breakersSet, hasItem("loser"));
+        assertThat(breakersSet.size(), is(1));
     }
 
     @Test

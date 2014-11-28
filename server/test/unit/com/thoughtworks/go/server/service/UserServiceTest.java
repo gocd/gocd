@@ -582,6 +582,33 @@ public class UserServiceTest {
         when(securityService.hasViewPermissionForPipeline(bar.getName(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
     }
+    
+    @Test
+    public void shouldFindUserByEmailSuccess() {
+        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
+        quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
+
+        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
+        assertThat(userService.findUserByEmail(foo.getEmail()), is(foo));
+    }
+    
+    @Test
+    public void shouldFindUserByEmailFailure() {
+        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
+        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
+        quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
+
+        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
+        assertThat((userService.findUserByEmail("notreal@fake.com") instanceof NullUser), is(true));
+    }
+    
 
     @Test
     public void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {

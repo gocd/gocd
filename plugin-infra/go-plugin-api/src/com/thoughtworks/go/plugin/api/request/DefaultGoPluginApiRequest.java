@@ -81,16 +81,14 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
     }
 
     /**
-     * Adds new request header. Replace existing header with same name
+     * Adds new request parameter. Replace existing parameter with same name
      *
-     * @param name  Name of the header
-     * @param value Value of the header
+     * @param name  Name of the parameter
+     * @param value Value of the parameter
      */
     public void addRequestParameter(String name, Object value) {
         requestParameters.put(name, value);
     }
-
-
 
     /**
      * Extension name of the request

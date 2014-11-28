@@ -55,11 +55,11 @@ public class JsonBasedPluggableTaskTest {
     @Test
     public void shouldGetTheTaskConfig() {
 
-        String jsonResponse = "[" +
-                "{\"key\":\"URL\",\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"URL\",\"display-order\":\"0\"}," +
-                "{\"key\":\"USER\",\"default-value\":\"foo\",\"secure\":true,\"required\":true,\"display-name\":\"User\",\"display-order\":\"1\"}," +
-                "{\"key\":\"PASSWORD\"}" +
-                "]";
+        String jsonResponse = "{" +
+                "\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"URL\",\"display-order\":\"0\"}," +
+                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true,\"display-name\":\"User\",\"display-order\":\"1\"}," +
+                "\"PASSWORD\":{}" +
+                "}";
 
         when(goPluginApiResponse.responseBody()).thenReturn(jsonResponse);
 
@@ -109,7 +109,7 @@ public class JsonBasedPluggableTaskTest {
     @Test
     public void shouldValidateTaskConfig() {
         String jsonResponse = "{\"errors\":[{\"key\":\"key1\", \"message\":\"err1\"},{\"key\":\"key1\", \"message\":\"err2\"},{\"key\":\"key2\", \"message\":\"err3\"}]}";
-        String config = "[{\"display-name\":\"URL\",\"secure\":false,\"value\":\"http://foo\",\"display-order\":\"0\",\"required\":true,\"key\":\"URL\"}]";
+        String config = "{\"URL\":{\"display-name\":\"URL\",\"secure\":false,\"value\":\"http://foo\",\"display-order\":\"0\",\"required\":true}}";
 
         when(goPluginApiResponse.responseBody()).thenReturn(jsonResponse);
 

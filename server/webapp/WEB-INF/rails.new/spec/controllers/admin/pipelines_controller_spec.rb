@@ -74,7 +74,6 @@ describe Admin::PipelinesController do
       pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
-
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)
 
@@ -598,6 +597,8 @@ describe Admin::PipelinesController do
     end
 
     it "should create new package material with submitted value if it is present" do
+      controller.stub(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
+
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
       stub_save_for_success

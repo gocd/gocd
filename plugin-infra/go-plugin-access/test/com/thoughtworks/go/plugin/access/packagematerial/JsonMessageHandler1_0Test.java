@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class JsonMessageHandler1_0Test {
@@ -182,6 +183,12 @@ public class JsonMessageHandler1_0Test {
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
         PackageRevision packageRevision = messageHandler.responseMessageForLatestRevisionSince(responseBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
+    }
+
+    @Test
+    public void shouldBuildNullPackageRevisionFromLatestRevisionSinceWhenEmptyResponse() throws Exception {
+        assertThat(messageHandler.responseMessageForLatestRevisionSince(""), nullValue());
+        assertThat(messageHandler.responseMessageForLatestRevisionSince(null), nullValue());
     }
 
     private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {

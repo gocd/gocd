@@ -29,7 +29,10 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -131,6 +134,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public PackageRevision responseMessageForLatestRevisionSince(String responseBody) {
+        if (isEmpty(responseBody)) return null;
         return toPackageRevision(responseBody);
     }
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
@@ -42,7 +43,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
     @Autowired
     public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension) {
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
-        pluginManager.addPluginChangeListener(this, PackageMaterialProvider.class);
+        pluginManager.addPluginChangeListener(this, PackageMaterialProvider.class, GoPlugin.class);
     }
 
     void fetchRepositoryAndPackageMetaData(GoPluginDescriptor pluginDescriptor) {

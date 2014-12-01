@@ -44,7 +44,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     public void shouldConvertTaskConfigJsonToTaskConfig() {
         String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"URL\",\"display-order\":\"0\"}," +
                 "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true,\"display-name\":\"User\",\"display-order\":\"1\"}," +
-                "\"PASSWORD\":{}" +
+                "\"PASSWORD\":{}," +
+                "\"FOO\":null" +
                 "}";
         TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
 
@@ -65,6 +66,12 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         assertThat(password.getOption(Property.SECURE), is(false));
         assertThat(password.getOption(Property.DISPLAY_ORDER), is(0));
         assertThat(password.getOption(Property.DISPLAY_NAME), is(""));
+
+        Property foo = config.get("FOO");
+        assertThat(foo.getOption(Property.REQUIRED), is(true));
+        assertThat(foo.getOption(Property.SECURE), is(false));
+        assertThat(foo.getOption(Property.DISPLAY_ORDER), is(0));
+        assertThat(foo.getOption(Property.DISPLAY_NAME), is(""));
     }
 
     @Test
@@ -105,7 +112,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     }
 
     @Test
-    public void shouldConvertJsonResponseToValidationResult() {
+    public void shouldConvertJsonResponseToValidationResultWhenValidationFails() {
         String jsonResponse = "{\"errors\":{\"key1\":\"err1\",\"key2\":\"err2\"}}";
 
         TaskConfig configuration = new TaskConfig();
@@ -129,6 +136,25 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Assert.assertThat(error1.getMessage(), CoreMatchers.is("err1"));
         Assert.assertThat(error2.getKey(), CoreMatchers.is("key2"));
         Assert.assertThat(error2.getMessage(), CoreMatchers.is("err2"));
+    }
+
+    @Test
+    public void shouldConvertJsonResponseToValidationResultWhenValidationPasses() {
+        String jsonResponse = "{}";
+
+        TaskConfig configuration = new TaskConfig();
+        TaskConfigProperty property = new TaskConfigProperty("URL", "http://foo");
+        property.with(Property.SECURE, false);
+        property.with(Property.REQUIRED, true);
+        property.with(Property.DISPLAY_NAME, "URL");
+        property.with(Property.DISPLAY_ORDER, 0);
+        configuration.add(property);
+        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
+        when(response.responseBody()).thenReturn(jsonResponse);
+
+        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(response);
+
+        Assert.assertThat(result.isSuccessful(), CoreMatchers.is(true));
     }
 
     private ValidationError findErrorOn(ValidationResult result, final String key) {
@@ -155,21 +181,21 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     @Test
     public void shouldConstructExecutionResultFromSuccessfulExecutionResponse() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
+        when(response.responseBody()).thenReturn("{\"success\":true,\"message\":\"message1\"}");
 
         ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.getMessagesForDisplay(), is("message1\nmessage2"));
+        assertThat(result.getMessagesForDisplay(), is("message1"));
     }
 
     @Test
     public void shouldConstructExecutionResultFromFailureExecutionResponse() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        when(response.responseBody()).thenReturn("{\"success\":false,\"messages\":[\"error1\",\"error2\"]}");
+        when(response.responseBody()).thenReturn("{\"success\":false,\"message\":\"error1\"}");
 
         ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getMessagesForDisplay(), is("error1\nerror2"));
+        assertThat(result.getMessagesForDisplay(), is("error1"));
     }
 
     @Test

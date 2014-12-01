@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
@@ -46,12 +47,12 @@ public class BuildersTest {
     @Test
     public void shouldNotSetAsCurrentBuilderIfNotRun() throws CruiseControlException {
         Builder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), null, "");
-        Builders builders = new Builders(Arrays.asList(builder), null, null);
+        Builders builders = new Builders(Arrays.asList(builder), null, null, null);
 
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext);
 
-        Builders expected = new Builders(Arrays.asList(builder), null, null);
+        Builders expected = new Builders(Arrays.asList(builder), null, null, null);
         expected.setIsCancelled(true);
 
         assertThat(builders, is(expected));
@@ -60,7 +61,7 @@ public class BuildersTest {
     @Test
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws CruiseControlException {
         Builder builder = new StubBuilder();
-        Builders builders = new Builders(Arrays.asList(builder), null, new GoControlLog());
+        Builders builders = new Builders(Arrays.asList(builder), null, new GoControlLog(), null);
         builders.build(environmentVariableContext);
         builders.cancel(environmentVariableContext);
     }
@@ -71,7 +72,7 @@ public class BuildersTest {
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         }
 
         public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {

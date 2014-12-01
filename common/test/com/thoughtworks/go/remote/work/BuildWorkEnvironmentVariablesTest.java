@@ -49,6 +49,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
@@ -63,6 +64,7 @@ import org.junit.Test;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class BuildWorkEnvironmentVariablesTest {
     private static final String JOB_NAME = "one";
@@ -80,6 +82,7 @@ public class BuildWorkEnvironmentVariablesTest {
     private DependencyMaterial dependencyMaterial;
     private DependencyMaterial dependencyMaterialWithName;
     private SvnRepoFixture svnRepoFixture;
+    private TaskExtension taskExtension;
 
 
     @Before
@@ -96,6 +99,7 @@ public class BuildWorkEnvironmentVariablesTest {
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
         setupHgRepo();
+        taskExtension = mock(TaskExtension.class);
     }
 
     @After
@@ -130,7 +134,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), new GoArtifactsManipulatorStub(),
-                environmentContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                environmentContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
 
         assertEnvironmentContext(environmentContext, "foo", is("bar"));
     }
@@ -173,7 +177,7 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
 
         assertThat(environmentVariableContext.getProperty("GO_REVISION_CRUISE"), is("3"));
     }
@@ -197,7 +201,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
 
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_SERVER_URL", "some_random_place"));
         assertThat(manipulator.consoleOut(), printedEnvVariable("GO_PIPELINE_NAME", PIPELINE_NAME));
@@ -276,7 +280,7 @@ public class BuildWorkEnvironmentVariablesTest {
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(),
-                environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
         return environmentVariableContext;
     }
 }

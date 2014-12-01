@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -63,7 +64,7 @@ public class BuilderTest {
         CommandBuilder builder = new CommandBuilder("echo", "normal task", new File("."), new RunIfConfigs(FAILED),
                 cancelBuilder,
                 "");
-        builder.cancel(goPublisher, new EnvironmentVariableContext());
+        builder.cancel(goPublisher, new EnvironmentVariableContext(), null);
 
         assertThat(goPublisher.getMessage(),
                 containsString("Error happened while attempting to execute 'echo2 cancel task'"));
@@ -74,7 +75,7 @@ public class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext);
+        builder.cancel(goPublisher, environmentVariableContext, null);
         assertThat(stubBuilder.wasCalled, is(true));
     }
 
@@ -83,7 +84,7 @@ public class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext);
+        builder.cancel(goPublisher, environmentVariableContext, null);
 
         assertThat(goPublisher.getMessage(), containsString("Start to execute cancel task"));
         assertThat(goPublisher.getMessage(), containsString("Task is cancelled"));
@@ -95,7 +96,7 @@ public class BuilderTest {
                 new StubBuilder(),
                 "");
 
-        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext);
+        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext, null);
 
         assertThat(goPublisher.getMessage(), is(""));
     }
@@ -108,7 +109,7 @@ public class BuilderTest {
         }
 
         public void build(BuildLogElement buildElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
             wasCalled = true;
         }
     }

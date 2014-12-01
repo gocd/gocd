@@ -55,12 +55,14 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         for (Map.Entry<String, Object> entry : configMap.entrySet()) {
             TaskConfigProperty property = new TaskConfigProperty(entry.getKey(), null);
             Map propertyValue = (Map) entry.getValue();
-            property.withDefault((String) propertyValue.get("default-value"));
-            property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
-            property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
-            property.with(Property.DISPLAY_NAME, (String) propertyValue.get("display-name"));
-            if (!StringUtil.isBlank((String) propertyValue.get("display-order"))) {
-                property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
+            if (propertyValue != null) {
+                property.withDefault((String) propertyValue.get("default-value"));
+                property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
+                property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
+                property.with(Property.DISPLAY_NAME, (String) propertyValue.get("display-name"));
+                if (!StringUtil.isBlank((String) propertyValue.get("display-order"))) {
+                    property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
+                }
             }
             taskConfig.add(property);
         }
@@ -72,11 +74,12 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ValidationResult validationResult = new ValidationResult();
         Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
         final Map<String, String> errors = (Map<String, String>) result.get("errors");
-        for (Map.Entry<String, String> entry : errors.entrySet()) {
-            validationResult.addError(new ValidationError(entry.getKey(), entry.getValue()));
+        if (errors != null) {
+            for (Map.Entry<String, String> entry : errors.entrySet()) {
+                validationResult.addError(new ValidationError(entry.getKey(), entry.getValue()));
+            }
         }
         return validationResult;
-
     }
 
     @Override
@@ -101,11 +104,11 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
         if ((Boolean) result.get("success")) {
             ExecutionResult executionResult = new ExecutionResult();
-            executionResult.withSuccessMessages((List<String>) result.get("messages"));
+            executionResult.withSuccessMessages((String) result.get("message"));
             return executionResult;
         } else {
             ExecutionResult executionResult = new ExecutionResult();
-            executionResult.withErrorMessages((List<String>) result.get("messages"));
+            executionResult.withErrorMessages((String) result.get("message"));
             return executionResult;
         }
     }

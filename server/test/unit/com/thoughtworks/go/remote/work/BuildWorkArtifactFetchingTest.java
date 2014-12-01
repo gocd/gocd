@@ -96,7 +96,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null);
 
         assertThat(stubPublisher.consoleOut(), containsString(
                 "[go] Current job status: passed.\n\n[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\""
@@ -111,7 +111,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null);
 
         assertThat(stubPublisher.consoleOut(), containsString(
                 "[go] Current job status: failed.\n\n[go] Start to execute task: <ant target=\"--help\" />."));
@@ -122,7 +122,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null);
 
         assertThat((DirHandler) stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
     }

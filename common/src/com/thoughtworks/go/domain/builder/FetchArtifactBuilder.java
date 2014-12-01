@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.DownloadAction;
 import com.thoughtworks.go.domain.FetchHandler;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -49,7 +50,7 @@ public class FetchArtifactBuilder extends Builder {
         this.checksumFileHandler = checksumFileHandler;
     }
 
-    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         publisher.fetch(this);
     }
 

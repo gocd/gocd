@@ -47,15 +47,13 @@ import java.util.Map;
  */
 public class PluggableTaskBuilder extends Builder implements Serializable {
     private final String workingDir;
-    private TaskExtension taskExtension;
     private String pluginId;
     private String version;
     private Map<String, Map<String, String>> pluginConfig;
 
-    public PluggableTaskBuilder(RunIfConfigs conditions, Builder cancelBuilder, PluggableTask task, String description, String workingDir, TaskExtension taskExtension) {
+    public PluggableTaskBuilder(RunIfConfigs conditions, Builder cancelBuilder, PluggableTask task, String description, String workingDir) {
         super(conditions, cancelBuilder, description);
         this.workingDir = workingDir;
-        this.taskExtension = taskExtension;
         extractFrom(task);
     }
 
@@ -69,7 +67,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final BuildLogElement buildLogElement, final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {

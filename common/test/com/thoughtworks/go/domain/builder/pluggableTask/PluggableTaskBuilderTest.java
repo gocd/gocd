@@ -79,7 +79,7 @@ public class PluggableTaskBuilderTest {
     @Test
     public void shouldInvokeTheTaskExecutorOfThePlugin() throws Exception {
         final int[] executeTaskCalled = new int[1];
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory", taskExtension) {
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
                 executeTaskCalled[0]++;
@@ -96,7 +96,7 @@ public class PluggableTaskBuilderTest {
             }
         });
 
-        taskBuilder.build(buildLogElement, goPublisher, variableContext);
+        taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
 
         assertThat(executeTaskCalled[0], is(1));
         verify(pluginManager).doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class));
@@ -111,7 +111,7 @@ public class PluggableTaskBuilderTest {
 
         final TaskConfig executorTaskConfig = mock(TaskConfig.class);
         final TaskExecutionContext taskExecutionContext = mock(TaskExecutionContext.class);
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory", taskExtension) {
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected TaskConfig buildTaskConfig(TaskConfig config) {
                 return executorTaskConfig;
@@ -142,7 +142,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         when(task.configAsMap()).thenReturn(configMap);
 
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory", taskExtension);
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory");
 
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
@@ -167,7 +167,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         when(task.configAsMap()).thenReturn(configMap);
 
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory", taskExtension);
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory");
 
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
@@ -191,7 +191,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         when(task.configAsMap()).thenReturn(configMap);
 
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory", taskExtension);
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory");
 
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
@@ -214,7 +214,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         when(task.configAsMap()).thenReturn(configMap);
 
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory", taskExtension);
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, "test-directory");
 
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
@@ -228,7 +228,7 @@ public class PluggableTaskBuilderTest {
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
 
         String workingDir = "test-directory";
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, workingDir, taskExtension);
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, workingDir);
         TaskExecutionContext taskExecutionContext = taskBuilder.buildTaskContext(buildLogElement, goPublisher, variableContext);
 
         assertThat(taskExecutionContext instanceof PluggableTaskContext, is(true));
@@ -239,7 +239,7 @@ public class PluggableTaskBuilderTest {
     public void shouldPublishErrorMessageIfPluginThrowsAnException() throws CruiseControlException {
         PluggableTask task = mock(PluggableTask.class);
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory", taskExtension) {
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
                 throw new RuntimeException("err");
@@ -254,7 +254,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -269,7 +269,7 @@ public class PluggableTaskBuilderTest {
     public void shouldPublishErrorMessageIfPluginReturnsAFailureResponse() throws CruiseControlException {
         PluggableTask task = mock(PluggableTask.class);
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
-        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory", taskExtension) {
+        PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
                 return ExecutionResult.failure("err");
@@ -284,7 +284,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

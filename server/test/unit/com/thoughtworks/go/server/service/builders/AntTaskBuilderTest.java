@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -59,6 +60,7 @@ public class AntTaskBuilderTest {
     private AntTaskBuilder antTaskBuilder;
     private BuilderFactory builderFactory;
     private ExecTaskBuilder execTaskBuilder;
+    private TaskExtension taskEntension;
 
     @Before
     public void setup() throws Exception {
@@ -67,6 +69,7 @@ public class AntTaskBuilderTest {
         execTaskBuilder = new ExecTaskBuilder();
         builderFactory = mock(BuilderFactory.class);
         resolver = mock(UpstreamPipelineResolver.class);
+        taskEntension = mock(TaskExtension.class);
     }
 
     @After
@@ -100,7 +103,7 @@ public class AntTaskBuilderTest {
         BuildLogElement element = new BuildLogElement();
 
         try {
-            builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext());
+            builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
             assertThat(element.getBuildError(), Is.is("Build failed. Command ant reported [BUILD FAILED]."));

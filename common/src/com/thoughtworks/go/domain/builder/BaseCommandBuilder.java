@@ -20,6 +20,7 @@ import java.io.File;
 
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.command.CheckedCommandLineException;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -44,7 +45,7 @@ public abstract class BaseCommandBuilder extends Builder {
         this.workingDir = workingDir;
     }
 
-    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext)
+    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
             throws CruiseControlException {
         final long startTime = System.currentTimeMillis();
 

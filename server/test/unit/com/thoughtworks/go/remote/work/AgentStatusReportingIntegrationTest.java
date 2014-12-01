@@ -53,7 +53,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null);
         AgentRuntimeInfo agentRuntimeInfo1 = AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
@@ -62,7 +62,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportCancelledWhenAgentCancelledBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null);
         work.cancel(environmentVariableContext, agentRuntimeInfo);
 
         assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));

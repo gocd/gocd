@@ -62,6 +62,7 @@
     <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
     <bean id="agentController" class="com.thoughtworks.go.agent.AgentController"/>
     <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
+    <bean class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
 
     <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
         <constructor-arg>

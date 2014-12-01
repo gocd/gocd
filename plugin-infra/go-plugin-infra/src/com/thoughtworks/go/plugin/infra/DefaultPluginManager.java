@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.infra;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
@@ -138,7 +139,12 @@ public class DefaultPluginManager implements PluginManager {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 plugin.initializeGoApplicationAccessor(goApplicationAccessor);
-                return plugin.handle(apiRequest);
+                try {
+                    return plugin.handle(apiRequest);
+                } catch (UnhandledRequestTypeException e) {
+                    LOGGER.error(e.getMessage());
+                    throw new RuntimeException(e);
+                }
             }
         });
     }

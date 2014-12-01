@@ -17,7 +17,9 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 
@@ -25,4 +27,6 @@ public interface TaskExtensionContract {
     ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn);
 
     void doOnTask(String pluginId, Action<Task> action);
+
+    ValidationResult validate(String pluginId, TaskConfig taskConfig);
 }

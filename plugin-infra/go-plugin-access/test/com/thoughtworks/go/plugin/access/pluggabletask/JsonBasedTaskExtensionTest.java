@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -25,11 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -86,5 +90,21 @@ public class JsonBasedTaskExtensionTest {
         }catch (Exception e){
             assertThat(e.getMessage(), is("some error"));
         }
+    }
+
+    @Test
+    public void shouldValidateTask() {
+        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
+        JsonBasedTaskExtension jsonBasedTaskExtension = new JsonBasedTaskExtension(pluginManager);
+        TaskConfig taskConfig = mock(TaskConfig.class);
+
+        when(response.responseBody()).thenReturn("{\"errors\":{\"key\":\"error\"}}");
+        when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
+        ValidationResult validationResult = jsonBasedTaskExtension.validate(pluginId, taskConfig);
+
+        verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        assertFalse(validationResult.isSuccessful());
+        assertEquals(validationResult.getErrors().get(0).getKey(), "key");
+        assertEquals(validationResult.getErrors().get(0).getMessage(), "error");
     }
 }

@@ -18,16 +18,15 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.*;
+import com.thoughtworks.go.util.ListUtil;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +36,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -108,7 +106,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
     @Test
     public void shouldConvertJsonResponseToValidationResult() {
-        String jsonResponse = "{\"errors\":[{\"key\":\"key1\", \"message\":\"err1\"},{\"key\":\"key1\", \"message\":\"err2\"},{\"key\":\"key2\", \"message\":\"err3\"}]}";
+        String jsonResponse = "{\"errors\":{\"key1\":\"err1\",\"key2\":\"err2\"}}";
 
         TaskConfig configuration = new TaskConfig();
         TaskConfigProperty property = new TaskConfigProperty("URL", "http://foo");
@@ -123,12 +121,24 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(response);
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(false));
-        Assert.assertThat(result.getErrors().get(0).getKey(), CoreMatchers.is("key1"));
-        Assert.assertThat(result.getErrors().get(0).getMessage(), CoreMatchers.is("err1"));
-        Assert.assertThat(result.getErrors().get(1).getKey(), CoreMatchers.is("key1"));
-        Assert.assertThat(result.getErrors().get(1).getMessage(), CoreMatchers.is("err2"));
-        Assert.assertThat(result.getErrors().get(2).getKey(), CoreMatchers.is("key2"));
-        Assert.assertThat(result.getErrors().get(2).getMessage(), CoreMatchers.is("err3"));
+
+        ValidationError error1 = findErrorOn(result, "key1");
+        ValidationError error2 = findErrorOn(result, "key2");
+
+        Assert.assertThat(error1.getKey(), CoreMatchers.is("key1"));
+        Assert.assertThat(error1.getMessage(), CoreMatchers.is("err1"));
+        Assert.assertThat(error2.getKey(), CoreMatchers.is("key2"));
+        Assert.assertThat(error2.getMessage(), CoreMatchers.is("err2"));
+    }
+
+    private ValidationError findErrorOn(ValidationResult result, final String key) {
+        return ListUtil.find(result.getErrors(), new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                ValidationError e = (ValidationError) item;
+                return e.getKey().equals(key);
+            }
+        });
     }
 
     @Test

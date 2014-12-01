@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.tasks;
 
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -33,24 +34,22 @@ import org.springframework.stereotype.Service;
 public class PluggableTaskService {
 
     private PluginManager pluginManager;
+    private TaskExtension taskExtension;
 
     @Autowired
-    public PluggableTaskService(PluginManager pluginManager) {
+    public PluggableTaskService(PluginManager pluginManager, TaskExtension taskExtension) {
         this.pluginManager = pluginManager;
+        this.taskExtension = taskExtension;
     }
 
     public void validate(final PluggableTask modifiedTask) {
-        ValidationResult validationResult = (ValidationResult) pluginManager.doOn(Task.class, modifiedTask.getPluginConfiguration().getId(), new ActionWithReturn<Task, Object>() {
-            @Override
-            public Object execute(Task task, GoPluginDescriptor pluginDescriptor) {
+        final TaskConfig configuration = new TaskConfig();
+        for (ConfigurationProperty configurationProperty : modifiedTask.getConfiguration()) {
+            configuration.add(new TaskConfigProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+        }
 
-                TaskConfig configuration = new TaskConfig();
-                for (ConfigurationProperty configurationProperty : modifiedTask.getConfiguration()) {
-                    configuration.add(new TaskConfigProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
-                }
-                return task.validate(configuration);
-            }
-        });
+        ValidationResult validationResult = taskExtension.validate(modifiedTask.getPluginConfiguration().getId(), configuration);
+
         for (ValidationError validationError : validationResult.getErrors()) {
             modifiedTask.getConfiguration().getProperty(validationError.getKey()).addError(validationError.getKey(), validationError.getMessage());
         }

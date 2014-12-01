@@ -71,9 +71,9 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     public ValidationResult toValidationResult(GoPluginApiResponse response) {
         ValidationResult validationResult = new ValidationResult();
         Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
-        List<Map> errors = (List<Map>) result.get("errors");
-        for (Map error : errors) {
-            validationResult.addError(new ValidationError((String) error.get("key"), (String) error.get("message")));
+        final Map<String, String> errors = (Map<String, String>) result.get("errors");
+        for (Map.Entry<String, String> entry : errors.entrySet()) {
+            validationResult.addError(new ValidationError(entry.getKey(), entry.getValue()));
         }
         return validationResult;
 

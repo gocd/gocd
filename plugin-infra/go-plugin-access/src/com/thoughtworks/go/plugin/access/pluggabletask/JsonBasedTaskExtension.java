@@ -17,7 +17,9 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -27,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 class JsonBasedTaskExtension implements TaskExtensionContract {
-    public final static String TASK_EXTENSION = "task-plugin";
+    public final static String TASK_EXTENSION = "task-extension";
     public final static String CONFIGURATION_REQUEST = "configuration";
     public final static String VALIDATION_REQUEST = "validate";
     public final static String EXECUTION_REQUEST = "execute";
@@ -46,18 +48,24 @@ class JsonBasedTaskExtension implements TaskExtensionContract {
 
     @Override
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {
-        final JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
         return actionWithReturn.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
-        final JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
         action.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
+    @Override
+    public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        return task.validate(taskConfig);
+    }
+
     JsonBasedTaskExtensionHandler getHandler(String pluginId) {
-        final String version = pluginManager.resolveExtensionVersion(pluginId, supportedVersions);
+        String version = pluginManager.resolveExtensionVersion(pluginId, supportedVersions);
         return handlerHashMap.get(version);
     }
 }

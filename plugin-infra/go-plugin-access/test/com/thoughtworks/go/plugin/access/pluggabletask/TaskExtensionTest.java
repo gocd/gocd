@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -110,15 +111,28 @@ public class TaskExtensionTest {
 
     @Test
     public void shouldDoOnTask() {
-        final TaskExtension taskExtension = spy(new TaskExtension(mock(PluginManager.class)));
-        final TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
+        TaskExtension taskExtension = spy(new TaskExtension(mock(PluginManager.class)));
+        TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
 
-        final String pluginId = "pluginId";
+        String pluginId = "pluginId";
         doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
 
-        final Action action = mock(Action.class);
+        Action action = mock(Action.class);
         taskExtension.doOnTask(pluginId, action);
 
         verify(actualImpl).doOnTask(pluginId, action);
+    }
+
+    @Test
+    public void shouldValidateTask() {
+        TaskExtension taskExtension = spy(new TaskExtension(mock(PluginManager.class)));
+        TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
+        String pluginId = "pluginId";
+        TaskConfig taskConfig = mock(TaskConfig.class);
+        doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
+
+        taskExtension.validate(pluginId, taskConfig);
+
+        verify(actualImpl).validate(pluginId, taskConfig);
     }
 }

@@ -28,6 +28,7 @@ import static java.util.Collections.unmodifiableMap;
 public class DefaultGoApiResponse extends GoApiResponse {
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
+    public static final int INTERNAL_ERROR = 500;
 
     private int responseCode;
     private Map<String, String> responseHeaders = new HashMap<String, String>();

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
@@ -38,7 +39,7 @@ public class PluggableTaskPreferenceLoader implements PluginChangeListener {
     public PluggableTaskPreferenceLoader(PluginManager pluginManager, TaskExtension taskExtension) {
         this.pluginManager = pluginManager;
         this.taskExtension = taskExtension;
-        pluginManager.addPluginChangeListener(this, Task.class);
+        pluginManager.addPluginChangeListener(this, Task.class, GoPlugin.class);
     }
 
     private void loadTaskConfigIntoPreferenceStore(GoPluginDescriptor descriptor) {

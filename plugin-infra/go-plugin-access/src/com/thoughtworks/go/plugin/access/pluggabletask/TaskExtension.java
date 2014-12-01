@@ -17,7 +17,9 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -60,5 +62,10 @@ public class TaskExtension implements TaskExtensionContract {
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
         getExtension(pluginId).doOnTask(pluginId, action);
+    }
+
+    @Override
+    public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
+        return getExtension(pluginId).validate(pluginId, taskConfig);
     }
 }

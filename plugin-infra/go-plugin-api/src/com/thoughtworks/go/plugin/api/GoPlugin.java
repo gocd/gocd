@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.api;
 
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
@@ -39,7 +40,7 @@ public interface GoPlugin {
      * @param requestMessage An instance of GoPluginApiRequest
      * @return an instance of GoPluginApiResponse
      */
-    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage);
+    public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException;
 
     /**
      * Provides an instance of GoPluginIdentifier, providing details about supported extension point and its versions

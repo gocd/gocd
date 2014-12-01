@@ -17,10 +17,13 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 class ApiBasedTaskExtension implements TaskExtensionContract {
     private PluginManager pluginManager;
@@ -37,5 +40,15 @@ class ApiBasedTaskExtension implements TaskExtensionContract {
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
         pluginManager.doOn(Task.class, pluginId, action);
+    }
+
+    @Override
+    public ValidationResult validate(String pluginId, final TaskConfig taskConfig) {
+        return (ValidationResult) pluginManager.doOn(Task.class, pluginId, new ActionWithReturn<Task, Object>() {
+            @Override
+            public Object execute(Task task, GoPluginDescriptor pluginDescriptor) {
+                return task.validate(taskConfig);
+            }
+        });
     }
 }

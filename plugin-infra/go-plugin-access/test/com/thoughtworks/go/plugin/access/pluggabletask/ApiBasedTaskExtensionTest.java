@@ -17,22 +17,37 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ApiBasedTaskExtensionTest {
+
+    private PluginManager pluginManager;
+    private ApiBasedTaskExtension extension;
+    private String pluginId;
+
+    @Before
+    public void setup() {
+        pluginManager = mock(PluginManager.class);
+        extension = new ApiBasedTaskExtension(pluginManager);
+        pluginId = "plugin-id";
+    }
+
     @Test
     public void shouldExecuteTheTask() {
-        PluginManager pluginManager = mock(PluginManager.class);
-        ApiBasedTaskExtension extension = new ApiBasedTaskExtension(pluginManager);
-        String pluginId = "plugin-id";
         final ActionWithReturn actionWithReturn = mock(ActionWithReturn.class);
         when(pluginManager.doOn(Task.class, pluginId, actionWithReturn)).thenReturn(ExecutionResult.failure("failed"));
 
@@ -44,10 +59,7 @@ public class ApiBasedTaskExtensionTest {
     }
 
     @Test
-    public void shouldGetApiBasedTask(){
-        PluginManager pluginManager = mock(PluginManager.class);
-        ApiBasedTaskExtension extension = new ApiBasedTaskExtension(pluginManager);
-        String pluginId = "plugin-id";
+    public void shouldGetApiBasedTask() {
         final Action action = mock(Action.class);
 
         extension.doOnTask(pluginId, action);
@@ -55,4 +67,23 @@ public class ApiBasedTaskExtensionTest {
         verify(pluginManager).doOn(Task.class, pluginId, action);
     }
 
+    @Test
+    public void shouldValidateTask() {
+        final Task task = mock(Task.class);
+        final TaskConfig taskConfig = mock(TaskConfig.class);
+        final ValidationResult validationResult = new ValidationResult();
+        when(task.validate(taskConfig)).thenReturn(validationResult);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                final ActionWithReturn<Task, Object> actionWithReturn = (ActionWithReturn<Task, Object>) invocationOnMock.getArguments()[2];
+                return actionWithReturn.execute(task, null);
+            }
+        }).when(pluginManager).doOn(eq(Task.class), eq(pluginId), any(ActionWithReturn.class));
+
+        final ValidationResult result = extension.validate(pluginId, taskConfig);
+        assertThat(result, is(validationResult));
+        verify(task).validate(taskConfig);
+        verify(pluginManager).doOn(eq(Task.class), eq(pluginId), any(ActionWithReturn.class));
+    }
 }

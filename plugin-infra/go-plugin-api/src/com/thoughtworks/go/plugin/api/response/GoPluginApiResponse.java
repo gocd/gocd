@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.api.response;
 
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+
 import java.util.Map;
 
 /**

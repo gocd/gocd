@@ -86,10 +86,11 @@ public class JsonBasedTaskExecutorTest {
 
     @Test
     public void shouldConstructExecutionRequestWithRequiredDetails() {
-        final String workingDir = "working-dir";
-        final Console console = mock(Console.class);
+        String workingDir = "working-dir";
+        com.thoughtworks.go.plugin.api.task.Console console = mock(com.thoughtworks.go.plugin.api.task.Console.class);
         when(context.workingDir()).thenReturn(workingDir);
-        when(context.environment()).thenReturn(getEnvironmentVariables());
+        EnvironmentVariables environment = getEnvironmentVariables();
+        when(context.environment()).thenReturn(environment);
         when(context.console()).thenReturn(console);
         final GoPluginApiRequest[] executionRequest = new GoPluginApiRequest[1];
         when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
@@ -104,6 +105,7 @@ public class JsonBasedTaskExecutorTest {
             }
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         handler = new JsonBasedTaskExtensionHandler_V1();
+
         new JsonBasedTaskExecutor(pluginId, pluginManager, handler).execute(config(), context);
 
         assertTrue(executionRequest.length == 1);
@@ -115,7 +117,10 @@ public class JsonBasedTaskExecutorTest {
         assertThat(environmentVariables.size(), is(2));
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));
         assertThat(environmentVariables.get("ENV2").toString(), is("VAL2"));
-        assertThat((Console)executionRequest[0].requestParameters().get("console"), is(console));
+        assertTrue(executionRequest[0].requestParameters().get("console") instanceof ConsoleWrapper);
+        ConsoleWrapper consoleSentToPlugin = (ConsoleWrapper) executionRequest[0].requestParameters().get("console");
+        assertThat(consoleSentToPlugin.getConsole(), is(console));
+        assertThat(consoleSentToPlugin.getEnvironment(), is(environment));
     }
 
     private EnvironmentVariables getEnvironmentVariables() {
@@ -129,11 +134,11 @@ public class JsonBasedTaskExecutorTest {
             }
 
             @Override
-            public void writeTo(Console console) {
+            public void writeTo(com.thoughtworks.go.plugin.api.task.Console console) {
             }
 
             @Override
-            public Console.SecureEnvVarSpecifier secureEnvSpecifier() {
+            public com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier secureEnvSpecifier() {
                 return null;
             }
         };

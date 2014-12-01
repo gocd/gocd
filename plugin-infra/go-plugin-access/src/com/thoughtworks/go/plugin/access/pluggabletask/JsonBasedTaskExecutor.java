@@ -19,9 +19,7 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
-import com.thoughtworks.go.plugin.api.task.TaskExecutor;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
 public class JsonBasedTaskExecutor implements TaskExecutor {
@@ -39,8 +37,9 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
     public ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext) {
         final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, handler.version(), JsonBasedTaskExtension.EXECUTION_REQUEST);
         request.setRequestBody(handler.getTaskExecutionBody(config, taskExecutionContext));
-        request.addRequestParameter("console", taskExecutionContext.console());
+        request.addRequestParameter("console", new ConsoleWrapper(taskExecutionContext));
         GoPluginApiResponse response = pluginManager.submitTo(pluginId, request);
         return handler.toExecutionResult(response);
     }
 }
+

@@ -16,23 +16,20 @@
 
 package com.thoughtworks.go.server.service.support.toggle;
 
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 
 import java.text.MessageFormat;
 
 public class FeatureToggleService {
+    public static final String USER_TOGGLES_CACHE_KEY = "FeatureToggleService_USER_TOGGLES";
     private FeatureToggleRepository repository;
+    private GoCache goCache;
 
-    public FeatureToggleService(FeatureToggleRepository repository) {
+    public FeatureToggleService(FeatureToggleRepository repository, GoCache goCache) {
         this.repository = repository;
-    }
-
-    public FeatureToggles allToggles() {
-        FeatureToggles availableToggles = repository.availableToggles();
-        FeatureToggles userToggles = repository.userToggles();
-
-        return availableToggles.overrideWithTogglesIn(userToggles);
+        this.goCache = goCache;
     }
 
     public boolean isToggleOn(String key) {
@@ -40,10 +37,30 @@ public class FeatureToggleService {
         return toggle != null && toggle.isOn();
     }
 
+    public FeatureToggles allToggles() {
+        synchronized (USER_TOGGLES_CACHE_KEY) {
+            FeatureToggles allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
+            if (allToggles != null) {
+                return allToggles;
+            }
+
+            FeatureToggles availableToggles = repository.availableToggles();
+            FeatureToggles userToggles = repository.userToggles();
+            allToggles = availableToggles.overrideWithTogglesIn(userToggles);
+            goCache.put(USER_TOGGLES_CACHE_KEY, allToggles);
+
+            return allToggles;
+        }
+    }
+
     public void changeValueOfToggle(String key, boolean newValue) {
         if (allToggles().find(key) == null) {
             throw new RuntimeException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
         }
-        repository.changeValueOfToggle(key, newValue);
+
+        synchronized (USER_TOGGLES_CACHE_KEY) {
+            repository.changeValueOfToggle(key, newValue);
+            goCache.remove(USER_TOGGLES_CACHE_KEY);
+        }
     }
 }

@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.server.service.support.toggle;
 
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
+import com.thoughtworks.go.server.service.StubGoCache;
+import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,13 +28,16 @@ import org.mockito.Mock;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeatureToggleServiceTest {
     @Mock
-    public FeatureToggleRepository repository;
+    private FeatureToggleRepository repository;
+    @Mock
+    private GoCache goCache;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +54,7 @@ public class FeatureToggleServiceTest {
         when(repository.availableToggles()).thenReturn(existingToggles);
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
         assertThat(service.allToggles(), is(existingToggles));
     }
@@ -63,7 +69,7 @@ public class FeatureToggleServiceTest {
         when(repository.availableToggles()).thenReturn(existingToggles);
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
         assertThat(service.isToggleOn("key1"), is(true));
         assertThat(service.isToggleOn("key2"), is(false));
@@ -79,7 +85,7 @@ public class FeatureToggleServiceTest {
         when(repository.availableToggles()).thenReturn(existingToggles);
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
         assertThat(service.isToggleOn("NON_EXISTENT_KEY"), is(false));
     }
@@ -95,7 +101,7 @@ public class FeatureToggleServiceTest {
         FeatureToggle userToggle2 = new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false);
         when(repository.userToggles()).thenReturn(new FeatureToggles(userToggle1, userToggle2));
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
         FeatureToggles toggles = service.allToggles();
 
         assertThat(toggles.all().size(), is(3));
@@ -110,7 +116,7 @@ public class FeatureToggleServiceTest {
         when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
         service.changeValueOfToggle("key1", false);
 
         verify(repository).changeValueOfToggle("key1", false);
@@ -122,7 +128,7 @@ public class FeatureToggleServiceTest {
         when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
         when(repository.userToggles()).thenReturn(new FeatureToggles());
 
-        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
         try {
             service.changeValueOfToggle("keyNOTVALID", true);
@@ -130,5 +136,35 @@ public class FeatureToggleServiceTest {
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("Feature toggle: 'keyNOTVALID' is not valid."));
         }
+    }
+
+    @Test
+    public void shouldCacheFeatureToggleStatus() throws Exception {
+        when(repository.availableToggles()).thenReturn(new FeatureToggles(new FeatureToggle("key1", "desc1", true)));
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
+
+        FeatureToggleService service = new FeatureToggleService(repository, new StubGoCache(new TestTransactionSynchronizationManager()));
+        service.allToggles();
+        service.allToggles();
+        service.isToggleOn("key1");
+        service.isToggleOn("someOtherKey");
+
+        verify(repository, times(1)).availableToggles();
+    }
+
+    @Test
+    public void shouldInvalidateCacheWhenAFeatureTogglesValueIsChanged() throws Exception {
+        when(repository.availableToggles()).thenReturn(new FeatureToggles(new FeatureToggle("key1", "desc1", true)));
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
+
+        FeatureToggleService service = new FeatureToggleService(repository, new StubGoCache(new TestTransactionSynchronizationManager()));
+        service.allToggles();
+        verify(repository, times(1)).availableToggles();
+
+        service.changeValueOfToggle("key1", false);
+        verify(repository, times(1)).availableToggles();
+
+        service.allToggles();
+        verify(repository, times(2)).availableToggles();
     }
 }

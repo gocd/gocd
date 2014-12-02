@@ -42,7 +42,7 @@ public class FeatureToggleRepository {
     }
 
     public FeatureToggles userToggles() {
-        return readTogglesFromFile(new File(environment.configDir(), environment.get(USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR)).getAbsolutePath());
+        return readTogglesFromFile(userTogglesFile().getAbsolutePath());
     }
 
     private FeatureToggles readTogglesFromFile(String filePathOfToggles) {
@@ -52,13 +52,33 @@ public class FeatureToggleRepository {
             FeatureToggleFileContentRepresentation toggleContent = new Gson().fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
         } catch (Exception e) {
-            LOGGER.warn("Failed to read toggles from " + filePathOfToggles + ". Saying there are none.", e);
+            LOGGER.warn("Failed to read toggles from " + filePathOfToggles + ". Saying there are no toggles.", e);
             return new FeatureToggles();
         }
     }
 
+    public void changeValueOfToggle(String key, boolean newValue) {
+        FeatureToggles currentToggles = userToggles().changeToggleValue(key, newValue);
+        writeTogglesToFile(userTogglesFile(), currentToggles);
+    }
+
+    private void writeTogglesToFile(File file, FeatureToggles toggles) {
+        FeatureToggleFileContentRepresentation representation = new FeatureToggleFileContentRepresentation();
+        representation.toggles = toggles.all();
+
+        try {
+            FileUtils.writeStringToFile(file, new Gson(). toJson(representation));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private File userTogglesFile() {
+        return new File(environment.configDir(), environment.get(USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR));
+    }
+
     private static class FeatureToggleFileContentRepresentation {
-        private String version;
+        private String version = "1";
         private List<FeatureToggle> toggles;
     }
 }

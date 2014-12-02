@@ -34,7 +34,7 @@ public class FeatureToggleTest {
     @Test
     public void shouldBeAbleToIndicateThatItsValueHasBeenChanged() throws Exception {
         FeatureToggle existingToggle = new FeatureToggle("key1", "desc1", false);
-        FeatureToggle toggleWithValueChangedFlagSet = new FeatureToggle("key1", "desc1", false).withValueChanged(true);
+        FeatureToggle toggleWithValueChangedFlagSet = new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(true);
 
         assertThat(existingToggle, is(not(toggleWithValueChangedFlagSet)));
         assertThat(toggleWithValueChangedFlagSet.hasBeenChangedFromDefault(), is(true));

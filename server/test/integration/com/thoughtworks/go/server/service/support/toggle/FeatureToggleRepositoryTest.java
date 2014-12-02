@@ -1,5 +1,6 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
+import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.ListUtil;
@@ -9,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -17,11 +19,14 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+@RunWith(JunitExtRunner.class)
 public class FeatureToggleRepositoryTest {
     @Mock
     private SystemEnvironment environment;
@@ -98,6 +103,49 @@ public class FeatureToggleRepositoryTest {
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
         assertThat(repository.userToggles(), is(new FeatureToggles()));
+    }
+
+    @Test
+    public void shouldAllowChangingValueOfAToggleWhenTheUserTogglesFileDoesNotExist() throws Exception {
+        File togglesDir = TestFileUtil.createTempFolder("toggles.dir");
+        File nonExistentUserToggleFile = new File(togglesDir, "a-non-existent-file");
+        setupUserToggleFileAs(nonExistentUserToggleFile);
+        setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
+
+        FeatureToggleRepository repository = new FeatureToggleRepository(environment);
+        repository.changeValueOfToggle("key1", false);
+
+        assertThat(repository.availableToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true))));
+        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", null, false))));
+    }
+
+    @Test
+    public void shouldAllowChangingValueOfAToggleWhenTheUserTogglesFileDoesExist() throws Exception {
+        setupAvailableToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", true));
+        setupUserToggles(new FeatureToggle("key1", "desc1", true));
+
+        FeatureToggleRepository repository = new FeatureToggleRepository(environment);
+        repository.changeValueOfToggle("key1", false);
+
+        assertThat(repository.availableToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true), new FeatureToggle("key2", "desc2", true))));
+        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", false))));
+    }
+
+    @Test
+    public void shouldFailWhenUnableToWriteToUserTogglesFile_DuringChangingOfAToggleValue() throws Exception {
+        setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
+
+        File userTogglesFile = setupUserToggles(new FeatureToggle("key1", "desc1", true));
+        userTogglesFile.setReadOnly();
+
+        FeatureToggleRepository repository = new FeatureToggleRepository(environment);
+
+        try {
+            repository.changeValueOfToggle("key1", false);
+            fail("Should have failed to write");
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage(), containsString(userTogglesFile.getPath()));
+        }
     }
 
     private void setupAvailableToggleFileAs(File file) {

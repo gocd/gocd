@@ -19,6 +19,8 @@ package com.thoughtworks.go.server.service.support.toggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 
+import java.text.MessageFormat;
+
 public class FeatureToggleService {
     private FeatureToggleRepository repository;
 
@@ -30,11 +32,18 @@ public class FeatureToggleService {
         FeatureToggles availableToggles = repository.availableToggles();
         FeatureToggles userToggles = repository.userToggles();
 
-        return availableToggles.mergeMatchingOnesWithValuesFrom(userToggles);
+        return availableToggles.overrideWithTogglesIn(userToggles);
     }
 
     public boolean isToggleOn(String key) {
         FeatureToggle toggle = allToggles().find(key);
         return toggle != null && toggle.isOn();
+    }
+
+    public void changeValueOfToggle(String key, boolean newValue) {
+        if (allToggles().find(key) == null) {
+            throw new RuntimeException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
+        }
+        repository.changeValueOfToggle(key, newValue);
     }
 }

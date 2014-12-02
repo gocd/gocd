@@ -24,6 +24,8 @@ import org.mockito.Mock;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -97,8 +99,36 @@ public class FeatureToggleServiceTest {
         FeatureToggles toggles = service.allToggles();
 
         assertThat(toggles.all().size(), is(3));
-        assertThat(toggles.all().get(0), is(new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true).withValueChanged(false)));
-        assertThat(toggles.all().get(1), is(new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false).withValueChanged(true)));
-        assertThat(toggles.all().get(2), is(new FeatureToggle("key3", "desc3", true).withValueChanged(false)));
+        assertThat(toggles.all().get(0), is(new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true).withValueHasBeenChangedFlag(false)));
+        assertThat(toggles.all().get(1), is(new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false).withValueHasBeenChangedFlag(true)));
+        assertThat(toggles.all().get(2), is(new FeatureToggle("key3", "desc3", true).withValueHasBeenChangedFlag(false)));
+    }
+
+    @Test
+    public void shouldAllowChangingValueOfAValidFeatureToggle() throws Exception {
+        FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
+        when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
+
+        FeatureToggleService service = new FeatureToggleService(repository);
+        service.changeValueOfToggle("key1", false);
+
+        verify(repository).changeValueOfToggle("key1", false);
+    }
+
+    @Test
+    public void shouldNotAllowChangingValueOfAnInvalidFeatureToggle() throws Exception {
+        FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
+        when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1));
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
+
+        FeatureToggleService service = new FeatureToggleService(repository);
+
+        try {
+            service.changeValueOfToggle("keyNOTVALID", true);
+            fail("This should have failed with an exception, since the feature toggle is invalid.");
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage(), is("Feature toggle: 'keyNOTVALID' is not valid."));
+        }
     }
 }

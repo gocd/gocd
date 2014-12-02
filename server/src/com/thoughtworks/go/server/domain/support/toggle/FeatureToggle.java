@@ -41,15 +41,21 @@ public class FeatureToggle {
         return key.equalsIgnoreCase(otherKey);
     }
 
-    public FeatureToggle withValueChanged(boolean hasBeenChangedFromDefault) {
+    public FeatureToggle withValueHasBeenChangedFlag(boolean hasBeenChangedFromDefault) {
         FeatureToggle toggle = new FeatureToggle(this);
         toggle.hasBeenChangedFromDefault = hasBeenChangedFromDefault;
         return toggle;
     }
 
-    public FeatureToggle withDescriptionChanged(String description) {
+    public FeatureToggle withDescription(String description) {
         FeatureToggle toggle = new FeatureToggle(this);
         toggle.description = description;
+        return toggle;
+    }
+
+    public FeatureToggle withValue(boolean newValue) {
+        FeatureToggle toggle = new FeatureToggle(this);
+        toggle.value = newValue;
         return toggle;
     }
 

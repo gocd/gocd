@@ -52,7 +52,7 @@ public class FeatureToggles {
         return null;
     }
 
-    public FeatureToggles mergeMatchingOnesWithValuesFrom(FeatureToggles overridingToggles) {
+    public FeatureToggles overrideWithTogglesIn(FeatureToggles overridingToggles) {
         List<FeatureToggle> mergedToggles = new ArrayList<FeatureToggle>();
 
         for (FeatureToggle availableToggle : toggles) {
@@ -60,17 +60,38 @@ public class FeatureToggles {
 
             FeatureToggle overriddenToggle = overridingToggles.find(availableToggle.key());
             if (overriddenToggle != null) {
-                toggleToAdd = overriddenToggle.withValueChanged(!overriddenToggle.hasSameValueAs(availableToggle));
+                toggleToAdd = overriddenToggle.withValueHasBeenChangedFlag(!overriddenToggle.hasSameValueAs(availableToggle));
             }
 
             if (toggleToAdd.description() == null) {
-                toggleToAdd = toggleToAdd.withDescriptionChanged(availableToggle.description());
+                toggleToAdd = toggleToAdd.withDescription(availableToggle.description());
             }
 
             mergedToggles.add(toggleToAdd);
         }
 
         return new FeatureToggles(mergedToggles);
+    }
+
+    public FeatureToggles changeToggleValue(String key, boolean newValue) {
+        List<FeatureToggle> newTogglesList = new ArrayList<FeatureToggle>();
+        boolean toggleHasBeenFound = false;
+
+        for (FeatureToggle existingToggle : toggles) {
+            FeatureToggle toggleToAdd = existingToggle;
+            if (existingToggle.hasSameKeyAs(key)) {
+                toggleToAdd = new FeatureToggle(existingToggle).withValue(newValue);
+                toggleHasBeenFound = true;
+            }
+
+            newTogglesList.add(toggleToAdd);
+        }
+
+        if (!toggleHasBeenFound) {
+            newTogglesList.add(new FeatureToggle(key, null, newValue));
+        }
+
+        return new FeatureToggles(newTogglesList);
     }
 
     @Override

@@ -17,8 +17,7 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
-
-import java.util.List;
+import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 
 public class FeatureToggleService {
     private FeatureToggleRepository repository;
@@ -27,25 +26,15 @@ public class FeatureToggleService {
         this.repository = repository;
     }
 
-    public List<FeatureToggle> allToggles() {
-        return repository.allToggles();
-    }
+    public FeatureToggles allToggles() {
+        FeatureToggles availableToggles = repository.availableToggles();
+        FeatureToggles userToggles = repository.userToggles();
 
-    public boolean isToggleAvailable(String key) {
-        return findToggle(repository.allToggles(), key) != null;
+        return availableToggles.mergeMatchingOnesWithValuesFrom(userToggles);
     }
 
     public boolean isToggleOn(String key) {
-        FeatureToggle toggle = findToggle(repository.allToggles(), key);
+        FeatureToggle toggle = allToggles().find(key);
         return toggle != null && toggle.isOn();
-    }
-
-    private FeatureToggle findToggle(List<FeatureToggle> availableToggles, String keyOfToggleToFind) {
-        for (FeatureToggle toggle : availableToggles) {
-            if (toggle.hasSameKeyAs(keyOfToggleToFind)) {
-                return toggle;
-            }
-        }
-        return null;
     }
 }

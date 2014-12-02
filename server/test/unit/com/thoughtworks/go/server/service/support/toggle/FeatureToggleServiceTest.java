@@ -17,12 +17,10 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
+import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,12 +38,13 @@ public class FeatureToggleServiceTest {
 
     @Test
     public void shouldListAllFeatureToggles() throws Exception {
-        List<FeatureToggle> existingToggles = Arrays.asList(
+        FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
         );
 
-        when(repository.allToggles()).thenReturn(existingToggles);
+        when(repository.availableToggles()).thenReturn(existingToggles);
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
 
         FeatureToggleService service = new FeatureToggleService(repository);
 
@@ -53,28 +52,14 @@ public class FeatureToggleServiceTest {
     }
 
     @Test
-    public void shouldKnowWhetherAToggleIsAvailable() throws Exception {
-        List<FeatureToggle> existingToggles = Arrays.asList(
-                new FeatureToggle("key1", "description1", true),
-                new FeatureToggle("key2", "description2", false)
-        );
-
-        when(repository.allToggles()).thenReturn(existingToggles);
-
-        FeatureToggleService service = new FeatureToggleService(repository);
-
-        assertThat(service.isToggleAvailable("key1"), is(true));
-        assertThat(service.isToggleAvailable("NON_EXISTENT_KEY"), is(false));
-    }
-
-    @Test
     public void shouldKnowWhetherAToggleIsOnOrOff() throws Exception {
-        List<FeatureToggle> existingToggles = Arrays.asList(
+        FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
         );
 
-        when(repository.allToggles()).thenReturn(existingToggles);
+        when(repository.availableToggles()).thenReturn(existingToggles);
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
 
         FeatureToggleService service = new FeatureToggleService(repository);
 
@@ -84,15 +69,36 @@ public class FeatureToggleServiceTest {
 
     @Test
     public void shouldSayThatNonExistentTogglesAreOff() throws Exception {
-        List<FeatureToggle> existingToggles = Arrays.asList(
+        FeatureToggles existingToggles = new FeatureToggles(
                 new FeatureToggle("key1", "description1", true),
                 new FeatureToggle("key2", "description2", false)
         );
 
-        when(repository.allToggles()).thenReturn(existingToggles);
+        when(repository.availableToggles()).thenReturn(existingToggles);
+        when(repository.userToggles()).thenReturn(new FeatureToggles());
 
         FeatureToggleService service = new FeatureToggleService(repository);
 
         assertThat(service.isToggleOn("NON_EXISTENT_KEY"), is(false));
+    }
+
+    @Test
+    public void shouldOverrideAvailableToggleValuesWithValuesFromUsersToggles() throws Exception {
+        FeatureToggle availableToggle1 = new FeatureToggle("key1", "desc1", true);
+        FeatureToggle availableToggle2 = new FeatureToggle("key2", "desc2", true);
+        FeatureToggle availableToggle3 = new FeatureToggle("key3", "desc3", true);
+        when(repository.availableToggles()).thenReturn(new FeatureToggles(availableToggle1, availableToggle2, availableToggle3));
+
+        FeatureToggle userToggle1 = new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true);
+        FeatureToggle userToggle2 = new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false);
+        when(repository.userToggles()).thenReturn(new FeatureToggles(userToggle1, userToggle2));
+
+        FeatureToggleService service = new FeatureToggleService(repository);
+        FeatureToggles toggles = service.allToggles();
+
+        assertThat(toggles.all().size(), is(3));
+        assertThat(toggles.all().get(0), is(new FeatureToggle("key1", "NEW_desc1_WITH_NO_change_to_value", true).withValueChanged(false)));
+        assertThat(toggles.all().get(1), is(new FeatureToggle("key2", "NEW_desc2_WITH_CHANGE_TO_VALUE", false).withValueChanged(true)));
+        assertThat(toggles.all().get(2), is(new FeatureToggle("key3", "desc3", true).withValueChanged(false)));
     }
 }

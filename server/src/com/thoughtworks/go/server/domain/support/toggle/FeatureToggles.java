@@ -20,50 +20,53 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class FeatureToggle {
-    private final String key;
-    private String description;
-    private boolean value;
-    private boolean hasBeenChangedFromDefault = false;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-    public FeatureToggle(String key, String description, boolean value) {
-        this.key = key;
-        this.description = description;
-        this.value = value;
+public class FeatureToggles {
+    private List<FeatureToggle> toggles;
+
+    public FeatureToggles() {
+        this(new ArrayList<FeatureToggle>());
     }
 
-    public FeatureToggle(FeatureToggle other) {
-        this(other.key, other.description, other.value);
+    public FeatureToggles(FeatureToggle... toggles) {
+        this(Arrays.asList(toggles));
     }
 
-    public boolean hasSameKeyAs(String otherKey) {
-        return key.equalsIgnoreCase(otherKey);
+    public FeatureToggles(List<FeatureToggle> toggles) {
+        this.toggles = toggles;
     }
 
-    public FeatureToggle withValueChanged(boolean hasBeenChangedFromDefault) {
-        FeatureToggle toggle = new FeatureToggle(this);
-        toggle.hasBeenChangedFromDefault = hasBeenChangedFromDefault;
-        return toggle;
+    public List<FeatureToggle> all() {
+        return toggles;
     }
 
-    public boolean hasSameValueAs(FeatureToggle other) {
-        return value == other.value;
+    public FeatureToggle find(String key) {
+        for (FeatureToggle toggle : toggles) {
+            if (toggle.hasSameKeyAs(key)) {
+                return toggle;
+            }
+        }
+        return null;
     }
 
-    public boolean isOn() {
-        return value;
-    }
+    public FeatureToggles mergeMatchingOnesWithValuesFrom(FeatureToggles overridingToggles) {
+        List<FeatureToggle> mergedToggles = new ArrayList<FeatureToggle>();
 
-    public String key() {
-        return key;
-    }
+        for (FeatureToggle toggle : toggles) {
+            FeatureToggle toggleToAdd = toggle;
 
-    public String description() {
-        return description;
-    }
+            FeatureToggle overriddenToggle = overridingToggles.find(toggle.key());
+            if (overriddenToggle != null) {
+                toggleToAdd = overriddenToggle.withValueChanged(!overriddenToggle.hasSameValueAs(toggle));
+            }
 
-    public boolean hasBeenChangedFromDefault() {
-        return hasBeenChangedFromDefault;
+            mergedToggles.add(toggleToAdd);
+        }
+
+        return new FeatureToggles(mergedToggles);
     }
 
     @Override

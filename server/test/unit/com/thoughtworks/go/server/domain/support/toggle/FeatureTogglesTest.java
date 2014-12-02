@@ -41,4 +41,13 @@ public class FeatureTogglesTest {
         FeatureToggles actual = availableToggles.mergeMatchingOnesWithValuesFrom(overridingToggles);
         assertThat(actual, is(new FeatureToggles(new FeatureToggle("key1", "NEW_desc1_WITH_VALUE_CHANGED", true).withValueChanged(false))));
     }
+
+    @Test
+    public void shouldNotOverrideDescriptionIfOverriddenDescriptionIsNotPresent() throws Exception {
+        FeatureToggles availableToggles = new FeatureToggles(new FeatureToggle("key1", "desc1", true));
+        FeatureToggles overridingToggles = new FeatureToggles(new FeatureToggle("key1", null, false));
+
+        FeatureToggles actual = availableToggles.mergeMatchingOnesWithValuesFrom(overridingToggles);
+        assertThat(actual, is(new FeatureToggles(new FeatureToggle("key1", "desc1", false).withValueChanged(true))));
+    }
 }

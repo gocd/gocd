@@ -34,6 +34,7 @@ public class FeatureToggle {
 
     public FeatureToggle(FeatureToggle other) {
         this(other.key, other.description, other.value);
+        this.hasBeenChangedFromDefault = other.hasBeenChangedFromDefault;
     }
 
     public boolean hasSameKeyAs(String otherKey) {
@@ -43,6 +44,12 @@ public class FeatureToggle {
     public FeatureToggle withValueChanged(boolean hasBeenChangedFromDefault) {
         FeatureToggle toggle = new FeatureToggle(this);
         toggle.hasBeenChangedFromDefault = hasBeenChangedFromDefault;
+        return toggle;
+    }
+
+    public FeatureToggle withDescriptionChanged(String description) {
+        FeatureToggle toggle = new FeatureToggle(this);
+        toggle.description = description;
         return toggle;
     }
 

@@ -55,12 +55,16 @@ public class FeatureToggles {
     public FeatureToggles mergeMatchingOnesWithValuesFrom(FeatureToggles overridingToggles) {
         List<FeatureToggle> mergedToggles = new ArrayList<FeatureToggle>();
 
-        for (FeatureToggle toggle : toggles) {
-            FeatureToggle toggleToAdd = toggle;
+        for (FeatureToggle availableToggle : toggles) {
+            FeatureToggle toggleToAdd = availableToggle;
 
-            FeatureToggle overriddenToggle = overridingToggles.find(toggle.key());
+            FeatureToggle overriddenToggle = overridingToggles.find(availableToggle.key());
             if (overriddenToggle != null) {
-                toggleToAdd = overriddenToggle.withValueChanged(!overriddenToggle.hasSameValueAs(toggle));
+                toggleToAdd = overriddenToggle.withValueChanged(!overriddenToggle.hasSameValueAs(availableToggle));
+            }
+
+            if (toggleToAdd.description() == null) {
+                toggleToAdd = toggleToAdd.withDescriptionChanged(availableToggle.description());
             }
 
             mergedToggles.add(toggleToAdd);

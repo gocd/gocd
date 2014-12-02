@@ -19,10 +19,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -146,6 +144,35 @@ public class FeatureToggleRepositoryTest {
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), containsString(userTogglesFile.getPath()));
         }
+    }
+
+    @Test
+    public void whileChangingAToggleValue_shouldNotPersist_ValueHasBeenChangedFlag() throws Exception {
+        String fieldForHasBeenChangedFlag = "hasBeenChangedFromDefault";
+        assertNotNull("This can never be null, but can throw an exception. If you've renamed the field mentioned above" +
+                        "(in FeatureToggle class), please change it in this test too. Otherwise, this test can pass, wrongly.",
+                FeatureToggle.class.getDeclaredField(fieldForHasBeenChangedFlag));
+
+        setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
+        File userTogglesFile = setupUserToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(true));
+
+        FeatureToggleRepository repository = new FeatureToggleRepository(environment);
+        repository.changeValueOfToggle("key1", false);
+
+        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(false))));
+        assertThat(FileUtils.readFileToString(userTogglesFile), containsString("key1"));
+        assertThat(FileUtils.readFileToString(userTogglesFile), containsString("desc1"));
+        assertThat(FileUtils.readFileToString(userTogglesFile), not(containsString(fieldForHasBeenChangedFlag)));
+
+        /* The first time the file is written, it is written by hand in this test. Force it to write again,
+         * so that the actual JSON write logic is used.
+         */
+        repository.changeValueOfToggle("key1", true);
+
+        assertThat(repository.userToggles(), is(new FeatureToggles(new FeatureToggle("key1", "desc1", true).withValueHasBeenChangedFlag(false))));
+        assertThat(FileUtils.readFileToString(userTogglesFile), containsString("key1"));
+        assertThat(FileUtils.readFileToString(userTogglesFile), containsString("desc1"));
+        assertThat(FileUtils.readFileToString(userTogglesFile), not(containsString(fieldForHasBeenChangedFlag)));
     }
 
     private void setupAvailableToggleFileAs(File file) {

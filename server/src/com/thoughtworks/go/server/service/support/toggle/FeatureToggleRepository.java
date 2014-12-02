@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -32,9 +34,11 @@ import static com.thoughtworks.go.util.SystemEnvironment.USER_FEATURE_TOGGLES_FI
 public class FeatureToggleRepository {
     private SystemEnvironment environment;
     private final Logger LOGGER = Logger.getLogger(FeatureToggleRepository.class);
+    private Gson gson;
 
     public FeatureToggleRepository(SystemEnvironment environment) {
         this.environment = environment;
+        gson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
     }
 
     public FeatureToggles availableToggles() {
@@ -49,7 +53,7 @@ public class FeatureToggleRepository {
         try {
             String existingToggleJSONContent = FileUtils.readFileToString(new File(filePathOfToggles));
 
-            FeatureToggleFileContentRepresentation toggleContent = new Gson().fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
+            FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
         } catch (Exception e) {
             LOGGER.warn("Failed to read toggles from " + filePathOfToggles + ". Saying there are no toggles.", e);
@@ -67,7 +71,7 @@ public class FeatureToggleRepository {
         representation.toggles = toggles.all();
 
         try {
-            FileUtils.writeStringToFile(file, new Gson(). toJson(representation));
+            FileUtils.writeStringToFile(file, gson.toJson(representation));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -78,7 +82,9 @@ public class FeatureToggleRepository {
     }
 
     private static class FeatureToggleFileContentRepresentation {
+        @Expose
         private String version = "1";
+        @Expose
         private List<FeatureToggle> toggles;
     }
 }

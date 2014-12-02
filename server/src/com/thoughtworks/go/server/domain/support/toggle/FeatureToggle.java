@@ -16,14 +16,19 @@
 
 package com.thoughtworks.go.server.domain.support.toggle;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class FeatureToggle {
+    @Expose
     private final String key;
+    @Expose
     private String description;
+    @Expose
     private boolean value;
+
     private boolean hasBeenChangedFromDefault = false;
 
     public FeatureToggle(String key, String description, boolean value) {

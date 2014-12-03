@@ -136,7 +136,6 @@ Go::Application.routes.draw do
   delete "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#destroy", as: :package_definition_delete
   get "admin/package_definitions/check_connection" => "admin/package_definitions#check_connection", as: :package_definition_check_connection
 
-  get "admin/package_repositories" => "admin/package_repositories#index", as: :package_repositories
   get "admin/package_repositories/new" => "admin/package_repositories#new", as: :package_repositories_new
   get "admin/package_repositories/check_connection" => "admin/package_repositories#check_connection", as: :package_repositories_check_connection
   get "admin/package_repositories/list" => "admin/package_repositories#list", as: :package_repositories_list

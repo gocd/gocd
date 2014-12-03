@@ -96,6 +96,12 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
+    public void shouldBuildSuccessValidationResultFromCheckRepositoryConfigurationValidResponse() throws Exception {
+        assertThat(messageHandler.responseMessageForIsRepositoryConfigurationValid("").isSuccessful(), is(true));
+        assertThat(messageHandler.responseMessageForIsRepositoryConfigurationValid(null).isSuccessful(), is(true));
+    }
+
+    @Test
     public void shouldBuildRequestBodyForCheckPackageConfigurationValidRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForIsPackageConfigurationValid(packageConfiguration, repositoryConfiguration);
         assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}"));
@@ -180,7 +186,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildPackageRevisionFromLatestRevisionSinceResponse() throws Exception {
         String responseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
-                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
+                    "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
         PackageRevision packageRevision = messageHandler.responseMessageForLatestRevisionSince(responseBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
     }

@@ -50,13 +50,18 @@ public class FeatureToggleRepository {
     }
 
     private FeatureToggles readTogglesFromFile(String filePathOfToggles) {
+        if (!new File(filePathOfToggles).exists()) {
+            LOGGER.warn("Toggles file, " + filePathOfToggles + " does not exist. Saying there are no toggles.");
+            return new FeatureToggles();
+        }
+
         try {
             String existingToggleJSONContent = FileUtils.readFileToString(new File(filePathOfToggles));
 
             FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
             return new FeatureToggles(toggleContent.toggles);
         } catch (Exception e) {
-            LOGGER.warn("Failed to read toggles from " + filePathOfToggles + ". Saying there are no toggles.", e);
+            LOGGER.error("Failed to read toggles from " + filePathOfToggles + ". Saying there are no toggles.", e);
             return new FeatureToggles();
         }
     }

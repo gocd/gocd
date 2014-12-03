@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
@@ -29,6 +31,11 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.HashMap;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -47,9 +54,15 @@ public class JsonBasedPluggableTaskTest {
     public void setup() {
         pluginManager = mock(PluginManager.class);
         pluginId = "plugin-id";
-        task = new JsonBasedPluggableTask(pluginManager, pluginId, new JsonBasedTaskExtensionHandler_V1());
+        final List<String> goSupportedVersions = asList("1.0");
+        final HashMap<String, JsonBasedTaskExtensionHandler> handlerMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
+        handlerMap.put("1.0", new JsonBasedTaskExtensionHandler_V1());
+
+        task = new JsonBasedPluggableTask(pluginId, new PluginRequestHelper(pluginManager, goSupportedVersions, JsonBasedTaskExtension.TASK_EXTENSION), handlerMap);
         goPluginApiResponse = mock(GoPluginApiResponse.class);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(goPluginApiResponse);
+        when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn("1.0");
+        when(goPluginApiResponse.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
     }
 
     @Test
@@ -108,7 +121,7 @@ public class JsonBasedPluggableTaskTest {
 
     @Test
     public void shouldValidateTaskConfig() {
-        String jsonResponse = "{\"errors\":[{\"key\":\"key1\", \"message\":\"err1\"},{\"key\":\"key1\", \"message\":\"err2\"},{\"key\":\"key2\", \"message\":\"err3\"}]}";
+        String jsonResponse = "{\"errors\":{\"key1\":\"err1\",\"key2\":\"err3\"}}";
         String config = "{\"URL\":{\"display-name\":\"URL\",\"secure\":false,\"value\":\"http://foo\",\"display-order\":\"0\",\"required\":true}}";
 
         when(goPluginApiResponse.responseBody()).thenReturn(jsonResponse);
@@ -120,15 +133,14 @@ public class JsonBasedPluggableTaskTest {
         property.with(Property.DISPLAY_NAME, "URL");
         property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
+
         ValidationResult result = task.validate(configuration);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getErrors().get(0).getKey(), is("key1"));
         assertThat(result.getErrors().get(0).getMessage(), is("err1"));
-        assertThat(result.getErrors().get(1).getKey(), is("key1"));
-        assertThat(result.getErrors().get(1).getMessage(), is("err2"));
-        assertThat(result.getErrors().get(2).getKey(), is("key2"));
-        assertThat(result.getErrors().get(2).getMessage(), is("err3"));
+        assertThat(result.getErrors().get(1).getKey(), is("key2"));
+        assertThat(result.getErrors().get(1).getMessage(), is("err3"));
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());

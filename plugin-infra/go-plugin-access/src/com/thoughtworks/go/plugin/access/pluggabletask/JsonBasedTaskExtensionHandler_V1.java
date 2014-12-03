@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -28,11 +27,8 @@ import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
@@ -70,9 +66,9 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     }
 
     @Override
-    public ValidationResult toValidationResult(GoPluginApiResponse response) {
+    public ValidationResult toValidationResult(String responseBody) {
         ValidationResult validationResult = new ValidationResult();
-        Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+        Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
         final Map<String, String> errors = (Map<String, String>) result.get("errors");
         if (errors != null) {
             for (Map.Entry<String, String> entry : errors.entrySet()) {
@@ -83,8 +79,8 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     }
 
     @Override
-    public TaskView toTaskView(GoPluginApiResponse response) {
-        final Map map = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+    public TaskView toTaskView(String responseBody) {
+        final Map map = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
         return new TaskView() {
             @Override
             public String displayValue() {
@@ -100,8 +96,8 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     }
 
     @Override
-    public ExecutionResult toExecutionResult(GoPluginApiResponse response) {
-        Map result = (Map) new GsonBuilder().create().fromJson(response.responseBody(), Object.class);
+    public ExecutionResult toExecutionResult(String responseBody) {
+        Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
         if ((Boolean) result.get("success")) {
             ExecutionResult executionResult = new ExecutionResult();
             executionResult.withSuccessMessages((String) result.get("message"));

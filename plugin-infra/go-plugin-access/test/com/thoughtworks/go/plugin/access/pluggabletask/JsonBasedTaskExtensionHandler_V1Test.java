@@ -122,10 +122,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         property.with(Property.DISPLAY_NAME, "URL");
         property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
-        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        when(response.responseBody()).thenReturn(jsonResponse);
 
-        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(response);
+        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(false));
 
@@ -149,10 +147,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         property.with(Property.DISPLAY_NAME, "URL");
         property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
-        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        when(response.responseBody()).thenReturn(jsonResponse);
 
-        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(response);
+        ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(true));
     }
@@ -170,10 +166,9 @@ public class JsonBasedTaskExtensionHandler_V1Test {
     @Test
     public void shouldCreateTaskViewFromResponse() {
         String jsonResponse = "{\"displayValue\":\"MyTaskPlugin\", \"template\":\"<html>junk</html>\"}";
-        GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        when(response.responseBody()).thenReturn(jsonResponse);
 
-        TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(response);
+        TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse);
+
         Assert.assertThat(view.displayValue(), CoreMatchers.is("MyTaskPlugin"));
         Assert.assertThat(view.template(), CoreMatchers.is("<html>junk</html>"));
     }
@@ -183,7 +178,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(response.responseBody()).thenReturn("{\"success\":true,\"message\":\"message1\"}");
 
-        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response);
+        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response.responseBody());
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.getMessagesForDisplay(), is("message1"));
     }
@@ -193,7 +188,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         when(response.responseBody()).thenReturn("{\"success\":false,\"message\":\"error1\"}");
 
-        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response);
+        ExecutionResult result = new JsonBasedTaskExtensionHandler_V1().toExecutionResult(response.responseBody());
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getMessagesForDisplay(), is("error1"));
     }

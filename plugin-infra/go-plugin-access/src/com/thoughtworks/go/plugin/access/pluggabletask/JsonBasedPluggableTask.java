@@ -16,48 +16,90 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class JsonBasedPluggableTask implements Task {
-    private final JsonBasedTaskExtensionHandler extensionVersionHandler;
-    private PluginManager pluginManager;
+    private PluginRequestHelper pluginRequestHelper;
+    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
     private String pluginId;
 
-    public JsonBasedPluggableTask(PluginManager pluginManager, String pluginId, JsonBasedTaskExtensionHandler extensionVersionHandler) {
-        this.pluginManager = pluginManager;
+    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
         this.pluginId = pluginId;
-        this.extensionVersionHandler = extensionVersionHandler;
+        this.pluginRequestHelper = pluginRequestHelper;
+        this.handlerMap = handlerMap;
     }
 
     @Override
     public TaskConfig config() {
-        GoPluginApiResponse response = pluginManager.submitTo(pluginId, new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, extensionVersionHandler.version(), JsonBasedTaskExtension.CONFIGURATION_REQUEST));
-        return extensionVersionHandler.convertJsonToTaskConfig(response.responseBody());
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.CONFIGURATION_REQUEST, new PluginInteractionCallback<TaskConfig>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public TaskConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
+            }
+        });
     }
 
     @Override
     public TaskExecutor executor() {
-        return new JsonBasedTaskExecutor(pluginId, pluginManager, extensionVersionHandler);
+        return new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerMap);
     }
 
     @Override
     public TaskView view() {
-        GoPluginApiResponse response = pluginManager.submitTo(pluginId, new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, extensionVersionHandler.version(), JsonBasedTaskExtension.TASK_VIEW_REQUEST));
-        return extensionVersionHandler.toTaskView(response);
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.TASK_VIEW_REQUEST, new PluginInteractionCallback<TaskView>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public TaskView onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).toTaskView(responseBody);
+            }
+        });
     }
 
     @Override
-    public ValidationResult validate(TaskConfig configuration) {
-        DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, extensionVersionHandler.version(), JsonBasedTaskExtension.VALIDATION_REQUEST);
-        request.setRequestBody(extensionVersionHandler.convertTaskConfigToJson(configuration));
-        GoPluginApiResponse response = pluginManager.submitTo(pluginId, request);
-        return extensionVersionHandler.toValidationResult(response);
+    public ValidationResult validate(final TaskConfig configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.VALIDATION_REQUEST, new PluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).convertTaskConfigToJson(configuration);
+            }
+
+            @Override
+            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).toValidationResult(responseBody);
+            }
+        });
     }
 }

@@ -30,11 +30,11 @@ public interface JsonBasedTaskExtensionHandler {
 
     TaskConfig convertJsonToTaskConfig(String configJson);
 
-    ValidationResult toValidationResult(GoPluginApiResponse response);
+    ValidationResult toValidationResult(String responseBody);
 
-    TaskView toTaskView(GoPluginApiResponse response);
+    TaskView toTaskView(String responseBody);
 
-    ExecutionResult toExecutionResult(GoPluginApiResponse response);
+    ExecutionResult toExecutionResult(String responseBody);
 
     String getTaskExecutionBody(TaskConfig config, TaskExecutionContext taskExecutionContext);
 }

@@ -16,30 +16,46 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.*;
-import com.thoughtworks.go.plugin.infra.PluginManager;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class JsonBasedTaskExecutor implements TaskExecutor {
     private String pluginId;
-    private PluginManager pluginManager;
-    private JsonBasedTaskExtensionHandler handler;
+    private PluginRequestHelper pluginRequestHelper;
+    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
 
-    public JsonBasedTaskExecutor(String pluginId, PluginManager pluginManager, JsonBasedTaskExtensionHandler handler) {
+    public JsonBasedTaskExecutor(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
         this.pluginId = pluginId;
-        this.pluginManager = pluginManager;
-        this.handler = handler;
+        this.pluginRequestHelper = pluginRequestHelper;
+        this.handlerMap = handlerMap;
     }
 
     @Override
-    public ExecutionResult execute(TaskConfig config, TaskExecutionContext taskExecutionContext) {
-        final DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest(JsonBasedTaskExtension.TASK_EXTENSION, handler.version(), JsonBasedTaskExtension.EXECUTION_REQUEST);
-        request.setRequestBody(handler.getTaskExecutionBody(config, taskExecutionContext));
-        request.addRequestParameter("console", new ConsoleWrapper(taskExecutionContext));
-        GoPluginApiResponse response = pluginManager.submitTo(pluginId, request);
-        return handler.toExecutionResult(response);
+    public ExecutionResult execute(final TaskConfig config, final TaskExecutionContext taskExecutionContext) {
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.EXECUTION_REQUEST, new PluginInteractionCallback<ExecutionResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).getTaskExecutionBody(config, taskExecutionContext);
+            }
+
+            @Override
+            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+                final LinkedHashMap params = new LinkedHashMap();
+                params.put("console", new ConsoleWrapper(taskExecutionContext));
+                return params;
+            }
+
+            @Override
+            public ExecutionResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return handlerMap.get(resolvedExtensionVersion).toExecutionResult(responseBody);
+            }
+        });
     }
 }
 

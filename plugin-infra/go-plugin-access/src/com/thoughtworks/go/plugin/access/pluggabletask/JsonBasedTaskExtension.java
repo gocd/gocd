@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -36,6 +37,7 @@ class JsonBasedTaskExtension implements TaskExtensionContract {
     public final static String TASK_VIEW_REQUEST = "view";
 
     private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap;
+    private final PluginRequestHelper pluginRequestHelper;
     private PluginManager pluginManager;
     private List<String> supportedVersions = new ArrayList<String>();
 
@@ -44,28 +46,24 @@ class JsonBasedTaskExtension implements TaskExtensionContract {
         supportedVersions.add(JsonBasedTaskExtensionHandler_V1.VERSION);
         handlerHashMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
         handlerHashMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
+        pluginRequestHelper = new PluginRequestHelper(pluginManager, supportedVersions, TASK_EXTENSION);
     }
 
     @Override
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {
-        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginId, pluginRequestHelper, handlerHashMap);
         return actionWithReturn.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
     @Override
     public void doOnTask(String pluginId, Action<Task> action) {
-        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginId, pluginRequestHelper, handlerHashMap);
         action.execute(task, pluginManager.getPluginDescriptorFor(pluginId));
     }
 
     @Override
     public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
-        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginManager, pluginId, getHandler(pluginId));
+        JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginId, pluginRequestHelper, handlerHashMap);
         return task.validate(taskConfig);
-    }
-
-    JsonBasedTaskExtensionHandler getHandler(String pluginId) {
-        String version = pluginManager.resolveExtensionVersion(pluginId, supportedVersions);
-        return handlerHashMap.get(version);
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -49,7 +50,6 @@ public class JsonBasedTaskExtensionTest {
         extension = new JsonBasedTaskExtension(pluginManager);
         pluginId = "plugin-id";
         when(pluginManager.resolveExtensionVersion(eq(pluginId), any(ArrayList.class))).thenReturn("1.0");
-
     }
 
     @Test
@@ -76,28 +76,12 @@ public class JsonBasedTaskExtensionTest {
     }
 
     @Test
-    public void shouldGetAppropriateHandlerToTask() {
-        JsonBasedTaskExtension extension = new JsonBasedTaskExtension(pluginManager);
-        final String anotherPluginId = "another-plugin-id";
-
-        assertTrue(extension.getHandler(pluginId) instanceof JsonBasedTaskExtensionHandler_V1);
-
-        when(pluginManager.resolveExtensionVersion(eq(anotherPluginId), any(ArrayList.class))).thenThrow(new RuntimeException("some error"));
-
-        try{
-            extension.getHandler(anotherPluginId);
-            fail("should have failed");
-        }catch (Exception e){
-            assertThat(e.getMessage(), is("some error"));
-        }
-    }
-
-    @Test
     public void shouldValidateTask() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         JsonBasedTaskExtension jsonBasedTaskExtension = new JsonBasedTaskExtension(pluginManager);
         TaskConfig taskConfig = mock(TaskConfig.class);
 
+        when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(response.responseBody()).thenReturn("{\"errors\":{\"key\":\"error\"}}");
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         ValidationResult validationResult = jsonBasedTaskExtension.validate(pluginId, taskConfig);

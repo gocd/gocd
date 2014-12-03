@@ -149,4 +149,10 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
     public String requestBody() {
         return requestBody;
     }
+
+    public void setRequestParams(Map<String, Object> params) {
+        if (params != null) {
+            this.requestParameters = params;
+        }
+    }
 }

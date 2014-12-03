@@ -30,7 +30,7 @@ public class NullBuilder extends Builder {
         super(new RunIfConfigs(), null, "NULL");
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
     }
 
     public void build(BuildLogElement buildElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws

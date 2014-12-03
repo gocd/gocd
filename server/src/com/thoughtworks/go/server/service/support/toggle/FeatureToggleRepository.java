@@ -24,6 +24,8 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.util.List;
@@ -31,11 +33,13 @@ import java.util.List;
 import static com.thoughtworks.go.util.SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR;
 
+@Repository
 public class FeatureToggleRepository {
     private SystemEnvironment environment;
     private final Logger LOGGER = Logger.getLogger(FeatureToggleRepository.class);
     private Gson gson;
 
+    @Autowired
     public FeatureToggleRepository(SystemEnvironment environment) {
         this.environment = environment;
         gson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();

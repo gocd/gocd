@@ -19,14 +19,18 @@ package com.thoughtworks.go.server.service.support.toggle;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 
+@Service
 public class FeatureToggleService {
     public static final String USER_TOGGLES_CACHE_KEY = "FeatureToggleService_USER_TOGGLES";
     private FeatureToggleRepository repository;
     private GoCache goCache;
 
+    @Autowired
     public FeatureToggleService(FeatureToggleRepository repository, GoCache goCache) {
         this.repository = repository;
         this.goCache = goCache;

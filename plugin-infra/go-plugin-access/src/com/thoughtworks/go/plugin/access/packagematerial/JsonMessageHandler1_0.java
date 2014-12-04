@@ -29,10 +29,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -235,7 +232,10 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private Result toResult(String responseBody) {
         Map map = parseResponseToMap(responseBody);
         String status = (String) map.get("status");
-        List<String> messages = (List<String>) map.get("messages");
+        List<String> messages = new ArrayList<String>();
+        if (map.containsKey("messages") && map.get("messages") != null) {
+            messages = (List<String>) map.get("messages");
+        }
         Result result = new Result();
         if ("success".equalsIgnoreCase(status)) {
             result.withSuccessMessages(messages);

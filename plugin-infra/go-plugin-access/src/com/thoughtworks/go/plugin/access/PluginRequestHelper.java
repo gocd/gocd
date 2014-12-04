@@ -21,6 +21,9 @@ public class PluginRequestHelper {
     }
 
     public <T> T submitRequest(String pluginId, String requestName, PluginInteractionCallback<T> pluginInteractionCallback) {
+        if (!pluginManager.isPluginOfType(extensionName, pluginId)) {
+            throw new RuntimeException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
+        }
         try {
             String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions);
             DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(extensionName, resolvedExtensionVersion, requestName);
@@ -32,7 +35,7 @@ public class PluginRequestHelper {
             }
             throw new RuntimeException(format("Unsuccessful response code from plugin %s with body %s", response.responseCode(), response.responseBody()));
         } catch (Exception e) {
-            throw new RuntimeException(format("Exception while interacting with plugin id %s, extension %s, request %s", pluginId, extensionName, requestName), e);
+            throw new RuntimeException(format("Exception while interacting with plugin id %s, extension %s, request %s. Reason, [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
         }
     }
 }

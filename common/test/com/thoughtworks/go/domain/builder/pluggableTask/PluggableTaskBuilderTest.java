@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.*;
@@ -79,7 +80,7 @@ public class PluggableTaskBuilderTest {
 
     @After
     public void teardown(){
-        JobConsoleLogger.unsetContext();
+        JobConsoleLoggerInternal.unsetContext();
     }
 
     @Test

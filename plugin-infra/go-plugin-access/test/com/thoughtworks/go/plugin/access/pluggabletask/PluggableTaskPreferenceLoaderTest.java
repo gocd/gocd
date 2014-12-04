@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskView;
@@ -46,7 +47,7 @@ public class PluggableTaskPreferenceLoaderTest {
     public void shouldRegisterPluginListenerWithPluginManager() throws Exception {
         PluginManager pluginManager = mock(PluginManager.class);
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class);
+        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class PluggableTaskPreferenceLoaderTest {
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
         assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
         assertThat(PluggableTaskConfigStore.store().preferenceFor(pluginId), is(new TaskPreference(task)));
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class);
+        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
     }
 
     @Test
@@ -104,13 +105,13 @@ public class PluggableTaskPreferenceLoaderTest {
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
         assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
         assertThat(PluggableTaskConfigStore.store().preferenceFor(pluginId), is(new TaskPreference(task)));
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class);
+        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
     }
 
     @Test
@@ -129,7 +130,7 @@ public class PluggableTaskPreferenceLoaderTest {
         assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
         pluggableTaskPreferenceLoader.pluginUnLoaded(descriptor);
         assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(false));
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class);
+        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
     }
 
     @Test
@@ -159,6 +160,6 @@ public class PluggableTaskPreferenceLoaderTest {
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
         assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(false));
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class);
+        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
     }
 }

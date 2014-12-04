@@ -129,10 +129,7 @@ public class JsonBasedTaskExecutorTest {
         assertThat(environmentVariables.size(), is(2));
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));
         assertThat(environmentVariables.get("ENV2").toString(), is("VAL2"));
-        assertTrue(executionRequest[0].requestParameters().get("console") instanceof ConsoleWrapper);
-        ConsoleWrapper consoleSentToPlugin = (ConsoleWrapper) executionRequest[0].requestParameters().get("console");
-        assertThat(consoleSentToPlugin.getConsole(), is(console));
-        assertThat(consoleSentToPlugin.getEnvironment(), is(environment));
+        assertThat(executionRequest[0].requestParameters().size(), is(0));
     }
 
     private EnvironmentVariables getEnvironmentVariables() {

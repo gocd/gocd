@@ -20,6 +20,10 @@ import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.*;
+import com.thoughtworks.go.plugin.infra.Action;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.plugin.internal.api.LoggingService;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,9 +50,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
 
             @Override
             public Map<String, Object> requestParams(String resolvedExtensionVersion) {
-                final LinkedHashMap params = new LinkedHashMap();
-                params.put("console", new ConsoleWrapper(taskExecutionContext));
-                return params;
+                return null;
             }
 
             @Override

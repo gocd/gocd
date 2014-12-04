@@ -24,10 +24,7 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.Task;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
@@ -78,6 +75,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
             });
         } catch (Exception e) {
             logException(publisher, e);
+        } finally {
+            JobConsoleLogger.unsetContext();
         }
         if (executionResult == null) {
             logError(publisher, "ExecutionResult cannot be null. Please return a success or a failure response.");
@@ -90,10 +89,10 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement,
                                           DefaultGoPublisher publisher,
                                           EnvironmentVariableContext environmentVariableContext) {
-        TaskConfig config = buildTaskConfig(task.config());
-        TaskExecutionContext taskExecutionContext = buildTaskContext
-                (buildLogElement, publisher, environmentVariableContext);
+        final TaskExecutionContext taskExecutionContext = buildTaskContext(buildLogElement, publisher, environmentVariableContext);
+        JobConsoleLogger.setContext(taskExecutionContext);
 
+        TaskConfig config = buildTaskConfig(task.config());
         return task.executor().execute(config, taskExecutionContext);
     }
 

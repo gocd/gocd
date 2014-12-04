@@ -184,6 +184,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private ValidationResult toValidationResult(String responseBody) {
         List<Map> errors = parseResponseToList(responseBody);
         ValidationResult validationResult = new ValidationResult();
+        if (isEmpty(responseBody)) return validationResult;
         for (Map error : errors) {
             String key = (String) error.get("key");
             String message = (String) error.get("message");
@@ -236,7 +237,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         String status = (String) map.get("status");
         List<String> messages = (List<String>) map.get("messages");
         Result result = new Result();
-        if ("success".equals(status)) {
+        if ("success".equalsIgnoreCase(status)) {
             result.withSuccessMessages(messages);
         } else {
             result.withErrorMessages(messages);

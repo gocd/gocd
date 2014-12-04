@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.api.task;
 
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,24 +36,24 @@ public class JobConsoleLoggerTest {
     private EnvironmentVariables environment;
 
     @Before
-    public void setup() {
+    public void setup() throws NoSuchMethodException {
         taskExecutionContext = mock(TaskExecutionContext.class);
         mockedConsole = mock(com.thoughtworks.go.plugin.api.task.Console.class);
         when(taskExecutionContext.console()).thenReturn(mockedConsole);
         environment = mock(EnvironmentVariables.class);
         when(taskExecutionContext.environment()).thenReturn(environment);
-        JobConsoleLogger.setContext(taskExecutionContext);
+        ReflectionUtil.setStaticField(JobConsoleLogger.class, "context", taskExecutionContext);
         consoleLogger = JobConsoleLogger.getConsoleLogger();
     }
 
     @After
     public void teardown() {
-        JobConsoleLogger.unsetContext();
+        ReflectionUtil.setStaticField(JobConsoleLogger.class, "context", null);
     }
 
     @Test
     public void shouldFailGetLoggerIfContextIsNotSet() {
-        JobConsoleLogger.unsetContext();
+        ReflectionUtil.setStaticField(JobConsoleLogger.class, "context", null);
         try {
             JobConsoleLogger.getConsoleLogger();
             fail("expected this to fail");

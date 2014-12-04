@@ -20,17 +20,9 @@ import java.io.InputStream;
 import java.util.Map;
 
 public class JobConsoleLogger {
-    private static TaskExecutionContext context;
+    protected static TaskExecutionContext context;
 
-    private JobConsoleLogger() {
-    }
-
-    public static void setContext(TaskExecutionContext taskExecutionContext) {
-        JobConsoleLogger.context = taskExecutionContext;
-    }
-
-    public static void unsetContext() {
-        JobConsoleLogger.context = null;
+    protected JobConsoleLogger() {
     }
 
     public static JobConsoleLogger getConsoleLogger() {

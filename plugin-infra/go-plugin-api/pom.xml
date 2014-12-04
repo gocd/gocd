@@ -70,6 +70,14 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>test-utils</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

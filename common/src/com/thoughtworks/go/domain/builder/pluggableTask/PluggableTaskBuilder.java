@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
@@ -76,7 +77,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
         } catch (Exception e) {
             logException(publisher, e);
         } finally {
-            JobConsoleLogger.unsetContext();
+            JobConsoleLoggerInternal.unsetContext();
         }
         if (executionResult == null) {
             logError(publisher, "ExecutionResult cannot be null. Please return a success or a failure response.");
@@ -90,7 +91,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
                                           DefaultGoPublisher publisher,
                                           EnvironmentVariableContext environmentVariableContext) {
         final TaskExecutionContext taskExecutionContext = buildTaskContext(buildLogElement, publisher, environmentVariableContext);
-        JobConsoleLogger.setContext(taskExecutionContext);
+        JobConsoleLoggerInternal.setContext(taskExecutionContext);
 
         TaskConfig config = buildTaskConfig(task.config());
         return task.executor().execute(config, taskExecutionContext);

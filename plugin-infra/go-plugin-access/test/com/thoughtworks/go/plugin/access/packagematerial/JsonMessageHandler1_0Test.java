@@ -136,6 +136,12 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
+    public void shouldHandleNullMessagesForCheckRepositoryConnectionResponse() throws Exception {
+        assertSuccessResult(messageHandler.responseMessageForCheckConnectionToRepository("{\"status\":\"success\"}"), new ArrayList<String>());
+        assertFailureResult(messageHandler.responseMessageForCheckConnectionToRepository("{\"status\":\"failure\"}"), new ArrayList<String>());
+    }
+
+    @Test
     public void shouldBuildRequestBodyForCheckPackageConnectionRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForCheckConnectionToPackage(packageConfiguration, repositoryConfiguration);
         assertThat(requestMessage, is("{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}"));
@@ -154,6 +160,13 @@ public class JsonMessageHandler1_0Test {
         Result result = messageHandler.responseMessageForCheckConnectionToPackage(responseBody);
         assertFailureResult(result, Arrays.asList("message-one", "message-two"));
     }
+
+    @Test
+    public void shouldHandleNullMessagesForCheckPackageConnectionResponse() throws Exception {
+        assertSuccessResult(messageHandler.responseMessageForCheckConnectionToPackage("{\"status\":\"success\"}"), new ArrayList<String>());
+        assertFailureResult(messageHandler.responseMessageForCheckConnectionToPackage("{\"status\":\"failure\"}"), new ArrayList<String>());
+    }
+
 
     @Test
     public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {

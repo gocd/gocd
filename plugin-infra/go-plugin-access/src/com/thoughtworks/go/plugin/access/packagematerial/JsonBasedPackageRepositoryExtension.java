@@ -172,7 +172,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
 
     private <T> T submitRequest(String pluginId, String requestName, PluginInteractionCallback<T> pluginInteractionCallback) {
         if (!pluginManager.isPluginOfType(EXTENSION_NAME, pluginId)) {
-            throw new RuntimeException(format("Did not find package repository plugin with id %s. Looks like plugin is missing", pluginId));
+            throw new RuntimeException(format("Did not find package repository plugin with id '%s'. Looks like plugin is missing", pluginId));
         }
         try {
             String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions);
@@ -182,9 +182,9 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
                 return pluginInteractionCallback.onSuccess(response.responseBody(), resolvedExtensionVersion);
             }
-            throw new RuntimeException(format("Unsuccessful response code from plugin %s with response body [%s]", response.responseCode(), response.responseBody()));
+            throw new RuntimeException(format("Unsuccessful response from plugin, response code '%s' and response body '%s'", response.responseCode(), response.responseBody()));
         } catch (Exception e) {
-            throw new RuntimeException(format("Exception while interacting with plugin id %s, extension %s, request %s. Reason, %s", pluginId, EXTENSION_NAME, requestName, e.getMessage()), e);
+            throw new RuntimeException(format("Exception while interacting with plugin id '%s', extension '%s', request '%s'. Reason, [%s]", pluginId, EXTENSION_NAME, requestName, e.getMessage()), e);
         }
     }
 

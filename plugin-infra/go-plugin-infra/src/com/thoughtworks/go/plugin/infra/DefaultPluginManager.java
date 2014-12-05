@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.infra;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
@@ -31,6 +32,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -137,7 +139,12 @@ public class DefaultPluginManager implements PluginManager {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 plugin.initializeGoApplicationAccessor(goApplicationAccessor);
-                return plugin.handle(apiRequest);
+                try {
+                    return plugin.handle(apiRequest);
+                } catch (UnhandledRequestTypeException e) {
+                    LOGGER.error(e.getMessage());
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
@@ -157,24 +164,18 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public boolean hasReference(Class serviceReferenceClass, String pluginId) {
+    public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
         return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);
     }
 
     @Override
-    public boolean isPluginOfType(String extension, String pluginId) {
-        if (goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)) {
-            GoPluginIdentifier goPluginIdentifier = doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginIdentifier>() {
-                @Override
-                public GoPluginIdentifier execute(GoPlugin goPlugin, GoPluginDescriptor pluginDescriptor) {
-                    return goPlugin.pluginIdentifier();
-                }
-            });
-            if (extension.equals(goPluginIdentifier.getExtension())) {
-                return true;
+    public boolean isPluginOfType(final String extension, String pluginId) {
+        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin,Boolean>() {
+            @Override
+            public Boolean execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
+                return extension.equals(plugin.pluginIdentifier().getExtension());
             }
-        }
-        return false;
+        });
     }
 
     @Override

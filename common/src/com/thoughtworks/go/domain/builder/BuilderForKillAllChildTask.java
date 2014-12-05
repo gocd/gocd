@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.builder;
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -29,7 +30,7 @@ public class BuilderForKillAllChildTask extends Builder {
     }
 
     @Override
-    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+    public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         new JavaSysMon().infanticide();
     }
 }

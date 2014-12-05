@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -44,6 +45,7 @@ import org.osgi.framework.launch.FrameworkFactory;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -434,20 +436,20 @@ public class FelixGoPluginOSGiFrameworkTest {
         String symbolicName = "same_symbolic_name";
         registerServicesWithSameSymbolicName(symbolicName, firstService, secondService);
         spy.start();
-          spy.doOnAllWithExceptionHandlingForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
-                      @Override
-                      public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                          assertThat(pluginDescriptor, is(descriptor));
-                          obj.someMethod();
-                          throw new RuntimeException("Dummy Exception");
-                      }
-                  }, new ExceptionHandler<SomeInterface>() {
-                      @Override
-                      public void handleException(SomeInterface obj, Throwable t) {
+        spy.doOnAllWithExceptionHandlingForPlugin(SomeInterface.class, symbolicName, new Action<SomeInterface>() {
+                    @Override
+                    public void execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
+                        assertThat(pluginDescriptor, is(descriptor));
+                        obj.someMethod();
+                        throw new RuntimeException("Dummy Exception");
+                    }
+                }, new ExceptionHandler<SomeInterface>() {
+                    @Override
+                    public void handleException(SomeInterface obj, Throwable t) {
 
-                      }
-                  }
-          );
+                    }
+                }
+        );
         verify(secondService).someMethod();
         verify(firstService).someMethod();
         verifyNoMoreInteractions(firstService, secondService);
@@ -476,10 +478,10 @@ public class FelixGoPluginOSGiFrameworkTest {
 
         boolean reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString());
 
-        assertThat(reference,is(false));
+        assertThat(reference, is(false));
         registerServices(firstService, secondService);
         reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString());
-        assertThat(reference,is(true));
+        assertThat(reference, is(true));
 
         verifyNoMoreInteractions(firstService, secondService);
     }
@@ -515,6 +517,31 @@ public class FelixGoPluginOSGiFrameworkTest {
         when(pluginDescriptor.bundle()).thenReturn(null);
 
         spy.unloadPlugin(pluginDescriptor);
+    }
+
+    @Test
+    public void shouldMarkThePluginAsInvalidIfAnyExceptionOccursAfterLoad() throws BundleException {
+        final Bundle bundle = mock(Bundle.class);
+        spy.addPluginChangeListener(new PluginChangeListener() {
+            @Override
+            public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
+                throw new RuntimeException("some error");
+            }
+
+            @Override
+            public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
+            }
+        });
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        final GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor(TEST_SYMBOLIC_NAME, "1.0", null, "location", new File(""), false);
+
+        spy.start();
+        try {
+            spy.loadPlugin(goPluginDescriptor);
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertTrue(goPluginDescriptor.getStatus().isInvalid());
+        }
     }
 
     private void registerServices(SomeInterface... someInterfaces) throws InvalidSyntaxException {

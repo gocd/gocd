@@ -21,9 +21,11 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
@@ -34,28 +36,33 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskServiceTest {
     private PluginManager pluginManager;
     private PluggableTaskService pluggableTaskService;
+    private TaskExtension taskExtension;
 
     @Before
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
-        pluggableTaskService = new PluggableTaskService(pluginManager);
+        taskExtension = mock(TaskExtension.class);
+        pluggableTaskService = new PluggableTaskService(pluginManager, taskExtension);
     }
 
     @Test
     public void shouldValidateTask() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("KEY1", "error message"));
-        when(pluginManager.doOn(eq(Task.class), eq(task.getPluginConfiguration().getId()), any(ActionWithReturn.class))).thenReturn(validationResult);
+        when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
 
-        pluggableTaskService.validate(task);
-        assertThat(task.getConfiguration().getProperty("KEY1").errors().isEmpty(), is(false));
-        assertThat(task.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
+        pluggableTaskService.validate(modifiedTask);
+
+        assertThat(modifiedTask.getConfiguration().getProperty("KEY1").errors().isEmpty(), is(false));
+        assertThat(modifiedTask.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
+        verify(taskExtension).validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class));
     }
 }

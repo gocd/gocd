@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.work;
 
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -28,7 +29,7 @@ public class FakeWork implements Work {
 
     public void doWork(AgentIdentifier agentIdentifier,
                        BuildRepositoryRemote remoteBuildRepository,
-                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo) {
+                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
     }
 
     public String description() {

@@ -80,7 +80,6 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
         requestHeaders.put(name, value);
     }
 
-
     /**
      * Extension name of the request
      *
@@ -139,5 +138,11 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
     @Override
     public String requestBody() {
         return requestBody;
+    }
+
+    public void setRequestParams(Map<String, String> params) {
+        if (params != null) {
+            this.requestParameters = params;
+        }
     }
 }

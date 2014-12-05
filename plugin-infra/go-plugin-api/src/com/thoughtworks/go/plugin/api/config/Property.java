@@ -87,7 +87,9 @@ public class Property {
      * @return current property instance (this)
      */
     final public <T> Property with(Option<T> option, T value) {
-        options.addOrSet(option, value);
+        if(value != null){
+            options.addOrSet(option, value);
+        }
         return this;
     }
 

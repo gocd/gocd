@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -33,6 +34,7 @@ public class AgentStatusReportingIntegrationTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
+    private TaskExtension taskExtension;
 
     @Before
     public void before() {
@@ -51,7 +53,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, taskExtension);
         assertThat(agentRuntimeInfo, is(AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null)));
     }
 
@@ -65,7 +67,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, taskExtension);
         assertThat(agentRuntimeInfo, is(AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null)));
     }
 
@@ -80,7 +82,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo);
+            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, taskExtension);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null)));

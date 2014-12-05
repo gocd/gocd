@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -64,7 +65,7 @@ public class BuildWork implements Work {
     }
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
-                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo) {
+                            GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
@@ -74,14 +75,14 @@ public class BuildWork implements Work {
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
                 remoteBuildRepository, agentRuntimeInfo);
 
-        builders = new Builders(assignment.getBuilders(), goPublisher, buildLog);
+        builders = new Builders(assignment.getBuilders(), goPublisher, buildLog, taskExtension);
     }
 
     public void doWork(AgentIdentifier agentIdentifier,
                        BuildRepositoryRemote remoteBuildRepository,
                        GoArtifactsManipulator goArtifactsManipulator, EnvironmentVariableContext environmentVariableContext,
-                       AgentRuntimeInfo agentRuntimeInfo) {
-        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo);
+                       AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+        initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
         environmentVariableContext.addAll(assignment.initialEnvironmentVariableContext());
         try {
             JobResult result = build(environmentVariableContext, agentIdentifier);

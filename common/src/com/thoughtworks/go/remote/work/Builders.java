@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
@@ -32,15 +33,17 @@ public class Builders {
     private List<Builder> builders = new ArrayList<Builder>();
     private final DefaultGoPublisher goPublisher;
     private final GoControlLog buildLog;
+    private TaskExtension taskExtension;
     private Builder currentBuilder = new NullBuilder();
     private transient boolean cancelStarted;
     private transient boolean cancelFinished;
 
     public Builders(List<Builder> builders, DefaultGoPublisher goPublisher,
-                    GoControlLog buildLog) {
+                    GoControlLog buildLog, TaskExtension taskExtension) {
         this.builders = builders;
         this.goPublisher = goPublisher;
         this.buildLog = buildLog;
+        this.taskExtension = taskExtension;
     }
 
     public JobResult build(EnvironmentVariableContext environmentVariableContext) {
@@ -58,7 +61,7 @@ public class Builders {
             BuildLogElement buildLogElement = new BuildLogElement();
             try {
                 builder.build(buildLogElement, RunIfConfig.fromJobResult(result.toLowerCase()), goPublisher,
-                        environmentVariableContext);
+                        environmentVariableContext, taskExtension);
             } catch (Exception e) {
                 result = JobResult.Failed;
             }
@@ -79,7 +82,7 @@ public class Builders {
     public void cancel(EnvironmentVariableContext environmentVariableContext) {
         cancelStarted = true;
         synchronized (this) {
-            currentBuilder.cancel(goPublisher, environmentVariableContext);
+            currentBuilder.cancel(goPublisher, environmentVariableContext, taskExtension);
             cancelFinished = true;
         }
     }

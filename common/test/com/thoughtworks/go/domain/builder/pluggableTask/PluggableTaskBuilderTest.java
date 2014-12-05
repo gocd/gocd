@@ -16,26 +16,24 @@
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.util.command.CruiseControlException;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.Task;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
-import com.thoughtworks.go.plugin.api.task.TaskExecutor;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,14 +41,17 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluggableTaskBuilderTest {
@@ -64,6 +65,7 @@ public class PluggableTaskBuilderTest {
     @Mock private DefaultGoPublisher goPublisher;
     @Mock private BuildLogElement buildLogElement;
     @Mock private GoPluginDescriptor pluginDescriptor;
+    @Mock private TaskExtension taskExtension;
 
     @Before
     public void setUp() {
@@ -72,6 +74,13 @@ public class PluggableTaskBuilderTest {
         when(pluggableTask.getPluginConfiguration()).thenReturn(new PluginConfiguration(TEST_PLUGIN_ID, "1.0"));
         HashMap<String, Map<String, String>> pluginConfig = new HashMap<String, Map<String, String>>();
         when(pluggableTask.configAsMap()).thenReturn(pluginConfig);
+        taskExtension = new TaskExtension(pluginManager);
+        when(pluginManager.hasReferenceFor(Task.class, TEST_PLUGIN_ID)).thenReturn(true);
+    }
+
+    @After
+    public void teardown(){
+        JobConsoleLoggerInternal.unsetContext();
     }
 
     @Test
@@ -94,7 +103,7 @@ public class PluggableTaskBuilderTest {
             }
         });
 
-        taskBuilder.build(buildLogElement, goPublisher, variableContext);
+        taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
 
         assertThat(executeTaskCalled[0], is(1));
         verify(pluginManager).doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class));
@@ -131,6 +140,8 @@ public class PluggableTaskBuilderTest {
         verify(task).config();
         verify(task).executor();
         verify(taskExecutor).execute(executorTaskConfig, taskExecutionContext);
+
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(not(nullValue())));
     }
 
     @Test
@@ -252,7 +263,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -282,13 +293,53 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
             verify(goPublisher).consumeLine(captor.capture());
             assertThat(captor.getValue(), is("err"));
             assertThat(e.getMessage(), is("err"));
+        }
+    }
+
+    @Test
+    public void shouldRegisterTaskConfigDuringExecutionAndUnregisterOnSuccessfulCompletion() throws CruiseControlException {
+        final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
+        taskExtension = mock(TaskExtension.class);
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
+
+        builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionFails() throws CruiseControlException {
+        final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
+
+        taskExtension = mock(TaskExtension.class);
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
+
+        try {
+            builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
+        }
+    }
+
+    @Test
+    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionThrowsException() throws CruiseControlException {
+        final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
+
+        taskExtension = mock(TaskExtension.class);
+
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
+        try {
+            builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
         }
     }
 }

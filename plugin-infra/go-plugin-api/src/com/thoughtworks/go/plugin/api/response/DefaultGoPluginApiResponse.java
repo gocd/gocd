@@ -25,6 +25,9 @@ import java.util.Map;
 public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
+    public static final int VALIDATION_FAILED = 412;
+    public static final int BAD_REQUEST = 400;
+    public static final int INTERNAL_ERROR = 500;
 
     private int responseCode;
 
@@ -48,7 +51,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse incompleteRequest(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(412);
+        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(VALIDATION_FAILED);
         defaultGoPluginApiResponse.setResponseBody(responseBody);
         return defaultGoPluginApiResponse;
     }
@@ -60,7 +63,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse badRequest(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(400);
+        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(BAD_REQUEST);
         defaultGoPluginApiResponse.setResponseBody(responseBody);
         return defaultGoPluginApiResponse;
     }
@@ -72,7 +75,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse error(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(500);
+        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(INTERNAL_ERROR);
         defaultGoPluginApiResponse.setResponseBody(responseBody);
         return defaultGoPluginApiResponse;
     }

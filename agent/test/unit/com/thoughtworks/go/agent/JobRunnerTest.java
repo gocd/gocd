@@ -208,7 +208,7 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null);
             }
         });
         Thread cancel = new Thread(new Runnable() {
@@ -256,7 +256,7 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null);
             }
         });
         Thread cancel = new Thread(new Runnable() {

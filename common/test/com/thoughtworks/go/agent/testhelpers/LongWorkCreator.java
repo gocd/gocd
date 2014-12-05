@@ -32,6 +32,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
@@ -128,7 +129,7 @@ public class LongWorkCreator implements WorkCreator {
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext) {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {

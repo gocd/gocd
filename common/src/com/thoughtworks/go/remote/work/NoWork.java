@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -28,7 +29,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 public class NoWork implements Work {
     public void doWork(AgentIdentifier agentIdentifier,
                        BuildRepositoryRemote remoteBuildRepository,
-                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo) {
+                       GoArtifactsManipulator manipulator, EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
         agentRuntimeInfo.idle();
     }
 

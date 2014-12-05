@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 @Component
@@ -110,6 +111,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             forAllDo(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             return bundle;
         } catch (Exception e) {
+            pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: " + bundleLocation,e);
             stopAndUninstallBundle(bundle, bundleLocation);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);

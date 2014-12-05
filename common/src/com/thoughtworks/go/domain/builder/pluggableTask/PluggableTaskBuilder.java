@@ -16,28 +16,27 @@
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.CruiseControlException;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.Task;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * This class is serialized and sent over wire to agents.
@@ -66,10 +65,10 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final BuildLogElement buildLogElement, final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
-            executionResult = pluginManager().doOn(Task.class, pluginId, new ActionWithReturn<Task, ExecutionResult>() {
+            executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
                 @Override
                 public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
                     return executeTask(task, buildLogElement, publisher, environmentVariableContext);
@@ -77,6 +76,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
             });
         } catch (Exception e) {
             logException(publisher, e);
+        } finally {
+            JobConsoleLoggerInternal.unsetContext();
         }
         if (executionResult == null) {
             logError(publisher, "ExecutionResult cannot be null. Please return a success or a failure response.");
@@ -89,10 +90,10 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement,
                                           DefaultGoPublisher publisher,
                                           EnvironmentVariableContext environmentVariableContext) {
-        TaskConfig config = buildTaskConfig(task.config());
-        TaskExecutionContext taskExecutionContext = buildTaskContext
-                (buildLogElement, publisher, environmentVariableContext);
+        final TaskExecutionContext taskExecutionContext = buildTaskContext(buildLogElement, publisher, environmentVariableContext);
+        JobConsoleLoggerInternal.setContext(taskExecutionContext);
 
+        TaskConfig config = buildTaskConfig(task.config());
         return task.executor().execute(config, taskExecutionContext);
     }
 

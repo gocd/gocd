@@ -70,8 +70,8 @@ public class JsonBasedPluggableTaskTest {
     public void shouldGetTheTaskConfig() {
 
         String jsonResponse = "{" +
-                "\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"URL\",\"display-order\":\"0\"}," +
-                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true,\"display-name\":\"User\",\"display-order\":\"1\"}," +
+                "\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true}," +
+                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true}," +
                 "\"PASSWORD\":{}" +
                 "}";
 
@@ -82,20 +82,14 @@ public class JsonBasedPluggableTaskTest {
         Property url = config.get("URL");
         assertThat(url.getOption(Property.REQUIRED), is(true));
         assertThat(url.getOption(Property.SECURE), is(false));
-        assertThat(url.getOption(Property.DISPLAY_NAME), is("URL"));
-        assertThat(url.getOption(Property.DISPLAY_ORDER), is(0));
 
         Property user = config.get("USER");
         assertThat(user.getOption(Property.REQUIRED), is(true));
         assertThat(user.getOption(Property.SECURE), is(true));
-        assertThat(user.getOption(Property.DISPLAY_NAME), is("User"));
-        assertThat(user.getOption(Property.DISPLAY_ORDER), is(1));
 
         Property password = config.get("PASSWORD");
         assertThat(password.getOption(Property.REQUIRED), is(true));
         assertThat(password.getOption(Property.SECURE), is(false));
-        assertThat(password.getOption(Property.DISPLAY_ORDER), is(0));
-        assertThat(password.getOption(Property.DISPLAY_NAME), is(""));
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
@@ -123,7 +117,7 @@ public class JsonBasedPluggableTaskTest {
     @Test
     public void shouldValidateTaskConfig() {
         String jsonResponse = "{\"errors\":{\"key1\":\"err1\",\"key2\":\"err3\"}}";
-        String config = "{\"URL\":{\"display-name\":\"URL\",\"secure\":false,\"value\":\"http://foo\",\"display-order\":\"0\",\"required\":true}}";
+        String config = "{\"URL\":{\"secure\":false,\"value\":\"http://foo\",\"required\":true}}";
 
         when(goPluginApiResponse.responseBody()).thenReturn(jsonResponse);
 
@@ -131,8 +125,6 @@ public class JsonBasedPluggableTaskTest {
         final TaskConfigProperty property = new TaskConfigProperty("URL", "http://foo");
         property.with(Property.SECURE, false);
         property.with(Property.REQUIRED, true);
-        property.with(Property.DISPLAY_NAME, "URL");
-        property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
 
         ValidationResult result = task.validate(configuration);

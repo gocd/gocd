@@ -31,19 +31,16 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JsonBasedTaskExtensionHandler_V1Test {
     @Test
     public void shouldConvertTaskConfigJsonToTaskConfig() {
-        String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"URL\",\"display-order\":\"0\"}," +
-                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true,\"display-name\":\"User\",\"display-order\":\"1\"}," +
+        String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true}," +
+                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true}," +
                 "\"PASSWORD\":{}," +
                 "\"FOO\":null" +
                 "}";
@@ -52,42 +49,29 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Property url = config.get("URL");
         assertThat(url.getOption(Property.REQUIRED), is(true));
         assertThat(url.getOption(Property.SECURE), is(false));
-        assertThat(url.getOption(Property.DISPLAY_NAME), is("URL"));
-        assertThat(url.getOption(Property.DISPLAY_ORDER), is(0));
 
         Property user = config.get("USER");
         assertThat(user.getOption(Property.REQUIRED), is(true));
         assertThat(user.getOption(Property.SECURE), is(true));
-        assertThat(user.getOption(Property.DISPLAY_NAME), is("User"));
-        assertThat(user.getOption(Property.DISPLAY_ORDER), is(1));
 
         Property password = config.get("PASSWORD");
         assertThat(password.getOption(Property.REQUIRED), is(true));
         assertThat(password.getOption(Property.SECURE), is(false));
-        assertThat(password.getOption(Property.DISPLAY_ORDER), is(0));
-        assertThat(password.getOption(Property.DISPLAY_NAME), is(""));
 
         Property foo = config.get("FOO");
         assertThat(foo.getOption(Property.REQUIRED), is(true));
         assertThat(foo.getOption(Property.SECURE), is(false));
-        assertThat(foo.getOption(Property.DISPLAY_ORDER), is(0));
-        assertThat(foo.getOption(Property.DISPLAY_NAME), is(""));
     }
 
     @Test
     public void shouldConvertJsonToTaskConfigObject() {
         TaskConfig taskConfig = new TaskConfig();
         TaskConfigProperty p1 = new TaskConfigProperty("k1", "value1");
-        p1.with(Property.DISPLAY_ORDER, 10);
         p1.with(Property.SECURE, true);
-        p1.with(Property.DISPLAY_NAME, "display name for k1");
         p1.with(Property.REQUIRED, true);
 
         TaskConfigProperty p2 = new TaskConfigProperty("k2", "value2");
-        p2.with(Property.DISPLAY_ORDER, 1);
         p2.with(Property.SECURE, false);
-        p2.with(Property.DISPLAY_NAME, "display name for k2");
-        p2.with(Property.REQUIRED, true);
         p2.with(Property.REQUIRED, true);
 
         taskConfig.add(p1);
@@ -98,16 +82,12 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         Map property1 = (Map) taskConfigMap.get("k1");
         assertThat(property1.get("value").toString(), is("value1"));
-        assertThat(property1.get("display-name").toString(), is("display name for k1"));
         assertThat((Boolean) property1.get("secure"), is(true));
-        assertThat(property1.get("display-order").toString(), is("10"));
         assertThat((Boolean) property1.get("required"), is(true));
 
         Map property2 = (Map) taskConfigMap.get("k2");
         assertThat(property2.get("value").toString(), is("value2"));
-        assertThat(property2.get("display-name").toString(), is("display name for k2"));
         assertThat((Boolean) property2.get("secure"), is(false));
-        assertThat(property2.get("display-order").toString(), is("1"));
         assertThat((Boolean) property2.get("required"), is(true));
     }
 
@@ -119,8 +99,6 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         TaskConfigProperty property = new TaskConfigProperty("URL", "http://foo");
         property.with(Property.SECURE, false);
         property.with(Property.REQUIRED, true);
-        property.with(Property.DISPLAY_NAME, "URL");
-        property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
@@ -144,8 +122,6 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         TaskConfigProperty property = new TaskConfigProperty("URL", "http://foo");
         property.with(Property.SECURE, false);
         property.with(Property.REQUIRED, true);
-        property.with(Property.DISPLAY_NAME, "URL");
-        property.with(Property.DISPLAY_ORDER, 0);
         configuration.add(property);
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);

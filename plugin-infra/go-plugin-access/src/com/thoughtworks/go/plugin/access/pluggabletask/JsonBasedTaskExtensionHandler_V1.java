@@ -26,7 +26,6 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.util.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,10 +54,6 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 property.withDefault((String) propertyValue.get("default-value"));
                 property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
                 property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
-                property.with(Property.DISPLAY_NAME, (String) propertyValue.get("display-name"));
-                if (!StringUtil.isBlank((String) propertyValue.get("display-order"))) {
-                    property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
-                }
             }
             taskConfig.add(property);
         }
@@ -128,8 +123,6 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             propertyValue.put("value", property.getValue());
             propertyValue.put("secure", property.getOption(Property.SECURE));
             propertyValue.put("required", property.getOption(Property.REQUIRED));
-            propertyValue.put("display-name", property.getOption(Property.DISPLAY_NAME));
-            propertyValue.put("display-order", property.getOption(Property.DISPLAY_ORDER).toString());
             properties.put(property.getKey(), propertyValue);
         }
         return properties;

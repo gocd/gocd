@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.api.task;
 
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -39,8 +38,6 @@ public class TaskConfigPropertyTest {
     @Test
     public void shouldAssignDefaults() {
         final TaskConfigProperty property = new TaskConfigProperty("key");
-        assertThat(property.getOption(property.DISPLAY_NAME), is(""));
-        assertThat(property.getOption(property.DISPLAY_ORDER), is(0));
         assertThat(property.getOption(property.REQUIRED), is(true));
         assertThat(property.getOption(property.SECURE), is(false));
     }

@@ -36,7 +36,5 @@ public class TaskConfigProperty extends Property {
     private void updateDefaults() {
         with(REQUIRED, true);
         with(SECURE, false);
-        with(DISPLAY_NAME, "");
-        with(DISPLAY_ORDER, 0);
     }
 }

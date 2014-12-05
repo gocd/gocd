@@ -16,16 +16,13 @@
 
 package com.thoughtworks.go.agent;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -34,26 +31,22 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
-import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import org.junit.After;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
+import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 
 public class AgentControllerTest {
@@ -106,7 +99,7 @@ public class AgentControllerTest {
         agentController.init();
         agentController.ping();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), taskExtension);
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 
@@ -121,7 +114,7 @@ public class AgentControllerTest {
         agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, taskExtension);
         agentController.init();
         agentController.loop();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(infoWithCookie), taskExtension);
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(infoWithCookie), eq(taskExtension));
     }
 
     @Test
@@ -131,7 +124,7 @@ public class AgentControllerTest {
         agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, taskExtension);
         agentController.init();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), taskExtension);
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 

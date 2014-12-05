@@ -62,8 +62,8 @@ public class PluginRequestHelperTest {
             });
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Exception while interacting with plugin id 'pid', extension 'some-extension', request 'req'. Reason, [Unsuccessful response code from plugin '500' with body 'null']"));
-            assertThat(e.getCause().getMessage(), is("Unsuccessful response code from plugin '500' with body 'null'"));
+            assertThat(e.getMessage(), is("Exception while interacting with plugin id 'pid', extension 'some-extension', request 'req'. Reason, [Unsuccessful response from plugin, response code '500' and response body 'null']"));
+            assertThat(e.getCause().getMessage(), is("Unsuccessful response from plugin, response code '500' and response body 'null'"));
             assertFalse(isSuccessInvoked[0]);
             verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         }

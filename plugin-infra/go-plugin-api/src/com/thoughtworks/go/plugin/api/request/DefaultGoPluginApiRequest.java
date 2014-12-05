@@ -32,7 +32,7 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
 
     private String requestName;
 
-    private Map<String, Object> requestParameters = new HashMap<String, Object>();
+    private Map<String, String> requestParameters = new HashMap<String, String>();
 
     private Map<String, String> requestHeaders = new HashMap<String, String>();
 
@@ -81,16 +81,6 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
     }
 
     /**
-     * Adds new request parameter. Replace existing parameter with same name
-     *
-     * @param name  Name of the parameter
-     * @param value Value of the parameter
-     */
-    public void addRequestParameter(String name, Object value) {
-        requestParameters.put(name, value);
-    }
-
-    /**
      * Extension name of the request
      *
      * @return extension name
@@ -126,7 +116,7 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
      * @return map of request parameters
      */
     @Override
-    public Map<String, Object> requestParameters() {
+    public Map<String, String> requestParameters() {
         return unmodifiableMap(requestParameters);
     }
 
@@ -150,7 +140,7 @@ public class DefaultGoPluginApiRequest extends GoPluginApiRequest {
         return requestBody;
     }
 
-    public void setRequestParams(Map<String, Object> params) {
+    public void setRequestParams(Map<String, String> params) {
         if (params != null) {
             this.requestParameters = params;
         }

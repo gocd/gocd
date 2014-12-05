@@ -49,7 +49,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 

@@ -49,7 +49,7 @@ public abstract class GoPluginApiRequest {
      *
      * @return map of request parameters
      */
-    public abstract Map<String, Object> requestParameters();
+    public abstract Map<String, String> requestParameters();
 
     /**
      * Provides request headers as key value pair for the request. Request headers can be used to send any meta information related to request

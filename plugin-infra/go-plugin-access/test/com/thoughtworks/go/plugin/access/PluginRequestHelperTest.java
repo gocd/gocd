@@ -49,7 +49,7 @@ public class PluginRequestHelperTest {
                 }
 
                 @Override
-                public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+                public Map<String, String> requestParams(String resolvedExtensionVersion) {
                     return null;
                 }
 
@@ -80,7 +80,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -106,7 +106,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -142,7 +142,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -179,7 +179,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 final HashMap params = new HashMap();
                 params.put("p1", "v1");
                 params.put("p2", "v2");

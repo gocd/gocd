@@ -61,7 +61,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -81,7 +81,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -101,7 +101,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -121,7 +121,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -141,7 +141,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -160,7 +160,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -179,7 +179,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 
@@ -199,7 +199,7 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
 
             @Override
-            public Map<String, Object> requestParams(String resolvedExtensionVersion) {
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
                 return null;
             }
 

@@ -17,17 +17,26 @@
 require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
 
 describe Admin::FeatureTogglesController do
+  before do
+    @feature_toggle_service = stub_service(:feature_toggle_service)
+  end
+
   describe :route do
     it "should resolve route to list all feature toggles" do
-      {:get => "/admin/feature_toggles"}.should route_to(:controller => "admin/feature_toggles", :action => "index", :no_layout => true)
+      {:get => "/admin/feature_toggles"}.should route_to(:controller => "admin/feature_toggles", :action => "index", :no_layout => true, :format => :json)
       feature_toggles_path.should == "/admin/feature_toggles"
+    end
+
+    it "should resolve route to update the value of feature toggle" do
+      {:post => "/admin/feature_toggles/toggle.key"}.should route_to(:controller => "admin/feature_toggles", :action => "update", :toggle_key => "toggle.key",
+                                                                     :no_layout => true, :format => :json)
+      feature_toggle_update_path("abc").should == "/admin/feature_toggles/abc"
     end
   end
 
   describe :index do
     it "should list existing feature toggles in JSON format" do
-      feature_toggle_service = stub_service(:feature_toggle_service)
-      feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.someToggles())
+      @feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.someToggles())
 
       get :index
 
@@ -46,13 +55,74 @@ describe Admin::FeatureTogglesController do
     end
 
     it "should be empty JSON when there are no toggles" do
-      feature_toggle_service = stub_service(:feature_toggle_service)
-      feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.noToggles())
+      @feature_toggle_service.stub(:allToggles).and_return(FeatureToggleMother.noToggles())
 
       get :index
 
       toggles = JSON.parse response.body
       expect(toggles.length).to eq(0)
+    end
+  end
+
+  describe :update do
+    it "should update the value of a specified key to true when sent 'on'" do
+      expect(@feature_toggle_service).to receive(:changeValueOfToggle).with("key.to.toggle", true)
+
+      post :update, :toggle_key => "key.to.toggle", :toggle_value => "on"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(200)
+      expect(output["message"]).to eq("success")
+    end
+
+    it "should update the value of a specified key to false when sent 'off'" do
+      expect(@feature_toggle_service).to receive(:changeValueOfToggle).with("key.to.toggle", false)
+
+      post :update, :toggle_key => "key.to.toggle", :toggle_value => "off"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(200)
+      expect(output["message"]).to eq("success")
+    end
+
+    it "should fail when the value is not provided" do
+      expect(@feature_toggle_service).to_not receive(:changeValueOfToggle)
+
+      post :update, :toggle_key => "key.to.toggle"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(422)
+      expect(output["message"]).to eq("Value of property 'toggle_value' is invalid. Valid values are: 'on' and 'off'.")
+    end
+
+    it "should fail when the value is not 'on' or 'off'" do
+      expect(@feature_toggle_service).to_not receive(:changeValueOfToggle)
+
+      post :update, :toggle_key => "key.to.toggle", :toggle_value => "not_on_or_off"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(422)
+      expect(output["message"]).to eq("Value of property 'toggle_value' is invalid. Valid values are: 'on' and 'off'.")
+    end
+
+    it "should fail when the updation fails with a runtime exception" do
+      expect(@feature_toggle_service).to receive(:changeValueOfToggle).and_raise(java.lang.RuntimeException.new "Ouch. Something failed.")
+
+      post :update, :toggle_key => "key.to.toggle", :toggle_value => "on"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(500)
+      expect(output["message"]).to eq("Failed to change value of toggle. Message: Ouch. Something failed.")
+    end
+
+    it "should fail when the updation fails with anything else" do
+      expect(@feature_toggle_service).to receive(:changeValueOfToggle).and_raise("Ouch. Something failed again.")
+
+      post :update, :toggle_key => "key.to.toggle", :toggle_value => "on"
+
+      output = JSON.parse response.body
+      expect(response.status).to eq(500)
+      expect(output["message"]).to eq("Failed to change value of toggle. Message: Ouch. Something failed again.")
     end
   end
 end

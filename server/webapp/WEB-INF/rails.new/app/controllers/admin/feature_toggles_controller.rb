@@ -22,5 +22,19 @@ module Admin
       toggles = feature_toggle_service.allToggles().all().collect {|toggle| FeatureToggleAPIModel.new toggle}
       render :json => toggles
     end
+
+    def update
+      if params[:toggle_value].nil? or (params[:toggle_value] != "off" and params[:toggle_value] != "on")
+        render :status => :unprocessable_entity, :json => {:message => "Value of property 'toggle_value' is invalid. Valid values are: 'on' and 'off'."} and return
+      end
+
+      begin
+        feature_toggle_service.changeValueOfToggle(params[:toggle_key], params[:toggle_value] == "on" ? true : false)
+      rescue => e
+        render :status => :internal_server_error, :json => {:message => "Failed to change value of toggle. Message: #{e.message}"} and return
+      end
+
+      render :status => :ok, :json => {:message => "success"}
+    end
   end
 end

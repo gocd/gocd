@@ -147,8 +147,9 @@ Go::Application.routes.draw do
   get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", as: :package_repositories_plugin_config_for_repo
 
   scope 'admin/feature_toggles' do
-    defaults :no_layout => true do
+    defaults :no_layout => true, :format => :json do
       get "" => "admin/feature_toggles#index", as: :feature_toggles
+      post "/:toggle_key" => "admin/feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :feature_toggle_update
     end
   end
 

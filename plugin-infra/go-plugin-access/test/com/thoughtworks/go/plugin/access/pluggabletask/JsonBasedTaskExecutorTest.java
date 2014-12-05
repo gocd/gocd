@@ -66,6 +66,7 @@ public class JsonBasedTaskExecutorTest {
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, JsonBasedTaskExtension.TASK_EXTENSION);
         when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
     }
 
     @Test

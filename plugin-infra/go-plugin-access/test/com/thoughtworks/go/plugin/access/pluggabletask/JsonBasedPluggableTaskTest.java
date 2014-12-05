@@ -63,6 +63,7 @@ public class JsonBasedPluggableTaskTest {
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(goPluginApiResponse);
         when(pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions)).thenReturn("1.0");
         when(goPluginApiResponse.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
     }
 
     @Test

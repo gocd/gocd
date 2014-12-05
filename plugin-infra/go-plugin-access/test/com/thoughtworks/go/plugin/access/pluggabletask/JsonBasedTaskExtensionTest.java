@@ -30,8 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -82,6 +80,7 @@ public class JsonBasedTaskExtensionTest {
         TaskConfig taskConfig = mock(TaskConfig.class);
 
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
+        when(pluginManager.isPluginOfType("task-extension", pluginId)).thenReturn(true);
         when(response.responseBody()).thenReturn("{\"errors\":{\"key\":\"error\"}}");
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         ValidationResult validationResult = jsonBasedTaskExtension.validate(pluginId, taskConfig);

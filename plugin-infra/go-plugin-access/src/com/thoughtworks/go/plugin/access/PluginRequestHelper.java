@@ -33,9 +33,9 @@ public class PluginRequestHelper {
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
                 return pluginInteractionCallback.onSuccess(response.responseBody(), resolvedExtensionVersion);
             }
-            throw new RuntimeException(format("Unsuccessful response code from plugin %s with body %s", response.responseCode(), response.responseBody()));
+            throw new RuntimeException(format("Unsuccessful response code from plugin '%s' with body '%s'", response.responseCode(), response.responseBody()));
         } catch (Exception e) {
-            throw new RuntimeException(format("Exception while interacting with plugin id %s, extension %s, request %s. Reason, [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
+            throw new RuntimeException(format("Exception while interacting with plugin id '%s', extension '%s', request '%s'. Reason, [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
         }
     }
 }

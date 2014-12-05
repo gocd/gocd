@@ -35,6 +35,7 @@ public class PluginRequestHelperTest {
         helper = new PluginRequestHelper(pluginManager, asList("1.0"), extensionName);
         isSuccessInvoked = new boolean[]{false};
         response = mock(GoPluginApiResponse.class);
+        when(pluginManager.isPluginOfType(extensionName, pluginId)).thenReturn(true);
     }
 
     @Test
@@ -61,8 +62,8 @@ public class PluginRequestHelperTest {
             });
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Exception while interacting with plugin id pid, extension some-extension, request req"));
-            assertThat(e.getCause().getMessage(), is("Unsuccessful response code from plugin 500 with body null"));
+            assertThat(e.getMessage(), is("Exception while interacting with plugin id 'pid', extension 'some-extension', request 'req'. Reason, [Unsuccessful response code from plugin '500' with body 'null']"));
+            assertThat(e.getCause().getMessage(), is("Unsuccessful response code from plugin '500' with body 'null'"));
             assertFalse(isSuccessInvoked[0]);
             verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         }
@@ -196,7 +197,7 @@ public class PluginRequestHelperTest {
         assertThat(generatedRequest[0].extension(), is(extensionName));
         assertThat(generatedRequest[0].requestName(), is(requestName));
         assertThat(generatedRequest[0].requestParameters().size(), is(2));
-        assertThat((String)generatedRequest[0].requestParameters().get("p1"), is("v1"));
-        assertThat((String)generatedRequest[0].requestParameters().get("p2"), is("v2"));
+        assertThat(generatedRequest[0].requestParameters().get("p1"), is("v1"));
+        assertThat(generatedRequest[0].requestParameters().get("p2"), is("v2"));
     }
 }

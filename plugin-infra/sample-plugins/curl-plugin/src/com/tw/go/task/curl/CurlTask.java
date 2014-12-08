@@ -16,17 +16,26 @@
 
 package com.tw.go.task.curl;
 
+import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.api.task.Task;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
-import com.thoughtworks.go.plugin.api.task.TaskExecutor;
-import com.thoughtworks.go.plugin.api.task.TaskView;
+import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.task.*;
 import org.apache.commons.io.IOUtils;
+import com.google.gson.GsonBuilder;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Extension
-public class CurlTask implements Task {
+public class CurlTask implements GoPlugin {
 
     public static final String URL_PROPERTY = "Url";
     public static final String ADDITIONAL_OPTIONS = "AdditionalOptions";
@@ -34,48 +43,88 @@ public class CurlTask implements Task {
     public static final String SECURE_CONNECTION_PROPERTY = "SecureConnection";
     public static final String REQUEST_TYPE = "-G";
     public static final String REQUEST_PROPERTY = "RequestType";
+    Logger logger = Logger.getLoggerFor(CurlTask.class);
 
     @Override
-    public TaskConfig config() {
-        TaskConfig config = new TaskConfig();
-        config.addProperty(URL_PROPERTY);
-        config.addProperty(SECURE_CONNECTION_PROPERTY).withDefault(SECURE_CONNECTION);
-        config.addProperty(REQUEST_PROPERTY).withDefault(REQUEST_TYPE);
-        config.addProperty(ADDITIONAL_OPTIONS);
-        return config;
+    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
     }
 
     @Override
-    public TaskExecutor executor() {
-        return new CurlTaskExecutor();
-    }
-
-    @Override
-    public TaskView view() {
-        TaskView taskView = new TaskView() {
-            @Override
-            public String displayValue() {
-                return "Curl";
-            }
-
-            @Override
-            public String template() {
-                try {
-                    return IOUtils.toString(getClass().getResourceAsStream("/views/task.template.html"), "UTF-8");
-                } catch (Exception e) {
-                    return "Failed to find template: " + e.getMessage();
-                }
-            }
-        };
-        return taskView;
-    }
-
-    @Override
-    public ValidationResult validate(TaskConfig configuration) {
-        ValidationResult validationResult = new ValidationResult();
-        if (configuration.getValue(URL_PROPERTY) == null || configuration.getValue(URL_PROPERTY).trim().isEmpty()) {
-            validationResult.addError(new ValidationError(URL_PROPERTY, "URL cannot be empty"));
+    public GoPluginApiResponse handle(GoPluginApiRequest request) throws UnhandledRequestTypeException {
+        if ("configuration".equals(request.requestName())) {
+            return handleGetConfigRequest();
+        } else if ("validate".equals(request.requestName())) {
+            return handleValidation(request);
+        } else if ("execute".equals(request.requestName())) {
+            return handleTaskExecution(request);
+        } else if ("view".equals(request.requestName())) {
+            return handleTaskView();
         }
-        return validationResult;
+        throw new UnhandledRequestTypeException(request.requestName());
+    }
+
+    private GoPluginApiResponse handleTaskView() {
+        int responseCode = DefaultGoApiResponse.SUCCESS_RESPONSE_CODE;
+        Map view = new HashMap();
+        view.put("displayValue", "Curl");
+        try {
+            view.put("template", IOUtils.toString(getClass().getResourceAsStream("/views/task.template.html"), "UTF-8"));
+        } catch (Exception e) {
+            responseCode = DefaultGoApiResponse.INTERNAL_ERROR;
+            String errorMessage = "Failed to find template: " + e.getMessage();
+            view.put("exception", errorMessage);
+            logger.error(errorMessage, e);
+        }
+        return createResponse(responseCode, view);
+    }
+
+    private GoPluginApiResponse handleTaskExecution(GoPluginApiRequest request) {
+        CurlTaskExecutor executor = new CurlTaskExecutor();
+        Map executionRequest = (Map) new GsonBuilder().create().fromJson(request.requestBody(), Object.class);
+        Map config = (Map) executionRequest.get("config");
+        Map context = (Map) executionRequest.get("context");
+
+        Result result = executor.execute(new Config(config), new Context(context), JobConsoleLogger.getConsoleLogger());
+        return createResponse(result.responseCode(), result.toMap());
+    }
+
+    private GoPluginApiResponse handleValidation(GoPluginApiRequest request) {
+        HashMap validationResult = new HashMap();
+        int responseCode = DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+        Map configMap = (Map) new GsonBuilder().create().fromJson(request.requestBody(), Object.class);
+        if (!configMap.containsKey(URL_PROPERTY) || ((Map) configMap.get(URL_PROPERTY)).get("value") == null || ((String) ((Map) configMap.get(URL_PROPERTY)).get("value")).trim().isEmpty()) {
+            responseCode = DefaultGoPluginApiResponse.VALIDATION_FAILED;
+            HashMap errorMap = new HashMap();
+            errorMap.put(URL_PROPERTY, "URL cannot be empty");
+            validationResult.put("errors", errorMap);
+        }
+        return createResponse(responseCode, validationResult);
+    }
+
+    private GoPluginApiResponse handleGetConfigRequest() {
+        HashMap config = new HashMap();
+        config.put(URL_PROPERTY, null);
+
+        HashMap valueForSecureConnectionProperty = new HashMap();
+        valueForSecureConnectionProperty.put("default-value", SECURE_CONNECTION);
+        config.put(SECURE_CONNECTION_PROPERTY, valueForSecureConnectionProperty);
+
+        HashMap valueForRequestProperty = new HashMap();
+        valueForRequestProperty.put("default-value", REQUEST_TYPE);
+        config.put(REQUEST_PROPERTY, valueForRequestProperty);
+
+        config.put(ADDITIONAL_OPTIONS, null);
+        return createResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE, config);
+    }
+
+    private GoPluginApiResponse createResponse(int responseCode, Map body) {
+        final DefaultGoPluginApiResponse response = new DefaultGoPluginApiResponse(responseCode);
+        response.setResponseBody(new GsonBuilder().serializeNulls().create().toJson(body));
+        return response;
+    }
+
+    @Override
+    public GoPluginIdentifier pluginIdentifier() {
+        return new GoPluginIdentifier("task-extension", Arrays.asList("1.0"));
     }
 }

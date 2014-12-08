@@ -1,5 +1,6 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
+import com.google.gson.Gson;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
@@ -14,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(JunitExtRunner.class)
 public class FeatureToggleRepositoryTest {
+    public static final String TEST_AVAILABLE_TOGGLES_PATH = "/available.test.toggles";
+
     @Mock
     private SystemEnvironment environment;
 
@@ -36,6 +39,7 @@ public class FeatureToggleRepositoryTest {
 
     @After
     public void tearDown() throws Exception {
+        FileUtils.writeStringToFile(availableTogglesFile(), "");
         TestFileUtil.cleanTempFiles();
     }
 
@@ -53,7 +57,7 @@ public class FeatureToggleRepositoryTest {
 
     @Test
     public void shouldNotFailWhenSpecifiedAvailableTogglesFileIsNotFound() throws Exception {
-        setupAvailableToggleFileAs(new File("a-non-existent-file"));
+        setupAvailableToggleFileAs("a-non-existent-file");
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
@@ -62,9 +66,8 @@ public class FeatureToggleRepositoryTest {
 
     @Test
     public void shouldNotFailWhenContentOfAvailableTogglesFileIsInvalid() throws Exception {
-        File toggleFile = TestFileUtil.createTempFile("available.toggle.test");
-        FileUtils.writeStringToFile(toggleFile, "SOME-INVALID-CONTENT");
-        setupAvailableToggleFileAs(toggleFile);
+        setupAvailableToggleFileAs(TEST_AVAILABLE_TOGGLES_PATH);
+        FileUtils.writeStringToFile(availableTogglesFile(), "SOME-INVALID-CONTENT");
 
         FeatureToggleRepository repository = new FeatureToggleRepository(environment);
 
@@ -175,8 +178,23 @@ public class FeatureToggleRepositoryTest {
         assertThat(FileUtils.readFileToString(userTogglesFile), not(containsString(fieldForHasBeenChangedFlag)));
     }
 
-    private void setupAvailableToggleFileAs(File file) {
-        when(environment.get(SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH)).thenReturn(file.getAbsolutePath());
+    @Test
+    public void ensureThatTheRealTogglesFileIsValid() throws Exception {
+        String realAvailableTogglesFilePath = new SystemEnvironment().get(SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH);
+        File realAvailableTogglesFile = new File(getClass().getResource(realAvailableTogglesFilePath).toURI());
+        String currentContentOfRealAvailableTogglesFile = FileUtils.readFileToString(realAvailableTogglesFile);
+
+        try {
+            new Gson().fromJson(currentContentOfRealAvailableTogglesFile, FeatureToggleRepository.FeatureToggleFileContentRepresentation.class);
+        } catch (Exception e) {
+            fail("Check contents of " + realAvailableTogglesFilePath + ". Contents should be valid and be equivalent" +
+                    " to FeatureToggleRepository.FeatureToggleFileContentRepresentation.class. Contents were:\n" +
+                    currentContentOfRealAvailableTogglesFile + "\n. Exception was: " + e.getMessage());
+        }
+    }
+
+    private void setupAvailableToggleFileAs(String fileResourcePath) {
+        when(environment.get(SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH)).thenReturn(fileResourcePath);
     }
 
     private void setupUserToggleFileAs(File file) {
@@ -184,22 +202,20 @@ public class FeatureToggleRepositoryTest {
         when(environment.get(SystemEnvironment.USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR)).thenReturn(file.getName());
     }
 
-    private File setupAvailableToggles(FeatureToggle... toggles) throws Exception {
-        File toggleFile = TestFileUtil.createTempFile("available.toggle.test");
-        setupAvailableToggleFileAs(toggleFile);
-        writeToggles(toggleFile, toggles);
-        return toggleFile;
+    private void setupAvailableToggles(FeatureToggle... toggles) throws Exception {
+        setupAvailableToggleFileAs(TEST_AVAILABLE_TOGGLES_PATH);
+        FileUtils.writeStringToFile(availableTogglesFile(), convertTogglesToJson(toggles));
     }
 
     private File setupUserToggles(FeatureToggle... toggles) throws Exception {
         File toggleFile = TestFileUtil.createTempFile("user.toggle.test");
         setupUserToggleFileAs(toggleFile);
-        writeToggles(toggleFile, toggles);
+        FileUtils.writeStringToFile(toggleFile, convertTogglesToJson(toggles));
         return toggleFile;
     }
 
     /* Write by hand to remove unnecessary coupling to actual write. */
-    private void writeToggles(File toggleFile, FeatureToggle[] toggles) throws IOException {
+    private String convertTogglesToJson(FeatureToggle[] toggles) {
         List<String> jsonContentForEachToggle = new ArrayList<String>();
         for (FeatureToggle toggle : toggles) {
             jsonContentForEachToggle.add(MessageFormat.format(
@@ -207,7 +223,10 @@ public class FeatureToggleRepositoryTest {
                     toggle.key(), toggle.description(), String.valueOf(toggle.isOn())));
         }
 
-        String jsonContent = "{ \"version\": \"1\", \"toggles\": [" + ListUtil.join(jsonContentForEachToggle, ",").trim() + "]}";
-        FileUtils.writeStringToFile(toggleFile, jsonContent);
+        return "{ \"version\": \"1\", \"toggles\": [" + ListUtil.join(jsonContentForEachToggle, ",").trim() + "]}";
+    }
+
+    private File availableTogglesFile() throws URISyntaxException {
+        return new File(getClass().getResource(TEST_AVAILABLE_TOGGLES_PATH).toURI());
     }
 }

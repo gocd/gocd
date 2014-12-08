@@ -115,6 +115,7 @@ server/config/keystore
 server/config/shine_store.jks
 server/config/truststore
 server/config/cruise-config.xml.*
+server/config/go.feature.toggles
 server/db/shine/cache
 rack_hack/projectFilesBackup/*
 agent/config/agent.jks

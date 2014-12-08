@@ -23,11 +23,15 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AVAILABLE_FEATURE_TOGGLES_FILE_PATH;
@@ -46,26 +50,29 @@ public class FeatureToggleRepository {
     }
 
     public FeatureToggles availableToggles() {
-        return readTogglesFromFile(environment.get(AVAILABLE_FEATURE_TOGGLES_FILE_PATH));
+        String availableTogglesResourcePath = environment.get(AVAILABLE_FEATURE_TOGGLES_FILE_PATH);
+
+        InputStream streamForAvailableToggles = getClass().getResourceAsStream(availableTogglesResourcePath);
+        if (streamForAvailableToggles == null) {
+            LOGGER.error("Failed to read toggles from " + availableTogglesResourcePath + ". Saying there are no toggles.");
+            return new FeatureToggles();
+        }
+
+        return readTogglesFromStream(streamForAvailableToggles, "available");
     }
 
     public FeatureToggles userToggles() {
-        return readTogglesFromFile(userTogglesFile().getAbsolutePath());
-    }
+        String userTogglesPath = userTogglesFile().getAbsolutePath();
 
-    private FeatureToggles readTogglesFromFile(String filePathOfToggles) {
-        if (!new File(filePathOfToggles).exists()) {
-            LOGGER.warn("Toggles file, " + filePathOfToggles + " does not exist. Saying there are no toggles.");
+        if (!new File(userTogglesPath).exists()) {
+            LOGGER.warn("Toggles file, " + userTogglesPath + " does not exist. Saying there are no toggles.");
             return new FeatureToggles();
         }
 
         try {
-            String existingToggleJSONContent = FileUtils.readFileToString(new File(filePathOfToggles));
-
-            FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
-            return new FeatureToggles(toggleContent.toggles);
-        } catch (Exception e) {
-            LOGGER.error("Failed to read toggles from " + filePathOfToggles + ". Saying there are no toggles.", e);
+            return readTogglesFromStream(new FileInputStream(userTogglesPath), "user");
+        } catch (FileNotFoundException e) {
+            LOGGER.warn("Toggles file, " + userTogglesPath + " does not exist. Saying there are no toggles.");
             return new FeatureToggles();
         }
     }
@@ -73,6 +80,20 @@ public class FeatureToggleRepository {
     public void changeValueOfToggle(String key, boolean newValue) {
         FeatureToggles currentToggles = userToggles().changeToggleValue(key, newValue);
         writeTogglesToFile(userTogglesFile(), currentToggles);
+    }
+
+    private FeatureToggles readTogglesFromStream(InputStream streamForToggles, String kindOfToggle) {
+        try {
+            String existingToggleJSONContent = IOUtils.toString(streamForToggles);
+
+            FeatureToggleFileContentRepresentation toggleContent = gson.fromJson(existingToggleJSONContent, FeatureToggleFileContentRepresentation.class);
+            return new FeatureToggles(toggleContent.toggles);
+        } catch (Exception e) {
+            LOGGER.error("Failed to read " + kindOfToggle + " toggles. Saying there are no toggles.", e);
+            return new FeatureToggles();
+        } finally {
+            IOUtils.closeQuietly(streamForToggles);
+        }
     }
 
     private void writeTogglesToFile(File file, FeatureToggles toggles) {
@@ -90,7 +111,7 @@ public class FeatureToggleRepository {
         return new File(environment.configDir(), environment.get(USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR));
     }
 
-    private static class FeatureToggleFileContentRepresentation {
+    public static class FeatureToggleFileContentRepresentation {
         @Expose
         private String version = "1";
         @Expose

@@ -189,7 +189,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         try {
             svn().cleanupAndRevert(outputStreamConsumer, workingFolder);
         } catch (Exception e) {
-            LOGGER.error("Failed to do cleanup and revert in " + workingFolder.getAbsolutePath());
+            LOGGER.error("Failed to do cleanup and revert in " + workingFolder.getAbsolutePath(), e);
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Updating to revision " + revision + " on " + workingFolder);

@@ -47,7 +47,7 @@ public class ScheduleCheckListener implements GoMessageListener<ScheduleCheckMes
                 LOGGER.debug("Finished checking for pipeline " + message.getPipelineName());
             }
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
         finally {

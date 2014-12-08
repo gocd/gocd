@@ -59,7 +59,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
             );
             return true;
         } catch (DataAccessException e) {
-            LOGGER.error("Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + (Long) instanceId + "'");
+            LOGGER.error("Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + (Long) instanceId + "'", e);
             return false;
         }
     }

@@ -142,7 +142,7 @@ public class DefaultPluginManager implements PluginManager {
                 try {
                     return plugin.handle(apiRequest);
                 } catch (UnhandledRequestTypeException e) {
-                    LOGGER.error(e.getMessage());
+                    LOGGER.error(e.getMessage(), e);
                     throw new RuntimeException(e);
                 }
             }

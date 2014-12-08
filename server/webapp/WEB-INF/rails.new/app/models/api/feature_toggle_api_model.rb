@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module Admin
+module Api
   class FeatureToggleAPIModel
     attr_reader :key, :description, :value, :has_changed
 

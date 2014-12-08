@@ -146,13 +146,6 @@ Go::Application.routes.draw do
   get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", as: :package_repositories_plugin_config
   get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", as: :package_repositories_plugin_config_for_repo
 
-  scope 'admin/feature_toggles' do
-    defaults :no_layout => true, :format => :json do
-      get "" => "admin/feature_toggles#index", as: :feature_toggles
-      post "/:toggle_key" => "admin/feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :feature_toggle_update
-    end
-  end
-
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
   scope 'pipelines' do
@@ -242,6 +235,13 @@ Go::Application.routes.draw do
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
 
       post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
+
+      scope 'admin/feature_toggles' do
+        defaults :no_layout => true, :format => :json do
+          get "" => "feature_toggles#index", as: :api_admin_feature_toggles
+          post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
+        end
+      end
 
       #agents api's
       get 'agents' => 'agents#index', format: 'json', as: :agents_information

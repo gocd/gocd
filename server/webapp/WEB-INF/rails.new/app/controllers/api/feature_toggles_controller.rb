@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module Admin
-  class FeatureTogglesController < AdminController
+module Api
+  class FeatureTogglesController < Api::ApiController
     layout false
 
     def index

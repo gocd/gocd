@@ -16,7 +16,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-module Admin
+module Api
   describe FeatureToggleAPIModel do
     describe "initialization" do
       it "should populate correct data" do

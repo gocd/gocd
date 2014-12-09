@@ -28,9 +28,11 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
@@ -39,12 +41,30 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public RepositoryConfiguration responseMessageForRepositoryConfiguration(String responseBody) {
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
-        Map<String, Map> configurations = parseResponseToMap(responseBody);
-        for (String key : configurations.keySet()) {
-            repositoryConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
+        try {
+            RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
+            Map<String, Map> configurations;
+            try {
+                configurations = parseResponseToMap(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Repository configuration should be returned as a map");
+            }
+            if (configurations == null || configurations.isEmpty()) {
+                throw new RuntimeException("Empty response body");
+            }
+            for (String key : configurations.keySet()) {
+                if (isEmpty(key)) {
+                    throw new RuntimeException("Repository configuration key cannot be empty");
+                }
+                if (!(configurations.get(key) instanceof Map)) {
+                    throw new RuntimeException(format("Repository configuration properties for key '%s' should be represented as a Map", key));
+                }
+                repositoryConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
+            }
+            return repositoryConfiguration;
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
-        return repositoryConfiguration;
     }
 
     @Override
@@ -73,12 +93,30 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public PackageConfiguration responseMessageForPackageConfiguration(String responseBody) {
-        com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();
-        Map<String, Map> configurations = parseResponseToMap(responseBody);
-        for (String key : configurations.keySet()) {
-            packageConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
+        try {
+            PackageConfiguration packageConfiguration = new PackageConfiguration();
+            Map<String, Map> configurations;
+            try {
+                configurations = parseResponseToMap(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Package configuration should be returned as a map");
+            }
+            if (configurations == null || configurations.isEmpty()) {
+                throw new RuntimeException("Empty response body");
+            }
+            for (String key : configurations.keySet()) {
+                if (isEmpty(key)) {
+                    throw new RuntimeException("Package configuration key cannot be empty");
+                }
+                if (!(configurations.get(key) instanceof Map)) {
+                    throw new RuntimeException(format("Package configuration properties for key '%s' should be represented as a Map", key));
+                }
+                packageConfiguration.add(toPackageMaterialProperty(key, configurations.get(key)));
+            }
+            return packageConfiguration;
+        } catch (RuntimeException e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
-        return packageConfiguration;
     }
 
     @Override
@@ -149,12 +187,49 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private PackageMaterialProperty toPackageMaterialProperty(String key, Map configuration) {
-        String defaultValue = (String) configuration.get("default-value");
-        Boolean partOfIdentity = (Boolean) configuration.get("part-of-identity");
-        Boolean isSecure = (Boolean) configuration.get("secure");
-        Boolean required = (Boolean) configuration.get("required");
-        String displayName = (String) configuration.get("display-name");
-        Integer displayOrder = configuration.get("display-order") == null ? null : Integer.parseInt((String) configuration.get("display-order"));
+        String defaultValue;
+        try {
+            defaultValue = (String) configuration.get("default-value");
+        } catch (Exception e) {
+            throw new RuntimeException(format("'default-value' property for key '%s' should be of tye string", key));
+        }
+
+        Boolean partOfIdentity;
+        try {
+            partOfIdentity = (Boolean) configuration.get("part-of-identity");
+        } catch (Exception e) {
+            throw new RuntimeException(format("'part-of-identity' property for key '%s' should be of tye boolean", key));
+        }
+
+        Boolean isSecure;
+        try {
+            isSecure = (Boolean) configuration.get("secure");
+        } catch (Exception e) {
+            throw new RuntimeException(format("'secure' property for key '%s' should be of tye boolean", key));
+        }
+
+        Boolean required;
+        try {
+            required = (Boolean) configuration.get("required");
+        } catch (Exception e) {
+            throw new RuntimeException(format("'required' property for key '%s' should be of tye boolean", key));
+        }
+
+
+        String displayName;
+        try {
+            displayName = (String) configuration.get("display-name");
+        } catch (Exception e) {
+            throw new RuntimeException(format("'display-name' property for key '%s' should be of tye string", key));
+        }
+
+        Integer displayOrder;
+        try {
+            displayOrder = configuration.get("display-order") == null ? null : Integer.parseInt((String) configuration.get("display-order"));
+        } catch (Exception e) {
+            throw new RuntimeException(format("'display-order' property for key '%s' should be of tye integer", key));
+
+        }
 
         PackageMaterialProperty packageMaterialProperty = new PackageMaterialProperty(key);
         if (!isEmpty(defaultValue)) {
@@ -178,36 +253,105 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return packageMaterialProperty;
     }
 
-    private ValidationResult toValidationResult(String responseBody) {
-        List<Map> errors = parseResponseToList(responseBody);
-        ValidationResult validationResult = new ValidationResult();
-        if (isEmpty(responseBody)) return validationResult;
-        for (Map error : errors) {
-            String key = (String) error.get("key");
-            String message = (String) error.get("message");
-            if (isEmpty(key)) {
-                validationResult.addError(new ValidationError(message));
-            } else {
-                validationResult.addError(new ValidationError(key, message));
+    ValidationResult toValidationResult(String responseBody) {
+        try {
+            ValidationResult validationResult = new ValidationResult();
+            if (isEmpty(responseBody)) return validationResult;
+
+            List<Map> errors;
+            try {
+                errors = parseResponseToList(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Validation errors should be returned as list or errors, with  each error represented as a map");
             }
+
+            for (Object item : errors) {
+                if (!(item instanceof Map)) {
+                    throw new RuntimeException("Each validation error should be represented as a map");
+                }
+                Map error = (Map) item;
+                String key;
+                try {
+                    key = (String) error.get("key");
+                } catch (Exception e) {
+                    throw new RuntimeException("Validation error key should be of type string");
+                }
+
+
+                String message;
+                try {
+                    message = (String) error.get("message");
+                } catch (Exception e) {
+                    throw new RuntimeException("Validation message should be of type string");
+                }
+
+                if (isEmpty(key)) {
+                    validationResult.addError(new ValidationError(message));
+                } else {
+                    validationResult.addError(new ValidationError(key, message));
+                }
+            }
+            return validationResult;
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
-        return validationResult;
     }
 
-    private PackageRevision toPackageRevision(String responseBody) {
+    PackageRevision toPackageRevision(String responseBody) {
         try {
-            Map map = parseResponseToMap(responseBody);
-            String revision = (String) map.get("revision");
-            String revisionComment = (String) map.get("revisionComment");
-            String user = (String) map.get("user");
-            String timestampString = (String) map.get("timestamp");
-            String trackbackUrl = (String) map.get("trackbackUrl");
+            Map map;
+            try {
+                map = parseResponseToMap(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision should be returned as a map");
+            }
+            if (map == null || map.isEmpty()) {
+                throw new RuntimeException("Empty response body");
+            }
+
+            String revision;
+            try {
+                revision = (String) map.get("revision");
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision should be of type string");
+            }
+
+            String revisionComment;
+            try {
+                revisionComment = (String) map.get("revisionComment");
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision comment should be of type string");
+            }
+
+
+            String user;
+            try {
+                user = (String) map.get("user");
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision user should be of type string");
+            }
+
+            String trackbackUrl;
+            try {
+                trackbackUrl = (String) map.get("trackbackUrl");
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision trackbackUrl should be of type string");
+            }
+
+
+            Date timestamp;
+            try {
+                String timestampString = (String) map.get("timestamp");
+                timestamp = new SimpleDateFormat(DATE_PATTERN).parse(timestampString);
+            } catch (Exception e) {
+                throw new RuntimeException("Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            }
+
             Map data = (Map) map.get("data");
-            Date timestamp = new SimpleDateFormat(DATE_PATTERN).parse(timestampString);
             PackageRevision packageRevision = new PackageRevision(revision, timestamp, user, revisionComment, trackbackUrl, data);
             return packageRevision;
         } catch (Exception e) {
-            throw new RuntimeException("could not parse response to package revision", e);
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
     }
 
@@ -229,19 +373,48 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return map;
     }
 
-    private Result toResult(String responseBody) {
-        Map map = parseResponseToMap(responseBody);
-        String status = (String) map.get("status");
-        List<String> messages = new ArrayList<String>();
-        if (map.containsKey("messages") && map.get("messages") != null) {
-            messages = (List<String>) map.get("messages");
+    Result toResult(String responseBody) {
+        try {
+            Map map;
+            try {
+                map = parseResponseToMap(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Check connection result should be returned as map, with key represented as string and messages represented as list");
+            }
+            if (map == null || map.isEmpty()) {
+                throw new RuntimeException("Empty response body");
+            }
+
+
+            String status;
+            try {
+                status = (String) map.get("status");
+            } catch (Exception e) {
+                throw new RuntimeException("Check connection 'status' should be of type string");
+            }
+
+            if(isEmpty(status)){
+                throw new RuntimeException("Check connection 'status' is a required field");
+            }
+
+            List<String> messages = new ArrayList<String>();
+            if (map.containsKey("messages") && map.get("messages") != null) {
+                messages = (List<String>) map.get("messages");
+                for (Object message : messages) {
+                    if (!(message instanceof String)) {
+                        throw new RuntimeException("Check connection 'message' should be of type string");
+                    }
+                }
+            }
+            Result result = new Result();
+            if ("success".equalsIgnoreCase(status)) {
+                result.withSuccessMessages(messages);
+            } else {
+                result.withErrorMessages(messages);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
-        Result result = new Result();
-        if ("success".equalsIgnoreCase(status)) {
-            result.withSuccessMessages(messages);
-        } else {
-            result.withErrorMessages(messages);
-        }
-        return result;
     }
 }

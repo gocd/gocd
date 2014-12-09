@@ -60,20 +60,26 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 TaskConfigProperty property = new TaskConfigProperty(entry.getKey(), null);
                 Map propertyValue = (Map) entry.getValue();
                 if (propertyValue != null) {
-                    if (propertyValue.containsKey("default-value") && !(propertyValue.get("default-value") instanceof String)) {
-                        exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a not-null 'default-value' of type String", entry.getKey()));
-                    } else {
-                        property.withDefault((String) propertyValue.get("default-value"));
+                    if (propertyValue.containsKey("default-value")) {
+                        if (!(propertyValue.get("default-value") instanceof String)) {
+                            exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a not-null 'default-value' of type String", entry.getKey()));
+                        } else {
+                            property.withDefault((String) propertyValue.get("default-value"));
+                        }
                     }
-                    if (propertyValue.containsKey("secure") && !(propertyValue.get("secure") instanceof Boolean)) {
-                        exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'secure' field of type Boolean", entry.getKey()));
-                    } else {
-                        property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
+                    if (propertyValue.containsKey("secure")) {
+                        if (!(propertyValue.get("secure") instanceof Boolean)) {
+                            exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'secure' field of type Boolean", entry.getKey()));
+                        } else {
+                            property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
+                        }
                     }
-                    if (propertyValue.containsKey("required") && !(propertyValue.get("required") instanceof Boolean)) {
-                        exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'required' field of type Boolean", entry.getKey()));
-                    } else {
-                        property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
+                    if (propertyValue.containsKey("required")) {
+                        if (!(propertyValue.get("required") instanceof Boolean)) {
+                            exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'required' field of type Boolean", entry.getKey()));
+                        } else {
+                            property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
+                        }
                     }
                 }
                 taskConfig.add(property);

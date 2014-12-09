@@ -192,28 +192,28 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         try {
             defaultValue = (String) configuration.get("default-value");
         } catch (Exception e) {
-            errors.add(format("'default-value' property for key '%s' should be of tye string", key));
+            errors.add(format("'default-value' property for key '%s' should be of type string", key));
         }
 
         Boolean partOfIdentity = null;
         try {
             partOfIdentity = (Boolean) configuration.get("part-of-identity");
         } catch (Exception e) {
-            errors.add(format("'part-of-identity' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'part-of-identity' property for key '%s' should be of type boolean", key));
         }
 
         Boolean isSecure = null;
         try {
             isSecure = (Boolean) configuration.get("secure");
         } catch (Exception e) {
-            errors.add(format("'secure' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'secure' property for key '%s' should be of type boolean", key));
         }
 
         Boolean required = null;
         try {
             required = (Boolean) configuration.get("required");
         } catch (Exception e) {
-            errors.add(format("'required' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'required' property for key '%s' should be of type boolean", key));
         }
 
 
@@ -221,14 +221,14 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         try {
             displayName = (String) configuration.get("display-name");
         } catch (Exception e) {
-            errors.add(format("'display-name' property for key '%s' should be of tye string", key));
+            errors.add(format("'display-name' property for key '%s' should be of type string", key));
         }
 
         Integer displayOrder = null;
         try {
             displayOrder = configuration.get("display-order") == null ? null : Integer.parseInt((String) configuration.get("display-order"));
         } catch (Exception e) {
-            errors.add(format("'display-order' property for key '%s' should be of tye integer", key));
+            errors.add(format("'display-order' property for key '%s' should be of type integer", key));
         }
 
         if (!errors.isEmpty()) {

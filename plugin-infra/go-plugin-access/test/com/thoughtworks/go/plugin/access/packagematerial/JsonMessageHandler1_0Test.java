@@ -219,24 +219,24 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForRepositoryConfiguration("{\"\":{}}"), is("Unable to de-serialize json response. Repository configuration key cannot be empty"));
         assertThat(errorMessageForRepositoryConfiguration("{\"key\":[{}]}"), is("Unable to de-serialize json response. Repository configuration properties for key 'key' should be represented as a Map"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of tye string"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of tye string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
     }
 
     @Test
@@ -247,24 +247,24 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForPackageConfiguration("{\"\":{}}"), is("Unable to de-serialize json response. Package configuration key cannot be empty"));
         assertThat(errorMessageForPackageConfiguration("{\"key\":[{}]}"), is("Unable to de-serialize json response. Package configuration properties for key 'key' should be represented as a Map"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of tye boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of tye string"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of tye string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
 
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
-        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of tye integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
 
     }
 

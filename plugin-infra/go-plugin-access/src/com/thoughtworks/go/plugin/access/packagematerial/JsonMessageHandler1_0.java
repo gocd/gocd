@@ -27,8 +27,8 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import org.apache.commons.lang.StringUtils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -187,48 +187,52 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private PackageMaterialProperty toPackageMaterialProperty(String key, Map configuration) {
-        String defaultValue;
+        List<String> errors = new ArrayList<String>();
+        String defaultValue = null;
         try {
             defaultValue = (String) configuration.get("default-value");
         } catch (Exception e) {
-            throw new RuntimeException(format("'default-value' property for key '%s' should be of tye string", key));
+            errors.add(format("'default-value' property for key '%s' should be of tye string", key));
         }
 
-        Boolean partOfIdentity;
+        Boolean partOfIdentity = null;
         try {
             partOfIdentity = (Boolean) configuration.get("part-of-identity");
         } catch (Exception e) {
-            throw new RuntimeException(format("'part-of-identity' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'part-of-identity' property for key '%s' should be of tye boolean", key));
         }
 
-        Boolean isSecure;
+        Boolean isSecure = null;
         try {
             isSecure = (Boolean) configuration.get("secure");
         } catch (Exception e) {
-            throw new RuntimeException(format("'secure' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'secure' property for key '%s' should be of tye boolean", key));
         }
 
-        Boolean required;
+        Boolean required = null;
         try {
             required = (Boolean) configuration.get("required");
         } catch (Exception e) {
-            throw new RuntimeException(format("'required' property for key '%s' should be of tye boolean", key));
+            errors.add(format("'required' property for key '%s' should be of tye boolean", key));
         }
 
 
-        String displayName;
+        String displayName = null;
         try {
             displayName = (String) configuration.get("display-name");
         } catch (Exception e) {
-            throw new RuntimeException(format("'display-name' property for key '%s' should be of tye string", key));
+            errors.add(format("'display-name' property for key '%s' should be of tye string", key));
         }
 
-        Integer displayOrder;
+        Integer displayOrder = null;
         try {
             displayOrder = configuration.get("display-order") == null ? null : Integer.parseInt((String) configuration.get("display-order"));
         } catch (Exception e) {
-            throw new RuntimeException(format("'display-order' property for key '%s' should be of tye integer", key));
+            errors.add(format("'display-order' property for key '%s' should be of tye integer", key));
+        }
 
+        if (!errors.isEmpty()) {
+            throw new RuntimeException(StringUtils.join(errors, ", "));
         }
 
         PackageMaterialProperty packageMaterialProperty = new PackageMaterialProperty(key);
@@ -393,7 +397,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("Check connection 'status' should be of type string");
             }
 
-            if(isEmpty(status)){
+            if (isEmpty(status)) {
                 throw new RuntimeException("Check connection 'status' is a required field");
             }
 

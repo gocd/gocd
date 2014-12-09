@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.plugin.api.material.packagerepository;
 
+import com.thoughtworks.go.plugin.api.material.packagerepository.exceptions.InvalidPackageRevisionDataException;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.thoughtworks.go.plugin.api.material.packagerepository.exceptions.InvalidPackageRevisionDataException;
 
 /**
  * Represents specific revision of the package. Package revision consists of revision, timestamp, user, revision comment and addition data. Additional data is key vale map.
@@ -62,11 +62,21 @@ public class PackageRevision {
         this.user = user;
         this.revisionComment = revisionComment;
         this.trackbackUrl = trackbackUrl;
+        validateDataKeys(data);
         this.data = data;
+    }
+
+    private void validateDataKeys(Map<String, String> data) {
+        if (data != null) {
+            for (String key : data.keySet()) {
+                validateDataKey(key);
+            }
+        }
     }
 
     /**
      * Gets revision string
+     *
      * @return revision string
      */
     public String getRevision() {
@@ -75,6 +85,7 @@ public class PackageRevision {
 
     /**
      * Gets revision timestamp
+     *
      * @return revision timestamp
      */
     public Date getTimestamp() {
@@ -83,6 +94,7 @@ public class PackageRevision {
 
     /**
      * Gets user associated with revision
+     *
      * @return user associated with revision
      */
     public String getUser() {
@@ -91,6 +103,7 @@ public class PackageRevision {
 
     /**
      * Gets comment associated with revision
+     *
      * @return comment associated with revision
      */
     public String getRevisionComment() {
@@ -99,6 +112,7 @@ public class PackageRevision {
 
     /**
      * Gets url which can provide information about producer of package revision
+     *
      * @return url which can provide information about producer of package revision
      */
     public String getTrackbackUrl() {
@@ -107,6 +121,7 @@ public class PackageRevision {
 
     /**
      * Gets additional data related to package revision
+     *
      * @return additional data related to package revision
      */
     public Map<String, String> getData() {
@@ -115,6 +130,7 @@ public class PackageRevision {
 
     /**
      * Gets additional data related to package revision for given key
+     *
      * @param key for additional data
      * @return additional data related to package revision for given key
      */
@@ -124,20 +140,24 @@ public class PackageRevision {
 
     /**
      * Adds additional data related to the package revision
-     * @param key for additional data
+     *
+     * @param key   for additional data
      * @param value for additional data
      * @throws InvalidPackageRevisionDataException if the key is null or empty
      */
     public void addData(String key, String value) throws InvalidPackageRevisionDataException {
+        validateDataKey(key);
+        data.put(key, value);
+    }
+
+    public void validateDataKey(String key) throws InvalidPackageRevisionDataException {
         if (key == null || key.isEmpty()) {
             throw new InvalidPackageRevisionDataException(DATA_KEY_EMPTY_MESSAGE);
         }
         Matcher matcher = DATA_KEY_PATTERN.matcher(key);
-        if (matcher.matches()) {
-            data.put(key, value);
-            return;
+        if (!matcher.matches()) {
+            throw new InvalidPackageRevisionDataException(dataKeyInvalidMessage(key));
         }
-        throw new InvalidPackageRevisionDataException(dataKeyInvalidMessage(key));
     }
 
     private String dataKeyInvalidMessage(String key) {

@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.plugin.api.material.packagerepository;
 
-import java.util.Date;
-
 import com.thoughtworks.go.plugin.api.material.packagerepository.exceptions.InvalidPackageRevisionDataException;
 import org.junit.Test;
+
+import java.util.Date;
+import java.util.HashMap;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -57,6 +58,23 @@ public class PackageRevisionTest {
             fail("should have thrown exception");
         } catch (InvalidPackageRevisionDataException e) {
             assertThat(e.getMessage(), is("Key 'HEL-LO-WORLD' is invalid. Key names should consists of only alphanumeric characters and/or underscores."));
+        }
+    }
+
+    @Test
+    public void shouldNotAllowDataWhenKeyIsInvalid() throws Exception {
+        assertForInvalidKey("", "Key names cannot be null or empty.");
+        assertForInvalidKey("!key", "Key '!key' is invalid. Key names should consists of only alphanumeric characters and/or underscores.");
+    }
+
+    private void assertForInvalidKey(String key, String expectedMessage) {
+        HashMap<String, String> data = new HashMap<String, String>();
+        data.put(key, "value");
+        try {
+            new PackageRevision(null, null, null, data);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is(expectedMessage));
         }
     }
 }

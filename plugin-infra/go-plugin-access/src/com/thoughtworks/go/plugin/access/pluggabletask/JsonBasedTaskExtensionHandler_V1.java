@@ -60,23 +60,20 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 TaskConfigProperty property = new TaskConfigProperty(entry.getKey(), null);
                 Map propertyValue = (Map) entry.getValue();
                 if (propertyValue != null) {
-                    Object defaultValue = propertyValue.get("default-value");
-                    if (propertyValue.containsKey("default-value") && !(defaultValue instanceof String)) {
+                    if (propertyValue.containsKey("default-value") && !(propertyValue.get("default-value") instanceof String)) {
                         exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a not-null 'default-value' of type String", entry.getKey()));
                     } else {
-                        property.withDefault((String) defaultValue);
+                        property.withDefault((String) propertyValue.get("default-value"));
                     }
-                    Object secure = propertyValue.get("secure");
-                    if (propertyValue.containsKey("secure") && !(secure instanceof Boolean)) {
+                    if (propertyValue.containsKey("secure") && !(propertyValue.get("secure") instanceof Boolean)) {
                         exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'secure' field of type Boolean", entry.getKey()));
                     } else {
-                        property.with(Property.SECURE, (Boolean) secure);
+                        property.with(Property.SECURE, (Boolean) propertyValue.get("secure"));
                     }
-                    Object required = propertyValue.get("required");
-                    if (propertyValue.containsKey("required") && !(required instanceof Boolean)) {
+                    if (propertyValue.containsKey("required") && !(propertyValue.get("required") instanceof Boolean)) {
                         exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a 'required' field of type Boolean", entry.getKey()));
                     } else {
-                        property.with(Property.REQUIRED, (Boolean) required);
+                        property.with(Property.REQUIRED, (Boolean) propertyValue.get("required"));
                     }
                 }
                 taskConfig.add(property);
@@ -125,19 +122,13 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ArrayList<String> exceptions = new ArrayList<String>();
         try {
             final Map map = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
-            final Object displayValue = map.get("displayValue");
-            final Object template = map.get("template");
             if (map.isEmpty()) {
                 exceptions.add("The Json for Task View cannot be empty");
             } else {
-                if (!map.containsKey("displayValue")) {
-                    exceptions.add("The Json for Task View must contain 'displayValue'");
-                } else if (!(displayValue instanceof String)) {
+                if (!(map.containsKey("displayValue") && map.get("displayValue") instanceof String)) {
                     exceptions.add("The Json for Task View must contain a not-null 'displayValue' of type String");
                 }
-                if (!map.containsKey("template")) {
-                    exceptions.add("The Json for Task View must contain 'template'");
-                } else if (!(template instanceof String)) {
+                if (!(map.containsKey("template") && map.get("template") instanceof String)) {
                     exceptions.add("The Json for Task View must contain a not-null 'template' of type String");
                 }
             }
@@ -147,12 +138,12 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             return new TaskView() {
                 @Override
                 public String displayValue() {
-                    return (String) displayValue;
+                    return (String) map.get("displayValue");
                 }
 
                 @Override
                 public String template() {
-                    return (String) template;
+                    return (String) map.get("template");
                 }
             };
         } catch (Exception e) {
@@ -167,10 +158,8 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ArrayList<String> exceptions = new ArrayList<String>();
         try {
             Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
-            if (!result.containsKey("success")) {
-                exceptions.add("The execution result must have a success status");
-            } else if (!(result.get("success") instanceof Boolean)) {
-                exceptions.add("The success status must be a boolean value");
+            if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {
+                exceptions.add("The Json for Execution Result must contain a not-null 'success' field of type Boolean");
             }
             if (result.containsKey("message") && (!(result.get("message") instanceof String))) {
                 exceptions.add("If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String");

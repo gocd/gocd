@@ -245,7 +245,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
             new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse2);
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain 'displayValue'."));
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'displayValue' of type String."));
         }
 
         String jsonResponse3 = "{\"displayValue\":\"MyTaskPlugin\"}";
@@ -253,7 +253,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
             new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse3);
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain 'template'."));
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task View. Error: The Json for Task View must contain a not-null 'template' of type String."));
         }
 
         String jsonResponse4 = "{\"displayValue\":null, \"template\":\"<html>junk</html>\"}";
@@ -308,7 +308,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
             new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json1);
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The execution result must have a success status."));
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean."));
         }
 
         String json2 = "{\"success\":\"yay\",\"message\":\"error1\"}";
@@ -316,7 +316,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
             new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json2);
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The success status must be a boolean value."));
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean."));
         }
 
         String json3 = "{\"success\":false,\"message\":true}";
@@ -332,7 +332,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
             new JsonBasedTaskExtensionHandler_V1().toExecutionResult(json4);
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The execution result must have a success status, If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String."));
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Execution Result. Error: The Json for Execution Result must contain a not-null 'success' field of type Boolean, If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String."));
         }
     }
 

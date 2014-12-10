@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,20 +36,15 @@ import static org.mockito.Mockito.*;
 public class TaskExtensionTest {
     private PluginManager pluginManager;
     private TaskExtension taskExtension;
+    private final String messageBasedPlugin = "messageBased-task";
+    private final String apiBasedPlugin = "APi-task";
 
     @Before
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
         taskExtension = new TaskExtension(pluginManager);
-        PluggableTaskConfigStore.store().setPreferenceFor("APi-task", mock(TaskPreference.class));
-        PluggableTaskConfigStore.store().setPreferenceFor("messageBased-task", mock(TaskPreference.class));
-    }
-
-    @After
-    public void teardown() {
-        for (String pluginId : PluggableTaskConfigStore.store().pluginsWithPreference()) {
-            PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
-        }
+        when(pluginManager.getPluginDescriptorFor(apiBasedPlugin)).thenReturn(new GoPluginDescriptor(apiBasedPlugin, null, null, null, null, false));
+        when(pluginManager.getPluginDescriptorFor(messageBasedPlugin)).thenReturn(new GoPluginDescriptor(messageBasedPlugin, null, null, null, null, false));
     }
 
     @Test
@@ -81,21 +75,18 @@ public class TaskExtensionTest {
 
     @Test
     public void shouldReturnCorrectTaskExtensionImplForAPIBasedTaskPlugin() {
-        String apiBasedPluginId = "APi-task";
 
-        when(pluginManager.hasReferenceFor(Task.class, apiBasedPluginId)).thenReturn(true);
+        when(pluginManager.hasReferenceFor(Task.class, apiBasedPlugin)).thenReturn(true);
 
-        assertTrue(taskExtension.getExtension(apiBasedPluginId) instanceof ApiBasedTaskExtension);
+        assertTrue(taskExtension.getExtension(apiBasedPlugin) instanceof ApiBasedTaskExtension);
     }
 
     @Test
     public void shouldReturnMessageBasedTaskExtensionForMessageBasedTaskPlugin() {
-        String messageBasedPluginId = "messageBased-task";
+        when(pluginManager.hasReferenceFor(Task.class, messageBasedPlugin)).thenReturn(false);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPlugin)).thenReturn(true);
 
-        when(pluginManager.hasReferenceFor(Task.class, messageBasedPluginId)).thenReturn(false);
-        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
-
-        Assert.assertTrue(taskExtension.getExtension(messageBasedPluginId) instanceof JsonBasedTaskExtension);
+        Assert.assertTrue(taskExtension.getExtension(messageBasedPlugin) instanceof JsonBasedTaskExtension);
     }
 
     @Test
@@ -116,11 +107,10 @@ public class TaskExtensionTest {
     public void shouldExecuteTheGivenMessageBasedTaskPlugin() {
         final Boolean[] executed = {false};
 
-        String messageBasedPluginId = "messageBased-task";
-        when(pluginManager.hasReferenceFor(Task.class, messageBasedPluginId)).thenReturn(false);
-        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPluginId)).thenReturn(true);
+        when(pluginManager.hasReferenceFor(Task.class, messageBasedPlugin)).thenReturn(false);
+        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPlugin)).thenReturn(true);
 
-        taskExtension.execute(messageBasedPluginId, new ActionWithReturn<Task, ExecutionResult>() {
+        taskExtension.execute(messageBasedPlugin, new ActionWithReturn<Task, ExecutionResult>() {
             @Override
             public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
                 executed[0] = true;

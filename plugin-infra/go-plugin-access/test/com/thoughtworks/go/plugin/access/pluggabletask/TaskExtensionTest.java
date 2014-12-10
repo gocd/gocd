@@ -35,8 +35,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TaskExtensionTest {
-
-
     private PluginManager pluginManager;
     private TaskExtension taskExtension;
 
@@ -58,10 +56,26 @@ public class TaskExtensionTest {
     @Test
     public void shouldReportIfThePluginIsMissing() {
         try {
-            taskExtension.getExtension("junk");
+            taskExtension.execute("junk", null);
             fail("expected exception");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Associated plugin 'junk' not found. Please contact the Go admin to install the plugin."));
+        }
+        try {
+            taskExtension.validate("junk", null);
+            fail("expected exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Associated plugin 'junk' not found. Please contact the Go admin to install the plugin."));
+        }
+    }
+
+    @Test
+    public void shouldReportIfThePluginDoesNotImplementEitherTypeOfPluginExtension() {
+        try {
+            taskExtension.doOnTask("junk", null);
+            fail("expected exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Plugin should use either message-based or api-based extension. Plugin-id: junk"));
         }
     }
 
@@ -137,7 +151,7 @@ public class TaskExtensionTest {
         TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
 
         String pluginId = "pluginId";
-        doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
+        doReturn(actualImpl).when(taskExtension).getTaskExtensionContract(pluginId);
 
         Action action = mock(Action.class);
         taskExtension.doOnTask(pluginId, action);

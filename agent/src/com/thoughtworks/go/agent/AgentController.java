@@ -122,7 +122,7 @@ public class AgentController {
             }
             agentUpgradeService.checkForUpgrade();
             sslInfrastructureService.registerIfNecessary();
-            retriveCookieIfNecessary();
+            retrieveCookieIfNecessary();
             retrieveWork();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[Agent Loop] Successfully retrieved work.");
@@ -141,7 +141,7 @@ public class AgentController {
         }
     }
 
-    private void retriveCookieIfNecessary() {
+    private void retrieveCookieIfNecessary() {
         if (!agentRuntimeInfo.hasCookie() && sslInfrastructureService.isRegistered()) {
             LOG.info("About to get cookie from the server.");
             String cookie = server.getCookie(agentIdentifier(), agentRuntimeInfo.getLocation());

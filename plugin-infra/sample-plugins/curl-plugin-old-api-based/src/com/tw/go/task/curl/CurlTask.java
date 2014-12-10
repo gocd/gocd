@@ -55,7 +55,7 @@ public class CurlTask implements Task {
         TaskView taskView = new TaskView() {
             @Override
             public String displayValue() {
-                return "Curl";
+                return "CurlApiBased";
             }
 
             @Override

@@ -100,11 +100,9 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ArrayList<String> exceptions = new ArrayList<String>();
         try {
             Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+            if(result == null) return validationResult;
             final Map<String, Object> errors = (Map<String, Object>) result.get("errors");
             if (errors != null) {
-                if (errors.isEmpty()) {
-                    exceptions.add("The Json for Validation Result must either be an empty body or it should have errors with the 'errors' key");
-                }
                 for (Map.Entry<String, Object> entry : errors.entrySet()) {
                     if (!(entry.getValue() instanceof String)) {
                         exceptions.add(String.format("Key: '%s' - The Json for Validation Request must contain a not-null error message of type String", entry.getKey()));

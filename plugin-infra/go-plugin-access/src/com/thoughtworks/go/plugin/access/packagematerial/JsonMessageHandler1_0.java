@@ -262,7 +262,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             ValidationResult validationResult = new ValidationResult();
             if (isEmpty(responseBody)) return validationResult;
 
-            List<Map> errors;
+            List errors;
             try {
                 errors = parseResponseToList(responseBody);
             } catch (Exception e) {
@@ -401,9 +401,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("Check connection 'status' is a required field");
             }
 
-            List<String> messages = new ArrayList<String>();
+            List messages = new ArrayList<String>();
             if (map.containsKey("messages") && map.get("messages") != null) {
-                messages = (List<String>) map.get("messages");
+                messages = (List) map.get("messages");
                 for (Object message : messages) {
                     if (!(message instanceof String)) {
                         throw new RuntimeException("Check connection 'message' should be of type string");

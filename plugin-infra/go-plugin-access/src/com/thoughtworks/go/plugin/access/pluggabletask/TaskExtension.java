@@ -45,6 +45,9 @@ public class TaskExtension implements TaskExtensionContract {
     }
 
     TaskExtensionContract getExtension(String pluginId) {
+        if(!PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)){
+            throw new RuntimeException(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginId));
+        }
         TaskExtensionContract extension = null;
         if (pluginManager.hasReferenceFor(Task.class, pluginId)) {
             extension = map.get(API_BASED);

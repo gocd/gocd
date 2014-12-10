@@ -154,7 +154,7 @@ public class JsonBasedPackageRepositoryExtensionTest {
 
 
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
-                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
+                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(expectedResponseBody));
@@ -169,16 +169,16 @@ public class JsonBasedPackageRepositoryExtensionTest {
     public void shouldTalkToPluginToGetLatestModificationSinceLastRevision() throws Exception {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}," +
-                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}}";
+                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
 
 
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
-                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
+                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
         Map data = new LinkedHashMap();
-        data.put("data-key-one", "data-value-one");
-        data.put("data-key-two", "data-value-two");
+        data.put("dataKeyOne", "data-value-one");
+        data.put("dataKeyTwo", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
 
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
@@ -292,8 +292,8 @@ public class JsonBasedPackageRepositoryExtensionTest {
         assertThat(packageRevision.getRevisionComment(), is(comment));
         assertThat(packageRevision.getTrackbackUrl(), is(trackbackUrl));
         assertThat(packageRevision.getData().size(), is(2));
-        assertThat(packageRevision.getDataFor("data-key-one"), is("data-value-one"));
-        assertThat(packageRevision.getDataFor("data-key-two"), is("data-value-two"));
+        assertThat(packageRevision.getDataFor("dataKeyOne"), is("data-value-one"));
+        assertThat(packageRevision.getDataFor("dataKeyTwo"), is("data-value-two"));
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {

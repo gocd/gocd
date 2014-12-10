@@ -34,6 +34,7 @@ import java.util.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class JsonMessageHandler1_0Test {
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -177,7 +178,7 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildPackageRevisionFromLatestRevisionResponse() throws Exception {
         String responseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
-                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
+                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
         PackageRevision packageRevision = messageHandler.responseMessageForLatestRevision(responseBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
     }
@@ -186,20 +187,20 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildRequestBodyForLatestRevisionSinceRequest() throws Exception {
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
         Map data = new LinkedHashMap();
-        data.put("data-key-one", "data-value-one");
-        data.put("data-key-two", "data-value-two");
+        data.put("dataKeyOne", "data-value-one");
+        data.put("dataKeyTwo", "data-value-two");
         PackageRevision previouslyKnownRevision = new PackageRevision("abc.rpm", timestamp, "someuser", "comment", null, data);
         String requestBody = messageHandler.requestMessageForLatestRevisionSince(packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
         String expectedValue = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}," +
-                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}}";
+                "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
         assertThat(requestBody, is(expectedValue));
     }
 
     @Test
     public void shouldBuildPackageRevisionFromLatestRevisionSinceResponse() throws Exception {
         String responseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
-                    "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"data-key-one\":\"data-value-one\",\"data-key-two\":\"data-value-two\"}}";
+                "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
         PackageRevision packageRevision = messageHandler.responseMessageForLatestRevisionSince(responseBody);
         assertPackageRevision(packageRevision, "abc.rpm", "some-user", "2011-07-14T19:43:37.100Z", "comment", "http:\\localhost:9999");
     }
@@ -210,6 +211,93 @@ public class JsonMessageHandler1_0Test {
         assertThat(messageHandler.responseMessageForLatestRevisionSince(null), nullValue());
     }
 
+    @Test
+    public void shouldValidateIncorrectJsonResponseForRepositoryConfiguration() {
+        assertThat(errorMessageForRepositoryConfiguration(""), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForRepositoryConfiguration(null), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForRepositoryConfiguration("[{\"key-one\":\"value\"},{\"key-two\":\"value\"}]"), is("Unable to de-serialize json response. Repository configuration should be returned as a map"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"\":{}}"), is("Unable to de-serialize json response. Repository configuration key cannot be empty"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":[{}]}"), is("Unable to de-serialize json response. Repository configuration properties for key 'key' should be represented as a Map"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+    }
+
+    @Test
+    public void shouldValidateIncorrectJsonResponseForPackageConfiguration() {
+        assertThat(errorMessageForPackageConfiguration(""), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForPackageConfiguration(null), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForPackageConfiguration("[{\"key-one\":\"value\"},{\"key-two\":\"value\"}]"), is("Unable to de-serialize json response. Package configuration should be returned as a map"));
+        assertThat(errorMessageForPackageConfiguration("{\"\":{}}"), is("Unable to de-serialize json response. Package configuration key cannot be empty"));
+        assertThat(errorMessageForPackageConfiguration("{\"key\":[{}]}"), is("Unable to de-serialize json response. Package configuration properties for key 'key' should be represented as a Map"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"true\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":100}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"part-of-identity\":\"\"}}"), is("Unable to de-serialize json response. 'part-of-identity' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"true\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":100}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"secure\":\"\"}}"), is("Unable to de-serialize json response. 'secure' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"true\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":100}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"required\":\"\"}}"), is("Unable to de-serialize json response. 'required' property for key 'key' should be of type boolean"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":true}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-name\":100}}"), is("Unable to de-serialize json response. 'display-name' property for key 'key' should be of type string"));
+
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":true}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":10.0}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+        assertThat(errorMessageForRepositoryConfiguration("{\"key\":{\"display-order\":\"\"}}"), is("Unable to de-serialize json response. 'display-order' property for key 'key' should be of type integer"));
+
+    }
+
+    @Test
+    public void shouldValidateIncorrectJsonForValidationResult() {
+        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list or errors, with  each error represented as a map"));
+        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Each validation error should be represented as a map"));
+        assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]"), is("Unable to de-serialize json response. Validation error key should be of type string"));
+        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
+        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
+    }
+
+    @Test
+    public void shouldValidateIncorrectJsonForCheckConnectionResult() {
+        assertThat(errorMessageForCheckConnectionResult(""), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with key represented as string and messages represented as list"));
+        assertThat(errorMessageForCheckConnectionResult("{\"status\":true}"), is("Unable to de-serialize json response. Check connection 'status' should be of type string"));
+        assertThat(errorMessageForCheckConnectionResult("{\"result\":true}"), is("Unable to de-serialize json response. Check connection 'status' is a required field"));
+        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Check connection 'message' should be of type string"));
+    }
+
+    @Test
+    public void shouldValidateIncorrectJsonForPackageRevision() {
+        assertThat(errorMessageForPackageRevision(""), is("Unable to de-serialize json response. Empty response body"));
+        assertThat(errorMessageForPackageRevision("[{\"revision\":\"abc.rpm\"}]"), is("Unable to de-serialize json response. Package revision should be returned as a map"));
+        assertThat(errorMessageForPackageRevision("{\"revision\":{}}"), is("Unable to de-serialize json response. Package revision should be of type string"));
+        assertThat(errorMessageForPackageRevision("{\"revisionComment\":{}}"), is("Unable to de-serialize json response. Package revision comment should be of type string"));
+        assertThat(errorMessageForPackageRevision("{\"user\":{}}"), is("Unable to de-serialize json response. Package revision user should be of type string"));
+        assertThat(errorMessageForPackageRevision("{\"timestamp\":{}}"), is("Unable to de-serialize json response. Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        assertThat(errorMessageForPackageRevision("{\"timestamp\":\"12-01-2014\"}"), is("Unable to de-serialize json response. Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+    }
+
+
     private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {
         assertThat(packageRevision.getRevision(), is(revision));
         assertThat(packageRevision.getUser(), is(user));
@@ -217,8 +305,8 @@ public class JsonMessageHandler1_0Test {
         assertThat(packageRevision.getRevisionComment(), is(comment));
         assertThat(packageRevision.getTrackbackUrl(), is(trackbackUrl));
         assertThat(packageRevision.getData().size(), is(2));
-        assertThat(packageRevision.getDataFor("data-key-one"), is("data-value-one"));
-        assertThat(packageRevision.getDataFor("data-key-two"), is("data-value-two"));
+        assertThat(packageRevision.getDataFor("dataKeyOne"), is("data-value-one"));
+        assertThat(packageRevision.getDataFor("dataKeyTwo"), is("data-value-two"));
     }
 
 
@@ -246,5 +334,55 @@ public class JsonMessageHandler1_0Test {
         assertThat(property.getOption(Property.SECURE), is(secure));
         assertThat(property.getOption(Property.DISPLAY_NAME), is(displayName));
         assertThat(property.getOption(Property.DISPLAY_ORDER), is(displayOrder));
+    }
+
+    private String errorMessageForRepositoryConfiguration(String message) {
+        try {
+            messageHandler.responseMessageForRepositoryConfiguration(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForPackageConfiguration(String message) {
+        try {
+            messageHandler.responseMessageForPackageConfiguration(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForValidationResult(String message) {
+        try {
+            messageHandler.toValidationResult(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForCheckConnectionResult(String message) {
+        try {
+            messageHandler.toResult(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForPackageRevision(String message) {
+        try {
+            messageHandler.toPackageRevision(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
     }
 }

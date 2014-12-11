@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
@@ -72,6 +73,8 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
         Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
         velocityContext.put(USE_NEW_RAILS, useNewRails);
+
+        velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
 
         if (useNewRails) {
             velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));

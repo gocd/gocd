@@ -66,6 +66,8 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -108,6 +110,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
     @Autowired private Localizer localizer;
+    @Autowired private FeatureToggleService featureToggleService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithMultipleStages pipelineOne;
@@ -136,6 +139,8 @@ public class PipelineHistoryServiceIntegrationTest {
 
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForGroup("group1", "jez");
+
+        featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, true);
     }
 
     @After
@@ -983,6 +988,7 @@ public class PipelineHistoryServiceIntegrationTest {
         dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineHistoryService.updateComment("pipeline_name", 1, "test comment", new Username(new CaseInsensitiveString("valid-user")), result);
+
         PipelineInstanceModel pim = dbHelper.getPipelineDao().findPipelineHistoryByNameAndCounter("pipeline_name", 1);
         assertThat(pim.getComment(), is("test comment"));
     }

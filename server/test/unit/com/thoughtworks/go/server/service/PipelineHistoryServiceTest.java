@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
@@ -36,12 +37,16 @@ import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.apache.commons.httpclient.HttpStatus;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.*;
 
@@ -54,13 +59,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PipelineHistoryServiceTest {
-    private PipelineHistoryService pipelineHistoryService;
-    private PipelineDao pipelineDao;
-    private GoConfigService goConfigService;
-    private SecurityService securityService;
-
     private static final CruiseConfig CRUISE_CONFIG = ConfigMigrator.loadWithMigration("<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"17\" >"
             + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
@@ -82,29 +83,27 @@ public class PipelineHistoryServiceTest {
             + "    </pipeline>"
             + "  </pipelines>"
             + "</cruise>").config;
-    private ScheduleService scheduleService;
-    private PipelineTimeline pipelineTimeline;
-    private PipelineUnlockApiService pipelineUnlockService;
-    private SchedulingCheckerService schedulingCheckerService;
-    private StageDao stageDao;
+
+    @Mock private StageDao stageDao;
+    @Mock private PipelineDao pipelineDao;
+    @Mock private GoConfigService goConfigService;
+    @Mock private SecurityService securityService;
+    @Mock private ScheduleService scheduleService;
+    @Mock private PipelineTimeline pipelineTimeline;
+    @Mock private PipelineUnlockApiService pipelineUnlockService;
+    @Mock private SchedulingCheckerService schedulingCheckerService;
+    @Mock private PipelineLockService pipelineLockService;
+    @Mock public PipelinePauseService pipelinePauseService;
+    @Mock public FeatureToggleService featureToggleService;
+    private PipelineHistoryService pipelineHistoryService;
     private static final Username USERNAME = new Username(new CaseInsensitiveString("bar"));
     private PipelineConfig config;
-    private PipelineLockService pipelineLockService;
-    public PipelinePauseService pipelinePauseService;
-
 
     @Before
     public void setUp() {
-        pipelineDao = mock(PipelineDao.class);
-        goConfigService = mock(GoConfigService.class);
-        securityService = mock(SecurityService.class);
-        scheduleService = mock(ScheduleService.class);
-        pipelineLockService = mock(PipelineLockService.class);
-        pipelineTimeline = mock(PipelineTimeline.class);
-        pipelineUnlockService = mock(PipelineUnlockApiService.class);
-        schedulingCheckerService = mock(SchedulingCheckerService.class);
-        pipelinePauseService = mock(PipelinePauseService.class);
-        stageDao = mock(StageDao.class);
+        initMocks(this);
+        when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(true);
+        Toggles.initializeWith(featureToggleService);
         pipelineHistoryService = new PipelineHistoryService(pipelineDao, stageDao, goConfigService, securityService, scheduleService,
                 mock(MaterialRepository.class),
                 JobDurationStrategy.ALWAYS_ZERO,
@@ -918,6 +917,21 @@ public class PipelineHistoryServiceTest {
 
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
         verify(result, times(1)).unauthorized(LocalizedMessage.cannotOperatePipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+    }
+
+    @Test
+    public void shouldFailWhenFeatureIsToggledOff_updateComment() {
+        when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(false);
+        Toggles.initializeWith(featureToggleService);
+        CaseInsensitiveString unauthorizedUser = new CaseInsensitiveString("cannot-access");
+        String pipelineName = "pipeline_name";
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
+
+        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_IMPLEMENTED));
+        assertThat((Localizable.CurryableLocalizable) result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
+        verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }
 
     private void stubConfigServiceToReturnMaterialAndPipeline(String downPipelineName, MaterialConfigs downPipelineMaterial, PipelineConfig down1Config) {

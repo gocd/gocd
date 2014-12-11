@@ -30,7 +30,10 @@ import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.ConfigRepository;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +44,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -77,6 +82,7 @@ public class ApplicationInitializerTest {
     @Mock private BackupService backupService;
     @Mock private ArtifactsService artifactsService;
     @Mock private RailsAssetsService railsAssetsService;
+    @Mock private FeatureToggleService featureToggleService;
 
     @Mock private ContextRefreshedEvent contextRefreshedEvent;
 
@@ -86,6 +92,8 @@ public class ApplicationInitializerTest {
     @Test
     public void shouldCallInitializeOfPluginZipInitializerOnlyAfterInitializeOfPluginInitializer() throws Exception {
         verifyOrder(pluginsInitializer, pluginsZipInitializer);
+
+        assertThat((FeatureToggleService) ReflectionUtil.getField(new Toggles(), "service"), is(featureToggleService));
     }
 
     private void verifyOrder(Initializer... initializers) {

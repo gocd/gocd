@@ -183,15 +183,15 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     final String agentUuid = agent.getUuid();
 
                     //TODO: Use fullPipeline and get the Stage from it?
-                    final Pipeline[] pipeline = new Pipeline[1];
+                    final Pipeline pipeline;
                     try {
-                        pipeline[0] = scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(job.getJobId());
+                        pipeline = scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(job.getJobId());
                     } catch (StaleMaterialsOnBuildCause e) {
                         return NO_WORK;
                     }
 
-                    List<Task> tasks = goConfigService.tasksForJob(pipeline[0].getName(), job.getIdentifier().getStageName(), job.getName());
-                    final List<Builder> builders = builderFactory.buildersForTasks(pipeline[0], tasks, resolver);
+                    List<Task> tasks = goConfigService.tasksForJob(pipeline.getName(), job.getIdentifier().getStageName(), job.getName());
+                    final List<Builder> builders = builderFactory.buildersForTasks(pipeline, tasks, resolver);
 
                     return transactionTemplate.execute(new TransactionCallback() {
                         public Object doInTransaction(TransactionStatus status) {
@@ -199,7 +199,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                                 return NO_WORK;
                             }
 
-                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline[0].getBuildCause(), builders, pipeline[0].defaultWorkingFolder());
+                            BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder());
                             environmentConfigService.enhanceEnvironmentVariables(buildAssignment);
                             return new BuildWork(buildAssignment);
                         }

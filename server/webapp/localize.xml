@@ -533,6 +533,7 @@
     <entry key="TRACKING_TOOL">Tracking Tool</entry>
     <entry key="MINGLE">Mingle</entry>
     <entry key="NONE">None</entry>
+    <entry key="FEATURE_NOT_AVAILABLE">'{0}' feature is turned off. Please turn it on to use it.</entry>
     <entry key="ENVIRONMENT_FEATURE_NOT_AVAILABLE">Environments is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
     <entry key="TEMPLATES_FEATURE_NOT_AVAILABLE">Templates is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
     <entry key="MULTIPLE_PIPELINE_GROUPS_FEATURE_NOT_AVAILABLE">Multiple Pipeline Groups is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>

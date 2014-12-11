@@ -2,9 +2,9 @@
    "version": "1",
    "toggles": [
       {
-         "key": "key1",
-         "description": "desc1",
-         "value": true
+         "key": "pipeline_comment_feature_toggle_key",
+         "description": "Toggle for Pipeline Comment feature",
+         "value": false
       }
    ]
 }

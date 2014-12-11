@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -604,6 +605,11 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username, HttpLocalizedOperationResult result) {
+        if (!Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)) {
+            result.notImplemented(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment"));
+            return;
+        }
+
         if (securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
         } else {

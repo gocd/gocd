@@ -18,11 +18,14 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mortbay.jetty.Request;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.GrantedAuthority;
@@ -40,6 +43,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 
 public class GoVelocityViewTest {
@@ -47,11 +51,14 @@ public class GoVelocityViewTest {
     private HttpServletRequest request;
     private Context velocityContext;
     private SecurityContextImpl securityContext;
-    private RailsAssetsService railsAssetsService;
+    @Mock private RailsAssetsService railsAssetsService;
+    @Mock private FeatureToggleService featureToggleService;
 
     @Before
     public void setUp() throws Exception {
-        railsAssetsService = mock(RailsAssetsService.class);
+        initMocks(this);
+        when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
+        Toggles.initializeWith(featureToggleService);
         view = spy(new GoVelocityView());
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         request = new MockHttpServletRequest();
@@ -211,5 +218,15 @@ public class GoVelocityViewTest {
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         view.exposeHelpers(velocityContext, request);
         assertThat((String)velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("compressed/all.js?#include(\"admin/admin_version.txt.vm\")"));
+    }
+
+    @Test
+    public void shouldSetFeatureToggleValues() throws Exception {
+        Request servletRequest = mock(Request.class);
+        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+
+        view.exposeHelpers(velocityContext, servletRequest);
+
+        assertThat((Boolean) velocityContext.get(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY), is(true));
     }
 }

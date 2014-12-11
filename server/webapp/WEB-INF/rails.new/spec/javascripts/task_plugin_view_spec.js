@@ -139,6 +139,7 @@ describe("task_plugin_view", function () {
         initially_empty_textbox.val("NEW_VALUE_1").trigger("input");
         assertEquals("NEW_VALUE_1", initially_empty_textbox.val());
         assertEquals("NEW_VALUE_1", initially_empty_para.text());
+        expect(jQuery("#empty_data_plugged_task_angular_app_id").attr("ng-controller")).toBe("empty_data_plugged_task_angular_app_id_controller")
     });
 
 

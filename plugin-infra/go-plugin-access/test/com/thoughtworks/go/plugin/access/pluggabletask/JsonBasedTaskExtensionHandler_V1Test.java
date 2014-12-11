@@ -177,13 +177,10 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
     @Test
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonResponseToValidation() {
-        String jsonResponse1 = "{\"errors\":{}}";
-        try {
-            new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse1);
-            fail("should throw exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: The Json for Validation Result must either be an empty body or it should have errors with the 'errors' key."));
-        }
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
 
         String jsonResponse2 = "{\"errors\":{\"key1\":\"err1\",\"key2\":true}}";
         try {

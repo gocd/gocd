@@ -43,7 +43,7 @@ public class CurlTask implements GoPlugin {
     public static final String SECURE_CONNECTION_PROPERTY = "SecureConnection";
     public static final String REQUEST_TYPE = "-G";
     public static final String REQUEST_PROPERTY = "RequestType";
-    Logger logger = Logger.getLoggerFor(CurlTask.class);
+    private Logger logger = Logger.getLoggerFor(CurlTask.class);
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -92,12 +92,11 @@ public class CurlTask implements GoPlugin {
         HashMap validationResult = new HashMap();
         int responseCode = DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
         Map configMap = (Map) new GsonBuilder().create().fromJson(request.requestBody(), Object.class);
+        HashMap errorMap = new HashMap();
         if (!configMap.containsKey(URL_PROPERTY) || ((Map) configMap.get(URL_PROPERTY)).get("value") == null || ((String) ((Map) configMap.get(URL_PROPERTY)).get("value")).trim().isEmpty()) {
-            responseCode = DefaultGoPluginApiResponse.VALIDATION_FAILED;
-            HashMap errorMap = new HashMap();
             errorMap.put(URL_PROPERTY, "URL cannot be empty");
-            validationResult.put("errors", errorMap);
         }
+        validationResult.put("errors", errorMap);
         return createResponse(responseCode, validationResult);
     }
 

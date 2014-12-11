@@ -16,6 +16,7 @@
 
 package com.tw.go.task.curl;
 
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.task.*;
 
 import java.io.IOException;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurlTaskExecutor {
-
     public static final String CURLED_FILE = "index.txt";
 
     public Result execute(Config config, Context context, JobConsoleLogger console) {

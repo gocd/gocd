@@ -41,6 +41,7 @@ public class PluginRequestHelperTest {
     @Test
     public void shouldNotInvokeSuccessBlockOnFailureResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.INTERNAL_ERROR);
+        when(response.responseBody()).thenReturn("junk");
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         try {
             helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
@@ -62,8 +63,8 @@ public class PluginRequestHelperTest {
             });
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Exception while interacting with plugin id 'pid', extension 'some-extension', request 'req'. Reason, [Unsuccessful response from plugin, response code '500' and response body 'null']"));
-            assertThat(e.getCause().getMessage(), is("Unsuccessful response from plugin, response code '500' and response body 'null'"));
+            assertThat(e.getMessage(), is("Interaction with plugin with id 'pid' implementing 'some-extension' extension failed while requesting for 'req'. Reason: [Unsuccessful response from plugin. Plugin returned with code '500' and the following response: 'junk']"));
+            assertThat(e.getCause().getMessage(), is("Unsuccessful response from plugin. Plugin returned with code '500' and the following response: 'junk'"));
             assertFalse(isSuccessInvoked[0]);
             verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
         }

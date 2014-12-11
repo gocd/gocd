@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurlTaskExecutor {
-    private Logger logger = Logger.getLoggerFor(CurlTaskExecutor.class);
-
     public static final String CURLED_FILE = "index.txt";
 
     public Result execute(Config config, Context context, JobConsoleLogger console) {
@@ -38,7 +36,6 @@ public class CurlTaskExecutor {
 
     private Result runCommand(Context taskContext, Config taskConfig, JobConsoleLogger console) throws IOException, InterruptedException {
         ProcessBuilder curl = createCurlCommandWithOptions(taskContext, taskConfig);
-        logger.error("Launching command: " + curl.command());
         console.printLine("Launching command: " + curl.command());
         curl.environment().putAll(taskContext.getEnvironmentVariables());
         console.printEnvironment(curl.environment());

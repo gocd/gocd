@@ -259,7 +259,7 @@ public class JsonBasedPackageRepositoryExtensionTest {
         try {
             jsonBasedPackageRepositoryExtension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Exception while interacting with plugin id 'plugin-id', extension 'package-repository', request 'check-package-connection'. Reason, [exception-from-plugin]"));
+            assertThat(e.getMessage(), is("Interaction with plugin with id 'plugin-id' implementing 'package-repository' extension failed while requesting for 'check-package-connection'. Reason: [exception-from-plugin]"));
         }
     }
 

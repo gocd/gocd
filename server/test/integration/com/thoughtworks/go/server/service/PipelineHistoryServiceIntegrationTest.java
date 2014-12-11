@@ -117,6 +117,8 @@ public class PipelineHistoryServiceIntegrationTest {
     private PipelineWithTwoStages pipelineTwo;
     private ArtifactsDiskIsFull diskIsFull;
 
+    private boolean pipelineCommentFeatureToggleState;
+
     @Before
     public void setUp() throws Exception {
         goCache.clear();
@@ -140,6 +142,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForGroup("group1", "jez");
 
+        pipelineCommentFeatureToggleState = featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY);
         featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, true);
     }
 
@@ -149,6 +152,8 @@ public class PipelineHistoryServiceIntegrationTest {
         dbHelper.onTearDown();
         pipelineOne.onTearDown();
         configHelper.onTearDown();
+
+        featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, pipelineCommentFeatureToggleState);
     }
 
     @Test

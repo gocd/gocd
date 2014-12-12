@@ -70,7 +70,7 @@ describe("package_material_check_connection", function () {
         assertEquals("admin/package_repositories/check_connection", actual_options.url);
         assertEquals("GET", actual_options.type);
         assertEquals("text", actual_options.dataType);
-        assertEquals(jQuery('form#package_repo').serialize(), actual_options.data);
+        assertEquals(jQuery('#parent_container :input').serialize(), actual_options.data);
         assertEquals("Should set ok_message class", true, jQuery("#connection_message").hasClass("ok_message"))
         assertEquals("Connection ok message not showing up", "Connection OK. Successfully accessed repository metadata at file:///tmp/repo/repodata/repomd.xml", jQuery("#connection_message").text())
     });

@@ -19,11 +19,14 @@ class Admin::Plugins::PluginsController < AdminController
   before_filter :set_tab_name
 
   def index
-    @plugin_descriptors = default_plugin_manager.plugins().collect {|descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor}.sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
+    @plugin_descriptors = default_plugin_manager.plugins()
+        .collect {|descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor}
+        .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
   end
 
   def upload
+    default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path))
     redirect_to action: "index"
   end
 

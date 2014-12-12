@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +68,11 @@ public class DefaultPluginManager implements PluginManager {
     @Override
     public List<GoPluginDescriptor> plugins() {
         return registry.plugins();
+    }
+
+
+    public void addPlugin(File uploadedPlugin){
+
     }
 
     @Override

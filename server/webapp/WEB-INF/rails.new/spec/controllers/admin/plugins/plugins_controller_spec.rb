@@ -30,6 +30,21 @@ describe Admin::Plugins::PluginsController do
 
   end
 
+  describe :upload do
+
+    before :each do
+      controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
+      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File))
+    end
+
+    it "should redirect to #index" do
+      file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
+      post :upload, :plugin => file
+      response.should redirect_to "/admin/plugins"
+    end
+
+  end
+
   describe :index do
 
     before :each do

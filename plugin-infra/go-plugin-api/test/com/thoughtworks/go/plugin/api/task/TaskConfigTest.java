@@ -55,4 +55,26 @@ public class TaskConfigTest {
         assertThat(taskConfig.get(wxyz).getValue(), is(wxyzDefault));
     }
 
+    @Test
+    public void shouldSortTheProperties(){
+        TaskConfigProperty k1 = getTaskConfigProperty(3);
+        TaskConfigProperty k2 = getTaskConfigProperty(0);
+        TaskConfigProperty k3 = getTaskConfigProperty(2);
+        TaskConfigProperty k4 = getTaskConfigProperty(1);
+        taskConfig.add(k1);
+        taskConfig.add(k2);
+        taskConfig.add(k3);
+        taskConfig.add(k4);
+        assertThat((TaskConfigProperty) taskConfig.list().get(0), is(k2));
+        assertThat((TaskConfigProperty) taskConfig.list().get(1), is(k4));
+        assertThat((TaskConfigProperty) taskConfig.list().get(2), is(k3));
+        assertThat((TaskConfigProperty)taskConfig.list().get(3), is(k1));
+    }
+    private TaskConfigProperty getTaskConfigProperty(int order) {
+        TaskConfigProperty property = new TaskConfigProperty("Key"+order);
+        property.with(Property.DISPLAY_ORDER, order);
+        return property;
+    }
+
+
 }

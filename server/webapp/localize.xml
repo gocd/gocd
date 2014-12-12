@@ -709,6 +709,8 @@
     <entry key="RELOAD_COMMAND_REPO_CACHE">Reload cache</entry>
     <entry key="COMMAND_REPOSITORY_MANAGEMENT">Command Repository Management</entry>
     <entry key="PLUGINS_TAB">Plugins</entry>
+    <entry key="COMMAND_UPLOAD">Upload</entry>
+    <entry key="UPLOAD_PLUGIN">Upload plugin</entry>
     <entry key="PACKAGE_REPOSITORY_TAB">Package Repositories</entry>
     <entry key="DEPLOY_SPECIFIC_REVISION">Deploy Specific Revision</entry>
     <entry key="TOOLTIP_FETCH_MATERIALS">Perform material updates or checkouts</entry>

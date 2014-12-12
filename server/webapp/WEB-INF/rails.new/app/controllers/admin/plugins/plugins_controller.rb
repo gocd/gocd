@@ -23,6 +23,10 @@ class Admin::Plugins::PluginsController < AdminController
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
   end
 
+  def upload
+    redirect_to action: "index"
+  end
+
   private
   def set_tab_name
     @tab_name = 'plugins-listing'

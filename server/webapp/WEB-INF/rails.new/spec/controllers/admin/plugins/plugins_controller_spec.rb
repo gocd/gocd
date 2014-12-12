@@ -18,10 +18,16 @@ describe Admin::Plugins::PluginsController do
 
   describe :routes do
 
-    it "should resolve the route" do
+    it "should resolve the route_for_index" do
       {:get => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "index")
       plugins_listing_path.should == "/admin/plugins"
     end
+
+    it "should resolve_the_route_for_upload" do
+      {:post => "/admin/plugins"}.should route_to(:controller => "admin/plugins/plugins", :action => "upload")
+      upload_plugin_path.should == "/admin/plugins"
+    end
+
   end
 
   describe :index do

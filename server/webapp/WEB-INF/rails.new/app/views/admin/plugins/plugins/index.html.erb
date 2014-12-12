@@ -3,6 +3,12 @@
     <div class="heading">
         <h2>Plugins</h2>
     </div>
+
+    <%= form_tag({'action' => :upload}, 'multipart' => true) do %>
+        <%= file_field_tag 'plugin' %>
+        <%= submit_tag("Upload") %>
+    <% end %>
+
     <% if @plugin_descriptors.empty? %>
         <div class="information"><%= l.string("NO_PLUGINS_FOUND") -%><%= @external_plugin_location -%></div>
     <% end %>

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 
 class JsonBasedTaskExtension implements TaskExtensionContract {
-    public final static String TASK_EXTENSION = "task-extension";
+    public final static String TASK_EXTENSION = "task";
     public final static String CONFIGURATION_REQUEST = "configuration";
     public final static String VALIDATION_REQUEST = "validate";
     public final static String EXECUTION_REQUEST = "execute";

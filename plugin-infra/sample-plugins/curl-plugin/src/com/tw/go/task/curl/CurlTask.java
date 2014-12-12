@@ -138,6 +138,6 @@ public class CurlTask implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("task-extension", Arrays.asList("1.0"));
+        return new GoPluginIdentifier("task", Arrays.asList("1.0"));
     }
 }

@@ -22,9 +22,14 @@ import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
+import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -115,6 +120,48 @@ public class PluggableTaskTest {
         assertProperty(propertiesForDisplay.get(0), "KEY1", "value1", "key1");
         assertProperty(propertiesForDisplay.get(1), "Key2", "value2", "key2");
         assertProperty(propertiesForDisplay.get(2), "key3", "****", "key3");
+    }
+
+    @After
+    public void teardown() {
+        for (String pluginId : PluggableTaskConfigStore.store().pluginsWithPreference()) {
+            PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
+        }
+    }
+
+    @Test
+    public void shouldPopulatePropertiesForDisplayRetainingOrderAndDisplayNameIfConfigured() throws Exception {
+        Task taskDetails = mock(Task.class);
+        TaskConfig taskConfig = new TaskConfig();
+        addProperty(taskConfig, "KEY2", "Key 2", 1);
+        addProperty(taskConfig, "KEY1", "Key 1", 0);
+        addProperty(taskConfig, "KEY3", "Key 3", 2);
+        when(taskDetails.config()).thenReturn(taskConfig);
+        when(taskDetails.view()).thenReturn(mock(TaskView.class));
+
+        String pluginId = "plugin_with_all_details";
+        PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(taskDetails));
+
+        Configuration configuration = new Configuration(
+                ConfigurationPropertyMother.create("KEY3", true, "encryptedValue1"),
+                ConfigurationPropertyMother.create("KEY1", false, "value1"),
+                ConfigurationPropertyMother.create("KEY2", false, "value2")
+        );
+
+        PluggableTask task = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+
+        List<TaskProperty> propertiesForDisplay = task.getPropertiesForDisplay();
+
+        assertThat(propertiesForDisplay.size(), is(3));
+        assertProperty(propertiesForDisplay.get(0), "Key 1", "value1", "key1");
+        assertProperty(propertiesForDisplay.get(1), "Key 2", "value2", "key2");
+        assertProperty(propertiesForDisplay.get(2), "Key 3", "****", "key3");
+    }
+
+    private void addProperty(TaskConfig taskConfig, String key, String displayName, int displayOrder) {
+        TaskConfigProperty property = taskConfig.addProperty(key);
+        property.with(Property.DISPLAY_NAME, displayName);
+        property.with(Property.DISPLAY_ORDER, displayOrder);
     }
 
     @Test

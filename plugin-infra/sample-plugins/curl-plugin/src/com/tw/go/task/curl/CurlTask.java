@@ -65,7 +65,7 @@ public class CurlTask implements GoPlugin {
 
     private GoPluginApiResponse handleTaskView() {
         int responseCode = DefaultGoApiResponse.SUCCESS_RESPONSE_CODE;
-        Map view = new HashMap();
+        HashMap view = new HashMap();
         view.put("displayValue", "Curl");
         try {
             view.put("template", IOUtils.toString(getClass().getResourceAsStream("/views/task.template.html"), "UTF-8"));
@@ -102,17 +102,31 @@ public class CurlTask implements GoPlugin {
 
     private GoPluginApiResponse handleGetConfigRequest() {
         HashMap config = new HashMap();
-        config.put(URL_PROPERTY, null);
+        HashMap url = new HashMap();
+        url.put("display-order", "0");
+        url.put("display-name", "Url");
+        url.put("required", true);
+        config.put(URL_PROPERTY, url);
 
-        HashMap valueForSecureConnectionProperty = new HashMap();
-        valueForSecureConnectionProperty.put("default-value", SECURE_CONNECTION);
-        config.put(SECURE_CONNECTION_PROPERTY, valueForSecureConnectionProperty);
+        HashMap secure = new HashMap();
+        secure.put("default-value", SECURE_CONNECTION);
+        secure.put("display-order", "1");
+        secure.put("display-name", "Secure Connection");
+        secure.put("require", false);
+        config.put(SECURE_CONNECTION_PROPERTY, secure);
 
-        HashMap valueForRequestProperty = new HashMap();
-        valueForRequestProperty.put("default-value", REQUEST_TYPE);
-        config.put(REQUEST_PROPERTY, valueForRequestProperty);
+        HashMap requestType = new HashMap();
+        requestType.put("default-value", REQUEST_TYPE);
+        requestType.put("display-order", "2");
+        requestType.put("display-name", "Request Type");
+        requestType.put("require", false);
+        config.put(REQUEST_PROPERTY, requestType);
 
-        config.put(ADDITIONAL_OPTIONS, null);
+        HashMap additionalOptions = new HashMap();
+        additionalOptions.put("display-order", "3");
+        additionalOptions.put("display-name", "Additional Options");
+        additionalOptions.put("require", false);
+        config.put(ADDITIONAL_OPTIONS, additionalOptions);
         return createResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE, config);
     }
 

@@ -21,7 +21,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 /**
  * Specialization of {@link com.thoughtworks.go.plugin.api.config.Property} class, for task configuration.
  */
-public class TaskConfigProperty extends Property {
+public class TaskConfigProperty extends Property implements Comparable{
     protected TaskConfigProperty(String key) {
         super(key);
         updateDefaults();
@@ -34,7 +34,14 @@ public class TaskConfigProperty extends Property {
 
 
     private void updateDefaults() {
-        with(REQUIRED, true);
+        with(REQUIRED, false);
         with(SECURE, false);
+        with(DISPLAY_NAME, getKey());
+        with(DISPLAY_ORDER, 0);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.getOption(DISPLAY_ORDER) - ((TaskConfigProperty) o).getOption(DISPLAY_ORDER);
     }
 }

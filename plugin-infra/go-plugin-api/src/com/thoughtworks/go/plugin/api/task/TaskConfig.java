@@ -19,6 +19,10 @@ package com.thoughtworks.go.plugin.api.task;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Allows the plugin to specify information about the configuration it accepts and expects.
  *
@@ -51,5 +55,14 @@ public class TaskConfig extends Configuration {
             return null;
         }
         return property.getValue();
+    }
+
+    public List<? extends  Property> list() {
+        ArrayList<TaskConfigProperty> list = new ArrayList<TaskConfigProperty>();
+        for (Property property : super.list()) {
+            list.add((TaskConfigProperty) property);
+        }
+        Collections.sort(list);
+        return list;
     }
 }

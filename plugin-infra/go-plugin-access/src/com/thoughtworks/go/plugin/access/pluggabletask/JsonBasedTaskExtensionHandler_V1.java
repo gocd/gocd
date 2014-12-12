@@ -27,9 +27,14 @@ import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +54,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     @Override
     public TaskConfig convertJsonToTaskConfig(String configJson) {
-        TaskConfig taskConfig = new TaskConfig();
+        final TaskConfig taskConfig = new TaskConfig();
         ArrayList<String> exceptions = new ArrayList<String>();
         try {
             Map<String, Object> configMap = (Map) new GsonBuilder().create().fromJson(configJson, Object.class);
@@ -58,6 +63,8 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             }
             for (Map.Entry<String, Object> entry : configMap.entrySet()) {
                 TaskConfigProperty property = new TaskConfigProperty(entry.getKey(), null);
+                property.with(Property.REQUIRED, true);
+
                 Map propertyValue = (Map) entry.getValue();
                 if (propertyValue != null) {
                     if (propertyValue.containsKey("default-value")) {
@@ -65,6 +72,20 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                             exceptions.add(String.format("Key: '%s' - The Json for Task Config should contain a not-null 'default-value' of type String", entry.getKey()));
                         } else {
                             property.withDefault((String) propertyValue.get("default-value"));
+                        }
+                    }
+                    if (propertyValue.containsKey("display-name")) {
+                        if (!(propertyValue.get("display-name") instanceof String)) {
+                            exceptions.add(String.format("Key: '%s' - 'display-name' should be of type String", entry.getKey()));
+                        } else {
+                            property.with(Property.DISPLAY_NAME, (String) propertyValue.get("display-name"));
+                        }
+                    }
+                    if (propertyValue.containsKey("display-order")) {
+                        if (!(propertyValue.get("display-order") instanceof String && StringUtil.isInteger((String) propertyValue.get("display-order")))) {
+                            exceptions.add(String.format("Key: '%s' - 'display-order' should be a String containing a numerical value", entry.getKey()));
+                        } else {
+                            property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
                         }
                     }
                     if (propertyValue.containsKey("secure")) {
@@ -100,7 +121,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         ArrayList<String> exceptions = new ArrayList<String>();
         try {
             Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
-            if(result == null) return validationResult;
+            if (result == null) return validationResult;
             final Map<String, Object> errors = (Map<String, Object>) result.get("errors");
             if (errors != null) {
                 for (Map.Entry<String, Object> entry : errors.entrySet()) {
@@ -197,6 +218,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     private Map configPropertiesAsMap(TaskConfig taskConfig) {
         HashMap properties = new HashMap();
+
         for (Property property : taskConfig.list()) {
             final HashMap propertyValue = new HashMap();
             propertyValue.put("value", property.getValue());

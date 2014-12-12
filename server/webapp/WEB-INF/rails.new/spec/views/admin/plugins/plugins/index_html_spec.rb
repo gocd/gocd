@@ -25,6 +25,15 @@ end
 
 describe "admin/plugins/plugins/index.html.erb" do
 
+  it "should have a form to upload plugins" do
+    assign(:plugin_descriptors, [valid_descriptor("1")])
+
+    render
+
+    plugin_upload = Capybara.string(response.body).find('div#plugins-listing')
+    expect(plugin_upload).to have_selector("form")
+  end
+
   it "should list a set of plugins" do
     assign(:plugin_descriptors, [valid_descriptor("1"), invalid_descriptor('2', ['message1', 'message2'])])
 

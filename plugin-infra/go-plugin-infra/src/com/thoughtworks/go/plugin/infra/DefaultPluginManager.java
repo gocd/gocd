@@ -38,8 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.lang.Double.parseDouble;
 
 @Service
@@ -71,8 +70,14 @@ public class DefaultPluginManager implements PluginManager {
     }
 
 
-    public void addPlugin(File uploadedPlugin){
-
+    public boolean addPlugin(File uploadedPlugin, String name){
+        File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + name);
+        try {
+            FileUtils.copyFile(uploadedPlugin, addedExternalPluginLocation);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

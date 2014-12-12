@@ -26,7 +26,7 @@ class Admin::Plugins::PluginsController < AdminController
   end
 
   def upload
-    default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path))
+    default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
     redirect_to action: "index"
   end
 

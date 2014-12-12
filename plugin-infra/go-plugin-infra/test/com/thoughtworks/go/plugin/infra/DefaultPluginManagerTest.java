@@ -39,33 +39,37 @@ import org.osgi.framework.Bundle;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class DefaultPluginManagerTest {
     private static final String TEST_PLUGIN_BUNDLE_PATH = "test-bundles-dir";
     private File BUNDLE_DIR;
+    private File PLUGIN_EXTERNAL_DIR;
     private DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private DefaultPluginJarChangeListener jarChangeListener;
     private SystemEnvironment systemEnvironment;
     private GoApplicationAccessor applicationAccessor;
+    public static final File NEW_JAR_FILE = new File("a-fancy-hipster-plugin.jar");
 
     @Before
     public void setUp() throws Exception {
         BUNDLE_DIR = new File(TEST_PLUGIN_BUNDLE_PATH);
+
+        String pluginExternalDirName = "./tmp-external-DPJLMT" + new Random().nextInt();
+        PLUGIN_EXTERNAL_DIR = new File(pluginExternalDirName);
+        PLUGIN_EXTERNAL_DIR.mkdirs();
 
         monitor = mock(DefaultPluginJarLocationMonitor.class);
         registry = mock(DefaultPluginRegistry.class);
@@ -76,6 +80,29 @@ public class DefaultPluginManagerTest {
 
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(TEST_PLUGIN_BUNDLE_PATH);
         when(systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)).thenReturn(Boolean.TRUE);
+        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDirName);
+    }
+
+    @After
+    public void clean() {
+        FileUtils.deleteQuietly(PLUGIN_EXTERNAL_DIR);
+        FileUtils.deleteQuietly(NEW_JAR_FILE);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenFileIsUploadedToExternalDirectory() throws Exception {
+        NEW_JAR_FILE.createNewFile();
+
+        DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
+
+        assertTrue(defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName()));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenFileIsNotUploadedToExternalDirectory() throws Exception {
+        DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
+
+        assertFalse(defaultPluginManager.addPlugin(null, "random_name"));
     }
 
     @Test

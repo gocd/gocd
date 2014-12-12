@@ -34,7 +34,7 @@ describe Admin::Plugins::PluginsController do
 
     before :each do
       controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
-      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File))
+      @plugin_manager.should_receive(:addPlugin).with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
     end
 
     it "should redirect to #index" do

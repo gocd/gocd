@@ -23,7 +23,7 @@ PackageMaterialCheckConnection = function (url) {
             jQuery.ajax({
                 type: "GET",
                 url: url,
-                data: jQuery(e.currentTarget.form).serialize(),
+                data: jQuery(parent_container_selector + " :input").serialize(),
                 dataType: 'text',
                 success: function (data) {
                     var value = JSON.parse(data);

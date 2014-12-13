@@ -38,7 +38,8 @@ var TaskPluginView = function () {
         new AngularHelper().defineModule(app_name);
         angular.module(app_name).controller(angular_task_controller_name, ['$scope', function ($scope) {
 
-            var data = JSON.parse(task_data_element);
+            try{
+                var data = JSON.parse(task_data_element);
             var formName = form.attr("name");
             var errors = "errors";
             $scope[errors] = {};
@@ -49,6 +50,11 @@ var TaskPluginView = function () {
                     $scope[formName].$setValidity('server', false);
                 }
             });
+            }
+            catch(e){
+                console.log(e.message);
+            }
+
         }]);
 
         angular.module(app_name).directive('servererror', function () {

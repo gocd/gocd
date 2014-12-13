@@ -141,9 +141,9 @@ public class TaskViewServiceTest {
     public void shouldStoreDefaultValuesGivenForPropertiesInAPluginWhenInitializingANewTaskPlugin() throws Exception {
         String plugin = "task-plugin";
         when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(new GoPluginDescriptor(plugin, "1", null, null, null, false));
-        Property taskConfigProperty1 = new Property("key1");
-        Property taskConfigProperty2 = new Property("key2");
-        Property taskConfigProperty3 = new Property("key3");
+        Property taskConfigProperty1 = new TaskConfigProperty("key1", null);
+        Property taskConfigProperty2 = new TaskConfigProperty("key2", null);
+        Property taskConfigProperty3 = new TaskConfigProperty("key3", null);
         storeTaskPreferences(plugin, taskConfigProperty1.withDefault("default1"), taskConfigProperty2.withDefault("default2"), taskConfigProperty3);
         when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(PluggableTask.class));
 

@@ -26,4 +26,5 @@
   <label>Additional Options</label>
   <input type="text" ng-model="AdditionalOptions">
   </input>
+  <span class="form_error" ng-show="GOINPUTNAME[AdditionalOptions].$error.server">{{ GOINPUTNAME[AdditionalOptions].$error.server }}</span>
 </div>

@@ -86,8 +86,9 @@
 
     dashboard_periodical_executer.start();
 
-    var PipelineHistoryComment = initPipelineHistoryComment(
-            jQuery, Modalbox, dashboard_periodical_executer);
+    #if($pipeline_comment_feature_toggle_key)
+    var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
+    #end
 </script>
 
 #parse("shared/_footer.vm")

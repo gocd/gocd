@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.util.ListUtil;
@@ -105,6 +106,16 @@ public class PluggableTask extends AbstractTask {
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        if(PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())){
+            TaskPreference preference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
+            List<? extends Property> propertyDefinitions = preference.getConfig().list();
+            for (Property propertyDefinition : propertyDefinitions) {
+                ConfigurationProperty configuredProperty = configuration.getProperty(propertyDefinition.getKey());
+                taskProperties.add(new TaskProperty(propertyDefinition.getOption(Property.DISPLAY_NAME), configuredProperty.getDisplayValue(), configuredProperty.getConfigKeyName()));
+            }
+            return taskProperties;
+        }
+
         for (ConfigurationProperty property : configuration) {
             taskProperties.add(new TaskProperty(property.getConfigKeyName(), property.getDisplayValue()));
         }

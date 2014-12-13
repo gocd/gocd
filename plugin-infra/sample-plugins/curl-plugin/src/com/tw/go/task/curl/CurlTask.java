@@ -43,7 +43,7 @@ public class CurlTask implements GoPlugin {
     public static final String SECURE_CONNECTION_PROPERTY = "SecureConnection";
     public static final String REQUEST_TYPE = "-G";
     public static final String REQUEST_PROPERTY = "RequestType";
-    Logger logger = Logger.getLoggerFor(CurlTask.class);
+    private Logger logger = Logger.getLoggerFor(CurlTask.class);
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -65,7 +65,7 @@ public class CurlTask implements GoPlugin {
 
     private GoPluginApiResponse handleTaskView() {
         int responseCode = DefaultGoApiResponse.SUCCESS_RESPONSE_CODE;
-        Map view = new HashMap();
+        HashMap view = new HashMap();
         view.put("displayValue", "Curl");
         try {
             view.put("template", IOUtils.toString(getClass().getResourceAsStream("/views/task.template.html"), "UTF-8"));
@@ -92,28 +92,41 @@ public class CurlTask implements GoPlugin {
         HashMap validationResult = new HashMap();
         int responseCode = DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
         Map configMap = (Map) new GsonBuilder().create().fromJson(request.requestBody(), Object.class);
+        HashMap errorMap = new HashMap();
         if (!configMap.containsKey(URL_PROPERTY) || ((Map) configMap.get(URL_PROPERTY)).get("value") == null || ((String) ((Map) configMap.get(URL_PROPERTY)).get("value")).trim().isEmpty()) {
-            responseCode = DefaultGoPluginApiResponse.VALIDATION_FAILED;
-            HashMap errorMap = new HashMap();
             errorMap.put(URL_PROPERTY, "URL cannot be empty");
-            validationResult.put("errors", errorMap);
         }
+        validationResult.put("errors", errorMap);
         return createResponse(responseCode, validationResult);
     }
 
     private GoPluginApiResponse handleGetConfigRequest() {
         HashMap config = new HashMap();
-        config.put(URL_PROPERTY, null);
+        HashMap url = new HashMap();
+        url.put("display-order", "0");
+        url.put("display-name", "Url");
+        url.put("required", true);
+        config.put(URL_PROPERTY, url);
 
-        HashMap valueForSecureConnectionProperty = new HashMap();
-        valueForSecureConnectionProperty.put("default-value", SECURE_CONNECTION);
-        config.put(SECURE_CONNECTION_PROPERTY, valueForSecureConnectionProperty);
+        HashMap secure = new HashMap();
+        secure.put("default-value", SECURE_CONNECTION);
+        secure.put("display-order", "1");
+        secure.put("display-name", "Secure Connection");
+        secure.put("require", false);
+        config.put(SECURE_CONNECTION_PROPERTY, secure);
 
-        HashMap valueForRequestProperty = new HashMap();
-        valueForRequestProperty.put("default-value", REQUEST_TYPE);
-        config.put(REQUEST_PROPERTY, valueForRequestProperty);
+        HashMap requestType = new HashMap();
+        requestType.put("default-value", REQUEST_TYPE);
+        requestType.put("display-order", "2");
+        requestType.put("display-name", "Request Type");
+        requestType.put("require", false);
+        config.put(REQUEST_PROPERTY, requestType);
 
-        config.put(ADDITIONAL_OPTIONS, null);
+        HashMap additionalOptions = new HashMap();
+        additionalOptions.put("display-order", "3");
+        additionalOptions.put("display-name", "Additional Options");
+        additionalOptions.put("require", false);
+        config.put(ADDITIONAL_OPTIONS, additionalOptions);
         return createResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE, config);
     }
 
@@ -125,6 +138,6 @@ public class CurlTask implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("task-extension", Arrays.asList("1.0"));
+        return new GoPluginIdentifier("task", Arrays.asList("1.0"));
     }
 }

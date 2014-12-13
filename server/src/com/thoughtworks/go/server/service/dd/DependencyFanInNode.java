@@ -37,12 +37,15 @@ import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException
 import com.thoughtworks.go.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.log4j.Logger;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALTERED_TO_CORRECT_REVISION;
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.NEED_MORE_REVISIONS;
 
 public class DependencyFanInNode extends FanInNode {
+    private static final Logger LOGGER = Logger.getLogger(DependencyFanInNode.class);
+
     private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int maxBackTrackLimit = Integer.MAX_VALUE;
@@ -211,6 +214,11 @@ public class DependencyFanInNode extends FanInNode {
             stageIdentifierScmMaterial.put(stageIdentifierScmPair.first(), scmMaterials);
             ++currentCount;
         } else {
+            Collection disjunctionWithConfig = CollectionUtils.disjunction(currentScmFingerprint, commonMaterials);
+            Collection disjunctionWithInstance = CollectionUtils.disjunction(scmMaterialsFingerprint, commonMaterials);
+
+            LOGGER.warn(String.format("[Fan-in] - Incompatible materials for %s. Config: %s. Instance: %s.", stageIdentifierScmPair.first().getStageLocator(), disjunctionWithConfig, disjunctionWithInstance));
+
             //This is it. We will not go beyond this revision in history
             totalInstanceCount = currentCount;
         }

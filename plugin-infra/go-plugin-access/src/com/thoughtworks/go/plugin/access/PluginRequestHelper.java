@@ -1,5 +1,6 @@
 package com.thoughtworks.go.plugin.access;
 
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
@@ -33,9 +34,9 @@ public class PluginRequestHelper {
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
                 return pluginInteractionCallback.onSuccess(response.responseBody(), resolvedExtensionVersion);
             }
-            throw new RuntimeException(format("Unsuccessful response from plugin, response code '%s' and response body '%s'", response.responseCode(), response.responseBody()));
+            throw new RuntimeException(format("Unsuccessful response from plugin. Plugin returned with code '%s' and the following response: '%s'", response.responseCode(), response.responseBody()));
         } catch (Exception e) {
-            throw new RuntimeException(format("Exception while interacting with plugin id '%s', extension '%s', request '%s'. Reason, [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
+            throw new RuntimeException(format("Interaction with plugin with id '%s' implementing '%s' extension failed while requesting for '%s'. Reason: [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
         }
     }
 }

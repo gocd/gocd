@@ -42,7 +42,7 @@ public final class TaskProperty {
     public TaskProperty(String name, String value, String cssClass) {
         this.name = name;
         this.value = value;
-        this.cssClass = cssClass;
+        this.cssClass = defaultCssClass(cssClass);
     }
 
     public String getName() {

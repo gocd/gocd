@@ -23,16 +23,19 @@ import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.*;
-import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.StringUtil;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,8 +43,9 @@ import static org.mockito.Mockito.when;
 public class JsonBasedTaskExtensionHandler_V1Test {
     @Test
     public void shouldConvertTaskConfigJsonToTaskConfig() {
-        String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true}," +
-                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":true}," +
+
+        String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"Url\",\"display-order\":\"0\"}," +
+                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}," +
                 "\"PASSWORD\":{}," +
                 "\"FOO\":null" +
                 "}";
@@ -50,22 +54,42 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Property url = config.get("URL");
         assertThat(url.getOption(Property.REQUIRED), is(true));
         assertThat(url.getOption(Property.SECURE), is(false));
+        assertThat(url.getOption(Property.DISPLAY_NAME), is("Url"));
+        assertThat(url.getOption(Property.DISPLAY_ORDER), is(0));
 
         Property user = config.get("USER");
-        assertThat(user.getOption(Property.REQUIRED), is(true));
+        assertThat(user.getOption(Property.REQUIRED), is(false));
         assertThat(user.getOption(Property.SECURE), is(true));
+        assertThat(user.getOption(Property.DISPLAY_NAME), is("USER"));
+        assertThat(user.getOption(Property.DISPLAY_ORDER), is(1));
 
         Property password = config.get("PASSWORD");
         assertThat(password.getOption(Property.REQUIRED), is(true));
         assertThat(password.getOption(Property.SECURE), is(false));
+        assertThat(password.getOption(Property.DISPLAY_NAME), is("PASSWORD"));
+        assertThat(password.getOption(Property.DISPLAY_ORDER), is(0));
 
         Property foo = config.get("FOO");
         assertThat(foo.getOption(Property.REQUIRED), is(true));
         assertThat(foo.getOption(Property.SECURE), is(false));
+        assertThat(foo.getOption(Property.DISPLAY_NAME), is("FOO"));
+        assertThat(foo.getOption(Property.DISPLAY_ORDER), is(0));
     }
 
     @Test
-    public void shouldConvertJsonToTaskConfigObject() {
+    public void shouldKeepTheConfigInTheOrderOfDisplayOrder(){
+        String json = "{\"URL\":{\"default-value\":\"\",\"secure\":false,\"required\":true,\"display-name\":\"Url\",\"display-order\":\"0\"}," +
+                "\"PASSWORD\":{\"display-order\":\"2\"}," +
+                "\"USER\":{\"default-value\":\"foo\",\"secure\":true,\"required\":false,\"display-order\":\"1\"}" +
+                "}";
+        TaskConfig config = new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig(json);
+        assertThat(config.list().get(0).getKey(), is("URL"));
+        assertThat(config.list().get(1).getKey(), is("USER"));
+        assertThat(config.list().get(2).getKey(), is("PASSWORD"));
+    }
+
+    @Test
+    public void shouldConvertTaskConfigObjectToJson() {
         TaskConfig taskConfig = new TaskConfig();
         TaskConfigProperty p1 = new TaskConfigProperty("k1", "value1");
         p1.with(Property.SECURE, true);
@@ -135,6 +159,38 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL1' - The Json for Task Config should contain a not-null 'default-value' of type String, Key: 'URL1' - The Json for Task Config should contain a 'secure' field of type Boolean, Key: 'URL2' - The Json for Task Config should contain a 'secure' field of type Boolean, Key: 'URL3' - The Json for Task Config should contain a 'required' field of type Boolean."));
         }
+
+        assertThat(new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"1\"}}").get("URL").getOption(Property.DISPLAY_ORDER), is(1));
+
+        try {
+            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":\"first\"}}");
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-order' should be a String containing a numerical value."));
+        }
+
+        try {
+            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-order\":1}}");
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-order' should be a String containing a numerical value."));
+        }
+
+        assertThat(new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":\"Uniform Resource Locator\"}}").get("URL").getOption(Property.DISPLAY_NAME), is("Uniform Resource Locator"));
+
+        try {
+            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":{}}}");
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-name' should be of type String."));
+        }
+
+        try {
+            new JsonBasedTaskExtensionHandler_V1().convertJsonToTaskConfig("{\"URL\":{\"display-name\":1}}");
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error occurred while converting the Json to Task Config. Error: Key: 'URL' - 'display-name' should be of type String."));
+        }
     }
 
     @Test
@@ -151,8 +207,9 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         Assert.assertThat(result.isSuccessful(), CoreMatchers.is(false));
 
-        ValidationError error1 = findErrorOn(result, "key1");
-        ValidationError error2 = findErrorOn(result, "key2");
+
+        ValidationError error1 = result.getErrors().get(0);
+        ValidationError error2 = result.getErrors().get(1);
 
         Assert.assertThat(error1.getKey(), CoreMatchers.is("key1"));
         Assert.assertThat(error1.getMessage(), CoreMatchers.is("err1"));
@@ -177,13 +234,10 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
     @Test
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonResponseToValidation() {
-        String jsonResponse1 = "{\"errors\":{}}";
-        try {
-            new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse1);
-            fail("should throw exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: The Json for Validation Result must either be an empty body or it should have errors with the 'errors' key."));
-        }
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
+        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
 
         String jsonResponse2 = "{\"errors\":{\"key1\":\"err1\",\"key2\":true}}";
         try {
@@ -208,16 +262,6 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Error occurred while converting the Json to Validation Result. Error: Key: 'key1' - The Json for Validation Request must contain a not-null error message of type String, Key: 'key3' - The Json for Validation Request must contain a not-null error message of type String."));
         }
-    }
-
-    private ValidationError findErrorOn(ValidationResult result, final String key) {
-        return ListUtil.find(result.getErrors(), new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                ValidationError e = (ValidationError) item;
-                return e.getKey().equals(key);
-            }
-        });
     }
 
     @Test
@@ -362,7 +406,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));
         assertThat(environmentVariables.get("ENV2").toString(), is("VAL2"));
 
-        Map taskConfigMap = (Map) result.get("config");
+        Map<String,Object> taskConfigMap = (Map<String,Object>) result.get("config");
 
         assertThat(taskConfigMap.size(), is(2));
         Map property1 = (Map) taskConfigMap.get("Property1");

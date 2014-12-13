@@ -29,6 +29,8 @@ import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
@@ -71,6 +73,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
     @Autowired private RailsAssetsService railsAssetsService;
+    @Autowired private FeatureToggleService featureToggleService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -118,6 +121,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             backupService.initialize();
             railsAssetsService.initialize();
 
+            // initialize static accessors
+            Toggles.initializeWith(featureToggleService);
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

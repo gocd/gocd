@@ -40,11 +40,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskViewModelFactoryTest {
+
+    private TaskPreference taskPreference;
+
     @Before
     public void setUp() throws Exception {
         cleanupTaskPreferences();
 
-        TaskPreference taskPreference = mock(TaskPreference.class);
+        taskPreference = mock(TaskPreference.class);
         PluggableTaskConfigStore.store().setPreferenceFor("plugin-1", taskPreference);
         TaskView view = mock(TaskView.class);
         when(taskPreference.getView()).thenReturn(view);
@@ -66,6 +69,38 @@ public class PluggableTaskViewModelFactoryTest {
         assertThat(viewModel.getTypeForDisplay(), is("First plugin"));
         assertThat((String) viewModel.getParameters().get("template"), is("<input type='text' ng-model='abc'></input>"));
     }
+
+    @Test
+    public void templateShouldBeLoadedFromClasspathWithClasspathPrefix() throws Exception {
+        PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateAt("/com/thoughtworks/go/plugins/presentation/test-template.html");
+        assertThat((String) viewModel.getParameters().get("template"), is("<html>my-template</html>"));
+    }
+
+
+    @Test
+    public void shouldReturnErrorMessageIfTemplateIsMissingFromPlugin() {
+        PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateAt("/test-template-missing.html");
+        assertThat((String) viewModel.getParameters().get("template"), is("Template \"/test-template-missing.html\" is missing."));
+    }
+
+    private PluggableViewModel<PluggableTask> getModelWithTaskTemplateAt(final String filePath) {
+        when(taskPreference.getView()).thenReturn(new TaskView() {
+            @Override
+            public String displayValue() {
+                return "view";
+            }
+
+            @Override
+            public String template() {
+                return String.format("classpath:%s", filePath);
+            }
+        });
+
+        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
+        PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
+        return factory.viewModelFor(pluggableTask, "new");
+    }
+
 
     @Test
     public void dataForViewShouldBeGotFromTheTaskInJSONFormat() throws Exception {

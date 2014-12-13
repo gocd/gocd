@@ -26,8 +26,13 @@ class Admin::Plugins::PluginsController < AdminController
   end
 
   def upload
-    default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
-    redirect_to action: "index"
+    @upload_response = default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
+
+    respond_to do |format|
+      format.html {flash[:notice] = @upload_response.success and redirect_to action: "index"}
+      format.json {head :ok}
+      format.js
+    end
   end
 
   private

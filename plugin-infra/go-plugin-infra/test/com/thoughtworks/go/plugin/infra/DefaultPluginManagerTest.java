@@ -21,11 +21,13 @@ import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
@@ -42,12 +44,11 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Random;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -90,19 +91,23 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenFileIsUploadedToExternalDirectory() throws Exception {
+    public void shouldReturnSuccessResponseWhenFileIsUploadedToExternalDirectory() throws Exception {
         NEW_JAR_FILE.createNewFile();
-
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
 
-        assertTrue(defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName()));
+        PluginUploadResponse response = defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName());
+
+        assertFalse(response.success().isEmpty());
     }
 
     @Test
     public void shouldReturnFalseWhenFileIsNotUploadedToExternalDirectory() throws Exception {
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
 
-        assertFalse(defaultPluginManager.addPlugin(null, "random_name"));
+        PluginUploadResponse response = defaultPluginManager.addPlugin(null, "random_name");
+
+        assertThat(response.success(), isEmptyString());
+        assertFalse(response.errors().get(HttpStatus.SC_INTERNAL_SERVER_ERROR).isEmpty());
     }
 
     @Test

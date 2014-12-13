@@ -22,12 +22,14 @@ import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.lang.Double.parseDouble;
@@ -70,13 +74,15 @@ public class DefaultPluginManager implements PluginManager {
     }
 
 
-    public boolean addPlugin(File uploadedPlugin, String name){
+    public PluginUploadResponse addPlugin(File uploadedPlugin, String name){
         File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + name);
         try {
             FileUtils.copyFile(uploadedPlugin, addedExternalPluginLocation);
-            return true;
+            return PluginUploadResponse.create(true, "Your file is saved!", null);
         } catch (Exception e) {
-            return false;
+            Map<Integer, String> errors = new HashMap<Integer, String>();
+            errors.put(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
+            return PluginUploadResponse.create(false, null, errors);
         }
     }
 

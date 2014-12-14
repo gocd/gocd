@@ -9,7 +9,7 @@
     <% end %>
 
     <%= form_tag({'action' => :upload}, 'multipart' => true) do %>
-        <label for="plugin-file"><%= l.string("UPLOAD_PLUGIN") %></label> <%= file_field_tag "plugin-file" %>
+        <label for="plugin"><%= l.string("UPLOAD_PLUGIN") %></label> <%= file_field_tag "plugin" %>
         <%= submit_tag(l.string("COMMAND_UPLOAD")) %>
     <% end %>
     <ul class="plugins">

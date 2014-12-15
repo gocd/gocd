@@ -26,4 +26,7 @@ public class PluginUploadResponse {
         return errors;
     }
 
+    public boolean isSuccess() {
+        return errors.isEmpty();
+    }
 }

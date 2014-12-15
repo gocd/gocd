@@ -31,6 +31,7 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,8 +75,13 @@ public class DefaultPluginManager implements PluginManager {
     }
 
 
-    public PluginUploadResponse addPlugin(File uploadedPlugin, String name){
+    public PluginUploadResponse addPlugin(File uploadedPlugin, String name) {
         File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + name);
+        if (!validateJar(name)) {
+            Map<Integer, String> errors = new HashMap<Integer, String>();
+            errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
+            return PluginUploadResponse.create(false, null, errors);
+        }
         try {
             FileUtils.copyFile(uploadedPlugin, addedExternalPluginLocation);
             return PluginUploadResponse.create(true, "Your file is saved!", null);
@@ -84,6 +90,10 @@ public class DefaultPluginManager implements PluginManager {
             errors.put(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
             return PluginUploadResponse.create(false, null, errors);
         }
+    }
+
+    private boolean validateJar(String filename) {
+        return FilenameUtils.getExtension(filename).equals("jar");
     }
 
     @Override
@@ -185,7 +195,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public boolean isPluginOfType(final String extension, String pluginId) {
-        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin,Boolean>() {
+        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, Boolean>() {
             @Override
             public Boolean execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 return extension.equals(plugin.pluginIdentifier().getExtension());

@@ -35,13 +35,31 @@ describe Admin::Plugins::PluginsController do
     before :each do
       controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
       @plugin_manager.should_receive(:addPlugin)
-        .with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
-        .and_return(@plugin_response = double('upload_response'))
-      @plugin_response.should_receive(:success).and_return("successfully uploaded!")
+          .with(an_instance_of(java.io.File), 'plugins_controller_spec.rb')
+          .and_return(@plugin_response = double('upload_response'))
+    end
 
+    it "should show success message when upload is successful" do
+      @plugin_response.should_receive(:isSuccess).and_return(true)
+      @plugin_response.should_receive(:success).and_return("successfully uploaded!")
+      file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
+      post :upload, :plugin => file
+
+      expect(flash[:notice]).to eq("successfully uploaded!")
+    end
+
+    it "should show error message when upload is unsuccessful" do
+      @plugin_response.should_receive(:isSuccess).and_return(false)
+      @plugin_response.should_receive(:errors).and_return({415 => "invalid file"})
+      file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
+      post :upload, :plugin => file
+
+      expect(flash[:notice]).to eq("invalid file")
     end
 
     it "should redirect to #index" do
+      @plugin_response.should_receive(:isSuccess).and_return(true)
+      @plugin_response.should_receive(:success).and_return("successfully uploaded!")
       file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
       post :upload, :plugin => file
       response.should redirect_to "/admin/plugins"

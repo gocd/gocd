@@ -50,6 +50,7 @@
     <modules>
         <module>curl-plugin</module>
         <module>descriptor-hash-plugin</module>
+        <module>curl-plugin-old-api-based</module>
     </modules>
 
     <build>

@@ -122,10 +122,4 @@ public class MatcherTest {
     public void shouldValidateAllMatchersUsingAValidator() throws Exception {
         new Matcher(new String[]{"aaa,a"}).validateUsing(Validator.lengthValidator(200));
     }
-    
-    @Test
-    public void shouldMatchInMultiLineText() throws Exception {
-        assertThat(new Matcher("abc").matches("abc def\nghi jkl"), is(true));
-        assertThat(new Matcher("ghi").matches("abc def\nghi jkl"), is(true));
-    }
 }

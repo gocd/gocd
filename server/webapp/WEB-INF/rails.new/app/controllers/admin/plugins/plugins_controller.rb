@@ -20,8 +20,8 @@ class Admin::Plugins::PluginsController < AdminController
 
   def index
     @plugin_descriptors = default_plugin_manager.plugins()
-        .collect {|descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor}
-        .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
+                              .collect { |descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor }
+                              .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
   end
 
@@ -29,9 +29,12 @@ class Admin::Plugins::PluginsController < AdminController
     @upload_response = default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
 
     respond_to do |format|
-      message = @upload_response.isSuccess ? @upload_response.success : @upload_response.errors.values.join("\n")
-      format.html {flash[:notice] = message and redirect_to action: "index"}
-      format.json {head :ok}
+      if @upload_response.isSuccess
+        format.html { flash[:notice] =  @upload_response.success and redirect_to action: "index" }
+      else
+        format.html { flash[:error] = @upload_response.errors.values.join("\n") and redirect_to action: "index"}
+      end
+      format.json { head :ok }
       format.js
     end
   end

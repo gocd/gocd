@@ -54,7 +54,7 @@ describe Admin::Plugins::PluginsController do
       file = Rack::Test::UploadedFile.new(__FILE__, "image/jpeg")
       post :upload, :plugin => file
 
-      expect(flash[:notice]).to eq("invalid file")
+      expect(flash[:error]).to eq("invalid file")
     end
 
     it "should redirect to #index" do

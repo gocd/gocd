@@ -1,25 +1,32 @@
 <%- @view_title = "Administration" -%>
 <div id="plugins-listing">
-    <div class="heading">
-        <h2>Plugins</h2>
-    </div>
 
     <% if @plugin_descriptors.empty? %>
         <div class="information"><%= l.string("NO_PLUGINS_FOUND") -%><%= @external_plugin_location -%></div>
     <% end %>
 
-    <%= form_tag({'action' => :upload}, 'multipart' => true) do %>
-        <label for="plugin"><%= l.string("UPLOAD_PLUGIN") %></label> <%= file_field_tag "plugin" %>
-        <%= submit_tag(l.string("COMMAND_UPLOAD")) %>
-    <% end %>
+    <h2 class="legend"><%= l.string("UPLOAD_PLUGIN") %></h2>
+    <div id="upload-plugin">
+        <div class="fieldset">
+            <div class="form_item">
+                <%= form_tag({'action' => :upload}, 'multipart' => true) do %>
+                    <label for="plugin"><%= l.string("PLUGIN_JAR") %></label> <%= file_field_tag "plugin" %>
+                    <%= submit_tag(l.string("COMMAND_UPLOAD")) %>
+                <% end %>
+            </div>
+        </div>
+    </div>
+
+    <h2><%= l.string("INSTALLED_PLUGINS") %></h2>
     <ul class="plugins">
-         <% @plugin_descriptors.each do |descriptor| %>
+        <% @plugin_descriptors.each do |descriptor| %>
             <% about = descriptor.about()
                vendor = about.vendor()
             %>
             <li class="plugin <%= descriptor.isInvalid() ? 'disabled' : 'enabled' %>" id="<%= descriptor.id() %>">
                 <%- icon_url = descriptor.isBundledPlugin() ? 'andare/icon-plugin-default-bundled.png' : 'andare/icon-plugin-default.png' %>
                 <img src="<%= image_path(icon_url) %>" class="plugin-logo" alt="<%= about.name() %>"/>
+
                 <div class="plugin-data">
                     <div class="plugin-details">
                         <span class="name"><%= about.name() %></span>
@@ -39,12 +46,18 @@
 
                     <a href="#" class='show-info'>More Information</a>
                     <ul class='more-info-detail' style="display: none">
-                        <li class="plugin-location"><span class="key">Loaded from:</span><span class="value"><%= descriptor.pluginFileLocation() %></span></li>
+                        <li class="plugin-location">
+                            <span class="key">Loaded from:</span><span class="value"><%= descriptor.pluginFileLocation() %></span>
+                        </li>
                         <li class="plugin-target-oses">
                             <span class="key">Target operating systems:</span><span class="value"><%= about.targetOperatingSystems().join(", ") %></span>
                         </li>
-                        <li class="plugin-target-go-version"><span class="key">Target Go Version:</span><span class="value"><%= about.targetGoVersion() %></span></li>
-                        <li class="plugin-bundled-status"><span class="key">Bundled:</span><span class="value"><%= descriptor.isBundledPlugin() ? l.string("YES") : l.string("NO") %></span></li>
+                        <li class="plugin-target-go-version">
+                            <span class="key">Target Go Version:</span><span class="value"><%= about.targetGoVersion() %></span>
+                        </li>
+                        <li class="plugin-bundled-status">
+                            <span class="key">Bundled:</span><span class="value"><%= descriptor.isBundledPlugin() ? l.string("YES") : l.string("NO") %></span>
+                        </li>
                     </ul>
 
                     <% plugin_messages = descriptor.getStatus().getMessages() %>

@@ -102,17 +102,18 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenFileIsNotUploadedToExternalDirectory() throws Exception {
+    public void shouldReturnResponseWithErrorsWhenFileIsNotUploadedToExternalDirectory() throws Exception {
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
 
-        PluginUploadResponse response = defaultPluginManager.addPlugin(null, "random_name");
+        PluginUploadResponse response = defaultPluginManager.uploadPlugin(null, "filename");
 
         assertThat(response.success(), isEmptyString());
         assertFalse(response.errors().get(HttpStatus.SC_INTERNAL_SERVER_ERROR).isEmpty());
     }
 
+
     @Test
-    public void shouldReturnTrueWhenFileIsJarType() throws Exception {
+    public void shouldReturnSuccessResponseWhenFileIsJarType() throws Exception {
         NEW_JAR_FILE.createNewFile();
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
         PluginUploadResponse response = defaultPluginManager.addPlugin(NEW_JAR_FILE, NEW_JAR_FILE.getName());
@@ -121,7 +122,7 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenFileIsNotOfJarType() throws Exception {
+    public void shouldReturnResponseWithErrorsWhenFileIsNotOfJarType() throws Exception {
         NON_JAR_FILE.createNewFile();
         DefaultPluginManager defaultPluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
         PluginUploadResponse response = defaultPluginManager.addPlugin(NON_JAR_FILE, "not a jar");
@@ -130,7 +131,6 @@ public class DefaultPluginManagerTest {
         assertFalse(response.isSuccess());
         assertTrue(response.errors().containsValue("Please upload a jar."));
     }
-
 
     @Test
     public void shouldCleanTheBundleDirectoryAtStart() throws Exception {

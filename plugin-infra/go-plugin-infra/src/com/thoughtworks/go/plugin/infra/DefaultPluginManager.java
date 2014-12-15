@@ -75,13 +75,19 @@ public class DefaultPluginManager implements PluginManager {
     }
 
 
-    public PluginUploadResponse addPlugin(File uploadedPlugin, String name) {
-        File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + name);
-        if (!validateJar(name)) {
+    public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
+
+        if (!validateJar(filename)) {
             Map<Integer, String> errors = new HashMap<Integer, String>();
             errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
             return PluginUploadResponse.create(false, null, errors);
         }
+
+        return uploadPlugin(uploadedPlugin, filename);
+    }
+
+    protected PluginUploadResponse uploadPlugin(File uploadedPlugin, String filename) {
+        File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + filename);
         try {
             FileUtils.copyFile(uploadedPlugin, addedExternalPluginLocation);
             return PluginUploadResponse.create(true, "Your file is saved!", null);

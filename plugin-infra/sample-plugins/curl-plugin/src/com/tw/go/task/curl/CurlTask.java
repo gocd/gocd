@@ -112,20 +112,20 @@ public class CurlTask implements GoPlugin {
         secure.put("default-value", SECURE_CONNECTION);
         secure.put("display-order", "1");
         secure.put("display-name", "Secure Connection");
-        secure.put("require", false);
+        secure.put("required", false);
         config.put(SECURE_CONNECTION_PROPERTY, secure);
 
         HashMap requestType = new HashMap();
         requestType.put("default-value", REQUEST_TYPE);
         requestType.put("display-order", "2");
         requestType.put("display-name", "Request Type");
-        requestType.put("require", false);
+        requestType.put("required", false);
         config.put(REQUEST_PROPERTY, requestType);
 
         HashMap additionalOptions = new HashMap();
         additionalOptions.put("display-order", "3");
         additionalOptions.put("display-name", "Additional Options");
-        additionalOptions.put("require", false);
+        additionalOptions.put("required", false);
         config.put(ADDITIONAL_OPTIONS, additionalOptions);
         return createResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE, config);
     }

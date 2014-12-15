@@ -103,6 +103,7 @@ GEM
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   dynamic_form

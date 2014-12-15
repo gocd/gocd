@@ -65,7 +65,7 @@ public class AgentController {
     private TaskExtension taskExtension;
 
     @Autowired
-    public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
+    public AgentController(BuildRepositoryRemote server, BuildRepositoryHttpRemote remoteServer, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
                            AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger, SystemEnvironment systemEnvironment,
                            PluginManager pluginManager, TaskExtension taskExtension) {
         this.agentUpgradeService = agentUpgradeService;

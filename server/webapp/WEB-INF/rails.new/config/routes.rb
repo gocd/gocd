@@ -251,6 +251,7 @@ Go::Application.routes.draw do
 
       #agents api's
       get 'agents' => 'agents#index', format: 'json', as: :agents_information
+      get 'agents/:uuid/work' => 'agents#work', format: 'json'
       post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
       post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
 

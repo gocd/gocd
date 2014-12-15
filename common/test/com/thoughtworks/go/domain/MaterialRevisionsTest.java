@@ -218,6 +218,15 @@ public class MaterialRevisionsTest {
     }
 
     @Test
+    public void shouldMatchMultiLineComment() {
+        MaterialRevisions materialRevisions = new MaterialRevisions(
+            svnMaterialRevision(checkinWithComment("100", "Line1\nLine2\nLine3", "Committer1", EMAIL_ADDRESS, TODAY_CHECKIN, "README"))
+        );
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("Committer1")), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("Line1")), is(true));
+    }
+
+    @Test
     public void shouldMatchByUserName() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
                 svnMaterialRevision(aCheckIn("100", "README"))

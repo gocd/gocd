@@ -26,16 +26,21 @@ class Admin::Plugins::PluginsController < AdminController
   end
 
   def upload
-    @upload_response = default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
-
-    respond_to do |format|
-      if @upload_response.isSuccess
-        format.html { flash[:notice] =  @upload_response.success and redirect_to action: "index" }
-      else
-        format.html { flash[:error] = @upload_response.errors.values.join("\n") and redirect_to action: "index"}
+    if params[:plugin].nil?
+      respond_to do |format|
+        format.html { flash[:error] = "Please select a file to upload." and redirect_to action: "index" }
+        format.js
       end
-      format.json { head :ok }
-      format.js
+    else
+      upload_response = default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
+      respond_to do |format|
+        if upload_response.isSuccess
+          format.html { flash[:notice] =  upload_response.success and redirect_to action: "index" }
+        else
+          format.html { flash[:error] = upload_response.errors.values.join("\n") and redirect_to action: "index"}
+        end
+        format.js
+      end
     end
   end
 
@@ -43,4 +48,5 @@ class Admin::Plugins::PluginsController < AdminController
   def set_tab_name
     @tab_name = 'plugins-listing'
   end
+
 end

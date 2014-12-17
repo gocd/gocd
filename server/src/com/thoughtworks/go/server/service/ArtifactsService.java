@@ -16,24 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipInputStream;
-
-import com.thoughtworks.go.domain.ArtifactUrlReader;
-import com.thoughtworks.go.domain.ConsoleOut;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.legacywrapper.LogParser;
 import com.thoughtworks.go.server.domain.LogFile;
@@ -41,11 +24,15 @@ import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
 
@@ -274,7 +261,9 @@ public class ArtifactsService implements ArtifactUrlReader {
                 lineNumber++;
             }
         } catch (FileNotFoundException ex) {
-            LOGGER.error("Could not read console out: " + ex.getMessage());
+            String message = "Could not read console out: " + ex.getMessage();
+            LOGGER.error(message);
+            LOGGER.trace(message, ex);
         } finally {
             inputStream.close();
         }

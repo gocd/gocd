@@ -160,7 +160,9 @@ public class JobInstanceService implements JobPlanLoader {
         };
         ExceptionHandler<IJobPostCompletionHook> exceptionHandler = new ExceptionHandler<IJobPostCompletionHook>() {
             public void handleException(IJobPostCompletionHook jobPostCompletionHook, Throwable t) {
-                LOGGER.error(String.format("[JOB POST COMPLETION HOOK] Hook %s resulted in an exception %s", jobPostCompletionHook, t.getMessage()));
+                String message = String.format("[JOB POST COMPLETION HOOK] Hook %s resulted in an exception %s", jobPostCompletionHook, t.getMessage());
+                LOGGER.error(message);
+                LOGGER.debug(message, t);
             }
         };
 
@@ -264,7 +266,9 @@ public class JobInstanceService implements JobPlanLoader {
         ExceptionHandler<IJobPreScheduleHook> exceptionHandler = new ExceptionHandler<IJobPreScheduleHook>() {
             @Override
             public void handleException(IJobPreScheduleHook preScheduleHook, Throwable t) {
-                LOGGER.error(String.format("[JOB PRE ASSIGNMENT HOOK] Hook %s resulted in an exception %s", preScheduleHook, t.getMessage()));
+                String message = String.format("[JOB PRE ASSIGNMENT HOOK] Hook %s resulted in an exception %s", preScheduleHook, t.getMessage());
+                LOGGER.error(message, t);
+                LOGGER.debug(message, t);
                 throw new RuntimeException(t);
             }
         };

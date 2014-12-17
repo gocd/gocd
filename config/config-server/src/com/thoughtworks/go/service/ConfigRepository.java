@@ -109,7 +109,7 @@ public class ConfigRepository {
                 }
             });
         } catch (Exception e) {
-            LOGGER.error(format("[CONFIG SAVE] Check-in failed for %s", rev.toString()));
+            LOGGER.error(format("[CONFIG SAVE] Check-in failed for %s", rev.toString()), e);
             throw e;
         }
     }
@@ -177,7 +177,7 @@ public class ConfigRepository {
         try {
             return revisions().iterator().next();
         } catch (GitAPIException e) {
-            LOGGER.error("[CONFIG REPOSITORY] Could not fetch latest commit id");
+            LOGGER.error("[CONFIG REPOSITORY] Could not fetch latest commit id", e);
             throw e;
         }
     }
@@ -326,7 +326,7 @@ public class ConfigRepository {
         try {
             git.branchCreate().setName(branchName).setStartPoint(revCommit).call();
         } catch (GitAPIException e) {
-            LOGGER.error(String.format("[CONFIG_MERGE] Failed to create branch %s at revision %s", branchName, revCommit.getId()));
+            LOGGER.error(String.format("[CONFIG_MERGE] Failed to create branch %s at revision %s", branchName, revCommit.getId()), e);
             throw e;
         }
     }
@@ -335,7 +335,7 @@ public class ConfigRepository {
         try {
             git.branchDelete().setBranchNames(branchName).setForce(true).call();
         } catch (GitAPIException e) {
-            LOGGER.error(String.format("[CONFIG_MERGE] Failed to delete branch %s", branchName));
+            LOGGER.error(String.format("[CONFIG_MERGE] Failed to delete branch %s", branchName), e);
             throw e;
         }
     }
@@ -346,7 +346,7 @@ public class ConfigRepository {
             checkin(rev);
             return getCurrentRevCommit();
         } catch (Exception e) {
-            LOGGER.error(String.format("[CONFIG_MERGE] Check-in to branch %s failed", branchName));
+            LOGGER.error(String.format("[CONFIG_MERGE] Check-in to branch %s failed", branchName), e);
             throw e;
         }
     }
@@ -373,7 +373,7 @@ public class ConfigRepository {
         try {
             git.checkout().setName(branchName).call();
         } catch (GitAPIException e) {
-            LOGGER.error(format("[CONFIG_MERGE] Checkout to branch %s failed", branchName));
+            LOGGER.error(format("[CONFIG_MERGE] Checkout to branch %s failed", branchName), e);
             throw e;
         }
     }
@@ -386,7 +386,7 @@ public class ConfigRepository {
             deleteBranch(BRANCH_AT_HEAD);
         } catch (Exception e) {
             String currentBranch = git.getRepository().getBranch();
-            LOGGER.error(format("Error while trying to clean up config repository, CurrentBranch: %s \n : \n Message: %s \n StackTrace: %s", currentBranch, e.getMessage(), e.getStackTrace()));
+            LOGGER.error(format("Error while trying to clean up config repository, CurrentBranch: %s \n : \n Message: %s", currentBranch, e.getMessage(), e.getStackTrace()), e);
             throw new RuntimeException(e);
         }
     }

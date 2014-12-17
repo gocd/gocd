@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,6 +142,7 @@ public class DefaultPluginManager implements PluginManager {
                     return plugin.handle(apiRequest);
                 } catch (UnhandledRequestTypeException e) {
                     LOGGER.error(e.getMessage());
+                    LOGGER.debug(e.getMessage(), e);
                     throw new RuntimeException(e);
                 }
             }

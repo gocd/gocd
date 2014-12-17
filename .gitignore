@@ -106,7 +106,7 @@ server/webapp/WEB-INF/rails/vendor/plugins/shine
 server/webapp/WEB-INF/rails/historical_jars
 server/webapp/WEB-INF/rails/db/config.git
 
-server/webapp/WEB-INF/rails.new/vendor/**
+server/webapp/WEB-INF/rails.new/vendor/plugins/shine
 server/webapp/WEB-INF/rails.new/historical_jars
 server/webapp/WEB-INF/rails.new/db/config.git
 server/webapp/WEB-INF/rails.new/config/cipher

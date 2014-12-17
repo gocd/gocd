@@ -133,7 +133,7 @@ if [ "$JAVA_HOME" == "" ]; then
 fi
 
 if [ "$DAEMON" == "Y" ]; then
-    eval "nohup $CMD >>$LOG_FILE &"
+    eval "nohup $CMD >>$LOG_FILE 2>&1 &"
     echo $! >$PID_FILE
 else
     eval "$CMD"

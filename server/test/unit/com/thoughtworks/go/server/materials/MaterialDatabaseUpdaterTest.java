@@ -97,4 +97,22 @@ public class MaterialDatabaseUpdaterTest {
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.svnMaterial()), is((MaterialUpdater) scmMaterialUpdater));
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.packageMaterial()), is((MaterialUpdater) packageMaterialUpdater));
     }
+
+    @Test
+    public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() throws Exception {
+        Material material = new GitMaterial("url", "branch");
+        Exception exceptionWithNullMessage = new RuntimeException(null, new RuntimeException("Inner exception has non-null message"));
+        String message = "Modification check failed for material: " + material.getLongDescription();
+
+        when(materialRepository.findMaterialInstance(material)).thenThrow(exceptionWithNullMessage);
+
+        try {
+            materialDatabaseUpdater.updateMaterial(material);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e, is(exceptionWithNullMessage));
+        }
+
+        verify(healthService).update(ServerHealthState.error(message, "Unknown error", HealthStateType.general(HealthStateScope.forMaterial(material))));
+    }
 }

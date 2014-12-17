@@ -51,7 +51,8 @@ public class AuthenticationProcessingFilter extends org.springframework.security
         super.onUnsuccessfulAuthentication(request, response, failed);
         if(failed.getClass() == AuthenticationServiceException.class){
             request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, new Exception(localizer.localize("AUTHENTICATION_SERVICE_EXCEPTION")));
-            LOGGER.error(failed.getMessage(), failed);
+            LOGGER.error(failed.getMessage());
+            LOGGER.trace(failed.getMessage(), failed);
         }
     }
 

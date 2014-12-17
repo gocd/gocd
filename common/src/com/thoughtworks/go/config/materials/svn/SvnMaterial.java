@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.PasswordEncrypter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -33,19 +26,22 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.domain.materials.svn.Subversion;
-import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
-import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.domain.materials.svn.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -189,7 +185,9 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         try {
             svn().cleanupAndRevert(outputStreamConsumer, workingFolder);
         } catch (Exception e) {
-            LOGGER.error("Failed to do cleanup and revert in " + workingFolder.getAbsolutePath(), e);
+            String message = "Failed to do cleanup and revert in " + workingFolder.getAbsolutePath();
+            LOGGER.error(message);
+            LOGGER.debug(message, e);
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Updating to revision " + revision + " on " + workingFolder);

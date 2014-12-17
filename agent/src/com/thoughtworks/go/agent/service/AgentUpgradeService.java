@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.agent.service;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import org.apache.commons.httpclient.Header;
@@ -27,6 +25,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 public class AgentUpgradeService {
@@ -60,7 +60,9 @@ public class AgentUpgradeService {
             validateIfLatestLauncher(launcherMd5, method);
             validateIfLatestPluginZipAvailable(agentPluginsMd5, method);
         } catch (IOException ioe) {
-            LOGGER.error(String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString()), ioe);
+            String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString());
+            LOGGER.error(message);
+            LOGGER.debug(message, ioe);
             throw ioe;
         } finally {
             method.releaseConnection();

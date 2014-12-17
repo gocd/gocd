@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Properties;
@@ -35,6 +28,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
@@ -59,7 +54,9 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
             );
             return true;
         } catch (DataAccessException e) {
-            LOGGER.error("Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + (Long) instanceId + "'", e);
+            String message = "Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + (Long) instanceId + "'";
+            LOGGER.error(message, e);
+            LOGGER.debug(message, e);
             return false;
         }
     }

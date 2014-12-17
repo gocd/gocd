@@ -31,7 +31,6 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.SystemEnvironment.*;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static java.lang.Double.parseDouble;
 
 @Service
@@ -56,10 +56,12 @@ public class DefaultPluginManager implements PluginManager {
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
+    private PluginWriter pluginWriter;
+    private PluginValidator pluginValidator;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter, PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
         this.monitor = monitor;
         this.registry = registry;
         this.listener = listener;
@@ -67,6 +69,8 @@ public class DefaultPluginManager implements PluginManager {
         this.systemEnvironment = systemEnvironment;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
+        this.pluginWriter = pluginWriter;
+        this.pluginValidator = pluginValidator;
     }
 
     @Override
@@ -76,30 +80,12 @@ public class DefaultPluginManager implements PluginManager {
 
 
     public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
-
-        if (!validateJar(filename)) {
+        if (!pluginValidator.namecheckForJar(filename)) {
             Map<Integer, String> errors = new HashMap<Integer, String>();
             errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
             return PluginUploadResponse.create(false, null, errors);
         }
-
-        return uploadPlugin(uploadedPlugin, filename);
-    }
-
-    protected PluginUploadResponse uploadPlugin(File uploadedPlugin, String filename) {
-        File addedExternalPluginLocation = new File(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH) + "/" + filename);
-        try {
-            FileUtils.copyFile(uploadedPlugin, addedExternalPluginLocation);
-            return PluginUploadResponse.create(true, "Your file is saved!", null);
-        } catch (Exception e) {
-            Map<Integer, String> errors = new HashMap<Integer, String>();
-            errors.put(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
-            return PluginUploadResponse.create(false, null, errors);
-        }
-    }
-
-    private boolean validateJar(String filename) {
-        return FilenameUtils.getExtension(filename).equals("jar");
+        return pluginWriter.addPlugin(uploadedPlugin, filename);
     }
 
     @Override

@@ -60,7 +60,7 @@ public class AgentUpgradeService {
             validateIfLatestLauncher(launcherMd5, method);
             validateIfLatestPluginZipAvailable(agentPluginsMd5, method);
         } catch (IOException ioe) {
-            LOGGER.error(String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString()));
+            LOGGER.error(String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString()), ioe);
             throw ioe;
         } finally {
             method.releaseConnection();

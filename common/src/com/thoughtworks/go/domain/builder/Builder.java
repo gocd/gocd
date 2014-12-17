@@ -107,7 +107,7 @@ public abstract class Builder implements Serializable {
 
     protected void logException(DefaultGoPublisher publisher, Exception e) throws CruiseControlException {
         publisher.consumeLine(String.format("Error: %s", e.getMessage()));
-        LOGGER.error(e);
+        LOGGER.error(e.getMessage(), e);
         throw new CruiseControlException(e);
     }
 

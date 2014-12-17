@@ -93,7 +93,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Pipelin
             cacheActivePipelines();
             LOGGER.info("Done loading active pipelines into memory.");
         } catch (Exception e) {
-            LOGGER.fatal(e);
+            LOGGER.fatal(e.getMessage(), e);
             throw e;
         }
     }
@@ -363,7 +363,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Pipelin
                             .and("stageLocator", pipelineName + "/" + pipelineCounter + "/%/%")
                             .asMap()));
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
         if (instanceModels.isEmpty()) {

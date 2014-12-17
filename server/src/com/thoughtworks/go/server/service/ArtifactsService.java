@@ -274,7 +274,7 @@ public class ArtifactsService implements ArtifactUrlReader {
                 lineNumber++;
             }
         } catch (FileNotFoundException ex) {
-            LOGGER.error("Could not read console out: " + ex.getMessage());
+            LOGGER.error("Could not read console out: " + ex.getMessage(), ex);
         } finally {
             inputStream.close();
         }

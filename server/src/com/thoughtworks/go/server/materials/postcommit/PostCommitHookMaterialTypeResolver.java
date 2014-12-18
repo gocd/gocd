@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImplementer;
+import com.thoughtworks.go.server.materials.postcommit.mercurial.MercurialPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class PostCommitHookMaterialTypeResolver {
         allKnownMaterialTypes.add(new UnknownPostCommitHookMaterialType());
         allKnownMaterialTypes.add(new SvnPostCommitHookMaterialType());
         allKnownMaterialTypes.add(new GitPostCommitHookMaterialType());
+        allKnownMaterialTypes.add(new MercurialPostCommitHookMaterialType());
     }
 
     public PostCommitHookMaterialType toType(String type) {
@@ -91,6 +93,25 @@ public class PostCommitHookMaterialTypeResolver {
         @Override
         public PostCommitHookImplementer getImplementer() {
             return new GitPostCommitHookImplementer();
+        }
+    }
+
+    final class MercurialPostCommitHookMaterialType implements PostCommitHookMaterialType {
+        private static final String TYPE = "hg";
+
+        @Override
+        public boolean isKnown() {
+            return true;
+        }
+
+        @Override
+        public boolean isValid(String type) {
+            return TYPE.equalsIgnoreCase(type);
+        }
+
+        @Override
+        public PostCommitHookImplementer getImplementer() {
+            return new MercurialPostCommitHookImplementer();
         }
     }
 }

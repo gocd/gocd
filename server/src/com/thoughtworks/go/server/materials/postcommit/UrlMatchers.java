@@ -14,28 +14,27 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server.materials.postcommit.git;
+package com.thoughtworks.go.server.materials.postcommit;
 
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GitUrlMatchers {
+public class UrlMatchers {
 
-    private final ArrayList<GitMatcher> validators;
+    private final ArrayList<UrlMatcher> validators;
 
-    public GitUrlMatchers() {
-        validators = new ArrayList<GitMatcher>();
-        validators.add(new GitUrlExactMatch());
-        validators.add(new GitUrlWithFullAuthMatcher());
-        validators.add(new GitUrlWithUserNameAndEmptyPasswordAuthMatcher());
-        validators.add(new GitUrlWithUserNameAndNoPasswordAuthMatcher());
-        validators.add(new GitUrlWithNoAuthMatcher());
+    public UrlMatchers() {
+        validators = new ArrayList<UrlMatcher>();
+        validators.add(new UrlExactMatcher());
+        validators.add(new UrlWithFullAuthMatcher());
+        validators.add(new UrlWithUserNameAndEmptyPasswordAuthMatcher());
+        validators.add(new UrlWithUserNameAndNoPasswordAuthMatcher());
+        validators.add(new UrlWithNoAuthMatcher());
     }
 
     public boolean perform(String paramUrl, String materialUrl) {
-        for (GitMatcher validator : validators) {
+        for (UrlMatcher validator : validators) {
             if (validator.isValid(paramUrl, materialUrl)) {
                 return true;
             }
@@ -44,17 +43,17 @@ public class GitUrlMatchers {
     }
 }
 
-interface GitMatcher {
+interface UrlMatcher {
     public boolean isValid(String paramUrl, String materialUrl);
 }
 
-class GitUrlWithFullAuthMatcher implements GitMatcher {
+class UrlWithFullAuthMatcher implements UrlMatcher {
 
     private static final Pattern URL_WITH_FULL_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?):(.+?)@(.+)$");
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        Matcher fullAuthMatcher = URL_WITH_FULL_AUTH_PATTERN.matcher(materialUrl);
+        java.util.regex.Matcher fullAuthMatcher = URL_WITH_FULL_AUTH_PATTERN.matcher(materialUrl);
         if (fullAuthMatcher.matches()) {
             String protocolField = fullAuthMatcher.group(1);
             String urlField = fullAuthMatcher.group(4);
@@ -64,13 +63,13 @@ class GitUrlWithFullAuthMatcher implements GitMatcher {
     }
 }
 
-class GitUrlWithUserNameAndEmptyPasswordAuthMatcher implements GitMatcher {
+class UrlWithUserNameAndEmptyPasswordAuthMatcher implements UrlMatcher {
 
     private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?):@(.+)$");
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
+        java.util.regex.Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
         if (userNameAuthMatcher.matches()) {
             String protocolField = userNameAuthMatcher.group(1);
             String urlField = userNameAuthMatcher.group(3);
@@ -80,13 +79,13 @@ class GitUrlWithUserNameAndEmptyPasswordAuthMatcher implements GitMatcher {
     }
 }
 
-class GitUrlWithUserNameAndNoPasswordAuthMatcher implements GitMatcher {
+class UrlWithUserNameAndNoPasswordAuthMatcher implements UrlMatcher {
 
     private static final Pattern URL_WITH_USERNAME_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+?)@(.+)$");
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
+        java.util.regex.Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
         if (userNameAuthMatcher.matches()) {
             String protocolField = userNameAuthMatcher.group(1);
             String urlField = userNameAuthMatcher.group(3);
@@ -96,13 +95,13 @@ class GitUrlWithUserNameAndNoPasswordAuthMatcher implements GitMatcher {
     }
 }
 
-class GitUrlWithNoAuthMatcher implements GitMatcher {
+class UrlWithNoAuthMatcher implements UrlMatcher {
 
     private static final Pattern URL_WITH_NO_AUTH_PATTERN = Pattern.compile("^(.+?//)(.+)$");
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        Matcher urlMatcher = URL_WITH_NO_AUTH_PATTERN.matcher(materialUrl);
+        java.util.regex.Matcher urlMatcher = URL_WITH_NO_AUTH_PATTERN.matcher(materialUrl);
         if (urlMatcher.matches()) {
             String protocolField = urlMatcher.group(1);
             String urlField = urlMatcher.group(2);
@@ -112,7 +111,7 @@ class GitUrlWithNoAuthMatcher implements GitMatcher {
     }
 }
 
-class GitUrlExactMatch implements GitMatcher {
+class UrlExactMatcher implements UrlMatcher {
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {

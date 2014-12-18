@@ -14,19 +14,19 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server.materials.postcommit.git;
+package com.thoughtworks.go.server.materials.postcommit.mercurial;
 
-import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.server.materials.postcommit.UrlMatchers;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
+import com.thoughtworks.go.server.materials.postcommit.UrlMatchers;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
+public class MercurialPostCommitHookImplementer implements PostCommitHookImplementer {
 
     static final String REPO_URL_PARAM_KEY = "repository_url";
     private final UrlMatchers validators = new UrlMatchers();
@@ -38,7 +38,7 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
             String paramRepoUrl = (String) params.get(REPO_URL_PARAM_KEY);
             if (StringUtils.isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
-                    if (material instanceof GitMaterial && isUrlEqual(paramRepoUrl, (GitMaterial) material)) {
+                    if (material instanceof HgMaterial && isUrlEqual(paramRepoUrl, (HgMaterial) material)) {
                         prunedCollection.add(material);
                     }
                 }
@@ -49,7 +49,7 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
         }
     }
 
-    boolean isUrlEqual(String paramRepoUrl, GitMaterial material) {
+    boolean isUrlEqual(String paramRepoUrl, HgMaterial material) {
         String materialUrl = material.getUrlArgument().forCommandline();
         return validators.perform(paramRepoUrl, materialUrl);
     }

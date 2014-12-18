@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -38,6 +36,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
+
+import java.io.File;
 
 /**
  * @understands how to update materials on the database from the real SCMs
@@ -113,7 +113,8 @@ public class MaterialDatabaseUpdater {
             healthService.removeByScope(scope);
         } catch (Exception e) {
             String message = "Modification check failed for material: " + material.getLongDescription();
-            healthService.update(ServerHealthState.error(message, e.getMessage(), HealthStateType.general(scope)));
+            String errorDescription = e.getMessage() == null ? "Unknown error" : e.getMessage();
+            healthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
             LOGGER.warn(String.format("[Material Update] %s", message), e);
             throw e;
         }

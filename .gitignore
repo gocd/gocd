@@ -101,6 +101,7 @@ tools/jes-2.0-beta2/nohup.out
 
 server/webapp/javascripts/shine.js
 
+**/.rakeTasks
 server/webapp/WEB-INF/rails/vendor/plugins/shine
 server/webapp/WEB-INF/rails/historical_jars
 server/webapp/WEB-INF/rails/db/config.git

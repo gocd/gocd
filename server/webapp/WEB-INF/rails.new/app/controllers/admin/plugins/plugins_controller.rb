@@ -19,12 +19,34 @@ class Admin::Plugins::PluginsController < AdminController
   before_filter :set_tab_name
 
   def index
-    @plugin_descriptors = default_plugin_manager.plugins().collect {|descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor}.sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
+    @plugin_descriptors = default_plugin_manager.plugins()
+                              .collect { |descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor }
+                              .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
+  end
+
+  def upload
+    if params[:plugin].nil?
+      respond_to do |format|
+        format.html { flash[:error] = "Please select a file to upload." and redirect_to action: "index" }
+        format.js
+      end
+    else
+      upload_response = default_plugin_manager.addPlugin(java.io.File.new(params[:plugin].path), params[:plugin].original_filename)
+      respond_to do |format|
+        if upload_response.isSuccess
+          format.html { flash[:notice] =  upload_response.success and redirect_to action: "index" }
+        else
+          format.html { flash[:error] = upload_response.errors.values.join("\n") and redirect_to action: "index"}
+        end
+        format.js
+      end
+    end
   end
 
   private
   def set_tab_name
     @tab_name = 'plugins-listing'
   end
+
 end

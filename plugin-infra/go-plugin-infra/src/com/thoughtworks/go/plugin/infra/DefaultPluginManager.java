@@ -22,12 +22,14 @@ import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
@@ -52,10 +56,12 @@ public class DefaultPluginManager implements PluginManager {
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
+    private PluginWriter pluginWriter;
+    private PluginValidator pluginValidator;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter, PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
         this.monitor = monitor;
         this.registry = registry;
         this.listener = listener;
@@ -63,11 +69,23 @@ public class DefaultPluginManager implements PluginManager {
         this.systemEnvironment = systemEnvironment;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
+        this.pluginWriter = pluginWriter;
+        this.pluginValidator = pluginValidator;
     }
 
     @Override
     public List<GoPluginDescriptor> plugins() {
         return registry.plugins();
+    }
+
+
+    public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
+        if (!pluginValidator.namecheckForJar(filename)) {
+            Map<Integer, String> errors = new HashMap<Integer, String>();
+            errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
+            return PluginUploadResponse.create(false, null, errors);
+        }
+        return pluginWriter.addPlugin(uploadedPlugin, filename);
     }
 
     @Override
@@ -170,7 +188,7 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public boolean isPluginOfType(final String extension, String pluginId) {
-        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin,Boolean>() {
+        return hasReferenceFor(GoPlugin.class, pluginId) && goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, Boolean>() {
             @Override
             public Boolean execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
                 return extension.equals(plugin.pluginIdentifier().getExtension());

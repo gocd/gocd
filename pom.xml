@@ -141,6 +141,5 @@
 
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
-        <module>development-utility/development-server-new-jruby</module>
     </modules>
 </project>

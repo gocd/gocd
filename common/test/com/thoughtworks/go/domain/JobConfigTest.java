@@ -47,7 +47,6 @@ public class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         config.injectTasksForTest(tasks);
         doNothing().when(tasks).setConfigAttributes(Matchers.<Object>anyObject(), Matchers.<TaskFactory>any());
-		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, false);
     }
     
     @Test
@@ -242,7 +241,6 @@ public class JobConfigTest {
 
 	@Test
 	public void shouldSetJobRunTypeCorrectly_forRails4() {
-		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, true);
 		// single instance
 		HashMap map1 = new HashMap();
 		map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
@@ -291,24 +289,7 @@ public class JobConfigTest {
 	}
 
 	@Test
-	public void shouldSetJobRunTypeCorrectly_ForRails2() {
-		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, false);
-
-		// run on all agents
-		HashMap map = new HashMap();
-		map.put(JobConfig.RUN_ON_ALL_AGENTS, "1");
-		JobConfig jobConfig = new JobConfig();
-
-		jobConfig.setConfigAttributes(map);
-
-		assertThat(jobConfig.isRunOnAllAgents(), is(true));
-		assertThat(jobConfig.isRunMultipleInstanceType(), is(false));
-		assertThat(jobConfig.getRunInstanceCount(), is(nullValue()));
-	}
-
-	@Test
 	public void shouldResetJobRunTypeCorrectly() {
-		new SystemEnvironment().set(SystemEnvironment.USE_NEW_RAILS, true);
 		HashMap map1 = new HashMap();
 		map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
 		map1.put(JobConfig.RUN_INSTANCE_COUNT, "10");

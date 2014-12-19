@@ -32,7 +32,6 @@ public class AssetsContextHandlerTest {
     @Test
     public void shouldHandleIfTargetMatchesContextPath() throws IOException, ServletException {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         WebAppContext webAppContext = mock(WebAppContext.class);
@@ -50,7 +49,6 @@ public class AssetsContextHandlerTest {
     @Test
     public void shouldNotHandleOnlyIfTargetDoesNotMatcheContextPath() throws IOException, ServletException {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         WebAppContext webAppContext = mock(WebAppContext.class);
@@ -66,27 +64,8 @@ public class AssetsContextHandlerTest {
     }
 
     @Test
-    public void shouldNotHandleForRails2() throws IOException, ServletException {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-        WebAppContext webAppContext = mock(WebAppContext.class);
-        when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
-        when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
-        handler.init(webAppContext);
-        Request request = mock(Request.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        when(request.isHandled()).thenReturn(false);
-        handler.handle("/go/assets/junk", request, response, 1);
-        verify(handler, never()).superDotHandle("/go/assets/junk", request, response, 1);
-    }
-
-    @Test
     public void shouldNotHandleForRails4DevelopmentMode() throws IOException, ServletException {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(false);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         WebAppContext webAppContext = mock(WebAppContext.class);

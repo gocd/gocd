@@ -15,45 +15,12 @@
 ##########################GO-LICENSE-END##################################
 
 require 'securerandom'
-$LOAD_PATH << File.join("webapp/WEB-INF/rails/vendor/rails/activesupport/lib")
 require 'active_support'
 require 'rubygems'
 
-# Backport of missing SecureRandom methods from 1.9 - http://softover.com/UUID_in_Ruby_1.8
-module SecureRandom
-  class << self
-    def method_missing(method_sym, *arguments, &block)
-      case method_sym
-        when :urlsafe_base64
-          r19_urlsafe_base64(*arguments)
-        when :uuid
-          r19_uuid(*arguments)
-        else
-          super
-      end
-    end
-
-    private
-    def r19_urlsafe_base64(n=nil, padding=false)
-      s = [random_bytes(n)].pack("m*")
-      s.delete!("\n")
-      s.tr!("+/", "-_")
-      s.delete!("=") if !padding
-      s
-    end
-
-    def r19_uuid
-      ary = random_bytes(16).unpack("NnnnnN")
-      ary[2] = (ary[2] & 0x0fff) | 0x4000
-      ary[3] = (ary[3] & 0x3fff) | 0x8000
-      "%08x-%04x-%04x-%04x-%04x%08x" % ary
-    end
-  end
-end
-
 # active support
-ActiveSupport.use_standard_json_time_format = true
-ActiveSupport.escape_html_entities_in_json = false
+ActiveSupport::JSON::Encoding.use_standard_json_time_format = true
+ActiveSupport::JSON::Encoding.escape_html_entities_in_json = false
 
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]
@@ -81,20 +48,6 @@ task :prepare_webapp do
   task('change_rails_env_to_production').invoke
 end
 
-task :handle_assets_rails2 do
-  # js
-  task('create_all_js_rails2').invoke
-  task('copy_compressed_js_to_webapp_rails2').invoke
-
-  # css
-  task('pull_latest_sass').invoke
-
-  task('version-image-urls-in-css').invoke
-
-  task('create_all_css_rails2').invoke
-  task('copy_compressed_css_to_webapp_rails2').invoke
-end
-
 task :handle_assets_rails4 do
   rm_rf("target/webapp/WEB-INF/rails.new/tmp")
   task('precompile_assets').invoke
@@ -102,17 +55,10 @@ task :handle_assets_rails4 do
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
   cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
   rm_rf "target/webapp/WEB-INF/rails.new/app/assets"
-
-  #delete assets used by rails2
-  rm_rf("target/webapp/javascripts")
-  rm_rf("target/webapp/css")
-  rm_rf("target/webapp/stylesheets")
-  rm_rf("target/webapp/sass")
-  rm_rf("target/webapp/images")
 end
 
 task :handle_assets do
-  ENV['USE_NEW_RAILS'] != "N" ? task('handle_assets_rails4').invoke : task('handle_assets_rails2').invoke
+  task('handle_assets_rails4').invoke
 end
 
 #copy
@@ -122,16 +68,7 @@ CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_versio
 task :copy_files do
   safe_cp "webapp", "target"
 
-  if ENV['USE_NEW_RAILS'] != "N"
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails", true)
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
-  else
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails.new", true)
-
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-1.2.8", true)
-    FileUtils.remove_dir("target/webapp/WEB-INF/rails/vendor/rspec-rails-1.2.7.1", true)
-  end
+  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
 
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
@@ -236,35 +173,6 @@ END
   end
 end
 
-task :create_all_js_rails2 do
-  yui_compress_all(YUI_JS_OUTPUT, JS_LIB_DIR, "*.js")
-  yui_compress_all(YUI_JS_OUTPUT, JS_APP_DIR, "*.js")
-
-  priority_libs = ["es5-shim.min.js", "jquery-1.7.2.js", "jquery.timeago-1.2.3.js", "jquery.url-1.0.js", "jquery_no_conflict.js", "prototype-1.6.0.js",
-                   "scriptaculous-1.8.0.js", "bootstrap-2.3.2.min.js", "angular.1.0.8.min.js", "angular-resource.1.0.8.min.js", "effects-1.8.0.js"]
-  libs_to_load_first = []
-  priority_libs.each do |lib|
-    libs_to_load_first << File.join(JS_LIB_DIR, lib)
-  end
-  libs_to_load_second = Dir.glob(File.join(JS_LIB_DIR, "*.js")) - libs_to_load_first
-
-  app_paths = put_first(Dir.glob(File.join(JS_APP_DIR, "*.js")), JS_APP_PUT_FIRST)
-
-  file_list = libs_to_load_first + libs_to_load_second + app_paths
-
-  File.open(COMPRESSED_ALL_DOT_JS, "w") do |file_handle|
-    file_list.each do |path|
-      merge(file_handle, path, JS_FILE_TERMINATOR) unless JS_TO_BE_SKIPPED.include? path
-    end
-  end
-end
-
-task :copy_compressed_js_to_webapp_rails2 do
-  safe_cp COMPRESSED_ALL_DOT_JS, "target/webapp/compressed"
-  safe_cp "target/webapp/javascripts/lib/d3-3.1.5.min.js", "target/webapp/compressed"
-  FileUtils.remove_dir("target/webapp/javascripts", true)
-end
-
 # css optimization
 CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
 COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
@@ -273,74 +181,8 @@ def expand_css_wildcard wildcard
   Dir.glob("target/webapp/stylesheets/" + wildcard)
 end
 
-task :pull_latest_sass do
-  # Clear css_sass folder before regenerating new css files
-  FileUtils.remove_dir("target/webapp/stylesheets/css_sass", true)
-  FileUtils.remove_dir("webapp/stylesheets/css_sass", true)
-
-  ruby = File.expand_path('../../tools/bin', __FILE__) + (Gem.win_platform? ? '/go.jruby.bat' : '/go.jruby')
-  sh "cd target/webapp/sass && #{ruby} -S sass --update .:../stylesheets/css_sass"
-  cp_r("target/webapp/stylesheets/css_sass", "webapp/stylesheets/css_sass")
-  FileUtils.remove_dir("target/webapp/sass", true)
-end
-
-task :create_all_css_rails2 do
-  main_dir = "target/webapp/stylesheets/"
-  yui_compress_all(YUI_CSS_OUTPUT, main_dir, "*.css")
-  File.open("target/all.css", "w") do |handle|
-    ["main.css", "layout.css", "structure.css", "ie_hacks.css", "module.css"].each do |file|
-      merge(handle, File.join(main_dir, file))
-    end
-  end
-
-  parent_directory = "target/webapp/stylesheets"
-  css_directories_to_be_compressed = [{:dir => "plugins", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
-                                      {:dir => "patterns", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
-                                      {:dir => "views", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end},
-                                      {:dir => "css_sass", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "**/*.css") end},
-                                      {:dir => "vm", :perform => Proc.new do |d| yui_compress_all(YUI_CSS_OUTPUT, File.join(parent_directory, d), "*.css") end}]
-
-  css_directories_to_be_compressed.each do |tuple|
-    tuple[:perform].call(tuple[:dir])
-  end
-
-  css_to_be_merged = ["plugins/*.css", "patterns/*.css", "views/*.css", "css_sass/**/*.css", "vm/**/*.css"]
-  css_to_be_merged.each_with_index do |wildcard, index|
-    matched_paths = expand_css_wildcard(wildcard)
-    File.open(COMPRESSED_ALL_DOT_CSS[index], "w") do |handle|
-      matched_paths.each do |path|
-        merge(handle, path)
-      end
-    end
-  end
-
-  # compress each file in css/ & stylesheets/structure/
-  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/css", "*.css")
-  yui_compress_all(YUI_CSS_OUTPUT, "target/webapp/stylesheets/structure", "*.css")
-end
-
-task :copy_compressed_css_to_webapp_rails2 do
-  cp "target/all.css", "target/webapp/stylesheets"
-  COMPRESSED_ALL_DOT_CSS.each do |file|
-    name = File.basename(file).gsub(File.extname(file), '')
-    cp file, "target/webapp/stylesheets/#{name}"
-  end
-end
-
-#image optimization
-task "version-image-urls-in-css" do
-  CSS_DIRS.each do |css_dir|
-    Dir.glob File.join(css_dir, '*', '*.css') do |file|
-      content = File.read(file).gsub /url\(['"\s]*([^\)"'\s]+)['"\s]*\)/, "url(\\1?#{VERSION_NUMBER})"
-      File.open(file, 'w') do |f|
-        f.write(content)
-      end
-    end
-  end
-end
-
 # inline partials
-RAILS_DIR = ENV['USE_NEW_RAILS'] != "N" ? "rails.new" : "rails"
+RAILS_DIR = "rails.new"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
 RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"

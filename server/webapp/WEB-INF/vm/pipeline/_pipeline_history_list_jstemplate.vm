@@ -158,12 +158,7 @@
                                 <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage">
                             {/if}
                              {if stage.stageStatus == 'Cancelled'}
-                                  #if($useNewRails)
-                                      <img alt="" src="$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath">
-                                  #else
-                                      <img alt="" src="$req.getContextPath()/images/g9/stage_bar_cancelled_icon.png">
-                                  #end
-
+                                <img alt="" src="$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath">
                              {/if}
                                 {if stage.getCanRun == 'true'}
                                 <a id="rerun-${% data.pipelineName %}-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="rerun" title="rerun this stage"

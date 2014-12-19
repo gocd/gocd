@@ -41,7 +41,6 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
-    public static final String USE_NEW_RAILS = "useNewRails";
     public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
     public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
@@ -71,24 +70,18 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
-        Boolean useNewRails = systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS);
-        velocityContext.put(USE_NEW_RAILS, useNewRails);
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
 
-        if (useNewRails) {
-            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
-            velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
-            velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
-            velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
-            velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
-            velocityContext.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
-            velocityContext.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
+        velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
+        velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
+        velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
+        velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
+        velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
+        velocityContext.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
+        velocityContext.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
 
-            velocityContext.put(PATH_RESOLVER, railsAssetsService);
-        } else {
-            velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, "compressed/all.js?#include(\"admin/admin_version.txt.vm\")");
-        }
+        velocityContext.put(PATH_RESOLVER, railsAssetsService);
 
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);

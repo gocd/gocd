@@ -1,6 +1,0 @@
-<% scope[:stage_x_of_y]= l.X_of_Y(@stage.getStageCounter(), @stage.getTotalRuns()) %>
-<% if @stage.getTotalRuns() > 1 %>
-    <a href="#" id="show_other_stage_runs"><%= scope[:stage_x_of_y] %></a>
-<% else %>
-    <span><%= scope[:stage_x_of_y] %></span>
-<% end %>

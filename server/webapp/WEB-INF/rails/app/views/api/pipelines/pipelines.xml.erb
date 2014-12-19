@@ -1,6 +1,0 @@
-<pipelines>
- <link rel="self" href="<%=api_pipelines_url%>"/>
-  <% @pipelines.each do |pipeline| %>
-    <pipeline href="<%= api_pipeline_stage_feed_url(:name => pipeline.getName()) %>" />
-  <% end %>
-</pipelines>

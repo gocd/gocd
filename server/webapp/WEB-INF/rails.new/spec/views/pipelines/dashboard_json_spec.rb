@@ -191,6 +191,7 @@ describe "/pipelines/dashboard.json.erb" do
     let(:group_name) { 'first' }
     let(:pipeline_name) { 'pip1' }
     let(:pipeline_label) { '1' }
+    let(:pipeline_counter) { 2 }
 
     it 'should have no operations when user has no operate permission' do
       can_operate = false
@@ -243,6 +244,76 @@ describe "/pipelines/dashboard.json.erb" do
 
       expect(operations[2]["operation"]).to eq("unpause")
       expect(operations[2]["operation_path"]).to eq("/api/pipelines/pip1/unpause")
+    end
+
+    it 'should have can_administer set to true when user has administration permission on pipeline' do
+      can_administer = true
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, true))
+      group.getPipelineModels[0].updateAdministrability(can_administer)
+      groups_json = render_json_for group
+
+      the_pipeline = groups_json[0]["pipelines"][0]
+      expect(the_pipeline["can_administer"]).to eq(true)
+    end
+
+    it 'should have can_administer set to false when user does not have administration permission on pipeline' do
+      can_administer = false
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model(pipeline_name, pipeline_label, false, true, nil, true))
+      group.getPipelineModels[0].updateAdministrability(can_administer)
+      groups_json = render_json_for group
+
+      the_pipeline = groups_json[0]["pipelines"][0]
+      expect(the_pipeline["can_administer"]).to eq(false)
+    end
+
+    it 'should have unlock operation when pipeline is locked, and user has permission to unlock it' do
+      is_locked = true
+      can_unlock = true
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model_with_lock_status(can_unlock, is_locked, pipeline_name, pipeline_label, pipeline_counter))
+      groups_json = render_json_for group
+
+      the_pipeline = groups_json[0]["pipelines"][0]
+      unlock_operation = the_pipeline["available_operations"].find {|op| op["operation"] == "unlock"}
+
+      expect(the_pipeline["is_locked"]).to eq(true)
+      expect(unlock_operation).to_not be_nil
+      expect(unlock_operation["operation_path"]).to eq("/api/pipelines/#{pipeline_name}/releaseLock")
+    end
+
+    it 'should NOT have unlock operation when pipeline is locked, and user does NOT have permission to unlock it' do
+      is_locked = true
+      can_unlock = false
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model_with_lock_status(can_unlock, is_locked, pipeline_name, pipeline_label, pipeline_counter))
+      groups_json = render_json_for group
+
+      the_pipeline = groups_json[0]["pipelines"][0]
+      unlock_operation = the_pipeline["available_operations"].find {|op| op["operation"] == "unlock"}
+
+      expect(the_pipeline["is_locked"]).to eq(true)
+      expect(unlock_operation).to be_nil
+    end
+
+    it 'should NOT have unlock operation when pipeline is NOT locked' do
+      is_locked = false
+      can_unlock = true
+
+      group = PipelineGroupModel.new(group_name)
+      group.add(pipeline_model_with_lock_status(can_unlock, is_locked, pipeline_name, pipeline_label, pipeline_counter))
+      groups_json = render_json_for group
+
+      the_pipeline = groups_json[0]["pipelines"][0]
+      unlock_operation = the_pipeline["available_operations"].find {|op| op["operation"] == "unlock"}
+
+      expect(the_pipeline["is_locked"]).to eq(false)
+      expect(unlock_operation).to be_nil
     end
   end
 
@@ -355,6 +426,7 @@ end
 def assert_pipeline_details the_pipeline, name, expected_number_of_instances
   expect(the_pipeline["name"]).to eq(name)
   expect(the_pipeline["instances"].length).to eq(expected_number_of_instances)
+  expect(the_pipeline["settings_path"]).to eq("/admin/pipelines/#{name}/general")
 end
 
 def assert_instance_details the_instance, pipeline_name, pipeline_label, pipeline_counter, latest_stage_name = "cruise", latest_stage_state = "Passed"
@@ -362,7 +434,6 @@ def assert_instance_details the_instance, pipeline_name, pipeline_label, pipelin
   expect(the_instance["label"]).to eq(pipeline_label)
   expect(is_time_within_minutes(6, the_instance["scheduled_time"])).to be_true
   expect(the_instance["history_path"]).to eq("/tab/pipeline/history/#{pipeline_name}")
-  expect(the_instance["settings_path"]).to eq("/admin/pipelines/#{pipeline_name}/general")
   expect(the_instance["vsm_path"]).to eq("/pipelines/value_stream_map/#{pipeline_name}/#{pipeline_counter}")
   expect(the_instance["compare_path"]).to eq("/compare/#{pipeline_name}/#{pipeline_counter - 1}/with/#{pipeline_counter}")
   expect(the_instance["build_cause_path"]).to eq("/pipelines/#{pipeline_name}/#{pipeline_counter}/build_cause")
@@ -377,4 +448,21 @@ def is_time_within_minutes expected_number_of_minutes_time_is_within, time_in_mi
   upper_bound = time_now + (expected_number_of_minutes_time_is_within * 60 * 1000 / 2)
 
   lower_bound <= time_in_milliseconds_since_epoch and time_in_milliseconds_since_epoch <= upper_bound
+end
+
+def pipeline_model_with_lock_status(can_unlock, is_locked, pipeline_name, pipeline_label, pipeline_counter)
+  latest_instance = pipeline_instance_model(
+      {:name => pipeline_name, :label => pipeline_label, :counter => pipeline_counter,
+       :stages => [
+           {:name => "p1_stage1", :counter => "10", :approved_by => "Anonymous"},
+           {:name => "p1_stage2", :counter => "12", :approved_by => "SomeOne"}]})
+  earlier_instance = pipeline_instance_model(
+      {:name => pipeline_name, :label => pipeline_label, :counter => pipeline_counter + 1,
+       :stages => [
+           {:name => "p1_stage1", :counter => "11", :approved_by => "Anonymous"},
+           {:name => "p1_stage2", :counter => "13", :approved_by => "SomeOne"}]})
+
+  latest_instance.setCurrentlyLocked(is_locked)
+  latest_instance.setCanUnlock(can_unlock)
+  pipeline_model_with_instances([latest_instance, earlier_instance], pipeline_name, true, nil, true)
 end

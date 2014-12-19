@@ -8,8 +8,12 @@
     "pipelines": [
       <%- pipeline_group.getPipelineModels().each_with_index do |pipeline_model, pipeline_index| -%>
       <%- is_last_pipeline = pipeline_index == pipeline_group.getPipelineModels().count - 1 -%>
+      <%- latest_instance = pipeline_model.getLatestPipelineInstance -%>
       {
         "name": <%== pipeline_model.getName().to_json %>,
+        "can_administer": <%== pipeline_model.canAdminister().to_json %>,
+        "settings_path": <%== pipeline_edit_path(:pipeline_name => pipeline_model.getName(), :current_tab => "general").to_json %>,
+        "is_locked": <%== ((not latest_instance.nil?) and latest_instance.isCurrentlyLocked).to_json %>,
 
         <%-# ====== ====== EVERY CURRENTLY RUNNING INSTANCE OF THIS PIPELINE ====== ====== -%>
         "instances": [
@@ -21,7 +25,6 @@
             "label": <%== active_instance.getLabel().to_json %>,
             "scheduled_time": <%== active_instance.getScheduledDate().getTime().to_json %>,
             "history_path": <%== url_for_pipeline(active_instance.getName()).to_json %>,
-            "settings_path": <%== pipeline_edit_path(:pipeline_name => active_instance.getName(), :current_tab => "general").to_json %>,
             "vsm_path": <%== url_for_pipeline_value_stream_map(active_instance, :only_path => true).to_json %>,
             "compare_path": <%== compare_pipelines_path(:pipeline_name => active_instance.getName(), :from_counter => active_instance.getCounter() - 1, :to_counter => active_instance.getCounter()).to_json %>,
             "build_cause_path": <%== build_cause_path(:pipeline_name => active_instance.getName(), :pipeline_counter => active_instance.getCounter()).to_json %>,
@@ -54,8 +57,8 @@
 
 
         <%-# ====== ====== PREVIOUS RUN INFO (TO SHOW WHETHER THIS STAGE FAILED BEFORE ...) ====== ====== -%>
-        <%- if pipeline_model.getLatestPipelineInstance().isAnyStageActive() -%>
-        <%- active_stage = pipeline_model.getLatestPipelineInstance().activeStage() -%>
+        <%- if ((not latest_instance.nil?) and latest_instance.isAnyStageActive()) -%>
+        <%- active_stage = latest_instance.activeStage() -%>
         <%- if active_stage.hasPreviousStage() -%>
         "previous_instance": { <%# TODO: Handle previously blurb. %>
           "result": <%== active_stage.getPreviousStage().getResult().to_s.to_json %>,
@@ -70,6 +73,12 @@
         <%- is_paused = pipeline_model.getPausedInfo().isPaused() -%>
         "available_operations": [
         <%- if pipeline_model.canOperate() -%>
+          <%- if ((not latest_instance.nil?) and latest_instance.isCurrentlyLocked and latest_instance.canUnlock) -%>
+          {
+            "operation": "unlock",
+            "operation_path": <%== api_pipeline_action_path(:pipeline_name => pipeline_model.getName(), :action => "releaseLock").to_json %>
+          },
+          <%- end -%>
           {
             "operation": "trigger",
             "operation_path": <%== api_pipeline_action_path(:pipeline_name => pipeline_model.getName(), :action => "schedule").to_json %>

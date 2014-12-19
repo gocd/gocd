@@ -19,8 +19,8 @@ require 'active_support'
 require 'rubygems'
 
 # active support
-ActiveSupport.use_standard_json_time_format = true
-ActiveSupport.escape_html_entities_in_json = false
+ActiveSupport::JSON::Encoding.use_standard_json_time_format = true
+ActiveSupport::JSON::Encoding.escape_html_entities_in_json = false
 
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]
@@ -55,13 +55,6 @@ task :handle_assets_rails4 do
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
   cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
   rm_rf "target/webapp/WEB-INF/rails.new/app/assets"
-
-  #delete assets used by rails2
-  rm_rf("target/webapp/javascripts")
-  rm_rf("target/webapp/css")
-  rm_rf("target/webapp/stylesheets")
-  rm_rf("target/webapp/sass")
-  rm_rf("target/webapp/images")
 end
 
 task :handle_assets do

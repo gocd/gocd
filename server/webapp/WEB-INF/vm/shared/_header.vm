@@ -38,66 +38,7 @@
         #end
     #end
 
-    #if ($useCompressJS || $useNewRails)
-        <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
-    #else
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery-1.7.2.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/bootstrap-2.3.2.min.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/jquery_no_conflict.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/prototype-1.6.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/scriptaculous-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/effects-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/accordion-2.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/controls-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/dragdrop-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/modalbox-1.6.1.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/slider-1.8.0.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/trimpath-template-1.0.38.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/angular.1.0.8.min.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/lib/angular-resource.1.0.8.min.js?#include("admin/admin_version.txt.vm")"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/build_base_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/json_to_css.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/admin.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/agent.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/agent_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/enhanced_modalbox.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/ajax_refresher.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/application.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/build_detail.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/build_detail_properties.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/builder.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/build_output_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/cookie_utils.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/dashboard_global.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/dashboard_periodical_executer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/filters.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/flash.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/i18n.js" charset="UTF-8"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/i18n_support.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/log_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/material.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/my_cruise.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/pagination.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline_history.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/pipeline_selector_cookie.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/sidebar.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/simple-pipeline.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/stage_detail_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/tabs.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/test_helper.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/time_converter.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/timer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/timer_observer.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/toolkit.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/transmessage.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/word_break_inserter.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/inplace-editor.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/server_configuration.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/micro_content_popup.js"></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/util.js" ></script>
-        <script type="text/javascript" src="$req.getContextPath()/javascripts/user_options_on_header.js" ></script>
-    #end
+    <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
 
     <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
     <!--[if IE 6]><script type="text/javascript">window.cruise_is_running_in_ie6 = true;</script><![endif]-->

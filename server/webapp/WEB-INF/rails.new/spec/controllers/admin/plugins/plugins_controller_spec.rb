@@ -14,6 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
+require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
+
 describe Admin::Plugins::PluginsController do
 
   describe :routes do
@@ -34,6 +36,7 @@ describe Admin::Plugins::PluginsController do
 
     before :each do
       controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
+      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(true)
     end
 
     it "should show success message when upload is successful" do
@@ -78,6 +81,16 @@ describe Admin::Plugins::PluginsController do
       post :upload, :plugin => file
 
       response.should redirect_to "/admin/plugins"
+    end
+
+    it "should refuse to upload when feature is turned off" do
+      RSpec::Mocks.proxy_for(Toggles).reset
+      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(false)
+
+      post :upload, :plugin => nil
+
+      expect(response.status).to eq(403)
+      expect(response.body).to eq("Feature is not enabled")
     end
 
   end
@@ -128,6 +141,15 @@ describe Admin::Plugins::PluginsController do
       get :index
 
       assigns[:plugin_descriptors].should == [plugin_descriptors(@plugin_5), plugin_descriptors(@plugin_1), plugin_descriptors(@plugin_3), plugin_descriptors(@plugin_6), plugin_descriptors(@plugin_4), plugin_descriptors(@plugin_2)]
+    end
+
+    it "should populate the feature toggle flag for upload plugin" do
+      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(true)
+      @plugin_manager.should_receive(:plugins).and_return([])
+
+      get :index
+
+      expect(assigns[:upload_feature_enabled]).to eq(true)
     end
 
     def plugin(id, name)

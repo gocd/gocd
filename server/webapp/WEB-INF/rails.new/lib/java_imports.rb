@@ -222,4 +222,5 @@ module JavaImports
   java_import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel
   java_import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
   java_import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore unless defined? PluggableTaskConfigStore
+  java_import com.thoughtworks.go.server.service.support.toggle.Toggles unless defined? Toggles
 end

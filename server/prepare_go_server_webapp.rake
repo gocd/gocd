@@ -49,12 +49,12 @@ task :prepare_webapp do
 end
 
 task :handle_assets_rails4 do
-  rm_rf("target/webapp/WEB-INF/rails.new/tmp")
+  rm_rf("target/webapp/WEB-INF/rails/tmp")
   task('precompile_assets').invoke
-  assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
+  assets_location_in_target = "target/webapp/WEB-INF/rails/public/assets"
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
-  cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
-  rm_rf "target/webapp/WEB-INF/rails.new/app/assets"
+  cp_r "webapp/WEB-INF/rails/public/assets", "target/webapp/WEB-INF/rails/public/"
+  rm_rf "target/webapp/WEB-INF/rails/app/assets"
 end
 
 task :handle_assets do
@@ -68,7 +68,7 @@ CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_versio
 task :copy_files do
   safe_cp "webapp", "target"
 
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
+  FileUtils.remove_dir("target/webapp/WEB-INF/rails/spec", true)
 
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
@@ -152,10 +152,10 @@ task :precompile_assets do
   if Gem.win_platform?
     ENV['RAILS_ENV'] = "production"
     sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake assets:clobber assets:precompile
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails"))} && #{ruby} -S rake assets:clobber assets:precompile
 END
   else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+    sh "cd #{File.join("webapp/WEB-INF/rails")} && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
   end
 end
 
@@ -166,10 +166,10 @@ task :jasmine_tests do
   set_classpath
   if Gem.win_platform?
     sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake spec:javascript
+    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails"))} && #{ruby} -S rake spec:javascript
 END
   else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && #{ruby} -S rake spec:javascript"
+    sh "cd #{File.join("webapp/WEB-INF/rails")} && #{ruby} -S rake spec:javascript"
   end
 end
 
@@ -182,7 +182,7 @@ def expand_css_wildcard wildcard
 end
 
 # inline partials
-RAILS_DIR = "rails.new"
+RAILS_DIR = "rails"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
 RAILS_VIEWS_SRC = RAILS_ROOT + "/app/views"
 RAILS_INTERPOLATED_VIEWS = "target/rails_views/views"

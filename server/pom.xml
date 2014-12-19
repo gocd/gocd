@@ -654,7 +654,7 @@
                 <directory>properties/src</directory>
             </resource>
             <resource>
-                <directory>${project.basedir}/webapp/WEB-INF/rails.new/vendor/engines/gadgets/config</directory>
+                <directory>${project.basedir}/webapp/WEB-INF/rails/vendor/engines/gadgets/config</directory>
                 <includes>
                     <include>log4j.xml</include>
                     <include>shindig.properties</include>

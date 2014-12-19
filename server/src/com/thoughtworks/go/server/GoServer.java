@@ -185,7 +185,7 @@ public class GoServer {
 
     private void addJRubyContextInitParams(WebAppContext wac) {
         Map existingParams = wac.getInitParams();
-        existingParams.put("rails.root", "/WEB-INF/rails.new");
+        existingParams.put("rails.root", "/WEB-INF/rails");
         wac.setInitParams(existingParams);
     }
 

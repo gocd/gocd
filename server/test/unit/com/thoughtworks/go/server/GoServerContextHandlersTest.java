@@ -242,7 +242,7 @@ public class GoServerContextHandlersTest {
 
         WebAppContext webApp = goServer.webApp();
 
-        assertThat(webApp.getInitParameter("rails.root"), is("/WEB-INF/rails.new"));
+        assertThat(webApp.getInitParameter("rails.root"), is("/WEB-INF/rails"));
     }
 
     private void assertExtraClasspath(WebAppContext context, String... expectedClassPathJars) {

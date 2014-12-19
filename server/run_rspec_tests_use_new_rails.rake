@@ -26,7 +26,7 @@ def property_file_path
   File.join(File.dirname(__FILE__), 'properties', 'test')
 end
 
-RAILS_WORKING_DIR = File.join(File.dirname(__FILE__), 'webapp', 'WEB-INF', 'rails.new')
+RAILS_WORKING_DIR = File.join(File.dirname(__FILE__), 'webapp', 'WEB-INF', 'rails')
 SPEC_SERVER_DIR = File.join(File.dirname(__FILE__), 'target', 'rails', 'spec_server')
 
 def execute_under_rails command
@@ -128,7 +128,7 @@ end
 task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|
   raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_module" if args[:spec_module_path] == nil
 
-  path = args[:spec_module_path].split('rails.new/spec/')[1]
+  path = args[:spec_module_path].split('rails/spec/')[1]
 
   running_tests!
   rm_rf SPEC_SERVER_DIR

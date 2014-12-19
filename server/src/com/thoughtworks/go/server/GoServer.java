@@ -119,7 +119,8 @@ public class GoServer {
     }
 
     private void addResourceHandler(JettyServer server, WebAppContext webAppContext) throws IOException {
-        if (!(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS) && systemEnvironment.useCompressedJs())) return;
+        if (!systemEnvironment.useCompressedJs())
+            return;
         AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
         server.addHandler(handler);
         webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
@@ -184,10 +185,7 @@ public class GoServer {
 
     private void addJRubyContextInitParams(WebAppContext wac) {
         Map existingParams = wac.getInitParams();
-        existingParams.put("rails.root", "/WEB-INF/rails");
-        if (systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)) {
-            existingParams.put("rails.root", "/WEB-INF/rails.new");
-        }
+        existingParams.put("rails.root", "/WEB-INF/rails.new");
         wac.setInitParams(existingParams);
     }
 

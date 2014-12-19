@@ -162,7 +162,6 @@ public class GoVelocityViewTest {
     @Test
     public void shouldSetAssetsPathVariableWhenRailsNewWithCompressedJavascriptsIsUsed() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application-digest.js");
         when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application-digest.css");
@@ -191,7 +190,6 @@ public class GoVelocityViewTest {
     @Test
     public void shouldSetAssetsPathVariableWhenRailsNewIsUsedInDevelopmentEnvironment() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(false);
         when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application.js");
         when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application.css");
@@ -208,16 +206,6 @@ public class GoVelocityViewTest {
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application.css"));
         assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application.css"));
-    }
-
-    @Test
-    public void shouldSetJavascriptsPathVariableWhenRails2IsUsed() throws Exception {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
-        doReturn(railsAssetsService).when(view).getRailsAssetsService();
-        view.exposeHelpers(velocityContext, request);
-        assertThat((String)velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("compressed/all.js?#include(\"admin/admin_version.txt.vm\")"));
     }
 
     @Test

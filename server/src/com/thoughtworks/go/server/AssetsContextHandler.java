@@ -41,6 +41,6 @@ public class AssetsContextHandler extends ContextHandler {
     }
 
     private boolean shouldNotHandle() {
-        return !(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS) && systemEnvironment.useCompressedJs());
+        return !systemEnvironment.useCompressedJs();
     }
 }

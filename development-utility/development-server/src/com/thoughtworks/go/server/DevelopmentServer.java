@@ -36,12 +36,7 @@ import java.io.IOException;
 
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
-        start(false);
-    }
-
-    public static void start(boolean useNewRails) throws Exception {
         copyDbFiles();
-        copyScss();
         File webApp = new File("webapp");
         if (!webApp.exists()) {
             throw new RuntimeException("No webapp found in " + webApp.getAbsolutePath());
@@ -51,9 +46,6 @@ public class DevelopmentServer {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
         systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webApp.getAbsolutePath());
-
-        /* Temporary: Feature toggle "use.new.rails" is related to this. */
-        systemEnvironment.set(SystemEnvironment.USE_NEW_RAILS, useNewRails);
 
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
@@ -78,15 +70,6 @@ public class DevelopmentServer {
             System.err.println("Failed to start Go server. Exception:");
             e.printStackTrace();
         }
-    }
-
-    private static void copyScss() throws IOException, InterruptedException {
-        FileUtils.deleteDirectory(new File("webapp/stylesheets/css_sass"));
-        new ProcessRunner().command(jrubyPath(), "-S", "sass", "--update", ".:../stylesheets/css_sass/").withWorkingDir("webapp/sass/").run();
-    }
-
-    private static String jrubyPath() {
-        return OperatingSystem.WINDOWS.equals(OperatingSystem.fromProperty()) ? "../../../tools/bin/go.jruby.bat" : "../../../tools/bin/go.jruby";
     }
 
     private static void copyDbFiles() throws IOException {

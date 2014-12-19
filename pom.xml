@@ -63,45 +63,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
-    <profiles>
-        <profile>
-            <id>oldrails</id>
-            <properties>
-                <jruby.groupId>org.jruby</jruby.groupId>
-                <jruby.artifactId>jruby-complete</jruby.artifactId>
-                <jruby.version>1.5.0</jruby.version>
-
-                <jruby-rack.groupId>org.jruby.rack</jruby-rack.groupId>
-                <jruby-rack.artifactId>jruby-rack</jruby-rack.artifactId>
-                <jruby-rack.version>0.9.6</jruby-rack.version>
-
-                <bcprov.groupId>bouncycastle</bcprov.groupId>
-                <bcprov.artifactId>bcprov-jdk16</bcprov.artifactId>
-                <bcprov.version>140</bcprov.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>newrails</id>
-            <properties>
-                <jruby.groupId>org.jruby</jruby.groupId>
-                <jruby.artifactId>jruby-complete</jruby.artifactId>
-                <jruby.version>1.7.11</jruby.version>
-
-                <jruby-rack.groupId>org.jruby.rack</jruby-rack.groupId>
-                <jruby-rack.artifactId>jruby-rack</jruby-rack.artifactId>
-                <jruby-rack.version>1.1.14</jruby-rack.version>
-
-                <bcprov.groupId>org.bouncycastle</bcprov.groupId>
-                <bcprov.artifactId>bcprov-jdk15on</bcprov.artifactId>
-                <bcprov.version>1.47</bcprov.version>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
-
     <modules>
         <module>base</module>
         <module>util</module>

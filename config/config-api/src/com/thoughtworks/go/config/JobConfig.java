@@ -324,13 +324,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             artifactPlans.setConfigAttributes(attributesMap.get(ARTIFACT_PLANS));
         }
         setTimeoutAttribute(attributesMap);
-		if (new SystemEnvironment().get(SystemEnvironment.USE_NEW_RAILS)) {
-			setJobRunTypeAttribute(attributesMap);
-		} else {
-			if (attributesMap.containsKey(RUN_ON_ALL_AGENTS)) {
-				runOnAllAgents = "1".equals(attributesMap.get(RUN_ON_ALL_AGENTS));
-			}
-		}
+        setJobRunTypeAttribute(attributesMap);
     }
 
     private void setTimeoutAttribute(Map attributesMap) {

@@ -35,7 +35,6 @@ public class RailsAssetsServiceTest {
     public void setup() throws IOException {
         context = mock(ServletContext.class);
         systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
@@ -48,28 +47,7 @@ public class RailsAssetsServiceTest {
     }
 
     @Test
-    public void shouldNotInitializeAssetManifestWhenUsingRails2InProductionMode() throws IOException {
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
-        railsAssetsService = new RailsAssetsService(systemEnvironment);
-        railsAssetsService.setServletContext(context);
-        railsAssetsService.initialize();
-        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
-    }
-
-    @Test
-    public void shouldNotInitializeAssetManifestWhenUsingRails2InDevelopmentMode() throws IOException {
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        when(systemEnvironment.useCompressedJs()).thenReturn(false);
-        railsAssetsService = new RailsAssetsService(systemEnvironment);
-        railsAssetsService.setServletContext(context);
-        railsAssetsService.initialize();
-        assertThat(railsAssetsService.getRailsAssetsManifest(), is(nullValue()));
-    }
-
-    @Test
     public void shouldNotInitializeAssetManifestWhenUsingRails4InDevelopmentMode() throws IOException {
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(false);
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
@@ -109,18 +87,6 @@ public class RailsAssetsServiceTest {
             fail("Expected exception to be thrown");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Assets directory does not exist DoesNotExist"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionIfGetAssetPathIsCalledWhenUsingOldRails() throws IOException {
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        railsAssetsService.initialize();
-        try {
-            railsAssetsService.getAssetPath("junk.js");
-            fail("should have thrown exception");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("This service does not cater to Rails2"));
         }
     }
 

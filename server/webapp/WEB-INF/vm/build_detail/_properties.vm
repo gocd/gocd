@@ -40,12 +40,8 @@
                 <input id="property-value" class="width-large" value="" maxlength="255"/>
             </td>
             <td>
+                <img id="new-property-submit-indicator" src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="Submitting..." style="display: none;"/>
 
-                #if($useNewRails)
-                    <img id="new-property-submit-indicator" src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="Submitting..." style="display: none;"/>
-                #else
-                    <img id="new-property-submit-indicator" src="$req.getContextPath()/images/spinner.gif" alt="Submitting..." style="display: none;"/>
-                #end
                 <button id="new-property-save-button" class="submit" onclick="buildDetailProperties.saveProperties()"><span>Save</span></button>
                 <button class="submit" onclick="buildDetailProperties.cancelAddPane()"><span>Cancel</span></button>
             </td>

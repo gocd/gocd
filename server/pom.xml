@@ -246,14 +246,14 @@
         </dependency>
 
         <dependency>
-            <groupId>${jruby.groupId}</groupId>
-            <artifactId>${jruby.artifactId}</artifactId>
-            <version>${jruby.version}</version>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby-complete</artifactId>
+            <version>1.7.11</version>
         </dependency>
         <dependency>
-            <groupId>${jruby-rack.groupId}</groupId>
-            <artifactId>${jruby-rack.artifactId}</artifactId>
-            <version>${jruby-rack.version}</version>
+            <groupId>org.jruby.rack</groupId>
+            <artifactId>jruby-rack</artifactId>
+            <version>1.1.14</version>
         </dependency>
 
         <dependency>
@@ -558,11 +558,10 @@
             </exclusions>
         </dependency>
 
-        <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
         <dependency>
-            <groupId>${bcprov.groupId}</groupId>
-            <artifactId>${bcprov.artifactId}</artifactId>
-            <version>${bcprov.version}</version>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.47</version>
             <scope>provided</scope>
         </dependency>
 
@@ -655,7 +654,7 @@
                 <directory>properties/src</directory>
             </resource>
             <resource>
-                <directory>${project.basedir}/webapp/WEB-INF/rails/vendor/plugins/tw_studios_gadgets/config</directory>
+                <directory>${project.basedir}/webapp/WEB-INF/rails.new/vendor/engines/gadgets/config</directory>
                 <includes>
                     <include>log4j.xml</include>
                     <include>shindig.properties</include>

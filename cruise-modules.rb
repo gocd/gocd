@@ -18,11 +18,7 @@ require 'buildr/java/cobertura' unless ENV['INSTRUMENT_FOR_COVERAGE'].nil?
 require 'buildr/core/util'
 
 task :prepare do
-  # Temporary: Feature toggle "use.new.rails" is related to this.
-  maven_profiles_for_rails = ENV['USE_NEW_RAILS'] != "N" ? "newrails,!oldrails" : "oldrails,!newrails"
-  puts "Using Maven profiles: #{maven_profiles_for_rails}"
-
-  system("mvn install -DskipTests -P #{maven_profiles_for_rails}") || raise("Failed to run: mvn install -DskipTests -P #{maven_profiles_for_rails}")
+  system("mvn install -DskipTests") || raise("Failed to run: mvn install -DskipTests")
   task("cruise:server:db:refresh").invoke
 end
 

@@ -43,11 +43,10 @@
             <version>1.0</version>
         </dependency>
 
-        <!-- Temporary: Feature toggle "use.new.rails" is related to this. -->
         <dependency>
-            <groupId>${bcprov.groupId}</groupId>
-            <artifactId>${bcprov.artifactId}</artifactId>
-            <version>${bcprov.version}</version>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.47</version>
             <scope>provided</scope>
         </dependency>
 

@@ -3,7 +3,12 @@
    "toggles": [
       {
          "key": "pipeline_comment_feature_toggle_key",
-         "description": "Toggle for Pipeline Comment feature",
+         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: http://www.go.cd/documentation/user/current/beta/comment_on_pipeline_run.html. Default: off.",
+         "value": false
+      },
+      {
+         "key": "plugin_upload_feature_toggle_key",
+         "description": "Enables uploading a plugin, directly from Go's plugins tab. Default: off.",
          "value": false
       }
    ]

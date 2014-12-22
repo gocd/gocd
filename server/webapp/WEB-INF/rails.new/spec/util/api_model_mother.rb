@@ -224,6 +224,27 @@ module APIModelMother
     @stage_view_model
   end
 
+  def create_stage_model_for_instance
+    @stage_identifier_view_model = double('StageIdentifierModel')
+    @stage_identifier_view_model.stub(:getPipelineName).and_return('pipeline name')
+    @stage_identifier_view_model.stub(:getPipelineCounter).and_return(1)
+
+    @stage_view_model = double('StageInstanceViewModel')
+    @stage_view_model.stub(:getId).and_return(456)
+    @stage_view_model.stub(:getName).and_return('stage name')
+    @stage_view_model.stub(:getCounter).and_return('1')
+    @stage_view_model.stub(:getApprovalType).and_return('manual')
+    @stage_view_model.stub(:getApprovedBy).and_return('me')
+    @stage_view_model.stub(:getResult).and_return('passed')
+    @stage_view_model.stub(:getRerunOfCounter).and_return(1)
+    @stage_view_model.stub(:shouldFetchMaterials).and_return(true)
+    @stage_view_model.stub(:shouldCleanWorkingDir).and_return(true)
+    @stage_view_model.stub(:isArtifactsDeleted).and_return(true)
+    @stage_view_model.stub(:getJobInstances).and_return([create_job_model])
+    @stage_view_model.stub(:getIdentifier).and_return(@stage_identifier_view_model)
+    @stage_view_model
+  end
+
   def create_empty_stage_model
     @stage_view_model = double('StageViewModel')
     @stage_view_model.stub(:getId).and_return(nil)

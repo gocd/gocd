@@ -86,6 +86,35 @@ describe Api::PipelinesController do
     end
   end
 
+  describe :instance_by_counter do
+    it "should route to instance_by_counter" do
+      expect(:get => '/api/pipelines/up42/instance/1').to route_to(:controller => "api/pipelines", :action => "instance_by_counter", :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true)
+    end
+
+    it "should render instance json" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:findPipelineInstance).with('up42', 1, loser, anything).and_return(create_pipeline_model)
+
+      get :instance_by_counter, :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true
+
+      expect(response.body).to eq(PipelineInstanceAPIModel.new(create_pipeline_model).to_json)
+    end
+
+    it "should render error correctly" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      controller.should_receive(:current_user).and_return(loser)
+      @pipeline_history_service.should_receive(:findPipelineInstance).with('up42', 1, loser, anything) do |pipeline_name, pipeline_counter, username, result|
+        result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
+      end
+
+      get :instance_by_counter, :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true
+
+      expect(response.status).to eq(406)
+      expect(response.body).to eq("Not Acceptable\n")
+    end
+  end
+
   describe :status do
     it "should route to history" do
       expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)

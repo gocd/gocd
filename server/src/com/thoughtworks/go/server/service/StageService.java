@@ -126,6 +126,19 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.stageByIdWithBuilds(id);
     }
 
+    public Stage findStageWithIdentifier(String pipelineName, int pipelineCounter, String stageName, String stageCounter, String username, OperationResult result) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return null;
+        }
+
+        return findStageWithIdentifier(new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter));
+    }
+
     public Stage findStageWithIdentifier(StageIdentifier identifier) {
         return stageDao.findStageWithIdentifier(identifier);
     }

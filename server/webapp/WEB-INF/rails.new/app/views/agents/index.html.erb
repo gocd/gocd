@@ -5,7 +5,7 @@
 
     <% if has_operate_permission_for_agents? %>
     <div class="edit_panel" id="dd_ajax_float" style='float:right;'>
-        <%= form_tag(edit_agents_path(:column => params[:column], :order => params[:order]), :id => 'agents_form') -%>
+        <%= form_tag(edit_agents_path(:filter => params[:filter], :column => params[:column], :order => params[:order]), :id => 'agents_form') -%>
         <input id="agent_edit_operation" type="hidden" name="operation" />
 
         <div style="display: none" id="actual_agent_selectors">

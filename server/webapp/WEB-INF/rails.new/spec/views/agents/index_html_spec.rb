@@ -49,7 +49,15 @@ describe "/agents/index.html.erb" do
     allow(view).to receive(:has_view_or_operate_permission_on_pipeline?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     stub_context_path(view)
-    allow(view).to receive(:default_url_options).and_return({})
+  end
+
+  it "should have form with submit path including all params" do
+    allow(view).to receive(:has_operate_permission_for_agents?).and_return(true)
+    in_params(:column => "status", :order => "DESC", :filter => "foobar")
+
+    render
+    page = Capybara::Node::Simple.new(response.body)
+    expect(page).to have_xpath("//form[@id='agents_form' and @action='/agents/edit_agents?column=status&filter=foobar&order=DESC']")
   end
 
   describe "agents page has filtering capability" do
@@ -60,16 +68,16 @@ describe "/agents/index.html.erb" do
     end
 
     it "should have filter textbox" do
-      allow(view).to receive(:default_url_options).and_return({:order => 'ASC', :column => 'status', :autoRefresh => 'false'})
-      render
+      in_params(:column => "status", :order => "ASC", :filter => "foo:bar, moo:boo", :autoRefresh => false)
 
+      render
       Capybara.string(response.body).find("div.filter_agents").tap do |div|
         expect(div).to have_selector("input[type='text'][name='filter'][value='foo:bar, moo:boo']")
         expect(div).to have_selector("input[type='hidden'][name='column'][value='status']")
         expect(div).to have_selector("input[type='hidden'][name='order'][value='ASC']")
         expect(div).to have_selector("input[type='hidden'][name='autoRefresh'][value='false']")
         expect(div).to have_selector("button[type='submit']")
-        expect(div).to have_selector("a[href='/agents?filter='][id='clear_filter']", "Clear")
+        expect(div).to have_selector("a[href='/agents?column=status&filter=&order=ASC'][id='clear_filter']", "Clear")
       end
     end
 

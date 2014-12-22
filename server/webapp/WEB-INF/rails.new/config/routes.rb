@@ -24,6 +24,7 @@ Go::Application.routes.draw do
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
     ENVIRONMENT_NAME_CONSTRAINT = {:name => ENVIRONMENT_NAME_FORMAT}
+    ALLOW_DOTS = /[^\/]+/
     CONSTANTS = true
   end
 
@@ -144,8 +145,8 @@ Go::Application.routes.draw do
   post "admin/package_repositories" => "admin/package_repositories#create", as: :package_repositories_create
   put "admin/package_repositories/:id" => "admin/package_repositories#update", as: :package_repositories_update
   delete "admin/package_repositories/:id" => "admin/package_repositories#destroy", as: :package_repositories_delete
-  get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", as: :package_repositories_plugin_config
-  get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", as: :package_repositories_plugin_config_for_repo
+  get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config
+  get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config_for_repo
 
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 

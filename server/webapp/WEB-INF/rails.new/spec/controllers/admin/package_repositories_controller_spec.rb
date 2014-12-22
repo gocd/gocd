@@ -64,6 +64,16 @@ describe Admin::PackageRepositoriesController do
       {:delete => "/admin/package_repositories/repo"}.should route_to(:controller => "admin/package_repositories", :action => "destroy", :id => "repo")
       package_repositories_delete_path(:id => "repo").should == "/admin/package_repositories/repo"
     end
+
+    it "should allow dots in the name of a plugin in the route for a plugin's configuration" do
+      {:get => "/admin/package_repositories/plugin.id.with.dots/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "plugin.id.with.dots")
+      package_repositories_plugin_config_path(:plugin => "plugin.id.with.dots").should == "/admin/package_repositories/plugin.id.with.dots/config"
+    end
+
+    it "should allow dots in the name of a plugin in the route for a plugin config for a repository" do
+      {:get => "/admin/package_repositories/repoid/plugin.id.with.dots/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "plugin.id.with.dots", :id => "repoid")
+      package_repositories_plugin_config_for_repo_path(:plugin => "plugin.id.with.dots", :id => "repoid").should == "/admin/package_repositories/repoid/plugin.id.with.dots/config"
+    end
   end
 
   describe :actions do

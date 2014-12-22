@@ -21,58 +21,58 @@ describe Admin::PackageRepositoriesController do
 
   describe :routes do
     it "should resolve route to the new package-repositories page" do
-      {:get => "/admin/package_repositories/new"}.should route_to(:controller => "admin/package_repositories", :action => "new")
-      package_repositories_new_path.should == "/admin/package_repositories/new"
+      expect({:get => "/admin/package_repositories/new"}).to route_to(:controller => "admin/package_repositories", :action => "new")
+      expect(package_repositories_new_path).to eq("/admin/package_repositories/new")
     end
 
     it "should resolve route to the list package-repositories page" do
-      {:get => "/admin/package_repositories/list"}.should route_to(:controller => "admin/package_repositories", :action => "list")
-      package_repositories_list_path.should == "/admin/package_repositories/list"
+      expect({:get => "/admin/package_repositories/list"}).to route_to(:controller => "admin/package_repositories", :action => "list")
+      expect(package_repositories_list_path).to eq("/admin/package_repositories/list")
     end
 
     it "should resolve route to the create package-repositories page" do
-      {:post => "/admin/package_repositories"}.should route_to(:controller => "admin/package_repositories", :action => "create")
-      package_repositories_create_path.should == "/admin/package_repositories"
+      expect({:post => "/admin/package_repositories"}).to route_to(:controller => "admin/package_repositories", :action => "create")
+      expect(package_repositories_create_path).to eq("/admin/package_repositories")
     end
 
     it "should resolve route to the edit package-repositories page" do
-      {:get => "/admin/package_repositories/abcd-1234/edit"}.should route_to(:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234")
-      package_repositories_edit_path(:id => "abcd-1234").should == "/admin/package_repositories/abcd-1234/edit"
+      expect({:get => "/admin/package_repositories/abcd-1234/edit"}).to route_to(:controller => "admin/package_repositories", :action => "edit", :id => "abcd-1234")
+      expect(package_repositories_edit_path(:id => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234/edit")
     end
 
     it "should resolve route to the update package-repositories page" do
-      {:put => "/admin/package_repositories/abcd-1234"}.should route_to(:controller => "admin/package_repositories", :action => "update", :id => "abcd-1234")
-      package_repositories_update_path(:id => "abcd-1234").should == "/admin/package_repositories/abcd-1234"
+      expect({:put => "/admin/package_repositories/abcd-1234"}).to route_to(:controller => "admin/package_repositories", :action => "update", :id => "abcd-1234")
+      expect(package_repositories_update_path(:id => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234")
     end
 
     it "should resolve route to plugin config" do
-      {:get => "/admin/package_repositories/abcd-1234/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "abcd-1234")
-      package_repositories_plugin_config_path(:plugin => "abcd-1234").should == "/admin/package_repositories/abcd-1234/config"
+      expect({:get => "/admin/package_repositories/abcd-1234/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "abcd-1234")
+      expect(package_repositories_plugin_config_path(:plugin => "abcd-1234")).to eq("/admin/package_repositories/abcd-1234/config")
     end
 
     it "should resolve route to plugin config for repo" do
-      {:get => "/admin/package_repositories/repoid/pluginid/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "pluginid", :id => "repoid")
-      package_repositories_plugin_config_for_repo_path(:plugin => "pluginid", :id => "repoid").should == "/admin/package_repositories/repoid/pluginid/config"
+      expect({:get => "/admin/package_repositories/repoid/pluginid/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "pluginid", :id => "repoid")
+      expect(package_repositories_plugin_config_for_repo_path(:plugin => "pluginid", :id => "repoid")).to eq("/admin/package_repositories/repoid/pluginid/config")
     end
 
     it "should resolve route to check connection for repo" do
-      {:get => "/admin/package_repositories/check_connection?id=foo"}.should route_to(:controller => "admin/package_repositories", :action => "check_connection", :id => "foo")
-      package_repositories_check_connection_path.should == "/admin/package_repositories/check_connection"
+      expect({:get => "/admin/package_repositories/check_connection?id=foo"}).to route_to(:controller => "admin/package_repositories", :action => "check_connection", :id => "foo")
+      expect(package_repositories_check_connection_path).to eq("/admin/package_repositories/check_connection")
     end
 
     it "should resolve route to deletion of repo" do
-      {:delete => "/admin/package_repositories/repo"}.should route_to(:controller => "admin/package_repositories", :action => "destroy", :id => "repo")
-      package_repositories_delete_path(:id => "repo").should == "/admin/package_repositories/repo"
+      expect({:delete => "/admin/package_repositories/repo"}).to route_to(:controller => "admin/package_repositories", :action => "destroy", :id => "repo")
+      expect(package_repositories_delete_path(:id => "repo")).to eq("/admin/package_repositories/repo")
     end
 
     it "should allow dots in the name of a plugin in the route for a plugin's configuration" do
-      {:get => "/admin/package_repositories/plugin.id.with.dots/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "plugin.id.with.dots")
-      package_repositories_plugin_config_path(:plugin => "plugin.id.with.dots").should == "/admin/package_repositories/plugin.id.with.dots/config"
+      expect({:get => "/admin/package_repositories/plugin.id.with.dots/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config", :plugin => "plugin.id.with.dots")
+      expect(package_repositories_plugin_config_path(:plugin => "plugin.id.with.dots")).to eq("/admin/package_repositories/plugin.id.with.dots/config")
     end
 
     it "should allow dots in the name of a plugin in the route for a plugin config for a repository" do
-      {:get => "/admin/package_repositories/repoid/plugin.id.with.dots/config"}.should route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "plugin.id.with.dots", :id => "repoid")
-      package_repositories_plugin_config_for_repo_path(:plugin => "plugin.id.with.dots", :id => "repoid").should == "/admin/package_repositories/repoid/plugin.id.with.dots/config"
+      expect({:get => "/admin/package_repositories/repoid/plugin.id.with.dots/config"}).to route_to(:controller => "admin/package_repositories", :action => "plugin_config_for_repo", :plugin => "plugin.id.with.dots", :id => "repoid")
+      expect(package_repositories_plugin_config_for_repo_path(:plugin => "plugin.id.with.dots", :id => "repoid")).to eq("/admin/package_repositories/repoid/plugin.id.with.dots/config")
     end
   end
 
@@ -106,10 +106,10 @@ describe Admin::PackageRepositoriesController do
 
         get :new
 
-        assigns[:tab_name].should == "package-repositories"
-        assigns[:package_repository].should_not be_nil
-        assigns[:package_repositories].should == package_repositories
-        assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        expect(assigns[:tab_name]).to eq("package-repositories")
+        expect(assigns[:package_repository]).to_not be_nil
+        expect(assigns[:package_repositories]).to eq(package_repositories)
+        expect(assigns[:package_to_pipeline_map]).to eq(@cruise_config.getGroups().getPackageUsageInPipelines())
         assert_template layout: "admin"
       end
     end
@@ -129,10 +129,10 @@ describe Admin::PackageRepositoriesController do
 
         get :list
 
-        assigns[:tab_name].should == "package-repositories"
-        assigns[:package_repository].should_not be_nil
-        assigns[:package_repositories].should == package_repositories
-        assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        expect(assigns[:tab_name]).to eq("package-repositories")
+        expect(assigns[:package_repository]).to_not be_nil
+        expect(assigns[:package_repositories]).to eq(package_repositories)
+        expect(assigns[:package_to_pipeline_map]).to eq(@cruise_config.getGroups().getPackageUsageInPipelines())
         assert_template layout: "admin"
       end
     end
@@ -156,23 +156,23 @@ describe Admin::PackageRepositoriesController do
       it "should get the configuration properties for a given plugin-id" do
         get :plugin_config, :plugin => "pluginid"
 
-        assigns[:repository_configuration].should_not be_nil
-        assigns[:repository_configuration].properties[0].display_name.should == "Key 1"
-        assigns[:repository_configuration].properties[0].value.should == nil
-        assigns[:plugin_id].should == "pluginid"
-        assigns[:isNewRepo].should == true
+        expect(assigns[:repository_configuration]).to_not be_nil
+        expect(assigns[:repository_configuration].properties[0].display_name).to eq("Key 1")
+        expect(assigns[:repository_configuration].properties[0].value).to eq(nil)
+        expect(assigns[:plugin_id]).to eq("pluginid")
+        expect(assigns[:isNewRepo]).to eq(true)
         assert_template layout: false
       end
 
       it "should get the configuration properties with values for a given repo-id associated with package material plugin" do
         get :plugin_config_for_repo, :id => "repo1", :plugin => "pluginid"
 
-        assigns[:repository_configuration].should_not be_nil
-        assigns[:repository_configuration].properties.size.should == 1
-        assigns[:repository_configuration].properties[0].display_name.should == "Key 1"
-        assigns[:repository_configuration].properties[0].value.should == "v1"
-        assigns[:plugin_id].should == "pluginid"
-        assigns[:isNewRepo].should == false
+        expect(assigns[:repository_configuration]).to_not be_nil
+        expect(assigns[:repository_configuration].properties.size).to eq(1)
+        expect(assigns[:repository_configuration].properties[0].display_name).to eq("Key 1")
+        expect(assigns[:repository_configuration].properties[0].value).to eq("v1")
+        expect(assigns[:plugin_id]).to eq("pluginid")
+        expect(assigns[:isNewRepo]).to eq(false)
         assert_template layout: false
       end
     end
@@ -195,11 +195,11 @@ describe Admin::PackageRepositoriesController do
 
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
-        response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"repo-id\",\"redirectUrl\":\"/admin/package_repositories/repo-id/edit\"}"
-        flash[:success].should == "success"
-        response.response_code.should == 200
-        response.location.should == "/admin/package_repositories/repo-id/edit"
-        response.headers["Go-Config-Error"].should == nil
+        expect(response.body).to eq("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"repo-id\",\"redirectUrl\":\"/admin/package_repositories/repo-id/edit\"}")
+        expect(flash[:success]).to eq("success")
+        expect(response.response_code).to eq(200)
+        expect(response.location).to eq("/admin/package_repositories/repo-id/edit")
+        expect(response.headers["Go-Config-Error"]).to eq(nil)
       end
       it "should not add flash message when create fails" do
         package_repository = PackageRepository.new
@@ -208,10 +208,10 @@ describe Admin::PackageRepositoriesController do
 
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
-        flash[:success].should == nil
-        response.response_code.should == 500
-        response.headers["Go-Config-Error"].should == "failed"
-        response.location.should == nil
+        expect(flash[:success]).to eq(nil)
+        expect(response.response_code).to eq(500)
+        expect(response.headers["Go-Config-Error"]).to eq("failed")
+        expect(response.location).to eq(nil)
       end
     end
 
@@ -236,35 +236,35 @@ describe Admin::PackageRepositoriesController do
       it "should render form for editing  package repository" do
         get :edit, :id => "abcd-1234"
 
-        assigns[:package_repository].should == @repository1
-        assigns[:repository_configuration].should_not be_nil
-        assigns[:repository_configuration].properties.size.should == 1
-        assigns[:repository_configuration].properties[0].display_name.should == "Key 1"
-        assigns[:repository_configuration].properties[0].value.should == "v1"
-        assigns[:package_repositories].should == @cruise_config.getPackageRepositories()
-        assigns[:tab_name].should == "package-repositories"
-        assigns[:package_to_pipeline_map].should == @cruise_config.getGroups().getPackageUsageInPipelines();
+        expect(assigns[:package_repository]).to eq(@repository1)
+        expect(assigns[:repository_configuration]).to_not be_nil
+        expect(assigns[:repository_configuration].properties.size).to eq(1)
+        expect(assigns[:repository_configuration].properties[0].display_name).to eq("Key 1")
+        expect(assigns[:repository_configuration].properties[0].value).to eq("v1")
+        expect(assigns[:package_repositories]).to eq(@cruise_config.getPackageRepositories())
+        expect(assigns[:tab_name]).to eq("package-repositories")
+        expect(assigns[:package_to_pipeline_map]).to eq(@cruise_config.getGroups().getPackageUsageInPipelines())
         assert_template layout: "admin"
       end
 
       it "should render error if plugin is missing package repository" do
         get :edit, :id => "with-missing-plugin"
 
-        assigns[:package_repository].should == @repository2
-        assigns[:repository_configuration].should_not be_nil
-        assigns[:repository_configuration].properties.size.should == 0
-        assigns[:errors].size.should == 1
-        assigns[:errors].should include("Associated plugin 'missing' not found. Please contact the Go admin to install the plugin.")
-        assigns[:package_repositories].should == @cruise_config.getPackageRepositories()
-        assigns[:tab_name].should == "package-repositories"
+        expect(assigns[:package_repository]).to eq(@repository2)
+        expect(assigns[:repository_configuration]).to_not be_nil
+        expect(assigns[:repository_configuration].properties.size).to eq(0)
+        expect(assigns[:errors].size).to eq(1)
+        expect(assigns[:errors]).to include("Associated plugin 'missing' not found. Please contact the Go admin to install the plugin.")
+        expect(assigns[:package_repositories]).to eq(@cruise_config.getPackageRepositories())
+        expect(assigns[:tab_name]).to eq("package-repositories")
       end
 
       it "should render 404 page when repo is missing" do
         get :edit, :id => "missing-repo-id"
 
-        response.response_code.should == 404
-        assigns[:message].should == "Could not find the repository with id 'missing-repo-id'. It might have been deleted."
-        assigns[:status].should == 404
+        expect(response.response_code).to eq(404)
+        expect(assigns[:message]).to eq("Could not find the repository with id 'missing-repo-id'. It might have been deleted.")
+        expect(assigns[:status]).to eq(404)
       end
     end
 
@@ -284,11 +284,11 @@ describe Admin::PackageRepositoriesController do
 
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
-        response.body.should == "{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\",\"redirectUrl\":\"/admin/package_repositories/id/edit\"}"
-        flash[:success].should == "success"
-        response.response_code.should == 200
-        response.location.should == "/admin/package_repositories/id/edit"
-        response.headers["Go-Config-Error"].should == nil
+        expect(response.body).to eq("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"success\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\",\"redirectUrl\":\"/admin/package_repositories/id/edit\"}")
+        expect(flash[:success]).to eq("success")
+        expect(response.response_code).to eq(200)
+        expect(response.location).to eq("/admin/package_repositories/id/edit")
+        expect(response.headers["Go-Config-Error"]).to eq(nil)
       end
 
       it "should not add flash message when update fails" do
@@ -303,12 +303,12 @@ describe Admin::PackageRepositoriesController do
 
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
-        flash[:notice].should == nil
-        response.body.should == "{\"fieldErrors\":{\"field2\":[\"error 2\"],\"field1\":[\"error 1\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"
-        flash[:success].should == nil
-        response.response_code.should == 500
-        response.headers["Go-Config-Error"].should == "failed"
-        response.location.should == nil
+        expect(flash[:notice]).to eq(nil)
+        expect(response.body).to eq("{\"fieldErrors\":{\"field2\":[\"error 2\"],\"field1\":[\"error 1\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}")
+        expect(flash[:success]).to eq(nil)
+        expect(response.response_code).to eq(500)
+        expect(response.headers["Go-Config-Error"]).to eq("failed")
+        expect(response.location).to eq(nil)
       end
     end
 
@@ -329,8 +329,8 @@ describe Admin::PackageRepositoriesController do
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
         json = JSON.parse(response.body)
-        json["success"].should == "Connection OK from plugin."
-        json["error"].should == nil
+        expect(json["success"]).to eq("Connection OK from plugin.")
+        expect(json["error"]).to eq(nil)
       end
 
       it "should show error when check connection fails for given package repository" do
@@ -342,8 +342,8 @@ describe Admin::PackageRepositoriesController do
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
         json = JSON.parse(response.body)
-        json["success"].should == nil
-        json["error"].should == "Connection To Repo Failed. Bad Url"
+        expect(json["success"]).to eq(nil)
+        expect(json["error"]).to eq("Connection To Repo Failed. Bad Url")
       end
     end
 
@@ -369,7 +369,7 @@ describe Admin::PackageRepositoriesController do
 
         delete :destroy, :id => "repo-id", :config_md5 => @config_md5
 
-        response.should redirect_to package_repositories_list_path(:fm => 'random-uuid')
+        expect(response).to redirect_to package_repositories_list_path(:fm => 'random-uuid')
       end
 
       it "should render error when repository can not be deleted" do
@@ -395,10 +395,10 @@ describe Admin::PackageRepositoriesController do
 
         delete :destroy, :id => repository_id, :config_md5 => @config_md5
 
-        assigns[:tab_name].should == "package-repositories"
+        expect(assigns[:tab_name]).to eq("package-repositories")
         assert_template "edit"
         assert_template layout: "admin"
-        response.status.should == 400
+        expect(response.status).to eq(400)
         assert_template layout: "admin"
       end
     end

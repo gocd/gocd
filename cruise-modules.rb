@@ -477,7 +477,8 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     cp js_file, dest_file
     cp "server/webapp/WEB-INF/rails.new/app/assets/javascripts/lib/d3-3.1.5.min.js", _(:target, 'jsunit/compressed')
     cp "server/webapp/WEB-INF/rails.new/spec/javascripts/helpers/test_helper.js", _(:target, 'jsunit/compressed')
-    cp project('cruise:server').path_to('webapp/stylesheets/module.css'), _(:target, 'jsunit/css/module.css')
+
+    Dir.glob("server/webapp/WEB-INF/rails.new/public/assets/application*.css") {|f| cp File.expand_path(f), _(:target, 'jsunit/css/application.css') }
   end
 
   task :set_browser_path do

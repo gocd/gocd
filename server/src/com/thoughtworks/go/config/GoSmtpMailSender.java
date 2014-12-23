@@ -140,13 +140,13 @@ public class GoSmtpMailSender implements GoMailSender {
             props.put("mail.smtp.timeout", DEFAULT_TIMEOUT);
         }
 
-        if (tls) {
-            props.put("mail.transport.protocol", "smtps");
-
-        } else {
-            props.put("mail.transport.protocol", "smtp");
+        if (System.getProperties().containsKey("mail.smtp.starttls.enable")) {
+            props.put("mail.smtp.starttls.enable", "true");
         }
-//        props.put("mail.debug", "true");
+
+        String mailProtocol = tls ? "smtps" : "smtp";
+        props.put("mail.transport.protocol", mailProtocol);
+
         return props;
     }
 

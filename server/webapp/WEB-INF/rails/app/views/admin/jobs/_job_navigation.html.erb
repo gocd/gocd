@@ -1,7 +1,0 @@
-<ul>
-    <li id="settings"><%= link_to l.string('JOB_SETTINGS'), admin_job_edit_path(:current_tab => "settings") %></li>
-    <li id="tasks"><%= link_to "#{l.string('TASKS')}", admin_tasks_listing_path(:current_tab => "tasks") %></li>
-    <li id="artifacts"><%= link_to "#{l.string('ARTIFACTS')}", admin_job_edit_path(:current_tab => 'artifacts') %></li>
-    <li id="environment_variables"><%= link_to l.string("ENVIRONMENT_VARIABLES"), admin_job_edit_path(:current_tab => "environment_variables") %></li>
-    <li id="tabs"><%= link_to l.string('TABS'), admin_job_edit_path(:current_tab => "tabs") %></li>
-</ul>

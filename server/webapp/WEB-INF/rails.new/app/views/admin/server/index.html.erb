@@ -141,8 +141,11 @@
                         });
                     </script>
                     <div class="form_item checkbox_row">
-                        <%= form.check_box :tls, {}, "true", "false" %>
-                        <label class="inline" for="server_configuration_form_tls"><%= l.string("MAIL_HOST_USE_TLS") -%></label>
+                        <div class="checkbox_label_wrapper">
+                            <%= form.check_box :tls, {}, "true", "false" %>
+                            <label class="inline" for="server_configuration_form_tls"><%= l.string("MAIL_HOST_USE_SMTPS") -%></label>
+                        </div>
+                        <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_MAIL_HOST_SMTPS") -%>"></div>
                     </div>
 
                     <div class="form_item">

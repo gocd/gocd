@@ -125,7 +125,48 @@ describe "admin/server/index.html.erb" do
       end
     end
   end
-  
+
+  describe "email notification management" do
+    it "should show all the email fields" do
+      render
+
+      Capybara.string(response.body).find('div#mail_host_config').tap do |div|
+        expect(div).to have_selector("h2.legend", "Email Notification")
+
+        div.find(".fieldset").tap do |fieldset|
+          fieldset.all(".form_item").tap do |form_items|
+            expect(form_items[1]).to have_selector("label", :text => "Hostname*")
+            expect(form_items[1]).to have_selector("input[type='text'][name='server_configuration_form[hostName]']")
+
+            expect(form_items[2]).to have_selector("label", :text => "Port*")
+            expect(form_items[2]).to have_selector("input[type='text'][name='server_configuration_form[port]']")
+
+            expect(form_items[3]).to have_selector("label", :text => "Username")
+            expect(form_items[3]).to have_selector("input[type='text'][name='server_configuration_form[username]']")
+
+            expect(form_items[4]).to have_selector("label", :text => "Password")
+            expect(form_items[4]).to have_selector("input[type='password'][name='server_configuration_form[password]']")
+            expect(form_items[4]).to have_selector("label", :text => "Change Password")
+
+            expect(form_items[5]).to have_selector("label", :text => "Use SMTPS")
+            expect(form_items[5]).to have_selector("input[type='checkbox'][name='server_configuration_form[tls]']")
+            expect(form_items[5]).to have_selector("div[class='contextual_help has_go_tip_right']")
+
+            help_text = form_items[5].find("div[class='contextual_help has_go_tip_right']")["title"]
+            expect(help_text).to start_with("This changes the protocol used to send the mail. It switches between SMTP and SMTPS")
+            expect(help_text).to include("<a class='' href='http://www.go.cd/documentation/user/current/configuration/admin_mailhost_info.html#starttls'")
+
+            expect(form_items[6]).to have_selector("label", :text => "From*")
+            expect(form_items[6]).to have_selector("input[type='text'][name='server_configuration_form[from]']")
+
+            expect(form_items[7]).to have_selector("label", :text => "Admin mail*")
+            expect(form_items[7]).to have_selector("input[type='text'][name='server_configuration_form[adminMail]']")
+          end
+        end
+      end
+    end
+  end
+
   describe "user management" do
     it "should have a text area for search bases" do
       server_config_form = ServerConfigurationForm.new({:ldap_search_base => "foo\\nbar\\nbaz,goo"})

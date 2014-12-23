@@ -273,15 +273,15 @@ public class GoSmtpMailSenderTest {
             }
         }
 
+        public void verifyTransportWasClosed() throws Exception {
+            verify(transport).close();
+        }
+
         private Properties getPropertiesUsedInSession() {
             ArgumentCaptor<Properties> propertyCaptor = ArgumentCaptor.forClass(Properties.class);
             verify(session).createWith(propertyCaptor.capture(), any(String.class), any(String.class));
 
             return propertyCaptor.getValue();
-        }
-
-        public void verifyTransportWasClosed() throws Exception {
-            verify(transport).close();
         }
     }
 }

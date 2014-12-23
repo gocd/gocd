@@ -16,23 +16,18 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Date;
-import java.util.Properties;
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Authenticator;
-import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.mail.AuthenticationFailedException;
+import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Transport;
+import javax.mail.internet.MimeMessage;
+import java.util.Properties;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_TIMEOUT;
 import static javax.mail.Message.RecipientType.TO;
@@ -89,11 +84,10 @@ public class GoSmtpMailSender implements GoMailSender {
                 LOGGER.debug(String.format("Sending email [%s] to [%s]", subject, to));
             }
             Properties props = mailProperties();
-            Session session = createSession(props);
+            MailSession session = MailSession.getInstance().createWith(props, username, password);
             transport = session.getTransport();
             transport.connect(host, port, nullIfEmpty(username), nullIfEmpty(password));
-//            transport.connect(host, port, username, password);
-            MimeMessage msg = createMessage(subject, body, session, to);
+            MimeMessage msg = session.createMessage(from, to, subject, body);
             transport.sendMessage(msg, msg.getRecipients(TO));
             return ValidationBean.valid();
         } catch (AuthenticationFailedException e) {
@@ -132,32 +126,6 @@ public class GoSmtpMailSender implements GoMailSender {
             return null;
         }
         return aString;
-    }
-
-    private Session createSession(Properties props) {
-        Session session;
-        if (username == null || password == null || username.equals("") || password.equals("")) {
-            session = Session.getInstance(props);
-        } else {
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtps.auth", "true");
-            session = Session.getInstance(props, new SMTPAuthenticator());
-        }
-        return session;
-    }
-
-    private MimeMessage createMessage(String subject, String body, Session session, String to)
-            throws MessagingException {
-        MimeMessage msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(from));
-        msg.setRecipients(TO, to);
-        msg.setSubject(subject);
-        msg.setContent(msg, "text/plain");
-        msg.setSentDate(new Date());
-        msg.setText(body);
-        msg.setSender(new InternetAddress(from));
-        msg.setReplyTo(new InternetAddress[]{new InternetAddress(from)});
-        return msg;
     }
 
     private Properties mailProperties() {
@@ -242,12 +210,6 @@ public class GoSmtpMailSender implements GoMailSender {
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         String hostName = SystemUtil.getLocalhostName();
         return String.format("You received this configuration test email from Go Server:\n\n%s (%s)\n\nThank you.", hostName, ip);
-    }
-
-    private final class SMTPAuthenticator extends Authenticator {
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(username, password);
-        }
     }
 
     public static GoMailSender createSender(MailHost mailHost) {

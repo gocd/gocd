@@ -89,7 +89,7 @@ public class GoSmtpMailSenderTest {
     }
 
     @Test
-    public void shouldSetMailFromProperty() throws Exception {
+    public void shouldSet_MailFrom_Property() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(hostName, port, username, password, true, from, to);
@@ -268,7 +268,6 @@ public class GoSmtpMailSenderTest {
 
         public void verifyPropertyDoesNotExist(String propertyWhichShouldNotExist) {
             Properties properties = getPropertiesUsedInSession();
-
             if (properties.containsKey(propertyWhichShouldNotExist)) {
                 fail("Did not expect to find property: " + propertyWhichShouldNotExist + ". Found it in properties list: " + properties);
             }

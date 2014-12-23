@@ -1,4 +1,0 @@
-This is a temporary module to enable the feature toggle "use.new.rails".
-
-If you want to start a development server with the new JRuby, you need to use this module in the IntelliJ run
-configuration, with the settings in the comment shown in DevelopmentServerNewJRuby.java.

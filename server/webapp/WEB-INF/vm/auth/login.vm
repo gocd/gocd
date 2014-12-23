@@ -19,23 +19,14 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
-#if($useNewRails)
+
     <link rel="shortcut icon" href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"/>
     <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
     <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
     <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
     <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
     <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
-#else
-    <link rel="shortcut icon" href="$req.getContextPath()/images/cruise.ico?#include("admin/admin_version.txt.vm")"/>
-    <link href="$req.getContextPath()/css/reset-fonts-grids-fix.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/css/rounded_corner.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/css/application.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/stylesheets/vm/structure_for_old_ui.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link>
-    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css?#include("admin/admin_version.txt.vm")" rel="stylesheet" type="text/css"></link><![endif]-->
-    <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
-    <script src="$req.getContextPath()/compressed/all.js?#include("admin/admin_version.txt.vm")" type="text/javascript"></script>
-#end
+
     <style type="text/css">
         body {
             background: #000;

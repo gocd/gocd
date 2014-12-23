@@ -235,22 +235,9 @@ public class GoServerContextHandlersTest {
     }
 
     @Test
-    public void shouldToggleRailsToOldOneWhenTheNewOneIsNotSpecified() throws Exception {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
-        GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
-
-        WebAppContext webApp = goServer.webApp();
-
-        assertThat(webApp.getInitParameter("rails.root"), is("/WEB-INF/rails"));
-    }
-
-    @Test
     public void shouldToggleRailsToOldOneWhenTheNewOneIsSpecified() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
-        when(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(true);
         GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
 
         WebAppContext webApp = goServer.webApp();
@@ -343,7 +330,6 @@ public class GoServerContextHandlersTest {
     }
 
     private SystemEnvironment setJRubyJarsTo(SystemEnvironment mockSystemEnvironment) {
-        when(mockSystemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)).thenReturn(false);
         return mockSystemEnvironment;
     }
 }

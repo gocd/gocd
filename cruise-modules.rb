@@ -18,11 +18,7 @@ require 'buildr/java/cobertura' unless ENV['INSTRUMENT_FOR_COVERAGE'].nil?
 require 'buildr/core/util'
 
 task :prepare do
-  # Temporary: Feature toggle "use.new.rails" is related to this.
-  maven_profiles_for_rails = ENV['USE_NEW_RAILS'] != "N" ? "newrails,!oldrails" : "oldrails,!newrails"
-  puts "Using Maven profiles: #{maven_profiles_for_rails}"
-
-  system("mvn install -DskipTests -P #{maven_profiles_for_rails}") || raise("Failed to run: mvn install -DskipTests -P #{maven_profiles_for_rails}")
+  system("mvn install -DskipTests") || raise("Failed to run: mvn install -DskipTests")
   task("cruise:server:db:refresh").invoke
 end
 
@@ -470,7 +466,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
   end
 
   task :prepare_jsunit_file_structure do
-    js_file = ENV['USE_NEW_RAILS'] != "N" ? Dir["server/target/webapp/WEB-INF/rails.new/public/assets/*.js"][0] : "server/target/all.js"
+    js_file = Dir["server/target/webapp/WEB-INF/rails.new/public/assets/*.js"][0]
     raise "#{js_file} not found! did you run ./bn clean cruise:prepare?" unless File.exist?(js_file)
 
     mkdir_p _(:target, 'jsunit/compressed')

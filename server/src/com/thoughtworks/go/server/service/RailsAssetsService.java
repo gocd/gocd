@@ -48,7 +48,7 @@ public class RailsAssetsService implements ServletContextAware {
     }
 
     public void initialize() throws IOException {
-        if (!(systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS) && systemEnvironment.useCompressedJs())) {
+        if (!systemEnvironment.useCompressedJs()) {
             return;
         }
         String assetsDirPath = servletContext.getRealPath(servletContext.getInitParameter("rails.root") + "/public/assets/");
@@ -71,9 +71,6 @@ public class RailsAssetsService implements ServletContextAware {
     }
 
     public String getAssetPath(String asset) {
-        if (!systemEnvironment.get(SystemEnvironment.USE_NEW_RAILS)) {
-            throw new RuntimeException("This service does not cater to Rails2");
-        }
         String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
         return StringUtil.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
     }

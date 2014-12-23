@@ -1,3 +1,0 @@
-default: --require features features
-pending: --require features features-pending
-no_heckle: --require features features --exclude heckle

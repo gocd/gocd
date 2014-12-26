@@ -16,13 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigCollection;
@@ -156,21 +150,38 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     private void validateScmMaterials() {
         List<ScmMaterialConfig> scmMaterials = filterScmMaterials();
-        int numberOfMaterials = scmMaterials.size();
-        for (ScmMaterialConfig material : scmMaterials) {
-            if (numberOfMaterials > 1) {
+        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = filterPluggableSCMMaterials();
+        if (scmMaterials.size() + pluggableSCMMaterials.size() > 1) {
+            List<MaterialConfig> allSCMMaterials = new ArrayList<MaterialConfig>();
+            allSCMMaterials.addAll(scmMaterials);
+            allSCMMaterials.addAll(pluggableSCMMaterials);
+
+            for (MaterialConfig material : allSCMMaterials) {
                 if (StringUtil.isBlank(material.getFolder())) {
-                    material.setDestinationFolderError("Destination directory is required when specifying multiple scm materials");
-                }
-                for (ScmMaterialConfig otherMaterial : scmMaterials) {
-                    if (otherMaterial != material) {
-                        otherMaterial.validateNotSubdirectoryOf(material);
-                        otherMaterial.validateDestinationDirectoryName(material);
-                    }
+                    String fieldName = material instanceof ScmMaterialConfig ? ScmMaterialConfig.FOLDER : PluggableSCMMaterialConfig.FOLDER;
+                    material.addError(fieldName, "Destination directory is required when specifying multiple scm materials");
+                } else {
+                    validateDestinationFolder(allSCMMaterials, material);
                 }
             }
         }
     }
+
+    private void validateDestinationFolder(List<MaterialConfig> allSCMMaterials, MaterialConfig material) {
+        String materialFolder = material.getFolder();
+        for (MaterialConfig otherMaterial : allSCMMaterials) {
+            if (otherMaterial != material) {
+                if (otherMaterial instanceof ScmMaterialConfig) {
+                    ((ScmMaterialConfig) otherMaterial).validateNotSubdirectoryOf(materialFolder);
+                    ((ScmMaterialConfig) otherMaterial).validateDestinationDirectoryName(materialFolder);
+                } else {
+                    ((PluggableSCMMaterialConfig) otherMaterial).validateNotSubdirectoryOf(materialFolder);
+                    ((PluggableSCMMaterialConfig) otherMaterial).validateDestinationDirectoryName(materialFolder);
+                }
+            }
+        }
+    }
+
 /*
     To two methods below are to avoid creating methods on already long Material interface with a No Op implementations.
  */
@@ -183,6 +194,16 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             }
         }
         return scmMaterials;
+    }
+
+    private List<PluggableSCMMaterialConfig> filterPluggableSCMMaterials() {
+        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = new ArrayList<PluggableSCMMaterialConfig>();
+        for (MaterialConfig materialConfig : this) {
+            if (materialConfig instanceof PluggableSCMMaterialConfig) {
+                pluggableSCMMaterials.add((PluggableSCMMaterialConfig) materialConfig);
+            }
+        }
+        return pluggableSCMMaterials;
     }
 
     private List<DependencyMaterialConfig> filterDependencyMaterials() {
@@ -255,6 +276,10 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         return getExistingOrDefaultMaterial(new PackageMaterialConfig());
     }
 
+    public PluggableSCMMaterialConfig getSCMMaterial() {
+        return getExistingOrDefaultMaterial(new PluggableSCMMaterialConfig());
+    }
+
     <T extends MaterialConfig> T getExistingOrDefaultMaterial(T defaultMaterial) {
         for (MaterialConfig material : this) {
             if (material.getClass().isAssignableFrom(defaultMaterial.getClass())) {
@@ -289,6 +314,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             addMaterialConfig(getTfsMaterial(), (Map) attributeMap.get(TfsMaterialConfig.TYPE));
         } else if (PackageMaterialConfig.TYPE.equals(materialType)) {
             addMaterialConfig(getPackageMaterial(), (Map) attributeMap.get(PackageMaterialConfig.TYPE));
+        } else if (PluggableSCMMaterialConfig.TYPE.equals(materialType)) {
+            addMaterialConfig(getSCMMaterial(), (Map) attributeMap.get(PluggableSCMMaterialConfig.TYPE));
         }
     }
 

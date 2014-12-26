@@ -33,6 +33,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.security.GoCipher;
@@ -153,15 +154,17 @@ Above scenario allowed
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
         HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
+        PluggableSCMMaterialConfig materialThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "folder1", null);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
-        pipelineOne.setMaterialConfigs(new MaterialConfigs(materialOne, materialTwo));
+        pipelineOne.setMaterialConfigs(new MaterialConfigs(materialOne, materialTwo, materialThree));
 
         pipelineOne.materialConfigs().validate(ValidationContext.forChain(config));
 
         String conflictingDirMessage = "Invalid Destination Directory.Every material needs a different destination directory and the directories should not be nested.";
         assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.FOLDER), is(conflictingDirMessage));
         assertThat(pipelineOne.materialConfigs().get(1).errors().on(ScmMaterialConfig.FOLDER), is(conflictingDirMessage));
+        assertThat(pipelineOne.materialConfigs().get(2).errors().on(PluggableSCMMaterialConfig.FOLDER), is(conflictingDirMessage));
     }
 
     @Test
@@ -186,20 +189,22 @@ Above scenario allowed
         PipelineConfig pipeline = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         assertThat(pipeline.materialConfigs().getByFingerPrint("invalid"), is(nullValue()));
     }
-    
+
     @Test
     public void shouldFailIfMultipleMaterialsDoNotHaveDestinationFolderSet() {
         HgMaterialConfig materialConfigOne = new HgMaterialConfig("http://url1", null);
         materialConfigOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
         HgMaterialConfig materialConfigTwo = new HgMaterialConfig("http://url2", null);
+        PluggableSCMMaterialConfig materialConfigThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
-        pipelineOne.setMaterialConfigs((new MaterialConfigs(materialConfigOne, materialConfigTwo)));
+        pipelineOne.setMaterialConfigs((new MaterialConfigs(materialConfigOne, materialConfigTwo, materialConfigThree)));
 
         pipelineOne.materialConfigs().validate(ValidationContext.forChain(config));
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().isEmpty(), is(true));
         assertThat(pipelineOne.materialConfigs().get(1).errors().on(ScmMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
+        assertThat(pipelineOne.materialConfigs().get(2).errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
     }
 
     @Test
@@ -451,5 +456,33 @@ Above scenario allowed
         assertThat(new MaterialConfigs(svn, p2).getExistingOrDefaultMaterial(p1).getPackageId(), is("p2"));
 
         assertThat(new MaterialConfigs(svn).getExistingOrDefaultMaterial(p1).getPackageId(), is("p1"));
+    }
+
+    @Test
+    public void shouldSetPluggableSCMMaterialConfigAttributesForMaterial() {
+        String scmId = "scm-id";
+        Map<String, String> hashMap = new HashMap<String, String>();
+        hashMap.put(PluggableSCMMaterialConfig.SCM_ID, scmId);
+
+        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, PluggableSCMMaterialConfig.TYPE);
+        attributeMap.put(PluggableSCMMaterialConfig.TYPE, hashMap);
+
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        materialConfigs.setConfigAttributes(attributeMap);
+
+        assertThat(materialConfigs.size(), is(1));
+        assertThat(((PluggableSCMMaterialConfig) materialConfigs.first()).getSCMId(), is(scmId));
+    }
+
+    @Test
+    public void shouldGetExistingOrDefaultPluggableSCMMaterialCorrectly() {
+        SvnMaterialConfig svn = new SvnMaterialConfig("http://test.com", false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
+        PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
+
+        assertThat(new MaterialConfigs(svn, pluggableSCMMaterialTwo).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getSCMId(), is("scm-id-2"));
+
+        assertThat(new MaterialConfigs(svn).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getSCMId(), is("scm-id-1"));
     }
 }

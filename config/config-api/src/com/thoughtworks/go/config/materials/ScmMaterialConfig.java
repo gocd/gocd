@@ -238,29 +238,25 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         addError(FOLDER, message);
     }
 
-    public void validateNotSubdirectoryOf(ScmMaterialConfig otherMaterial) {
+    public void validateNotSubdirectoryOf(String otherSCMMaterialFolder) {
         String myDirPath = this.getFolder();
-        String otherDirPath = otherMaterial.getFolder();
-        if (myDirPath == null || otherDirPath == null) {
+        if (myDirPath == null || otherSCMMaterialFolder == null) {
             return;
         }
         File myDir = new File(myDirPath);
-        File otherDir = new File(otherDirPath);
+        File otherDir = new File(otherSCMMaterialFolder);
         try {
             if (FileUtil.isSubdirectoryOf(myDir, otherDir)) {
-                String message = "Invalid Destination Directory.Every material needs a different destination directory and the directories should not be nested.";
-                this.setDestinationFolderError(message);
-                otherMaterial.setDestinationFolderError(message);
+                addError(FOLDER, "Invalid Destination Directory.Every material needs a different destination directory and the directories should not be nested.");
             }
         } catch (IOException e) {
             throw bomb("Dest folder specification is not valid. " + e.getMessage());
         }
     }
 
-    public void validateDestinationDirectoryName(ScmMaterialConfig otherMaterial) {
-        if (folder != null && folder.equalsIgnoreCase(otherMaterial.folder)) {
-            this.addError(FOLDER, "The destination directory must be unique across materials.");
-            otherMaterial.addError(FOLDER, "The destination directory must be unique across materials.");
+    public void validateDestinationDirectoryName(String otherSCMMaterialFolder) {
+        if (folder != null && folder.equalsIgnoreCase(otherSCMMaterialFolder)) {
+            addError(FOLDER, "The destination directory must be unique across materials.");
         }
     }
 

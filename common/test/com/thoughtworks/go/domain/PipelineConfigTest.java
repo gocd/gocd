@@ -43,6 +43,7 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.label.PipelineLabel;
@@ -754,6 +755,19 @@ public class PipelineConfigTest {
 
         assertThat(packageMaterialConfigs.size(), is(2));
         assertThat(packageMaterialConfigs, hasItems(packageMaterialOne, packageMaterialTwo));
+    }
+
+    @Test
+    public void shouldGetPluggableSCMMaterialConfigs() throws Exception {
+        SvnMaterialConfig svn = new SvnMaterialConfig("svn", false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
+        PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(svn, pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
+        List<PluggableSCMMaterialConfig> packageMaterialConfigs = pipelineConfig.pluggableSCMMaterialConfigs();
+
+        assertThat(packageMaterialConfigs.size(), is(2));
+        assertThat(packageMaterialConfigs, hasItems(pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
     }
 
     private StageConfig completedStage() {

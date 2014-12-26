@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.registry;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -98,6 +99,7 @@ public class ConfigElementImplementationRegistrarTest {
         materials.add(P4MaterialConfig.class);
         materials.add(TfsMaterialConfig.class);
         materials.add(PackageMaterialConfig.class);
+        materials.add(PluggableSCMMaterialConfig.class);
 
         assertThat(registry.implementersOf(MaterialConfig.class), is(materials));
     }

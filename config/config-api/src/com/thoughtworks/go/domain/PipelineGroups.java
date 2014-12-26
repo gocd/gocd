@@ -31,16 +31,19 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Pair;
 
 @ConfigCollection(value = PipelineConfigs.class)
 public class PipelineGroups extends BaseCollection<PipelineConfigs> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
     private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
+    private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialToPipelineMap;
 
     public PipelineGroups() {
     }
@@ -202,6 +205,36 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
             if (packageUsageInPipelines.containsKey(packageDefinition.getId())) {
                 return false;
             }
+        }
+        return true;
+    }
+
+    public Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> getPluggableSCMMaterialUsageInPipelines() {
+        if (pluggableSCMMaterialToPipelineMap == null) {
+            synchronized (this) {
+                if (pluggableSCMMaterialToPipelineMap == null) {
+                    pluggableSCMMaterialToPipelineMap = new HashMap<String, List<Pair<PipelineConfig, PipelineConfigs>>>();
+                    for (PipelineConfigs pipelineConfigs : this) {
+                        for (PipelineConfig pipelineConfig : pipelineConfigs) {
+                            for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
+                                String scmId = pluggableSCMMaterialConfig.getSCMId();
+                                if (!pluggableSCMMaterialToPipelineMap.containsKey(scmId)) {
+                                    pluggableSCMMaterialToPipelineMap.put(scmId, new ArrayList<Pair<PipelineConfig, PipelineConfigs>>());
+                                }
+                                pluggableSCMMaterialToPipelineMap.get(scmId).add(new Pair<PipelineConfig, PipelineConfigs>(pipelineConfig, pipelineConfigs));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return pluggableSCMMaterialToPipelineMap;
+    }
+
+    public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = getPluggableSCMMaterialUsageInPipelines();
+        if (packageUsageInPipelines.containsKey(scmConfig.getId())) {
+            return false;
         }
         return true;
     }

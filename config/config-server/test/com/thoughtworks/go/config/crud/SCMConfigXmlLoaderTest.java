@@ -54,7 +54,7 @@ public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [scm-id] declared for identity constraint \"uniqueSCMId\" of element \"scms\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [scm-id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\"."));
         }
     }
 

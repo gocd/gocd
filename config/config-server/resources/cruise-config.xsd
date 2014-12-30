@@ -45,10 +45,6 @@
                     </xsd:unique>
                 </xsd:element>
                 <xsd:element minOccurs="0" maxOccurs="1" name="scms" type="scmsType">
-                    <xsd:unique name="uniqueSCMId">
-                        <xsd:selector xpath="scm"/>
-                        <xsd:field xpath="@id"/>
-                    </xsd:unique>
                     <xsd:unique name="uniqueSCMName">
                         <xsd:selector xpath="scm"/>
                         <xsd:field xpath="@name"/>
@@ -92,6 +88,10 @@
             <xsd:selector xpath="pipelines/pipeline/materials/package"/>
             <xsd:field xpath="@ref"/>
         </xsd:keyref>
+        <xsd:unique name="uniqueSCMId">
+            <xsd:selector xpath="scms/scm"/>
+            <xsd:field xpath="@id"/>
+        </xsd:unique>
         <xsd:keyref name="scmIdReferredByMaterial" refer="uniqueSCMId">
             <xsd:selector xpath="pipelines/pipeline/materials/scm"/>
             <xsd:field xpath="@ref"/>

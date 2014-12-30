@@ -94,7 +94,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
             xmlWriter.write(configToSave, output, false);
             fail("should not have allowed two SCMs with same id");
         } catch (XsdValidationException e) {
-            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint \"uniqueSCMId\" of element \"scms\"."));
+            assertThat(e.getMessage(), is("Duplicate unique value [id] declared for identity constraint \"uniqueSCMId\" of element \"cruise\"."));
         }
     }
 

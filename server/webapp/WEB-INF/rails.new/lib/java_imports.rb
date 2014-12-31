@@ -65,6 +65,8 @@ module JavaImports
   java_import com.thoughtworks.go.config.materials.ScmMaterialConfig unless defined? ScmMaterialConfig
   java_import com.thoughtworks.go.config.materials.PackageMaterial unless defined? PackageMaterial
   java_import com.thoughtworks.go.config.materials.PackageMaterialConfig unless defined? PackageMaterialConfig
+  java_import com.thoughtworks.go.config.materials.PluggableSCMMaterial unless defined? PluggableSCMMaterial
+  java_import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig unless defined? PluggableSCMMaterialConfig
   java_import com.thoughtworks.go.config.materials.svn.SvnMaterial unless defined? SvnMaterial
   java_import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig unless defined? SvnMaterialConfig
   java_import com.thoughtworks.go.config.materials.mercurial.HgMaterial unless defined? HgMaterial
@@ -208,6 +210,9 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore unless defined? PackageMetadataStore
   java_import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations unless defined? PackageConfigurations
   java_import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration unless defined? PackageConfiguration
+  java_import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore unless defined? SCMMetadataStore
+  java_import com.thoughtworks.go.plugin.access.scm.SCMConfigurations unless defined? SCMConfigurations
+  java_import com.thoughtworks.go.plugin.access.scm.SCMConfiguration unless defined? SCMConfiguration
   java_import com.thoughtworks.go.domain.config.ConfigurationKey unless defined? ConfigurationKey
   java_import com.thoughtworks.go.domain.config.ConfigurationValue unless defined? ConfigurationValue
   java_import com.thoughtworks.go.domain.config.EncryptedConfigurationValue unless defined? EncryptedConfigurationValue

@@ -27,8 +27,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -43,6 +45,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -69,6 +73,7 @@ import static org.junit.Assert.assertTrue;
 public class MagicalMaterialAndMaterialConfigConversionTest {
     private static PackageRepository packageRepo = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(create("k1", false, "v1")));
     private static PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
+    public static SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
     private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<Class, String[]>();
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
@@ -79,6 +84,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @DataPoint public static MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), "folder");
     @DataPoint public static MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), "folder", cis("tfsMaterial"));
     @DataPoint public static MaterialConfig pkgMaterialConfig = new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition);
+    @DataPoint public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"));
     @DataPoint public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
 
     static {
@@ -88,6 +94,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PackageMaterialConfig.class, new String[]{"filter", "packageId", "packageDefinition", "fingerprint"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PluggableSCMMaterialConfig.class, new String[]{"filter", "scmId", "scmConfig", "fingerprint"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
     }
 

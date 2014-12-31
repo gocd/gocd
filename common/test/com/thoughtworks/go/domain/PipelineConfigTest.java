@@ -764,10 +764,10 @@ public class PipelineConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(svn, pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
-        List<PluggableSCMMaterialConfig> packageMaterialConfigs = pipelineConfig.pluggableSCMMaterialConfigs();
+        List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs = pipelineConfig.pluggableSCMMaterialConfigs();
 
-        assertThat(packageMaterialConfigs.size(), is(2));
-        assertThat(packageMaterialConfigs, hasItems(pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
+        assertThat(pluggableSCMMaterialConfigs.size(), is(2));
+        assertThat(pluggableSCMMaterialConfigs, hasItems(pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
     }
 
     private StageConfig completedStage() {

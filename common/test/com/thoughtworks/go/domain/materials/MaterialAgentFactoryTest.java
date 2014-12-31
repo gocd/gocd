@@ -19,10 +19,12 @@ package com.thoughtworks.go.domain.materials;
 import java.io.File;
 
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -71,6 +73,12 @@ public class MaterialAgentFactoryTest {
         MaterialAgentFactory factory = new MaterialAgentFactory(null,null,null);
         MaterialAgent agent = factory.createAgent(new MaterialRevision(new PackageMaterial(), new Modifications()));
         assertThat(agent instanceof PackageMaterialAgent, is(true));
+    }
 
+    @Test
+    public void shouldGetPluggableSCMMaterialAgent() {
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, null, null);
+        MaterialAgent agent = factory.createAgent(new MaterialRevision(new PluggableSCMMaterial(), new Modifications()));
+        assertThat(agent instanceof PluggableSCMMaterialAgent, is(true));
     }
 }

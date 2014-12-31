@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -35,15 +36,17 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class GoConfigMaterialsTest {
-    
+
     @Test
     public void shouldProvideSetOfSchedulableMaterials() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", "svnDir", true);
@@ -60,7 +63,7 @@ public class GoConfigMaterialsTest {
         CruiseConfig config = new CruiseConfig(new PipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(4));
     }
-    
+
     @Test
     public void shouldNotIncludePackageMaterialsWithAutoUpdateFalse() {
         PipelineConfig pipeline1 = pipelineWithManyMaterials(false);
@@ -70,6 +73,22 @@ public class GoConfigMaterialsTest {
         pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new CruiseConfig(new PipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(4));
+    }
+
+    @Test
+    public void shouldNotIncludePluggableSCMMaterialsWithAutoUpdateFalse() {
+        PipelineConfig pipeline1 = pipelineWithManyMaterials(false);
+        PluggableSCMMaterialConfig autoUpdateMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id-1"), null, null);
+        pipeline1.addMaterialConfig(autoUpdateMaterialConfig);
+        PluggableSCMMaterialConfig nonAutoUpdateMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id-2"), null, null);
+        nonAutoUpdateMaterialConfig.getSCMConfig().setAutoUpdate(false);
+        pipeline1.addMaterialConfig(nonAutoUpdateMaterialConfig);
+
+        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        CruiseConfig config = new CruiseConfig(new PipelineConfigs(pipeline1));
+        Set<MaterialConfig> materialsBelongingToAutoPipelines = config.getAllUniqueMaterialsBelongingToAutoPipelines();
+        assertThat(materialsBelongingToAutoPipelines.size(), is(4));
+        assertThat(materialsBelongingToAutoPipelines, containsInAnyOrder(pipeline1.materialConfigs().get(1), pipeline1.materialConfigs().get(2), pipeline1.materialConfigs().get(3), pipeline1.materialConfigs().get(4)));
     }
 
     private PackageMaterialConfig getPackageMaterialConfigWithAutoUpdateFalse() {
@@ -142,7 +161,7 @@ public class GoConfigMaterialsTest {
         SvnMaterialConfig svnInDifferentFolder = MaterialConfigsMother.svnMaterialConfig("url", "folder2");
         PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svn));
         PipelineConfig pipeline2 = new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs(svnInDifferentFolder));
-        
+
         CruiseConfig config = new CruiseConfig(new PipelineConfigs(pipeline1, pipeline2));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size(), is(1));
     }

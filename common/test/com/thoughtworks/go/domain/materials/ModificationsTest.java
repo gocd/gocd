@@ -22,14 +22,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -147,6 +145,27 @@ public class ModificationsTest {
         assertThat(packageMaterialRevision.getData().size(), is(data.size()));
         assertThat(packageMaterialRevision.getData().get("1"), is(data.get("1")));
         assertThat(packageMaterialRevision.getData().get("2"), is(data.get("2")));
+    }
+
+    @Test
+    public void shouldGetLatestModificationsForPluggableSCMMaterial() {
+        String revisionString = "123";
+        Date timestamp = new Date();
+        HashMap<String, String> data = new HashMap<String, String>();
+        data.put("1", "one");
+        data.put("2", "two");
+        Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));
+        Modifications modifications = new Modifications(modification);
+
+        Revision revision = modifications.latestRevision(new PluggableSCMMaterial());
+
+        assertThat(revision instanceof PluggableSCMMaterialRevision, is(true));
+        PluggableSCMMaterialRevision pluggableSCMMaterialRevision = (PluggableSCMMaterialRevision) revision;
+        assertThat(pluggableSCMMaterialRevision.getRevision(), is(revisionString));
+        assertThat(pluggableSCMMaterialRevision.getTimestamp(), is(timestamp));
+        assertThat(pluggableSCMMaterialRevision.getData().size(), is(data.size()));
+        assertThat(pluggableSCMMaterialRevision.getData().get("1"), is(data.get("1")));
+        assertThat(pluggableSCMMaterialRevision.getData().get("2"), is(data.get("2")));
     }
 
     @Test

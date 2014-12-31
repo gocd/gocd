@@ -17,10 +17,7 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -32,6 +29,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
@@ -67,6 +65,10 @@ public class MaterialConfigsMother {
         material.setPackageDefinition(packageDefinition);
         repository.getPackages().add(packageDefinition);
         return material;
+    }
+
+    public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig() {
+        return new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig(String pipelineName, String stageName) {

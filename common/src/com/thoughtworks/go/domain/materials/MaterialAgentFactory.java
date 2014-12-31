@@ -19,11 +19,13 @@ package com.thoughtworks.go.domain.materials;
 import java.io.File;
 
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialAgent;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 
@@ -44,7 +46,8 @@ public class MaterialAgentFactory {
             return new DependencyMaterialAgent(revision);
         } else if (material instanceof PackageMaterial) {
             return new PackageMaterialAgent();
-
+        } else if (material instanceof PluggableSCMMaterial) {
+            return new PluggableSCMMaterialAgent();
         } else if (material instanceof ScmMaterial) {
             String destFolderPath = ((ScmMaterial) material).workingdir(workingDirectory).getAbsolutePath();
             return new AbstractMaterialAgent(revision, consumer, workingDirectory, new AgentSubprocessExecutionContext(agentIdentifier, destFolderPath));

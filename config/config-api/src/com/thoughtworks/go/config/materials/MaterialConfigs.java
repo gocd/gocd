@@ -149,13 +149,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     private void validateScmMaterials() {
-        List<ScmMaterialConfig> scmMaterials = filterScmMaterials();
-        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = filterPluggableSCMMaterials();
-        if (scmMaterials.size() + pluggableSCMMaterials.size() > 1) {
-            List<MaterialConfig> allSCMMaterials = new ArrayList<MaterialConfig>();
-            allSCMMaterials.addAll(scmMaterials);
-            allSCMMaterials.addAll(pluggableSCMMaterials);
-
+        List<MaterialConfig> allSCMMaterials = getSCMAndPluggableSCMConfigs();
+        if (allSCMMaterials.size() > 1) {
             for (MaterialConfig material : allSCMMaterials) {
                 if (StringUtil.isBlank(material.getFolder())) {
                     String fieldName = material instanceof ScmMaterialConfig ? ScmMaterialConfig.FOLDER : PluggableSCMMaterialConfig.FOLDER;
@@ -165,6 +160,15 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
                 }
             }
         }
+    }
+
+    private List<MaterialConfig> getSCMAndPluggableSCMConfigs() {
+        List<ScmMaterialConfig> scmMaterials = filterScmMaterials();
+        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = filterPluggableSCMMaterials();
+        List<MaterialConfig> allSCMMaterials = new ArrayList<MaterialConfig>();
+        allSCMMaterials.addAll(scmMaterials);
+        allSCMMaterials.addAll(pluggableSCMMaterials);
+        return allSCMMaterials;
     }
 
     private void validateDestinationFolder(List<MaterialConfig> allSCMMaterials, MaterialConfig material) {
@@ -320,8 +324,9 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public boolean scmMaterialsHaveDestination() {
-        for (ScmMaterialConfig scmMaterial : filterScmMaterials()) {
-            if (!scmMaterial.hasDestination()) {
+        for (MaterialConfig scmMaterial : getSCMAndPluggableSCMConfigs()) {
+            String destination = (scmMaterial instanceof ScmMaterialConfig) ? ((ScmMaterialConfig) scmMaterial).getFolder() : ((PluggableSCMMaterialConfig) scmMaterial).getFolder();
+            if (StringUtil.isBlank(destination)) {
                 return false;
             }
         }

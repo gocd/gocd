@@ -68,7 +68,11 @@ public class MaterialConfigsMother {
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig() {
-        return new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
+        return pluggableSCMMaterialConfig("scm-id", null, null);
+    }
+
+    private static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {
+        return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId), destinationFolder, filter);
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig(String pipelineName, String stageName) {

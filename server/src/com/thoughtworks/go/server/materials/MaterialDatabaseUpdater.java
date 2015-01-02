@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -55,11 +56,12 @@ public class MaterialDatabaseUpdater {
     private final ScmMaterialUpdater scmMaterialUpdater;
     private MaterialExpansionService materialExpansionService;
     private PackageMaterialUpdater packageMaterialUpdater;
+    private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
 
     @Autowired
     public MaterialDatabaseUpdater(MaterialRepository materialRepository, ServerHealthService healthService, TransactionTemplate transactionTemplate,
                                    GoCache goCache, DependencyMaterialUpdater dependencyMaterialUpdater, ScmMaterialUpdater scmMaterialUpdater, PackageMaterialUpdater packageMaterialUpdater,
-                                   MaterialExpansionService materialExpansionService) {
+                                   PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService) {
         this.materialRepository = materialRepository;
         this.healthService = healthService;
         this.transactionTemplate = transactionTemplate;
@@ -67,6 +69,7 @@ public class MaterialDatabaseUpdater {
         this.dependencyMaterialUpdater = dependencyMaterialUpdater;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.packageMaterialUpdater = packageMaterialUpdater;
+        this.pluggableSCMMaterialUpdater = pluggableSCMMaterialUpdater;
         this.materialExpansionService = materialExpansionService;
     }
 
@@ -158,6 +161,9 @@ public class MaterialDatabaseUpdater {
         }
         if (material instanceof PackageMaterial) {
             return packageMaterialUpdater;
+        }
+        if (material instanceof PluggableSCMMaterial) {
+            return pluggableSCMMaterialUpdater;
         }
         return scmMaterialUpdater;
     }

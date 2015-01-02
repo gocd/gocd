@@ -40,6 +40,7 @@ public class MaterialUpdateListenerFactory {
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
     private final PackageMaterialUpdater packageMaterialUpdater;
+    private final PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
     private final MaterialExpansionService materialExpansionService;
     private final MDUPerformanceLogger mduPerformanceLogger;
 
@@ -54,7 +55,7 @@ public class MaterialUpdateListenerFactory {
                                          GoCache goCache,
                                          DependencyMaterialUpdater dependencyMaterialUpdater,
                                          ScmMaterialUpdater scmMaterialUpdater,
-                                         PackageMaterialUpdater packageMaterialUpdater, MaterialExpansionService materialExpansionService, MDUPerformanceLogger mduPerformanceLogger) {
+                                         PackageMaterialUpdater packageMaterialUpdater, PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, MDUPerformanceLogger mduPerformanceLogger) {
         this.topic = topic;
         this.queue = queue;
         this.materialRepository = materialRepository;
@@ -66,6 +67,7 @@ public class MaterialUpdateListenerFactory {
         this.dependencyMaterialUpdater = dependencyMaterialUpdater;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.packageMaterialUpdater = packageMaterialUpdater;
+        this.pluggableSCMMaterialUpdater = pluggableSCMMaterialUpdater;
         this.materialExpansionService = materialExpansionService;
         this.mduPerformanceLogger = mduPerformanceLogger;
     }
@@ -75,7 +77,7 @@ public class MaterialUpdateListenerFactory {
 
         for (int i = 0; i < numberOfListeners; i++) {
             MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
-                    packageMaterialUpdater, materialExpansionService);
+                    packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
             queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor));
         }
     }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,10 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
         try {
             File agentPluginsZip = new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName());
             File pluginsFolder = new File(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH));
+
+            if (pluginsFolder.exists()) {
+                FileUtils.forceDelete(pluginsFolder);
+            }
             zipUtil.unzip(agentPluginsZip, pluginsFolder);
             defaultPluginJarLocationMonitor.initialize();
             pluginManager.startPluginInfrastructure();

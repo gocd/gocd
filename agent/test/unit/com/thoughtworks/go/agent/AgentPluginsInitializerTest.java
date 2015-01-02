@@ -16,37 +16,36 @@
 
 package com.thoughtworks.go.agent;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ZipUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.mockito.Mock;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AgentPluginsInitializerTest {
+    @Mock private ZipUtil zipUtil;
+    @Mock private PluginManager pluginManager;
+    @Mock private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
+    @Mock private SystemEnvironment systemEnvironment;
 
-    private ZipUtil zipUtil;
-    private PluginManager pluginManager;
     private AgentPluginsInitializer agentPluginsInitializer;
-    private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
 
     @Before
     public void setUp() throws Exception {
-        zipUtil = mock(ZipUtil.class);
-        pluginManager = mock(PluginManager.class);
-        pluginJarLocationMonitor = mock(DefaultPluginJarLocationMonitor.class);
-        agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, zipUtil);
+        initMocks(this);
+        agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, zipUtil, systemEnvironment);
+        when(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH)).thenReturn(SystemEnvironment.PLUGINS_PATH);
     }
 
     @Test
@@ -84,6 +83,4 @@ public class AgentPluginsInitializerTest {
             fail("should have handled IOException");
         }
     }
-
-
 }

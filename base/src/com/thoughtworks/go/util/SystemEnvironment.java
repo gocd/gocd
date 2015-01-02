@@ -129,6 +129,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             new GoStringSystemProperty("default.command.snippets.zip.location", "/defaultFiles/defaultCommandSnippets.zip"));
     public static GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<String>(
             new GoStringSystemProperty("default.plugins.zip.location", "/defaultFiles/plugins.zip"));
+    public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<String>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
     public static GoSystemProperty<String> VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY = new CachedProperty<String>(new GoStringSystemProperty("version.file.in.command.repository", "version.txt"));
     public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<Integer>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
     public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<String>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));

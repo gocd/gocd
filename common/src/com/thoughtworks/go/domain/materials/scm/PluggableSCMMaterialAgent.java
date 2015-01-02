@@ -16,11 +16,61 @@
 
 package com.thoughtworks.go.domain.materials.scm;
 
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialAgent;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMProperty;
+import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
+import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
+import com.thoughtworks.go.plugin.api.response.Result;
+
+import java.io.File;
 
 public class PluggableSCMMaterialAgent implements MaterialAgent {
+    private SCMExtension scmExtension;
+    private MaterialRevision revision;
+    private File workingDirectory;
+
+    public PluggableSCMMaterialAgent(SCMExtension scmExtension, MaterialRevision revision, File workingDirectory) {
+        this.scmExtension = scmExtension;
+        this.revision = revision;
+        this.workingDirectory = workingDirectory;
+    }
+
     @Override
     public void prepare() {
-        //do nothing
+        PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
+        Modification latestModification = revision.getLatestModification();
+        SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
+        File destinationFolder = workingDirectory(workingDirectory, material.getFolder());
+        Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
+        if (!result.isSuccessful()) {
+            // handle
+        }
+        // handle messages
+    }
+
+    private SCMPropertyConfiguration buildSCMPropertyConfigurations(SCM scmConfig) {
+        SCMPropertyConfiguration scmPropertyConfiguration = new SCMPropertyConfiguration();
+        populateConfiguration(scmConfig.getConfiguration(), scmPropertyConfiguration);
+        return scmPropertyConfiguration;
+    }
+
+    private void populateConfiguration(Configuration configuration, com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration) {
+        for (ConfigurationProperty configurationProperty : configuration) {
+            pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+        }
+    }
+
+    private File workingDirectory(File baseFolder, String destinationFolder) {
+        if (destinationFolder == null) {
+            return baseFolder;
+        }
+        return new File(baseFolder, destinationFolder);
     }
 }

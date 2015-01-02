@@ -25,6 +25,8 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -34,16 +36,23 @@ import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialAgentFactoryTest {
     private TempFiles tempFiles;
+    @Mock
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    @Mock
+    private SCMExtension scmExtension;
 
     @Before
     public void setUp() {
+        initMocks(this);
         tempFiles = new TempFiles();
     }
 
@@ -57,7 +66,7 @@ public class MaterialAgentFactoryTest {
         String agentUuid = "uuid-01783738";
         File workingDirectory = tempFiles.createUniqueFolder("");
         MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
-                new AgentIdentifier("host", "1.1.1.1", agentUuid));
+                new AgentIdentifier("host", "1.1.1.1", agentUuid), packageAsRepositoryExtension, scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");
 
         MaterialAgent agent = factory.createAgent(new MaterialRevision(gitMaterial));
@@ -65,20 +74,32 @@ public class MaterialAgentFactoryTest {
         assertThat(agent, is(instanceOf(AbstractMaterialAgent.class)));
 
         SubprocessExecutionContext execCtx = (SubprocessExecutionContext) ReflectionUtil.getField(agent, "execCtx");
-        assertThat(execCtx.getProcessNamespace("fingerprint"),is(CachedDigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(workingDirectory)))));
+        assertThat(execCtx.getProcessNamespace("fingerprint"), is(CachedDigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(workingDirectory)))));
     }
 
     @Test
-    public void shouldGetPackageMaterialAgent(){
-        MaterialAgentFactory factory = new MaterialAgentFactory(null,null,null);
-        MaterialAgent agent = factory.createAgent(new MaterialRevision(new PackageMaterial(), new Modifications()));
+    public void shouldGetPackageMaterialAgent() {
+        File workingDirectory = new File("/tmp/workingDirectory");
+        MaterialRevision revision = new MaterialRevision(new PackageMaterial(), new Modifications());
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageAsRepositoryExtension, scmExtension);
+        MaterialAgent agent = factory.createAgent(revision);
+
         assertThat(agent instanceof PackageMaterialAgent, is(true));
+        assertThat((PackageAsRepositoryExtension) ReflectionUtil.getField(agent, "packageAsRepositoryExtension"), is(packageAsRepositoryExtension));
+        assertThat((MaterialRevision) ReflectionUtil.getField(agent, "revision"), is(revision));
+        assertThat((File) ReflectionUtil.getField(agent, "workingDirectory"), is(workingDirectory));
     }
 
     @Test
     public void shouldGetPluggableSCMMaterialAgent() {
-        MaterialAgentFactory factory = new MaterialAgentFactory(null, null, null);
-        MaterialAgent agent = factory.createAgent(new MaterialRevision(new PluggableSCMMaterial(), new Modifications()));
+        File workingDirectory = new File("/tmp/workingDirectory");
+        MaterialRevision revision = new MaterialRevision(new PluggableSCMMaterial(), new Modifications());
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageAsRepositoryExtension, scmExtension);
+        MaterialAgent agent = factory.createAgent(revision);
+
         assertThat(agent instanceof PluggableSCMMaterialAgent, is(true));
+        assertThat((SCMExtension) ReflectionUtil.getField(agent, "scmExtension"), is(scmExtension));
+        assertThat((MaterialRevision) ReflectionUtil.getField(agent, "revision"), is(revision));
+        assertThat((File) ReflectionUtil.getField(agent, "workingDirectory"), is(workingDirectory));
     }
 }

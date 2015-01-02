@@ -26,7 +26,9 @@ import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -78,14 +80,13 @@ public class BuildWork implements Work {
         builders = new Builders(assignment.getBuilders(), goPublisher, buildLog, taskExtension);
     }
 
-    public void doWork(AgentIdentifier agentIdentifier,
-                       BuildRepositoryRemote remoteBuildRepository,
-                       GoArtifactsManipulator goArtifactsManipulator, EnvironmentVariableContext environmentVariableContext,
-                       AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+    public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
+                       EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
+                       PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
         environmentVariableContext.addAll(assignment.initialEnvironmentVariableContext());
         try {
-            JobResult result = build(environmentVariableContext, agentIdentifier);
+            JobResult result = build(environmentVariableContext, agentIdentifier, packageAsRepositoryExtension, scmExtension);
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
@@ -121,13 +122,14 @@ public class BuildWork implements Work {
         }
     }
 
-    private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier) throws Exception {
+    private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
+                            PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) throws Exception {
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
             return null;
         }
 
-        prepareJob(agentIdentifier);
+        prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
         setupEnvrionmentContext(environmentVariableContext);
         plan.applyTo(environmentVariableContext);
 
@@ -141,7 +143,7 @@ public class BuildWork implements Work {
         return result;
     }
 
-    private void prepareJob(AgentIdentifier agentIdentifier) {
+    private void prepareJob(AgentIdentifier agentIdentifier, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {
         goPublisher.reportAction("Start to prepare");
         goPublisher.reportCurrentStatus(JobState.Preparing);
 
@@ -152,7 +154,7 @@ public class BuildWork implements Work {
         }
 
         ProcessOutputStreamConsumer<GoPublisher, GoPublisher> consumer = new ProcessOutputStreamConsumer<GoPublisher, GoPublisher>(goPublisher, goPublisher);
-        MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier);
+        MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageAsRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 

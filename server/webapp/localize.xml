@@ -213,7 +213,8 @@
     <entry key="PORT">Port</entry>
     <entry key="USERNAME">Username</entry>
     <entry key="PASSWORD">Password</entry>
-    <entry key="MAIL_HOST_USE_TLS">Use TLS</entry>
+    <entry key="MAIL_HOST_USE_SMTPS">Use SMTPS</entry>
+    <entry key="TOOLTIP_MAIL_HOST_SMTPS">This changes the protocol used to send the mail. It switches between SMTP and SMTPS. To enable STARTLS support, for providers such as GMail and Office 365, see <![CDATA[<a class='' href='http://www.go.cd/documentation/user/current/configuration/admin_mailhost_info.html#starttls' target='_blank'>this page in the documentation</a>.]]></entry>
     <entry key="MAIL_HOST_FROM">From</entry>
     <entry key="MAIL_HOST_ADMIN_MAIL">Admin mail</entry>
     <entry key="MAIL_HOST_SEND_TEST_EMAIL">SEND TEST EMAIL</entry>

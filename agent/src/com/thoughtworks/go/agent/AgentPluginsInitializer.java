@@ -16,20 +16,21 @@
 
 package com.thoughtworks.go.agent;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 @Component
 public class AgentPluginsInitializer implements ApplicationListener<ContextRefreshedEvent> {
@@ -38,19 +39,26 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
 
     private final DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
     private ZipUtil zipUtil;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public AgentPluginsInitializer(PluginManager pluginManager, DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor, ZipUtil zipUtil) {
+    public AgentPluginsInitializer(PluginManager pluginManager, DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor,
+                                   ZipUtil zipUtil, SystemEnvironment systemEnvironment) {
         this.pluginManager = pluginManager;
         this.defaultPluginJarLocationMonitor = defaultPluginJarLocationMonitor;
         this.zipUtil = zipUtil;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         try {
             File agentPluginsZip = new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName());
-            File pluginsFolder = new File(SystemEnvironment.PLUGINS_PATH);
+            File pluginsFolder = new File(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH));
+
+            if (pluginsFolder.exists()) {
+                FileUtils.forceDelete(pluginsFolder);
+            }
             zipUtil.unzip(agentPluginsZip, pluginsFolder);
             defaultPluginJarLocationMonitor.initialize();
             pluginManager.startPluginInfrastructure();

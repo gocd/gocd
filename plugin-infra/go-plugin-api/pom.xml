@@ -124,6 +124,23 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <attach>false</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
@@ -137,6 +154,7 @@
                             <target name="copy">
                                 <!--Creating a copy of jars as help docs contains a static link to current-jar-->
                                 <copy file="${project.build.directory}/${project.build.finalName}-javadoc.jar" tofile="${project.build.directory}/${project.artifactId}-javadoc-current.jar"/>
+                                <copy file="${project.build.directory}/${project.build.finalName}-sources.jar" tofile="${project.build.directory}/${project.artifactId}-sources-current.jar"/>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${project.artifactId}-current.jar"/>
                             </target>
                         </configuration>

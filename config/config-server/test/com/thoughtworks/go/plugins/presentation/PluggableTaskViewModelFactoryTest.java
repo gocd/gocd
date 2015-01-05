@@ -40,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskViewModelFactoryTest {
-
     private TaskPreference taskPreference;
 
     @Before
@@ -76,31 +75,23 @@ public class PluggableTaskViewModelFactoryTest {
         assertThat((String) viewModel.getParameters().get("template"), is("<html>my-template</html>"));
     }
 
-
     @Test
     public void shouldReturnErrorMessageIfTemplateIsMissingFromPlugin() {
         PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateAt("/test-template-missing.html");
         assertThat((String) viewModel.getParameters().get("template"), is("Template \"/test-template-missing.html\" is missing."));
     }
 
-    private PluggableViewModel<PluggableTask> getModelWithTaskTemplateAt(final String filePath) {
-        when(taskPreference.getView()).thenReturn(new TaskView() {
-            @Override
-            public String displayValue() {
-                return "view";
-            }
-
-            @Override
-            public String template() {
-                return String.format("classpath:%s", filePath);
-            }
-        });
-
-        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
-        PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
-        return factory.viewModelFor(pluggableTask, "new");
+    @Test
+    public void shouldProvideATemplateWithAnErrorMessageWhenTemplateProvidedIsNull() throws Exception {
+        PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateHavingValue(null);
+        assertThat((String) viewModel.getParameters().get("template"), is("View template provided by plugin is null."));
     }
 
+    @Test
+    public void shouldProvideNoTemplateWhenTemplateProvidedIsEmpty() throws Exception {
+        PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateHavingValue("");
+        assertThat((String) viewModel.getParameters().get("template"), is(""));
+    }
 
     @Test
     public void dataForViewShouldBeGotFromTheTaskInJSONFormat() throws Exception {
@@ -179,5 +170,27 @@ public class PluggableTaskViewModelFactoryTest {
         for (String pluginId : plugins) {
             PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
         }
+    }
+
+    private PluggableViewModel<PluggableTask> getModelWithTaskTemplateAt(final String filePath) {
+        return getModelWithTaskTemplateHavingValue(String.format("classpath:%s", filePath));
+    }
+
+    private PluggableViewModel<PluggableTask> getModelWithTaskTemplateHavingValue(final String templateContentValue) {
+        when(taskPreference.getView()).thenReturn(new TaskView() {
+            @Override
+            public String displayValue() {
+                return "view";
+            }
+
+            @Override
+            public String template() {
+                return templateContentValue;
+            }
+        });
+
+        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
+        PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
+        return factory.viewModelFor(pluggableTask, "new");
     }
 }

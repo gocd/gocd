@@ -58,6 +58,10 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
 
     private String getTemplate(final TaskView view) {
         final String templateString = view.template();
+        if (templateString == null) {
+            return "View template provided by plugin is null.";
+        }
+
         final Matcher matcher = CLASSPATH_MATCHER_PATTERN.matcher(templateString);
         if (matcher.matches()) {
             return loadTemplateFromClasspath(matcher.group(1), view);
@@ -66,13 +70,18 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
     }
 
     private String loadTemplateFromClasspath(final String filepath, final TaskView view) {
+        InputStream in = null;
         try {
-            final InputStream in = view.getClass().getResourceAsStream(filepath);
+            in = view.getClass().getResourceAsStream(filepath);
             return in != null ? IOUtils.toString(in) : String.format("Template \"%s\" is missing.", filepath);
         } catch (IOException e) {
             LOG.error(String.format("Failed to load template from view from path \"%s\". Make sure your the template is" +
                     " on the classpath of your plugin", filepath), e);
             return String.format("Template \"%s\" failed to load.", filepath);
+        } finally {
+            if (in != null) {
+                IOUtils.closeQuietly(in);
+            }
         }
     }
 }

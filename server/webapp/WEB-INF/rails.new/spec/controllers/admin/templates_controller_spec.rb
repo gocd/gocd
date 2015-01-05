@@ -18,12 +18,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Admin::TemplatesController do
   include MockRegistryModule
-  before do
-    controller.stub(:populate_health_messages)
-    @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-  end
   include ConfigSaveStubbing
   include GoUtil
+
+  before do
+    controller.stub(:populate_health_messages)
+  end
 
   describe "routes" do
     it "should resolve route to the templates listing page" do

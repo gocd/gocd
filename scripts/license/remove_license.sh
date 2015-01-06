@@ -15,94 +15,96 @@
 # limitations under the License.
 #*************************GO-LICENSE-END**********************************
 
+set -e
+
 # Remove license from ruby files.
-find ../.. -name "*.rb" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails/vendor*"  | while read filename
+find ../.. -name "*.rb" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor*"  | while read filename
 do
-   sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+   sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from rake files.
 find ../../tasks -name "*.rake" | while read filename
 do
-  sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+  sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
-sed -i -E '/.*GO-LICENSE-START/,+15d' ../../server/prepare_go_server_webapp.rake
+sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' ../../server/prepare_go_server_webapp.rake
 
 # Remove license from property files.
-find ../.. -name "*.properties" | grep -v "../../server/webapp/WEB-INF/rails/vendor" | grep -v "../../tools" | while read filename
+find ../.. -name "*.properties" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor" | grep -v "../../tools" | while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from wrapper files.
 find ../.. -name "*.conf" | grep -v "../../tools" | while read filename
 do
-  sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+  sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from shell scripts.
 find ../.. -name "*.sh"  | grep -v "../../scripts/license/" | grep -v "../../tools" | while read filename
 do
-  sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+  sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from javascript files.
 cat javascript-files.txt | while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from XML files.
 find ../.. -name "*.xml" | grep -v "../../localivy/ant/ant-dependencies.xml" |grep -v "../../tools" | grep -v "../../.idea" | grep -v "../../go-command-repo" | grep -v "../../local-maven-repo" | while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from HTML files.
-find ../.. -name "*.html" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails/vendor" | grep -v "../../server/jsunit/app" | while read filename
+find ../.. -name "*.html" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor" | grep -v "../../server/jsunit/app" | while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from xsd files.
-find ../.. -name "*.xsd" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails/vendor" | grep -v "../../server/jsunit/app" |  while read filename
+find ../.. -name "*.xsd" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor" | grep -v "../../server/jsunit/app" |  while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from xsl files.
-find ../.. -name "*.xsl" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails/vendor" | grep -v "../../server/jsunit/app" |  while read filename
+find ../.. -name "*.xsl" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor" | grep -v "../../server/jsunit/app" |  while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license for CSS files.
-find ../.. -name "*.css" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails/vendor"  | grep -v "../../server/jsunit" | grep -v "*/reset-fonts-grids.css" | while read filename
+find ../.. -name "*.css" | grep -v "../../tools" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor"  | grep -v "../../server/jsunit" | grep -v "*/reset-fonts-grids.css" | while read filename
 do
- sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+ sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from additional files.
 cat additional-files.txt | while read filename
 do
-   sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+   sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from vm files.
 find ../.. -name "*.vm" | while read filename
 do
-   sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+   sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license from sql files.
-find ../.. -name "*.sql" | grep -v "../../server/webapp/WEB-INF/rails/vendor" | while read filename
+find ../.. -name "*.sql" | grep -v "../../server/webapp/WEB-INF/rails.new/vendor" | while read filename
 do
-   sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+   sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done
 
 # Remove license for scss files.
-find ../../server/webapp/sass -name "*.scss"| while read filename
+find ../../server/webapp/WEB-INF/rails.new/app/assets/stylesheets/css_sass -name "*.scss"| while read filename
 do
-   sed -i -E '/.*GO-LICENSE-START/,+15d' $filename
+   sed -i -E '/.*GO-LICENSE-START/,/.*GO-LICENSE-END/{N;d}' $filename
 done

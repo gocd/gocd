@@ -1,6 +1,5 @@
 ../../build/windows-installer-base.nsi
 ../../common/test-resources/data/customer/CoverageSummary.xml
-../../helper/rakefile
 ../../installers/agent/deb/copyright.go-agent
 ../../installers/agent/deb/postinst.go-agent
 ../../installers/agent/deb/postrm.go-agent
@@ -36,12 +35,8 @@
 ../../installers/server/sol/preremove
 ../../installers/server/win/go-server.nsi
 ../../server/test/performance/perf-test-env/setup.sh
-../../server/webapp/css/build_detail_summary.css
+../../server/webapp/WEB-INF/rails.new/app/assets/stylesheets/css/build_detail_summary.scss
 ../../server/webapp/job_feed/rb.java
 ../../.gitignore
-../../.gitmodules
-../../b
 ../../bn
 ../../buildfile
-../../capfile
-../../perf.capfile

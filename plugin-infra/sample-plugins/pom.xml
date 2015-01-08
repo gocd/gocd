@@ -28,7 +28,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <go.version>14.4.0</go.version>
+        <go.version>15.1.0</go.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

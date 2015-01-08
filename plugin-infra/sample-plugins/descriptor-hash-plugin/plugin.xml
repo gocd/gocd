@@ -19,7 +19,7 @@
     <about>
         <name>Plugin Descriptor Hash Logger</name>
         <version>1.0</version>
-        <target-go-version>14.4.0</target-go-version>
+        <target-go-version>15.1.0</target-go-version>
         <description>
             Calculates the hash of the given plugin descriptor using
             google guava and logs the same (descriptor and hash code) to the plugin log file.

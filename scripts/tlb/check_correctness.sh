@@ -26,4 +26,4 @@ echo "Dumping environment variables for reference: "
 env
 echo *****************************
 
-./b cruise:misc:assert_all_partitions_executed $*
+./bn cruise:misc:assert_all_partitions_executed $*

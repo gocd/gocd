@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
@@ -41,13 +40,12 @@ public class BuilderFactory {
     private final Map<Class, TaskBuilder> taskBuilderMap = new HashMap<Class, TaskBuilder>();
 
     @Autowired
-    public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder, RakeTaskBuilder rakeTaskBuilder,
+    public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder,
                           PluggableTaskBuilderCreator pluggableTaskBuilderCreator, KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder, FetchTaskBuilder fetchTaskBuilder,
                           NullTaskBuilder nullTaskBuilder) {
         taskBuilderMap.put(AntTask.class, antTaskBuilder);
         taskBuilderMap.put(ExecTask.class, execTaskBuilder);
         taskBuilderMap.put(NantTask.class, nantTaskBuilder);
-        taskBuilderMap.put(RakeTask.class, rakeTaskBuilder);
         taskBuilderMap.put(PluggableTask.class, pluggableTaskBuilderCreator);
         taskBuilderMap.put(KillAllChildProcessTask.class, killAllChildProcessTaskBuilder);
         taskBuilderMap.put(FetchTask.class, fetchTaskBuilder);

@@ -26,7 +26,7 @@ describe "admin/tasks/plugin/new.html.erb" do
     view.stub(:admin_task_create_path).and_return("task_create_path")
     assign(:task, @task = simple_exec_task)
     assign(:task_view_model, @tvm = vm_for(@task))
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(fetch_task)].to_java(TaskViewModel)))
   end
 
   it "should render what the rendering service returns" do
@@ -74,7 +74,6 @@ describe "admin/tasks/plugin/new.html.erb" do
       form.find(".on_cancel") do |on_cancel|
         on_cancel.find("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do |select|
           expect(select).to have_selector("option", :text => "More...")
-          expect(select).to have_selector("option", :text => "Rake")
           expect(select).to have_selector("option", :text => "NAnt")
           expect(select).to have_selector("option", :text => "Ant")
         end

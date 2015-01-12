@@ -206,15 +206,6 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldLoadRakeBuilderWithEmptyOnCancel() throws Exception {
-
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(CONFIG_WITH_NANT_AND_EXEC_BUILDER)).config;
-        JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
-        RakeTask builder = (RakeTask) plan.tasks().findFirstByType(RakeTask.class);
-        assertThat(builder, notNullValue());
-    }
-
-    @Test
     public void shouldMigrateAnEmptyArtifactSourceToStar() throws Exception {
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(ConfigFileFixture.configWithArtifactSourceAs("")));
         CruiseConfig cruiseConfig = holder.config;

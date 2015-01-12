@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.NantTask;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.Tasks;
@@ -106,11 +105,6 @@ public class PipelineBean {
             nantTask.setBuildFile(
                     defaultString(StringUtils.isBlank(this.buildfile) ? "default.build" : this.buildfile));
             tasks.add(nantTask);
-        } else if ("rake".equals(builder)) {
-            RakeTask rakeTask = new RakeTask();
-            rakeTask.setTarget(this.target);
-            rakeTask.setBuildFile(StringUtils.isBlank(this.buildfile) ? null : this.buildfile);
-            tasks.add(rakeTask);
         } else if ("exec".equals(builder)) {
             String trimmedCommand = StringUtils.defaultString(this.command).trim();
             String trimmedArguments = StringUtils.defaultString(this.arguments).trim();

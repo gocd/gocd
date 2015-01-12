@@ -24,16 +24,15 @@ describe Admin::TaskHelper do
     task_css_class("fetch").should == ""
     task_css_class("ant").should == ""
     task_css_class("nant").should == ""
-    task_css_class("rake").should == ""
   end
 
   it "should get all task options" do
     mock_task_view_service = double("task_view_service")
     allow(self).to receive(:task_view_service).and_return(mock_task_view_service)
-    mock_task_view_service.should_receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
+    mock_task_view_service.should_receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new)])
 
     result = task_options
-    result.should == [["Ant", "ant"], ["NAnt", "nant"], ["Rake", "rake"], ["More...", "exec"]]
+    result.should == [["Ant", "ant"], ["NAnt", "nant"], ["More...", "exec"]]
   end
 
   def tvm_of task

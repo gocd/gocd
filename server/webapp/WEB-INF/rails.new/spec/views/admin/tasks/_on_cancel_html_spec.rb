@@ -38,7 +38,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
     end
   end
 
-  it "should not display error message when the on cancel is a regular task like rake" do
+  it "should not display error message when the on cancel is a regular task like ant" do
     @task = task_with_on_cancel_task
     assign(:on_cancel_task_vms, [])
     fields_for(:task, @task) do |f|

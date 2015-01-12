@@ -310,7 +310,6 @@ describe "admin/pipelines/new.html.erb" do
         expect(div).to have_selector("input[name='pipeline_group[pipeline][stage][jobs][][name]'][value='defaultJob']")
         div.find("select[name='pipeline_group[pipeline][stage][jobs][][tasks][taskOptions]']") do |select|
           expect(select).to have_selector("option[value='exec']", :text => "More...")
-          expect(select).to have_selector("option[value='rake']", :text => "Rake")
           expect(select).to have_selector("option[value='ant']", :text => "Ant")
           expect(select).to have_selector("option[value='nant']", :text => "NAnt")
         end

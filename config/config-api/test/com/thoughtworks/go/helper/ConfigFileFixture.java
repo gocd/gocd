@@ -294,7 +294,6 @@ public final class ConfigFileFixture {
                     + "          <nant nantpath='lib/apache-nant' buildfile='src/evolve.build' target='all'/>"
                     + "          <exec command='ls' workingdir='workdir' args='-la' />"
                     + "          <exec command='ls' />"
-                    + "          <rake buildfile='myrake.rb' target='test' workingdir='somewhere' />"
                     + "        </tasks>"
                     + "      </job>\n"
                     + "    </jobs>\n"

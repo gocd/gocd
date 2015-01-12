@@ -19,7 +19,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.config.AntTask unless defined? AntTask
   java_import com.thoughtworks.go.config.NantTask unless defined? NantTask
-  java_import com.thoughtworks.go.config.RakeTask unless defined? RakeTask
   java_import com.thoughtworks.go.config.FetchTask unless defined? FetchTask
   java_import com.thoughtworks.go.config.TimerConfig unless defined? TimerConfig
   java_import com.thoughtworks.go.config.MagicalGoConfigXmlLoader unless defined? MagicalGoConfigXmlLoader

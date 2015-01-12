@@ -45,13 +45,6 @@ public class BuildTaskTest {
     }
 
     @Test
-    public void rakeTaskShouldNormalizeBuildFile() throws Exception {
-        RakeTask task = new RakeTask();
-        task.setBuildFile("pavan\\build.xml");
-        assertThat(task.arguments(), containsString("\"pavan/build.xml\""));
-    }
-
-    @Test
     public void shouldUpdateAllItsAttributes() throws Exception {
         BuildTask task = new BuildTask() {
 

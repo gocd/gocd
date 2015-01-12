@@ -32,7 +32,6 @@ describe Admin::TasksController do
       @tasks = @pipeline.get(0).getJobs().get(0).getTasks()
       @tasks.add(ant_task)
       @tasks.add(nant_task)
-      @tasks.add(rake_task)
       @tasks.add(exec_task)
 
       @go_config_service = stub_service(:go_config_service)
@@ -73,7 +72,7 @@ describe Admin::TasksController do
 
       post :decrement_index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks"
 
-      @tasks.size().should == 4
+      @tasks.size().should == 3
       @tasks.get(0).should == nant_task
       @tasks.get(1).should == ant_task
       assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode

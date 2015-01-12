@@ -58,7 +58,6 @@ import com.thoughtworks.go.server.service.builders.KillAllChildProcessTaskBuilde
 import com.thoughtworks.go.server.service.builders.NantTaskBuilder;
 import com.thoughtworks.go.server.service.builders.NullTaskBuilder;
 import com.thoughtworks.go.server.service.builders.PluggableTaskBuilderCreator;
-import com.thoughtworks.go.server.service.builders.RakeTaskBuilder;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -121,12 +120,6 @@ public class BuildWorkTest {
     private static final String NANT_WITH_WORKINGDIR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
             + "  <tasks>\n"
             + "    <nant target=\"-help\" workingdir=\"not-exists\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
-
-    private static final String RAKE = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <rake target=\"--help\"/>\n"
             + "  </tasks>\n"
             + "</job>";
 
@@ -194,7 +187,7 @@ public class BuildWorkTest {
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private GoArtifactsManipulatorStub artifactManipulator;
     private static MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
-    private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(), new RakeTaskBuilder(),
+    private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
             new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(), new NullTaskBuilder());
     @Mock
     private static UpstreamPipelineResolver resolver;
@@ -498,15 +491,6 @@ public class BuildWorkTest {
                 environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(artifactManipulator.consoleOut(), containsString("Usage : NAnt [options] <target> <target> ..."));
-    }
-
-    @Test
-    public void rakeTest() throws Exception {
-        buildWork = (BuildWork) getWork(RAKE, PIPELINE_NAME);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator,
-                environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
-
-        assertThat(artifactManipulator.consoleOut(), containsString("rake [-f rakefile] {options} targets..."));
     }
 
     @Test

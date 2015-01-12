@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.TestArtifactPlan;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -68,12 +67,6 @@ public class PipelineBeanTest {
         assertThat(artifactPlan.getSrc(), is("logoutput/log.xml"));
         assertThat(artifactPlan.getDest(), is(""));
         assertThat(artifactPlan, is(instanceOf(TestArtifactPlan.class)));
-    }
-
-    @Test
-    public void shouldReturnRakeTasks() {
-        PipelineBean rakeBean = builderBean("mybuild.rb", "clean", "rake");
-        assertThat(rakeBean.getTasks().get(0), instanceOf(RakeTask.class));
     }
 
     @Test

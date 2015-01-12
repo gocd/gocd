@@ -56,7 +56,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry unless defined? StageHistoryEntry
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.config.AntTask unless defined? AntTask
-  java_import com.thoughtworks.go.config.RakeTask unless defined? RakeTask
   java_import com.thoughtworks.go.domain.Task unless defined? Task
   java_import com.thoughtworks.go.config.Argument unless defined? Argument
   java_import com.thoughtworks.go.domain.config.Arguments unless defined? Arguments

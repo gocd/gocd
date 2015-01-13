@@ -74,7 +74,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="76"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="75"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -504,6 +504,17 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+    <xsd:complexType name="rakeType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="taskAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     <xsd:complexType name="fetchType">
         <xsd:complexContent mixed="false">
             <xsd:extension base="taskType">
@@ -543,6 +554,12 @@
     </xsd:element>
     <xsd:element name="exec" substitutionGroup="baseTask" type="execType">
         <xsd:unique name='uniqueRunIfTypeForExec'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="rake" substitutionGroup="baseTask" type="rakeType">
+        <xsd:unique name='uniqueRunIfTypeForRake'>
             <xsd:selector xpath="runif"/>
             <xsd:field xpath="@status"/>
         </xsd:unique>

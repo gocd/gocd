@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -31,6 +33,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
+import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -54,7 +57,7 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
+import org.hamcrest.Matcher;
 import org.jdom.Document;
 import org.jdom.filter.ElementFilter;
 import org.junit.After;
@@ -1115,6 +1118,103 @@ public class GoConfigMigrationIntegrationTest {
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
         assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+    }
+
+    @Test
+    public void shouldMigrateToRevision76_convertRakeTaskToPluggableTask() throws Exception {
+        String migratedContent = migrateXmlString(ConfigFileFixture.WITH_RAKE_TASK_CONFIG, 75, 76);
+
+        CruiseConfig cruiseConfig = loadConfigFileWithContent(migratedContent);
+
+        JobConfig pipelineJob = cruiseConfig.getAllPipelineConfigs().get(0).get(0).getJobs().get(0);
+
+        verifyJobWithRakeTask(pipelineJob);
+
+        JobConfig templateJob = cruiseConfig.getTemplates().get(0).get(0).getJobs().get(0);
+
+        verifyJobWithRakeTask(templateJob);
+    }
+
+    private void verifyJobWithRakeTask(JobConfig job) {
+        AntTask antTask = (AntTask) job.tasks().get(0);
+        verifyAntTask(antTask, "src/evolve.build", "all", null);
+        ExecTask execTask1 = (ExecTask) antTask.onCancelConfig.getTask();
+        verifyExecTask(execTask1, "kill.rb", "", "utils");
+
+        PluggableTask rakeTask1 = (PluggableTask) job.tasks().get(1);
+        HashMap<String, String> keyValuePair = new HashMap<String, String>();
+        keyValuePair.put("build_file", "");
+        keyValuePair.put("target", "");
+        keyValuePair.put("working_directory", "");
+        verifyPluggableTask(rakeTask1, keyValuePair);
+        assertThat(rakeTask1.onCancelConfig.getTask(), instanceOf(KillAllChildProcessTask.class));
+
+        PluggableTask rakeTask2 = (PluggableTask) job.tasks().get(2);
+        keyValuePair.put("build_file", "build-file-1");
+        keyValuePair.put("target", "target-1");
+        keyValuePair.put("working_directory", "working-directory-1");
+        verifyPluggableTask(rakeTask2, keyValuePair);
+        assertThat(rakeTask2.runIfConfigs.get(0).toString(), is("failed"));
+        ExecTask execTask2 = (ExecTask) rakeTask2.onCancelConfig.getTask();
+        verifyExecTask(execTask2, "ls", "", null);
+
+        ExecTask execTask3 = (ExecTask) job.tasks().get(3);
+        verifyExecTask(execTask3, "ls", "", null);
+        assertThat(execTask3.runIfConfigs.get(0).toString(), is("failed"));
+        PluggableTask rakeTask3 = (PluggableTask) execTask3.onCancelConfig.getTask();
+        keyValuePair.put("build_file", "cancel-build-file-1");
+        keyValuePair.put("target", "cancel-target-1");
+        keyValuePair.put("working_directory", "cancel-working-directory-1");
+        verifyPluggableTask(rakeTask3, keyValuePair);
+
+        PluggableTask rakeTask4 = (PluggableTask) job.tasks().get(4);
+        keyValuePair.put("build_file", "build-file-2");
+        keyValuePair.put("target", "");
+        keyValuePair.put("working_directory", "");
+        verifyPluggableTask(rakeTask4, keyValuePair);
+        assertThat(rakeTask4.runIfConfigs.get(0).toString(), is("any"));
+        PluggableTask rakeTask5 = (PluggableTask) rakeTask4.onCancelConfig.getTask();
+        keyValuePair.put("build_file", "cancel-build-file-2");
+        keyValuePair.put("target", "");
+        keyValuePair.put("working_directory", "");
+        verifyPluggableTask(rakeTask5, keyValuePair);
+    }
+
+    private void verifyAntTask(AntTask antTask, String buildFile, String target, String workingDirectory) {
+        if (buildFile == null)
+            assertThat(antTask.getBuildFile(), is(nullValue()));
+        else
+            assertThat(antTask.getBuildFile(), is(buildFile));
+        if (target == null)
+            assertThat(antTask.getTarget(), is(nullValue()));
+        else
+            assertThat(antTask.getTarget(), is(target));
+        if (workingDirectory == null)
+            assertThat(antTask.workingDirectory(), is(nullValue()));
+        else
+            assertThat(antTask.workingDirectory(), is(workingDirectory));
+    }
+
+    private void verifyExecTask(ExecTask execTask, String command, String arguments, String workingDirectory) {
+        if (command == null)
+            assertThat(execTask.command(), is(nullValue()));
+        else
+            assertThat(execTask.command(), is(command));
+        if (arguments == null)
+            assertThat(execTask.arguments(), is(nullValue()));
+        else
+            assertThat(execTask.arguments(), is(arguments));
+        if (workingDirectory == null)
+            assertThat(execTask.workingDirectory(), is(nullValue()));
+        else
+            assertThat(execTask.workingDirectory(), is(workingDirectory));
+    }
+
+    private void verifyPluggableTask(PluggableTask pluggableTask, Map<String, String> keyValuePair) {
+        assertThat(pluggableTask.getConfiguration().size(), is(keyValuePair.size()));
+        for (String key : keyValuePair.keySet()) {
+            assertThat(pluggableTask.getConfiguration().getProperty(key).getValue(), is(keyValuePair.get(key)));
+        }
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

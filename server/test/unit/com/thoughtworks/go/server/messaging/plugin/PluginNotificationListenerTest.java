@@ -41,7 +41,7 @@ public class PluginNotificationListenerTest {
 
         Map dataMap = new HashMap();
         dataMap.put("pipeline-status", "scheduled");
-        PluginNotificationMessage message = new PluginNotificationMessage("request-name", new JSONMessageHandler(dataMap));
+        PluginNotificationMessage message = new PluginNotificationMessage("request-name", dataMap);
         pluginNotificationListener.onMessage(message);
 
         verify(pluginNotificationService).notifyPlugins(message);

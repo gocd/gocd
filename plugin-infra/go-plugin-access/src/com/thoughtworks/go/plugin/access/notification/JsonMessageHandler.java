@@ -19,9 +19,12 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.api.response.Result;
 
 import java.util.List;
+import java.util.Map;
 
 public interface JsonMessageHandler {
     List<String> responseMessageForNotificationsInterestedIn(String responseBody);
+
+    String requestMessageForNotify(String requestName, Map requestMap);
 
     Result responseMessageForNotify(String responseBody);
 }

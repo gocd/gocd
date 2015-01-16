@@ -56,7 +56,7 @@ public class PluginNotificationService {
     private void notifyPlugin(String pluginId, PluginNotificationMessage pluginNotificationMessage) {
         HealthStateScope scope = HealthStateScope.forPlugin(pluginId);
         try {
-            Result result = notificationExtension.notify(pluginId, pluginNotificationMessage.getRequestName(), pluginNotificationMessage.getRequestBody());
+            Result result = notificationExtension.notify(pluginId, pluginNotificationMessage.getRequestName(), pluginNotificationMessage.getRequestData());
 
             if (result.isSuccessful()) {
                 serverHealthService.removeByScope(scope);

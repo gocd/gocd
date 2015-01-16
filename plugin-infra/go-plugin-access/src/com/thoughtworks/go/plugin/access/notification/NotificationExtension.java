@@ -66,11 +66,11 @@ public class NotificationExtension {
         });
     }
 
-    public Result notify(String pluginId, String requestName, final String requestBody) {
+    public Result notify(String pluginId, final String requestName, final Map requestMap) {
         return pluginRequestHelper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return requestBody;
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(requestName, requestMap);
             }
 
             @Override

@@ -45,7 +45,7 @@ public class PluginNotificationServiceTest {
 
     public static final String PIPELINE_STATUS = "pipeline-status";
     public static final String STAGE_STATUS = "stage-status";
-    public static final String REQUEST_BODY = "{\"pipeline-status\":\"scheduled\"}";
+    public static final Map REQUEST_BODY = new HashMap();
 
     @Mock
     private NotificationExtension notificationExtension;
@@ -57,6 +57,8 @@ public class PluginNotificationServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+
+        REQUEST_BODY.put("key", "value");
 
         serverHealthState = new ArgumentCaptor<ServerHealthState>();
 
@@ -80,7 +82,7 @@ public class PluginNotificationServiceTest {
         when(notificationExtension.notify(PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
 
         PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
-        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, new JSONMessageHandler(requestBodyDataMap())));
+        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
         verify(notificationExtension).notify(PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY);
@@ -98,7 +100,7 @@ public class PluginNotificationServiceTest {
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
         PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
-        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, new JSONMessageHandler(requestBodyDataMap())));
+        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
         assertThat(serverHealthState.getValue().getMessage(), is("Notification update failed for plugin: plugin-id-1"));
@@ -114,17 +116,11 @@ public class PluginNotificationServiceTest {
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
         PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
-        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, new JSONMessageHandler(requestBodyDataMap())));
+        pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
         assertThat(serverHealthState.getValue().getMessage(), is("Notification update failed for plugin: plugin-id-1"));
         assertThat(serverHealthState.getValue().getDescription(), is("crap!"));
         verify(serverHealthService, never()).removeByScope(any(HealthStateScope.class));
-    }
-
-    private Map requestBodyDataMap() {
-        Map dataMap = new HashMap();
-        dataMap.put("pipeline-status", "scheduled");
-        return dataMap;
     }
 }

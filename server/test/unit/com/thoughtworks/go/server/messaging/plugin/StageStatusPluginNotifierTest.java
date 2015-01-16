@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doNothing;
@@ -65,6 +66,6 @@ public class StageStatusPluginNotifierTest {
 
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
         assertThat(message.getRequestName(), is("stage-status"));
-        assertThat(message.getRequestBody(), is("{\"pipeline-name\":\"pipeline-name\",\"pipeline-counter\":1,\"stage-name\":\"stage-name\",\"stage-counter\":\"1\",\"stage-state\":\"Failed\",\"stage-result\":\"Failed\",\"create-time\":\"2011-07-13T19:43:37.100Z\",\"last-transition-time\":\"2011-07-13T19:43:38.100Z\"}"));
+        assertThat(message.getRequestData(), is(stageStatusPluginNotifier.createRequestDataMap(stage)));
     }
 }

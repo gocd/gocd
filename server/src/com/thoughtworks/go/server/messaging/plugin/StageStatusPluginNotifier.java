@@ -39,6 +39,12 @@ public class StageStatusPluginNotifier implements StageStatusListener {
 
     @Override
     public void stageStatusChanged(final Stage stage) {
+        Map data = createRequestDataMap(stage);
+
+        pluginNotificationQueue.post(new PluginNotificationMessage("stage-status", data));
+    }
+
+    Map createRequestDataMap(Stage stage) {
         Map data = new LinkedHashMap();
         data.put("pipeline-name", stage.getIdentifier().getPipelineName());
         data.put("pipeline-counter", stage.getIdentifier().getPipelineCounter());
@@ -48,8 +54,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         data.put("stage-result", stage.getResult());
         data.put("create-time", timestampToString(stage.getCreatedTime()));
         data.put("last-transition-time", timestampToString(stage.getLastTransitionedTime()));
-
-        pluginNotificationQueue.post(new PluginNotificationMessage("stage-status", new JSONMessageHandler(data)));
+        return data;
     }
 
     private String timestampToString(Timestamp timestamp) {

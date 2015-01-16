@@ -18,25 +18,23 @@ package com.thoughtworks.go.server.messaging.plugin;
 
 import com.thoughtworks.go.server.messaging.GoMessage;
 
+import java.util.Map;
+
 public class PluginNotificationMessage implements GoMessage {
     private final String requestName;
-    private final JSONMessageHandler jsonMessageHandler;
-    private String requestBody;
+    private final Map requestData;
 
-    public PluginNotificationMessage(String requestName, JSONMessageHandler jsonMessageHandler) {
+    public PluginNotificationMessage(String requestName, Map requestData) {
         this.requestName = requestName;
-        this.jsonMessageHandler = jsonMessageHandler;
+        this.requestData = requestData;
     }
 
     public String getRequestName() {
         return requestName;
     }
 
-    public String getRequestBody() {
-        if (requestBody == null) {
-            requestBody = jsonMessageHandler.toJSONMessage();
-        }
-        return requestBody;
+    public Map getRequestData() {
+        return requestData;
     }
 
     @Override
@@ -46,10 +44,8 @@ public class PluginNotificationMessage implements GoMessage {
 
         PluginNotificationMessage that = (PluginNotificationMessage) o;
 
+        if (requestData != null ? !requestData.equals(that.requestData) : that.requestData != null) return false;
         if (requestName != null ? !requestName.equals(that.requestName) : that.requestName != null) return false;
-        if (getRequestBody() != null ? !getRequestBody().equals(that.getRequestBody()) : that.getRequestBody() != null) {
-            return false;
-        }
 
         return true;
     }
@@ -57,7 +53,7 @@ public class PluginNotificationMessage implements GoMessage {
     @Override
     public int hashCode() {
         int result = requestName != null ? requestName.hashCode() : 0;
-        result = 31 * result + (getRequestBody() != null ? getRequestBody().hashCode() : 0);
+        result = 31 * result + (requestData != null ? requestData.hashCode() : 0);
         return result;
     }
 }

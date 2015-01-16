@@ -26,7 +26,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -37,7 +39,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NotificationExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
-    public static final String REQUEST_BODY = "expected-request";
+    public static final Map REQUEST_BODY = new HashMap();
     public static final String RESPONSE_BODY = "expected-response";
 
     @Mock
@@ -51,6 +53,9 @@ public class NotificationExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+
+        REQUEST_BODY.put("key", "value");
+
         notificationExtension = new NotificationExtension(pluginManager);
         notificationExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
@@ -76,12 +81,14 @@ public class NotificationExtensionTest {
     @Test
     public void shouldTalkToPluginToNotify() throws Exception {
         Result response = new Result();
+        String notificationName = "notification-name";
+        String jsonResponse = "json-response";
+        when(jsonMessageHandler.requestMessageForNotify(notificationName, REQUEST_BODY)).thenReturn(jsonResponse);
         when(jsonMessageHandler.responseMessageForNotify(RESPONSE_BODY)).thenReturn(response);
 
-        String notificationName = "notification-name";
         Result deserializedResponse = notificationExtension.notify(PLUGIN_ID, notificationName, REQUEST_BODY);
 
-        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", notificationName, REQUEST_BODY);
+        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", notificationName, jsonResponse);
         verify(jsonMessageHandler).responseMessageForNotify(RESPONSE_BODY);
         assertSame(response, deserializedResponse);
     }

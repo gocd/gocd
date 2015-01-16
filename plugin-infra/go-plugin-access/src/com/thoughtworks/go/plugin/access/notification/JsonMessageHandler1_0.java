@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.notification;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.response.Result;
 
@@ -59,6 +60,12 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         } catch (Exception e) {
             throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }
+    }
+
+    @Override
+    public String requestMessageForNotify(String requestName, Map requestMap) {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.toJson(requestMap);
     }
 
     @Override

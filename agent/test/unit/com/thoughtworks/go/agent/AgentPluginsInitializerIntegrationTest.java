@@ -119,9 +119,7 @@ public class AgentPluginsInitializerIntegrationTest {
 
     private void cleanupAgentPluginsFile() throws IOException {
         File pluginsFile = new File(AGENT_PLUGINS.getLocalFileName());
-        if (pluginsFile.exists()) {
-            FileUtils.forceDelete(pluginsFile);
-        }
+        FileUtils.deleteQuietly(pluginsFile);
     }
 
     private class SetupOfAgentPluginsFile {

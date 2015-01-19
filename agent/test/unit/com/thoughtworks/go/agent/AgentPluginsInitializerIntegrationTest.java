@@ -128,12 +128,14 @@ public class AgentPluginsInitializerIntegrationTest {
         private final File bundledPluginsDir;
         private final File externalPluginsDir;
         private final ZipUtil zipUtil;
+        private final File dummyFileSoZipFileIsNotEmpty;
         private File pluginsZipFile;
 
-        public SetupOfAgentPluginsFile(File pluginsZipFile) {
+        public SetupOfAgentPluginsFile(File pluginsZipFile) throws IOException {
             this.pluginsZipFile = pluginsZipFile;
             this.bundledPluginsDir = TestFileUtil.createTempFolder("bundled");
             this.externalPluginsDir = TestFileUtil.createTempFolder("external");
+            this.dummyFileSoZipFileIsNotEmpty = TestFileUtil.createTempFile("dummy.txt");
             this.zipUtil = new ZipUtil();
         }
 
@@ -149,7 +151,7 @@ public class AgentPluginsInitializerIntegrationTest {
 
         public File done() throws IOException {
             ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(pluginsZipFile, true);
-            zipBuilder.add("bundled", bundledPluginsDir).add("external", externalPluginsDir).done();
+            zipBuilder.add("bundled", bundledPluginsDir).add("external", externalPluginsDir).add("dummy.txt", dummyFileSoZipFileIsNotEmpty).done();
             return pluginsZipFile;
         }
     }

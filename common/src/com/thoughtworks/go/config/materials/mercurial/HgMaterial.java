@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -34,16 +27,19 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
@@ -202,7 +198,7 @@ public class HgMaterial extends ScmMaterial {
 
     private HgCommand hg(File baseDir, ProcessOutputStreamConsumer outputStreamConsumer) throws Exception {
         File workingFolder = workingdir(baseDir);
-        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch());
+        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand, workingFolder)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid hg working copy or repository changed. Delete folder: " + workingFolder);

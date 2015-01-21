@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
@@ -44,6 +37,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.DateUtils.parseISO8601;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -103,27 +103,27 @@ public class HgMaterialTest {
 
     @Test
     public void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
-        new HgCommand(null, workingFolder, "default").clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2");
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        String workingUrl = new HgCommand(null, workingFolder, "default").workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo2.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(false));
     }
 
     @Test
     public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsed() throws Exception {
-        new HgCommand(null, workingFolder, "default").clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
         hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
 
-        String workingUrl = new HgCommand(null, workingFolder, "default").workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(true));
     }

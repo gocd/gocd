@@ -71,7 +71,7 @@ public class NotificationExtensionTest {
         List<String> response = Arrays.asList(new String[]{"pipeline-status", "stage-status"});
         when(jsonMessageHandler.responseMessageForNotificationsInterestedIn(RESPONSE_BODY)).thenReturn(response);
 
-        List<String> deserializedResponse = notificationExtension.getNotificationsInterestedIn(PLUGIN_ID);
+        List<String> deserializedResponse = notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID);
 
         assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", NotificationExtension.REQUEST_NOTIFICATIONS_INTERESTED_IN, null);
         verify(jsonMessageHandler).responseMessageForNotificationsInterestedIn(RESPONSE_BODY);

@@ -55,9 +55,9 @@ public class NotificationPluginRegistrarTest {
         when(notificationExtension.isNotificationPlugin(PLUGIN_ID_3)).thenReturn(true);
         when(notificationExtension.isNotificationPlugin(PLUGIN_ID_4)).thenReturn(false);
 
-        when(notificationExtension.getNotificationsInterestedIn(PLUGIN_ID_1)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS}));
-        when(notificationExtension.getNotificationsInterestedIn(PLUGIN_ID_2)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS}));
-        when(notificationExtension.getNotificationsInterestedIn(PLUGIN_ID_3)).thenReturn(Arrays.asList(new String[]{STAGE_STATUS}));
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_1)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS}));
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_2)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS}));
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_3)).thenReturn(Arrays.asList(new String[]{STAGE_STATUS}));
 
         NotificationPluginRegistry.getInstance().clear();
     }

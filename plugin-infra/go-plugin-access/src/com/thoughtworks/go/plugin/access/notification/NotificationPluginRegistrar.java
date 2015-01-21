@@ -44,7 +44,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
         if (notificationExtension.isNotificationPlugin(pluginDescriptor.id())) {
             try {
-                List<String> notificationsInterestedIn = notificationExtension.getNotificationsInterestedIn(pluginDescriptor.id());
+                List<String> notificationsInterestedIn = notificationExtension.getNotificationsOfInterestFor(pluginDescriptor.id());
                 NotificationPluginRegistry.getInstance().registerPluginInterests(pluginDescriptor.id(), notificationsInterestedIn);
             } catch (Exception e) {
                 LOGGER.warn("Error occurred during plugin notification interest registration.", e);

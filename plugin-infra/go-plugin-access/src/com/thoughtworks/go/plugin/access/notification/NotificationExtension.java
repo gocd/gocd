@@ -47,7 +47,7 @@ public class NotificationExtension {
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
-    public List<String> getNotificationsInterestedIn(String pluginId) {
+    public List<String> getNotificationsOfInterestFor(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new PluginInteractionCallback<List<String>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

@@ -36,9 +36,7 @@ public class PluginNotificationListenerFactoryTest {
     @Mock
     private SystemEnvironment systemEnvironment;
     @Mock
-    private NotificationExtension notificationExtension;
-    @Mock
-    private ServerHealthService serverHealthService;
+    private PluginNotificationService pluginNotificationService;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +46,7 @@ public class PluginNotificationListenerFactoryTest {
     @Test
     public void shouldAddRequiredNumberOfPluginNotificationListeners_init() throws Exception {
         when(systemEnvironment.getNumberOfPluginNotificationListener()).thenReturn(3);
-        PluginNotificationListenerFactory pluginNotificationListenerFactory = new PluginNotificationListenerFactory(pluginNotificationQueue, systemEnvironment, notificationExtension, serverHealthService);
+        PluginNotificationListenerFactory pluginNotificationListenerFactory = new PluginNotificationListenerFactory(pluginNotificationQueue, systemEnvironment, pluginNotificationService);
         pluginNotificationListenerFactory.init();
 
         verify(pluginNotificationQueue, times(3)).addListener(any(PluginNotificationListener.class));

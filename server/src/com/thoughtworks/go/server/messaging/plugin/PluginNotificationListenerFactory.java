@@ -26,23 +26,19 @@ import org.springframework.stereotype.Component;
 public class PluginNotificationListenerFactory {
     private PluginNotificationQueue pluginNotificationQueue;
     private SystemEnvironment systemEnvironment;
-    private NotificationExtension notificationExtension;
-    private final ServerHealthService serverHealthService;
+    private PluginNotificationService pluginNotificationService;
 
     @Autowired
-    public PluginNotificationListenerFactory(PluginNotificationQueue pluginNotificationQueue, SystemEnvironment systemEnvironment,
-                                             NotificationExtension notificationExtension, ServerHealthService serverHealthService) {
+    public PluginNotificationListenerFactory(PluginNotificationQueue pluginNotificationQueue, SystemEnvironment systemEnvironment, PluginNotificationService pluginNotificationService) {
         this.pluginNotificationQueue = pluginNotificationQueue;
         this.systemEnvironment = systemEnvironment;
-        this.notificationExtension = notificationExtension;
-        this.serverHealthService = serverHealthService;
+        this.pluginNotificationService = pluginNotificationService;
     }
 
     public void init() {
         int numberOfListeners = systemEnvironment.getNumberOfPluginNotificationListener();
 
         for (int i = 0; i < numberOfListeners; i++) {
-            PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
             pluginNotificationQueue.addListener(new PluginNotificationListener(pluginNotificationService));
         }
     }

@@ -39,7 +39,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("Empty response body");
             }
 
-            List<String> notificationNames = new ArrayList<String>();
+            List notificationNames = new ArrayList();
             if (map.containsKey("notifications") && map.get("notifications") != null) {
                 Object notificationsObj = map.get("notifications");
 

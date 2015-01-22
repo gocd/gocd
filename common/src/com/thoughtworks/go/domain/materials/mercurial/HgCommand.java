@@ -130,7 +130,13 @@ public class HgCommand extends SCMCommand {
 
     public ConsoleResult workingRepositoryUrl() {
         CommandLine hg = hg("showconfig", "paths.default");
-        return execute(hg);
+
+        final ConsoleResult result = execute(hg);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Current repository url of [" + workingDir + "]: " + result.outputForDisplayAsString());
+            LOGGER.trace("Target repository url: " + url);
+        }
+        return result;
     }
 
     private CommandLine hg(String... arguments) {

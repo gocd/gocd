@@ -51,7 +51,7 @@ import static java.lang.String.format;
  */
 public class HgMaterial extends ScmMaterial {
     private static final Pattern HG_VERSION_PATTERN = Pattern.compile(".*\\(.*\\s+(\\d(\\.\\d)+.*)\\)");
-    private static final Logger LOG = Logger.getLogger(HgMaterial.class);
+    private static final Logger LOGGER = Logger.getLogger(HgMaterial.class);
     private HgUrlArgument url;
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
@@ -190,7 +190,7 @@ public class HgMaterial extends ScmMaterial {
                 return defaultResponse;
             }
         } catch (Exception e1) {
-            LOG.debug("Problem validating HG", e);
+            LOGGER.debug("Problem validating HG", e);
             return defaultResponse;
         }
     }
@@ -199,9 +199,9 @@ public class HgMaterial extends ScmMaterial {
     private HgCommand hg(File baseDir, ProcessOutputStreamConsumer outputStreamConsumer) throws Exception {
         File workingFolder = workingdir(baseDir);
         HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl());
-        if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand, workingFolder)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Invalid hg working copy or repository changed. Delete folder: " + workingFolder);
+        if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Invalid hg working copy or repository changed. Delete folder: " + workingFolder);
             }
             FileUtil.deleteFolder(workingFolder);
         }
@@ -217,13 +217,9 @@ public class HgMaterial extends ScmMaterial {
         return new File(workingFolder, ".hg").isDirectory();
     }
 
-    private boolean isRepositoryChanged(HgCommand hgCommand, File workingDirectory) {
+    private boolean isRepositoryChanged(HgCommand hgCommand) {
         ConsoleResult result = hgCommand.workingRepositoryUrl();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Current repository url of [" + workingDirectory + "]: " + result.outputForDisplayAsString());
-            LOG.trace("Target repository url: " + url);
-        }
-        return !MaterialUrl.sameUrl(url.forCommandline(), result.outputAsString());
+        return !MaterialUrl.sameUrl(url.defaultRemoteUrl(), new HgUrlArgument(result.outputAsString()).defaultRemoteUrl());
     }
 
     public String getUserName() {

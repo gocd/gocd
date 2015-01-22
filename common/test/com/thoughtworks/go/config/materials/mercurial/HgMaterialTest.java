@@ -25,10 +25,8 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.JsonUtils;
-import com.thoughtworks.go.util.JsonValue;
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.hamcrest.Matchers;
@@ -52,8 +50,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HgMaterialTest {
     private HgMaterial hgMaterial;
@@ -126,6 +125,26 @@ public class HgMaterialTest {
         String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(true));
+    }
+
+    @Test
+    public void shouldNotRefreshWorkingDirectoryIfDefaultRemoteUrlDoesNotContainPasswordButMaterialUrlDoes() throws Exception {
+        final HgMaterial material = new HgMaterial("http://user:pwd@domain:9999/path", null);
+        final HgCommand hgCommand = mock(HgCommand.class);
+        final ConsoleResult consoleResult = mock(ConsoleResult.class);
+        when(consoleResult.outputAsString()).thenReturn("http://user@domain:9999/path");
+        when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
+        assertFalse((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand));
+    }
+
+    @Test
+    public void shouldRefreshWorkingDirectoryIfUsernameInDefaultRemoteUrlIsDifferentFromOneInMaterialUrl() throws Exception {
+        final HgMaterial material = new HgMaterial("http://some_new_user:pwd@domain:9999/path", null);
+        final HgCommand hgCommand = mock(HgCommand.class);
+        final ConsoleResult consoleResult = mock(ConsoleResult.class);
+        when(consoleResult.outputAsString()).thenReturn("http://user:pwd@domain:9999/path");
+        when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
+        assertTrue((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand));
     }
 
     @Test

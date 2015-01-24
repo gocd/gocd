@@ -99,6 +99,6 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     private void addMetadata(PluggableSCMMaterial material, String field, boolean partOfIdentity) {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration(field).with(SCMConfiguration.PART_OF_IDENTITY, partOfIdentity));
-        SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), scmConfigurations);
+        SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), scmConfigurations, null);
     }
 }

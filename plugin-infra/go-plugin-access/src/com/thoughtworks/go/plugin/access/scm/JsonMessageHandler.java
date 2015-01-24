@@ -25,6 +25,8 @@ import java.util.List;
 public interface JsonMessageHandler {
     SCMPropertyConfiguration responseMessageForSCMConfiguration(String responseBody);
 
+    SCMView responseMessageForSCMView(String responseBody);
+
     String requestMessageForIsSCMConfigurationValid(SCMPropertyConfiguration scmConfiguration);
 
     ValidationResult responseMessageForIsSCMConfigurationValid(String responseBody);

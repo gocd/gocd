@@ -47,7 +47,11 @@ public class SCMMetadataLoader implements PluginChangeListener {
             if (scmConfiguration == null) {
                 throw new RuntimeException(format("Plugin[%s] returned null SCM configuration", pluginDescriptor.id()));
             }
-            scmMetadataStore.addMetadataFor(pluginDescriptor.id(), new SCMConfigurations(scmConfiguration));
+            SCMView scmView = scmExtension.getSCMView(pluginDescriptor.id());
+            if (scmView == null) {
+                throw new RuntimeException(format("Plugin[%s] returned null SCM view", pluginDescriptor.id()));
+            }
+            scmMetadataStore.addMetadataFor(pluginDescriptor.id(), new SCMConfigurations(scmConfiguration), scmView);
         } catch (GoPluginFrameworkException e) {
             LOGGER.error(format("Failed to fetch SCM metadata for plugin : %s", pluginDescriptor.id()), e);
         }

@@ -79,6 +79,28 @@ public class SCMExtensionTest {
     }
 
     @Test
+    public void shouldTalkToPluginToGetSCMView() throws Exception {
+        SCMView deserializedResponse = new SCMView() {
+            @Override
+            public String displayValue() {
+                return null;
+            }
+
+            @Override
+            public String template() {
+                return null;
+            }
+        };
+        when(jsonMessageHandler.responseMessageForSCMView(responseBody)).thenReturn(deserializedResponse);
+
+        SCMView response = scmExtension.getSCMView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", SCMExtension.REQUEST_SCM_VIEW, null);
+        verify(jsonMessageHandler).responseMessageForSCMView(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
     public void shouldTalkToPluginToCheckIfSCMConfigurationIsValid() throws Exception {
         when(jsonMessageHandler.requestMessageForIsSCMConfigurationValid(scmPropertyConfiguration)).thenReturn(requestBody);
         ValidationResult deserializedResponse = new ValidationResult();

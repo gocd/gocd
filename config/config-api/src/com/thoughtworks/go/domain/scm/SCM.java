@@ -22,14 +22,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
 
 import javax.annotation.PostConstruct;
@@ -190,7 +189,7 @@ public class SCM implements Serializable, Validatable {
         String pluginId = getPluginId();
         for (ConfigurationProperty configurationProperty : configuration) {
             SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
-            if (scmMetadataStore.getMetadata(pluginId) != null) {
+            if (scmMetadataStore.getConfigurationMetadata(pluginId) != null) {
                 boolean isSecureProperty = scmMetadataStore.hasOption(pluginId, configurationProperty.getConfigurationKey().getName(), SCMConfiguration.SECURE);
                 configurationProperty.handleSecureValueConfiguration(isSecureProperty);
             }
@@ -216,7 +215,7 @@ public class SCM implements Serializable, Validatable {
 
     private SecureKeyInfoProvider getSecureKeyInfoProvider() {
         final SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
-        final SCMConfigurations metadata = scmMetadataStore.getMetadata(getPluginId());
+        final SCMConfigurations metadata = scmMetadataStore.getConfigurationMetadata(getPluginId());
         if (metadata == null) {
             return null;
         }
@@ -239,7 +238,7 @@ public class SCM implements Serializable, Validatable {
     }
 
     private void handleSCMProperties(List<String> list) {
-        SCMConfigurations metadata = SCMMetadataStore.getInstance().getMetadata(getPluginId());
+        SCMConfigurations metadata = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
         for (ConfigurationProperty configurationProperty : configuration) {
             handleProperty(list, metadata, configurationProperty);
         }

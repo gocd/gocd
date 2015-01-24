@@ -35,6 +35,7 @@ import static java.util.Arrays.asList;
 public class SCMExtension implements SCMExtensionContract {
     public static final String EXTENSION_NAME = "scm";
     public static final String REQUEST_SCM_CONFIGURATION = "scm-configuration";
+    public static final String REQUEST_SCM_VIEW = "scm-view";
     public static final String REQUEST_VALIDATE_SCM_CONFIGURATION = "validate-scm-configuration";
     public static final String REQUEST_CHECK_SCM_CONNECTION = "check-scm-connection";
     public static final String REQUEST_LATEST_REVISION = "latest-revision";
@@ -68,6 +69,25 @@ public class SCMExtension implements SCMExtensionContract {
             @Override
             public SCMPropertyConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForSCMConfiguration(responseBody);
+            }
+        });
+    }
+
+    public SCMView getSCMView(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_VIEW, new PluginInteractionCallback<SCMView>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public SCMView onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForSCMView(responseBody);
             }
         });
     }

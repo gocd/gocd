@@ -35,15 +35,19 @@ public class SCMMetadataLoaderTest {
         scmPropertyConfiguration.add(new SCMProperty("k1").with(SCMProperty.REQUIRED, true).with(SCMProperty.PART_OF_IDENTITY, false));
 
         when(scmExtension.getSCMConfiguration(pluginDescriptor.id())).thenReturn(scmPropertyConfiguration);
+        when(scmExtension.getSCMView(pluginDescriptor.id())).thenReturn(createSCMView("display-value", "template"));
 
         metadataLoader.fetchSCMMetaData(pluginDescriptor);
 
-        SCMConfigurations metadata = SCMMetadataStore.getInstance().getMetadata(pluginDescriptor.id());
-        assertThat(metadata.size(), is(1));
-        SCMConfiguration scmConfiguration = metadata.get("k1");
+        SCMConfigurations configurationMetadata = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id());
+        assertThat(configurationMetadata.size(), is(1));
+        SCMConfiguration scmConfiguration = configurationMetadata.get("k1");
         assertThat(scmConfiguration.getKey(), is("k1"));
         assertThat(scmConfiguration.getOption(SCMProperty.REQUIRED), is(true));
         assertThat(scmConfiguration.getOption(SCMProperty.PART_OF_IDENTITY), is(false));
+        SCMView viewMetadata = SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id());
+        assertThat(viewMetadata.displayValue(), is("display-value"));
+        assertThat(viewMetadata.template(), is("template"));
     }
 
     @Test
@@ -54,7 +58,19 @@ public class SCMMetadataLoaderTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Plugin[plugin-id] returned null SCM configuration"));
         }
-        assertThat(SCMMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), nullValue());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNullSCMViewReturned() {
+        when(scmExtension.getSCMConfiguration(pluginDescriptor.id())).thenReturn(new SCMPropertyConfiguration());
+        when(scmExtension.getSCMView(pluginDescriptor.id())).thenReturn(null);
+        try {
+            metadataLoader.fetchSCMMetaData(pluginDescriptor);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null SCM view"));
+        }
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), nullValue());
     }
 
     @Test
@@ -87,22 +103,39 @@ public class SCMMetadataLoaderTest {
 
     @Test
     public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
-        SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new SCMConfigurations());
+        SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), new SCMConfigurations(), createSCMView(null, null));
         when(scmExtension.isSCMPlugin(pluginDescriptor.id())).thenReturn(true);
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(SCMMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), is(nullValue()));
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id()), is(nullValue()));
     }
 
     @Test
     public void shouldNotTryRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
-        SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), scmConfigurations);
+        SCMView scmView = createSCMView(null, null);
+        SCMMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), scmConfigurations, scmView);
         when(scmExtension.isSCMPlugin(pluginDescriptor.id())).thenReturn(false);
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(SCMMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(scmConfigurations));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), is(scmConfigurations));
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id()), is(scmView));
+    }
+
+    private SCMView createSCMView(final String displayValue, final String template) {
+        return new SCMView() {
+            @Override
+            public String displayValue() {
+                return displayValue;
+            }
+
+            @Override
+            public String template() {
+                return template;
+            }
+        };
     }
 }

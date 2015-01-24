@@ -139,7 +139,7 @@ public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
         scmConfiguration.add(new SCMProperty("SCM-KEY1"));
         scmConfiguration.add(new SCMProperty("SCM-KEY2").with(REQUIRED, false).with(PART_OF_IDENTITY, false));
         scmConfiguration.add(new SCMProperty("SCM-KEY3").with(REQUIRED, false).with(PART_OF_IDENTITY, false).with(SECURE, true));
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-1", new SCMConfigurations(scmConfiguration));
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-1", new SCMConfigurations(scmConfiguration), null);
 
         String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<scms>\n"
@@ -330,7 +330,7 @@ public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
         scmConfiguration.add(new SCMProperty("plain"));
         scmConfiguration.add(new SCMProperty("secure-one").with(SCMConfiguration.SECURE, true));
         scmConfiguration.add(new SCMProperty("secure-two").with(SCMConfiguration.SECURE, true));
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(scmConfiguration));
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(scmConfiguration), null);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         SCM scmConfig = goConfigHolder.config.getSCMs().first();

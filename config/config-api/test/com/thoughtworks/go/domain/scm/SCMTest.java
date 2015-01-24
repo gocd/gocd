@@ -86,7 +86,7 @@ public class SCMTest {
         scmConfiguration.add(new SCMConfiguration("key3").with(PART_OF_IDENTITY, true).with(SECURE, true));
         scmConfiguration.add(new SCMConfiguration("key4").with(PART_OF_IDENTITY, false).with(SECURE, true));
         scmConfiguration.add(new SCMConfiguration("key5").with(PART_OF_IDENTITY, true).with(SECURE, false));
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfiguration);
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfiguration, null);
 
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", false, "value2"), create("key3", true, "value3"), create("key4", true, "value4"), create("key5", false, "value5"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
@@ -96,7 +96,7 @@ public class SCMTest {
 
     @Test
     public void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations());
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(), null);
 
         Configuration configuration = new Configuration(create("kEY1", false, "vALue1"), create("KEY_MORE_2", false, "VALUE_2"), create("key_3", false, "value3"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
@@ -106,7 +106,7 @@ public class SCMTest {
 
     @Test
     public void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations());
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(), null);
 
         Configuration configuration = new Configuration(create("rk1", false, ""), create("rk2", false, "some-non-empty-value"), create("rk3", false, null));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
@@ -130,7 +130,7 @@ public class SCMTest {
         SCMConfigurations scmConfiguration = new SCMConfigurations();
         scmConfiguration.add(new SCMConfiguration("key1").with(SECURE, true));
         scmConfiguration.add(new SCMConfiguration("key2").with(SECURE, false));
-        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfiguration);
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfiguration, null);
 
         /*secure property is set based on metadata*/
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
@@ -174,7 +174,7 @@ public class SCMTest {
         scmConfiguration.add(new SCMConfiguration("username"));
         scmConfiguration.add(new SCMConfiguration("password").with(SECURE, true));
         scmConfiguration.add(new SCMConfiguration("secureKeyNotChanged").with(SECURE, true));
-        SCMMetadataStore.getInstance().addMetadataFor(pluginId, scmConfiguration);
+        SCMMetadataStore.getInstance().addMetadataFor(pluginId, scmConfiguration, null);
 
         String scmId = "scm-id";
         String name = "scm-name";

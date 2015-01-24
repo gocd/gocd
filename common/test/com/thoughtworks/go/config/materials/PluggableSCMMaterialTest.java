@@ -311,7 +311,7 @@ public class PluggableSCMMaterialTest {
 
     @Test
     public void shouldGetUriForDisplay() {
-        SCMMetadataStore.getInstance().addMetadataFor("some-plugin", new SCMConfigurations());
+        SCMMetadataStore.getInstance().addMetadataFor("some-plugin", new SCMConfigurations(), null);
 
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "scm-v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "scm-v2");
@@ -369,7 +369,7 @@ public class PluggableSCMMaterialTest {
     public void shouldReturnSomethingMoreSaneForToString() throws Exception {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
 
-        SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new SCMConfigurations());
+        SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new SCMConfigurations(), null);
 
         assertThat(material.toString(), is("'PluggableSCMMaterial{SCM: [k1=v1, k2=v2]}'"));
     }

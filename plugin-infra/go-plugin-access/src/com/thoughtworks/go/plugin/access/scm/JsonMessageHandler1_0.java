@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.ListUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -61,6 +62,53 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             return scmConfiguration;
         } catch (Exception e) {
             throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public SCMView responseMessageForSCMView(String responseBody) {
+        try {
+            final Map map = parseResponseToMap(responseBody);
+
+            if (map.isEmpty()) {
+                throw new RuntimeException("The JSON for SCM View cannot be empty");
+            }
+
+            final String displayValue;
+            try {
+                displayValue = (String) map.get("displayValue");
+            } catch (Exception e) {
+                throw new RuntimeException("SCM View's 'displayValue' should be of type string");
+            }
+
+            if (isEmpty(displayValue)) {
+                throw new RuntimeException("SCM View's 'displayValue' is a required field");
+            }
+
+            final String template;
+            try {
+                template = (String) map.get("template");
+            } catch (Exception e) {
+                throw new RuntimeException("SCM View's 'template' should be of type string");
+            }
+
+            if (isEmpty(template)) {
+                throw new RuntimeException("SCM View's 'template' is a required field");
+            }
+
+            return new SCMView() {
+                @Override
+                public String displayValue() {
+                    return displayValue;
+                }
+
+                @Override
+                public String template() {
+                    return template;
+                }
+            };
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Unable to de-serialize json response. Error: %s.", e.getMessage()));
         }
     }
 

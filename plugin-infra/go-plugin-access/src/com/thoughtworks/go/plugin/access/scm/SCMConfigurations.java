@@ -16,15 +16,13 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.thoughtworks.go.plugin.api.config.Configuration;
-import com.thoughtworks.go.plugin.api.config.PluginPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SCMConfigurations implements PluginPreference {
+public class SCMConfigurations {
     private List<SCMConfiguration> configurations = new ArrayList<SCMConfiguration>();
 
     public SCMConfigurations() {

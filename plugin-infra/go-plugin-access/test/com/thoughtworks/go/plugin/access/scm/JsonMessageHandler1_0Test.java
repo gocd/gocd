@@ -66,6 +66,16 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
+    public void shouldBuildSCMViewFromResponse() {
+        String jsonResponse = "{\"displayValue\":\"MySCMPlugin\", \"template\":\"<html>junk</html>\"}";
+
+        SCMView view = messageHandler.responseMessageForSCMView(jsonResponse);
+
+        assertThat(view.displayValue(), is("MySCMPlugin"));
+        assertThat(view.template(), is("<html>junk</html>"));
+    }
+
+    @Test
     public void shouldBuildRequestBodyForCheckSCMConfigurationValidRequest() throws Exception {
         String requestMessage = messageHandler.requestMessageForIsSCMConfigurationValid(scmPropertyConfiguration);
 
@@ -217,6 +227,15 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
+    public void shouldValidateIncorrectJsonResponseForSCMView() {
+        assertThat(errorMessageForSCMView("{\"template\":\"<html>junk</html>\"}"), is("Unable to de-serialize json response. Error: SCM View's 'displayValue' is a required field."));
+        assertThat(errorMessageForSCMView("{\"displayValue\":\"MySCMPlugin\"}"), is("Unable to de-serialize json response. Error: SCM View's 'template' is a required field."));
+        assertThat(errorMessageForSCMView("{\"displayValue\":null, \"template\":\"<html>junk</html>\"}"), is("Unable to de-serialize json response. Error: SCM View's 'displayValue' is a required field."));
+        assertThat(errorMessageForSCMView("{\"displayValue\":true, \"template\":null}"), is("Unable to de-serialize json response. Error: SCM View's 'displayValue' should be of type string."));
+        assertThat(errorMessageForSCMView("{\"displayValue\":\"MySCMPlugin\", \"template\":true}"), is("Unable to de-serialize json response. Error: SCM View's 'template' should be of type string."));
+    }
+
+    @Test
     public void shouldValidateIncorrectJsonForValidationResult() {
         assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list or errors, with each error represented as a map"));
         assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Each validation error should be represented as a map"));
@@ -309,6 +328,16 @@ public class JsonMessageHandler1_0Test {
     private String errorMessageForSCMConfiguration(String message) {
         try {
             messageHandler.responseMessageForSCMConfiguration(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForSCMView(String message) {
+        try {
+            messageHandler.responseMessageForSCMView(message);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();

@@ -113,7 +113,7 @@ public class SCMsTest {
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();
         scmConfiguration.add(new SCMProperty("k1"));
         scmConfiguration.add(new SCMProperty("k2").with(REQUIRED, false).with(PART_OF_IDENTITY, false));
-        SCMMetadataStore.getInstance().addMetadataFor(pluginId, new SCMConfigurations(scmConfiguration));
+        SCMMetadataStore.getInstance().addMetadataFor(pluginId, new SCMConfigurations(scmConfiguration), null);
 
         SCM scm1 = SCMMother.create("1", "scm1", pluginId, "1.0", new Configuration(create("k1", false, "v1")));
         SCM scm2 = SCMMother.create("2", "scm2", pluginId, "1.0", new Configuration(create("k1", false, "v2")));

@@ -25,6 +25,8 @@ import java.util.List;
 public interface SCMExtensionContract {
     SCMPropertyConfiguration getSCMConfiguration(String pluginId);
 
+    SCMView getSCMView(String pluginId);
+
     ValidationResult isSCMConfigurationValid(String pluginId, final SCMPropertyConfiguration scmConfiguration);
 
     Result checkConnectionToSCM(String pluginId, final SCMPropertyConfiguration scmConfiguration);

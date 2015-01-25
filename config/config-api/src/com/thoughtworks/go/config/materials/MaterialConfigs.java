@@ -325,7 +325,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     public boolean scmMaterialsHaveDestination() {
         for (MaterialConfig scmMaterial : getSCMAndPluggableSCMConfigs()) {
-            String destination = (scmMaterial instanceof ScmMaterialConfig) ? ((ScmMaterialConfig) scmMaterial).getFolder() : ((PluggableSCMMaterialConfig) scmMaterial).getFolder();
+            String destination = scmMaterial.getFolder();
             if (StringUtil.isBlank(destination)) {
                 return false;
             }

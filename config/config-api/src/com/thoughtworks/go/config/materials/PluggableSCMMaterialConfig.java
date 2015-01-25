@@ -266,7 +266,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         File otherDir = new File(otherSCMMaterialFolder);
         try {
             if (FileUtil.isSubdirectoryOf(myDir, otherDir)) {
-                addError(FOLDER, "Invalid Destination Directory.Every material needs a different destination directory and the directories should not be nested.");
+                addError(FOLDER, "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
             }
         } catch (IOException e) {
             throw bomb("Dest folder specification is not valid. " + e.getMessage());

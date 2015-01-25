@@ -92,7 +92,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(JunitExtRunner.class)
 public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
-    static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory.Every material needs a different destination directory and the directories should not be nested";
+    static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
     private MetricsProbeService metricsProbeService;
 

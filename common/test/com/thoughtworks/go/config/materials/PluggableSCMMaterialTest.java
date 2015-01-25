@@ -130,11 +130,9 @@ public class PluggableSCMMaterialTest {
         GoCipher cipher = new GoCipher();
         ConfigurationProperty secureSCMProperty = new ConfigurationProperty(new ConfigurationKey("secure-key"), null, new EncryptedConfigurationValue("hnfcyX5dAvd82AWUyjfKCQ\u003d\u003d"), cipher);
         ConfigurationProperty scmProperty = new ConfigurationProperty(new ConfigurationKey("non-secure-key"), new ConfigurationValue("value"), null, cipher);
-        SCM scmConfig = new SCM();
-        scmConfig.setPluginConfiguration(new PluginConfiguration("plugin-id", "1.0"));
-        scmConfig.setConfiguration(new Configuration(secureSCMProperty, scmProperty));
+        SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(secureSCMProperty, scmProperty));
 
-        PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial("id");
+        PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial();
         pluggableSCMMaterial.setSCMConfig(scmConfig);
 
         String json = JsonHelper.toJsonString(pluggableSCMMaterial);
@@ -347,22 +345,24 @@ public class PluggableSCMMaterialTest {
     }
 
     @Test
-    public void shouldPassEqualsCheckIfFingerprintIsSame() {
-        PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
-        material1.setName(new CaseInsensitiveString("name1"));
-        PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
-        material2.setName(new CaseInsensitiveString("name2"));
+    public void shouldPassEqualsCheckIf_SCMId_Folder_Filter_areSame() {
+        PluggableSCMMaterial material1 = createPluggableSCMMaterial("scm-id-1", "folder", null);
+        PluggableSCMMaterial material2 = createPluggableSCMMaterial("scm-id-1", "folder", null);
+        PluggableSCMMaterial material3 = createPluggableSCMMaterial("scm-id-2", "folder", null);
+        PluggableSCMMaterial material4 = createPluggableSCMMaterial("scm-id-1", "folder2", null);
+        PluggableSCMMaterial material5 = createPluggableSCMMaterial("scm-id-1", "folder", new Filter());
 
         assertThat(material1.equals(material2), is(true));
+        assertThat(material1.equals(material3), is(false));
+        assertThat(material1.equals(material4), is(false));
+        assertThat(material1.equals(material5), is(false));
     }
 
-    @Test
-    public void shouldFailEqualsCheckIfFingerprintDiffers() {
-        PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
-        material1.getScmConfig().getConfiguration().first().setConfigurationValue(new ConfigurationValue("new-url"));
-        PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
-
-        assertThat(material1.equals(material2), is(false));
+    private PluggableSCMMaterial createPluggableSCMMaterial(String scmId, String folder, Filter filter) {
+        PluggableSCMMaterial material = new PluggableSCMMaterial(scmId);
+        material.setFolder(folder);
+        material.setFilter(filter);
+        return material;
     }
 
     @Test

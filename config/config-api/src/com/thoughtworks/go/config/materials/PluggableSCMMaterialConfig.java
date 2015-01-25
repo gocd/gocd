@@ -67,7 +67,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         this.filter = filter;
     }
 
-    public String getSCMId() {
+    public String getScmId() {
         return scmId;
     }
 

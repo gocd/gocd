@@ -72,7 +72,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     public PluggableSCMMaterial(PluggableSCMMaterialConfig config) {
         this();
         this.name = config.getName();
-        this.scmId = config.getSCMId();
+        this.scmId = config.getScmId();
         this.scmConfig = config.getSCMConfig();
         this.folder = config.getFolder();
         this.filter = config.filter();

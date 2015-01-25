@@ -173,7 +173,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
         assertThat(materialConfig instanceof PluggableSCMMaterialConfig, is(true));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMId(), is(scmId));
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId(), is(scmId));
         assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig(), is(scm));
         assertThat(materialConfig.getFolder(), is(nullValue()));
         assertThat(materialConfig.filter(), is(new Filter()));
@@ -205,7 +205,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
         assertThat(materialConfig instanceof PluggableSCMMaterialConfig, is(true));
-        assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMId(), is(scmId));
+        assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId(), is(scmId));
         assertThat(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig(), is(scm));
         assertThat(materialConfig.getFolder(), is("dest"));
         assertThat(materialConfig.filter(), is(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y"))));

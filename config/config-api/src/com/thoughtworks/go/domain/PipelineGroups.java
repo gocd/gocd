@@ -217,7 +217,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                     for (PipelineConfigs pipelineConfigs : this) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs) {
                             for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
-                                String scmId = pluggableSCMMaterialConfig.getSCMId();
+                                String scmId = pluggableSCMMaterialConfig.getScmId();
                                 if (!pluggableSCMMaterialToPipelineMap.containsKey(scmId)) {
                                     pluggableSCMMaterialToPipelineMap.put(scmId, new ArrayList<Pair<PipelineConfig, PipelineConfigs>>());
                                 }

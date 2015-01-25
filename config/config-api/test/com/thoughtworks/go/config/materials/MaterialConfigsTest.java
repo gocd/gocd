@@ -489,7 +489,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        assertThat(((PluggableSCMMaterialConfig) materialConfigs.first()).getSCMId(), is(scmId));
+        assertThat(((PluggableSCMMaterialConfig) materialConfigs.first()).getScmId(), is(scmId));
     }
 
     @Test
@@ -498,8 +498,8 @@ Above scenario allowed
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
 
-        assertThat(new MaterialConfigs(svn, pluggableSCMMaterialTwo).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getSCMId(), is("scm-id-2"));
+        assertThat(new MaterialConfigs(svn, pluggableSCMMaterialTwo).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getScmId(), is("scm-id-2"));
 
-        assertThat(new MaterialConfigs(svn).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getSCMId(), is("scm-id-1"));
+        assertThat(new MaterialConfigs(svn).getExistingOrDefaultMaterial(pluggableSCMMaterialOne).getScmId(), is("scm-id-1"));
     }
 }

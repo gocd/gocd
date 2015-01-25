@@ -20,12 +20,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import org.apache.commons.collections.map.SingletonMap;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -116,7 +112,7 @@ public class PluggableSCMMaterialConfigTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getSCMId(), is("scm-id"));
+        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scm-id"));
         assertThat(pluggableSCMMaterialConfig.getFolder(), is("dest"));
         assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"))));
     }
@@ -133,7 +129,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFilter(new Filter(new IgnoredFiles("/foo/**.*")));
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getSCMId(), is("scm-id"));
+        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scm-id"));
         assertThat(pluggableSCMMaterialConfig.getFolder(), is(nullValue()));
         assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter()));
     }
@@ -155,7 +151,7 @@ public class PluggableSCMMaterialConfigTest {
 
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
 
-        assertThat(pluggableSCMMaterialConfig.getSCMId(), is(nullValue()));
+        assertThat(pluggableSCMMaterialConfig.getScmId(), is(nullValue()));
     }
 
     @Test
@@ -164,7 +160,7 @@ public class PluggableSCMMaterialConfigTest {
 
         materialConfig.setSCMConfig(null);
 
-        assertThat(materialConfig.getSCMId(), is(nullValue()));
+        assertThat(materialConfig.getScmId(), is(nullValue()));
         assertThat(materialConfig.getSCMConfig(), is(nullValue()));
     }
 

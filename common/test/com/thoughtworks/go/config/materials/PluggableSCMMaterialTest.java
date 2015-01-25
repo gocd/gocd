@@ -348,7 +348,9 @@ public class PluggableSCMMaterialTest {
     @Test
     public void shouldPassEqualsCheckIfFingerprintIsSame() {
         PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
+        material1.setName(new CaseInsensitiveString("name1"));
         PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
+        material2.setName(new CaseInsensitiveString("name2"));
 
         assertThat(material1.equals(material2), is(true));
     }

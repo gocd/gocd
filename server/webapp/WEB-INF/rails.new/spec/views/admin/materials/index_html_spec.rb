@@ -24,9 +24,12 @@ describe "admin/materials/index.html.erb" do
     @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))
     @stage = StageConfig.new(CaseInsensitiveString.new("stage-name"), JobConfigs.new([@new_job].to_java(JobConfig)))
 
+    setup_meta_data
+
     svn_config = MaterialConfigsMother.svnMaterialConfig("http://some/svn/url", "svnDir", nil, nil, false, nil)
     package_config = MaterialConfigsMother.packageMaterialConfig()
-    material_configs = MaterialConfigs.new([svn_config, package_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig))
+    pluggable_scm_config = MaterialConfigsMother.pluggableSCMMaterialConfig('scm-id', 'scm-dest', nil)
+    material_configs = MaterialConfigs.new([svn_config, package_config, pluggable_scm_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig))
 
     @pipeline_config = PipelineConfigMother.pipelineConfig("pipeline-name", "foo", material_configs, ["build-1"].to_java(java.lang.String))
     assign(:pipeline_config, @pipeline_config)
@@ -80,7 +83,7 @@ describe "admin/materials/index.html.erb" do
     render
 
     Capybara.string(response.body).all('table.list_table tr').tap do |trs|
-      expect(trs[3]).to have_selector(".delete_icon_disabled[title='Cannot delete this material since it is used in a fetch artifact task.']")
+      expect(trs[4]).to have_selector(".delete_icon_disabled[title='Cannot delete this material since it is used in a fetch artifact task.']")
     end
   end
 
@@ -95,7 +98,7 @@ describe "admin/materials/index.html.erb" do
     render
 
     Capybara.string(response.body).all('table.list_table tr').tap do |trs|
-      expect(trs[3].find('.delete_icon_disabled')['title']).to eq("Cannot delete this material as the material name is used in this pipeline's label template")
+      expect(trs[4].find('.delete_icon_disabled')['title']).to eq("Cannot delete this material as the material name is used in this pipeline's label template")
     end
   end
 
@@ -117,6 +120,7 @@ describe "admin/materials/index.html.erb" do
         expect(lis[2]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Mercurial'})")
         expect(lis[3]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Perforce'})")
         expect(lis[4]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Team Foundation Server'})")
+        expect(lis[5]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Display Name'})")
       end
     end
   end
@@ -147,15 +151,6 @@ describe "admin/materials/index.html.erb" do
       material_type = "package"
       expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[1]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
     end
-
-    it "should display material name in the listing WITHOUT the link to edit for pluggable SCM material" do
-      pluggable_scm_config = MaterialConfigsMother.pluggableSCMMaterialConfig()
-      @pipeline_config.setMaterialConfigs(MaterialConfigs.new([pluggable_scm_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)))
-
-      render
-
-      expect(Capybara.string(response.body).all(".list_table td")[0].text.strip!).to eq('scm-scm-id')
-    end
   end
 
   describe :package_material do
@@ -164,11 +159,40 @@ describe "admin/materials/index.html.erb" do
 
       Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
         ul.all("li a[href='#']").tap do |lis|
-          expect(lis[6]['onclick']).to eq("Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})")
-          expect(lis[6].text).to eq("Package")
+          expect(lis[7]['onclick']).to eq("Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})")
+          expect(lis[7].text).to eq("Package")
         end
       end
     end
   end
 
+  describe :pluggable_scm_material do
+    it "should list pluggable SCM material in the add new material dropdown" do
+      render
+
+      Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
+        ul.all("li a[href='#']").tap do |lis|
+          expect(lis[5]['onclick']).to eq("Modalbox.show('#{admin_pluggable_scm_new_path(:pipeline_name => @pipeline_config.name(), :plugin_id => 'plugin')}', {overlayClose: false, title: 'Add Material - Display Name'})")
+          expect(lis[5].text).to eq("Display Name")
+        end
+      end
+    end
+
+    it "should display material name in the listing with the link to edit for pluggable SCM material" do
+      render
+
+      pipeline_name = @pipeline_config.name()
+      material_fingerprint = @pipeline_config.materialConfigs().get(2).getPipelineUniqueFingerprint()
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[2]['onclick']).to eq("Util.ajax_modal('#{admin_pluggable_scm_edit_path(:pipeline_name => pipeline_name, :finger_print => material_fingerprint)}', {overlayClose: false, title: 'Edit Material - Display Name'}, function(text){return text})")
+    end
+  end
+
+  def setup_meta_data
+    SCMMetadataStore.getInstance().clear()
+
+    scm_view = double('SCMView')
+    scm_view.stub(:displayValue).and_return('Display Name')
+    scm_view.stub(:template).and_return('Plugin Template')
+    SCMMetadataStore.getInstance().addMetadataFor('plugin', SCMConfigurations.new, scm_view)
+  end
 end

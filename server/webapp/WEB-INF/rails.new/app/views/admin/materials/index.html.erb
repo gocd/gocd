@@ -14,7 +14,9 @@
         <tr>
             <td>
                 <% if material.getType() == 'PluggableSCMMaterial' %>
-                <%= material.getDisplayName() -%>
+                    <a class="material_name" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
+                        <%= smart_word_breaker(material.getDisplayName()) -%>
+                    </a>
                 <% else %>
                 <a class="material_name" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + l.string(material.getTypeForDisplay().upcase())-%>'}, function(text){return text})">
                     <%= smart_word_breaker(material.getDisplayName()) -%>
@@ -61,12 +63,26 @@
                         <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show('#{admin_hg_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
                         <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show('#{admin_p4_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
                         <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show('#{admin_tfs_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>
+                        <% scm_plugin_ids = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().getPlugins() %>
+                        <% if (!scm_plugin_ids.isEmpty()) %>
+                            <% for scm_plugin_id in scm_plugin_ids %>
+                                <% scm_name = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(scm_plugin_id) %>
+                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show('#{admin_pluggable_scm_new_path(:plugin_id => scm_plugin_id)}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
+                            <% end %>
+                        <% end %>
                     <% else %>
                         <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
                         <li><%= link_to l.string("MERCURIAL"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("MERCURIAL")}'})" -%></li>
                         <li><%= link_to l.string("P4"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("P4")}'})" -%></li>
                         <li><%= link_to l.string("TFS"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("TFS")}'})" -%></li>
+                        <% scm_plugin_ids = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().getPlugins() %>
+                        <% if (!scm_plugin_ids.isEmpty()) %>
+                            <% for scm_plugin_id in scm_plugin_ids %>
+                                <% scm_name = com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(scm_plugin_id) %>
+                                <li><%= link_to scm_name, '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
+                            <% end %>
+                        <% end %>
                     <% end %>
                     <li class="menu_item_last_with_border">
                         <%= link_to l.string("PIPELINE"), '#', :onclick => "Modalbox.show('#{admin_dependency_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("PIPELINE")}'})" -%>

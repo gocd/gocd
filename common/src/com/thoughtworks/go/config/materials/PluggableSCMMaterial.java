@@ -296,9 +296,9 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
         PluggableSCMMaterial that = (PluggableSCMMaterial) o;
 
-        if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) return false;
-        if (scmId != null ? !scmId.equals(that.scmId) : that.scmId != null) return false;
+        if (this.getFingerprint() != null ? !this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
+            return false;
+        }
 
         return true;
     }
@@ -306,9 +306,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (scmId != null ? scmId.hashCode() : 0);
-        result = 31 * result + (folder != null ? folder.hashCode() : 0);
-        result = 31 * result + (filter != null ? filter.hashCode() : 0);
+        result = 31 * result + (this.getFingerprint() != null ? this.getFingerprint().hashCode() : 0);
         return result;
     }
 

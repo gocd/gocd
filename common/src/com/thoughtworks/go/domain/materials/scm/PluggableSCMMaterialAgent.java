@@ -47,7 +47,7 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
         PluggableSCMMaterial material = (PluggableSCMMaterial) revision.getMaterial();
         Modification latestModification = revision.getLatestModification();
         SCMRevision scmRevision = new SCMRevision(latestModification.getRevision(), latestModification.getModifiedTime(), null, null, latestModification.getAdditionalDataMap(), null);
-        File destinationFolder = workingDirectory(workingDirectory, material.getFolder());
+        File destinationFolder = material.workingDirectory(workingDirectory);
         Result result = scmExtension.checkout(material.getScmConfig().getPluginConfiguration().getId(), buildSCMPropertyConfigurations(material.getScmConfig()), destinationFolder.getAbsolutePath(), scmRevision);
         if (!result.isSuccessful()) {
             // handle
@@ -65,12 +65,5 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
         for (ConfigurationProperty configurationProperty : configuration) {
             pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
         }
-    }
-
-    private File workingDirectory(File baseFolder, String destinationFolder) {
-        if (destinationFolder == null) {
-            return baseFolder;
-        }
-        return new File(baseFolder, destinationFolder);
     }
 }

@@ -110,6 +110,13 @@ public class PluggableSCMMaterial extends AbstractMaterial {
         this.folder = folder;
     }
 
+    public File workingDirectory(File baseFolder) {
+        if (folder == null) {
+            return baseFolder;
+        }
+        return new File(baseFolder, folder);
+    }
+
     public Filter getFilter() {
         return filter;
     }

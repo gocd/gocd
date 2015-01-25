@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
@@ -400,5 +401,14 @@ public class PluggableSCMMaterialTest {
 
         material.getScmConfig().setAutoUpdate(false);
         assertThat(material.isAutoUpdate(), is(false));
+    }
+
+    @Test
+    public void shouldReturnWorkingDirectoryCorrectly() {
+        PluggableSCMMaterial material = new PluggableSCMMaterial();
+        material.setFolder("dest");
+        assertThat(material.workingDirectory(new File("/tmp")).getAbsolutePath(), is("/tmp/dest"));
+        material.setFolder(null);
+        assertThat(material.workingDirectory(new File("/tmp")).getAbsolutePath(), is("/tmp"));
     }
 }

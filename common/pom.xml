@@ -179,6 +179,10 @@
         </resources>
         <testResources>
             <testResource>
+                <directory>test-docker-instances</directory>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
                 <directory>test-resources</directory>
             </testResource>
         </testResources>
@@ -207,7 +211,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks if="run.tests.using.tlb">
+                            <target if="run.tests.using.tlb">
                                 <property name="target.dir" location="target"/>
                                 <property name="classes.dir" location="${target.dir}/classes"/>
                                 <property name="instrumented.dir" location="${target.dir}/instrumented-classes"/>
@@ -223,7 +227,7 @@
 
                                 <cobertura-instrument todir="${instrumented.dir}">
                                     <fileset dir="${classes.dir}">
-                                        <include name="**/*.class" />
+                                        <include name="**/*.class"/>
                                     </fileset>
                                 </cobertura-instrument>
 
@@ -233,22 +237,79 @@
                                     <path refid="maven.test.classpath"/>
                                 </path>
 
-                                <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="classpath.for.tests"/>
+                                <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet"
+                                         classpathref="classpath.for.tests"/>
 
-                                <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false" haltonerror="false" showoutput="true" fork="true">
-                                    <sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.dir}/cobertura.ser" />
+                                <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false"
+                                       haltonerror="false" showoutput="true" fork="true">
+                                    <sysproperty key="net.sourceforge.cobertura.datafile"
+                                                 file="${cobertura.dir}/cobertura.ser"/>
 
                                     <classpath refid="classpath.for.tests"/>
 
                                     <batchtest todir="${reports.dir}">
-                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class" moduleName="common" />
+                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"
+                                                               moduleName="common"/>
                                         <formatter classname="tlb.ant.JunitDataRecorder"/>
                                         <formatter type="xml"/>
                                     </batchtest>
                                 </junit>
                                 <fail if="test.failed"/>
-                            </tasks>
+                            </target>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <id>start.hg.container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <exec executable="hg" dir="${project.build.testOutputDirectory}/hg-material-integration/volume_to_be_mounted">
+                                    <arg value="clone"/>
+                                    <arg value="https://bitbucket.org/jyotisingh/hg-textauth"/>
+                                </exec>
+                                <exec executable="sudo" dir="/home/godev/projects/">
+                                    <arg value="./docker"/>
+                                    <arg value="run"/>
+                                    <arg value="--privileged=true"/>
+                                    <arg value="-d"/>
+                                    <arg value="--name=hg_container"/>
+                                    <arg value="-p"/>
+                                    <arg value="9999:8000"/>
+                                    <arg value="-v"/>
+                                    <arg value="${project.build.testOutputDirectory}/hg-material-integration/volume_to_be_mounted/:/mounted_volume:ro"/>
+                                    <arg value="-w"/>
+                                    <arg value="/mounted_volume"/>
+                                    <arg value="f50437d19db5"/>
+                                    <arg value="/bin/sh"/>
+                                    <arg value="setup.sh"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop.and.remove.hg.container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <exec executable="sudo" dir="/home/godev/projects/">
+                                    <arg value="./docker"/>
+                                    <arg value="stop"/>
+                                    <arg value="hg_container"/>
+                                </exec>
+                                <exec executable="sudo" dir="/home/godev/projects/">
+                                    <arg value="./docker"/>
+                                    <arg value="rm"/>
+                                    <arg value="hg_container"/>
+                                </exec>
+                            </target>
+                        </configuration>
+
                     </execution>
                 </executions>
                 <dependencies>

@@ -171,7 +171,6 @@
 
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
         <resources>
             <resource>
                 <directory>resources</directory>
@@ -179,16 +178,35 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>test-docker-instances</directory>
-                <filtering>false</filtering>
+                <directory>test-resources/unit</directory>
             </testResource>
             <testResource>
-                <directory>test-resources</directory>
+                <directory>test-resources/integration</directory>
             </testResource>
         </testResources>
         <finalName>common</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>add-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/test/unit</source>
+                                <source>${project.basedir}/test/integration</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -266,12 +284,11 @@
                         </goals>
                         <configuration>
                             <target>
-                                <exec executable="hg" dir="${project.build.testOutputDirectory}/hg-material-integration/volume_to_be_mounted">
+                                <exec executable="hg" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
                                     <arg value="clone"/>
                                     <arg value="https://bitbucket.org/jyotisingh/hg-textauth"/>
                                 </exec>
-                                <exec executable="sudo" dir="/home/godev/projects/">
-                                    <arg value="./docker"/>
+                                <exec executable="docker" >
                                     <arg value="run"/>
                                     <arg value="--privileged=true"/>
                                     <arg value="-d"/>
@@ -279,10 +296,10 @@
                                     <arg value="-p"/>
                                     <arg value="9999:8000"/>
                                     <arg value="-v"/>
-                                    <arg value="${project.build.testOutputDirectory}/hg-material-integration/volume_to_be_mounted/:/mounted_volume:ro"/>
+                                    <arg value="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted/:/mounted_volume:ro"/>
                                     <arg value="-w"/>
                                     <arg value="/mounted_volume"/>
-                                    <arg value="f50437d19db5"/>
+                                    <arg value="jyotisingh/ubuntu-hg"/>
                                     <arg value="/bin/sh"/>
                                     <arg value="setup.sh"/>
                                 </exec>
@@ -297,13 +314,11 @@
                         </goals>
                         <configuration>
                             <target>
-                                <exec executable="sudo" dir="/home/godev/projects/">
-                                    <arg value="./docker"/>
+                                <exec executable="docker">
                                     <arg value="stop"/>
                                     <arg value="hg_container"/>
                                 </exec>
-                                <exec executable="sudo" dir="/home/godev/projects/">
-                                    <arg value="./docker"/>
+                                <exec executable="docker" >
                                     <arg value="rm"/>
                                     <arg value="hg_container"/>
                                 </exec>

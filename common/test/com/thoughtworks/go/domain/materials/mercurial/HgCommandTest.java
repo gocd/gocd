@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.mercurial;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -35,6 +29,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -66,7 +66,7 @@ public class HgCommandTest {
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/test-resources/data/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());
-        hgCommand = new HgCommand(null, workingDirectory, "default");
+        hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath());
         hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
     }
 
@@ -116,8 +116,8 @@ public class HgCommandTest {
     @Test
     public void shouldNotGetModificationsFromOtherBranches() throws Exception {
         makeACommitToSecondBranch();
-
         hg(workingDirectory, "pull").runOrBomb(null);
+
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
         assertThat(actual.size(), is(2));
         assertThat(actual.get(0).getRevision(), is(REVISION_2));
@@ -187,7 +187,7 @@ public class HgCommandTest {
     @Test
     public void shouldCloneOnlyTheSpecifiedBranchAndPointToIt() {
         String branchName = "second";
-        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, branchName);
+        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, branchName, serverRepo.getAbsolutePath());
         hg.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath() + "#" + branchName));
 
         String currentBranch = hg(secondBranchWorkingCopy, "branch").runOrBomb(null).outputAsString();
@@ -260,9 +260,8 @@ public class HgCommandTest {
     }
 
     private void makeACommitToSecondBranch() {
-        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, "second");
+        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, "second", serverRepo.getAbsolutePath());
         hg.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
         createNewFileAndPushUpstream(secondBranchWorkingCopy);
     }
-
 }

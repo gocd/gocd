@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.helper;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -35,6 +30,11 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.junit.Assert.fail;
@@ -60,7 +60,7 @@ public class HgTestRepo extends TestRepo {
         setUpServerRepoFromHgBundle(remoteRepo, bundleToExtract);
 
         File workingCopy = new File(tempFolder, workingCopyName);
-        hgCommand = new HgCommand(null, workingCopy, "default");
+        hgCommand = new HgCommand(null, workingCopy, "default", remoteRepo.getAbsolutePath());
         InMemoryStreamConsumer output = inMemoryConsumer();
         if (hgCommand.clone(output, new UrlArgument(remoteRepo.getAbsolutePath())) != 0) {
             fail("Error creating repository\n" + output.getAllOutput());

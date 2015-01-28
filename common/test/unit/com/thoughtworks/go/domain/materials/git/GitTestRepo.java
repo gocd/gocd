@@ -29,24 +29,28 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class GitTestRepo extends TestRepo {
-    public static final File GIT_3_REVISIONS_BUNDLE = new File("../common/test-resources/data/git/git-3-revisions.git");
-    public static final File GIT_FOO_BRANCH_BUNDLE = new File("../common/test-resources/data/git/foo-branch.git");
-    public static final File GIT_SUBMODULE_BUNDLE = new File("../common/test-resources/data/git/with-submodules.git");
-    public static final File GIT_SUBMODULE_REF_BUNDLE = new File("../common/test-resources/data/git/referenced-submodule.git");
+    private static final String GIT_3_REVISIONS_BUNDLE = "/data/git/git-3-revisions.git";
+    public static final String GIT_FOO_BRANCH_BUNDLE = "/data/git/foo-branch.git";
+    public static final String GIT_SUBMODULE_REF_BUNDLE = "/data/git/referenced-submodule.git";
     private File gitRepo;
 
-    public static GitTestRepo testRepoAtBranch(File gitBundleFile, String branch) {
-        GitTestRepo testRepo = new GitTestRepo(gitBundleFile);
+    public GitTestRepo(String path) throws IOException {
+        this(new ClassPathResource(path).getFile());
+    }
+
+    public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch) throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(gitBundleFilePath);
         testRepo.checkoutRemoteBranchToLocal(branch);
         return testRepo;
     }
 
 
-    public GitTestRepo() {
+    public GitTestRepo() throws IOException {
         this(GIT_3_REVISIONS_BUNDLE);
     }
     

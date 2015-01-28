@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +65,7 @@ public class HgCommandTest {
         clientRepo = createTmpFolder("testHgClientRepo");
         secondBranchWorkingCopy = createTmpFolder("second");
 
-        setUpServerRepoFromHgBundle(serverRepo, new File("../common/test-resources/data/hgrepo.hgbundle"));
+        setUpServerRepoFromHgBundle(serverRepo, new ClassPathResource("./data/hgrepo.hgbundle").getFile());
         workingDirectory = new File(clientRepo.getPath());
         hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath());
         hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));

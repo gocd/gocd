@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -116,7 +117,7 @@ public class P4OutputParserTest {
      * It caused a frequent StackOverflow in the java regex library.
      */
     @Test public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
-        String output = FileUtils.readFileToString(new File("test-resources/data/BIG_P4_OUTPUT.txt"));
+        String output = FileUtils.readFileToString(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getFile());
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getModifiedFiles().size(), is(1304));
         assertThat(modification.getModifiedFiles().get(0).getFileName(),

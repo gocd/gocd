@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.Iterator;
@@ -76,6 +77,7 @@ public class GitMaterialTest {
     private static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
     private static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     private static final String SUBMODULE = "submodule-1";
+    private String gitFooBranchBundleAbsolutePath;
 
     @Before
     public void setup() throws Exception {
@@ -85,6 +87,7 @@ public class GitMaterialTest {
 
         repositoryUrl = gitRepo.projectRepositoryUrl();
         git = new GitMaterial(repositoryUrl);
+        gitFooBranchBundleAbsolutePath = new ClassPathResource(GitTestRepo.GIT_FOO_BRANCH_BUNDLE).getFile().getAbsolutePath();
     }
 
     @After
@@ -224,13 +227,13 @@ public class GitMaterialTest {
 
     @Test
     public void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
-        git = new GitMaterial(GitTestRepo.GIT_FOO_BRANCH_BUNDLE.getAbsolutePath());
+        git = new GitMaterial(gitFooBranchBundleAbsolutePath);
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
         assertThat(output.getStdOut(), Is.is("* master"));
 
-        git = new GitMaterial(GitTestRepo.GIT_FOO_BRANCH_BUNDLE.getAbsolutePath(), "foo");
+        git = new GitMaterial(gitFooBranchBundleAbsolutePath, "foo");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");

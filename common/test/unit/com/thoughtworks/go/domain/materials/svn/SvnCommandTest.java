@@ -334,9 +334,9 @@ public class SvnCommandTest {
                 + "  kind=\"dir\"\n"
                 + "  path=\"司徒空在此\"\n"
                 + "  revision=\"4\">\n"
-                + "<url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>\n"
+                + "<url>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4</url>\n"
                 + "<repository>\n"
-                + "<root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/data/svnrepo/end2end</root>\n"
+                + "<root>file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end</root>\n"
                 + "<uuid>f953918e-915c-4459-8d4c-83860cce9d9a</uuid>\n"
                 + "</repository>\n"
                 + "<commit\n"
@@ -350,7 +350,7 @@ public class SvnCommandTest {
         svnInfo.parse(output, new SAXBuilder(false));
         assertThat(svnInfo.getPath(), is("/司徒空在此"));
         assertThat(svnInfo.getUrl(),
-                is("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4"));
+                is("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4"));
     }
 
     @Test

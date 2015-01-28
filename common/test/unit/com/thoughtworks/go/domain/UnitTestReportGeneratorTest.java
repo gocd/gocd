@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
 import static com.thoughtworks.go.domain.UnitTestReportGenerator.IGNORED_TEST_COUNT;
@@ -233,8 +234,7 @@ public class UnitTestReportGeneratorTest {
         });
 
         copyAndClose(sourcePath("TestReport-Integration.xml"), targetPath("test-result1.xml"));
-        copyAndClose(new FileInputStream(
-                "test-resources" + FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + "TestReport-Unit.xml"),
+        copyAndClose(new FileInputStream(new ClassPathResource("/data/TestReport-Unit.xml").getFile()),
                 new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + "test-result2.xml"));
 
         generator.generate(testFolder.listFiles());
@@ -269,8 +269,8 @@ public class UnitTestReportGeneratorTest {
         return testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile;
     }
 
-    private String sourcePath(String filename) {
-        return "test-resources" + FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename;
+    private String sourcePath(String filename) throws IOException {
+        return new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename).getFile().getAbsolutePath();
     }
 
 

@@ -45,7 +45,9 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static com.thoughtworks.go.helper.ModificationsMother.createHgMaterialWithMultipleRevisions;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationsInHg;
@@ -60,18 +62,20 @@ public class MaterialRevisionTest {
     private static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
     private static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
     private HgMaterial hgMaterial;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File workingFolder;
 
     @Before
     public void setUp() throws Exception {
         HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1");
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
-        workingFolder = TestFileUtil.createTempFolder("workingFolder");
+        workingFolder = temporaryFolder.newFolder();
     }
 
     @After
     public void teardown() {
-        FileUtil.deleteFolder(workingFolder);
+        temporaryFolder.delete();
         TestRepo.internalTearDown();
     }
 

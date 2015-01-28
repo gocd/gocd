@@ -30,6 +30,7 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ import static org.junit.Assert.fail;
 
 public class HgTestRepo extends TestRepo {
     private File remoteRepo;
-    private static final File HG_BUNDLE_FILE = new File("../common/test-resources/data/hgrepo.hgbundle");
+    private static final String HG_BUNDLE_FILE = "/data/hgrepo.hgbundle";
 
     private final HgCommand hgCommand;
 
@@ -56,7 +57,7 @@ public class HgTestRepo extends TestRepo {
         remoteRepo.mkdirs();
         //Copy file to work around bug in hg
         File bundleToExtract = new File(tempFolder, "repo.bundle");
-        FileUtils.copyFile(HG_BUNDLE_FILE, bundleToExtract);
+        FileUtils.copyFile(new ClassPathResource(HG_BUNDLE_FILE).getFile(), bundleToExtract);
         setUpServerRepoFromHgBundle(remoteRepo, bundleToExtract);
 
         File workingCopy = new File(tempFolder, workingCopyName);

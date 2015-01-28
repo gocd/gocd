@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class GitCommandTest {
     private static final Date THREE_DAYS_FROM_NOW = setMilliseconds(addDays(new Date(), 3), 0);
     private GitTestRepo gitRepo;
     private File gitLocalRepoDir;
+    private String gitFooBranchBundleabsolutePath;
 
     @Before public void setup() throws Exception {
         gitRepo = new GitTestRepo();
@@ -84,6 +86,7 @@ public class GitCommandTest {
         if (returnCode > 0) {
             fail(outputStreamConsumer.getAllOutput());
         }
+        gitFooBranchBundleabsolutePath = new ClassPathResource(GIT_FOO_BRANCH_BUNDLE).getFile().getAbsolutePath();
     }
 
     @After public void teardown() throws Exception {
@@ -108,11 +111,11 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldCloneFromBranchWhenMaterialPointsToABranch(){
+    public void shouldCloneFromBranchWhenMaterialPointsToABranch() throws IOException {
         gitLocalRepoDir = createTempWorkingDirectory();
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false);
         GitCommand branchedGit = new GitCommand(null, gitLocalRepoDir, BRANCH, false);
-        branchedGit.cloneFrom(inMemoryConsumer(), GIT_FOO_BRANCH_BUNDLE.getAbsolutePath());
+        branchedGit.cloneFrom(inMemoryConsumer(), gitFooBranchBundleabsolutePath);
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, "");
         assertThat(output.getStdOut(), Is.is("* foo"));
@@ -122,7 +125,7 @@ public class GitCommandTest {
     public void shouldGetTheCurrentBranchForTheCheckedOutRepo(){
         gitLocalRepoDir = createTempWorkingDirectory();
         CommandLine gitCloneCommand = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("clone");
-        gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(GIT_FOO_BRANCH_BUNDLE.getAbsolutePath())).withArg(gitLocalRepoDir.getAbsolutePath());
+        gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundleabsolutePath)).withArg(gitLocalRepoDir.getAbsolutePath());
         gitCloneCommand.run(inMemoryConsumer(), "");
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false);
         assertThat(git.getCurrentBranch(), Is.is(BRANCH));
@@ -195,7 +198,7 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldRetrieveFilenameForInitialRevision() {
+    public void shouldRetrieveFilenameForInitialRevision() throws IOException {
         GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE);
         GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false);
         Modification modification = gitCommand.latestModification();

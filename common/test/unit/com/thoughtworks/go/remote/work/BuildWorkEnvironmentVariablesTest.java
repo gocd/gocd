@@ -60,6 +60,7 @@ import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static org.hamcrest.Matchers.is;
@@ -89,7 +90,7 @@ public class BuildWorkEnvironmentVariablesTest {
     public void setUp() throws IOException {
         dir = new File("someFolder");
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
         svnRepoFixture.createRepository();
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 

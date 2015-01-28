@@ -60,6 +60,7 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedRuleDoesNotMatchFailure;
@@ -85,7 +86,7 @@ public class BuildWorkArtifactUploadingTest {
     public void setUp() throws IOException {
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
         svnRepoFixture.createRepository();
         SvnCommand command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 

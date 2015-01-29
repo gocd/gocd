@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ReflectionUtil;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,9 +27,7 @@ import org.mockito.Mock;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NotificationPluginRegistrarTest {
@@ -97,5 +97,18 @@ public class NotificationPluginRegistrarTest {
 
         notificationPluginRegistrar.pluginUnLoaded(new GoPluginDescriptor(PLUGIN_ID_4, null, null, null, null, true));
         verify(notificationPluginRegistry, never()).removePluginInterests(PLUGIN_ID_4);
+    }
+
+    @Test
+    public void shouldLogWarningIfPluginTriesToRegisterForInvalidNotificationType() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        Logger logger = mock(Logger.class);
+        ReflectionUtil.setStaticField(NotificationPluginRegistrar.class, "LOGGER", logger);
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+
+        verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'pipeline-status' which is not a valid notification type. Valid notification types are: [stage-status]");
+        verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'job-status' which is not a valid notification type. Valid notification types are: [stage-status]");
     }
 }

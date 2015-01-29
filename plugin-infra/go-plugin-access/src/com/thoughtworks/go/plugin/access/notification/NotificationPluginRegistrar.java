@@ -32,11 +32,13 @@ import static org.apache.log4j.Logger.getLogger;
 public class NotificationPluginRegistrar implements PluginChangeListener {
     private static final Logger LOGGER = getLogger(NotificationPluginRegistrar.class);
 
-    NotificationExtension notificationExtension;
+    private NotificationExtension notificationExtension;
+    private NotificationPluginRegistry notificationPluginRegistry;
 
     @Autowired
-    public NotificationPluginRegistrar(PluginManager pluginManager, NotificationExtension notificationExtension) {
+    public NotificationPluginRegistrar(PluginManager pluginManager, NotificationExtension notificationExtension, NotificationPluginRegistry notificationPluginRegistry) {
         this.notificationExtension = notificationExtension;
+        this.notificationPluginRegistry = notificationPluginRegistry;
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
@@ -45,7 +47,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
         if (notificationExtension.isNotificationPlugin(pluginDescriptor.id())) {
             try {
                 List<String> notificationsInterestedIn = notificationExtension.getNotificationsOfInterestFor(pluginDescriptor.id());
-                NotificationPluginRegistry.getInstance().registerPluginInterests(pluginDescriptor.id(), notificationsInterestedIn);
+                notificationPluginRegistry.registerPluginInterests(pluginDescriptor.id(), notificationsInterestedIn);
             } catch (Exception e) {
                 LOGGER.warn("Error occurred during plugin notification interest registration.", e);
             }
@@ -55,7 +57,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
         if (notificationExtension.isNotificationPlugin(pluginDescriptor.id())) {
-            NotificationPluginRegistry.getInstance().removePluginInterests(pluginDescriptor.id());
+            notificationPluginRegistry.removePluginInterests(pluginDescriptor.id());
         }
     }
 }

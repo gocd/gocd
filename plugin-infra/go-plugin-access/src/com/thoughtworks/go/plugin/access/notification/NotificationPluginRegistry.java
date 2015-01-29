@@ -16,20 +16,13 @@
 
 package com.thoughtworks.go.plugin.access.notification;
 
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 
+@Component
 public class NotificationPluginRegistry {
-    private static NotificationPluginRegistry notificationPluginRegistry = new NotificationPluginRegistry();
-
-    final Map<String, Set<String>> notificationNameToPluginsInterestedMap;
-
-    private NotificationPluginRegistry() {
-        this.notificationNameToPluginsInterestedMap = new HashMap<String, Set<String>>();
-    }
-
-    public static NotificationPluginRegistry getInstance() {
-        return notificationPluginRegistry;
-    }
+    private final Map<String, Set<String>> notificationNameToPluginsInterestedMap = new HashMap<String, Set<String>>();
 
     public void registerPluginInterests(String pluginId, List<String> notificationNames) {
         if (notificationNames != null && !notificationNames.isEmpty()) {

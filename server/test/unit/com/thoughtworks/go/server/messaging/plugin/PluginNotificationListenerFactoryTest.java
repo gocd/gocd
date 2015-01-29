@@ -16,14 +16,11 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

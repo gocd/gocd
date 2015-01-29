@@ -188,7 +188,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private void cleanUnversionedFiles(File workingDir) {
-        String[] args = new String[]{"clean", "-dff"};
+        String[] args = new String[]{"clean", "-xdff"};
         CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }

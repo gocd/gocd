@@ -16,6 +16,7 @@
 
 Go::Application.routes.draw do
   mount JasmineRails::Engine => '/specs' if defined?(JasmineRails)
+
   unless defined?(CONSTANTS)
     USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/
@@ -282,15 +283,15 @@ Go::Application.routes.draw do
         get 'jobs/:id.xml' => 'jobs#index'
       end
     end
-end
+  end
 
-post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
-post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json
-get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/(:action)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
-get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
-get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
+  post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
+  post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json
+  get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/(:action)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
+  get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
+  get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
 
-get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
+  get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
   resources :agents, :only =>  [:index], :defaults => {:format => "html"}
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents

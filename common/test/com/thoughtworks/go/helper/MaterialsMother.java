@@ -20,12 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -40,6 +35,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 
 public class MaterialsMother {
@@ -93,6 +90,24 @@ public class MaterialsMother {
         PackageMaterial material = new PackageMaterial(pkgId);
         material.setId(1);
         material.setPackageDefinition(packageDefinition);
+        return material;
+    }
+
+    public static PluggableSCMMaterial pluggableSCMMaterial() {
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+        return pluggableSCMMaterial("scm-id", "scm-name", k1, k2);
+    }
+
+    public static PluggableSCMMaterial pluggableSCMMaterial(String scmId, String scmName, ConfigurationProperty... properties) {
+        return pluggableSCMMaterial(scmId, scmName, "pluginid", "version", Arrays.asList(properties));
+    }
+
+    public static PluggableSCMMaterial pluggableSCMMaterial(String scmId, String scmName, final String pluginid, final String version, List<ConfigurationProperty> properties) {
+        PluggableSCMMaterial material = new PluggableSCMMaterial(scmId);
+        material.setId(1);
+        SCM scmConfig = SCMMother.create(scmId, scmName, pluginid, version, new Configuration((ConfigurationProperty[]) properties.toArray()));
+        material.setSCMConfig(scmConfig);
         return material;
     }
 

@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
@@ -31,6 +32,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
@@ -947,6 +949,12 @@ public class GoConfigFileHelper {
         CruiseConfig config = load();
         PackageRepository repository = packageMaterialConfig.getPackageDefinition().getRepository();
         config.getPackageRepositories().add(repository);
+        writeConfigFile(config);
+    }
+
+    public void addSCMConfig(SCM scmConfig) {
+        CruiseConfig config = load();
+        config.getSCMs().add(scmConfig);
         writeConfigFile(config);
     }
 

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.config.PluginConfiguration;

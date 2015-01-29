@@ -20,10 +20,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -977,6 +974,40 @@ public class FaninDependencyResolutionTest {
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "pkg1-1");
         String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "pkg1-1");
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "pkg1-2");
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p1, true, p1_1),
+                u.mr(p2, true, p2_2));
+
+        MaterialRevisions expected = u.mrs(
+                u.mr(p1, true, p1_1),
+                u.mr(p2, true, p2_1));
+
+        assertThat(getRevisionsBasedOnDependencies(p3, goConfigFileDao.load(), given), is(expected));
+    }
+
+    @Test
+    public void shouldResolveDiamondDependencyWithPluggableSCMMaterial() {
+        /*
+            +---> P1 ---+
+            |           v
+           scm1         P3
+            |           ^
+            +--> P2 ----+
+        */
+        int i = 1;
+        PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        u.addSCMConfig(pluggableSCMMaterial.getScmConfig());
+        String[] pkg_revs = {"scm1-1", "scm1-2"};
+        u.checkinInOrder(pluggableSCMMaterial, u.d(i++), pkg_revs);
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(pluggableSCMMaterial));
+        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(pluggableSCMMaterial));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2));
+
+        String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "scm1-1");
+        String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "scm1-1");
+        String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "scm1-2");
 
         MaterialRevisions given = u.mrs(
                 u.mr(p1, true, p1_1),

@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -45,6 +46,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.feature.EnterpriseFeature;
 import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.licensing.LicenseValidity;
@@ -64,6 +67,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 public class CruiseConfig implements Validatable {
     @ConfigSubtag @SkipParameterResolution private ServerConfig serverConfig = new ServerConfig();
     @ConfigSubtag @SkipParameterResolution private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
+    @ConfigSubtag @SkipParameterResolution private SCMs scms = new SCMs();
     @ConfigSubtag(label = "groups") private PipelineGroups groups = new PipelineGroups();
     @ConfigSubtag(label = "templates") @SkipParameterResolution private TemplatesConfig templatesConfig = new TemplatesConfig();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
@@ -894,10 +898,21 @@ public class CruiseConfig implements Validatable {
         this.packageRepositories = packageRepositories;
     }
 
+    public SCMs getSCMs() {
+        return scms;
+    }
+
+    public void setSCMs(SCMs scms) {
+        this.scms = scms;
+    }
+
     public boolean canDeletePackageRepository(PackageRepository repository) {
         return groups.canDeletePackageRepository(repository);
     }
 
+    public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
+        return groups.canDeletePluggableSCMMaterial(scmConfig);
+    }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {
         private final CaseInsensitiveString username;

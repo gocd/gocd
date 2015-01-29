@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.TimerConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -376,6 +378,10 @@ public class ScheduleTestUtil {
 
     public void addPackageDefinition(PackageMaterialConfig pkgMaterialConfig) {
         configHelper.addPackageDefinition(pkgMaterialConfig);
+    }
+
+    public void addSCMConfig(SCM scmConfig) {
+        configHelper.addSCMConfig(scmConfig);
     }
 
     public AddedPipeline saveConfigWith(String pipelineName, MaterialDeclaration... materialDecls) {

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -32,6 +33,7 @@ public class RootFanInNode extends FanInNode {
     static {
         ROOT_NODE_TYPES.add(ScmMaterialConfig.class);
         ROOT_NODE_TYPES.add(PackageMaterialConfig.class);
+        ROOT_NODE_TYPES.add(PluggableSCMMaterialConfig.class);
     }
 
     RootFanInNode(MaterialConfig material) {

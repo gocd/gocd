@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -34,13 +35,16 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -1127,6 +1131,20 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PackageMaterial.class).getPackageDefinition().getRepository().getConfiguration(), is(material.getPackageDefinition().getRepository().getConfiguration()));
     }
 
+    @Test
+    public void shouldSavePluggableSCMMaterialInstance() {
+        PluggableSCMMaterial material = new PluggableSCMMaterial();
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "v2");
+        material.setSCMConfig(SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2)));
+
+        PluggableSCMMaterialInstance savedMaterialInstance = (PluggableSCMMaterialInstance) repo.findOrCreateFrom(material);
+
+        assertThat(savedMaterialInstance.getId() > 0, is(true));
+        assertThat(savedMaterialInstance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getConfiguration(), is(material.getScmConfig().getConfiguration()));
+        assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getPluginConfiguration().getId(), is(material.getScmConfig().getPluginConfiguration().getId()));
+    }
 
     private MaterialRevision saveOneDependencyModification(DependencyMaterial dependencyMaterial, String revision) {
         return saveOneDependencyModification(dependencyMaterial, revision, "MOCK_LABEL-12");

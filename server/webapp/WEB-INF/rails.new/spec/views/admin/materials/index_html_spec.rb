@@ -72,7 +72,6 @@ describe "admin/materials/index.html.erb" do
     end
   end
 
-
   it "should show cannot delete material icon with title when it is used in a fetch artifact task" do
     job = @pipeline_config.getFirstStageConfig.getJobs().get(0)
     job.addTask(FetchTask.new(CaseInsensitiveString.new("up"), CaseInsensitiveString.new("stage"), CaseInsensitiveString.new("job"), "srcfile", "dest"))
@@ -99,7 +98,6 @@ describe "admin/materials/index.html.erb" do
       expect(trs[3].find('.delete_icon_disabled')['title']).to eq("Cannot delete this material as the material name is used in this pipeline's label template")
     end
   end
-
 
   it "should have new material warning div when scm material does not have dest set" do
     @pipeline_config.materialConfigs().clear()
@@ -148,6 +146,15 @@ describe "admin/materials/index.html.erb" do
       material_fingerprint = @pipeline_config.materialConfigs().get(1).getPipelineUniqueFingerprint()
       material_type = "package"
       expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[1]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
+    end
+
+    it "should display material name in the listing WITHOUT the link to edit for pluggable SCM material" do
+      pluggable_scm_config = MaterialConfigsMother.pluggableSCMMaterialConfig()
+      @pipeline_config.setMaterialConfigs(MaterialConfigs.new([pluggable_scm_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)))
+
+      render
+
+      expect(Capybara.string(response.body).all(".list_table td")[0].text.strip!).to eq('scm-scm-id')
     end
   end
 

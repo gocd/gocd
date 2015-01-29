@@ -13,9 +13,13 @@
     <% for material in @pipeline.materialConfigs() %>
         <tr>
             <td>
+                <% if material.getType() == 'PluggableSCMMaterial' %>
+                <%= material.getDisplayName() -%>
+                <% else %>
                 <a class="material_name" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + l.string(material.getTypeForDisplay().upcase())-%>'}, function(text){return text})">
                     <%= smart_word_breaker(material.getDisplayName()) -%>
                 </a>
+                <% end %>
             </td>
             <td><%= material.getTypeForDisplay() %></td>
             <td><%= word_breaker(material.getUriForDisplay(), 25) %></td>

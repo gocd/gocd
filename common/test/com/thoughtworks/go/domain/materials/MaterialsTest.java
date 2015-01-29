@@ -25,12 +25,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -111,6 +106,18 @@ public class MaterialsTest {
         materials.add(material2);
 
         assertThat(materials.byFolder(null), is(material2));
+    }
+
+    @Test
+    public void shouldGetPluggableSCMMaterial_byFolder() {
+        Materials materials = new Materials();
+        PluggableSCMMaterial material1 = new PluggableSCMMaterial("scm-id");
+        material1.setFolder("folder");
+        Material material2 = new HgMaterial("", "folder");
+        materials.add(material1);
+        materials.add(material2);
+
+        assertThat(materials.byFolder("folder"), is((Material) material1));
     }
 
     @Test

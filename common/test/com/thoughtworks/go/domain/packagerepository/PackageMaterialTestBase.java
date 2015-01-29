@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -74,28 +75,5 @@ public abstract class PackageMaterialTestBase {
         return attributes;
     }
 
-    class ConfigurationHolder {
-        String name;
-        String value;
-        String encryptedValue;
-        boolean isSecure;
-        String isChanged;
 
-        ConfigurationHolder(String name, String value) {
-            this.name = name;
-            this.value = value;
-        }
-
-        ConfigurationHolder(String name, String value, String encryptedValue, boolean isSecure, String isChanged) {
-            this.name = name;
-            this.value = value;
-            this.encryptedValue = encryptedValue;
-            this.isSecure = isSecure;
-            this.isChanged = isChanged;
-        }
-
-        public boolean isChanged() {
-            return "1".equals(isChanged);
-        }
-    }
 }

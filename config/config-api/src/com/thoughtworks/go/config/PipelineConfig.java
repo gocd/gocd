@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ParamResolver;
 import com.thoughtworks.go.config.preprocessor.ParamScope;
@@ -820,6 +821,15 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             @Override
             public boolean evaluate(Object materialConfig) {
                 return materialConfig instanceof PackageMaterialConfig;
+            }
+        }));
+    }
+
+    public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
+        return new ArrayList<PluggableSCMMaterialConfig>(select(materialConfigs(), new Predicate() {
+            @Override
+            public boolean evaluate(Object materialConfig) {
+                return materialConfig instanceof PluggableSCMMaterialConfig;
             }
         }));
     }

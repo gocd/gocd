@@ -167,7 +167,7 @@ public class Materials extends BaseCollection<Material> {
 
     public Material byFolder(String folder) {
         for (Material material : this) {
-            if (material instanceof ScmMaterial && ObjectUtil.nullSafeEquals(folder, material.getFolder())) {
+            if ((material instanceof ScmMaterial || material instanceof PluggableSCMMaterial) && ObjectUtil.nullSafeEquals(folder, material.getFolder())) {
                 return material;
             }
         }
@@ -267,6 +267,8 @@ public class Materials extends BaseCollection<Material> {
             return new TfsMaterial((TfsMaterialConfig) materialConfig);
         } else if (PackageMaterial.TYPE.equals(materialConfig.getType())) {
             return new PackageMaterial((PackageMaterialConfig) materialConfig);
+        } else if (PluggableSCMMaterial.TYPE.equals(materialConfig.getType())) {
+            return new PluggableSCMMaterial((PluggableSCMMaterialConfig) materialConfig);
         } else if (TestingMaterial.TYPE.equals(materialConfig.getType())) {
             return new TestingMaterial((TestingMaterialConfig) materialConfig);
         }

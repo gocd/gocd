@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -191,7 +192,6 @@ public class PipelineGroupsTest {
 
     @Test
     public void shouldGetPackageUsageInPipelines() throws Exception {
-
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
@@ -212,7 +212,6 @@ public class PipelineGroupsTest {
 
     @Test
     public void shouldComputePackageUsageInPipelinesOnlyOnce() throws Exception {
-
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
@@ -226,5 +225,26 @@ public class PipelineGroupsTest {
         assertSame(result1, result2);
     }
 
+    @Test
+    public void shouldGetPluggableSCMMaterialUsageInPipelines() throws Exception {
+        PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-one");
+        PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-two");
+        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(pluggableSCMMaterialOne, pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
 
+        PipelineGroups groups = new PipelineGroups();
+        PipelineConfigs groupOne = new PipelineConfigs(p1);
+        PipelineConfigs groupTwo = new PipelineConfigs(p2);
+        groups.addAll(asList(groupOne, groupTwo));
+
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesOne = groups.getPluggableSCMMaterialUsageInPipelines();
+
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one").size(), is(1));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne)));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two").size(), is(2));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne), new Pair<PipelineConfig, PipelineConfigs>(p2, groupTwo)));
+
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesTwo = groups.getPluggableSCMMaterialUsageInPipelines();
+        assertSame(pluggableSCMMaterialUsageInPipelinesOne, pluggableSCMMaterialUsageInPipelinesTwo);
+    }
 }

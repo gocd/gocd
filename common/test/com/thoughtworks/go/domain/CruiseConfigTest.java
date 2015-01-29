@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigGraphWalker;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -42,6 +43,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.packagerepository.Packages;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
@@ -838,6 +841,19 @@ public class CruiseConfigTest {
         cruiseConfig.savePackageRepository(repo2);
         assertThat(cruiseConfig.canDeletePackageRepository(repo1), is(true));
         assertThat(cruiseConfig.canDeletePackageRepository(repo2), is(false));
+    }
+
+    @Test
+    public void shouldDecideIfPluggableSCMMaterialCanBeDeleted_BasedOnPluggableSCMMaterialBeingUsedByPipelines() throws Exception {
+        SCM scmConfigOne = SCMMother.create("scm-id-1");
+        SCM scmConfigTwo = SCMMother.create("scm-id-2");
+        cruiseConfig.getSCMs().addAll(Arrays.asList(scmConfigOne, scmConfigTwo));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
+        pipeline.addMaterialConfig(new PluggableSCMMaterialConfig(null, scmConfigOne, null, null));
+        cruiseConfig.addPipeline("existing_group", pipeline);
+
+        assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigOne), is(false));
+        assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigTwo), is(true));
     }
 
     private Role setupSecurityWithRole() {

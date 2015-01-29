@@ -16,31 +16,7 @@
 
 package com.thoughtworks.go.config.preprocessor;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.AuthConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.MailHost;
-import com.thoughtworks.go.config.ParamConfig;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RoleUser;
-import com.thoughtworks.go.config.RunIfConfig;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -52,10 +28,12 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -126,7 +104,7 @@ public class ParamResolverTest {
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-#{foo}-bar-jj"));
     }
-    
+
     @Test
     public void shouldInterpolateLiteralEscapedSequences() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
@@ -201,21 +179,10 @@ public class ParamResolverTest {
     @Test
     public void shouldProvideContextWhenAnExceptionOccurs() throws NoSuchFieldException {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
-        pipelineConfig.setLabelTemplate("#a");
+        pipelineConfig.setLabelTemplate("#{a}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Parameter 'a' is not defined. All pipelines using this parameter directly or via a template must define it."));
     }
-
-    @Test
-    public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() throws NoSuchFieldException {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant","nant");
-        FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
-        pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
-        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.SRC), is("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #"));
-    }
-
 
     @Test
     public void shouldAddErrorTheMessageOnTheRightFieldOfTheRightElement() throws NoSuchFieldException {
@@ -223,21 +190,23 @@ public class ParamResolverTest {
         resource.setName("#{not-found}");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
-        pipelineConfig.setLabelTemplate("#a");
+        pipelineConfig.setLabelTemplate("#{a}");
         pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new Resources(resource), new ArtifactPlans()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
 
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for '#a' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Parameter 'a' is not defined. All pipelines using this parameter directly or via a template must define it."));
         assertThat(resource.errors().on(JobConfig.RESOURCES), is("Parameter 'not-found' is not defined. All pipelines using this parameter directly or via a template must define it."));
     }
 
     @Test
-    public void shouldProvideContextWhenAnExceptionOccursBecauseOfHashAtEnd() throws NoSuchFieldException {
+    public void shouldNotAddErrorMessageForSingleHash() throws NoSuchFieldException {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
-        pipelineConfig.setLabelTemplate("abc#");
+        pipelineConfig.setLabelTemplate("#a");
+
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
-        assertThat(pipelineConfig.errors().on("labelTemplate"), is("Error when processing params for 'abc#' used in field 'labelTemplate', # must be followed by a parameter pattern or escaped by another #"));
+
+        assertThat(pipelineConfig.errors().on("labelTemplate"), isEmptyOrNullString());
     }
 
     @Test
@@ -261,19 +230,15 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldAddResolutionErrorOnViewIfP4MaterialViewHasAnError() throws NoSuchFieldException {
-        P4MaterialViewConfig p4MaterialViewConfig = new P4MaterialViewConfig("#");
+    public void shouldAllowOnlyHashInTheEndOfURL() throws NoSuchFieldException {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
+        pipelineConfig.setLabelTemplate("#");
+        P4MaterialViewConfig p4MaterialViewConfig = new P4MaterialViewConfig("abc#");
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialViewConfig);
 
-        assertThat(p4MaterialViewConfig.errors().on(P4MaterialConfig.VIEW), is("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #"));
-    }
-
-    @Test
-    public void shouldErrorOutIfCannotResolveParamForP4View() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "#");
-        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialConfig);
-        assertThat(p4MaterialConfig.getP4MaterialView().errors().on(P4MaterialConfig.VIEW), is("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #"));
+        assertThat(p4MaterialViewConfig.errors().on(P4MaterialConfig.VIEW), isEmptyOrNullString());
+        assertThat(pipelineConfig.errors().on("labelTemplate"), isEmptyOrNullString());
     }
 
     @Test
@@ -304,21 +269,21 @@ public class ParamResolverTest {
 
     @Test
     public void shouldSkipResolution() throws NoSuchFieldException {
-        Object[] specs = new Object[] {
-            CruiseConfig.class, "serverConfig",
-            CruiseConfig.class, "templatesConfig",
-            CruiseConfig.class, "environments",
-            CruiseConfig.class, "agents",
-            PipelineConfigs.class, "authorization",
-            PipelineConfig.class, "name",
-            PipelineConfig.class, "params",
-            PipelineConfig.class, "templateName",
-            StageConfig.class, "name",
-            AbstractMaterialConfig.class, "name",
-            ArtifactPropertiesGenerator.class, "name",
-            Approval.class, "type",
-            JobConfig.class, "jobName",
-            RunIfConfig.class, "status",
+        Object[] specs = new Object[]{
+                CruiseConfig.class, "serverConfig",
+                CruiseConfig.class, "templatesConfig",
+                CruiseConfig.class, "environments",
+                CruiseConfig.class, "agents",
+                PipelineConfigs.class, "authorization",
+                PipelineConfig.class, "name",
+                PipelineConfig.class, "params",
+                PipelineConfig.class, "templateName",
+                StageConfig.class, "name",
+                AbstractMaterialConfig.class, "name",
+                ArtifactPropertiesGenerator.class, "name",
+                Approval.class, "type",
+                JobConfig.class, "jobName",
+                RunIfConfig.class, "status",
         };
         for (int i = 0; i < specs.length; i += 2) {
             Class clz = (Class) specs[i];

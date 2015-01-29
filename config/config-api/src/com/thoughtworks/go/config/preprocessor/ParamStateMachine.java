@@ -56,18 +56,11 @@ public class ParamStateMachine {
 
         HASH_SEEN {
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
-                if (ch == CHAR_HASH) {
-                    paramsHandler.handlePatternStarted(ch);
-                    return NOT_IN_PATTERN;
-                } else if (ch == CHAR_CURL_OPEN) {
+                if (ch == CHAR_CURL_OPEN) {
                     return IN_PATTERN;
                 }
-                return INVALID_PATTERN;
-            }
-        },
-        INVALID_PATTERN {
-            ReaderState interpret(char ch, ParamHandler paramsHandler) {
-                return INVALID_PATTERN;
+                paramsHandler.handlePatternStarted(ch);
+                return NOT_IN_PATTERN;
             }
         };
 

@@ -53,7 +53,7 @@ public class HgUrlArgument extends UrlArgument {
                 return uri.toString();
             }
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            return sanitizedUrl;
         }
         return sanitizedUrl;
     }

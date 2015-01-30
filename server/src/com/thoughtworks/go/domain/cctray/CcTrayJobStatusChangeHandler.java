@@ -37,21 +37,20 @@ public class CcTrayJobStatusChangeHandler {
     }
 
     public void call(JobInstance job) {
-        updateForJob(job, new HashSet<String>());
+        cache.replace(statusFor(job, new HashSet<String>()));
     }
 
-    public void updateForJob(JobInstance job, Set<String> breakers) {
+    public ProjectStatus statusFor(JobInstance job, Set<String> breakers) {
         String projectName = job.getIdentifier().ccProjectName();
         ProjectStatus existingStatusOfThisJobInCache = projectByName(projectName);
-        cache.replace(projectName,
-                new ProjectStatus(
-                        projectName,
-                        job.getState().cctrayActivity(),
-                        lastBuildStatus(existingStatusOfThisJobInCache, job),
-                        lastBuildLabel(existingStatusOfThisJobInCache, job),
-                        lastBuildTime(existingStatusOfThisJobInCache, job),
-                        job.getIdentifier().webUrl(),
-                        breakers));
+        return new ProjectStatus(
+                projectName,
+                job.getState().cctrayActivity(),
+                lastBuildStatus(existingStatusOfThisJobInCache, job),
+                lastBuildLabel(existingStatusOfThisJobInCache, job),
+                lastBuildTime(existingStatusOfThisJobInCache, job),
+                job.getIdentifier().webUrl(),
+                breakers);
     }
 
     private String lastBuildStatus(ProjectStatus existingStatus, JobInstance job) {

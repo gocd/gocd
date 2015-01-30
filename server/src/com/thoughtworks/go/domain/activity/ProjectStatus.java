@@ -121,6 +121,10 @@ public class ProjectStatus {
         return lastBuildStatus;
     }
 
+    public String name() {
+        return name;
+    }
+
     public Element ccTrayXmlElement(String fullContextPath) {
         Element element = new Element("Project");
         element.setAttribute("name", name);

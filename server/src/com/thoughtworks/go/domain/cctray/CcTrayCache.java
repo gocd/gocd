@@ -18,11 +18,16 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 
+import java.util.List;
+
 public class CcTrayCache {
     public ProjectStatus get(String projectName) {
         return null;
     }
 
-    public void replace(String projectName, ProjectStatus projectStatus) {
+    public void replace(ProjectStatus status) {
+    }
+
+    public void replaceAll(List<ProjectStatus> statuses) {
     }
 }

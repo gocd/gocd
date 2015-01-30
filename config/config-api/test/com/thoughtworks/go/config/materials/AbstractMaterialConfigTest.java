@@ -102,7 +102,7 @@ public class AbstractMaterialConfigTest {
     @Test
     public void shouldNotUseNameFieldButInsteadUseTheNameMethodToCheckIfTheMaterialNameIsUsedInThePipelineLabel() throws Exception {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        when(pipelineConfig.getLabelTemplate()).thenReturn("${COUNT}-${hg}-${dep}-${pkg}");
+        when(pipelineConfig.getLabelTemplate()).thenReturn("${COUNT}-${hg}-${dep}-${pkg}-${scm}");
         MaterialConfig hg = mock(HgMaterialConfig.class);
         when(hg.getName()).thenReturn(new CaseInsensitiveString("hg"));
         when(hg.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
@@ -112,14 +112,19 @@ public class AbstractMaterialConfigTest {
         MaterialConfig aPackage = mock(PackageMaterialConfig.class);
         when(aPackage.getName()).thenReturn(new CaseInsensitiveString("pkg"));
         when(aPackage.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
+        MaterialConfig aPluggableSCM = mock(PluggableSCMMaterialConfig.class);
+        when(aPluggableSCM.getName()).thenReturn(new CaseInsensitiveString("scm"));
+        when(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
 
         assertThat(hg.isUsedInLabelTemplate(pipelineConfig), is(true));
         assertThat(dependency.isUsedInLabelTemplate(pipelineConfig), is(true));
         assertThat(aPackage.isUsedInLabelTemplate(pipelineConfig), is(true));
+        assertThat(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig), is(true));
 
         verify(hg).getName();
-        verify(aPackage).getName();
         verify(dependency).getName();
+        verify(aPackage).getName();
+        verify(aPluggableSCM).getName();
     }
 
     private Map<String, String> m(String key, String value) {

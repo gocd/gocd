@@ -23,6 +23,7 @@ import java.util.Set;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -36,6 +37,7 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import org.springframework.stereotype.Component;
@@ -54,6 +56,7 @@ public class MaterialConfigConverter {
         map.put(TfsMaterialConfig.class, TfsMaterialInstance.class);
         map.put(DependencyMaterialConfig.class, DependencyMaterialInstance.class);
         map.put(PackageMaterialConfig.class, PackageMaterialInstance.class);
+        map.put(PluggableSCMMaterialConfig.class, PluggableSCMMaterialInstance.class);
     }
 
     public Material toMaterial(MaterialConfig materialConfig) {

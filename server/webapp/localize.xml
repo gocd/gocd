@@ -391,6 +391,7 @@
     <entry key="GIT">Git</entry>
     <entry key="PACKAGE">Package</entry>
     <entry key="REPOSITORY">Repository</entry>
+    <entry key="SCM">SCM</entry>
     <entry key="P4">Perforce</entry>
     <entry key="PERFORCE">Perforce</entry>
     <entry key="JOB_SETTINGS">Job Settings</entry>

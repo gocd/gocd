@@ -52,6 +52,7 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Mock private ScmMaterialUpdater scmMaterialUpdater;
     @Mock private PackageMaterialUpdater packageMaterialUpdater;
+    @Mock private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
     @Mock private GoCache goCache;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private MaterialExpansionService materialExpansionService;
@@ -67,7 +68,7 @@ public class MaterialUpdateListenerFactoryTest {
         when(systemEnvironment.getNumberOfMaterialCheckListener()).thenReturn(NUMBER_OF_CONSUMERS);
 
         MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic, queue, materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
-                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, packageMaterialUpdater, materialExpansionService, mduPerformanceLogger);
+                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));

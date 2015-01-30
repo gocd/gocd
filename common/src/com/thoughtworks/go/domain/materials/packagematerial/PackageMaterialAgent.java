@@ -16,9 +16,23 @@
 
 package com.thoughtworks.go.domain.materials.packagematerial;
 
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.MaterialAgent;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+
+import java.io.File;
 
 public class PackageMaterialAgent implements MaterialAgent {
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private MaterialRevision revision;
+    private File workingDirectory;
+
+    public PackageMaterialAgent(PackageAsRepositoryExtension packageAsRepositoryExtension, MaterialRevision revision, File workingDirectory) {
+        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.revision = revision;
+        this.workingDirectory = workingDirectory;
+    }
+
     @Override
     public void prepare() {
         //do nothing

@@ -16,28 +16,13 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.BuildLogElement;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Property;
-import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
@@ -46,7 +31,9 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.matchers.UploadEntry;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
@@ -60,16 +47,21 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedRuleDoesNotMatchFailure;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.uploadFileToDestination;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildWorkArtifactUploadingTest {
     private static final String JOB_NAME = "one";
@@ -80,10 +72,16 @@ public class BuildWorkArtifactUploadingTest {
     private SvnMaterial svnMaterial;
     private SvnRepoFixture svnRepoFixture;
     File buildWorkingDirectory;
+    @Mock
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    @Mock
+    private SCMExtension scmExtension;
+    @Mock
     private TaskExtension taskExtension;
 
     @Before
     public void setUp() throws IOException {
+        initMocks(this);
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
         svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
@@ -93,7 +91,6 @@ public class BuildWorkArtifactUploadingTest {
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         svnMaterial = SvnMaterial.createSvnMaterialWithMock(command);
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
-        taskExtension = mock(TaskExtension.class);
     }
 
     @After
@@ -114,7 +111,7 @@ public class BuildWorkArtifactUploadingTest {
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+        work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -135,7 +132,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -159,7 +156,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -181,7 +178,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
         System.out.println(entries);
@@ -207,7 +204,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -227,7 +224,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(),
-                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -247,7 +244,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -271,7 +268,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -294,7 +291,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
-        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+        work.doWork(agentIdentifier, repository, manipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
 
@@ -320,7 +317,7 @@ public class BuildWorkArtifactUploadingTest {
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), taskExtension);
+                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         List<UploadEntry> entries = manipulator.uploadEntries();
         System.out.println(entries);

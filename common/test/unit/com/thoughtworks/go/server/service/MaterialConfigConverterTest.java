@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -44,6 +45,7 @@ public class MaterialConfigConverterTest {
         assertEquals(TfsMaterialInstance.class, converter.getInstanceType(new TfsMaterialConfig(null)));
         assertEquals(DependencyMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.dependencyMaterialConfig()));
         assertEquals(PackageMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.packageMaterialConfig()));
+        assertEquals(PluggableSCMMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.pluggableSCMMaterialConfig()));
     }
 
     @Test

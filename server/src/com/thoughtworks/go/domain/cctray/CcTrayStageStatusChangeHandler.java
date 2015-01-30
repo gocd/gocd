@@ -30,13 +30,13 @@ import java.util.Set;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when a stage status changes. */
 @Component
-public class CCTrayStageStatusChangeHandler {
+public class CcTrayStageStatusChangeHandler {
     private final CcTrayCache cache;
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private final CcTrayBreakersCalculator breakersCalculator;
 
     @Autowired
-    public CCTrayStageStatusChangeHandler(CcTrayCache cache, CcTrayJobStatusChangeHandler jobStatusChangeHandler, CcTrayBreakersCalculator breakersCalculator) {
+    public CcTrayStageStatusChangeHandler(CcTrayCache cache, CcTrayJobStatusChangeHandler jobStatusChangeHandler, CcTrayBreakersCalculator breakersCalculator) {
         this.cache = cache;
         this.jobStatusChangeHandler = jobStatusChangeHandler;
         this.breakersCalculator = breakersCalculator;

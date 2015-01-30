@@ -121,7 +121,7 @@ public class CcTrayActivityListenerTest {
         }
     }
 
-    private class StubCcTrayStageStatusChangeHandler extends CCTrayStageStatusChangeHandler {
+    private class StubCcTrayStageStatusChangeHandler extends CcTrayStageStatusChangeHandler {
         private Thread threadOfCall;
 
         public StubCcTrayStageStatusChangeHandler() {
@@ -134,7 +134,7 @@ public class CcTrayActivityListenerTest {
         }
     }
 
-    private class StubCcTrayConfigChangeHandler extends CCTrayConfigChangeHandler {
+    private class StubCcTrayConfigChangeHandler extends CcTrayConfigChangeHandler {
         private Thread threadOfCall;
 
         @Override

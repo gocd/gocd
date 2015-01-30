@@ -41,7 +41,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class CCTrayStageStatusChangeHandlerTest {
+public class CcTrayStageStatusChangeHandlerTest {
     @Mock
     private CcTrayCache cache;
     @Mock
@@ -58,7 +58,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldNotUpdateCacheWhenStageWhichHasChangedIsANullStage() throws Exception {
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
 
         handler.call(new NullStage("some-name"));
 
@@ -69,7 +69,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateCacheForStageAndAllJobsWithinIt() throws Exception {
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
 
         JobInstance firstJob = JobInstanceMother.building("job1");
         JobInstance secondJob = JobInstanceMother.completed("job2");
@@ -83,7 +83,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateStageInCacheWithBreakers() throws Exception {
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         when(breakersCalculator.calculateFor(stage)).thenReturn(s("breaker1", "breaker2"));
@@ -96,7 +96,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateJobsInCacheWithBreakers_OnlyIfTheyHaveFailed() throws Exception {
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"), JobInstanceMother.failed("job2"));
         when(breakersCalculator.calculateFor(stage)).thenReturn(s("breaker1", "breaker2"));
@@ -109,7 +109,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldUpdateStageActivityAndWebUrlInCache() throws Exception {
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         handler.call(stage);
@@ -125,7 +125,7 @@ public class CCTrayStageStatusChangeHandlerTest {
         ProjectStatus.NullProjectStatus defaultStatus = new ProjectStatus.NullProjectStatus(projectName);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
         handler.call(stage);
 
         verify(cache).replace(eq(projectName), statusCaptor.capture());
@@ -142,7 +142,7 @@ public class CCTrayStageStatusChangeHandlerTest {
         when(cache.get(projectName)).thenReturn(existingStageStatus);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
         handler.call(stage);
 
         verify(cache).replace(eq(projectName), statusCaptor.capture());
@@ -158,7 +158,7 @@ public class CCTrayStageStatusChangeHandlerTest {
 
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
         completedStage.setCompletedByTransitionId(1L);
-        CCTrayStageStatusChangeHandler handler = new CCTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+        CcTrayStageStatusChangeHandler handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
         handler.call(completedStage);
 
         verify(cache).replace(eq(projectName), statusCaptor.capture());

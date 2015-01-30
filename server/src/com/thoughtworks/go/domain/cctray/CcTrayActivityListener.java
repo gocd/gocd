@@ -39,16 +39,16 @@ public class CcTrayActivityListener implements JobStatusListener, StageStatusLis
     private static Logger LOGGER = Logger.getLogger(CcTrayActivityListener.class);
 
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
-    private final CCTrayStageStatusChangeHandler stageStatusChangeHandler;
-    private final CCTrayConfigChangeHandler configChangeHandler;
+    private final CcTrayStageStatusChangeHandler stageStatusChangeHandler;
+    private final CcTrayConfigChangeHandler configChangeHandler;
 
     private final BlockingQueue<Action> queue;
     private Thread queueProcessor;
 
     @Autowired
     public CcTrayActivityListener(CcTrayJobStatusChangeHandler jobStatusChangeHandler,
-                                  CCTrayStageStatusChangeHandler stageStatusChangeHandler,
-                                  CCTrayConfigChangeHandler configChangeHandler) {
+                                  CcTrayStageStatusChangeHandler stageStatusChangeHandler,
+                                  CcTrayConfigChangeHandler configChangeHandler) {
         this.jobStatusChangeHandler = jobStatusChangeHandler;
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;

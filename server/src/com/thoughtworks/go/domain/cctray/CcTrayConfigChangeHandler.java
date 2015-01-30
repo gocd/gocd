@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when the config changes. */
 @Component
-public class CCTrayConfigChangeHandler {
+public class CcTrayConfigChangeHandler {
     public void call(CruiseConfig config) {
     }
 }

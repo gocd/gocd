@@ -405,8 +405,10 @@ public class PluggableSCMMaterialTest {
     public void shouldReturnWorkingDirectoryCorrectly() {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setFolder("dest");
-        assertThat(material.workingDirectory(new File("/tmp")).getAbsolutePath(), is("/tmp/dest"));
+        String baseFolder = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
+        String workingFolder = new File(baseFolder, "dest").getAbsolutePath();
+        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(workingFolder));
         material.setFolder(null);
-        assertThat(material.workingDirectory(new File("/tmp")).getAbsolutePath(), is("/tmp"));
+        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(baseFolder));
     }
 }

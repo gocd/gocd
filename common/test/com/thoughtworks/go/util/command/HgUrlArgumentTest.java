@@ -57,5 +57,9 @@ public class HgUrlArgumentTest {
     public void shouldNotModifyFileURIS() throws Exception {
         assertThat(new HgUrlArgument("file://junk").defaultRemoteUrl(), is("file://junk"));
     }
+    @Test
+    public void shouldNotModifyWindowsFileSystemPath() throws Exception {
+        assertThat(new HgUrlArgument("c:\\foobar").defaultRemoteUrl(), is("c:\\foobar"));
+    }
 
 }

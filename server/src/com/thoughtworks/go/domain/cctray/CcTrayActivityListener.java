@@ -38,7 +38,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class CcTrayActivityListener implements JobStatusListener, StageStatusListener, ConfigChangedListener {
     private static Logger LOGGER = Logger.getLogger(CcTrayActivityListener.class);
 
-    private final CCTrayJobStatusChangeHandler jobStatusChangeHandler;
+    private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private final CCTrayStageStatusChangeHandler stageStatusChangeHandler;
     private final CCTrayConfigChangeHandler configChangeHandler;
 
@@ -46,7 +46,7 @@ public class CcTrayActivityListener implements JobStatusListener, StageStatusLis
     private Thread queueProcessor;
 
     @Autowired
-    public CcTrayActivityListener(CCTrayJobStatusChangeHandler jobStatusChangeHandler,
+    public CcTrayActivityListener(CcTrayJobStatusChangeHandler jobStatusChangeHandler,
                                   CCTrayStageStatusChangeHandler stageStatusChangeHandler,
                                   CCTrayConfigChangeHandler configChangeHandler) {
         this.jobStatusChangeHandler = jobStatusChangeHandler;

@@ -108,8 +108,12 @@ public class CcTrayActivityListenerTest {
         };
     }
 
-    private class StubCcTrayJobStatusChangeHandler extends CCTrayJobStatusChangeHandler {
+    private class StubCcTrayJobStatusChangeHandler extends CcTrayJobStatusChangeHandler {
         private Thread threadOfCall;
+
+        public StubCcTrayJobStatusChangeHandler() {
+            super(null);
+        }
 
         @Override
         public void call(JobInstance job) {

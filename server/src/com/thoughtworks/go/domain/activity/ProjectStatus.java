@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ProjectStatus {
     public static final Date DEFAULT_LAST_BUILD_TIME = new Date();

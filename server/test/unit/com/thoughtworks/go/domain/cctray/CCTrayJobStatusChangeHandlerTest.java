@@ -27,6 +27,8 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -77,6 +79,21 @@ public class CcTrayJobStatusChangeHandlerTest {
         assertThat(newStatusInCache.getLastBuildLabel(), is("label-1"));
         assertThat(newStatusInCache.getBreakers(), is(Collections.<String>emptySet()));
         assertThat(webUrlOf(newStatusInCache), is(webUrlFor("job1")));
+    }
+
+    @Test
+    public void shouldAllowBreakersToBeUpdatedAlongWithOtherFields() throws Exception {
+        String jobName = "job1";
+
+        Set<String> breakers = new HashSet<String>();
+        breakers.add("abc");
+        breakers.add("def");
+
+        CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
+        handler.updateForJob(JobInstanceMother.completed(jobName), breakers);
+
+        verify(cache).replace(eq(projectNameFor(jobName)), statusCaptor.capture());
+        assertThat(statusCaptor.getValue().getBreakers(), is(breakers));
     }
 
     private Pair<ProjectStatus, ProjectStatus> simulateJobStatusChangedToBuilding(String jobName) {

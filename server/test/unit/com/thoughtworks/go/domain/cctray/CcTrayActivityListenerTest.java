@@ -124,6 +124,10 @@ public class CcTrayActivityListenerTest {
     private class StubCcTrayStageStatusChangeHandler extends CCTrayStageStatusChangeHandler {
         private Thread threadOfCall;
 
+        public StubCcTrayStageStatusChangeHandler() {
+            super(null, null, null);
+        }
+
         @Override
         public void call(Stage stage) {
             threadOfCall = Thread.currentThread();

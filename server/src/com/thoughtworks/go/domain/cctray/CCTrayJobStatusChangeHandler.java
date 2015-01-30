@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when a job status changes. */
 @Component
@@ -36,6 +37,10 @@ public class CcTrayJobStatusChangeHandler {
     }
 
     public void call(JobInstance job) {
+        updateForJob(job, new HashSet<String>());
+    }
+
+    public void updateForJob(JobInstance job, Set<String> breakers) {
         String projectName = job.getIdentifier().ccProjectName();
         ProjectStatus existingStatusOfThisJobInCache = projectByName(projectName);
         cache.replace(projectName,
@@ -46,7 +51,7 @@ public class CcTrayJobStatusChangeHandler {
                         lastBuildLabel(existingStatusOfThisJobInCache, job),
                         lastBuildTime(existingStatusOfThisJobInCache, job),
                         job.getIdentifier().webUrl(),
-                        new HashSet<String>()));
+                        breakers));
     }
 
     private String lastBuildStatus(ProjectStatus existingStatus, JobInstance job) {

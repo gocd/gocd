@@ -24,9 +24,7 @@ import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when a stage status changes. */
 @Component
@@ -47,24 +45,31 @@ public class CcTrayStageStatusChangeHandler {
             return;
         }
 
+        cache.replaceAll(statusesOfStageAndItsJobsFor(stage));
+    }
+
+    public List<ProjectStatus> statusesOfStageAndItsJobsFor(Stage stage) {
+        ArrayList<ProjectStatus> statuses = new ArrayList<ProjectStatus>();
+
         String projectName = stage.getIdentifier().ccProjectName();
         Set<String> breakers = breakersCalculator.calculateFor(stage);
-        cacheStage(stage, projectName, breakers);
+        statuses.add(getStageStatus(stage, projectName, breakers));
 
         for (JobInstance jobInstance : stage.getJobInstances()) {
             Set<String> jobBreakers = jobInstance.getResult() == JobResult.Failed ? breakers : new HashSet<String>();
-            jobStatusChangeHandler.updateForJob(jobInstance, jobBreakers);
+            statuses.add(jobStatusChangeHandler.statusFor(jobInstance, jobBreakers));
         }
+        return statuses;
     }
 
-    private void cacheStage(Stage stage, String projectName, Set<String> breakers) {
-        cache.replace(projectName, new ProjectStatus(
+    private ProjectStatus getStageStatus(Stage stage, String projectName, Set<String> breakers) {
+        return new ProjectStatus(
                 projectName,
                 stage.stageState().cctrayActivity(),
                 lastBuildStatus(projectName, stage),
                 lastBuildLabel(projectName, stage),
                 lastBuildTime(projectName, stage),
-                stage.getIdentifier().webUrl(), breakers));
+                stage.getIdentifier().webUrl(), breakers);
     }
 
     private String lastBuildStatus(String projectName, Stage stage) {

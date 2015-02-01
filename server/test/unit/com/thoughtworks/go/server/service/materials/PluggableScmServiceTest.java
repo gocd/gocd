@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.util.ListUtil;
@@ -32,8 +33,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -114,6 +117,20 @@ public class PluggableScmServiceTest {
         pluggableScmService.validate(modifiedSCM);
 
         assertTrue(validationResult.getErrors().isEmpty());
+    }
+
+    @Test
+    public void shouldCheckConnectionToSCM() {
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        Result expectedResult = new Result();
+        expectedResult.withSuccessMessages(Arrays.asList("message"));
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(expectedResult);
+
+        Result gotResult = pluggableScmService.checkConnection(modifiedSCM);
+
+        verify(scmExtension).checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class));
+        assertSame(expectedResult, gotResult);
     }
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {

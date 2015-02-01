@@ -73,6 +73,15 @@ module Admin::Materials
       end
     end
 
+    def check_connection
+      scm = com.thoughtworks.go.domain.scm.SCM.new
+      scm.setPluginConfiguration(PluginConfiguration.new(params[:plugin_id], nil))
+      scm.setConfigAttributes(params[:material])
+
+      result = pluggable_scm_service.checkConnection(scm)
+      render json: { status: result.isSuccessful() ? 'success' : 'failure', messages: result.getMessages() }
+    end
+
     private
 
     def get_create_command

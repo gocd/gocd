@@ -23,6 +23,8 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
   PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
 
   before :each do
+    in_params(:pipeline_name => "pipeline_name")
+
     assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "md5-1")
 
@@ -60,10 +62,12 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
     expect(response.body).to have_selector(".required .asterisk")
   end
 
-  it "should render name, auto-update, destination & filter" do
+  it "should render name, check-connection, auto-update, destination & filter" do
     render
 
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
+    expect(response.body).to have_selector(".popup_form button#check_connection_pluggable_scm", :text => "CHECK CONNECTION")
+    expect(response.body).to have_selector(".popup_form #pluggable_scm_check_connection_message", :text => "")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE}]'][checked='checked']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{PluggableSCMMaterialConfig::FOLDER}]']")
     expect(response.body).to have_selector(".popup_form textarea[name='material[#{PluggableSCMMaterialConfig::FILTER}]']", :text => "")
@@ -90,8 +94,6 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
     @ignored_file = IgnoredFiles.new("/sugar")
     @material.setFilter(Filter.new([@ignored_file].to_java(IgnoredFiles)))
     set(@ignored_file, "configErrors", config_error(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN, "Filter is wrong"))
-
-    in_params(:pipeline_name => "pipeline_name")
 
     render
 

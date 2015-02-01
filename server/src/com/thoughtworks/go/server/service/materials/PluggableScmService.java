@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.util.StringUtil;
@@ -39,12 +40,8 @@ public class PluggableScmService {
     }
 
     public void validate(final SCM scmConfig) {
-        final SCMPropertyConfiguration configuration = new SCMPropertyConfiguration();
-        for (ConfigurationProperty configurationProperty : scmConfig.getConfiguration()) {
-            configuration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
-        }
-
         final String pluginId = scmConfig.getPluginConfiguration().getId();
+        final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
         ValidationResult validationResult = scmExtension.isSCMConfigurationValid(pluginId, configuration);
 
         if (SCMMetadataStore.getInstance().hasPreferenceFor(pluginId)) {
@@ -62,5 +59,19 @@ public class PluggableScmService {
         for (ValidationError validationError : validationResult.getErrors()) {
             scmConfig.getConfiguration().getProperty(validationError.getKey()).addError(validationError.getKey(), validationError.getMessage());
         }
+    }
+
+    public Result checkConnection(final SCM scmConfig) {
+        final String pluginId = scmConfig.getPluginConfiguration().getId();
+        final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
+        return scmExtension.checkConnectionToSCM(pluginId, configuration);
+    }
+
+    private SCMPropertyConfiguration getScmPropertyConfiguration(SCM scmConfig) {
+        final SCMPropertyConfiguration configuration = new SCMPropertyConfiguration();
+        for (ConfigurationProperty configurationProperty : scmConfig.getConfiguration()) {
+            configuration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+        }
+        return configuration;
     }
 }

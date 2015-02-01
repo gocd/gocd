@@ -44,6 +44,11 @@ describe Admin::Materials::PluggableScmController do
       {:put => "/admin/pipelines/pipeline.name/materials/pluggable_scm/finger_print"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "update", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
       send("admin_pluggable_scm_update_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/finger_print"
     end
+
+    it "check_connection" do
+      {:post => "/admin/pipelines/pipeline.name/materials/pluggable_scm/check_connection/plugin-id"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "check_connection", :pipeline_name => "pipeline.name", :plugin_id => "plugin-id")
+      send("admin_pluggable_scm_check_connection_path", :pipeline_name => "foo.bar", :plugin_id => "plugin-id").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/check_connection/plugin-id"
+    end
   end
 
   describe "action" do
@@ -154,6 +159,21 @@ describe Admin::Materials::PluggableScmController do
         assigns[:material].should_not == nil
         response.status.should == 400
         assert_template layout: false
+      end
+    end
+
+    describe "check_connection" do
+      before :each do
+        result = double('Result')
+        result.stub(:isSuccessful).and_return(true)
+        result.stub(:getMessages).and_return(['message 1', 'message 2'])
+        @pluggable_scm_service.should_receive(:checkConnection).with(anything()) { result }
+      end
+
+      it "should check connection for pluggable SCM" do
+        post :check_connection, :pipeline_name => "pipeline-name", :plugin_id => "plugin-id", :material => update_payload(nil)
+
+        response.body.should == "{\"status\":\"success\",\"messages\":[\"message 1\",\"message 2\"]}"
       end
     end
   end

@@ -28,8 +28,10 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
 
     view.stub(:admin_pluggable_scm_update_path).and_return("admin_pluggable_scm_update_path")
     configuration = Configuration.new([ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", false, "value2")].to_java(ConfigurationProperty))
+    scm = SCMMother.create('scm-id', 'scm-name', PLUGIN_ID, '1', configuration)
+    scm.setAutoUpdate(false)
     filters = Filter.new([IgnoredFiles.new("/sugar"), IgnoredFiles.new("/jaggery")].to_java(IgnoredFiles))
-    pluggable_scm = PluggableSCMMaterialConfig.new(nil, SCMMother.create('scm-id', 'scm-name', PLUGIN_ID, '1', configuration), 'dest', filters)
+    pluggable_scm = PluggableSCMMaterialConfig.new(nil, scm, 'dest', filters)
     assign(:material, @material = pluggable_scm)
     assign(:meta_data_store, @meta_data_store = SCMMetadataStore.getInstance())
 
@@ -62,10 +64,11 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
     expect(response.body).to have_selector(".required .asterisk")
   end
 
-  it "should render name, destination & filter" do
+  it "should render name, auto-update, destination & filter" do
     render
 
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.domain.scm.SCM::NAME}]'][value='scm-name']")
+    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE}]']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{PluggableSCMMaterialConfig::FOLDER}]'][value='dest']")
     expect(response.body).to have_selector(".popup_form textarea[name='material[#{PluggableSCMMaterialConfig::FILTER}]']", :text => "/sugar,/jaggery")
   end
@@ -81,6 +84,29 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
       expect(data_for_template.keys.sort).to eq(["KEY1", "key2"])
       expect(data_for_template["KEY1"]).to eq({"value" => "value1"})
       expect(data_for_template["key2"]).to eq({"value" => "value2"})
+    end
+  end
+
+  it "should display edit pluggable SCM material view with errors" do
+    scm_errors = config_error(com.thoughtworks.go.domain.scm.SCM::NAME, "Material Name is so wrong")
+    scm_errors.add(com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE, "AUTO_UPDATE is wrong")
+    set(@material.getSCMConfig(), "errors", scm_errors)
+
+    pluggable_scm_errors = config_error(PluggableSCMMaterialConfig::FOLDER, "Folder is wrong")
+    set(@material, "errors", pluggable_scm_errors)
+    @ignored_file = IgnoredFiles.new("/sugar")
+    @material.setFilter(Filter.new([@ignored_file].to_java(IgnoredFiles)))
+    set(@ignored_file, "configErrors", config_error(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN, "Filter is wrong"))
+
+    in_params(:pipeline_name => "pipeline_name")
+
+    render
+
+    Capybara.string(response.body).find('.popup_form').tap do |popup_form|
+      expect(popup_form).to have_selector("div.form_error", :text => "Material Name is so wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "AUTO_UPDATE is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Folder is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
     end
   end
 

@@ -177,12 +177,13 @@ public class SCMTest {
         scmConfigurations.add(new SCMConfiguration("password").with(SECURE, true));
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, null);
 
-        Map<String, String> attributeMap = DataStructureUtils.m("scmId", "scm-id", "name", "scm-name", "url", "http://localhost", "username", "user", "password", "pass");
+        Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost", "username", "user", "password", "pass");
         SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
         scm.setConfigAttributes(attributeMap);
 
         assertThat(scm.getId(), is("scm-id"));
         assertThat(scm.getName(), is("scm-name"));
+        assertThat(scm.isAutoUpdate(), is(false));
         assertThat(scm.getPluginConfiguration().getId(), is("plugin-id"));
 
         assertThat(scm.getConfigAsMap().get("url").get(SCM.VALUE_KEY), is("http://localhost"));

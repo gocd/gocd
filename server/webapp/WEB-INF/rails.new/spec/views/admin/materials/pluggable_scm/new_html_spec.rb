@@ -60,10 +60,11 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
     expect(response.body).to have_selector(".required .asterisk")
   end
 
-  it "should render name, destination & filter" do
+  it "should render name, auto-update, destination & filter" do
     render
 
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{com.thoughtworks.go.domain.scm.SCM::NAME}]']")
+    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE}]'][checked='checked']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{PluggableSCMMaterialConfig::FOLDER}]']")
     expect(response.body).to have_selector(".popup_form textarea[name='material[#{PluggableSCMMaterialConfig::FILTER}]']", :text => "")
   end
@@ -76,6 +77,29 @@ describe "admin/materials/pluggable_scm/new.html.erb" do
       expect(template_text).to eq(PLUGIN_TEMPLATE)
 
       div.find("span.plugged_material_data", :visible => false).text.strip!.should == '{}'
+    end
+  end
+
+  it "should display new pluggable SCM material view with errors" do
+    scm_errors = config_error(com.thoughtworks.go.domain.scm.SCM::NAME, "Material Name is so wrong")
+    scm_errors.add(com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE, "AUTO_UPDATE is wrong")
+    set(@material.getSCMConfig(), "errors", scm_errors)
+
+    pluggable_scm_errors = config_error(PluggableSCMMaterialConfig::FOLDER, "Folder is wrong")
+    set(@material, "errors", pluggable_scm_errors)
+    @ignored_file = IgnoredFiles.new("/sugar")
+    @material.setFilter(Filter.new([@ignored_file].to_java(IgnoredFiles)))
+    set(@ignored_file, "configErrors", config_error(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN, "Filter is wrong"))
+
+    in_params(:pipeline_name => "pipeline_name")
+
+    render
+
+    Capybara.string(response.body).find('.popup_form').tap do |popup_form|
+      expect(popup_form).to have_selector("div.form_error", :text => "Material Name is so wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "AUTO_UPDATE is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Folder is wrong")
+      expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
     end
   end
 

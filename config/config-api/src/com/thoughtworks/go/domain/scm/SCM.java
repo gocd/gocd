@@ -43,8 +43,9 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @ConfigTag("scm")
 @ConfigReferenceCollection(collectionName = "scms", idFieldName = "id")
 public class SCM implements Serializable, Validatable {
-    public static final String NAME = "name";
     public static final String SCM_ID = "scmId";
+    public static final String NAME = "name";
+    public static final String AUTO_UPDATE = "autoUpdate";
     public static final String PLUGIN_CONFIGURATION = "pluginConfiguration";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
@@ -220,12 +221,13 @@ public class SCM implements Serializable, Validatable {
 
     public void setConfigAttributes(Object attributes) {
         Map attributesMap = (Map) attributes;
-        if (attributesMap.containsKey(NAME)) {
-            name = ((String) attributesMap.get(NAME));
-        }
         if (attributesMap.containsKey(SCM_ID)) {
             id = ((String) attributesMap.get(SCM_ID));
         }
+        if (attributesMap.containsKey(NAME)) {
+            name = ((String) attributesMap.get(NAME));
+        }
+        this.setAutoUpdate("true".equals(attributesMap.get(AUTO_UPDATE)));
         if (attributesMap.containsKey(PLUGIN_CONFIGURATION)) {
             pluginConfiguration.setConfigAttributes(attributesMap.get(PLUGIN_CONFIGURATION));
         }

@@ -16,13 +16,50 @@
 
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.server.domain.StageIdentity;
+import com.thoughtworks.go.server.service.StageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* Understands how to load a stage from DB and convert it and its jobs to CcTray statuses. */
+@Component
 public class CcTrayStageStatusLoader {
-    public List<ProjectStatus> getStatusesForStageAndJobsOf(String pipelineName, String stageName) {
-        throw new RuntimeException();
+    private List<StageIdentity> stageIdentifiers;
+    private StageService stageService;
+    private CcTrayStageStatusChangeHandler stageChangeHandler;
+
+    @Autowired
+    public CcTrayStageStatusLoader(StageService stageService, CcTrayStageStatusChangeHandler stageChangeHandler) {
+        this.stageService = stageService;
+        this.stageChangeHandler = stageChangeHandler;
+    }
+
+    public List<ProjectStatus> getStatusesForStageAndJobsOf(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        // Old CCTray code says: required to load latest counter for each stage only for first cc tray request since server startup
+        if (stageIdentifiers == null) {
+            stageIdentifiers = stageService.findLatestStageInstances();
+        }
+
+        Long stageId = findStageIdOf(pipelineConfig, stageConfig);
+        if (stageId == null) {
+            return new ArrayList<ProjectStatus>();
+        }
+
+        return stageChangeHandler.statusesOfStageAndItsJobsFor(stageService.stageById(stageId));
+    }
+
+    private Long findStageIdOf(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        for (StageIdentity stageIdentity : stageIdentifiers) {
+            if (stageIdentity.getPipelineName().equals(pipelineConfig.name().toString()) && stageIdentity.getStageName().equals(stageConfig.name().toString())) {
+                return stageIdentity.getStageId();
+            }
+        }
+        return null;
     }
 }

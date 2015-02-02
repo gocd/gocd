@@ -45,7 +45,7 @@ public class CcTrayStageStatusChangeHandler {
             return;
         }
 
-        cache.replaceAll(statusesOfStageAndItsJobsFor(stage));
+        cache.putAll(statusesOfStageAndItsJobsFor(stage));
     }
 
     public List<ProjectStatus> statusesOfStageAndItsJobsFor(Stage stage) {

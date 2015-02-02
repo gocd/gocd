@@ -169,7 +169,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         handler.call(completedStage);
 
         verify(breakersCalculator).calculateFor(completedStage);
-        verify(cache).replaceAll(statusesCaptor.capture());
+        verify(cache).putAll(statusesCaptor.capture());
 
         List<ProjectStatus> statusesWhichWereCached = statusesCaptor.getValue();
         assertThat(statusesWhichWereCached.size(), is(2));

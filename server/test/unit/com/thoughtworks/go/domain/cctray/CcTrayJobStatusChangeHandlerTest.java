@@ -112,7 +112,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         JobInstance completedJob = JobInstanceMother.completed(jobName);
         handler.call(completedJob);
 
-        verify(cache).replace(statusCaptor.capture());
+        verify(cache).put(statusCaptor.capture());
         ProjectStatus newStatusInCache = statusCaptor.getValue();
         assertThat(newStatusInCache.name(), is(projectNameFor(jobName)));
         assertThat(newStatusInCache.getLastBuildStatus(), is("Success"));

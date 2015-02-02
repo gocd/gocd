@@ -19,20 +19,43 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class CcTrayCache {
+    private ConcurrentHashMap<String, ProjectStatus> cache;
+
+    public CcTrayCache() {
+        /* Ideally concurrencyLevel should be set to 1, here. Leaving it at default (16). */
+        this.cache = new ConcurrentHashMap<String, ProjectStatus>();
+    }
+
     public ProjectStatus get(String projectName) {
-        return null;
+        return cache.get(projectName);
     }
 
-    public void replace(ProjectStatus status) {
+    public void put(ProjectStatus status) {
+        this.cache.put(status.name(), status);
     }
 
-    public void replaceAll(List<ProjectStatus> statuses) {
+    public void putAll(List<ProjectStatus> statuses) {
+        cache.putAll(createReplacementItems(statuses));
     }
 
+    /* clear() + putAll() do not guarantee atomicity. A call to get() during this time will fail to find an item.
+     * Considered using a volatile and replacing the whole cache. Not doing it now. Will be based on need. */
     public void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
+        this.cache.clear();
+        this.cache.putAll(createReplacementItems(projectStatuses));
+    }
+
+    private HashMap<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
+        HashMap<String, ProjectStatus> replacementItems = new HashMap<String, ProjectStatus>();
+        for (ProjectStatus status : statuses) {
+            replacementItems.put(status.name(), status);
+        }
+        return replacementItems;
     }
 }

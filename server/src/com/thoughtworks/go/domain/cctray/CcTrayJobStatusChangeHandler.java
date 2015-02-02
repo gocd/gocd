@@ -37,7 +37,7 @@ public class CcTrayJobStatusChangeHandler {
     }
 
     public void call(JobInstance job) {
-        cache.replace(statusFor(job, new HashSet<String>()));
+        cache.put(statusFor(job, new HashSet<String>()));
     }
 
     public ProjectStatus statusFor(JobInstance job, Set<String> breakers) {

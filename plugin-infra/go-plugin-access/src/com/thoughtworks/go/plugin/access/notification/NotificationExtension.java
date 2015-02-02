@@ -36,6 +36,10 @@ public class NotificationExtension {
 
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
 
+    public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
+
+    public static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
+
     private PluginManager pluginManager;
     private final PluginRequestHelper pluginRequestHelper;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();

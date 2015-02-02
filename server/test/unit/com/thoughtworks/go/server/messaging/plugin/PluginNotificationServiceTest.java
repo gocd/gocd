@@ -30,8 +30,10 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,6 +52,8 @@ public class PluginNotificationServiceTest {
     @Mock
     private NotificationExtension notificationExtension;
     @Mock
+    private NotificationPluginRegistry notificationPluginRegistry;
+    @Mock
     private ServerHealthService serverHealthService;
 
     private ArgumentCaptor<ServerHealthState> serverHealthState;
@@ -60,28 +64,20 @@ public class PluginNotificationServiceTest {
 
         REQUEST_BODY.put("key", "value");
 
+        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_3)));
+
         serverHealthState = new ArgumentCaptor<ServerHealthState>();
-
-        NotificationPluginRegistry.getInstance().clear();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        NotificationPluginRegistry.getInstance().clear();
     }
 
     @Test
     public void shouldNotifyInterestedPluginsCorrectly() throws Exception {
-        NotificationPluginRegistry.getInstance().registerPluginInterests(PLUGIN_ID_1, Arrays.asList(new String[]{PIPELINE_STATUS}));
-        NotificationPluginRegistry.getInstance().registerPluginInterests(PLUGIN_ID_2, Arrays.asList(new String[]{PIPELINE_STATUS}));
-        NotificationPluginRegistry.getInstance().registerPluginInterests(PLUGIN_ID_3, Arrays.asList(new String[]{STAGE_STATUS}));
-
         Result result = new Result();
-        result.withSuccessMessages(Arrays.asList("success message"));
+        result.withSuccessMessages(asList("success message"));
         when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
         when(notificationExtension.notify(PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
 
-        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
+        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, notificationPluginRegistry, serverHealthService);
         pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
@@ -92,14 +88,12 @@ public class PluginNotificationServiceTest {
 
     @Test
     public void shouldHandleErrorDuringPluginNotificationCorrectly() throws Exception {
-        NotificationPluginRegistry.getInstance().registerPluginInterests(PLUGIN_ID_1, Arrays.asList(new String[]{PIPELINE_STATUS}));
-
         Result result = new Result();
-        result.withErrorMessages(Arrays.asList(new String[]{"message 1", "message 2"}));
+        result.withErrorMessages(asList(new String[]{"message 1", "message 2"}));
         when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
-        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
+        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, notificationPluginRegistry, serverHealthService);
         pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
@@ -110,12 +104,10 @@ public class PluginNotificationServiceTest {
 
     @Test
     public void shouldHandleExceptionDuringPluginNotificationCorrectly() throws Exception {
-        NotificationPluginRegistry.getInstance().registerPluginInterests(PLUGIN_ID_1, Arrays.asList(new String[]{PIPELINE_STATUS}));
-
         when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenThrow(new RuntimeException("crap!"));
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
-        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, serverHealthService);
+        PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, notificationPluginRegistry, serverHealthService);
         pluginNotificationService.notifyPlugins(new PluginNotificationMessage(PIPELINE_STATUS, REQUEST_BODY));
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);

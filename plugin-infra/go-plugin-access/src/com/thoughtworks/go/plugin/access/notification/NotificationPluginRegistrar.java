@@ -30,13 +30,15 @@ import static org.apache.log4j.Logger.getLogger;
 
 @Component
 public class NotificationPluginRegistrar implements PluginChangeListener {
-    private static final Logger LOGGER = getLogger(NotificationPluginRegistrar.class);
+    private static Logger LOGGER = getLogger(NotificationPluginRegistrar.class);
 
-    NotificationExtension notificationExtension;
+    private NotificationExtension notificationExtension;
+    private NotificationPluginRegistry notificationPluginRegistry;
 
     @Autowired
-    public NotificationPluginRegistrar(PluginManager pluginManager, NotificationExtension notificationExtension) {
+    public NotificationPluginRegistrar(PluginManager pluginManager, NotificationExtension notificationExtension, NotificationPluginRegistry notificationPluginRegistry) {
         this.notificationExtension = notificationExtension;
+        this.notificationPluginRegistry = notificationPluginRegistry;
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
@@ -45,9 +47,21 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
         if (notificationExtension.isNotificationPlugin(pluginDescriptor.id())) {
             try {
                 List<String> notificationsInterestedIn = notificationExtension.getNotificationsOfInterestFor(pluginDescriptor.id());
-                NotificationPluginRegistry.getInstance().registerPluginInterests(pluginDescriptor.id(), notificationsInterestedIn);
+                if (notificationsInterestedIn != null && !notificationsInterestedIn.isEmpty()) {
+                    checkNotificationTypes(pluginDescriptor, notificationsInterestedIn);
+
+                    notificationPluginRegistry.registerPluginInterests(pluginDescriptor.id(), notificationsInterestedIn);
+                }
             } catch (Exception e) {
                 LOGGER.warn("Error occurred during plugin notification interest registration.", e);
+            }
+        }
+    }
+
+    private void checkNotificationTypes(GoPluginDescriptor pluginDescriptor, List<String> notificationsInterestedIn) {
+        for (String notificationType : notificationsInterestedIn) {
+            if (!NotificationExtension.VALID_NOTIFICATION_TYPES.contains(notificationType)) {
+                LOGGER.warn(String.format("Plugin '%s' is trying to register for '%s' which is not a valid notification type. Valid notification types are: %s", pluginDescriptor.id(), notificationType, NotificationExtension.VALID_NOTIFICATION_TYPES));
             }
         }
     }
@@ -55,7 +69,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
         if (notificationExtension.isNotificationPlugin(pluginDescriptor.id())) {
-            NotificationPluginRegistry.getInstance().removePluginInterests(pluginDescriptor.id());
+            notificationPluginRegistry.removePluginInterests(pluginDescriptor.id());
         }
     }
 }

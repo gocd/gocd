@@ -35,16 +35,18 @@ public class PluginNotificationService {
     private static final Logger LOGGER = Logger.getLogger(PluginNotificationService.class);
 
     private final NotificationExtension notificationExtension;
+    private final NotificationPluginRegistry notificationPluginRegistry;
     private final ServerHealthService serverHealthService;
 
     @Autowired
-    public PluginNotificationService(NotificationExtension notificationExtension, ServerHealthService serverHealthService) {
+    public PluginNotificationService(NotificationExtension notificationExtension, NotificationPluginRegistry notificationPluginRegistry, ServerHealthService serverHealthService) {
         this.notificationExtension = notificationExtension;
+        this.notificationPluginRegistry = notificationPluginRegistry;
         this.serverHealthService = serverHealthService;
     }
 
     public void notifyPlugins(PluginNotificationMessage pluginNotificationMessage) throws Exception {
-        Set<String> interestedPlugins = NotificationPluginRegistry.getInstance().getPluginsInterestedIn(pluginNotificationMessage.getRequestName());
+        Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(pluginNotificationMessage.getRequestName());
 
         if (interestedPlugins != null && !interestedPlugins.isEmpty()) {
             for (String interestedPlugin : interestedPlugins) {

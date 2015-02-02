@@ -18,16 +18,16 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
+import com.thoughtworks.go.util.ReflectionUtil;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.mockito.Mockito.when;
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NotificationPluginRegistrarTest {
@@ -39,12 +39,13 @@ public class NotificationPluginRegistrarTest {
     public static final String PIPELINE_STATUS = "pipeline-status";
     public static final String STAGE_STATUS = "stage-status";
     public static final String JOB_STATUS = "job-status";
-    public static final String UNKNOWN_NOTIFICATION = "unknown-notification";
 
     @Mock
     private PluginManager pluginManager;
     @Mock
     private NotificationExtension notificationExtension;
+    @Mock
+    private NotificationPluginRegistry notificationPluginRegistry;
 
     @Before
     public void setUp() {
@@ -55,47 +56,59 @@ public class NotificationPluginRegistrarTest {
         when(notificationExtension.isNotificationPlugin(PLUGIN_ID_3)).thenReturn(true);
         when(notificationExtension.isNotificationPlugin(PLUGIN_ID_4)).thenReturn(false);
 
-        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_1)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS}));
-        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_2)).thenReturn(Arrays.asList(new String[]{PIPELINE_STATUS}));
-        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_3)).thenReturn(Arrays.asList(new String[]{STAGE_STATUS}));
-
-        NotificationPluginRegistry.getInstance().clear();
-    }
-
-    @After
-    public void tearDown() {
-        NotificationPluginRegistry.getInstance().clear();
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_1)).thenReturn(asList(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS));
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_2)).thenReturn(asList(PIPELINE_STATUS));
+        when(notificationExtension.getNotificationsOfInterestFor(PLUGIN_ID_3)).thenReturn(asList(STAGE_STATUS));
     }
 
     @Test
     public void shouldRegisterPluginInterestsOnPluginLoad() {
-        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension);
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_2, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_3, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_4, null, null, null, null, true));
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
 
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(PIPELINE_STATUS), containsInAnyOrder(PLUGIN_ID_1, PLUGIN_ID_2));
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(STAGE_STATUS), containsInAnyOrder(PLUGIN_ID_1, PLUGIN_ID_3));
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(JOB_STATUS), containsInAnyOrder(PLUGIN_ID_1));
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(UNKNOWN_NOTIFICATION), containsInAnyOrder());
-        assertThat(NotificationPluginRegistry.getInstance().getPluginInterests(PLUGIN_ID_4), containsInAnyOrder());
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+        verify(notificationPluginRegistry).registerPluginInterests(PLUGIN_ID_1, asList(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS));
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_2, null, null, null, null, true));
+        verify(notificationPluginRegistry).registerPluginInterests(PLUGIN_ID_2, asList(PIPELINE_STATUS));
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_3, null, null, null, null, true));
+        verify(notificationPluginRegistry).registerPluginInterests(PLUGIN_ID_3, asList(STAGE_STATUS));
+    }
+
+    @Test
+    public void shouldNotRegisterPluginInterestsOnPluginLoadIfPluginIfPluginIsNotOfNotificationType() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_4, null, null, null, null, true));
+        verify(notificationPluginRegistry, never()).registerPluginInterests(anyString(), anyList());
     }
 
     @Test
     public void shouldUnregisterPluginInterestsOnPluginUnLoad() {
-        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension);
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_2, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_3, null, null, null, null, true));
-        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_4, null, null, null, null, true));
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
 
         notificationPluginRegistrar.pluginUnLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+        verify(notificationPluginRegistry).removePluginInterests(PLUGIN_ID_1);
+    }
 
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(PIPELINE_STATUS), containsInAnyOrder(PLUGIN_ID_2));
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(STAGE_STATUS), containsInAnyOrder(PLUGIN_ID_3));
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(JOB_STATUS), containsInAnyOrder());
-        assertThat(NotificationPluginRegistry.getInstance().getPluginsInterestedIn(UNKNOWN_NOTIFICATION), containsInAnyOrder());
-        assertThat(NotificationPluginRegistry.getInstance().getPluginInterests(PLUGIN_ID_4), containsInAnyOrder());
+    @Test
+    public void shouldNotUnregisterPluginInterestsOnPluginUnLoadIfPluginIsNotOfNotificationType() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        notificationPluginRegistrar.pluginUnLoaded(new GoPluginDescriptor(PLUGIN_ID_4, null, null, null, null, true));
+        verify(notificationPluginRegistry, never()).removePluginInterests(PLUGIN_ID_4);
+    }
+
+    @Test
+    public void shouldLogWarningIfPluginTriesToRegisterForInvalidNotificationType() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        Logger logger = mock(Logger.class);
+        ReflectionUtil.setStaticField(NotificationPluginRegistrar.class, "LOGGER", logger);
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+
+        verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'pipeline-status' which is not a valid notification type. Valid notification types are: [stage-status]");
+        verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'job-status' which is not a valid notification type. Valid notification types are: [stage-status]");
     }
 }

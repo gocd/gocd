@@ -17,22 +17,12 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-public class CcTrayCache {
-    public ProjectStatus get(String projectName) {
-        return null;
-    }
-
-    public void replace(ProjectStatus status) {
-    }
-
-    public void replaceAll(List<ProjectStatus> statuses) {
-    }
-
-    public void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
+/* Understands how to load a stage from DB and convert it and its jobs to CcTray statuses. */
+public class CcTrayStageStatusLoader {
+    public List<ProjectStatus> getStatusesForStageAndJobsOf(String pipelineName, String stageName) {
+        throw new RuntimeException();
     }
 }

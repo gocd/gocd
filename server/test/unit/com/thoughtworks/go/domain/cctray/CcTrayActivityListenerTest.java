@@ -22,23 +22,37 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.util.LogFixture;
+import org.apache.log4j.Level;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class CcTrayActivityListenerTest {
-    StubCcTrayJobStatusChangeHandler jobStatusChangeHandler;
-    StubCcTrayStageStatusChangeHandler stageStatusChangeHandler;
-    StubCcTrayConfigChangeHandler configChangeHandler;
+    private StubCcTrayJobStatusChangeHandler jobStatusChangeHandler;
+    private StubCcTrayStageStatusChangeHandler stageStatusChangeHandler;
+    private StubCcTrayConfigChangeHandler configChangeHandler;
+    private LogFixture logFixture;
 
     @Before
     public void setUp() throws Exception {
         jobStatusChangeHandler = new StubCcTrayJobStatusChangeHandler();
         stageStatusChangeHandler = new StubCcTrayStageStatusChangeHandler();
         configChangeHandler = new StubCcTrayConfigChangeHandler();
+        logFixture = LogFixture.startListening(Level.WARN);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        logFixture.stopListening();
     }
 
     @Test
@@ -58,7 +72,7 @@ public class CcTrayActivityListenerTest {
         t2.join();
         t3.join();
 
-        Thread.sleep(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. */
+        waitForProcessingToHappen();
 
         assertThat(jobStatusChangeHandler.threadOfCall, is(not(nullValue())));
         assertThat(jobStatusChangeHandler.threadOfCall, is(not(Thread.currentThread())));
@@ -79,6 +93,27 @@ public class CcTrayActivityListenerTest {
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("Cannot start queue processor multiple times."));
         }
+    }
+
+    @Test
+    public void shouldLogAndIgnoreAnyChangesWhichCannotBeHandled() throws Exception {
+        CcTrayStageStatusChangeHandler normalStageStatusChangeHandler = mock(CcTrayStageStatusChangeHandler.class);
+        CcTrayJobStatusChangeHandler failingJobStatusChangeHandler = mock(CcTrayJobStatusChangeHandler.class);
+        doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
+
+        CcTrayActivityListener listener = new CcTrayActivityListener(failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
+        listener.startQueueProcessor();
+        listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
+        listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
+
+        waitForProcessingToHappen();
+
+        assertThat(logFixture.contains(Level.WARN, "Failed to handle action in CCTray queue"), is(true));
+        verify(normalStageStatusChangeHandler).call(StageMother.unrunStage("some-stage"));
+    }
+
+    private void waitForProcessingToHappen() throws InterruptedException {
+        Thread.sleep(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
     }
 
     private Thread callJobStatusChangeInNewThread(final CcTrayActivityListener listener) {
@@ -136,6 +171,10 @@ public class CcTrayActivityListenerTest {
 
     private class StubCcTrayConfigChangeHandler extends CcTrayConfigChangeHandler {
         private Thread threadOfCall;
+
+        public StubCcTrayConfigChangeHandler() {
+            super(null, null);
+        }
 
         @Override
         public void call(CruiseConfig config) {

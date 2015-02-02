@@ -17,10 +17,12 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.Stage;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 /* Understands how to calculate "breakers" for a failed stage, for CCTray. */
+@Component
 public class CcTrayBreakersCalculator {
     public Set<String> calculateFor(Stage stage) {
         return null;

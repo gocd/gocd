@@ -16,15 +16,53 @@
 
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageResult;
+import com.thoughtworks.go.domain.feed.Author;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /* Understands how to calculate "breakers" for a failed stage, for CCTray. */
 @Component
 public class CcTrayBreakersCalculator {
+    private MaterialRepository materialRepository;
+
+    @Autowired
+    public CcTrayBreakersCalculator(MaterialRepository materialRepository) {
+        this.materialRepository = materialRepository;
+    }
+
     public Set<String> calculateFor(Stage stage) {
-        return null;
+        Set<String> breakersForChangedMaterials = new HashSet<String>();
+        Set<String> breakersForMaterialsWithNoChange = new HashSet<String>();
+
+        if (stage.getResult() == StageResult.Failed) {
+            MaterialRevisions materialRevisions = materialRepository.findMaterialRevisionsForPipeline(stage.getPipelineId());
+            for (MaterialRevision materialRevision : materialRevisions) {
+                if (materialRevision.isChanged()) {
+                    addToBreakers(breakersForChangedMaterials, materialRevision);
+                } else {
+                    addToBreakers(breakersForMaterialsWithNoChange, materialRevision);
+                }
+            }
+        }
+
+        return breakersForChangedMaterials.isEmpty() ? breakersForMaterialsWithNoChange : breakersForChangedMaterials;
+    }
+
+    private void addToBreakers(Set<String> breakers, MaterialRevision materialRevision) {
+        for (Modification modification : materialRevision.getModifications()) {
+            Author authorInfo = Author.getAuthorInfo(materialRevision.getMaterial().getType(), modification);
+            if (authorInfo != null) {
+                breakers.add(authorInfo.getName());
+            }
+        }
     }
 }

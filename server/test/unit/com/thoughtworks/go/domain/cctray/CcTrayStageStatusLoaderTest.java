@@ -7,8 +7,8 @@ import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageIdentity;
-import com.thoughtworks.go.server.service.StageService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CcTrayStageStatusLoaderTest {
     @Mock
-    private StageService stageService;
+    private StageDao stageDao;
     @Mock
     private CcTrayStageStatusChangeHandler stageChangeHandler;
 
@@ -37,7 +37,7 @@ public class CcTrayStageStatusLoaderTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        loader = new CcTrayStageStatusLoader(stageService, stageChangeHandler);
+        loader = new CcTrayStageStatusLoader(stageDao, stageChangeHandler);
     }
 
     @Test
@@ -68,16 +68,16 @@ public class CcTrayStageStatusLoaderTest {
         loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("stage2"));
         loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("stage-some-nonexistent-one"));
 
-        verify(stageService, times(1)).findLatestStageInstances();
+        verify(stageDao, times(1)).findLatestStageInstances();
     }
 
     private List<Stage> setupStagesInDB(StageIdentity... stageIdentities) {
-        when(stageService.findLatestStageInstances()).thenReturn(asList(stageIdentities));
+        when(stageDao.findLatestStageInstances()).thenReturn(asList(stageIdentities));
 
         List<Stage> stages = new ArrayList<Stage>();
         for (StageIdentity identity : stageIdentities) {
             Stage stage = StageMother.custom(identity.getPipelineName() + " - " + identity.getStageName());
-            when(stageService.stageById(identity.getStageId())).thenReturn(stage);
+            when(stageDao.stageById(identity.getStageId())).thenReturn(stage);
             stages.add(stage);
         }
 

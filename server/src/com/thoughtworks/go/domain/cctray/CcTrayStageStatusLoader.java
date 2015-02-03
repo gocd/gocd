@@ -19,8 +19,8 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageIdentity;
-import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,19 +31,19 @@ import java.util.List;
 @Component
 public class CcTrayStageStatusLoader {
     private List<StageIdentity> stageIdentifiers;
-    private StageService stageService;
+    private StageDao stageDao;
     private CcTrayStageStatusChangeHandler stageChangeHandler;
 
     @Autowired
-    public CcTrayStageStatusLoader(StageService stageService, CcTrayStageStatusChangeHandler stageChangeHandler) {
-        this.stageService = stageService;
+    public CcTrayStageStatusLoader(StageDao stageDao, CcTrayStageStatusChangeHandler stageChangeHandler) {
+        this.stageDao = stageDao;
         this.stageChangeHandler = stageChangeHandler;
     }
 
     public List<ProjectStatus> getStatusesForStageAndJobsOf(PipelineConfig pipelineConfig, StageConfig stageConfig) {
         // Old CCTray code says: required to load latest counter for each stage only for first cc tray request since server startup
         if (stageIdentifiers == null) {
-            stageIdentifiers = stageService.findLatestStageInstances();
+            stageIdentifiers = stageDao.findLatestStageInstances();
         }
 
         Long stageId = findStageIdOf(pipelineConfig, stageConfig);
@@ -51,7 +51,7 @@ public class CcTrayStageStatusLoader {
             return new ArrayList<ProjectStatus>();
         }
 
-        return stageChangeHandler.statusesOfStageAndItsJobsFor(stageService.stageById(stageId));
+        return stageChangeHandler.statusesOfStageAndItsJobsFor(stageDao.stageById(stageId));
     }
 
     private Long findStageIdOf(PipelineConfig pipelineConfig, StageConfig stageConfig) {

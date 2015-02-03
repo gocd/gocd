@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -98,5 +99,19 @@ public class CcTrayCacheTest {
         assertThat(cache.get("item3"), is(status3));
         assertThat(cache.get("item4"), is(status4));
         assertThat(cache.get("item5"), is(status5));
+    }
+
+    @Test
+    public void shouldProvideAnOrderedListOfAllItemsInCache() throws Exception {
+        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
+        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
+        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
+
+        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        List<ProjectStatus> allProjects = cache.allEntriesInOrder();
+
+        assertThat(allProjects.get(0), is(status1));
+        assertThat(allProjects.get(1), is(status2));
+        assertThat(allProjects.get(2), is(status3));
     }
 }

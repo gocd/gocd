@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,10 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class CcTrayCache {
     private ConcurrentHashMap<String, ProjectStatus> cache;
+    private List<ProjectStatus> allEntries;
 
     public CcTrayCache() {
         /* Ideally concurrencyLevel should be set to 1, here. Leaving it at default (16). */
         this.cache = new ConcurrentHashMap<String, ProjectStatus>();
+        this.allEntries = new ArrayList<ProjectStatus>();
     }
 
     public ProjectStatus get(String projectName) {
@@ -49,6 +52,7 @@ public class CcTrayCache {
     public void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
         this.cache.clear();
         this.cache.putAll(createReplacementItems(projectStatuses));
+        this.allEntries = projectStatuses;
     }
 
     private HashMap<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
@@ -57,5 +61,9 @@ public class CcTrayCache {
             replacementItems.put(status.name(), status);
         }
         return replacementItems;
+    }
+
+    public List<ProjectStatus> allEntriesInOrder() {
+        return allEntries;
     }
 }

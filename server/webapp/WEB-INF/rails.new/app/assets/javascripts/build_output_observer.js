@@ -69,14 +69,29 @@ BuildOutputObserver.prototype = {
     _update_live_output: function (build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
-            var escapedOutPut = build_output.escapeHTML();
-            if (Prototype.Browser.IE) {
-                // Fix for the IE not wrap /r in pre bug
-                escapedOutPut = '<br/>' + escapedOutPut.replace(/\n/ig, '<br\/>');
-            }
-            if($('buildoutput_pre')){
-                $('buildoutput_pre').innerHTML += escapedOutPut;
-            }
+            var tempArea = jQuery('<div></div>');
+            jQuery.each(ansiparse(build_output), function() {
+                var output = jQuery('<span></span>').html(this.text.escapeHTML());
+                if (this.foreground) {
+                    output.addClass("fg-" + this.foreground);
+                }
+                if (this.background) {
+                    output.addClass("bg-" + this.background);
+                }
+
+                if (this.bold) {
+                    output.addClass('bold');
+                }
+                if (this.italic) {
+                    output.addClass('italic');
+                }
+                if (this.underline) {
+                    output.addClass('underline');
+                }
+                tempArea.append(output);
+            });
+
+            jQuery('#buildoutput_pre').append(tempArea.html());
         }
         return is_output_empty;
     },

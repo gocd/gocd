@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+/* Understands how to cache CcTray statuses, for every stage and job (project). */
 @Component
 public class CcTrayCache {
     private ConcurrentHashMap<String, ProjectStatus> cache;

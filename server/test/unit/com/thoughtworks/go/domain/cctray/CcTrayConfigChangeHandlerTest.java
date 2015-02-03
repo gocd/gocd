@@ -227,14 +227,26 @@ public class CcTrayConfigChangeHandlerTest {
         verify(cache).replaceAllEntriesInCacheWith(statusesCaptor.capture());
         List<ProjectStatus> statuses = statusesCaptor.getValue();
         assertThat(statuses.size(), is(4));
+
         assertThat(statuses.get(0).name(), is("pipeline1 :: stage1"));
-        assertThat(statuses.get(0).viewers(), is(s("user1", "user2")));
+        assertThat(statuses.get(0).canBeViewedBy("user1"), is(true));
+        assertThat(statuses.get(0).canBeViewedBy("user2"), is(true));
+        assertThat(statuses.get(0).canBeViewedBy("user3"), is(false));
+
         assertThat(statuses.get(1).name(), is("pipeline1 :: stage1 :: job1"));
-        assertThat(statuses.get(1).viewers(), is(s("user1", "user2")));
+        assertThat(statuses.get(1).canBeViewedBy("user1"), is(true));
+        assertThat(statuses.get(1).canBeViewedBy("user2"), is(true));
+        assertThat(statuses.get(1).canBeViewedBy("user3"), is(false));
+
         assertThat(statuses.get(2).name(), is("pipeline2 :: stage2"));
-        assertThat(statuses.get(2).viewers(), is(s("user3")));
+        assertThat(statuses.get(2).canBeViewedBy("user1"), is(false));
+        assertThat(statuses.get(2).canBeViewedBy("user2"), is(false));
+        assertThat(statuses.get(2).canBeViewedBy("user3"), is(true));
+
         assertThat(statuses.get(3).name(), is("pipeline2 :: stage2 :: job2"));
-        assertThat(statuses.get(3).viewers(), is(s("user3")));
+        assertThat(statuses.get(3).canBeViewedBy("user1"), is(false));
+        assertThat(statuses.get(3).canBeViewedBy("user2"), is(false));
+        assertThat(statuses.get(3).canBeViewedBy("user3"), is(true));
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

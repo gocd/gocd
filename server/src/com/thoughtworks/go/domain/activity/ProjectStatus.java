@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.activity;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import java.util.Set;
 public class ProjectStatus {
     public static final Date DEFAULT_LAST_BUILD_TIME = new Date();
     public static final String DEFAULT_LAST_BUILD_STATUS = "Success";
+    public static final String SITE_URL_PREFIX = "__SITE_URL_PREFIX__";
 
     private String name;
     private String activity;
@@ -37,6 +39,7 @@ public class ProjectStatus {
     private String webUrl;
     public static final String DEFAULT_LAST_BUILD_LABEL = "1";
     private final Set<String> viewers;
+    private String cachedXmlRepresentation;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
                          Date lastBuildTime, String webUrl) {
@@ -153,25 +156,39 @@ public class ProjectStatus {
         element.addContent(messages);
     }
 
-    public Set<String> viewers() {
-        return viewers;
-    }
-
     public ProjectStatus updateViewers(Set<String> viewers) {
         if (viewers != null) {
             this.viewers.clear();
-            this.viewers.addAll(viewers);
+            for (String viewer : viewers) {
+                this.viewers.add(viewer.toLowerCase());
+            }
         }
         return this;
+    }
+
+    public boolean canBeViewedBy(String userName) {
+        return viewers.contains(userName.toLowerCase());
+    }
+
+    public String xmlRepresentation() {
+        if (cachedXmlRepresentation == null) {
+            cachedXmlRepresentation = new XMLOutputter().outputString(ccTrayXmlElement(SITE_URL_PREFIX));
+        }
+        return cachedXmlRepresentation;
+    }
+
+    public Set<String> getBreakers() {
+        return breakers;
     }
 
     public static class NullProjectStatus extends ProjectStatus {
         public NullProjectStatus(String name) {
             super(name, "", DEFAULT_LAST_BUILD_STATUS, DEFAULT_LAST_BUILD_LABEL, DEFAULT_LAST_BUILD_TIME, "");
         }
-    }
 
-    public Set<String> getBreakers() {
-        return breakers;
+        @Override
+        public String xmlRepresentation() {
+            return "";
+        }
     }
 }

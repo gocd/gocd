@@ -173,7 +173,7 @@ public class CcTrayActivityListenerTest {
         private Thread threadOfCall;
 
         public StubCcTrayConfigChangeHandler() {
-            super(null, null);
+            super(null, null, null);
         }
 
         @Override

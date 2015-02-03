@@ -16,28 +16,29 @@
 
 package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when the config changes. */
 @Component
 public class CcTrayConfigChangeHandler {
     private CcTrayCache cache;
     private CcTrayStageStatusLoader stageStatusLoader;
+    private CcTrayViewAuthority ccTrayViewAuthority;
 
     @Autowired
-    public CcTrayConfigChangeHandler(CcTrayCache cache, CcTrayStageStatusLoader stageStatusLoader) {
+    public CcTrayConfigChangeHandler(CcTrayCache cache, CcTrayStageStatusLoader stageStatusLoader, CcTrayViewAuthority ccTrayViewAuthority) {
         this.cache = cache;
         this.stageStatusLoader = stageStatusLoader;
+        this.ccTrayViewAuthority = ccTrayViewAuthority;
     }
 
     public void call(CruiseConfig config) {
@@ -46,19 +47,29 @@ public class CcTrayConfigChangeHandler {
 
     private List<ProjectStatus> findAllProjectStatusesForStagesAndJobsIn(CruiseConfig config) {
         final List<ProjectStatus> projectStatuses = new ArrayList<ProjectStatus>();
+        final Map<String, Set<String>> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
 
-        config.accept(new PiplineConfigVisitor() {
-            public void visit(PipelineConfig pipelineConfig) {
-                for (StageConfig stageConfig : pipelineConfig) {
+        config.accept(new PipelineGroupVisitor() {
+            @Override
+            public void visit(PipelineConfigs pipelineConfigs) {
+                Set<String> usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
 
-                    String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
-                    if (cache.get(stageProjectName) != null) {
-                        List<ProjectStatus> statusesInCache = findStageAndStatusesFromCache(pipelineConfig, stageConfig);
-                        addAllWithDefaultsForMissingStatuses(projectStatuses, pipelineConfig, stageConfig, statusesInCache);
-                    } else {
-                        List<ProjectStatus> statusesInDB = findStageAndStatusesFromDB(pipelineConfig, stageConfig);
-                        addAllWithDefaultsForMissingStatuses(projectStatuses, pipelineConfig, stageConfig, statusesInDB);
+                for (PipelineConfig pipelineConfig : pipelineConfigs) {
+                    for (StageConfig stageConfig : pipelineConfig) {
+                        List<ProjectStatus> statusesInCacheOrDB = findExistingStatuses(pipelineConfig, stageConfig);
+                        List<ProjectStatus> statuses = getStatusesForCurrentProjectsWithDefaultsForMissingOnes(pipelineConfig, stageConfig, statusesInCacheOrDB);
+                        updateStatusesWithUsersHavingViewPermission(statuses, usersWithViewPermissionsOfThisGroup);
+
+                        projectStatuses.addAll(statuses);
                     }
+                }
+            }
+
+            private List<ProjectStatus> findExistingStatuses(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+                if (cache.get(stageProjectName(pipelineConfig, stageConfig)) != null) {
+                    return findStageAndStatusesFromCache(pipelineConfig, stageConfig);
+                } else {
+                    return findStageAndStatusesFromDB(pipelineConfig, stageConfig);
                 }
             }
         });
@@ -85,9 +96,10 @@ public class CcTrayConfigChangeHandler {
         return stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfig, stageConfig);
     }
 
-    private void addAllWithDefaultsForMissingStatuses(List<ProjectStatus> allStatuses,
-                                                      PipelineConfig pipelineConfig, StageConfig stageConfig,
-                                                      List<ProjectStatus> statusesAvailableForThisStage) {
+    private List<ProjectStatus> getStatusesForCurrentProjectsWithDefaultsForMissingOnes(PipelineConfig pipelineConfig, StageConfig stageConfig,
+                                                                                        List<ProjectStatus> statusesAvailableForThisStage) {
+        List<ProjectStatus> allStatuses = new ArrayList<ProjectStatus>();
+
         String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
         allStatuses.add(findOrDefault(stageProjectName, statusesAvailableForThisStage));
 
@@ -95,6 +107,8 @@ public class CcTrayConfigChangeHandler {
             String jobProjectName = jobProjectName(stageProjectName, jobConfig);
             allStatuses.add(findOrDefault(jobProjectName, statusesAvailableForThisStage));
         }
+
+        return allStatuses;
     }
 
     private ProjectStatus findOrDefault(String projectName, List<ProjectStatus> statusesToSearchIn) {
@@ -104,6 +118,12 @@ public class CcTrayConfigChangeHandler {
             }
         }
         return new ProjectStatus.NullProjectStatus(projectName);
+    }
+
+    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Set<String> viewersOfThisGroup) {
+        for (ProjectStatus status : statuses) {
+            status.updateViewers(viewersOfThisGroup);
+        }
     }
 
     private String stageProjectName(final PipelineConfig pipelineConfig, final StageConfig stageConfig) {

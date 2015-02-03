@@ -36,6 +36,7 @@ public class ProjectStatus {
     private Date lastBuildTime;
     private String webUrl;
     public static final String DEFAULT_LAST_BUILD_LABEL = "1";
+    private final Set<String> viewers;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
                          Date lastBuildTime, String webUrl) {
@@ -55,6 +56,7 @@ public class ProjectStatus {
         this.breakers = breakers;
         this.lastBuildTime = lastBuildTime == null ? DEFAULT_LAST_BUILD_TIME : lastBuildTime;
         this.webUrl = webUrl;
+        this.viewers = new HashSet<String>();
     }
 
     public boolean equals(Object o) {
@@ -149,6 +151,18 @@ public class ProjectStatus {
         message.setAttribute("kind", "Breakers");
         messages.addContent(message);
         element.addContent(messages);
+    }
+
+    public Set<String> viewers() {
+        return viewers;
+    }
+
+    public ProjectStatus updateViewers(Set<String> viewers) {
+        if (viewers != null) {
+            this.viewers.clear();
+            this.viewers.addAll(viewers);
+        }
+        return this;
     }
 
     public static class NullProjectStatus extends ProjectStatus {

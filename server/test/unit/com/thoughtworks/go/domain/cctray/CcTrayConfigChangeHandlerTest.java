@@ -14,12 +14,15 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
+import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CcTrayConfigChangeHandlerTest {
@@ -27,15 +30,19 @@ public class CcTrayConfigChangeHandlerTest {
     private CcTrayCache cache;
     @Mock
     private CcTrayStageStatusLoader stageStatusLoader;
+    @Mock
+    private CcTrayViewAuthority ccTrayViewAuthority;
     @Captor
-    ArgumentCaptor<ProjectStatus> statusCaptor;
+    ArgumentCaptor<List<ProjectStatus>> statusesCaptor;
 
+    private GoConfigMother goConfigMother;
     private CcTrayConfigChangeHandler handler;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader);
+        goConfigMother = new GoConfigMother();
+        handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader, ccTrayViewAuthority);
     }
 
     @Test
@@ -96,7 +103,6 @@ public class CcTrayConfigChangeHandlerTest {
 
     @Test
     public void shouldHandleNewStagesInConfig_ByReplacingStagesMissingInDBWithNullStagesAndJobs() throws Exception {
-        GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig config = new CruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1");
         goConfigMother.addStageToPipeline(config, "pipeline1", "stage2", "job2");
@@ -127,7 +133,6 @@ public class CcTrayConfigChangeHandlerTest {
     /* Simulate adding a job, when server is down. DB does not know anything about that job. */
     @Test
     public void shouldHandleNewJobsInConfig_ByReplacingJobsMissingInDBWithNullJob() throws Exception {
-        GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig config = new CruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1", "NEW_JOB_IN_CONFIG");
 
@@ -162,7 +167,6 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get(job1ProjectName)).thenReturn(statusOfJob1InCache);
         when(cache.get(projectNameOfNewJob)).thenReturn(null);
 
-        GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig config = new CruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1", "NEW_JOB_IN_CONFIG");
 
@@ -188,7 +192,6 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get(job1ProjectName)).thenReturn(statusOfJob1InCache);
         when(cache.get(projectNameOfJobWhichWillBeRemoved)).thenReturn(statusOfOldJobInCache);
 
-        GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig config = new CruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1");
 
@@ -198,6 +201,40 @@ public class CcTrayConfigChangeHandlerTest {
 
         verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache)));
         verifyZeroInteractions(stageStatusLoader);
+    }
+
+    @Test
+    public void shouldUpdateViewPermissionsForEveryProjectBasedOnViewPermissionsOfTheGroup() throws Exception {
+        ProjectStatus pipeline1_stage1 = new ProjectStatus("pipeline1 :: stage", "Activity1", "Status1", "Label1", new Date(), "stage1-url");
+        ProjectStatus pipeline1_stage1_job = new ProjectStatus("pipeline1 :: stage :: job", "Activity1-Job", "Status1-Job", "Label1-Job", new Date(), "job1-url");
+        ProjectStatus pipeline2_stage2 = new ProjectStatus("pipeline2 :: stage", "Activity2", "Status2", "Label2", new Date(), "stage2-url");
+        ProjectStatus pipeline2_stage2_job = new ProjectStatus("pipeline2 :: stage :: job", "Activity2-Job", "Status2-Job", "Label2-Job", new Date(), "job2-url");
+
+        when(cache.get("pipeline1 :: stage1")).thenReturn(pipeline1_stage1);
+        when(cache.get("pipeline1 :: stage1 :: job1")).thenReturn(pipeline1_stage1_job);
+        when(cache.get("pipeline2 :: stage2")).thenReturn(pipeline2_stage2);
+        when(cache.get("pipeline2 :: stage2 :: job2")).thenReturn(pipeline2_stage2_job);
+        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", s("user1", "user2"), "group2", s("user3")));
+
+        CruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
+        goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+
+
+        handler.call(config);
+
+
+        verify(cache).replaceAllEntriesInCacheWith(statusesCaptor.capture());
+        List<ProjectStatus> statuses = statusesCaptor.getValue();
+        assertThat(statuses.size(), is(4));
+        assertThat(statuses.get(0).name(), is("pipeline1 :: stage1"));
+        assertThat(statuses.get(0).viewers(), is(s("user1", "user2")));
+        assertThat(statuses.get(1).name(), is("pipeline1 :: stage1 :: job1"));
+        assertThat(statuses.get(1).viewers(), is(s("user1", "user2")));
+        assertThat(statuses.get(2).name(), is("pipeline2 :: stage2"));
+        assertThat(statuses.get(2).viewers(), is(s("user3")));
+        assertThat(statuses.get(3).name(), is("pipeline2 :: stage2 :: job2"));
+        assertThat(statuses.get(3).viewers(), is(s("user3")));
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

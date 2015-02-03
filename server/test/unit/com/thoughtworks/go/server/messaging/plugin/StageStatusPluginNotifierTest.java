@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doNothing;
@@ -65,7 +65,7 @@ public class StageStatusPluginNotifierTest {
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
-        assertThat(message.getRequestName(), is("stage-status"));
+        assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
         assertThat(message.getRequestData(), is(stageStatusPluginNotifier.createRequestDataMap(stage)));
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.messaging.plugin;
 
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     public void stageStatusChanged(final Stage stage) {
         Map data = createRequestDataMap(stage);
 
-        pluginNotificationQueue.post(new PluginNotificationMessage("stage-status", data));
+        pluginNotificationQueue.post(new PluginNotificationMessage(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
     }
 
     Map createRequestDataMap(Stage stage) {

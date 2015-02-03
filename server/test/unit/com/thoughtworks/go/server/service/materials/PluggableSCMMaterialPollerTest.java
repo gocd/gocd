@@ -52,6 +52,7 @@ public class PluggableSCMMaterialPollerTest {
     private SCMExtension scmExtension;
     private ArgumentCaptor<SCMPropertyConfiguration> scmConfiguration;
     private PluggableSCMMaterialPoller poller;
+    private String flyweightFolderPath;
 
     @Before
     public void setup() {
@@ -66,6 +67,8 @@ public class PluggableSCMMaterialPollerTest {
         poller = new PluggableSCMMaterialPoller(scmExtension);
 
         scmConfiguration = new ArgumentCaptor<SCMPropertyConfiguration>();
+
+        flyweightFolderPath = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
     }
 
     @Test
@@ -77,9 +80,9 @@ public class PluggableSCMMaterialPollerTest {
         data.put(dataKey, dataValue);
         List<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>(asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", data, modifiedFiles);
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq("/tmp/flyweight-folder"))).thenReturn(scmRevision);
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(scmRevision);
 
-        List<Modification> modifications = poller.latestModification(material, new File("/tmp/flyweight-folder"), null);
+        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
         assertThat(modifications.get(0).getRevision(), is("revision-123"));
         assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
@@ -109,9 +112,9 @@ public class PluggableSCMMaterialPollerTest {
         data.put(dataKey, dataValue);
         SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", "comment-123", data, null);
 
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq("/tmp/flyweight"), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
 
-        List<Modification> modifications = poller.modificationsSince(material, new File("/tmp/flyweight"), knownRevision, null);
+        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
         assertThat(knownSCMRevision.getValue().getRevision(), is(previousRevision));
         assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
@@ -135,9 +138,9 @@ public class PluggableSCMMaterialPollerTest {
     public void shouldTalkToPlugInToGetLatestModifications() {
         Date timestamp = new Date();
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq("/tmp/flyweight"))).thenReturn(scmRevision);
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(scmRevision);
 
-        List<Modification> modifications = poller.latestModification(material, new File("/tmp/flyweight"), null);
+        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
         assertThat(modifications.get(0).getRevision(), is("revision-123"));
         assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
@@ -149,9 +152,9 @@ public class PluggableSCMMaterialPollerTest {
 
     @Test
     public void shouldReturnEmptyModificationWhenSCMRevisionIsNull_latestModification() {
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(""))).thenReturn(null);
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(null);
 
-        List<Modification> modifications = poller.latestModification(material, new File("/tmp/flyweight"), null);
+        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
         assertThat(modifications, is(notNullValue()));
         assertThat(modifications.isEmpty(), is(true));
@@ -163,9 +166,9 @@ public class PluggableSCMMaterialPollerTest {
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
         ArgumentCaptor<SCMRevision> knownSCMRevision = new ArgumentCaptor<SCMRevision>();
         SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", null, null, null);
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq("/tmp/flyweight"), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
 
-        List<Modification> modifications = poller.modificationsSince(material, new File("/tmp/flyweight"), knownRevision, null);
+        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
         assertThat(modifications.get(0).getRevision(), is("rev-123"));
         assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
@@ -181,9 +184,9 @@ public class PluggableSCMMaterialPollerTest {
     public void shouldReturnEmptyModificationWhenSCMRevisionIsNullFor_latestModificationSince() {
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", new Date());
         ArgumentCaptor<SCMRevision> knownSCMRevision = new ArgumentCaptor<SCMRevision>();
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq("/tmp/flyweight"), knownSCMRevision.capture())).thenReturn(null);
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(null);
 
-        List<Modification> modifications = poller.modificationsSince(material, new File("/tmp/flyweight"), knownRevision, null);
+        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
         assertThat(modifications, is(notNullValue()));
         assertThat(modifications.isEmpty(), is(true));

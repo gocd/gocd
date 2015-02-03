@@ -18,14 +18,15 @@
                 <p><%==l.string("FILTERS_HELP_LINK")%></p>
             </div>
         </div>
-        <%- default_url_options.each do |key, val| -%>
-           <%- unless key.to_sym == :filter -%>
-              <%= hidden_field_tag key, val -%>
-           <%- end -%>
-        <%- end -%>
+
+
+        <%= hidden_field_tag :autoRefresh, params[:autoRefresh] -%>
+        <%= hidden_field_tag :column, params[:column] -%>
+        <%= hidden_field_tag :order, params[:order] -%>
+
         <%= text_field_tag :filter, params[:filter], :placeholder => "tag: value", :id => "filter_text" -%>
         <button type="submit" class="submit primary"><%= l.string("FILTER") -%></button>
-        <%= link_to l.string("CLEAR"), agents_path(:filter => ''), :id => "clear_filter", :class => "link_as_button" -%>
+        <%= link_to l.string("CLEAR"), agents_path(:filter => '', :column => params[:column], :order => params[:order]), :id => "clear_filter", :class => "link_as_button" -%>
     <%= end_form_tag %>
 </div>
 

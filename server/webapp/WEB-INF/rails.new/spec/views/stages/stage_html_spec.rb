@@ -646,6 +646,7 @@ describe 'stages/stage.html.erb' do
         assign :chart_tooltip_data, {"1_60" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_120" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}.to_json
         assign :pagination, Pagination.pageStartingAt(12, 200, 10)
         assign :start_end_dates, ["start date", "end date"]
+        assign :chart_scale, "some scale"
       end
 
       it "should render stats tab with chart for given stage" do

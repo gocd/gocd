@@ -114,4 +114,46 @@ public class CcTrayCacheTest {
         assertThat(allProjects.get(1), is(status2));
         assertThat(allProjects.get(2), is(status3));
     }
+
+    @Test
+    public void shouldContainChangedEntryInOrderedListAfterAPut() throws Exception {
+        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
+        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
+        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
+        ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
+
+        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        List<ProjectStatus> allProjects = cache.allEntriesInOrder();
+        assertThat(allProjects.get(1), is(status2));
+
+
+        cache.put(status2_changed);
+        allProjects = cache.allEntriesInOrder();
+
+
+        assertThat(allProjects.get(0), is(status1));
+        assertThat(allProjects.get(1), is(status2_changed));
+        assertThat(allProjects.get(2), is(status3));
+    }
+
+    @Test
+    public void shouldContainChangedEntriesInOrderedListAfterAPutAll() throws Exception {
+        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
+        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
+        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
+        ProjectStatus status1_changed = new ProjectStatus("item1", "CHANGED Sleeping 1C", "last-build-status 1C", "last-build-label 1C", new Date(), "web-url 1C");
+        ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
+
+        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        cache.allEntriesInOrder();
+
+
+        cache.putAll(asList(status2_changed, status1_changed));
+        List<ProjectStatus> allProjects = cache.allEntriesInOrder();
+
+
+        assertThat(allProjects.get(0), is(status1_changed));
+        assertThat(allProjects.get(1), is(status2_changed));
+        assertThat(allProjects.get(2), is(status3));
+    }
 }

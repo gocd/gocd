@@ -19,21 +19,23 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 /* Understands how to cache CcTray statuses, for every stage and job (project). */
 @Component
 public class CcTrayCache {
-    private ConcurrentHashMap<String, ProjectStatus> cache;
-    private List<ProjectStatus> allEntries;
+    /**
+     * Assumption: The put(), putAll() and replaceAllEntriesInCacheWith() methods, which change this cache,
+     * will always be called from the same thread (queueProcessor in CcTrayActivityListener). Even get() is
+     * called only from that thread. So, not surrounding it with a synchronizedMap. Also, uses {@link LinkedHashMap}
+     * to preserve insertion order.
+     */
+    private LinkedHashMap<String, ProjectStatus> cache;
+    private List<ProjectStatus> orderedEntries;
 
     public CcTrayCache() {
-        /* Ideally concurrencyLevel should be set to 1, here. Leaving it at default (16). */
-        this.cache = new ConcurrentHashMap<String, ProjectStatus>();
-        this.allEntries = new ArrayList<ProjectStatus>();
+        this.cache = new LinkedHashMap<String, ProjectStatus>();
+        this.orderedEntries = new ArrayList<ProjectStatus>();
     }
 
     public ProjectStatus get(String projectName) {
@@ -42,29 +44,33 @@ public class CcTrayCache {
 
     public void put(ProjectStatus status) {
         this.cache.put(status.name(), status);
+        cacheHasChanged();
     }
 
     public void putAll(List<ProjectStatus> statuses) {
         cache.putAll(createReplacementItems(statuses));
+        cacheHasChanged();
     }
 
-    /* clear() + putAll() do not guarantee atomicity. A call to get() during this time will fail to find an item.
-     * Considered using a volatile and replacing the whole cache. Not doing it now. Will be based on need. */
     public void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
         this.cache.clear();
         this.cache.putAll(createReplacementItems(projectStatuses));
-        this.allEntries = projectStatuses;
+        cacheHasChanged();
     }
 
-    private HashMap<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
-        HashMap<String, ProjectStatus> replacementItems = new HashMap<String, ProjectStatus>();
+    private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
+        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<String, ProjectStatus>();
         for (ProjectStatus status : statuses) {
             replacementItems.put(status.name(), status);
         }
         return replacementItems;
     }
 
+    private void cacheHasChanged() {
+        this.orderedEntries = new ArrayList<ProjectStatus>(cache.values());
+    }
+
     public List<ProjectStatus> allEntriesInOrder() {
-        return allEntries;
+        return this.orderedEntries;
     }
 }

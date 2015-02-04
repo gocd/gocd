@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
@@ -149,6 +150,22 @@ public class CcTrayStageStatusChangeHandlerTest {
         assertThat(statusOfStage.getLastBuildStatus(), is("Success"));
         assertThat(statusOfStage.getLastBuildTime(), is(completedStage.completedDate()));
         assertThat(statusOfStage.getLastBuildLabel(), is("LABEL-1"));
+    }
+
+    @Test
+    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
+        Set<String> viewers = s("viewer1", "viewer2");
+
+        String projectName = "pipeline :: stage1";
+        ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
+        existingStageStatus.updateViewers(viewers);
+        when(cache.get(projectName)).thenReturn(existingStageStatus);
+
+        Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
+        List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
+
+        ProjectStatus statusOfStage = statuses.get(0);
+        assertThat(statusOfStage.viewers(), is(viewers));
     }
 
     @Test

@@ -63,31 +63,36 @@ public class CcTrayStageStatusChangeHandler {
     }
 
     private ProjectStatus getStageStatus(Stage stage, String projectName, Set<String> breakers) {
-        return new ProjectStatus(
+        ProjectStatus existingStatus = projectByName(projectName);
+
+        ProjectStatus newStatus = new ProjectStatus(
                 projectName,
                 stage.stageState().cctrayActivity(),
-                lastBuildStatus(projectName, stage),
-                lastBuildLabel(projectName, stage),
-                lastBuildTime(projectName, stage),
+                lastBuildStatus(stage, existingStatus),
+                lastBuildLabel(stage, existingStatus),
+                lastBuildTime(stage, existingStatus),
                 stage.getIdentifier().webUrl(), breakers);
+        newStatus.updateViewers(existingStatus.viewers());
+
+        return newStatus;
     }
 
-    private String lastBuildStatus(String projectName, Stage stage) {
+    private String lastBuildStatus(Stage stage, ProjectStatus existingStatus) {
         return stage.stageState().completed()
                 ? stage.stageState().cctrayStatus()
-                : projectByName(projectName).getLastBuildStatus();
+                : existingStatus.getLastBuildStatus();
     }
 
-    private Date lastBuildTime(String projectName, Stage stage) {
+    private Date lastBuildTime(Stage stage, ProjectStatus existingStatus) {
         return stage.stageState().completed()
                 ? stage.completedDate()
-                : projectByName(projectName).getLastBuildTime();
+                : existingStatus.getLastBuildTime();
     }
 
-    private String lastBuildLabel(String projectName, Stage stage) {
+    private String lastBuildLabel(Stage stage, ProjectStatus existingStatus) {
         return stage.stageState().completed()
                 ? stage.getIdentifier().ccTrayLastBuildLabel()
-                : projectByName(projectName).getLastBuildLabel();
+                : existingStatus.getLastBuildLabel();
     }
 
     private ProjectStatus projectByName(String projectName) {

@@ -52,6 +52,15 @@ public class ProjectStatusTest {
     }
 
     @Test
+    public void shouldListViewers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+
+        status.updateViewers(s("USER1", "user2", "User3", "AnoTherUsEr"));
+
+        assertThat(status.viewers(), is(s("user1", "user2", "user3", "anotheruser")));
+    }
+
+    @Test
     public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
 

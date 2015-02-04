@@ -43,7 +43,7 @@ public class CcTrayJobStatusChangeHandler {
     public ProjectStatus statusFor(JobInstance job, Set<String> breakers) {
         String projectName = job.getIdentifier().ccProjectName();
         ProjectStatus existingStatusOfThisJobInCache = projectByName(projectName);
-        return new ProjectStatus(
+        ProjectStatus newStatus = new ProjectStatus(
                 projectName,
                 job.getState().cctrayActivity(),
                 lastBuildStatus(existingStatusOfThisJobInCache, job),
@@ -51,6 +51,8 @@ public class CcTrayJobStatusChangeHandler {
                 lastBuildTime(existingStatusOfThisJobInCache, job),
                 job.getIdentifier().webUrl(),
                 breakers);
+        newStatus.updateViewers(existingStatusOfThisJobInCache.viewers());
+        return newStatus;
     }
 
     private String lastBuildStatus(ProjectStatus existingStatus, JobInstance job) {

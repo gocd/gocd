@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -89,7 +90,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldAllowBreakersToBeUpdatedAlongWithOtherFields() throws Exception {
+    public void shouldUpdateBreakersAlongWithOtherFields() throws Exception {
         String jobName = "job1";
 
         Set<String> breakers = new HashSet<String>();
@@ -100,6 +101,20 @@ public class CcTrayJobStatusChangeHandlerTest {
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed(jobName), breakers);
 
         assertThat(newStatus.getBreakers(), is(breakers));
+    }
+
+    @Test
+    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
+        Set<String> viewers = s("viewer1", "viewer2");
+
+        ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
+        oldStatusInCache.updateViewers(viewers);
+        when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
+
+        CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
+        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<String>());
+
+        assertThat(newStatus.viewers(), is(viewers));
     }
 
     @Test

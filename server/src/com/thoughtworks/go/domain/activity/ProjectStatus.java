@@ -181,6 +181,10 @@ public class ProjectStatus {
         return breakers;
     }
 
+    public Set<String> viewers() {
+        return viewers;
+    }
+
     public static class NullProjectStatus extends ProjectStatus {
         public NullProjectStatus(String name) {
             super(name, "", DEFAULT_LAST_BUILD_STATUS, DEFAULT_LAST_BUILD_LABEL, DEFAULT_LAST_BUILD_TIME, "");

@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -40,6 +41,7 @@ public class CcTrayActivityListenerTest {
     private StubCcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private StubCcTrayStageStatusChangeHandler stageStatusChangeHandler;
     private StubCcTrayConfigChangeHandler configChangeHandler;
+    private GoConfigService goConfigService;
     private LogFixture logFixture;
 
     @Before
@@ -47,6 +49,7 @@ public class CcTrayActivityListenerTest {
         jobStatusChangeHandler = new StubCcTrayJobStatusChangeHandler();
         stageStatusChangeHandler = new StubCcTrayStageStatusChangeHandler();
         configChangeHandler = new StubCcTrayConfigChangeHandler();
+        goConfigService = mock(GoConfigService.class);
         logFixture = LogFixture.startListening(Level.WARN);
     }
 
@@ -56,8 +59,17 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
+    public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() throws Exception {
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+
+        listener.initialize();
+
+        verify(goConfigService).register(listener);
+    }
+
+    @Test
     public void shouldMultiplexEventsFromDifferentThreadsOnToHandlersOnASingleThread() throws Exception {
-        CcTrayActivityListener listener = new CcTrayActivityListener(jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
         listener.startQueueProcessor();
 
         Thread t1 = callJobStatusChangeInNewThread(listener);
@@ -84,7 +96,7 @@ public class CcTrayActivityListenerTest {
 
     @Test
     public void shouldNotAllowTheQueueProcessorToBeStartedMultipleTimes() throws Exception {
-        CcTrayActivityListener listener = new CcTrayActivityListener(jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
         listener.startQueueProcessor();
 
         try {
@@ -101,7 +113,7 @@ public class CcTrayActivityListenerTest {
         CcTrayJobStatusChangeHandler failingJobStatusChangeHandler = mock(CcTrayJobStatusChangeHandler.class);
         doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
 
-        CcTrayActivityListener listener = new CcTrayActivityListener(failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
         listener.startQueueProcessor();
         listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
         listener.stageStatusChanged(StageMother.unrunStage("some-stage"));

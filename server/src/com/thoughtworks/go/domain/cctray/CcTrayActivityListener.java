@@ -22,6 +22,8 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.initializers.Initializer;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,9 +37,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  * for processing, and to make sure that the upstream processes are not blocked.
  */
 @Component
-public class CcTrayActivityListener implements JobStatusListener, StageStatusListener, ConfigChangedListener {
+public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, ConfigChangedListener {
     private static Logger LOGGER = Logger.getLogger(CcTrayActivityListener.class);
 
+    private final GoConfigService goConfigService;
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private final CcTrayStageStatusChangeHandler stageStatusChangeHandler;
     private final CcTrayConfigChangeHandler configChangeHandler;
@@ -46,14 +49,20 @@ public class CcTrayActivityListener implements JobStatusListener, StageStatusLis
     private Thread queueProcessor;
 
     @Autowired
-    public CcTrayActivityListener(CcTrayJobStatusChangeHandler jobStatusChangeHandler,
+    public CcTrayActivityListener(GoConfigService goConfigService, CcTrayJobStatusChangeHandler jobStatusChangeHandler,
                                   CcTrayStageStatusChangeHandler stageStatusChangeHandler,
                                   CcTrayConfigChangeHandler configChangeHandler) {
+        this.goConfigService = goConfigService;
         this.jobStatusChangeHandler = jobStatusChangeHandler;
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;
 
         this.queue = new LinkedBlockingQueue<Action>();
+    }
+
+    @Override
+    public void initialize() {
+        goConfigService.register(this);
     }
 
     @Override

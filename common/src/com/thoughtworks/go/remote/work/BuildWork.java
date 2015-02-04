@@ -174,6 +174,7 @@ public class BuildWork implements Work {
     private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {
         goPublisher.reportCurrentStatus(JobState.Building);
         goPublisher.reportAction("Start to build");
+        goPublisher.reportEnvironmentVariables(environmentVariableContext);
         return execute(environmentVariableContext);
     }
 

@@ -129,6 +129,10 @@ public class EnvironmentVariableContext implements Serializable {
         return null;
     }
 
+    public List<EnvironmentVariable> getEnvironmentVariables() {
+        return properties;
+    }
+
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
         List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
         for (EnvironmentVariable property : properties) {

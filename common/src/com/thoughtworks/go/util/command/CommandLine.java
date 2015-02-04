@@ -372,7 +372,7 @@ public class CommandLine {
                                                ConsoleOutputStreamConsumer consumer) {
         Map<String, String> env = pb.environment();
 
-        environmentVariableContext.setupRuntimeEnvironment(env, consumer);
+        environmentVariableContext.setupRuntimeEnvironment(env);
     }
 
     public void waitForSuccess(int timeout) {

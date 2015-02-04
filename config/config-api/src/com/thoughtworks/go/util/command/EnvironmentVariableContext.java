@@ -231,19 +231,11 @@ public class EnvironmentVariableContext implements Serializable {
         throw new RuntimeException("IMPLEMENT ME");
     }
 
-    public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer) {
+    public void setupRuntimeEnvironment(Map<String, String> env) {
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
             if (value != null) {
-                String line;
-                if (env.containsKey(name)) {
-                    line = format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
-                } else {
-                    line = format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
-                }
-
-                consumer.stdOutput(line);
                 env.put(name, value);
             }
         }

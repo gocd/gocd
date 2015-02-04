@@ -63,6 +63,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     @Override
     public void initialize() {
         goConfigService.register(this);
+        startQueueProcessor();
     }
 
     @Override
@@ -95,7 +96,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         });
     }
 
-    public void startQueueProcessor() {
+    private void startQueueProcessor() {
         if (queueProcessor != null) {
             throw new RuntimeException("Cannot start queue processor multiple times.");
         }

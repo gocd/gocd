@@ -70,7 +70,7 @@ public class CcTrayActivityListenerTest {
     @Test
     public void shouldMultiplexEventsFromDifferentThreadsOnToHandlersOnASingleThread() throws Exception {
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
-        listener.startQueueProcessor();
+        listener.initialize();
 
         Thread t1 = callJobStatusChangeInNewThread(listener);
         Thread t2 = callStageStatusChangeInNewThread(listener);
@@ -97,10 +97,10 @@ public class CcTrayActivityListenerTest {
     @Test
     public void shouldNotAllowTheQueueProcessorToBeStartedMultipleTimes() throws Exception {
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
-        listener.startQueueProcessor();
+        listener.initialize();
 
         try {
-            listener.startQueueProcessor();
+            listener.initialize();
             fail("Should have failed to start queue processor a second time.");
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("Cannot start queue processor multiple times."));
@@ -114,7 +114,7 @@ public class CcTrayActivityListenerTest {
         doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
 
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
-        listener.startQueueProcessor();
+        listener.initialize();
         listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
         listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
 

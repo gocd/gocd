@@ -31,7 +31,7 @@ public class CcTrayCache {
      * to preserve insertion order.
      */
     private LinkedHashMap<String, ProjectStatus> cache;
-    private List<ProjectStatus> orderedEntries;
+    private volatile List<ProjectStatus> orderedEntries;
 
     public CcTrayCache() {
         this.cache = new LinkedHashMap<String, ProjectStatus>();

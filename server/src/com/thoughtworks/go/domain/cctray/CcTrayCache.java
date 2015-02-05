@@ -58,19 +58,19 @@ public class CcTrayCache {
         cacheHasChanged();
     }
 
-    private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
-        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<String, ProjectStatus>();
-        for (ProjectStatus status : statuses) {
-            replacementItems.put(status.name(), status);
-        }
-        return replacementItems;
+    public List<ProjectStatus> allEntriesInOrder() {
+        return this.orderedEntries;
     }
 
     private void cacheHasChanged() {
         this.orderedEntries = new ArrayList<ProjectStatus>(cache.values());
     }
 
-    public List<ProjectStatus> allEntriesInOrder() {
-        return this.orderedEntries;
+    private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
+        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<String, ProjectStatus>();
+        for (ProjectStatus status : statuses) {
+            replacementItems.put(status.name(), status);
+        }
+        return replacementItems;
     }
 }

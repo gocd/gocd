@@ -146,16 +146,6 @@ public class ProjectStatus {
         return element;
     }
 
-    private void addBreakers(Element element) {
-        Element messages = new Element("messages");
-        Element message = new Element("message");
-        String breakerNames = StringUtils.join(breakers, ", ");
-        message.setAttribute("text", breakerNames);
-        message.setAttribute("kind", "Breakers");
-        messages.addContent(message);
-        element.addContent(messages);
-    }
-
     public ProjectStatus updateViewers(Set<String> viewers) {
         if (viewers != null) {
             this.viewers.clear();
@@ -183,6 +173,16 @@ public class ProjectStatus {
 
     public Set<String> viewers() {
         return viewers;
+    }
+
+    private void addBreakers(Element element) {
+        Element messages = new Element("messages");
+        Element message = new Element("message");
+        String breakerNames = StringUtils.join(breakers, ", ");
+        message.setAttribute("text", breakerNames);
+        message.setAttribute("kind", "Breakers");
+        messages.addContent(message);
+        element.addContent(messages);
     }
 
     public static class NullProjectStatus extends ProjectStatus {

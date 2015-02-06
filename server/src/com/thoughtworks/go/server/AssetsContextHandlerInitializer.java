@@ -1,7 +1,8 @@
 package com.thoughtworks.go.server;
 
-import org.mortbay.component.LifeCycle;
-import org.mortbay.jetty.webapp.WebAppContext;
+
+import org.eclipse.jetty.util.component.LifeCycle;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 

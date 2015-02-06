@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.web;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.mortbay.jetty.Request;
-import org.mortbay.util.UrlEncoded;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.util.UrlEncoded;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @understands redirecting all requests to a service unavailable page when the server is being backed up.

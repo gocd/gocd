@@ -1,11 +1,11 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.mortbay.jetty.HttpConnection;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.handler.ResourceHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.webapp.WebAppContext;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,14 +30,14 @@ public class AssetsContextHandler extends ContextHandler {
 
     public void handle(String target, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response, int dispatch) throws IOException, javax.servlet.ServletException {
         if (shouldNotHandle()) return;
-        Request base_request = (request instanceof Request) ? (Request) request : HttpConnection.getCurrentConnection().getRequest();
+        Request base_request = (request instanceof Request) ? (Request) request : null;
         if (target.startsWith(this.getContextPath()) && !base_request.isHandled()) {
-            superDotHandle(target, request, response, dispatch);
+            superDotHandle(target, base_request, request, response);
         }
     }
 
-    void superDotHandle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
-        super.handle(target, request, response, dispatch);
+    void superDotHandle(String target, Request base_request, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        super.handle(target, base_request, request, response);
     }
 
     private boolean shouldNotHandle() {

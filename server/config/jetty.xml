@@ -15,21 +15,21 @@
  * limitations under the License.
  *************************GO-LICENSE-END******************************* -->
 
-<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
-<Configure id="Server" class="org.mortbay.jetty.Server">
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
 
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
-    <Set name="ThreadPool">
-      <New class="org.mortbay.thread.QueuedThreadPool">
+    <Get name="threadPool">
         <Set name="minThreads">20</Set>
         <Set name="maxThreads">300</Set>
+        <!-- New Jetty QTP does not have these two properties below.
         <Set name="lowThreads">10</Set>
         <Set name="SpawnOrShrinkAt">2</Set>
-      </New>
-    </Set>
+        -->
+    </Get>
 
     <!-- =========================================================== -->
     <!-- Logging                                                     -->
@@ -38,7 +38,7 @@
     <!--
         <Call name="addHandler">
         <Arg>
-            <New class="org.mortbay.jetty.handler.RequestLogHandler">
+            <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
               <Set name="requestLog">
                 <New class="org.mortbay.jetty.NCSARequestLog">
                     <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>

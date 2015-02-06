@@ -21,6 +21,15 @@ import com.thoughtworks.go.server.util.GoCipherSuite;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.validators.Validation;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +38,6 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import org.mortbay.component.Container;
-import org.mortbay.jetty.*;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
 import org.xml.sax.SAXException;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -73,7 +78,7 @@ public class GoServerContextHandlersTest {
     @Test
     public void shouldRegisterAllHandlers() throws Exception {
         final JettyServer server = mock(JettyServer.class);
-        when(server.getContainer()).thenReturn(new Container());
+        when(server.getContainer()).thenReturn(new ServletContextHandler());
         when(server.getServer()).thenReturn(mock(Server.class));
         SystemEnvironment environment = spy(new SystemEnvironment());
         final WebAppContext mainWebapp = mock(WebAppContext.class);
@@ -103,9 +108,9 @@ public class GoServerContextHandlersTest {
             }
         };
         assertThat(goServer.configureServer(), sameInstance(server));
-        verify(server).addHandler(welcomeHandler);
-        verify(server).addHandler(legacyRequestHandler);
-        verify(server).addWebAppHandler(mainWebapp);
+        verify(server).setHandler(welcomeHandler);
+        verify(server).setHandler(legacyRequestHandler);
+        verify(server).setHandler(mainWebapp);
     }
 
     @Test
@@ -113,7 +118,7 @@ public class GoServerContextHandlersTest {
         final JettyServer server = mock(JettyServer.class);
         final WebAppContext webAppContext = mock(WebAppContext.class);
 
-        when(server.getContainer()).thenReturn(new Container());
+        when(server.getContainer()).thenReturn(new ServletContextHandler());
         when(server.getServer()).thenReturn(mock(Server.class));
 
         GoServer goServer = new GoServer() {
@@ -155,14 +160,14 @@ public class GoServerContextHandlersTest {
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         when(response.getWriter()).thenReturn(new PrintWriter(output));
-        welcomeHandler.handle("/", mock(HttpServletRequest.class), response, Handler.REQUEST);
+		welcomeHandler.handle("/", mock(Request.class), mock(HttpServletRequest.class), response);
 
         String responseBody = new String(output.toByteArray());
         assertThat(responseBody, is("redirecting.."));
 
         verify(response).setHeader("Location", "/go/home");
-        verify(response).setStatus(HttpStatus.ORDINAL_301_Moved_Permanently);
-        verify(response).setHeader(HttpHeaders.CONTENT_TYPE, "text/html");
+        verify(response).setStatus(HttpStatus.MOVED_PERMANENTLY_301);
+        verify(response).setHeader(HttpHeader.CONTENT_TYPE.asString(), "text/html");
         verify(response).getWriter();
         verifyNoMoreInteractions(response);
     }
@@ -187,7 +192,7 @@ public class GoServerContextHandlersTest {
         Handler welcomeHandler = goServer.welcomeFileHandler();
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        welcomeHandler.handle("/foo", mock(HttpServletRequest.class), response, Handler.REQUEST);
+		welcomeHandler.handle("/foo", mock(Request.class), mock(HttpServletRequest.class), response);
         verifyNoMoreInteractions(response);
     }
 
@@ -200,10 +205,10 @@ public class GoServerContextHandlersTest {
         when(response.getWriter()).thenReturn(new PrintWriter(new ByteArrayOutputStream()));
 
         HttpServletRequest req = mock(HttpServletRequest.class);
-        when(req.getMethod()).thenReturn(HttpMethods.GET);
-        legacyRequestHandler.handle("/cruise_but_not_quite", req, response, Handler.REQUEST);
+        when(req.getMethod()).thenReturn(HttpMethod.GET.asString());
+		legacyRequestHandler.handle("/cruise_but_not_quite", mock(Request.class), req, response);
         verifyNoMoreInteractions(response);
-        legacyRequestHandler.handle("/something_totally_different", req, response, Handler.REQUEST);
+		legacyRequestHandler.handle("/something_totally_different", mock(Request.class), req, response);
         verifyNoMoreInteractions(response);
     }
 
@@ -221,22 +226,31 @@ public class GoServerContextHandlersTest {
 
         File noAddonDirectory = createInAddonDir("no-addon-dir");
 
-        GoServer goServerWithMultipleAddons = new GoServer(setJRubyJarsTo(setAddonsPathTo(addonsDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        SystemEnvironment systemEnvironment = setJRubyJarsTo(setAddonsPathTo(addonsDirectory));
+        when(systemEnvironment.getCruiseWar()).thenReturn("webapp");
+        GoServer goServerWithMultipleAddons = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
         assertExtraClasspath(goServerWithMultipleAddons.webApp(), "test-addons/some-addon-dir/addon-1.JAR", "test-addons/some-addon-dir/addon-2.jar", "test-addons/some-addon-dir/addon-3.jAR");
 
-        GoServer goServerWithOneAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(oneAddonDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        systemEnvironment = setJRubyJarsTo(setAddonsPathTo(oneAddonDirectory));
+        when(systemEnvironment.getCruiseWar()).thenReturn("webapp");
+        GoServer goServerWithOneAddon = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
         assertExtraClasspath(goServerWithOneAddon.webApp(), "test-addons/one-addon-dir/addon-1.jar");
 
-        GoServer goServerWithNoAddon = new GoServer(setJRubyJarsTo(setAddonsPathTo(noAddonDirectory)), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        systemEnvironment = setJRubyJarsTo(setAddonsPathTo(noAddonDirectory));
+        when(systemEnvironment.getCruiseWar()).thenReturn("webapp");
+        GoServer goServerWithNoAddon = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
         assertThat(goServerWithNoAddon.webApp().getExtraClasspath(), is(""));
 
-        GoServer goServerWithInaccessibleAddonDir = new GoServer(setJRubyJarsTo(setAddonsPathTo(new File("non-existent-directory"))), new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
+        systemEnvironment = setJRubyJarsTo(setAddonsPathTo(new File("non-existent-directory")));
+        when(systemEnvironment.getCruiseWar()).thenReturn("webapp");
+        GoServer goServerWithInaccessibleAddonDir = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
         assertThat(goServerWithInaccessibleAddonDir.webApp().getExtraClasspath(), is(""));
     }
 
     @Test
     public void shouldToggleRailsToOldOneWhenTheNewOneIsSpecified() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+		when(systemEnvironment.getCruiseWar()).thenReturn("webapp");
         when(systemEnvironment.get(SystemEnvironment.ADDONS_PATH)).thenReturn("some-non-existent-directory");
         GoServer goServer = new GoServer(systemEnvironment, new GoCipherSuite(sslSocketFactory), mock(GoWebXmlConfiguration.class));
 
@@ -290,18 +304,18 @@ public class GoServerContextHandlersTest {
         }
     }
 
-    @DataPoint public static final HttpCall GET_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.GET, HttpStatus.ORDINAL_301_Moved_Permanently, true);
-    @DataPoint public static final HttpCall GET_CALL_TO_CRUISE_WITH_NO_SUBPATH = new HttpCall("", HttpMethods.GET, HttpStatus.ORDINAL_301_Moved_Permanently, true);
-    @DataPoint public static final HttpCall HEAD_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.HEAD, HttpStatus.ORDINAL_301_Moved_Permanently, true);
-    @DataPoint public static final HttpCall HEAD_CALL_TO_CRUISE_WITH_NO_SUBPATH = new HttpCall("", HttpMethods.HEAD, HttpStatus.ORDINAL_301_Moved_Permanently, true);
+    @DataPoint public static final HttpCall GET_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.GET.asString(), HttpStatus.MOVED_PERMANENTLY_301, true);
+    @DataPoint public static final HttpCall GET_CALL_TO_CRUISE_WITH_NO_SUBPATH = new HttpCall("", HttpMethod.GET.asString(), HttpStatus.MOVED_PERMANENTLY_301, true);
+    @DataPoint public static final HttpCall HEAD_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.HEAD.asString(), HttpStatus.MOVED_PERMANENTLY_301, true);
+    @DataPoint public static final HttpCall HEAD_CALL_TO_CRUISE_WITH_NO_SUBPATH = new HttpCall("", HttpMethod.HEAD.asString(), HttpStatus.MOVED_PERMANENTLY_301, true);
 
-    @DataPoint public static final HttpCall PUT_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.PUT, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall POST_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.POST, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall DELETE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.DELETE, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall OPTIONS_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.OPTIONS, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall TRACE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.TRACE, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall CONNECT_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.CONNECT, HttpStatus.ORDINAL_404_Not_Found, false);
-    @DataPoint public static final HttpCall MOVE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethods.MOVE, HttpStatus.ORDINAL_404_Not_Found, false);
+    @DataPoint public static final HttpCall PUT_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.PUT.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall POST_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.POST.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall DELETE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.DELETE.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall OPTIONS_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.OPTIONS.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall TRACE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.TRACE.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall CONNECT_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.CONNECT.asString(), HttpStatus.NOT_FOUND_404, false);
+    @DataPoint public static final HttpCall MOVE_CALL_TO_CRUISE = new HttpCall("/foo/bar?baz=quux", HttpMethod.MOVE.asString(), HttpStatus.NOT_FOUND_404, false);
 
     @Theory
     public void shouldRedirectCruiseContextTargetedRequestsToCorrespondingGoUrl(HttpCall httpCall) throws IOException, ServletException {
@@ -313,7 +327,7 @@ public class GoServerContextHandlersTest {
         when(response.getWriter()).thenReturn(new PrintWriter(output));
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn(httpCall.method);
-        legacyHandler.handle("/cruise" + httpCall.url, request, response, Handler.REQUEST);
+		legacyHandler.handle("/cruise" + httpCall.url, mock(Request.class), request, response);
 
         String responseBody = new String(output.toByteArray());
         assertThat(responseBody, is("Url(s) starting in '/cruise' have been permanently moved to '/go', please use the new path."));
@@ -324,7 +338,7 @@ public class GoServerContextHandlersTest {
             verify(response).setHeader("Location", "/go" + httpCall.url);
         }
 
-        verify(response).setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
+        verify(response).setHeader(HttpHeader.CONTENT_TYPE.asString(), "text/plain");
         verify(response).getWriter();
         verifyNoMoreInteractions(response);
     }

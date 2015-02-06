@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.rackhack;
 
+import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.HttpInput;
 import org.junit.Test;
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.server.Request;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 
 public class DelegatingServletTest {
     public String uri = "/go/rails/stuff/action";
@@ -45,7 +48,7 @@ public class DelegatingServletTest {
         assertThat((DummyServlet) ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET), isA(DummyServlet.class));
         DelegatingServlet servlet = new DelegatingServlet();
         servlet.init(new MockServletConfig(ctx));
-        Request request = new Request() {
+		Request request = new Request(any(HttpChannel.class), any(HttpInput.class)) {
             @Override
             public String getRequestURI() {
                 return uri;

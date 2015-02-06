@@ -27,16 +27,19 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.log4j.Logger;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.HttpMethods;
-import org.mortbay.jetty.HttpStatus;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.management.MBeanContainer;
-import org.mortbay.xml.XmlConfiguration;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.jmx.MBeanContainer;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.xml.sax.SAXException;
 
 import javax.management.MBeanServer;
@@ -52,7 +55,6 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GoServer {
 
@@ -104,25 +106,29 @@ public class GoServer {
 
         server.getContainer().addEventListener(mbeans());
 
-        server.addConnector(selectChannelConnector());
-        server.addConnector(sslConnector());
+//        WebAppContext webAppContext = webApp();
+        server.addConnector(plainConnector(server));
+        server.addConnector(sslConnector(server));
 
-        server.addHandler(welcomeFileHandler());
-        server.addHandler(legacyRequestHandler());
+        HandlerCollection handlers = new HandlerCollection();
+
+        handlers.addHandler(welcomeFileHandler());
+        handlers.addHandler(legacyRequestHandler());
         WebAppContext webAppContext = webApp();
-        addResourceHandler(server, webAppContext);
-        server.addWebAppHandler(webAppContext);
+        handlers.addHandler(webAppContext);
+        addResourceHandler(handlers, webAppContext);
+        server.setWebAppContext(webAppContext);
+
+        server.setHandler(handlers);
         performCustomConfiguration(server);
 
         server.setStopAtShutdown(true);
         return server;
     }
-
-    private void addResourceHandler(JettyServer server, WebAppContext webAppContext) throws IOException {
-        if (!systemEnvironment.useCompressedJs())
-            return;
+    private void addResourceHandler(HandlerCollection handlers, WebAppContext webAppContext) throws IOException {
+        if (!systemEnvironment.useCompressedJs()) return;
         AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
-        server.addHandler(handler);
+        handlers.addHandler(handler);
         webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
     }
 
@@ -148,30 +154,28 @@ public class GoServer {
     private MBeanContainer mbeans() {
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
         MBeanContainer mbeans = new MBeanContainer(platformMBeanServer);
-        mbeans.start();
+        // mbeans.start();
         return mbeans;
     }
 
-    private Connector sslConnector() {
-        return new GoSslSocketConnector(password, systemEnvironment, goCipherSuite).sslConnector();
-    }
+	private Connector plainConnector(JettyServer server) {
+		return new GoSslSocketConnector(password, systemEnvironment, goCipherSuite).plainConnector(server.getServer());
+	}
 
-    private SelectChannelConnector selectChannelConnector() {
-        SelectChannelConnector connector = new SelectChannelConnector();
-        connector.setPort(systemEnvironment.getServerPort());
-        connector.setHost(systemEnvironment.getListenHost());
-        return connector;
-    }
+	private Connector sslConnector(JettyServer server) {
+		return new GoSslSocketConnector(password, systemEnvironment, goCipherSuite).sslConnector(server.getServer());
+	}
 
     WebAppContext webApp() throws IOException, SAXException, ClassNotFoundException, UnavailableException {
         WebAppContext wac = new WebAppContext();
-        configuration.setWebAppContext(wac);
-        configuration.initialize(getWarFile());
+        //configuration.setWebAppContext(wac);
+        //configuration.initialize(getWarFile());
+		wac.setDefaultsDescriptor(GoWebXmlConfiguration.configuration(getWarFile()));
 
         wac.setConfigurationClasses(new String[]{
-                "org.mortbay.jetty.webapp.WebInfConfiguration",
-                "org.mortbay.jetty.webapp.WebXmlConfiguration",
-                "org.mortbay.jetty.webapp.JettyWebXmlConfiguration",
+				WebInfConfiguration.class.getCanonicalName(),
+				WebXmlConfiguration.class.getCanonicalName(),
+				JettyWebXmlConfiguration.class.getCanonicalName()
         });
         wac.setContextPath(new SystemEnvironment().getWebappContextPath());
         wac.setWar(getWarFile());
@@ -184,9 +188,7 @@ public class GoServer {
     }
 
     private void addJRubyContextInitParams(WebAppContext wac) {
-        Map existingParams = wac.getInitParams();
-        existingParams.put("rails.root", "/WEB-INF/rails.new");
-        wac.setInitParams(existingParams);
+        wac.setInitParameter("rails.root", "/WEB-INF/rails.new");
     }
 
     private void addExtraJarsToClasspath(WebAppContext wac) {
@@ -208,7 +210,7 @@ public class GoServer {
 
     private void setCookieExpireIn2Weeks(WebAppContext wac) {
         int sixMonths = 60 * 60 * 24 * 14;
-        wac.getSessionHandler().getSessionManager().setMaxCookieAge(sixMonths);
+        wac.getSessionHandler().getSessionManager().getSessionCookieConfig().setMaxAge(sixMonths);
     }
 
     private void addStopServlet(WebAppContext wac) {
@@ -267,7 +269,7 @@ public class GoServer {
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFile("config.properties", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
-        validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));
+		validators.add(FileValidator.configFileAlwaysOverwrite("jetty.xml", systemEnvironment));
         validators.add(new JettyWorkDirValidator());
         validators.add(new DatabaseValidator());
         validators.add(new LoggingValidator(systemEnvironment));
@@ -284,9 +286,9 @@ public class GoServer {
             if (target.startsWith(GoConstants.OLD_URL_CONTEXT + "/") || target.equals(GoConstants.OLD_URL_CONTEXT)) {
                 if (shouldRedirect(request)) {
                     response.setHeader("Location", target.replaceFirst(GoConstants.OLD_URL_CONTEXT, GoConstants.GO_URL_CONTEXT));
-                    response.setStatus(HttpStatus.ORDINAL_301_Moved_Permanently);
+                    response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
                 } else {
-                    response.setStatus(HttpStatus.ORDINAL_404_Not_Found);
+                    response.setStatus(HttpStatus.NOT_FOUND_404);
                 }
                 response.setHeader("Content-Type", "text/plain");
                 PrintWriter writer = response.getWriter();
@@ -297,7 +299,7 @@ public class GoServer {
 
         boolean shouldRedirect(HttpServletRequest request) {
             String method = request.getMethod();
-            return method.equals(HttpMethods.GET) || method.equals(HttpMethods.HEAD);
+            return method.equals(HttpMethod.GET) || method.equals(HttpMethod.HEAD);
         }
     }
 

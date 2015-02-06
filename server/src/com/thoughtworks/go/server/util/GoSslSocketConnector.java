@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.security.SslSelectChannelConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -36,59 +35,64 @@ public class GoSslSocketConnector {
     private final String password;
     private final SystemEnvironment systemEnvironment;
     private final GoCipherSuite goCipherSuite;
+	private final String host;
+	private final int plainPort;
     private final int sslPort;
     private final File keystore;
     private final File truststore;
     private final File agentKeystore;
     private static final int MAX_IDLE_TIME = 30000;
+	private static final int RESPONSE_BUFFER_SIZE = 32768;
 
     public GoSslSocketConnector(String password, SystemEnvironment systemEnvironment, GoCipherSuite goCipherSuite) {
         this.password = password;
         this.systemEnvironment = systemEnvironment;
         this.goCipherSuite = goCipherSuite;
+		this.host = systemEnvironment.getListenHost();
+		this.plainPort = systemEnvironment.getServerPort();
         this.sslPort = systemEnvironment.getSslServerPort();
         this.keystore = systemEnvironment.keystore();
         this.truststore = systemEnvironment.truststore();
         this.agentKeystore = systemEnvironment.agentkeystore();
     }
 
-    public Connector sslConnector() {
-        if (!keystore.exists()) { storeX509Certificate(); }
+	public Connector plainConnector(Server server) {
+		HttpConfiguration httpConfig = new HttpConfiguration();
+		httpConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
 
-        //NOTE: There is no common class that includes all this set stuff.
-        //If only we had duck typing
-        if (systemEnvironment.useNioSslSocket()) {
-            LOGGER.info(String.format("Using SSL socket selector SslSelectChannelConnector (NIO) with maxIdleTime=%s", MAX_IDLE_TIME));
-            SslSelectChannelConnector nioConnector = new SslSelectChannelConnector();
-            nioConnector.setPort(sslPort);
-            nioConnector.setHost(systemEnvironment.getListenHost());
-            nioConnector.setMaxIdleTime(MAX_IDLE_TIME);
-            nioConnector.setKeystore(keystore.getPath());
-            nioConnector.setPassword(password);
-            nioConnector.setKeyPassword(password);
-            nioConnector.setTruststore(truststore.getPath());
-            nioConnector.setTrustPassword(password);
-            nioConnector.setWantClientAuth(true);
-            nioConnector.setExcludeCipherSuites(goCipherSuite.getExcludedCipherSuites());
-            return nioConnector;
-        }
-        else {
-            LOGGER.info(String.format("Using SSL socket selector SslSocketConnector (NOT NIO) with maxIdleTime=%s", MAX_IDLE_TIME));
-            SslSocketConnector socketConnector = new SslSocketConnector();
-            socketConnector.setPort(sslPort);
-            socketConnector.setHost(systemEnvironment.getListenHost());
-            socketConnector.setMaxIdleTime(MAX_IDLE_TIME);
-            socketConnector.setKeystore(keystore.getPath());
-            socketConnector.setPassword(password);
-            socketConnector.setKeyPassword(password);
-            socketConnector.setTruststore(truststore.getPath());
-            socketConnector.setTrustPassword(password);
-            socketConnector.setWantClientAuth(true);
-            socketConnector.setExcludeCipherSuites(goCipherSuite.getExcludedCipherSuites());
-            return socketConnector;
-        }
+		ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+		// http.setHost(host);
+		http.setPort(plainPort);
+		http.setIdleTimeout(MAX_IDLE_TIME);
 
-    }
+		return http;
+	}
+
+	public Connector sslConnector(Server server) {
+		if (!keystore.exists()) {
+			storeX509Certificate();
+		}
+
+		HttpConfiguration httpsConfig = new HttpConfiguration();
+		httpsConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
+		httpsConfig.addCustomizer(new SecureRequestCustomizer());
+
+		SslContextFactory sslContextFactory = new SslContextFactory();
+		sslContextFactory.setKeyStorePath(keystore.getPath());
+		sslContextFactory.setKeyStorePassword(password);
+		sslContextFactory.setKeyManagerPassword(password);
+		sslContextFactory.setTrustStorePath(truststore.getPath());
+		sslContextFactory.setTrustStorePassword(password);
+		sslContextFactory.setWantClientAuth(true);
+		sslContextFactory.setExcludeCipherSuites(goCipherSuite.getExcludedCipherSuites());
+
+		ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(httpsConfig));
+		// https.setHost(host);
+		https.setPort(sslPort);
+		https.setIdleTimeout(MAX_IDLE_TIME);
+
+		return https;
+	}
 
     private void storeX509Certificate() {
         String principalDn = "ou=Cruise server webserver certificate, cn=" + getHostname();

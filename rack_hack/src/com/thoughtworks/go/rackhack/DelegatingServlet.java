@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.rackhack;
 
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.server.Request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

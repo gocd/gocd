@@ -16,30 +16,25 @@
 
 package com.thoughtworks.go.helpers;
 
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.server.dao.*;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import javax.sql.DataSource;
-
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.server.dao.StageSqlMapDao;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.PipelineMother.completedPipelineWithStagesAndBuilds;
@@ -74,20 +69,20 @@ public class Localhost {
         server = new Server(port);
         WebAppContext context = new WebAppContext("webapp", "/go");
 
-        context.setConfigurationClasses(new String[]{
-                "org.mortbay.jetty.webapp.WebInfConfiguration",
-                "org.mortbay.jetty.webapp.WebXmlConfiguration",
-                "org.mortbay.jetty.webapp.JettyWebXmlConfiguration",
-        });
+		context.setConfigurationClasses(new String[]{
+				WebInfConfiguration.class.getCanonicalName(),
+				WebXmlConfiguration.class.getCanonicalName(),
+				JettyWebXmlConfiguration.class.getCanonicalName()
+		});
 
         context.setDefaultsDescriptor("webapp/WEB-INF/webdefault.xml");
-        server.addHandler(context);
+        server.setHandler(context);
         this.setCookieExpireIn6Months(context);
     }
 
     private void setCookieExpireIn6Months(WebAppContext wac) {
         int sixMonths = 60 * 60 * 24 * 180;
-        wac.getSessionHandler().getSessionManager().setMaxCookieAge(sixMonths);
+		wac.getSessionHandler().getSessionManager().getSessionCookieConfig().setMaxAge(sixMonths);
     }
 
     public static void main(String[] args) throws Exception {

@@ -1,7 +1,7 @@
 package com.thoughtworks.go.server;
 
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Test;
-import org.mortbay.jetty.webapp.WebAppContext;
 import java.io.IOException;
 import static org.mockito.Mockito.*;
 

@@ -115,7 +115,7 @@ fi
 SERVER_STARTUP_ARGS+=("-server $YOURKIT")
 SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
 SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
-SERVER_STARTUP_ARGS+=("-Duser.language=en -Dorg.mortbay.jetty.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000")
+SERVER_STARTUP_ARGS+=("-Duser.language=en -Dorg.eclipse.jetty.server.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000")
 SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
 SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
 if [ "$TMPDIR" != "" ]; then

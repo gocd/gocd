@@ -16,34 +16,16 @@
 
 package com.thoughtworks.go.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import javax.servlet.UnavailableException;
-
-import org.mortbay.jetty.webapp.WebXmlConfiguration;
-import org.mortbay.xml.XmlParser;
 import org.xml.sax.SAXException;
 
-public class GoWebXmlConfiguration extends WebXmlConfiguration {
-    public void initialize(String warFileLocation) throws IOException, SAXException, UnavailableException, ClassNotFoundException {
-        super.initialize(configuration(WebXmlConfiguration.webXmlParser(), warFileLocation));
-    }
+import java.io.File;
+import java.io.IOException;
 
-    private XmlParser.Node configuration(XmlParser parser, String warFile) throws IOException, SAXException {
-        XmlParser.Node node;
+public class GoWebXmlConfiguration {
+	public static String configuration(String warFile) throws IOException, SAXException {
         if (new File(warFile).isDirectory()) {
-            FileInputStream in = new FileInputStream(new File(warFile, "WEB-INF/webdefault.xml"));
-            node = parser.parse(in);
-            in.close();
+			return new File(warFile, "WEB-INF/webdefault.xml").getPath();
         }
-        else {
-            ZipFile file = new ZipFile(warFile);
-            node = parser.parse(file.getInputStream(new ZipEntry("WEB-INF/webdefault.xml")));
-            file.close();
-        }
-        return node;
+		return "jar:file:" + warFile + "!/WEB-INF/webdefault.xml";
     }
 }

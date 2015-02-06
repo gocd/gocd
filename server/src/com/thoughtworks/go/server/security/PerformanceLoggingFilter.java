@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.perf.WebRequestPerformanceLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.jetty.Response;
+import org.eclipse.jetty.server.Response;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

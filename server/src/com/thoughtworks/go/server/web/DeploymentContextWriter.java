@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
-
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.mortbay.jetty.HttpURI;
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.server.Request;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
 
 /**
  * @understands sets https port the server is deployed on, in request attributes

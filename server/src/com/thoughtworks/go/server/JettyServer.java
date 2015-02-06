@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.server;
 
-import org.mortbay.component.Container;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.component.Container;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 public class JettyServer {
     private Server server;
@@ -33,15 +31,15 @@ public class JettyServer {
     }
 
     public Container getContainer() {
-        return server.getContainer();
+        return server;
     }
 
     public void addConnector(Connector selectChannelConnector) {
         server.addConnector(selectChannelConnector);
     }
 
-    public void addHandler(Handler handler) {
-        server.addHandler(handler);
+    public void setHandler(Handler handler) {
+        server.setHandler(handler);
     }
 
     public Server getServer() {
@@ -60,8 +58,7 @@ public class JettyServer {
         server.stop();
     }
 
-    public void addWebAppHandler(WebAppContext webAppContext) {
-        addHandler(webAppContext);
+    public void setWebAppContext(WebAppContext webAppContext) {
         this.webAppContext = webAppContext;
     }
 

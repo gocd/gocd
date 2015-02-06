@@ -1,11 +1,11 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Test;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.ResourceHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.resource.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -43,7 +43,7 @@ public class AssetsContextHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/go/assets/junk", request, response, 1);
-        verify(handler).superDotHandle("/go/assets/junk", request, response, 1);
+        verify(handler).superDotHandle("/go/assets/junk", any(Request.class), request, response);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class AssetsContextHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/junk", request, response, 1);
-        verify(handler, never()).superDotHandle("/junk", request, response, 1);
+        verify(handler, never()).superDotHandle("/junk", any(Request.class), request, response);
     }
 
     @Test
@@ -77,6 +77,6 @@ public class AssetsContextHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/go/assets/junk", request, response, 1);
-        verify(handler, never()).superDotHandle("/go/assets/junk", request, response, 1);
+        verify(handler, never()).superDotHandle("/go/assets/junk", any(Request.class), request, response);
     }
 }

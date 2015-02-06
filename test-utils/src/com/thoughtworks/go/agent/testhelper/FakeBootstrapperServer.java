@@ -16,27 +16,23 @@
 
 package com.thoughtworks.go.agent.testhelper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.webapp.WebAppContext;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Properties;
 
 public class FakeBootstrapperServer extends JUnit4ClassRunner {
     private Server server;
@@ -73,7 +69,7 @@ public class FakeBootstrapperServer extends JUnit4ClassRunner {
         addlatestAgentStatusCall(wac);
         addStopServlet(server, wac);
         addDefaultServlet(wac);
-        server.addHandler(wac);
+        server.setHandler(wac);
         server.setStopAtShutdown(true);
         server.start();
     }
@@ -113,7 +109,7 @@ public class FakeBootstrapperServer extends JUnit4ClassRunner {
     }
 
     private void addDefaultServlet(WebAppContext wac) {
-        wac.addFilter(BreakpointFriendlyFilter.class, "*", 0);
+        wac.addFilter(BreakpointFriendlyFilter.class, "*", EnumSet.of(DispatcherType.REQUEST));
     }
 
     private static void addFakeAgentBinaryServlet(WebAppContext wac, final String pathSpec, final File file) {

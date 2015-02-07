@@ -142,9 +142,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Updating to revision: " + revision + " in workingdirectory " + workingDir);
         }
-        outputStreamConsumer.stdOutput(
-                format("\n[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(),
-                        url));
+        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         boolean shouldDoFreshCheckout = !workingDir.isDirectory() || isRepositoryChanged(workingDir);
         if (shouldDoFreshCheckout) {
             freshCheckout(outputStreamConsumer, new SubversionRevision(revision), workingDir);

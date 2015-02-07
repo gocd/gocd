@@ -36,6 +36,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -143,7 +144,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] Updating to revision: " + revision + " in workingdirectory " + workingDir);
         }
-        outputStreamConsumer.stdOutput(format("\n[cruise] Start updating %s at revision %s from %s", updatingTarget(), revision.getRevision(), url));
+        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         tfs(execCtx).checkout(workingDir, revision);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] done with update");

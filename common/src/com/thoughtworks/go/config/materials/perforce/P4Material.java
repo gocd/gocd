@@ -155,10 +155,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public void updateTo(ProcessOutputStreamConsumer outputConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         boolean cleaned = cleanDirectoryIfRepoChanged(workingdir(baseDir), outputConsumer);
         try {
-            outputConsumer.stdOutput(
-                    format("\n[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(),
-                            revision.getRevision(),
-                            serverAndPort));
+            outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), serverAndPort));
             p4(baseDir, outputConsumer).sync(parseLong(revision.getRevision()), cleaned, outputConsumer);
         } catch (Exception e) {
             bomb(e);
@@ -309,8 +306,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
             String existingRepoId = FileUtils.readFileToString(file);
             if (!p4RepoId.equals(existingRepoId)) {
-                outputConsumer.stdOutput(String.format(
-                        "\n[%s] Working directory has changed. Deleting and re-creating it.", GoConstants.PRODUCT_NAME));
+                outputConsumer.stdOutput(String.format("[%s] Working directory has changed. Deleting and re-creating it.", GoConstants.PRODUCT_NAME));
                 FileUtils.deleteDirectory(workingDirectory);
                 workingDirectory.mkdirs();
                 FileUtils.writeStringToFile(file, p4RepoId);

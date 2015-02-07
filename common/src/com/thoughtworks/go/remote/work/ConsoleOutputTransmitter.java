@@ -17,7 +17,9 @@
 package com.thoughtworks.go.remote.work;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -32,6 +34,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
     private CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
     private Integer sleepInSeconds;
     private final ConsoleAppender consoleAppender;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {
@@ -43,7 +46,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
 
     public void consumeLine(String line) {
         synchronized (buffer) {
-            buffer.add(line);
+            buffer.add("[" + dateFormat.format(new Date()) + "]" + line);
         }
     }
 

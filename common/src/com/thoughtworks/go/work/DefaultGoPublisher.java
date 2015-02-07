@@ -119,13 +119,8 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportAction(String action) {
-        String message = String.format("\n[%s] %s %s on %s [%s] at %s",
-                GoConstants.PRODUCT_NAME,
-                action,
-                jobIdentifier.buildLocatorForDisplay(),
-                agentIdentifier.getHostName(),
-                currentWorkingDirectory,
-                timeProvider.currentTime());
+        String message = String.format("[%s] %s %s on %s [%s] at %s", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
+                agentIdentifier.getHostName(), currentWorkingDirectory, timeProvider.currentTime());
         if (LOG.isDebugEnabled()) {
             LOG.debug(message);
         }
@@ -134,7 +129,7 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLineWithPrefix(String message) {
-        consumeLine(String.format("\n[%s] %s", GoConstants.PRODUCT_NAME, message));
+        consumeLine(String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
     }
 
     @Override

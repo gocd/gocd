@@ -16,50 +16,57 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.IOException;
-
-import org.jmock.Mockery;
-import org.jmock.Expectations;
-import org.jmock.integration.junit4.JMock;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
-@RunWith(JMock.class)
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 public class ConsoleOutputTransmitterTest {
+    @Mock
     private ConsoleAppender consoleAppender;
-    private Mockery mockery;
+    private ArgumentCaptor<String> requestArgumentCaptor;
     private ConsoleOutputTransmitter transmitter;
 
     @Before
-    public void setup() {
-        mockery = new Mockery();
-        consoleAppender = mockery.mock(ConsoleAppender.class);
+    public void setup() throws Exception {
+        initMocks(this);
+
+        new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "60"); // so the thread does not wake up
+
+        requestArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        doNothing().when(consoleAppender).append(requestArgumentCaptor.capture());
         transmitter = new ConsoleOutputTransmitter(consoleAppender);
     }
 
-    @Test
-    public void shouldFlushContentsInBufferToServerInOneGo() throws IOException {
-        transmitter.consumeLine("first line");
-        transmitter.consumeLine("second line");
-
-        mockery.checking(new Expectations() {
-            {
-                one(consoleAppender).append("first line\nsecond line\n");
-            }
-        });
-
-        transmitter.flushToServer();
+    @After
+    public void tearDown() {
+        transmitter.stop();
     }
 
     @Test
-    public void shouldNotFlushToServerWhenBufferIsEmpty() throws IOException {
+    public void shouldFlushContentsInBufferToServerInOneGo() throws Exception {
+        transmitter.consumeLine("first line");
+        transmitter.consumeLine("second line");
 
-        mockery.checking(new Expectations() {
-            {
-                never(consoleAppender).append("");
-            }
-        });
         transmitter.flushToServer();
+
+        verify(consoleAppender).append(any(String.class));
+        assertTrue(requestArgumentCaptor.getValue().contains("first line\n"));
+        assertTrue(requestArgumentCaptor.getValue().contains("second line\n"));
+    }
+
+    @Test
+    public void shouldNotFlushToServerWhenBufferIsEmpty() throws Exception {
+        transmitter.flushToServer();
+
+        verify(consoleAppender, never()).append(any(String.class));
     }
 }

@@ -2,6 +2,7 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -12,20 +13,20 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class AssetsContextHandler extends ContextHandler {
+    private final AssetsHandler handler;
     private SystemEnvironment systemEnvironment;
 
     public AssetsContextHandler(SystemEnvironment systemEnvironment) throws IOException {
         super(systemEnvironment.getWebappContextPath() + "/assets");
         this.systemEnvironment = systemEnvironment;
+        handler = new AssetsHandler();
+        setHandler(handler);
     }
 
     public void init(WebAppContext webAppContext) throws IOException {
-        ResourceHandler resourceHandler = new ResourceHandler();
         String railsRootDirName = webAppContext.getInitParameter("rails.root").replaceAll("/WEB-INF/", "");
         String assetsDir = webAppContext.getWebInf().addPath(String.format("%s/public/assets/", railsRootDirName)).getName();
-        resourceHandler.setResourceBase(assetsDir);
-        resourceHandler.setCacheControl("max-age=31536000,public");
-        this.setHandler(resourceHandler);
+        handler.setAssetsDir(assetsDir);
     }
 
     public void handle(String target, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response, int dispatch) throws IOException, javax.servlet.ServletException {
@@ -43,4 +44,24 @@ public class AssetsContextHandler extends ContextHandler {
     private boolean shouldNotHandle() {
         return !systemEnvironment.useCompressedJs();
     }
+
+    private class AssetsHandler extends AbstractHandler
+    {
+        private ResourceHandler resourceHandler = new ResourceHandler();
+
+        private AssetsHandler() {
+            resourceHandler.setCacheControl("max-age=31536000,public");
+        }
+
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
+        {
+            if (shouldNotHandle()) return;
+            this.resourceHandler.handle(target, baseRequest, request, response);
+        }
+
+        private void setAssetsDir(String assetsDir) {
+            resourceHandler.setResourceBase(assetsDir);
+        }
+    }
+
 }

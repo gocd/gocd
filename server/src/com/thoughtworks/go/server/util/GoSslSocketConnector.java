@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;

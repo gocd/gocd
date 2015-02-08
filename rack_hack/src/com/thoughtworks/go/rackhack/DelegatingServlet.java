@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.rackhack;
 
-import org.eclipse.jetty.server.Request;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -26,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class DelegatingServlet extends HttpServlet {
     private HttpServlet rackServlet;
@@ -39,10 +38,43 @@ public class DelegatingServlet extends HttpServlet {
         rackServlet.init(config);
     }
 
+    private static Method method(String name, Class klass) throws NoSuchFieldException {
+        if (klass == null) {
+            return null;
+        }
+        Method[] fields = klass.getDeclaredMethods();
+        for (Method field : fields) {
+            if (field.getName().equals(name)) {
+                field.setAccessible(true);
+                return field;
+            }
+        }
+        return method(name, klass.getSuperclass());
+    }
+
+    public static Object invoke(Object o, String method, Object... args) throws Exception {
+        Class[] argTypes = new Class[args.length];
+
+
+        for(int i = 0; i < args.length; i++) {
+            argTypes[i] = args.getClass();
+        }
+        Method mthd = method(method, o.getClass());
+        mthd.setAccessible(true);
+        return mthd.invoke(o, args);
+    }
+
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Request req = (Request) request;
-        req.setRequestURI(req.getRequestURI().replaceAll("^/go/rails/", "/go/"));
+//        ((org.eclipse.jetty.server.Request) request).setRequestURI(request.getRequestURI().replaceAll("^/go/rails/", "/go/"));
+        String url = request.getRequestURI().replaceAll("^/go/rails/", "/go/");
+
+        try {
+            invoke(request, "setRequestURI", url);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         rackServlet.service(request, response);
     }
 

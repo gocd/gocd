@@ -27,13 +27,12 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -106,7 +105,6 @@ public class GoServer {
 
         server.getContainer().addEventListener(mbeans());
 
-//        WebAppContext webAppContext = webApp();
         server.addConnector(plainConnector(server));
         server.addConnector(sslConnector(server));
 
@@ -115,8 +113,8 @@ public class GoServer {
         handlers.addHandler(welcomeFileHandler());
         handlers.addHandler(legacyRequestHandler());
         WebAppContext webAppContext = webApp();
-        handlers.addHandler(webAppContext);
         addResourceHandler(handlers, webAppContext);
+        handlers.addHandler(webAppContext);
         server.setWebAppContext(webAppContext);
 
         server.setHandler(handlers);
@@ -168,8 +166,6 @@ public class GoServer {
 
     WebAppContext webApp() throws IOException, SAXException, ClassNotFoundException, UnavailableException {
         WebAppContext wac = new WebAppContext();
-        //configuration.setWebAppContext(wac);
-        //configuration.initialize(getWarFile());
 		wac.setDefaultsDescriptor(GoWebXmlConfiguration.configuration(getWarFile()));
 
         wac.setConfigurationClasses(new String[]{
@@ -203,7 +199,7 @@ public class GoServer {
         return new GoServerWelcomeFileHandler();
     }
 
-    ContextHandler legacyRequestHandler() {
+    Handler legacyRequestHandler() {
         return new LegacyUrlRequestHandler();
     }
 
@@ -276,46 +272,48 @@ public class GoServer {
         return validators;
     }
 
-    class LegacyUrlRequestHandler extends ContextHandler {
+    class LegacyUrlRequestHandler extends HandlerWrapper {
+
+        private final String oldContextUrl = GoConstants.OLD_URL_CONTEXT;
+        private final String newContextUrl = GoConstants.GO_URL_CONTEXT;
 
         LegacyUrlRequestHandler() {
-            super(GoConstants.OLD_URL_CONTEXT);
+            MovedContextHandler movedContextHandler = new MovedContextHandler();
+            movedContextHandler.setContextPath(oldContextUrl);
+            movedContextHandler.setNewContextURL(newContextUrl);
+            movedContextHandler.setPermanent(true);
+            setHandler(movedContextHandler);
         }
 
-        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             if (target.startsWith(GoConstants.OLD_URL_CONTEXT + "/") || target.equals(GoConstants.OLD_URL_CONTEXT)) {
-                if (shouldRedirect(request)) {
-                    response.setHeader("Location", target.replaceFirst(GoConstants.OLD_URL_CONTEXT, GoConstants.GO_URL_CONTEXT));
-                    response.setStatus(HttpStatus.MOVED_PERMANENTLY_301);
-                } else {
-                    response.setStatus(HttpStatus.NOT_FOUND_404);
-                }
+                String content = String.format("Url(s) starting in '%s' have been permanently moved to '%s', please use the new path.", oldContextUrl, newContextUrl);
                 response.setHeader("Content-Type", "text/plain");
+                super.handle(target, baseRequest, request, response);
+                response.setHeader("Content-Length", String.valueOf(content.length()));
                 PrintWriter writer = response.getWriter();
-                writer.write(String.format("Url(s) starting in '%s' have been permanently moved to '%s', please use the new path.", GoConstants.OLD_URL_CONTEXT, GoConstants.GO_URL_CONTEXT));
+                writer.write(content);
                 writer.close();
             }
-        }
-
-        boolean shouldRedirect(HttpServletRequest request) {
-            String method = request.getMethod();
-            return method.equals(HttpMethod.GET) || method.equals(HttpMethod.HEAD);
         }
     }
 
     class GoServerWelcomeFileHandler extends ContextHandler {
-        GoServerWelcomeFileHandler() {
-            super("/");
+        public GoServerWelcomeFileHandler() {
+            setContextPath("/");
+            setHandler(new Handler());
         }
 
-        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
-            if (target.equals("/")) {
-                response.setHeader("Location", GoConstants.GO_URL_CONTEXT + "/home");
-                response.setStatus(301);
-                response.setHeader("Content-Type", "text/html");
-                PrintWriter writer = response.getWriter();
-                writer.write("redirecting..");
-                writer.close();
+        private class Handler extends AbstractHandler {
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                if (target.equals("/")) {
+                    response.setHeader("Location", GoConstants.GO_URL_CONTEXT + "/home");
+                    response.setStatus(301);
+                    response.setHeader("Content-Type", "text/html");
+                    PrintWriter writer = response.getWriter();
+                    writer.write("redirecting..");
+                    writer.close();
+                }
             }
         }
     }

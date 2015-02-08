@@ -22,7 +22,7 @@
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
-    <Get name="threadPool">
+    <Get name="ThreadPool">
         <Set name="minThreads">20</Set>
         <Set name="maxThreads">300</Set>
         <!-- New Jetty QTP does not have these two properties below.

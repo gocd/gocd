@@ -27,6 +27,8 @@ import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.log4j.Logger;
 
+import static java.lang.String.format;
+
 public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable {
     private static final Logger LOGGER = Logger.getLogger(ConsoleOutputTransmitter.class);
 
@@ -46,7 +48,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
 
     public void consumeLine(String line) {
         synchronized (buffer) {
-            buffer.add("[" + dateFormat.format(new Date()) + "]" + line);
+            buffer.add(format("[%s]%s", dateFormat.format(new Date()), line));
         }
     }
 

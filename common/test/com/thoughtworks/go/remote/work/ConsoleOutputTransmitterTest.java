@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -59,8 +60,8 @@ public class ConsoleOutputTransmitterTest {
         transmitter.flushToServer();
 
         verify(consoleAppender).append(any(String.class));
-        assertTrue(requestArgumentCaptor.getValue().contains("first line\n"));
-        assertTrue(requestArgumentCaptor.getValue().contains("second line\n"));
+        assertThat(requestArgumentCaptor.getValue(), containsString("first line\n"));
+        assertThat(requestArgumentCaptor.getValue(), containsString("second line\n"));
     }
 
     @Test

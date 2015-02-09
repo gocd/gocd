@@ -36,22 +36,24 @@
     <!-- =========================================================== -->
     <!-- Note: Please create the weblogs directory if not exist -->
     <!--
+    <Get name="handler">
         <Call name="addHandler">
-        <Arg>
-            <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
-              <Set name="requestLog">
-                <New class="org.eclipse.jetty.server.NCSARequestLog">
-                    <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
-                    <Set name="filenameDateFormat">yyyy_MM_dd</Set>
-                    <Set name="retainDays">7</Set>
-                    <Set name="append">true</Set>
-                    <Set name="extended">false</Set>
-                    <Set name="logCookies">false</Set>
-                    <Set name="logLatency">false</Set>
+            <Arg>
+                <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                    <Set name="requestLog">
+                        <New class="org.eclipse.jetty.server.NCSARequestLog">
+                            <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
+                            <Set name="filenameDateFormat">yyyy_MM_dd</Set>
+                            <Set name="retainDays">7</Set>
+                            <Set name="append">true</Set>
+                            <Set name="extended">false</Set>
+                            <Set name="logCookies">false</Set>
+                            <Set name="logLatency">false</Set>
+                        </New>
+                    </Set>
                 </New>
-              </Set>
-            </New>
-        </Arg>
-      </Call>
+            </Arg>
+        </Call>
+    </Get>
     -->
 </Configure>

@@ -17,12 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.thoughtworks.go.util.GoConstants;
+import java.util.*;
 
 import static java.lang.String.*;
 
@@ -129,10 +124,6 @@ public class EnvironmentVariableContext implements Serializable {
         return null;
     }
 
-    public List<EnvironmentVariable> getEnvironmentVariables() {
-        return properties;
-    }
-
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
         List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
         for (EnvironmentVariable property : properties) {
@@ -195,6 +186,20 @@ public class EnvironmentVariableContext implements Serializable {
 
     public void addAll(EnvironmentVariableContext another) {
         this.properties.addAll(another.properties);
+    }
+
+    public void visit(EnvironmentVariableVisitor visitor) {
+        Set<String> environmentVariableNames = new HashSet<String>();
+
+        for (EnvironmentVariableContext.EnvironmentVariable environmentVariable : properties) {
+            if (environmentVariableNames.contains(environmentVariable.name())) {
+                visitor.overrideEnvironmentVariable(environmentVariable);
+            } else {
+                visitor.setEnvironmentVariable(environmentVariable);
+            }
+
+            environmentVariableNames.add(environmentVariable.name());
+        }
     }
 
     @Override public String toString() {

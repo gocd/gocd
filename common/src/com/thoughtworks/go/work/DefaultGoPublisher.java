@@ -17,8 +17,6 @@
 package com.thoughtworks.go.work;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -34,6 +32,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.EnvironmentVariableVisitor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -147,18 +146,16 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
-        Set<String> environmentVariableNames = new HashSet<String>();
-        String line;
-
-        for (EnvironmentVariableContext.EnvironmentVariable environmentVariable : environmentVariableContext.getEnvironmentVariables()) {
-            if (environmentVariableNames.contains(environmentVariable.name())) {
-                line = format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay());
-            } else {
-                line = format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay());
+        environmentVariableContext.visit(new EnvironmentVariableVisitor() {
+            @Override
+            public void setEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
+                consumeLine(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay()));
             }
-            consumeLine(line);
 
-            environmentVariableNames.add(environmentVariable.name());
-        }
+            @Override
+            public void overrideEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
+                consumeLine(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay()));
+            }
+        });
     }
 }

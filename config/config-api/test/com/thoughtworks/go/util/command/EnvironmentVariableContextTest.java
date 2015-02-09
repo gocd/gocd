@@ -17,13 +17,10 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -83,5 +80,26 @@ public class EnvironmentVariableContextTest {
         List<EnvironmentVariableContext.EnvironmentVariable> secureEnvironmentVariables = environmentVariableContext.getSecureEnvironmentVariables();
         assertThat(secureEnvironmentVariables.size(), is(1));
         assertThat(secureEnvironmentVariables, hasItem(new EnvironmentVariableContext.EnvironmentVariable("secure_foo", "secure_foo_value", true)));
+    }
+
+    @Test
+    public void shouldVisitEnvironmentVariablesCorrectly() {
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
+        context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
+
+        context.visit(new EnvironmentVariableVisitor() {
+            @Override
+            public void setEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
+                assertThat(environmentVariable.name(), is(PROPERTY_NAME));
+                assertThat(environmentVariable.value(), is(PROPERTY_VALUE));
+            }
+
+            @Override
+            public void overrideEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
+                assertThat(environmentVariable.name(), is(PROPERTY_NAME));
+                assertThat(environmentVariable.value(), is(NEW_VALUE));
+            }
+        });
     }
 }

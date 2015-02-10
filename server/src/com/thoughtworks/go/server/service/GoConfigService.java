@@ -48,7 +48,10 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -1106,7 +1109,7 @@ public class GoConfigService implements Initializer {
         protected org.dom4j.Document documentRoot() throws Exception {
             CruiseConfig cruiseConfig = goConfigFileDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, false);
+            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, true);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
             Map<String, String> map = new HashMap<String, String>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);

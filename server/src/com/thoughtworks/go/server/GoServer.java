@@ -272,13 +272,18 @@ public class GoServer {
         return validators;
     }
 
-    class LegacyUrlRequestHandler extends HandlerWrapper {
+    static class LegacyUrlRequestHandler extends HandlerWrapper {
 
         private final String oldContextUrl = GoConstants.OLD_URL_CONTEXT;
         private final String newContextUrl = GoConstants.GO_URL_CONTEXT;
+        private final MovedContextHandler movedContextHandler;
 
-        LegacyUrlRequestHandler() {
-            MovedContextHandler movedContextHandler = new MovedContextHandler();
+        private LegacyUrlRequestHandler() {
+            this(new MovedContextHandler());
+        }
+
+        LegacyUrlRequestHandler(MovedContextHandler movedContextHandler) {
+            this.movedContextHandler = movedContextHandler;
             movedContextHandler.setContextPath(oldContextUrl);
             movedContextHandler.setNewContextURL(newContextUrl);
             movedContextHandler.setPermanent(true);
@@ -289,7 +294,7 @@ public class GoServer {
             if (target.startsWith(GoConstants.OLD_URL_CONTEXT + "/") || target.equals(GoConstants.OLD_URL_CONTEXT)) {
                 String content = String.format("Url(s) starting in '%s' have been permanently moved to '%s', please use the new path.", oldContextUrl, newContextUrl);
                 response.setHeader("Content-Type", "text/plain");
-                super.handle(target, baseRequest, request, response);
+                movedContextHandler.handle(target, baseRequest, request, response);
                 response.setHeader("Content-Length", String.valueOf(content.length()));
                 PrintWriter writer = response.getWriter();
                 writer.write(content);

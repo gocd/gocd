@@ -569,18 +569,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.2</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.2</version>
-        </dependency>
-
         <!-- test dependencies -->
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
@@ -616,7 +604,6 @@
             <version>1.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.tlb</groupId>
             <artifactId>tlb-java</artifactId>
@@ -777,6 +764,44 @@
                 <version>1.7</version>
                 <executions>
                     <execution>
+                        <id>store-server-test-classpath</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <property name="test_classpath" refid="maven.test.classpath"/>
+                                <echo file="target/server-test-dependencies" append="false">${test_classpath}</echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-webapp</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <exec executable="${main.dir}\tools\bin\go.jruby.bat" failonerror="true" osfamily="windows">
+                                    <arg value="-S"></arg>
+                                    <arg value="rake"></arg>
+                                    <arg value="--rakefile"></arg>
+                                    <arg value="prepare_go_server_webapp.rake"></arg>
+                                    <arg value="prepare_webapp"></arg>
+                                </exec>
+                                <exec executable="${main.dir}/tools/bin/go.jruby" failonerror="true" osfamily="unix">
+                                    <arg value="-S"></arg>
+                                    <arg value="rake"></arg>
+                                    <arg value="--rakefile"></arg>
+                                    <arg value="prepare_go_server_webapp.rake"></arg>
+                                    <arg value="prepare_webapp"></arg>
+                                </exec>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>ant.test.tlb</id>
                         <phase>test</phase>
                         <goals>
@@ -881,61 +906,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>store-server-test-classpath</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <property name="test_classpath" refid="maven.test.classpath"/>
-                                <echo file="target/server-test-dependencies" append="false">${test_classpath}</echo>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>prepare-webapp</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <exec executable="${main.dir}\tools\bin\go.jruby.bat" failonerror="true" osfamily="windows">
-                                    <arg value="-S"></arg>
-                                    <arg value="rake"></arg>
-                                    <arg value="--rakefile"></arg>
-                                    <arg value="prepare_go_server_webapp.rake"></arg>
-                                    <arg value="prepare_webapp"></arg>
-                                </exec>
-                                <exec executable="${main.dir}/tools/bin/go.jruby" failonerror="true" osfamily="unix">
-                                    <arg value="-S"></arg>
-                                    <arg value="rake"></arg>
-                                    <arg value="--rakefile"></arg>
-                                    <arg value="prepare_go_server_webapp.rake"></arg>
-                                    <arg value="prepare_webapp"></arg>
-                                </exec>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

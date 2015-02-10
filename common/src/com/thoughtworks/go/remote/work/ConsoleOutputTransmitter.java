@@ -36,7 +36,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
     private CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
     private Integer sleepInSeconds;
     private final ConsoleAppender consoleAppender;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {
@@ -48,7 +48,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
 
     public void consumeLine(String line) {
         synchronized (buffer) {
-            buffer.add(format("[%s]%s", dateFormat.format(new Date()), line));
+            buffer.add(format("%s %s", dateFormat.format(new Date()), line));
         }
     }
 

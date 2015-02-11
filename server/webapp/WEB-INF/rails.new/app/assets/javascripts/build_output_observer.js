@@ -75,7 +75,7 @@ BuildOutputObserver.prototype = {
                 escapedOutPut = '<br/>' + escapedOutPut.replace(/\n/ig, '<br\/>');
             }
             if($('buildoutput_pre')){
-                $('buildoutput_pre').innerHTML += escapedOutPut;
+                $('buildoutput_pre').insert({bottom: escapedOutPut});
             }
         }
         return is_output_empty;

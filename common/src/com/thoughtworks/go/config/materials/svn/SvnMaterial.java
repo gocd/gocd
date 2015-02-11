@@ -150,6 +150,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
             cleanupAndUpdate(outputStreamConsumer, new SubversionRevision(revision), workingDir);
         }
         LOGGER.debug("done with update");
+        outputStreamConsumer.stdOutput("Done.\n");
     }
 
     public boolean isRepositoryChanged(File workingFolder) {

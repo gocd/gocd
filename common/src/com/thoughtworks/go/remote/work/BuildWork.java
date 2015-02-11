@@ -19,10 +19,12 @@ package com.thoughtworks.go.remote.work;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
+import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
@@ -47,9 +49,12 @@ import org.jdom.Element;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
+import static java.lang.String.format;
 
 public class BuildWork implements Work {
     private static final Log LOGGER = LogFactory.getLog(BuildWork.class);
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final BuildAssignment assignment;
 
@@ -102,7 +107,7 @@ public class BuildWork implements Work {
             goPublisher.reportErrorMessage(messageOf(e), e);
         }
         catch (Exception reportException) {
-            LOGGER.error(String.format("Unable to report error message - %s.", messageOf(e)), reportException);
+            LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
         reportCompletion(JobResult.Failed);
     }
@@ -129,6 +134,8 @@ public class BuildWork implements Work {
             return null;
         }
 
+        goPublisher.consumeLine(format("Current Time: %s\n", dateFormat.format(timeProvider.currentTime())));
+
         prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
         setupEnvrionmentContext(environmentVariableContext);
         plan.applyTo(environmentVariableContext);
@@ -139,7 +146,7 @@ public class BuildWork implements Work {
         }
 
         JobResult result = buildJob(environmentVariableContext);
-        completeJob();
+        completeJob(result);
         return result;
     }
 
@@ -157,6 +164,8 @@ public class BuildWork implements Work {
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageAsRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
+
+        goPublisher.consumeLine("Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
@@ -177,10 +186,12 @@ public class BuildWork implements Work {
         return execute(environmentVariableContext);
     }
 
-    private void completeJob() throws SocketTimeoutException {
+    private void completeJob(JobResult result) throws SocketTimeoutException {
         if (goPublisher.isIgnored()) {
             return;
         }
+
+        goPublisher.consumeLine(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(JobState.Completing);
         goPublisher.reportAction("Start to create properties");

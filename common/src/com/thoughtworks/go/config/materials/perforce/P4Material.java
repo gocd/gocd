@@ -157,6 +157,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         try {
             outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), serverAndPort));
             p4(baseDir, outputConsumer).sync(parseLong(revision.getRevision()), cleaned, outputConsumer);
+            outputConsumer.stdOutput("Done.\n");
         } catch (Exception e) {
             bomb(e);
         }

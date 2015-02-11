@@ -119,8 +119,8 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportAction(String action) {
-        String message = String.format("[%s] %s %s on %s [%s] at %s", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
-                agentIdentifier.getHostName(), currentWorkingDirectory, timeProvider.currentTime());
+        String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
+                agentIdentifier.getHostName(), currentWorkingDirectory);
         if (LOG.isDebugEnabled()) {
             LOG.debug(message);
         }

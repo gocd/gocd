@@ -129,9 +129,9 @@ public class GitMaterial extends ScmMaterial {
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
-
             GitCommand git = git(outputStreamConsumer, workingdir(baseDir));
             git.fetchAndReset(outputStreamConsumer, revision);
+            outputStreamConsumer.stdOutput("Done.\n");
         } catch (Exception e) {
             bomb(e);
         }

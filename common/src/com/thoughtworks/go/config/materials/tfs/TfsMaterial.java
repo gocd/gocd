@@ -149,7 +149,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] done with update");
         }
-        outputStreamConsumer.stdOutput("Done.\n");
+        outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
     }
 
     TfsCommand tfs(final SubprocessExecutionContext execCtx) {

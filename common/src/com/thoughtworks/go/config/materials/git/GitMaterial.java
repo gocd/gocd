@@ -131,7 +131,7 @@ public class GitMaterial extends ScmMaterial {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
             GitCommand git = git(outputStreamConsumer, workingdir(baseDir));
             git.fetchAndReset(outputStreamConsumer, revision);
-            outputStreamConsumer.stdOutput("Done.\n");
+            outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);
         }

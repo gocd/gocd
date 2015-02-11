@@ -36,6 +36,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -134,7 +135,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        goPublisher.consumeLine(format("Current Time: %s\n", dateFormat.format(timeProvider.currentTime())));
+        goPublisher.consumeLineWithPrefix(format("Current Time: %s\n", dateFormat.format(timeProvider.currentTime())));
 
         prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
         setupEnvrionmentContext(environmentVariableContext);
@@ -165,7 +166,7 @@ public class BuildWork implements Work {
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 
-        goPublisher.consumeLine("Start to update materials.\n");
+        goPublisher.consumeLineWithPrefix("Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
@@ -191,7 +192,7 @@ public class BuildWork implements Work {
             return;
         }
 
-        goPublisher.consumeLine(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
+        goPublisher.consumeLineWithPrefix(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(JobState.Completing);
         goPublisher.reportAction("Start to create properties");

@@ -20,6 +20,27 @@ module Admin::Materials
 
     load_pipeline_for_all_actions
 
+    def show_existing
+      assert_load :material, PluggableSCMMaterialConfig.new
+      assert_load :scms, @cruise_config.getSCMs()
+      render layout: false
+    end
+
+    def choose_existing
+      assert_load :material, PluggableSCMMaterialConfig.new
+
+      create_failure_handler = proc do |result, all_errors|
+        @errors = flatten_all_errors(all_errors)
+        @scms = @cruise_config.getSCMs()
+        render :template => "/admin/materials/pluggable_scm/show_existing", :status => result.httpCode(), :layout => false
+      end
+
+      save_popup(params[:config_md5], get_choose_existing_command, create_failure_handler, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
+        assert_load :pipeline, @node.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name]))
+        assert_load :material, @subject
+      end
+    end
+
     def new
       scm = com.thoughtworks.go.domain.scm.SCM.new
       scm.setPluginConfiguration(PluginConfiguration.new(params[:plugin_id], nil))
@@ -83,6 +104,34 @@ module Admin::Materials
     end
 
     private
+
+    def get_choose_existing_command
+      Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
+        include ::ConfigUpdate::LoadConfig
+
+        def initialize params, user, security_service, material
+          super(params, user, security_service)
+          @material = material
+        end
+
+        def node(cruise_config)
+          cruise_config
+        end
+
+        def subject(cruise_config)
+          cruise_config.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name])).materialConfigs().last()
+        end
+
+        def update(cruise_config)
+          scm = cruise_config.getSCMs().find(params[:material][:scmId])
+          @material.setSCMConfig(scm)
+
+          @material.setConfigAttributes(params[:material])
+
+          cruise_config.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name])).addMaterialConfig(@material)
+        end
+      end.new(params, current_user.getUsername(), security_service, @material)
+    end
 
     def get_create_command
       Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do

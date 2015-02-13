@@ -121,6 +121,7 @@ describe "admin/materials/index.html.erb" do
         expect(lis[3]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Perforce'})")
         expect(lis[4]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Team Foundation Server'})")
         expect(lis[5]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Display Name'})")
+        expect(lis[6]['onclick']).to eq("Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: 'Add Material - Select SCM'})")
       end
     end
   end
@@ -159,8 +160,8 @@ describe "admin/materials/index.html.erb" do
 
       Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
         ul.all("li a[href='#']").tap do |lis|
-          expect(lis[7]['onclick']).to eq("Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})")
-          expect(lis[7].text).to eq("Package")
+          expect(lis[8]['onclick']).to eq("Modalbox.show('#{admin_package_new_path}', {overlayClose: false, title: 'Add Material - Package'})")
+          expect(lis[8].text).to eq("Package")
         end
       end
     end
@@ -174,6 +175,17 @@ describe "admin/materials/index.html.erb" do
         ul.all("li a[href='#']").tap do |lis|
           expect(lis[5]['onclick']).to eq("Modalbox.show('#{admin_pluggable_scm_new_path(:pipeline_name => @pipeline_config.name(), :plugin_id => 'plugin')}', {overlayClose: false, title: 'Add Material - Display Name'})")
           expect(lis[5].text).to eq("Display Name")
+        end
+      end
+    end
+
+    it "should list choose SCM material in the add new material dropdown" do
+      render
+
+      Capybara.string(response.body).find('div.enhanced_dropdown ul').tap do |ul|
+        ul.all("li a[href='#']").tap do |lis|
+          expect(lis[6]['onclick']).to eq("Modalbox.show('#{admin_pluggable_scm_show_existing_path(:pipeline_name => @pipeline_config.name())}', {overlayClose: false, title: 'Add Material - Select SCM'})")
+          expect(lis[6].text).to eq("SCM")
         end
       end
     end

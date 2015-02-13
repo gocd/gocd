@@ -68,14 +68,15 @@ BuildOutputObserver.prototype = {
     },
     _update_live_output: function (build_output) {
         var is_output_empty = !build_output;
-        if (!is_output_empty) {
+        var buildoutputPreElement = $('buildoutput_pre');
+        if (!is_output_empty && buildoutputPreElement) {
             var escapedOutPut = build_output.escapeHTML();
             if (Prototype.Browser.IE) {
                 // Fix for the IE not wrap /r in pre bug
                 escapedOutPut = '<br/>' + escapedOutPut.replace(/\n/ig, '<br\/>');
-            }
-            if($('buildoutput_pre')){
-                $('buildoutput_pre').insert({bottom: escapedOutPut});
+                buildoutputPreElement.innerHTML += escapedOutPut;
+            } else {
+                buildoutputPreElement.insert({bottom: escapedOutPut})
             }
         }
         return is_output_empty;

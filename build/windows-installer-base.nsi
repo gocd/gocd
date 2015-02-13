@@ -62,6 +62,26 @@ UninstallIcon $%GO_ICON%
 XPStyle on
 
 ;--------------------------------
+; Make logging conditional. Inspiration: http://nsis.sourceforge.net/Logging:Enable_Logs_Quickly
+; NSIS has to be *compiled* with logging enabled. This flag allows logging to be disabled
+; during installer creation, so that the default nsis package in debian can be used to create
+; and installer, which does not create an install.log file.
+!define LogSet "!insertmacro LogSetMacro"
+!macro LogSetMacro SETTING
+  !if "$%DISABLE_LOGGING%" != "true"
+    LogSet ${SETTING}
+  !endif
+!macroend
+
+!define LogText "!insertmacro LogTextMacro"
+!macro LogTextMacro INPUT_TEXT
+  !if "$%DISABLE_LOGGING%" != "true"
+    LogText $INPUT_TEXT
+  !endif
+!macroend
+;--------------------------------
+
+;--------------------------------
 Function .onInit
     ; Check if go is already installed - if it exists no errors is set
     ClearErrors
@@ -71,7 +91,7 @@ Function .onInit
     IfSilent TURN_ON_LOGGING TURN_OFF_LOGGING
       TURN_ON_LOGGING:
                   SetOutPath $INSTDIR
-                  LogSet on
+                  ${LogSet} on
       TURN_OFF_LOGGING:
 
    ; If we get an error then the key does not exist and we're doing a clean install
@@ -83,7 +103,7 @@ Function .onInit
         issame:
             IfSilent IsSameSilentLabel IsSameNonSilentLabel
 	        IsSameSilentLabel:
-	            LogText "Go $%NAME% $%VERSION% is already installed."
+	            ${LogText} "Go $%NAME% $%VERSION% is already installed."
                 Goto IsSameDone
             IsSameNonSilentLabel:
                 MessageBox MB_OK "Go $%NAME% $%VERSION% is already installed."
@@ -94,7 +114,7 @@ Function .onInit
         isnewer:
             IfSilent IsNewerSilentLabel IsNewerNonSilentLabel
             IsNewerSilentLabel:
-                LogText "Go $%NAME% upgraded from $2 to $%VERSION%"
+                ${LogText} "Go $%NAME% upgraded from $2 to $%VERSION%"
                 Goto upgrade
             IsNewerNonSilentLabel:
                 MessageBox MB_YESNO "This will upgrade Go $%NAME% from $2 to $%VERSION%.$\r$\nMake sure you have backups before doing this!$\r$\nDo you want to continue?" IDYES upgrade IDNO dontupgrade
@@ -102,7 +122,7 @@ Function .onInit
         isolder:
             IfSilent IsOlderSilentLabel IsOlderNonSilentLabel
             IsOlderSilentLabel:
-                LogText "Go $%NAME% $2 is installed, and you are trying to install an older version ($%VERSION%).This is not supported."
+                ${LogText} "Go $%NAME% $2 is installed, and you are trying to install an older version ($%VERSION%).This is not supported."
                 Goto IsOlderDone
             IsOlderNonSilentLabel:
                 MessageBox MB_OK "Go $%NAME% $2 is installed, and you are trying to install an older version ($%VERSION%).$\r$\nThis is not supported."
@@ -132,7 +152,7 @@ Function .onInit
         isCruise:
             IfSilent IsCruiseSilentLabel IsCruiseNonSilentLabel
             IsCruiseSilentLabel:
-                LogText "Go $%NAME% upgrade from $2 to $%VERSION%"
+                ${LogText} "Go $%NAME% upgrade from $2 to $%VERSION%"
                 Goto upgradeToGo
             IsCruiseNonSilentLabel:
                 MessageBox MB_YESNO "This will upgrade Go $%NAME% from $2 to $%VERSION%.$\r$\nMake sure you have backups before doing this!$\r$\nDo you want to continue?" IDYES upgradeToGo IDNO dontupgradeToGo
@@ -276,7 +296,7 @@ Section "Install"
     done:
     SetOverWrite on
     ; Uncomment line below to enable NSIS logging
-    LogSet on
+    ${LogSet} on
 
     SetOutPath $INSTDIR\$%JAVA%
     File /r $%JAVASRC%\*.*

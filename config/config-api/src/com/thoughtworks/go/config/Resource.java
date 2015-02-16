@@ -41,8 +41,6 @@ public class Resource extends PersistentObject implements Serializable, Comparab
 
     public Resource(Resource resource) {
         this(resource.name);
-        this.id = resource.id;
-        this.buildId = resource.buildId;
         this.configErrors = resource.configErrors;
     }
 

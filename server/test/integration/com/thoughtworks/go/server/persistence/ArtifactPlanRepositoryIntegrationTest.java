@@ -151,11 +151,9 @@ public class ArtifactPlanRepositoryIntegrationTest {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
 
         // Act
-        artifactPlan.setBuildId(firstJobInstance.getId());
-        ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(artifactPlan);
+        ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(firstJobInstance.getId(), artifactPlan);
 
-        artifactPlan.setBuildId(secondJobInstance.getId());
-        ArtifactPlan artifactPlanOfSecondJob = artifactPlanRepository.saveCopyOf(artifactPlan);
+        ArtifactPlan artifactPlanOfSecondJob = artifactPlanRepository.saveCopyOf(secondJobInstance.getId(), artifactPlan);
 
         // Assert
         List<ArtifactPlan> firstJobArtifactPlans = artifactPlanRepository.findByBuildId(firstJobInstance.getId());

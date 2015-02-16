@@ -284,9 +284,9 @@
                         </goals>
                         <configuration>
                             <target>
-                                <exec executable="hg" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
+                                <exec executable="git" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
                                     <arg value="clone"/>
-                                    <arg value="https://bitbucket.org/jyotisingh/hg-textauth"/>
+                                    <arg value="https://github.com/gocd/hg-textauth"/>
                                 </exec>
                                 <exec executable="docker" >
                                     <arg value="run"/>
@@ -299,7 +299,7 @@
                                     <arg value="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted/:/mounted_volume:ro"/>
                                     <arg value="-w"/>
                                     <arg value="/mounted_volume"/>
-                                    <arg value="jyotisingh/ubuntu-hg"/>
+                                    <arg value="gocd/ubuntu-hg"/>
                                     <arg value="/bin/sh"/>
                                     <arg value="setup.sh"/>
                                 </exec>

@@ -40,6 +40,7 @@ import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.security.GoAcl;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -69,7 +70,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.lang.String.format;
 
 @Service
-public class GoConfigService {
+public class GoConfigService implements Initializer {
     private GoConfigFileDao goConfigFileDao;
     private PipelineRepository pipelineRepository;
     private GoConfigMigration upgrader;
@@ -110,6 +111,7 @@ public class GoConfigService {
         this.clock = clock;
     }
 
+    @Override
     public void initialize() {
         this.goConfigFileDao.load();
         register(new BaseUrlChangeListener(serverConfig(), goCache));

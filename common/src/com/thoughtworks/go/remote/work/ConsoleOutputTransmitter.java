@@ -36,7 +36,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
     private CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
     private Integer sleepInSeconds;
     private final ConsoleAppender consoleAppender;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {

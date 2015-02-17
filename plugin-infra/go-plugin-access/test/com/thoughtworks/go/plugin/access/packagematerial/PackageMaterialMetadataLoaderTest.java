@@ -119,16 +119,4 @@ public class PackageMaterialMetadataLoaderTest {
         assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
         assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(nullValue()));
     }
-
-    @Test
-    public void shouldNotTryRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
-        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
-        PackageConfigurations packageConfigurations = new PackageConfigurations();
-        RepositoryMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), repositoryConfigurations);
-        PackageMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), packageConfigurations);
-        when(packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())).thenReturn(false);
-        metadataLoader.pluginUnLoaded(pluginDescriptor);
-        assertThat(RepositoryMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(repositoryConfigurations));
-        assertThat(PackageMetadataStore.getInstance().getMetadata(pluginDescriptor.id()), is(packageConfigurations));
-    }
 }

@@ -124,28 +124,20 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
         File file = new File(buildWorkingDirectory, getSrc());
         String indent = "             ";
         if (!file.exists()) {
-            publisher.consumeLine(
-                    format("%sFailed to create property %s. File %s does not exist." + "\n",
-                            indent, getName(), file.getAbsolutePath()));
+            publisher.consumeLine(format("%sFailed to create property %s. File %s does not exist.", indent, getName(), file.getAbsolutePath()));
         } else {
             try {
                 if (!XpathUtils.nodeExists(file, getXpath())) {
-                    publisher.consumeLine(format(
-                            "%sFailed to create property %s. Nothing matched xpath \"%s\" in the file: %s." + "\n",
-                            "             ", getName(), getXpath(), file.getAbsolutePath()));
+                    publisher.consumeLine(format("%sFailed to create property %s. Nothing matched xpath \"%s\" in the file: %s.", indent, getName(), getXpath(), file.getAbsolutePath()));
                 } else {
                     String value = XpathUtils.evaluate(file, getXpath());
                     publisher.setProperty(new Property(getName(), value));
 
-                    publisher.consumeLine(
-                            format("%sProperty %s = %s created." + "\n", indent, getName(), value));
+                    publisher.consumeLine(format("%sProperty %s = %s created." + "\n", indent, getName(), value));
                 }
             } catch (Exception e) {
-                String error = (e instanceof XPathExpressionException)
-                        ? (format("Illegal xpath: \"%s\"", getXpath()))
-                        : ExceptionUtils.messageOf(e);
-                String message = format("%sFailed to create property %s. %s" + "\n", indent, getName(),
-                        error);
+                String error = (e instanceof XPathExpressionException) ? (format("Illegal xpath: \"%s\"", getXpath())) : ExceptionUtils.messageOf(e);
+                String message = format("%sFailed to create property %s. %s", indent, getName(), error);
                 publisher.reportErrorMessage(message, e);
             }
         }

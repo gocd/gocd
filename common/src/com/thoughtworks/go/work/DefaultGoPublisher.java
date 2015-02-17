@@ -146,15 +146,15 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
-        environmentVariableContext.visit(new EnvironmentVariableVisitor() {
+        environmentVariableContext.accept(new EnvironmentVariableVisitor() {
             @Override
-            public void setEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
-                consumeLine(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay()));
+            public void setEnvironmentVariable(String name, String valueForDisplay) {
+                consumeLine(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, valueForDisplay));
             }
 
             @Override
-            public void overrideEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
-                consumeLine(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, environmentVariable.name(), environmentVariable.valueForDisplay()));
+            public void overrideEnvironmentVariable(String name, String valueForDisplay) {
+                consumeLine(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, valueForDisplay));
             }
         });
     }

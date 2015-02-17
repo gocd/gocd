@@ -188,14 +188,14 @@ public class EnvironmentVariableContext implements Serializable {
         this.properties.addAll(another.properties);
     }
 
-    public void visit(EnvironmentVariableVisitor visitor) {
+    public void accept(EnvironmentVariableVisitor visitor) {
         Set<String> environmentVariableNames = new HashSet<String>();
 
         for (EnvironmentVariableContext.EnvironmentVariable environmentVariable : properties) {
             if (environmentVariableNames.contains(environmentVariable.name())) {
-                visitor.overrideEnvironmentVariable(environmentVariable);
+                visitor.overrideEnvironmentVariable(environmentVariable.name(), environmentVariable.valueForDisplay());
             } else {
-                visitor.setEnvironmentVariable(environmentVariable);
+                visitor.setEnvironmentVariable(environmentVariable.name(), environmentVariable.valueForDisplay());
             }
 
             environmentVariableNames.add(environmentVariable.name());

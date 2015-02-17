@@ -88,17 +88,17 @@ public class EnvironmentVariableContextTest {
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
         context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
 
-        context.visit(new EnvironmentVariableVisitor() {
+        context.accept(new EnvironmentVariableVisitor() {
             @Override
-            public void setEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
-                assertThat(environmentVariable.name(), is(PROPERTY_NAME));
-                assertThat(environmentVariable.value(), is(PROPERTY_VALUE));
+            public void setEnvironmentVariable(String name, String valueForDisplay) {
+                assertThat(name, is(PROPERTY_NAME));
+                assertThat(valueForDisplay, is(PROPERTY_VALUE));
             }
 
             @Override
-            public void overrideEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable) {
-                assertThat(environmentVariable.name(), is(PROPERTY_NAME));
-                assertThat(environmentVariable.value(), is(NEW_VALUE));
+            public void overrideEnvironmentVariable(String name, String valueForDisplay) {
+                assertThat(name, is(PROPERTY_NAME));
+                assertThat(valueForDisplay, is(NEW_VALUE));
             }
         });
     }

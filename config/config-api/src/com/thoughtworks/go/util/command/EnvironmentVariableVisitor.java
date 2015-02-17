@@ -17,7 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 public interface EnvironmentVariableVisitor {
-    public void setEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable);
+    public void setEnvironmentVariable(String name, String valueForDisplay);
 
-    public void overrideEnvironmentVariable(EnvironmentVariableContext.EnvironmentVariable environmentVariable);
+    public void overrideEnvironmentVariable(String name, String valueForDisplay);
 }

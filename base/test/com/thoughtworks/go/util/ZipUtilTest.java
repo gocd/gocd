@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
@@ -32,8 +24,18 @@ import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -50,6 +52,8 @@ public class ZipUtilTest {
     private File specialFile;
     private File zipFile;
     private File emptyDir;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static String fileContent(File file) throws IOException {
         return IOUtils.toString(new FileInputStream(file));
@@ -68,6 +72,7 @@ public class ZipUtilTest {
         file2 = new File(childDir1, "_file2");
         FileUtils.writeStringToFile(file2, "_file2");
         zipUtil = new ZipUtil();
+        temporaryFolder.create();
     }
 
     @After
@@ -78,6 +83,7 @@ public class ZipUtilTest {
             if (zipFile != null) {
                 FileUtils.forceDelete(zipFile);
             }
+            temporaryFolder.delete();
         } catch (IOException e) {
         }
     }
@@ -218,6 +224,18 @@ public class ZipUtilTest {
         } finally {
             TestFileUtil.cleanTempFiles();
         }
+    }
+
+    @Test
+    public void shouldPreserveFileTimestampWhileGeneratingTheZipFile() throws Exception {
+        File file = temporaryFolder.newFile("foo.txt");
+        file.setLastModified(1297989100000L); // Set this to any date in the past which is greater than the epoch
+        File zip = zipUtil.zip(file, temporaryFolder.newFile("foo.zip"), Deflater.DEFAULT_COMPRESSION);
+
+        ZipFile actualZip = new ZipFile(zip.getAbsolutePath());
+        ZipEntry entry = actualZip.getEntry(file.getName());
+
+        assertThat(entry.getTime(), is(file.lastModified()));
     }
 
     private void assertContent(File targetZipFile, String file, String expectedContent) throws IOException {

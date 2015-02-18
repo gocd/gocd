@@ -175,11 +175,7 @@ public class ArtifactPlanTest {
         existingPlan.setBuildId(10);
         existingPlan.addError("abc", "def");
 
-        ArtifactPlan newPlan = new ArtifactPlan(existingPlan);
-
-        String reason = "\nExpected: " + reflectionToString(existingPlan) + "\n but was: " + reflectionToString(newPlan);
-        assertThat(reason, existingPlan, equalTo(newPlan));
-        assertThat(reason, EqualsBuilder.reflectionEquals(existingPlan, newPlan), is(true));
-        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingPlan), newPlan), is(true));
+        assertThat(existingPlan, equalTo(new ArtifactPlan(existingPlan)));
+        assertThat(existingPlan, equalTo(new Cloner().deepClone(existingPlan)));
     }
 }

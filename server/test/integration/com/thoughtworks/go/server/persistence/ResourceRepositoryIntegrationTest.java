@@ -120,11 +120,9 @@ public class ResourceRepositoryIntegrationTest {
         Resource resource = new Resource("something");
 
         // Act
-        resource.setBuildId(firstJobInstance.getId());
-        Resource resourceOfFirstJob = resourceRepository.saveCopyOf(resource);
+        Resource resourceOfFirstJob = resourceRepository.saveCopyOf(firstJobInstance.getId(), resource);
 
-        resource.setBuildId(secondJobInstance.getId());
-        Resource resourceOfSecondJob = resourceRepository.saveCopyOf(resource);
+        Resource resourceOfSecondJob = resourceRepository.saveCopyOf(secondJobInstance.getId(), resource);
 
         // Assert
         List<Resource> firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());

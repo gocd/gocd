@@ -120,11 +120,9 @@ public class ArtifactPropertiesGeneratorRepositoryIntegrationTest {
         ArtifactPropertiesGenerator generator = new ArtifactPropertiesGenerator("test", "src", "//xpath");
 
         // Act
-        generator.setJobId(firstJobInstance.getId());
-        ArtifactPropertiesGenerator generatorOfFirstJob = artifactPropertiesGeneratorRepository.saveCopyOf(generator);
+        ArtifactPropertiesGenerator generatorOfFirstJob = artifactPropertiesGeneratorRepository.saveCopyOf(firstJobInstance.getId(), generator);
 
-        generator.setJobId(secondJobInstance.getId());
-        ArtifactPropertiesGenerator generatorOfSecondJob = artifactPropertiesGeneratorRepository.saveCopyOf(generator);
+        ArtifactPropertiesGenerator generatorOfSecondJob = artifactPropertiesGeneratorRepository.saveCopyOf(secondJobInstance.getId(), generator);
 
         // Assert
         List<ArtifactPropertiesGenerator> firstJobGenerators = artifactPropertiesGeneratorRepository.findByBuildId(firstJobInstance.getId());

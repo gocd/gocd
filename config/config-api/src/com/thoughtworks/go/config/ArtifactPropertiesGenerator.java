@@ -56,8 +56,6 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
 
     public ArtifactPropertiesGenerator(ArtifactPropertiesGenerator other) {
         this(other.name, other.src, other.xpath);
-        this.id = other.id;
-        this.jobId = other.jobId;
         this.configErrors = other.configErrors;
     }
 

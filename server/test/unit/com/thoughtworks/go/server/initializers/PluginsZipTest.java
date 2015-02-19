@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-import java.util.zip.ZipFile;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
@@ -27,25 +24,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.util.SystemEnvironment.ALL_PLUGINS_ZIP_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
+import java.io.File;
+import java.util.zip.ZipFile;
+
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PluginsZipInitializerTest {
+public class PluginsZipTest {
     private SystemEnvironment systemEnvironment;
-    private PluginsZipInitializer pluginsZipInitializer;
+    private PluginsZip pluginsZip;
 
     @Before
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
 
-        pluginsZipInitializer = new PluginsZipInitializer(systemEnvironment, new ZipUtil());
+        pluginsZip = new PluginsZip(systemEnvironment, new ZipUtil());
     }
 
     @After
@@ -69,7 +67,7 @@ public class PluginsZipInitializerTest {
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
         when(systemEnvironment.get(ALL_PLUGINS_ZIP_PATH)).thenReturn(expectedZipPath);
 
-        pluginsZipInitializer.initialize();
+        pluginsZip.create();
 
         assertThat(expectedZipPath + " should exist", new File(expectedZipPath).exists(), is(true));
         assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled1.jar"), is(notNullValue()));

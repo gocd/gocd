@@ -16,28 +16,27 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
-public class PluginsZipInitializer implements Initializer {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsZipInitializer.class);
+public class PluginsZip {
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsZip.class);
     private final SystemEnvironment systemEnvironment;
     private ZipUtil zipUtil;
 
     @Autowired
-    public PluginsZipInitializer(SystemEnvironment systemEnvironment, ZipUtil zipUtil) {
+    public PluginsZip(SystemEnvironment systemEnvironment, ZipUtil zipUtil) {
         this.systemEnvironment = systemEnvironment;
         this.zipUtil = zipUtil;
     }
 
-    @Override
-    public void initialize() {
+    public void create() {
         if (!systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)) {
             return;
         }

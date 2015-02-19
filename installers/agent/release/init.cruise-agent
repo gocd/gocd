@@ -68,9 +68,9 @@ start_go_agent() {
 
     if [ "$JAVA_HOME" != "" ]; then
         if [ "${CUR_USER}" == "root" ]; then
-            start_daemon /bin/su - go -c /usr/share/go-agent/agent.sh
+            start_daemon /bin/su - go -c /usr/share/go-agent/agent.sh >/dev/null 2>&1
         else
-            start_daemon /usr/share/go-agent/agent.sh
+            start_daemon /usr/share/go-agent/agent.sh >/dev/null 2>&1
         fi
     else
         log_failure_msg "Starting up of Go Agent requires JAVA_HOME to be set in /etc/default/go-agent. Please set JAVA_HOME to proceed."

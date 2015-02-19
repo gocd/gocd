@@ -49,7 +49,6 @@ public class ZipUtilTest {
     private File childDir1;
     private File file1;
     private File file2;
-    private File specialFile;
     private File zipFile;
     private File emptyDir;
     @Rule
@@ -61,8 +60,10 @@ public class ZipUtilTest {
 
     @Before
     public void setUp() throws Exception {
-        srcDir = TestFileUtil.createTempFolder("_test1");
-        destDir = TestFileUtil.createTempFolder("_test2");
+        temporaryFolder.create();
+
+        srcDir = temporaryFolder.newFolder("_test1");
+        destDir = temporaryFolder.newFolder("_test2");
         emptyDir = new File(srcDir, "_emptyDir");
         emptyDir.mkdir();
         childDir1 = new File(srcDir, "_child1");
@@ -72,25 +73,16 @@ public class ZipUtilTest {
         file2 = new File(childDir1, "_file2");
         FileUtils.writeStringToFile(file2, "_file2");
         zipUtil = new ZipUtil();
-        temporaryFolder.create();
     }
 
     @After
     public void tearDown() {
-        try {
-            FileUtils.forceDelete(srcDir);
-            FileUtils.forceDelete(destDir);
-            if (zipFile != null) {
-                FileUtils.forceDelete(zipFile);
-            }
-            temporaryFolder.delete();
-        } catch (IOException e) {
-        }
+        temporaryFolder.delete();
     }
 
     @Test
     public void shouldZipFileAndUnzipIt() throws IOException {
-        zipFile = zipUtil.zip(srcDir, TestFileUtil.createUniqueTempFile(srcDir.getName()), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile(), is(true));
 
         zipUtil.unzip(zipFile, destDir);
@@ -110,7 +102,7 @@ public class ZipUtilTest {
 
     @Test
     public void shouldZipFileContentsAndUnzipIt() throws IOException {
-        zipFile = zipUtil.zip(srcDir, TestFileUtil.createUniqueTempFile(srcDir.getName()), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile(), is(true));
 
         zipUtil.unzip(zipFile, destDir);
@@ -130,7 +122,7 @@ public class ZipUtilTest {
 
     @Test
     public void shouldZipFileContentsOnly() throws IOException {
-        zipFile = zipUtil.zipFolderContents(srcDir, TestFileUtil.createUniqueTempFile(srcDir.getName()), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zipFolderContents(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile(), is(true));
 
         zipUtil.unzip(zipFile, destDir);
@@ -150,10 +142,10 @@ public class ZipUtilTest {
     @Test
     @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
     public void shouldZipFileWhoseNameHasSpecialCharactersOnLinux() throws IOException {
-        specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
+        File specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
         FileUtils.writeStringToFile(specialFile, "specialFile");
 
-        zipFile = zipUtil.zip(srcDir, TestFileUtil.createUniqueTempFile(srcDir.getName()), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFolder(), Deflater.NO_COMPRESSION);
         zipUtil.unzip(zipFile, destDir);
         File baseDir = new File(destDir, srcDir.getName());
 
@@ -165,7 +157,7 @@ public class ZipUtilTest {
     @Test
     public void shouldReadContentsOfAFileWhichIsInsideAZip() throws Exception {
         FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here");
-        zipFile = zipUtil.zip(srcDir, TestFileUtil.createUniqueTempFile(srcDir.getName()), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
 
         String someStuff = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(zipFile)), "some-file.txt");
 
@@ -174,56 +166,49 @@ public class ZipUtilTest {
 
     @Test
     public void shouldZipMultipleFolderContentsAndExcludeRootDirectory() throws IOException {
-        try {
-            File folderOne = TestFileUtil.createTempFolder("a-folder1");
-            FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
-            FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
+        File folderOne = temporaryFolder.newFolder("a-folder1");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
 
-            File folderTwo = TestFileUtil.createTempFolder("a-folder2");
-            FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
-            FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
+        File folderTwo = temporaryFolder.newFolder("a-folder2");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
 
-            File targetZipFile = TestFileUtil.createTempFile("final1.zip");
+        File targetZipFile = temporaryFolder.newFile("final1.zip");
 
-            ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, true);
-            zipBuilder.add("folder-one", folderOne);
-            zipBuilder.add("folder-two", folderTwo);
-            zipBuilder.done();
+        ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, true);
+        zipBuilder.add("folder-one", folderOne);
+        zipBuilder.add("folder-two", folderTwo);
+        zipBuilder.done();
 
-            assertContent(targetZipFile, "folder-one/folder1-file1.txt", "folder1-file1");
-            assertContent(targetZipFile, "folder-one/folder1-file2.txt", "folder1-file2");
-            assertContent(targetZipFile, "folder-two/folder2-file1.txt", "folder2-file1");
-            assertContent(targetZipFile, "folder-two/folder2-file2.txt", "folder2-file2");
-        } finally {
-            TestFileUtil.cleanTempFiles();
-        }
+        assertContent(targetZipFile, "folder-one/folder1-file1.txt", "folder1-file1");
+        assertContent(targetZipFile, "folder-one/folder1-file2.txt", "folder1-file2");
+        assertContent(targetZipFile, "folder-two/folder2-file1.txt", "folder2-file1");
+        assertContent(targetZipFile, "folder-two/folder2-file2.txt", "folder2-file2");
     }
 
     @Test
     public void shouldZipMultipleFolderContentsWhenNotExcludingRootDirectory() throws IOException {
-        try {
-            File folderOne = TestFileUtil.createTempFolder("folder1");
-            FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
-            FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
 
-            File folderTwo = TestFileUtil.createTempFolder("folder2");
-            FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
-            FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
+        File folderOne = temporaryFolder.newFolder("folder1");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1");
+        FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2");
 
-            File targetZipFile = TestFileUtil.createTempFile("final2.zip");
+        File folderTwo = temporaryFolder.newFolder("folder2");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1");
+        FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2");
 
-            ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, false);
-            zipBuilder.add("folder-one", folderOne);
-            zipBuilder.add("folder-two", folderTwo);
-            zipBuilder.done();
+        File targetZipFile = temporaryFolder.newFile("final2.zip");
 
-            assertContent(targetZipFile, "folder-one/folder1/folder1-file1.txt", "folder1-file1");
-            assertContent(targetZipFile, "folder-one/folder1/folder1-file2.txt", "folder1-file2");
-            assertContent(targetZipFile, "folder-two/folder2/folder2-file1.txt", "folder2-file1");
-            assertContent(targetZipFile, "folder-two/folder2/folder2-file2.txt", "folder2-file2");
-        } finally {
-            TestFileUtil.cleanTempFiles();
-        }
+        ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, false);
+        zipBuilder.add("folder-one", folderOne);
+        zipBuilder.add("folder-two", folderTwo);
+        zipBuilder.done();
+
+        assertContent(targetZipFile, "folder-one/folder1/folder1-file1.txt", "folder1-file1");
+        assertContent(targetZipFile, "folder-one/folder1/folder1-file2.txt", "folder1-file2");
+        assertContent(targetZipFile, "folder-two/folder2/folder2-file1.txt", "folder2-file1");
+        assertContent(targetZipFile, "folder-two/folder2/folder2-file2.txt", "folder2-file2");
     }
 
     @Test

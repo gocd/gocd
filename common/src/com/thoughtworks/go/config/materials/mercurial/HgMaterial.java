@@ -124,10 +124,9 @@ public class HgMaterial extends ScmMaterial {
 
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         try {
-            outputStreamConsumer.stdOutput(
-                    format("\n[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(),
-                            revision.getRevision(), url.forDisplay()));
+            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url.forDisplay()));
             hg(baseDir, outputStreamConsumer).updateTo(revision, outputStreamConsumer);
+            outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);
         }

@@ -59,8 +59,6 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
 
     public ArtifactPlan(ArtifactPlan other) {
         this(other.artifactType, other.src, other.dest);
-        this.id = other.id;
-        this.buildId = other.buildId;
         this.errors = other.errors;
     }
 

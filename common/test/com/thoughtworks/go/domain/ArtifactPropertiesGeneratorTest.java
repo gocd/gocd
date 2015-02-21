@@ -129,12 +129,8 @@ public class ArtifactPropertiesGeneratorTest {
         existingGenerator.setJobId(10);
         existingGenerator.addError("abc", "def");
 
-        ArtifactPropertiesGenerator newGenerator = new ArtifactPropertiesGenerator(existingGenerator);
-
-        String reason = "\nExpected: " + reflectionToString(existingGenerator) + "\n but was: " + reflectionToString(newGenerator);
-        assertThat(reason, existingGenerator, equalTo(newGenerator));
-        assertThat(reason, EqualsBuilder.reflectionEquals(existingGenerator, newGenerator), is(true));
-        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingGenerator), newGenerator), is(true));
+        assertThat(existingGenerator, equalTo(new ArtifactPropertiesGenerator(existingGenerator)));
+        assertThat(existingGenerator, equalTo(new Cloner().deepClone(existingGenerator)));
     }
 
     private File createSrcFile() throws IOException {

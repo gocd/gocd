@@ -62,7 +62,13 @@ public class GoConfigMother {
         group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString(user)));
     }
 
-    public void addRoleAsSuperAdminOfGo(CruiseConfig cruiseConfig, String rolename) {
+    public GoConfigMother addAdminRoleForPipelineGroup(CruiseConfig config, String roleName, String groupName) {
+        PipelineConfigs group = config.getGroups().findGroup(groupName);
+        group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
+        return this;
+    }
+
+    public void addRoleAsSuperAdmin(CruiseConfig cruiseConfig, String rolename) {
         AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
         adminsConfig.addRole(new AdminRole(new CaseInsensitiveString(rolename)));
     }
@@ -71,12 +77,17 @@ public class GoConfigMother {
         cruiseConfig.server().security().modifyPasswordFile(new PasswordFileConfig("password_file_path"));
     }
 
-    public static CruiseConfig enableSuperAdminForConfig(CruiseConfig config, String adminName) {
+    public static CruiseConfig addUserAsSuperAdmin(CruiseConfig config, String adminName) {
         config.server().security().adminsConfig().add(new AdminUser(new CaseInsensitiveString(adminName)));
         return config;
     }
 
-    public void addAuthorizedRoleForPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
+    public void addUserAsViewerOfPipelineGroup(CruiseConfig cruiseConfig, String userName, String groupName) {
+        PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
+        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(userName)));
+    }
+
+    public void addRoleAsViewerOfPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
         group.getAuthorization().getViewConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
     }

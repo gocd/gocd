@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.GoConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
+import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -74,6 +75,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
+    @Autowired private CcTrayActivityListener ccTrayActivityListener;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -109,6 +111,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             materialUpdateService.initialize();
             pipelineScheduler.initialize();
             removeAdminPermissionFilter.initialize();
+            ccTrayActivityListener.initialize();
 
             pipelineTimeline.updateTimelineOnInit();
             pipelineSqlMapDao.initialize();

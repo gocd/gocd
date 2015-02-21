@@ -122,10 +122,10 @@ public class DirectoryCleaner {
         }
         for (File file : files) {
             if (!allowed.contains(file)) {
-                consumer.stdOutput(String.format("\n[%s] Deleting folder %s", GoConstants.PRODUCT_NAME, file));
+                consumer.stdOutput(String.format("[%s] Deleting folder %s", GoConstants.PRODUCT_NAME, file));
                 FileUtil.deleteFolder(file);
             } else {
-                consumer.stdOutput(String.format("\n[%s] Keeping folder %s", GoConstants.PRODUCT_NAME, file));
+                consumer.stdOutput(String.format("[%s] Keeping folder %s", GoConstants.PRODUCT_NAME, file));
             }
         }
     }

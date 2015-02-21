@@ -17,13 +17,17 @@
 package com.thoughtworks.go.remote.work;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.log4j.Logger;
+
+import static java.lang.String.format;
 
 public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable {
     private static final Logger LOGGER = Logger.getLogger(ConsoleOutputTransmitter.class);
@@ -32,6 +36,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
     private CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
     private Integer sleepInSeconds;
     private final ConsoleAppender consoleAppender;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
 
     public ConsoleOutputTransmitter(ConsoleAppender consoleAppender) {
@@ -43,7 +48,7 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
 
     public void consumeLine(String line) {
         synchronized (buffer) {
-            buffer.add(line);
+            buffer.add(format("%s %s", dateFormat.format(new Date()), line));
         }
     }
 

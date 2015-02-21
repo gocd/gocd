@@ -130,11 +130,7 @@ public class ResourceTest {
         existingResource.setBuildId(10);
         existingResource.addError("abc", "def");
 
-        Resource newResource = new Resource(existingResource);
-
-        String reason = "\nExpected: " + reflectionToString(existingResource) + "\n but was: " + reflectionToString(newResource);
-        assertThat(reason, existingResource, equalTo(newResource));
-        assertThat(reason, EqualsBuilder.reflectionEquals(existingResource, newResource), is(true));
-        assertThat(reason, EqualsBuilder.reflectionEquals(new Cloner().deepClone(existingResource), newResource), is(true));
+        assertThat(existingResource, equalTo(new Resource(existingResource)));
+        assertThat(existingResource, equalTo(new Cloner().deepClone(existingResource)));
     }
 }

@@ -49,7 +49,7 @@ public class PluggableScmService {
             for (SCMConfiguration scmConfiguration : configurationMetadata.list()) {
                 String key = scmConfiguration.getKey();
                 boolean isRequired = SCMMetadataStore.getInstance().hasOption(pluginId, key, Property.REQUIRED);
-                String configValue = scmConfig.getConfiguration().getProperty(key).getConfigValue();
+                String configValue = scmConfig.getConfiguration().getProperty(key).getValue();
                 if (isRequired && StringUtil.isBlank(configValue)) {
                     validationResult.addError(new ValidationError(key, localizer.localize("MANDATORY_CONFIGURATION_FIELD")));
                 }

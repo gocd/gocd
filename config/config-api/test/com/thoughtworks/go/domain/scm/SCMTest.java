@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.scm;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
@@ -35,11 +34,11 @@ import java.util.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-
 
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -189,6 +188,9 @@ public class SCMTest {
         assertThat(scm.getConfigAsMap().get("url").get(SCM.VALUE_KEY), is("http://localhost"));
         assertThat(scm.getConfigAsMap().get("username").get(SCM.VALUE_KEY), is("user"));
         assertThat(scm.getConfigAsMap().get("password").get(SCM.VALUE_KEY), is("pass"));
+
+        assertThat(scm.getConfiguration().getProperty("password").getConfigurationValue(), is(nullValue()));
+        assertThat(scm.getConfiguration().getProperty("password").getEncryptedValue(), is(not(nullValue())));
     }
 
     @Test

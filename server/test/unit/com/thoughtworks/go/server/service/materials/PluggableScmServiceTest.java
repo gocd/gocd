@@ -53,7 +53,9 @@ public class PluggableScmServiceTest {
     private Localizer localizer;
     @Mock
     private SCMPreference preference;
+
     private PluggableScmService pluggableScmService;
+    private SCMConfigurations scmConfigurations;
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +65,7 @@ public class PluggableScmServiceTest {
 
         SCMPropertyConfiguration scmConfig = new SCMPropertyConfiguration();
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));
-        SCMConfigurations scmConfigurations = new SCMConfigurations(scmConfig);
+        scmConfigurations = new SCMConfigurations(scmConfig);
 
         when(preference.getScmConfigurations()).thenReturn(scmConfigurations);
         SCMMetadataStore.getInstance().setPreferenceFor(pluginId, preference);
@@ -104,6 +106,29 @@ public class PluggableScmServiceTest {
         final ValidationError validationError = getValidationErrorFor(validationErrors, "KEY1");
         assertNotNull(validationError);
         assertThat(validationError.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+    }
+
+    @Test
+    public void shouldValidateMandatoryAndSecureFieldsForSCM() {
+        SCMConfiguration scmConfig = new SCMConfiguration(new SCMProperty("KEY2").with(Property.REQUIRED, true).with(Property.SECURE, true));
+        scmConfigurations.add(scmConfig);
+
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("KEY2", true, ""));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        ValidationResult validationResult = new ValidationResult();
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
+
+        pluggableScmService.validate(modifiedSCM);
+
+        final List<ValidationError> validationErrors = validationResult.getErrors();
+        assertFalse(validationErrors.isEmpty());
+        final ValidationError validationErrorForKey1 = getValidationErrorFor(validationErrors, "KEY1");
+        assertNotNull(validationErrorForKey1);
+        assertThat(validationErrorForKey1.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
+        final ValidationError validationErrorForKey2 = getValidationErrorFor(validationErrors, "KEY2");
+        assertNotNull(validationErrorForKey2);
+        assertThat(validationErrorForKey2.getMessage(), is("MANDATORY_CONFIGURATION_FIELD"));
     }
 
     @Test

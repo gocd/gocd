@@ -185,7 +185,7 @@ public class SCM implements Serializable, Validatable {
         Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
         for (ConfigurationProperty property : configuration) {
             Map<String, String> mapValue = new HashMap<String, String>();
-            mapValue.put(VALUE_KEY, property.getConfigValue());
+            mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
                 mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
             }
@@ -243,23 +243,9 @@ public class SCM implements Serializable, Validatable {
                     configuration.addNewConfiguration(scmConfiguration.getKey(), scmConfiguration.getOption(Property.SECURE));
                 }
                 configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                configuration.getProperty(key).handleSecureValueConfiguration(scmConfiguration.getOption(Property.SECURE));
             }
         }
-    }
-
-    private SecureKeyInfoProvider getSecureKeyInfoProvider() {
-        final SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
-        final SCMConfigurations metadata = scmMetadataStore.getConfigurationMetadata(getPluginId());
-        if (metadata == null) {
-            return null;
-        }
-        return new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                SCMConfiguration configuration = metadata.get(key);
-                return configuration.getOption(SCMConfiguration.SECURE);
-            }
-        };
     }
 
     public String getFingerprint() {
@@ -288,10 +274,6 @@ public class SCM implements Serializable, Validatable {
         if (scmConfiguration == null || scmConfiguration.getOption(SCMConfiguration.PART_OF_IDENTITY)) {
             list.add(configurationProperty.forFingerprint());
         }
-    }
-
-    public void addConfigurationErrorFor(String key, String message) {
-        configuration.addErrorFor(key, message);
     }
 
     public boolean isNew() {

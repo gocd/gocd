@@ -16,13 +16,15 @@
 
 package com.thoughtworks.go.domain.activity;
 
+import com.thoughtworks.go.util.DateUtils;
+import org.jdom.Element;
+import org.junit.Test;
+
 import java.util.Date;
 
-import com.thoughtworks.go.util.DateUtils;
+import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
-import org.jdom.Element;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 public class ProjectStatusTest {
     @Test
@@ -47,10 +49,56 @@ public class ProjectStatusTest {
         assertThat(element.getAttributeValue("lastBuildLabel"), is(lastBuildLabel));
         assertThat(element.getAttributeValue("lastBuildTime"), is(DateUtils.formatIso8601ForCCTray(lastBuildTime)));
         assertThat(element.getAttributeValue("webUrl"), is(contextPath + "/" + webUrl));
-
     }
 
+    @Test
+    public void shouldListViewers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+
+        status.updateViewers(s("USER1", "user2", "User3", "AnoTherUsEr"));
+
+        assertThat(status.viewers(), is(s("user1", "user2", "user3", "anotheruser")));
+    }
+
+    @Test
+    public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+
+        status.updateViewers(s("USER1", "user2", "User3", "AnoTherUsEr"));
+
+        assertThat(status.canBeViewedBy("user1"), is(true));
+        assertThat(status.canBeViewedBy("USER1"), is(true));
+        assertThat(status.canBeViewedBy("User1"), is(true));
+        assertThat(status.canBeViewedBy("USER2"), is(true));
+        assertThat(status.canBeViewedBy("uSEr3"), is(true));
+        assertThat(status.canBeViewedBy("anotheruser"), is(true));
+        assertThat(status.canBeViewedBy("NON-EXISTENT-USER"), is(false));
+    }
+
+    @Test
+    public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url");
+
+        assertThat(status.xmlRepresentation(),
+                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />"));
+    }
+
+    @Test
+    public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url", s("breaker1", "breaker2"));
+
+        assertThat(status.xmlRepresentation(),
+                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +
+                        "<messages><message text=\"breaker1, breaker2\" kind=\"Breakers\" /></messages></Project>"));
+    }
+
+    @Test
+    public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() throws Exception {
+        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation(), is(""));
+        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation(), is(""));
+    }
 }
-
-
-

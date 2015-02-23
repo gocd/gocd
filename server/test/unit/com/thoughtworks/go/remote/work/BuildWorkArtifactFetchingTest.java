@@ -104,9 +104,8 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
                 AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
 
-        assertThat(stubPublisher.consoleOut(), containsString(
-                "[go] Current job status: passed.\n\n[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\""
-                        + JOB_NAME + "\" srcfile=\"lib/hello.jar\" dest=\"lib\" />."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\"" + JOB_NAME + "\" srcfile=\"lib/hello.jar\" dest=\"lib\" />."));
 
         assertThat(buildRepository.results, not(containsResult(Passed)));
         assertThat(buildRepository.results, containsResult(Failed));
@@ -119,8 +118,8 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
                 AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
 
-        assertThat(stubPublisher.consoleOut(), containsString(
-                "[go] Current job status: failed.\n\n[go] Start to execute task: <ant target=\"--help\" />."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <ant target=\"--help\" />."));
     }
 
     @Test

@@ -322,6 +322,8 @@ Go::Application.routes.draw do
   get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
   get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
 
+  get "new_cctray.xml" => "cctray#index", :format => "xml", as: :cctray
+
   # dummy mappings. for specs to pass
   get 'test' => 'test/test#index', as: :oauth_clients
 end

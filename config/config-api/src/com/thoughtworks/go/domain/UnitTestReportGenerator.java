@@ -171,14 +171,12 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             boolean isTestFile = nodeExists(file, "//test-results") || nodeExists(file, "//testsuite");
 
             if (!isTestFile) {
-                publisher.consumeLine(
-                        MessageFormat.format("Ignoring file {0} - it is not a recognised test file.", file.getName()));
+                publisher.consumeLine(MessageFormat.format("Ignoring file {0} - it is not a recognised test file.", file.getName()));
             }
 
             return isTestFile;
         } catch (Exception e) {
-            publisher.consumeLine(
-                    MessageFormat.format("The file {0} could not be parsed. It seems to be invalid.", file.getName()));
+            publisher.consumeLine(MessageFormat.format("The file {0} could not be parsed. It seems to be invalid.", file.getName()));
             return false;
         }
     }

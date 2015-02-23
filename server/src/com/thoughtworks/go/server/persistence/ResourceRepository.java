@@ -28,8 +28,9 @@ public class ResourceRepository extends HibernateDaoSupport {
         }
     }
 
-    public Resource saveCopyOf(Resource resource) {
+    public Resource saveCopyOf(long jobId, Resource resource) {
         Resource copyOfResource = new Resource(resource);
+        copyOfResource.setBuildId(jobId);
         save(copyOfResource);
         return copyOfResource;
     }

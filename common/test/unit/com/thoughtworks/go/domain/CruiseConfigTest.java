@@ -16,15 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigGraphWalker;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -32,30 +24,26 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
-import com.thoughtworks.go.domain.packagerepository.Packages;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.licensing.GoLicense;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
@@ -64,16 +52,10 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CruiseConfigTest {
     public GoConfigMother goConfigMother;
@@ -730,8 +712,8 @@ public class CruiseConfigTest {
 
         goConfigMother.addPipelineWithGroup(cruiseConfig, "group1", "p1", "s1", "b1");
         goConfigMother.addPipelineWithGroup(cruiseConfig, "group2", "p2", "s2", "b2");
-        goConfigMother.addAuthorizedRoleForPipelineGroup(cruiseConfig, "ldap-users", "group1");
-        goConfigMother.addAuthorizedRoleForPipelineGroup(cruiseConfig, "ldap-users", "group2");
+        goConfigMother.addRoleAsViewerOfPipelineGroup(cruiseConfig, "ldap-users", "group1");
+        goConfigMother.addRoleAsViewerOfPipelineGroup(cruiseConfig, "ldap-users", "group2");
 
         assertEquals(new HashSet<String>(Arrays.asList("group1", "group2")), cruiseConfig.groupsAffectedByDeletionOfRole("ldap-users").keySet());
         cruiseConfig.removeRole(role);
@@ -754,7 +736,7 @@ public class CruiseConfigTest {
         Role adminRole = new Role(new CaseInsensitiveString(adminRoleName));
         adminRole.addUser(new RoleUser(new CaseInsensitiveString("admin")));
         goConfigMother.addRole(cruiseConfig, adminRole);
-        goConfigMother.addRoleAsSuperAdminOfGo(cruiseConfig, adminRoleName);
+        goConfigMother.addRoleAsSuperAdmin(cruiseConfig, adminRoleName);
         assertThat(cruiseConfig.doesAdminConfigContainRole(adminRoleName), is(true));
         assertThat(cruiseConfig.server().security().getRoles().contains(adminRole), is(true));
         cruiseConfig.removeRole(adminRole);

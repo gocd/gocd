@@ -33,8 +33,9 @@ public class ArtifactPropertiesGeneratorRepository extends HibernateDaoSupport {
         return (List<ArtifactPropertiesGenerator>) getHibernateTemplate().find(GET_ARTIFACT_PROPERTY_GENERATORS_BY_BUILD_ID, buildId);
     }
 
-    public ArtifactPropertiesGenerator saveCopyOf(ArtifactPropertiesGenerator generator) {
+    public ArtifactPropertiesGenerator saveCopyOf(long jobId, ArtifactPropertiesGenerator generator) {
         ArtifactPropertiesGenerator copyOfGenerator = new ArtifactPropertiesGenerator(generator);
+        copyOfGenerator.setJobId(jobId);
         save(copyOfGenerator);
         return copyOfGenerator;
     }

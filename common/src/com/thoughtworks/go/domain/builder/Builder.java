@@ -44,8 +44,8 @@ public abstract class Builder implements Serializable {
                       EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
             throws CruiseControlException {
         if (conditions.match(currentStatus)) {
-            String statusMessage = format("Current job status: %s.", currentStatus);
-            String executeMessage = format("Start to execute task: %s. ", getDescription());
+            String statusMessage = format("Current job status: %s.\n", currentStatus);
+            String executeMessage = format("Start to execute task: %s.", getDescription());
             publisher.consumeLineWithPrefix(statusMessage);
             publisher.consumeLineWithPrefix(executeMessage);
             build(buildLogElement, publisher, environmentVariableContext, taskExtension);

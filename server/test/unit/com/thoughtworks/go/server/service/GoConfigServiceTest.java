@@ -1371,7 +1371,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
 
         GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.enableSuperAdminForConfig(config, "theSuperAdmin");
+        GoConfigMother.addUserAsSuperAdmin(config, "theSuperAdmin");
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
@@ -1390,7 +1390,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString secondTemplateAdminName = new CaseInsensitiveString("secondTemplateAdmin");
 
         GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.enableSuperAdminForConfig(config, theSuperAdmin);
+        GoConfigMother.addUserAsSuperAdmin(config, theSuperAdmin);
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
         config.addTemplate(createTemplate(secondTemplateName, new Authorization(new AdminsConfig(new AdminUser(secondTemplateAdminName)))));
 
@@ -1408,7 +1408,7 @@ public class GoConfigServiceTest {
         String templateName = "template";
 
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
-        GoConfigMother.enableSuperAdminForConfig(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 

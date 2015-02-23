@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server.initializers;
+package com.thoughtworks.go.plugin.infra.commons;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipBuilder;
@@ -23,31 +23,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+
+import static com.thoughtworks.go.util.FileDigester.md5DigestOfFile;
 
 @Component
 public class PluginsZip {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsZip.class);
-    private final SystemEnvironment systemEnvironment;
     private ZipUtil zipUtil;
+    private String md5DigestOfFile;
+    private final File destZipFile;
+    private final File bundledPlugins;
+    private final File externalPlugins;
+    private Boolean pluginsEnabled;
 
     @Autowired
     public PluginsZip(SystemEnvironment systemEnvironment, ZipUtil zipUtil) {
-        this.systemEnvironment = systemEnvironment;
+        pluginsEnabled = systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED);
+        destZipFile = new File(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
+        bundledPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH));
+        externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
         this.zipUtil = zipUtil;
     }
 
     public void create() {
-        if (!systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)) {
+        if (!pluginsEnabled) {
             return;
         }
         try {
-            File bundledPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH));
-            File externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
-            ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(new File(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)), true);
+            ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(destZipFile, true);
             zipBuilder.add("bundled", bundledPlugins).add("external", externalPlugins).done();
+            md5DigestOfFile = md5DigestOfFile(destZipFile);
         } catch (Exception e) {
             LOG.error("Could not create zip of plugins for agent to download.", e);
         }
     }
 
+    public String md5() throws IOException {
+        if (md5DigestOfFile == null) {
+            return md5DigestOfFile(destZipFile);
+        }
+        return md5DigestOfFile;
+    }
 }

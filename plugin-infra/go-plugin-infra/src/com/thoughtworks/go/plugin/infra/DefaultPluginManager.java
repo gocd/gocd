@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
+import com.thoughtworks.go.plugin.infra.listeners.PluginsZipCreator;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
@@ -51,22 +52,24 @@ public class DefaultPluginManager implements PluginManager {
     private static final Logger LOGGER = Logger.getLogger(DefaultPluginManager.class);
     private final DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
-    private final DefaultPluginJarChangeListener listener;
+    private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;
     private GoApplicationAccessor goApplicationAccessor;
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
+    private PluginsZipCreator pluginsZipCreator;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter, PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter, PluginValidator pluginValidator, SystemEnvironment systemEnvironment, PluginsZipCreator pluginsZipCreator) {
         this.monitor = monitor;
         this.registry = registry;
-        this.listener = listener;
+        this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
         this.goApplicationAccessor = goApplicationAccessor;
         this.systemEnvironment = systemEnvironment;
+        this.pluginsZipCreator = pluginsZipCreator;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
         this.pluginWriter = pluginWriter;
@@ -129,7 +132,8 @@ public class DefaultPluginManager implements PluginManager {
         removeBundleDirectory();
         goPluginOSGiFramework.start();
 
-        monitor.addPluginJarChangeListener(listener);
+        monitor.addPluginJarChangeListener(defaultPluginJarChangeListener);
+        monitor.addPluginJarChangeListener(pluginsZipCreator);
         monitor.start();
     }
 

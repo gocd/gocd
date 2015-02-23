@@ -112,5 +112,4 @@
 
     <bean class="org.quartz.impl.StdSchedulerFactory" name="schedulerFactory"/>
     <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true" autowire="autodetect"/>
-    <bean class="com.thoughtworks.go.util.ZipUtil"/>
 </beans>

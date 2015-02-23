@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.GoConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
+import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;

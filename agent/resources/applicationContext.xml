@@ -50,9 +50,7 @@
         </property>
     </bean>
 
-    <bean class="com.thoughtworks.go.util.SystemEnvironment"/>
     <bean class="com.thoughtworks.go.util.URLService"/>
-    <bean class="com.thoughtworks.go.util.ZipUtil"/>
     <bean class="com.thoughtworks.go.util.HttpService"/>
     <bean class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
     <bean class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>

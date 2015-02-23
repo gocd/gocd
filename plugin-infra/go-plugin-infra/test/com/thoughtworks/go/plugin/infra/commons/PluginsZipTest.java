@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,24 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server.initializers;
+package com.thoughtworks.go.plugin.infra.commons;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.zip.ZipFile;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
@@ -37,36 +40,44 @@ import static org.mockito.Mockito.when;
 public class PluginsZipTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    private String expectedZipPath;
+    private File externalPluginsDir;
+
 
     @Before
     public void setUp() throws Exception {
+        temporaryFolder.create();
         systemEnvironment = mock(SystemEnvironment.class);
+        File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled");
+        expectedZipPath = temporaryFolder.newFile("go-plugins-all.zip").getAbsolutePath();
+        externalPluginsDir = temporaryFolder.newFolder("plugins-external");
+
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
+        when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
+        when(systemEnvironment.get(ALL_PLUGINS_ZIP_PATH)).thenReturn(expectedZipPath);
 
         pluginsZip = new PluginsZip(systemEnvironment, new ZipUtil());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        TestFileUtil.cleanTempFiles();
-    }
-
-    @Test
-    public void shouldZipAllPluginsIntoOneZipEveryTime() throws Exception {
-        String expectedZipPath = TestFileUtil.createTempFile("go-plugins-all.zip").getAbsolutePath();
-        File bundledPluginsDir = TestFileUtil.createTempFolder("plugins-bundled");
-        File externalPluginsDir = TestFileUtil.createTempFolder("plugins-external");
 
         FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled1.jar"), "Bundled1");
         FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled2.jar"), "Bundled2");
 
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external1.jar"), "External1");
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external2.jar"), "External2");
+    }
 
-        when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
-        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
-        when(systemEnvironment.get(ALL_PLUGINS_ZIP_PATH)).thenReturn(expectedZipPath);
+    @After
+    public void tearDown() throws Exception {
+        temporaryFolder.delete();
+    }
 
+    @Test
+    public void shouldZipAllPluginsIntoOneZipEveryTime() throws Exception {
         pluginsZip.create();
 
         assertThat(expectedZipPath + " should exist", new File(expectedZipPath).exists(), is(true));
@@ -74,5 +85,37 @@ public class PluginsZipTest {
         assertThat(new ZipFile(expectedZipPath).getEntry("bundled/bundled2.jar"), is(notNullValue()));
         assertThat(new ZipFile(expectedZipPath).getEntry("external/external1.jar"), is(notNullValue()));
         assertThat(new ZipFile(expectedZipPath).getEntry("external/external2.jar"), is(notNullValue()));
+    }
+
+    @Test
+    public void shouldGetChecksumIfFileWasCreated() throws Exception {
+        pluginsZip.create();
+        String md5 = pluginsZip.md5();
+        System.out.println(md5);
+        assertThat(md5, is(notNullValue()));
+    }
+
+    @Test
+    public void shouldUpdateChecksumIfFileIsReCreated() throws Exception {
+        pluginsZip.create();
+        String oldMd5 = pluginsZip.md5();
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external3.jar"), "External3");
+        pluginsZip.create();
+        assertThat(pluginsZip.md5(), is(not(oldMd5)));
+    }
+
+    @Test
+    public void shouldGetChecksumOfExistingFile() throws Exception {
+        String md5 = pluginsZip.md5();
+        assertThat(md5, is(notNullValue()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhileRetrievingChecksumOfUnavailableFile() throws Exception {
+        expectedException.expect(FileNotFoundException.class);
+        expectedException.expectMessage(containsString("go-plugins-all.zip (No such file or directory)"));
+
+        temporaryFolder.delete();
+        pluginsZip.md5();
     }
 }

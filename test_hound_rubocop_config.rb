@@ -7,5 +7,7 @@ describe "test hound" do
     4 + 8
 
     "Here is a long line, so long, to check hound and rubocop. This line should be over 200 characters to get Hound to say it's a long line. Wow 200 is a lot of characters. Really? Haven't reached 200 yet. Now I have"
+
+    "Hmm, still not working. Force it to run again."
   end
 end

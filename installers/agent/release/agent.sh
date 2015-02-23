@@ -16,12 +16,15 @@
 #*************************GO-LICENSE-END**********************************
 
 
+SERVICE_NAME=${0%/*};
+SERVICE_NAME=${SERVICE_NAME##*/};
+
 PRODUCTION_MODE=${PRODUCTION_MODE:-"Y"}
 
 if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -f /etc/default/go-agent ]; then
-        echo "[`date`] using default settings from /etc/default/go-agent"
-        . /etc/default/go-agent
+    if [ -f /etc/default/${SERVICE_NAME} ]; then
+        echo "[`date`] using default settings from /etc/default/${SERVICE_NAME}"
+        . /etc/default/${SERVICE_NAME}
     fi
 fi
 
@@ -45,25 +48,32 @@ else
     AGENT_WORK_DIR=$AGENT_DIR
 fi
 
+if [ ! -d ${AGENT_WORK_DIR} ]; then
+    echo Agent working directory ${AGENT_WORK_DIR} does not exists
+    exit 2
+fi
+
 if [ "$PRODUCTION_MODE" == "Y" ]; then
-    if [ -d /var/log/go-agent ]; then
-        LOG_DIR=/var/log/go-agent
+    if [ -d /var/log/${SERVICE_NAME} ]; then
+        LOG_DIR=/var/log/${SERVICE_NAME}
     else
-		LOG_DIR=$AGENT_WORK_DIR
-	fi
+	LOG_DIR=$AGENT_WORK_DIR
+    fi
 else
     LOG_DIR=$AGENT_WORK_DIR
 fi
 
-LOG_FILE=$LOG_DIR/go-agent-bootstrapper.log
+
+
+LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.log
 
 
 if [ "$PID_FILE" ]; then
     echo "[`date`] Use PID_FILE: $PID_FILE"
 elif [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -d /var/run/go-agent ]; then
-        PID_FILE=/var/run/go-agent/go-agent.pid
-	else
+        PID_FILE=/var/run/go-agent/${SERVICE_NAME}.pid
+    else
     	PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
     fi
 else
@@ -84,7 +94,7 @@ else
 fi
 
 if [ "$GC_LOG" != "" ]; then
-    GC_LOG="-verbose:gc -Xloggc:go-agent-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC"
+    GC_LOG="-verbose:gc -Xloggc:${SERVICE_NAME}-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC"
 else
     GC_LOG=""
 fi
@@ -115,4 +125,3 @@ if [ "$DAEMON" == "Y" ]; then
 else
     eval "$CMD"
 fi
-

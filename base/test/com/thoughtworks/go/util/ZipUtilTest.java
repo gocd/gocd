@@ -145,7 +145,7 @@ public class ZipUtilTest {
         File specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
         FileUtils.writeStringToFile(specialFile, "specialFile");
 
-        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFolder(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
         zipUtil.unzip(zipFile, destDir);
         File baseDir = new File(destDir, srcDir.getName());
 

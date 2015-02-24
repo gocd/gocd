@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.ParamConfig;
 import com.thoughtworks.go.config.ParamsConfig;
 import com.thoughtworks.go.config.Validatable;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 public class ParamSubstitutionHandler implements ParamHandler {
     public static final String NO_PARAM_FOUND_MSG = "Parameter '%s' is not defined. All pipelines using this parameter directly or via a template must define it.";
 
@@ -57,16 +55,8 @@ public class ParamSubstitutionHandler implements ParamHandler {
 
     public void handleAfterResolution(ParamStateMachine.ReaderState state) throws IllegalStateException {
         try {
-            if (state != ParamStateMachine.ReaderState.NOT_IN_PATTERN) {
-                if (state == ParamStateMachine.ReaderState.INVALID_PATTERN) {
-                    throw bombWithBadParamUsage(stringToResolve, fieldName);
-                } else if (state == ParamStateMachine.ReaderState.HASH_SEEN) {
-                    throw bombWithBadParamUsage(stringToResolve, fieldName);
-                } else if (state == ParamStateMachine.ReaderState.IN_PATTERN) {
-                    throw bombWithIncompleteParamUsage(stringToResolve);
-                } else {
-                    throw bomb("Unrecognized state: " + state);
-                }
+            if (state == ParamStateMachine.ReaderState.IN_PATTERN) {
+                throw bombWithIncompleteParamUsage(stringToResolve);
             }
         } catch (IllegalStateException e) {
             handleIllegalStateException(e);
@@ -90,12 +80,6 @@ public class ParamSubstitutionHandler implements ParamHandler {
             throw e;
         }
         result = new StringBuilder(stringToResolve);
-    }
-
-
-    private static IllegalStateException bombWithBadParamUsage(String stringToResolve, String fieldName) {
-        return new IllegalStateException(
-                String.format("Error when processing params for '%s' used in field '%s', # must be followed by a parameter pattern or escaped by another #", stringToResolve, fieldName));
     }
 
     private static IllegalStateException bombWithIncompleteParamUsage(String stringToResolve) {

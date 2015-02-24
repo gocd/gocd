@@ -158,18 +158,17 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         configErrors.add(fieldName, message);
     }
 
-    public HashSet<MaterialConfig> getAllUniquePostCommitSchedulableMaterials() {
-        HashSet<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
-        Set<Map> uniqueMaterials = new HashSet<Map>();
+    public Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials() {
+        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
+        Set<String> uniqueMaterials = new HashSet<String>();
         for (PipelineConfigs pipelineConfigs : this) {
             for (PipelineConfig pipelineConfig : pipelineConfigs) {
                 for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
-                    if (!uniqueMaterials.contains(materialConfig.getSqlCriteria()) && materialConfig instanceof ScmMaterialConfig) {
-                        if (materialConfig.isAutoUpdate()) {
-                            continue;
-                        }
+                    if ((materialConfig instanceof ScmMaterialConfig || materialConfig instanceof PluggableSCMMaterialConfig)
+                            && !materialConfig.isAutoUpdate()
+                            && !uniqueMaterials.contains(materialConfig.getFingerprint())) {
                         materialConfigs.add(materialConfig);
-                        uniqueMaterials.add(materialConfig.getSqlCriteria());
+                        uniqueMaterials.add(materialConfig.getFingerprint());
                     }
                 }
             }

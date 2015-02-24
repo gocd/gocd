@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -173,20 +172,23 @@ public class PipelineGroupsTest {
         final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
         ((ScmMaterialConfig) p4MaterialConfig).setAutoUpdate(false);
         final MaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
+        final PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("scm-id-1", null, null);
+        pluggableSCMMaterialConfig.getSCMConfig().setAutoUpdate(false);
+
         final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(svnMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
         final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(svnMaterialConfig, gitMaterialConfig),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
         final PipelineConfig p3 = PipelineConfigMother.pipelineConfig("pipeline3", new MaterialConfigs(hgMaterialConfig, dependencyMaterialConfig),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p4 = PipelineConfigMother.pipelineConfig("pipeline4", new MaterialConfigs(p4MaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p4 = PipelineConfigMother.pipelineConfig("pipeline4", new MaterialConfigs(p4MaterialConfig, pluggableSCMMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
         final PipelineConfig p5 = PipelineConfigMother.pipelineConfig("pipeline5", new MaterialConfigs(svnMaterialConfigWithAutoUpdate, tfsMaterialConfig),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
         final PipelineGroups groups = new PipelineGroups(new PipelineConfigs(p1, p2, p3, p4, p5));
 
         final Set<MaterialConfig> materials = groups.getAllUniquePostCommitSchedulableMaterials();
 
-        assertThat(materials.size(), is(5));
-        assertThat(materials, hasItems(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, tfsMaterialConfig, p4MaterialConfig));
+        assertThat(materials.size(), is(6));
+        assertThat(materials, hasItems(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, tfsMaterialConfig, p4MaterialConfig, pluggableSCMMaterialConfig));
         assertThat(materials, not(hasItem(svnMaterialConfigWithAutoUpdate)));
     }
 

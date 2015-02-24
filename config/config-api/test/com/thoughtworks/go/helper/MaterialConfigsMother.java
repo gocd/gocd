@@ -71,7 +71,7 @@ public class MaterialConfigsMother {
         return pluggableSCMMaterialConfig("scm-id", null, null);
     }
 
-    private static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {
+    public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {
         return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId), destinationFolder, filter);
     }
 

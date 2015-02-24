@@ -262,10 +262,7 @@ public class DefaultPluginManager implements PluginManager {
 
         @Override
         public void pluginUnLoaded(GoPluginDescriptor descriptor) {
-            String pluginId = descriptor.id();
-            if (shouldCallDelegate(pluginId)) {
-                pluginChangeListenerDelegate.pluginUnLoaded(descriptor);
-            }
+            pluginChangeListenerDelegate.pluginUnLoaded(descriptor);
         }
     }
 }

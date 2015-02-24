@@ -257,6 +257,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return findBy(stageConfig.name()) != null;
     }
 
+    public void inlineTemplate(PipelineTemplateConfig pipelineTemplate) {
+        ensureNoStagesDefined(templateName);
+        templateName = null;
+        if (pipelineTemplate != null) {
+            addAll(pipelineTemplate);
+        }
+    }
+
     public CaseInsensitiveString name() {
         return name;
     }

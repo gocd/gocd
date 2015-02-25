@@ -71,7 +71,7 @@ if [ "$1" = "1" ] ; then  # first install
 fi
 
 fix_go_server_lib_ownership
-go_owned_toplevel /etc/go
+go_owned /etc/go
 
 %preun
 if [ "$1" = "0" ] ; then # this means we are in uninstall

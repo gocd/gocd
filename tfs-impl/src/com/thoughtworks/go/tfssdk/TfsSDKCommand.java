@@ -27,6 +27,8 @@ import com.microsoft.tfs.core.clients.versioncontrol.specs.ItemSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.ChangesetVersionSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersionSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.VersionSpec;
+import com.microsoft.tfs.core.httpclient.Credentials;
+import com.microsoft.tfs.core.httpclient.UsernamePasswordCredentials;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
@@ -41,6 +43,7 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +77,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     @Override protected void initializeWorkspace(File workDir) {
-        GoTfsWorkspace workspace = initAndGetWorkSpace();
+        GoTfsWorkspace workspace = initAndGetWorkSpace(workDir);
         mapWorkingDirectory(workspace, workDir);
     }
 
@@ -90,12 +93,12 @@ public class TfsSDKCommand extends AbstractTfsCommand {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("[TFS SDK] Getting Files for TFS workspace %s for user %s ", getWorkspace(), getUserName()));
         }
-        GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
+        GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), workDir);
         ItemSpec spec = new ItemSpec(FileUtil.getCanonicalPath(workDir), RecursionType.FULL);
         VersionSpec versionSpec = getVersionSpec(revision);
         GetRequest request = new GetRequest(spec, versionSpec);
         if (FileUtil.isFolderEmpty(workDir)) {
-            workspace.get(request, GetOptions.FORCE_GET_ALL);
+            workspace.get(request, GetOptions.GET_ALL);
         } else {
             workspace.get(request, GetOptions.NONE);
         }
@@ -109,13 +112,13 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
 
-    GoTfsWorkspace initAndGetWorkSpace() {
+    GoTfsWorkspace initAndGetWorkSpace(File workDir) {
         String workspaceName = getWorkspace();
-        GoTfsWorkspace[] workspaces = client.queryWorkspaces(workspaceName, getUserName());
-        if (workspaces.length == 0) {
+        GoTfsWorkspace workspace = client.queryWorkspace(workspaceName, workDir);
+        if (workspace == null) {
             return createWorkspace();
         }
-        return workspaces[0];
+        return workspace;
     }
 
     private GoTfsWorkspace createWorkspace() {
@@ -183,7 +186,15 @@ public class TfsSDKCommand extends AbstractTfsCommand {
             LOGGER.debug(String.format("[TFS SDK] Init TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), domain));
         }
         try {
-            collection = new TFSTeamProjectCollection(getUrl().toString(), getUserName(), domain, getPassword());
+
+            //collection = new TFSTeamProjectCollection(getUrl().toString(), getUserName(), domain, getPassword());
+
+            // TODO: This fixes visualstudio.com hosting but how should the domain apply if not using VSO?
+            Credentials cred = new UsernamePasswordCredentials(getUserName(), getPassword());
+            java.net.URI uri = new URI(getUrl().toString());
+
+            collection = new TFSTeamProjectCollection(uri, cred);
+
             collection.getHTTPClient().getParams().setSoTimeout(systemEnvironment.getTfsSocketTimeout());
             client = new GoTfsVersionControlClient(collection.getVersionControlClient());
         } catch (Exception e) {

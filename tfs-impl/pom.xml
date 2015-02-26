@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.microsoft</groupId>
             <artifactId>tfs-sdk</artifactId>
-            <version>10.1.0</version>
+            <version>12.0.1</version>
         </dependency>
 
         <dependency>

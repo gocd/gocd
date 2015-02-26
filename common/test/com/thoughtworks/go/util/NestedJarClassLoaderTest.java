@@ -108,7 +108,7 @@ public class NestedJarClassLoaderTest {
         URLClassLoader myLoader = (URLClassLoader) this.getClass().getClassLoader();
         URL[] urls = myLoader.getURLs();
         for (URL urlOfJar : urls) {
-            if (urlOfJar.getFile().contains("com.microsoft.tfs.sdk-10.1.0.jar")) {
+            if (urlOfJar.getFile().contains("com.microsoft.tfs.sdk-12.0.1.jar")) {
                 return urlOfJar;
             }
         }

@@ -175,13 +175,13 @@ public class TfsSDKCommandTest {
         doNothing().when(spy).initializeWorkspace(workingDirectory);
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.queryWorkspace(TFS_WORKSPACE, USERNAME)).thenReturn(workspace);
-        doNothing().when(workspace).get(any(GetRequest.class), eq(GetOptions.FORCE_GET_ALL));
+        doNothing().when(workspace).get(any(GetRequest.class), eq(GetOptions.GET_ALL));
 
         spy.checkout(workingDirectory, null);
 
         verify(workingDirectory).getCanonicalPath();
         verify(workingDirectory).listFiles();
-        verify(workspace).get(any(GetRequest.class), eq(GetOptions.FORCE_GET_ALL));
+        verify(workspace).get(any(GetRequest.class), eq(GetOptions.GET_ALL));
     }
 
     @Test

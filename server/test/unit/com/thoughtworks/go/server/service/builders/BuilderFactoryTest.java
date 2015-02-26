@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.BuildTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -58,7 +57,6 @@ public class BuilderFactoryTest {
     private static AntTaskBuilder antTaskBuilder = mock(AntTaskBuilder.class);
     private static ExecTaskBuilder execTaskBuilder = mock(ExecTaskBuilder.class);
     private static NantTaskBuilder nantTaskBuilder = mock(NantTaskBuilder.class);
-    private static RakeTaskBuilder rakeTaskBuilder = mock(RakeTaskBuilder.class);
     private static KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder = mock(KillAllChildProcessTaskBuilder.class);
     private static FetchTaskBuilder fetchTaskBuilder = mock(FetchTaskBuilder.class);
     private static NullTaskBuilder nullTaskBuilder = mock(NullTaskBuilder.class);
@@ -67,7 +65,6 @@ public class BuilderFactoryTest {
     @DataPoint public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<AntTask>(new AntTask(), antTaskBuilder);
     @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<ExecTask>(new ExecTask(), execTaskBuilder);
     @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<NantTask>(new NantTask(), nantTaskBuilder);
-    @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<RakeTask>(new RakeTask(), rakeTaskBuilder);
     @DataPoint public static TaskDataPoint<FetchTask> fetchDataPoint = new TaskDataPoint<FetchTask>(new FetchTask(), fetchTaskBuilder);
     @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<NullTask>(new NullTask(), nullTaskBuilder);
     @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<PluggableTask>(new PluggableTask(), pluggableTaskBuilderCreator);
@@ -76,7 +73,7 @@ public class BuilderFactoryTest {
     @Before
     public void setUp() throws Exception {
         pipelineResolver = mock(UpstreamPipelineResolver.class);
-        builderFactory = new BuilderFactory(antTaskBuilder, execTaskBuilder, nantTaskBuilder, rakeTaskBuilder, pluggableTaskBuilderCreator, killAllChildProcessTaskBuilder, fetchTaskBuilder, nullTaskBuilder);
+        builderFactory = new BuilderFactory(antTaskBuilder, execTaskBuilder, nantTaskBuilder, pluggableTaskBuilderCreator, killAllChildProcessTaskBuilder, fetchTaskBuilder, nullTaskBuilder);
     }
 
     @Theory
@@ -101,26 +98,22 @@ public class BuilderFactoryTest {
         Pipeline pipeline = PipelineMother.pipeline("pipeline1", StageMother.custom("stage1"));
         AntTask antTask = new AntTask();
         NantTask nantTask = new NantTask();
-        RakeTask rakeTask = new RakeTask();
         PluggableTask pluggableTask = new PluggableTask();
 
         Builder expectedBuilderForAntTask = myFakeBuilder();
         Builder expectedBuilderForNantTask = myFakeBuilder();
-        Builder expectedBuilderForRakeTask = myFakeBuilder();
         Builder expectedBuilderForPluggableTask = myFakeBuilder();
 
         when(antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForAntTask);
         when(nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForNantTask);
-        when(rakeTaskBuilder.createBuilder(builderFactory, rakeTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForRakeTask);
         when(pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForPluggableTask);
 
-        List<Builder> builders = builderFactory.buildersForTasks(pipeline, listOf(antTask, nantTask, rakeTask,pluggableTask), pipelineResolver);
+        List<Builder> builders = builderFactory.buildersForTasks(pipeline, listOf(antTask, nantTask, pluggableTask), pipelineResolver);
 
-        assertThat(builders.size(), is(4));
+        assertThat(builders.size(), is(3));
         assertThat(builders.get(0), is(expectedBuilderForAntTask));
         assertThat(builders.get(1), is(expectedBuilderForNantTask));
-        assertThat(builders.get(2), is(expectedBuilderForRakeTask));
-        assertThat(builders.get(3), is(expectedBuilderForPluggableTask));
+        assertThat(builders.get(2), is(expectedBuilderForPluggableTask));
     }
 
     private void assertBuilderForTask(Task task, TaskBuilder expectedBuilderToBeUsed) {

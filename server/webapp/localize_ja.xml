@@ -473,7 +473,6 @@
     <entry key="ON_CANCEL_TASK">On Cancel Task</entry>
     <entry key="TASK_ADVANCED_OPTIONS">Advanced Options</entry>
     <entry key="EXEC_TASK">Custom Command</entry>
-    <entry key="RAKE_TASK">Rake</entry>
     <entry key="ANT_TASK">Ant</entry>
     <entry key="NANT_TASK">NAnt</entry>
     <entry key="FETCH_TASK">Fetch Artifact</entry>

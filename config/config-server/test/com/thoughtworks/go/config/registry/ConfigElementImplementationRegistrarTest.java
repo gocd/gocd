@@ -82,7 +82,6 @@ public class ConfigElementImplementationRegistrarTest {
         tasks.add(AntTask.class);
         tasks.add(NantTask.class);
         tasks.add(ExecTask.class);
-        tasks.add(RakeTask.class);
         tasks.add(FetchTask.class);
         tasks.add(PluggableTask.class);
 
@@ -135,7 +134,6 @@ public class ConfigElementImplementationRegistrarTest {
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new AntTask(), "ant");
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new ExecTask(), "exec");
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new FetchTask(), "fetch");
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new RakeTask(), "rake");
         assertReturnsAppropriateViewModelForInbuiltTasks(registry, new NantTask(), "nant");
     }
 

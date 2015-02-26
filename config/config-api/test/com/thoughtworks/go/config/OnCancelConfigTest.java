@@ -41,7 +41,6 @@ public class OnCancelConfigTest {
         assertThat(new OnCancelConfig().onCancelOption(), is(""));
         assertThat(new OnCancelConfig(new ExecTask()).onCancelOption(), is("Custom Command"));
         assertThat(new OnCancelConfig(new AntTask()).onCancelOption(), is("Ant"));
-        assertThat(new OnCancelConfig(new RakeTask()).onCancelOption(), is("Rake"));
     }
 
     @Test
@@ -103,7 +102,6 @@ public class OnCancelConfigTest {
         hashMap.put(OnCancelConfig.NANT_ON_CANCEL, valueMap);
         hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap());
         hashMap.put(OnCancelConfig.ANT_ON_CANCEL, new HashMap());
-        hashMap.put(OnCancelConfig.RAKE_ON_CANCEL, new HashMap());
 
         when(taskFactory.taskInstanceFor(new NantTask().getTaskType())).thenReturn(new NantTask());
         OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);
@@ -114,26 +112,5 @@ public class OnCancelConfigTest {
         expectedNantTask.setWorkingDirectory("pwd");
         expectedNantTask.setNantPath("/usr/bin/nant");
         assertThat((NantTask) cancelConfig.getTask(), is(expectedNantTask));
-    }
-
-    @Test
-    public void shouldSetPrimitiveAttributesForRakeTask() {
-        Map hashMap = new HashMap();
-        hashMap.put(OnCancelConfig.ON_CANCEL_OPTIONS, "rake");
-        Map valueMap = new HashMap();
-        valueMap.put(BuildTask.BUILD_FILE, "rakefile");
-        valueMap.put(BuildTask.TARGET, "build");
-        valueMap.put(BuildTask.WORKING_DIRECTORY, "pwd");
-        hashMap.put(OnCancelConfig.RAKE_ON_CANCEL, valueMap);
-        hashMap.put(OnCancelConfig.EXEC_ON_CANCEL, new HashMap());
-
-        when(taskFactory.taskInstanceFor(new RakeTask().getTaskType())).thenReturn(new RakeTask());
-        OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);
-
-        RakeTask expectedRakeTask = new RakeTask();
-        expectedRakeTask.setBuildFile("rakefile");
-        expectedRakeTask.setTarget("build");
-        expectedRakeTask.setWorkingDirectory("pwd");
-        assertThat((RakeTask) cancelConfig.getTask(), is(expectedRakeTask));
     }
 }

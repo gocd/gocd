@@ -23,7 +23,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
 
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     view.stub(:admin_task_update_path).and_return("task_edit_path")
   end
 
@@ -63,7 +63,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
   it "should render an on cancel exec task" do
     task = assign(:task, with_run_if(RunIfConfig::FAILED, exec_task))
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(fetch_task)].to_java(TaskViewModel)))
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render
@@ -73,7 +73,6 @@ describe "admin/tasks/plugin/edit.html.erb" do
       form.find(".on_cancel") do |on_cancel|
         on_cancel.find("select[class='on_cancel_type'][name='task[#{com.thoughtworks.go.config.AbstractTask::ON_CANCEL_CONFIG}][#{com.thoughtworks.go.config.OnCancelConfig::ON_CANCEL_OPTIONS}]']") do |select|
           expect(select).to have_selector("option", :text => "More...")
-          expect(select).to have_selector("option", :text => "Rake")
           expect(select).to have_selector("option", :text => "NAnt")
           expect(select).to have_selector("option", :text => "Ant")
         end
@@ -109,7 +108,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
   it "should not render exec on cancel task when its not exec" do
     simple_task = simple_exec_task
-    simple_task.setCancelTask(rake_task)
+    simple_task.setCancelTask(ant_task)
     assign(:task, simple_task)
 
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(simple_task, 'edit'))
@@ -153,7 +152,6 @@ describe "admin/tasks/plugin/edit.html.erb" do
         expect(on_cancel).to have_selector(".exec.hidden")
         expect(on_cancel).to have_selector(".ant.hidden")
         expect(on_cancel).to have_selector(".nant.hidden")
-        expect(on_cancel).to have_selector(".rake.hidden")
       end
     end
   end

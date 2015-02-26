@@ -26,7 +26,6 @@ describe "admin/tasks/index.html.erb" do
     tasks = job.getTasks()
     tasks.add(exec_task)
     tasks.add(ant_task)
-    tasks.add(rake_task)
     tasks.add(nant_task)
     assign(:cruise_config, config = CruiseConfig.new)
     set(config, "md5", "abcd1234")
@@ -36,7 +35,7 @@ describe "admin/tasks/index.html.erb" do
     assign(:job, job)
     assign(:tasks, tasks)
     in_params(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :action => "index", :controller => "admin/tasks", :stage_parent => "pipelines")
-    assign(:task_view_models, [tvm(ExecTask.new), tvm(RakeTask.new), tvm(AntTask.new),tvm(FetchTask.new), tvm(NantTask.new)])
+    assign(:task_view_models, [tvm(ExecTask.new), tvm(AntTask.new),tvm(FetchTask.new), tvm(NantTask.new)])
   end
 
   it "should show tasks" do
@@ -110,15 +109,15 @@ describe "admin/tasks/index.html.erb" do
         assert_has_delete_button_for_task trs[2], "1"
       end
       table.all("tr").tap do |trs|
-        trs[4].find("td form[method='post'][action='#{admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3)}']") do |form|
+        trs[3].find("td form[method='post'][action='#{admin_task_decrement_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 2)}']") do |form|
           form.find("button[title='Move Up']") do |button|
             expect(button).to have_selector("div.promote_up")
           end
         end
-        expect(trs[4]).not_to have_selector("td form[method='post'][action='#{admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 3)}']")
-        expect(trs[4]).to have_selector("td a[href='#']", :text => "NAnt")
-        expect(trs[4]).to have_selector("td.run_ifs", :text => "Passed")
-        trs[4].find("td.properties ul") do |ul|
+        expect(trs[3]).not_to have_selector("td form[method='post'][action='#{admin_task_increment_index_path(:pipeline_name => "foo-pipeline", :stage_name => "bar-stage", :job_name => "baz-job", :task_index => 2)}']")
+        expect(trs[3]).to have_selector("td a[href='#']", :text => "NAnt")
+        expect(trs[3]).to have_selector("td.run_ifs", :text => "Passed")
+        trs[3].find("td.properties ul") do |ul|
           ul.find("li.target") do |li|
             expect(li).to have_selector("span.name", :text => "Target:")
             expect(li).to have_selector("span.value", :text => "compile")
@@ -132,9 +131,9 @@ describe "admin/tasks/index.html.erb" do
             expect(li).to have_selector("span.value", :text => "default/wd")
           end
         end
-        expect(trs[4]).to have_selector("td.has_on_cancel", :text => "No")
+        expect(trs[3]).to have_selector("td.has_on_cancel", :text => "No")
 
-        assert_has_delete_button_for_task trs[4], "3"
+        assert_has_delete_button_for_task trs[3], "2"
       end
     end
   end
@@ -144,7 +143,6 @@ describe "admin/tasks/index.html.erb" do
     it "should list all the tasks that can be added" do
       view.should_receive(:admin_task_new_path).with(:type => FetchTask.new.getTaskType())
       view.should_receive(:admin_task_new_path).with(:type => ExecTask.new.getTaskType())
-      view.should_receive(:admin_task_new_path).with(:type => RakeTask.new.getTaskType())
       view.should_receive(:admin_task_new_path).with(:type => AntTask.new.getTaskType())
       view.should_receive(:admin_task_new_path).with(:type => NantTask.new.getTaskType())
 
@@ -152,7 +150,6 @@ describe "admin/tasks/index.html.erb" do
 
       Capybara.string(response.body).find('#new_task_popup ul').tap do |ul|
         expect(ul).to have_selector("li a[href='#']", :text => "More...")
-        expect(ul).to have_selector("li a[href='#']", :text => "Rake")
         expect(ul).to have_selector("li a[href='#']", :text => "NAnt")
         expect(ul).to have_selector("li a[href='#']", :text => "Ant")
         expect(ul).to have_selector("li a[href='#']", :text => "Fetch Artifact")
@@ -162,13 +159,11 @@ describe "admin/tasks/index.html.erb" do
     it "should add a lookup icon next to custom command" do
       view.should_receive(:admin_task_new_path).with(:type => "fetch")
       view.should_receive(:admin_task_new_path).with(:type => "exec")
-      view.should_receive(:admin_task_new_path).with(:type => "rake")
       view.should_receive(:admin_task_new_path).with(:type => "ant")
       view.should_receive(:admin_task_new_path).with(:type => "nant")
 
       view.should_receive(:task_css_class).with("exec").and_return("foo")
       view.should_receive(:task_css_class).with("fetch").and_return("")
-      view.should_receive(:task_css_class).with("rake").and_return("")
       view.should_receive(:task_css_class).with("ant").and_return("")
       view.should_receive(:task_css_class).with("nant").and_return("")
 

@@ -68,7 +68,6 @@ describe "admin/stages/new.html.erb" do
         expect(select).to have_selector("option[value='exec'][selected]")
         expect(select).to have_selector("option[value='ant']")
         expect(select).to have_selector("option[value='nant']")
-        expect(select).to have_selector("option[value='rake']")
       end
 
       expect(form).to have_selector("input[type='text'][name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][exec][#{ExecTask::COMMAND}]'][value='ls']")

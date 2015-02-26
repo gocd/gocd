@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -66,11 +65,10 @@ public class ConfigElementImplementationRegistrar {
     }
 
     private void registerBuiltinTasks() {
-        registry.registerImplementer(Task.class, AntTask.class, NantTask.class, ExecTask.class, RakeTask.class, FetchTask.class, PluggableTask.class);
+        registry.registerImplementer(Task.class, AntTask.class, NantTask.class, ExecTask.class, FetchTask.class, PluggableTask.class);
         registry.registerView(AntTask.class, new BuiltinTaskViewModelFactory("ant"));
         registry.registerView(NantTask.class, new BuiltinTaskViewModelFactory("nant"));
         registry.registerView(ExecTask.class, new BuiltinTaskViewModelFactory("exec"));
-        registry.registerView(RakeTask.class, new BuiltinTaskViewModelFactory("rake"));
         registry.registerView(FetchTask.class, new BuiltinTaskViewModelFactory("fetch"));
         registry.registerView(PluggableTask.class, new PluggableTaskViewModelFactory());
     }

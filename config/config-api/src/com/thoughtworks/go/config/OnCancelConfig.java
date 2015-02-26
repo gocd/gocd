@@ -29,7 +29,6 @@ public class OnCancelConfig implements Validatable {
 
     public static final String EXEC_ON_CANCEL = "execOnCancel";
     public static final String ANT_ON_CANCEL = "antOnCancel";
-    public static final String RAKE_ON_CANCEL = "rakeOnCancel";
     public static final String NANT_ON_CANCEL = "nantOnCancel";
 
     @ConfigSubtag(optional = true)
@@ -132,17 +131,6 @@ public class OnCancelConfig implements Validatable {
             return task;
         }
         return new AntTask();
-    }
-
-    private boolean isRakeTask() {
-        return task instanceof RakeTask;
-    }
-    
-    public Task rakeTask() {
-        if (isRakeTask()) {
-            return task;
-        }
-        return new RakeTask();
     }
 
     private boolean isNantTask() {

@@ -59,14 +59,6 @@ module TaskMother
     nant
   end
 
-  def rake_task file="rakefile", target="default", working_dir="default/wd"
-    rake = RakeTask.new
-    rake.setTarget(target)
-    rake.setBuildFile(file)
-    rake.setWorkingDirectory(working_dir)
-    rake
-  end
-
   def plugin_task plugin_id = "curl.plugin", configurations = []
     configuration = Configuration.new(configurations.to_java(ConfigurationProperty))
     PluggableTask.new("", PluginConfiguration.new(plugin_id, "1.0"), configuration)
@@ -79,14 +71,14 @@ module TaskMother
   end
 
   def simple_task_with_pluggable_on_cancel_task
-    task = rake_task
+    task = ant_task
     task.setCancelTask(plugin_task)
     task
   end
 
   def task_with_on_cancel_task
-    task = rake_task
-    task.setCancelTask(rake_task)
+    task = ant_task
+    task.setCancelTask(nant_task)
     task
   end
 

@@ -448,9 +448,6 @@
     <entry key="TOOLTIP_NANT_TARGET">NAnt target(s) to run. If not specified, defaults to the default target of the build file.</entry>
     <entry key="TOOLTIP_NANT_WORKING_DIRECTORY">The directory from where NAnt is invoked.</entry>
     <entry key="TOOLTIP_NANT_NANT_PATH">Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.</entry>
-    <entry key="TOOLTIP_RAKE_BUILD_FILE">Path to Rake file. If not specified, the path defaults to 'rakefile'.</entry>
-    <entry key="TOOLTIP_RAKE_TARGET">Rake target(s) to run. If not specified, defaults to the default target of the build file.</entry>
-    <entry key="TOOLTIP_RAKE_WORKING_DIRECTORY">The directory from where Rake is invoked.</entry>
     <entry key="TOOLTIP_FETCH_TASK_PIPELINE">The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material. Defaults to current pipeline if not specified.</entry>
     <entry key="TOOLTIP_FETCH_TASK_STAGE">The name of the stage to fetch artifacts from.</entry>
     <entry key="TOOLTIP_FETCH_TASK_JOB">The name of the job to fetch artifacts from.</entry>
@@ -475,7 +472,6 @@
     <entry key="ON_CANCEL_TASK">On Cancel Task</entry>
     <entry key="TASK_ADVANCED_OPTIONS">Advanced Options</entry>
     <entry key="EXEC_TASK">Custom Command</entry>
-    <entry key="RAKE_TASK">Rake</entry>
     <entry key="ANT_TASK">Ant</entry>
     <entry key="NANT_TASK">NAnt</entry>
     <entry key="FETCH_TASK">Fetch Artifact</entry>

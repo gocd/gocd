@@ -20,8 +20,7 @@ module MockRegistryModule
     def implementersOf(config_element_type)
       [com.thoughtworks.go.config.ExecTask.java_class,
        com.thoughtworks.go.config.AntTask.java_class,
-       com.thoughtworks.go.config.NantTask.java_class,
-       com.thoughtworks.go.config.RakeTask.java_class
+       com.thoughtworks.go.config.NantTask.java_class
       ]
     end
   end

@@ -111,7 +111,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             materialUpdateService.initialize();
             pipelineScheduler.initialize();
             removeAdminPermissionFilter.initialize();
-            ccTrayActivityListener.initialize();
 
             pipelineTimeline.updateTimelineOnInit();
             pipelineSqlMapDao.initialize();
@@ -123,6 +122,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             goDiskSpaceMonitor.initialize();
             backupService.initialize();
             railsAssetsService.initialize();
+            ccTrayActivityListener.initialize();
 
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);

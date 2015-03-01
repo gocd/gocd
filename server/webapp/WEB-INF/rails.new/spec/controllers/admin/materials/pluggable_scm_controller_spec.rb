@@ -26,38 +26,38 @@ describe Admin::Materials::PluggableScmController do
 
   describe "routes should resolve and generate" do
     it "show_existing" do
-      {:get => "/admin/pipelines/pipeline.name/materials/pluggable_scm/show_existing"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "show_existing", :pipeline_name => "pipeline.name")
-      send("admin_pluggable_scm_show_existing_path", :pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/show_existing"
+      {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/show_existing'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'show_existing', :pipeline_name => 'pipeline.name')
+      send('admin_pluggable_scm_show_existing_path', :pipeline_name => 'foo.bar').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/show_existing'
     end
 
     it "choose_existing" do
-      {:post => "/admin/pipelines/pipeline.name/materials/pluggable_scm/choose_existing"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "choose_existing", :pipeline_name => "pipeline.name")
-      send("admin_pluggable_scm_choose_existing_path", :pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/choose_existing"
+      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/choose_existing'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'choose_existing', :pipeline_name => 'pipeline.name')
+      send('admin_pluggable_scm_choose_existing_path', :pipeline_name => 'foo.bar').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/choose_existing'
     end
 
     it "new" do
-      {:get => "/admin/pipelines/pipeline.name/materials/pluggable_scm/new/plugin-id"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "new", :pipeline_name => "pipeline.name", :plugin_id => "plugin-id")
-      send("admin_pluggable_scm_new_path", :pipeline_name => "foo.bar", :plugin_id => "plugin-id").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/new/plugin-id"
+      {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/new/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'new', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
+      send('admin_pluggable_scm_new_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/new/plugin-id'
     end
 
     it "create" do
-      {:post => "/admin/pipelines/pipeline.name/materials/pluggable_scm/plugin-id"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "create", :pipeline_name => "pipeline.name", :plugin_id => "plugin-id")
-      send("admin_pluggable_scm_create_path", :pipeline_name => "foo.bar", :plugin_id => "plugin-id").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/plugin-id"
+      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'create', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
+      send('admin_pluggable_scm_create_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/plugin-id'
     end
 
     it "edit" do
-      {:get => "/admin/pipelines/pipeline.name/materials/pluggable_scm/finger_print/edit"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "edit", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
-      send("admin_pluggable_scm_edit_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/finger_print/edit"
+      {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/finger_print/edit'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'edit', :pipeline_name => 'pipeline.name', :finger_print => 'finger_print')
+      send('admin_pluggable_scm_edit_path', :pipeline_name => 'foo.bar', :finger_print => 'finger_print').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/finger_print/edit'
     end
 
     it "update" do
-      {:put => "/admin/pipelines/pipeline.name/materials/pluggable_scm/finger_print"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "update", :pipeline_name => "pipeline.name", :finger_print => "finger_print")
-      send("admin_pluggable_scm_update_path", :pipeline_name => "foo.bar", :finger_print => "finger_print").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/finger_print"
+      {:put => '/admin/pipelines/pipeline.name/materials/pluggable_scm/finger_print'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'update', :pipeline_name => 'pipeline.name', :finger_print => 'finger_print')
+      send('admin_pluggable_scm_update_path', :pipeline_name => 'foo.bar', :finger_print => 'finger_print').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/finger_print'
     end
 
     it "check_connection" do
-      {:post => "/admin/pipelines/pipeline.name/materials/pluggable_scm/check_connection/plugin-id"}.should route_to(:controller => "admin/materials/pluggable_scm", :action => "check_connection", :pipeline_name => "pipeline.name", :plugin_id => "plugin-id")
-      send("admin_pluggable_scm_check_connection_path", :pipeline_name => "foo.bar", :plugin_id => "plugin-id").should == "/admin/pipelines/foo.bar/materials/pluggable_scm/check_connection/plugin-id"
+      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/check_connection/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'check_connection', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
+      send('admin_pluggable_scm_check_connection_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/check_connection/plugin-id'
     end
   end
 
@@ -70,7 +70,7 @@ describe Admin::Materials::PluggableScmController do
       setup_data
       setup_metadata
 
-      @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
 
       @pluggable_scm_service = stub_service(:pluggable_scm_service)
@@ -78,7 +78,7 @@ describe Admin::Materials::PluggableScmController do
 
     describe "show_existing" do
       it "should load all scms" do
-        get :show_existing, :pipeline_name => "pipeline-name"
+        get :show_existing, :pipeline_name => 'pipeline-name'
 
         assigns[:material].getType().should == 'PluggableSCMMaterial'
         assigns[:scms].should == @cruise_config.getSCMs()
@@ -93,7 +93,7 @@ describe Admin::Materials::PluggableScmController do
         @cruise_config.getSCMs().size.should == 1
         @pipeline.materialConfigs().size.should == 1
 
-        post :choose_existing, :pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => choose_existing_payload('scm-id-1')
+        post :choose_existing, :pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')
 
         @cruise_config.getSCMs().size.should == 1
         @pipeline.materialConfigs().size.should == 2
@@ -105,11 +105,11 @@ describe Admin::Materials::PluggableScmController do
 
       it "should assign config_errors for display when choose material fails due to validation errors" do
         stub_save_for_validation_error do |result, cruise_config, node|
-          cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          cruise_config.errors().add('base', 'someError')
+          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
         end
 
-        post :choose_existing, :pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => choose_existing_payload('scm-id-1')
+        post :choose_existing, :pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => choose_existing_payload('scm-id-1')
 
         @cruise_config.getAllErrors().size.should == 1
 
@@ -121,7 +121,7 @@ describe Admin::Materials::PluggableScmController do
 
     describe "new" do
       it "should load new material" do
-        get :new, :pipeline_name => "pipeline-name", :plugin_id => "plugin-id"
+        get :new, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id'
 
         assert_material_is_initialized
         assigns[:meta_data_store].should == @meta_data_store
@@ -141,7 +141,7 @@ describe Admin::Materials::PluggableScmController do
         @cruise_config.getSCMs().size.should == 1
         @pipeline.materialConfigs().size.should == 1
 
-        post :create, :pipeline_name => "pipeline-name", :plugin_id => "plugin-id", :config_md5 => "md5-1", :material => create_payload
+        post :create, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload
 
         @cruise_config.getSCMs().size.should == 2
         @pipeline.materialConfigs().size.should == 2
@@ -153,11 +153,11 @@ describe Admin::Materials::PluggableScmController do
 
       it "should assign config_errors for display when create fails due to validation errors" do
         stub_save_for_validation_error do |result, cruise_config, node|
-          cruise_config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          cruise_config.errors().add('base', 'someError')
+          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
         end
 
-        post :create, :pipeline_name => "pipeline-name", :plugin_id => "plugin-id", :config_md5 => "md5-1", :material => create_payload
+        post :create, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :config_md5 => 'md5-1', :material => create_payload
 
         @cruise_config.getAllErrors().size.should == 1
 
@@ -169,7 +169,7 @@ describe Admin::Materials::PluggableScmController do
 
     describe "edit" do
       it "should edit an existing material" do
-        get :edit, :pipeline_name => "pipeline-name", :finger_print => @material.getPipelineUniqueFingerprint()
+        get :edit, :pipeline_name => 'pipeline-name', :finger_print => @material.getPipelineUniqueFingerprint()
 
         assigns[:material].should == @material
         assigns[:meta_data_store].should == @meta_data_store
@@ -189,7 +189,7 @@ describe Admin::Materials::PluggableScmController do
         @cruise_config.getSCMs().size.should == 1
         @pipeline.materialConfigs().size.should == 1
 
-        put :update, :pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()
+        put :update, :pipeline_name => 'pipeline-name', :config_md5 => 'md5-1', :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()
 
         @cruise_config.getSCMs().size.should == 1
         @pipeline.materialConfigs().size.should == 1
@@ -202,8 +202,8 @@ describe Admin::Materials::PluggableScmController do
 
       it "should assign config_errors for display when update fails due to validation errors" do
         stub_save_for_validation_error do |result, config, node|
-          config.errors().add("base", "someError")
-          result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
+          config.errors().add('base', 'someError')
+          result.badRequest(LocalizedMessage.string('UNAUTHORIZED_TO_EDIT_PIPELINE', ['pipeline-name']))
         end
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "md5-1", :material => update_payload('scm-id-1'), :finger_print => @material.getPipelineUniqueFingerprint()
@@ -224,7 +224,7 @@ describe Admin::Materials::PluggableScmController do
       end
 
       it "should check connection for pluggable SCM" do
-        post :check_connection, :pipeline_name => "pipeline-name", :plugin_id => "plugin-id", :material => create_payload
+        post :check_connection, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :material => create_payload
 
         response.body.should == "{\"status\":\"success\",\"messages\":[\"message 1\",\"message 2\"]}"
       end
@@ -279,15 +279,15 @@ describe Admin::Materials::PluggableScmController do
   end
 
   def choose_existing_payload(scmId)
-    {:scmId => scmId, :folder => "scm-folder"}
+    {:scmId => scmId, :folder => 'scm-folder'}
   end
 
   def create_payload
-    {:name => "scm-name", :url => "scm-url", :branch => "scm-branch", :folder => "scm-folder"}
+    {:name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', :folder => 'scm-folder'}
   end
 
   def update_payload(scmId)
-    {:scmId => scmId, :name => "scm-name", :url => "scm-url", :branch => "scm-branch", :folder => "scm-folder"}
+    {:scmId => scmId, :name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', :folder => 'scm-folder'}
   end
 
   def assert_successful_save(material_config)

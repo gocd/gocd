@@ -32,10 +32,10 @@ module Admin::Materials
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)
         @scms = @cruise_config.getSCMs()
-        render :template => "/admin/materials/pluggable_scm/show_existing", :status => result.httpCode(), :layout => false
+        render :template => '/admin/materials/pluggable_scm/show_existing', :status => result.httpCode(), :layout => false
       end
 
-      save_popup(params[:config_md5], get_choose_existing_command, create_failure_handler, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
+      save_popup(params[:config_md5], get_choose_existing_command, create_failure_handler, { :controller => '/admin/materials', :stage_parent => 'pipelines', :current_tab => params[:current_tab] }) do
         assert_load :pipeline, @node.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name]))
         assert_load :material, @subject
       end
@@ -62,10 +62,10 @@ module Admin::Materials
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)
         @meta_data_store = meta_data_store
-        render :template => "/admin/materials/pluggable_scm/new", :status => result.httpCode(), :layout => false
+        render :template => '/admin/materials/pluggable_scm/new', :status => result.httpCode(), :layout => false
       end
 
-      save_popup(params[:config_md5], get_create_command, create_failure_handler, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
+      save_popup(params[:config_md5], get_create_command, create_failure_handler, { :controller => '/admin/materials', :stage_parent => 'pipelines', :current_tab => params[:current_tab] }) do
         assert_load :pipeline, @node.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name]))
         assert_load :material, @subject
       end
@@ -85,10 +85,10 @@ module Admin::Materials
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)
         @meta_data_store = meta_data_store
-        render :template => "/admin/materials/pluggable_scm/edit", :status => result.httpCode(), :layout => false
+        render :template => '/admin/materials/pluggable_scm/edit', :status => result.httpCode(), :layout => false
       end
 
-      save_popup(params[:config_md5], get_update_command, create_failure_handler, {:controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab]}) do
+      save_popup(params[:config_md5], get_update_command, create_failure_handler, { :controller => '/admin/materials', :stage_parent => "pipelines", :current_tab => params[:current_tab] }) do
         assert_load :pipeline, @node.pipelineConfigByName(CaseInsensitiveString.new(params[:pipeline_name]))
         assert_load :material, @subject
       end

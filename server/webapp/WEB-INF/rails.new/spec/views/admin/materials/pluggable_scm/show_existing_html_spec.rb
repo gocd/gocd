@@ -19,15 +19,15 @@ require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
 describe "admin/materials/pluggable_scm/show_existing.html.erb" do
   include GoUtil, FormUI
 
-  PLUGIN_ID = "my.scm.plugin"
+  PLUGIN_ID = 'my.scm.plugin'
 
   before :each do
-    in_params(:pipeline_name => "pipeline_name")
+    in_params(:pipeline_name => 'pipeline_name')
 
     assign(:cruise_config, config = CruiseConfig.new)
-    set(config, "md5", "md5-1")
+    set(config, 'md5', 'md5-1')
 
-    view.stub(:admin_pluggable_scm_choose_existing_path).and_return("admin_pluggable_scm_choose_existing_path")
+    view.stub(:admin_pluggable_scm_choose_existing_path).and_return('admin_pluggable_scm_choose_existing_path')
 
     scm = SCMMother.create('scm-id', 'scm-name', PLUGIN_ID, '1', Configuration.new)
     scms = com.thoughtworks.go.domain.scm.SCMs.new
@@ -40,12 +40,12 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
   it "should render the config md5, form buttons and flash message" do
     render
 
-    expect(response.body).to have_selector("#message_pane")
+    expect(response.body).to have_selector('#message_pane')
 
     Capybara.string(response.body).find("form[action='admin_pluggable_scm_choose_existing_path'][method='post']").tap do |form|
       expect(form).to have_selector("input[id='config_md5'][type='hidden'][value='md5-1']")
-      expect(form).to have_selector("button[type='submit']", :text => "SAVE")
-      expect(form).to have_selector("button", :text => "Cancel")
+      expect(form).to have_selector("button[type='submit']", :text => 'SAVE')
+      expect(form).to have_selector("button", :text => 'Cancel')
     end
   end
 
@@ -54,13 +54,13 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
 
     render
 
-    expect(response.body).to have_selector("#config_save_actions")
+    expect(response.body).to have_selector('#config_save_actions')
   end
 
   it "should render the required message" do
     render
 
-    expect(response.body).to have_selector(".required .asterisk")
+    expect(response.body).to have_selector('.required .asterisk')
   end
 
   it "should render scm selection drop-down, destination & filter" do
@@ -68,22 +68,22 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
 
     expect(response.body).to have_select("material[#{com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::SCM_ID}]", :options => ['scm-name'])
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{PluggableSCMMaterialConfig::FOLDER}]']")
-    expect(response.body).to have_selector(".popup_form textarea[name='material[#{PluggableSCMMaterialConfig::FILTER}]']", :text => "")
+    expect(response.body).to have_selector(".popup_form textarea[name='material[#{PluggableSCMMaterialConfig::FILTER}]']", :text => '')
   end
 
   it "should display show existing pluggable SCM material view with errors" do
-    pluggable_scm_errors = config_errors([PluggableSCMMaterialConfig::SCM_ID, "Duplicate SCM found"], [PluggableSCMMaterialConfig::FOLDER, "Folder is wrong"])
+    pluggable_scm_errors = config_errors([PluggableSCMMaterialConfig::SCM_ID, 'Duplicate SCM found'], [PluggableSCMMaterialConfig::FOLDER, 'Folder is wrong'])
     set(@material, "errors", pluggable_scm_errors)
-    @ignored_file = IgnoredFiles.new("/sugar")
+    @ignored_file = IgnoredFiles.new('/sugar')
     @material.setFilter(Filter.new([@ignored_file].to_java(IgnoredFiles)))
-    set(@ignored_file, "configErrors", config_error(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN, "Filter is wrong"))
+    set(@ignored_file, 'configErrors', config_error(com.thoughtworks.go.config.materials.IgnoredFiles::PATTERN, 'Filter is wrong'))
 
     render
 
     Capybara.string(response.body).find('.popup_form').tap do |popup_form|
-      expect(popup_form).to have_selector("div.form_error", :text => "Duplicate SCM found")
-      expect(popup_form).to have_selector("div.form_error", :text => "Folder is wrong")
-      expect(popup_form).to have_selector("div.form_error", :text => "Filter is wrong")
+      expect(popup_form).to have_selector('div.form_error', :text => 'Duplicate SCM found')
+      expect(popup_form).to have_selector('div.form_error', :text => 'Folder is wrong')
+      expect(popup_form).to have_selector('div.form_error', :text => 'Filter is wrong')
     end
   end
 
@@ -92,7 +92,7 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
 
     render
 
-    expect(response.body).to have_selector(".popup_form .warnings", :text => 'No SCMs found. Please add a SCM first.')
+    expect(response.body).to have_selector('.popup_form .warnings', :text => 'No SCMs found. Please add a SCM first.')
   end
 
   def text_without_whitespace element

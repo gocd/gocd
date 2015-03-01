@@ -78,6 +78,9 @@ public class PluggableScmServiceTest {
 
     @Test
     public void shouldValidateSCM() {
+        SCMConfiguration scmConfig = new SCMConfiguration(new SCMProperty("KEY2").with(Property.REQUIRED, false));
+        scmConfigurations.add(scmConfig);
+
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();

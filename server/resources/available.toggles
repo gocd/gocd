@@ -10,6 +10,11 @@
          "key": "plugin_upload_feature_toggle_key",
          "description": "Enables uploading a plugin, directly from Go's plugins tab. Default: off.",
          "value": false
+      },
+      {
+         "key": "color_logs_feature_toggle_key",
+         "description": "Enables colored logs in job detail. Default: off.",
+         "value": false
       }
    ]
 }

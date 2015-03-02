@@ -276,56 +276,6 @@
                             </target>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>start.hg.container</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <exec executable="git" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
-                                    <arg value="clone"/>
-                                    <arg value="https://github.com/gocd/hg-textauth"/>
-                                </exec>
-                                <exec executable="docker" >
-                                    <arg value="run"/>
-                                    <arg value="--privileged=true"/>
-                                    <arg value="-d"/>
-                                    <arg value="--name=hg_container"/>
-                                    <arg value="-p"/>
-                                    <arg value="9999:8000"/>
-                                    <arg value="-v"/>
-                                    <arg value="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted/:/mounted_volume:ro"/>
-                                    <arg value="-w"/>
-                                    <arg value="/mounted_volume"/>
-                                    <arg value="gocd/ubuntu-hg"/>
-                                    <arg value="/bin/sh"/>
-                                    <arg value="setup.sh"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop.and.remove.hg.container</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <exec executable="docker">
-                                    <arg value="stop"/>
-                                    <arg value="hg_container"/>
-                                </exec>
-                                <exec executable="docker" >
-                                    <arg value="rm"/>
-                                    <arg value="hg_container"/>
-                                </exec>
-                            </target>
-                        </configuration>
-
-                    </execution>
                 </executions>
                 <dependencies>
                     <dependency>
@@ -381,4 +331,71 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker-tests</id>
+            <activation></activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>start.hg.container</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <exec executable="git" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
+                                            <arg value="clone"/>
+                                            <arg value="https://github.com/gocd/hg-textauth"/>
+                                        </exec>
+                                        <exec executable="docker">
+                                            <arg value="run"/>
+                                            <arg value="--privileged=true"/>
+                                            <arg value="-d"/>
+                                            <arg value="--name=hg_container"/>
+                                            <arg value="-p"/>
+                                            <arg value="9999:8000"/>
+                                            <arg value="-v"/>
+                                            <arg value="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted/:/mounted_volume:ro"/>
+                                            <arg value="-w"/>
+                                            <arg value="/mounted_volume"/>
+                                            <arg value="gocd/ubuntu-hg"/>
+                                            <arg value="/bin/sh"/>
+                                            <arg value="setup.sh"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop.and.remove.hg.container</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <exec executable="docker">
+                                            <arg value="stop"/>
+                                            <arg value="hg_container"/>
+                                        </exec>
+                                        <exec executable="docker" >
+                                            <arg value="rm"/>
+                                            <arg value="hg_container"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

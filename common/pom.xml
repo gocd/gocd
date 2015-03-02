@@ -267,7 +267,7 @@
 
                                     <batchtest todir="${reports.dir}">
                                         <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"
-                                                               moduleName="common"/>
+                                                               excludes="**/*DockerTest.class" moduleName="common"/>
                                         <formatter classname="tlb.ant.JunitDataRecorder"/>
                                         <formatter type="xml"/>
                                     </batchtest>

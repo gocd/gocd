@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.ArtifactCleanupStrategy;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.GoConstants;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands the configuration for a stage
@@ -39,6 +40,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     @ConfigAttribute(value = "cleanWorkingDir") private boolean cleanWorkingDir = DEFAULT_CLEAN_WORKING_DIR;
     @ConfigSubtag(optional = true) private Approval approval = Approval.automaticApproval();
     @ConfigSubtag private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+    @ConfigSubtag(optional = true) private ArtifactCleanupStrategy artifactCleanupStrategy;
     @ConfigSubtag(optional = false) private JobConfigs jobConfigs;
 
     private ConfigErrors errors = new ConfigErrors();
@@ -324,4 +326,11 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return getOperateRoles().contains(new AdminRole(role));
     }
 
+    public void setArtifactCleanupStrategy(ArtifactCleanupStrategy artifactCleanupStrategy) {
+        this.artifactCleanupStrategy = artifactCleanupStrategy;
+    }
+
+    public ArtifactCleanupStrategy getArtifactCleanupStrategy() {
+        return artifactCleanupStrategy;
+    }
 }

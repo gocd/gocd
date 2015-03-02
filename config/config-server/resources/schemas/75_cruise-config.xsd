@@ -30,7 +30,6 @@
                         <xsd:all>
                             <xsd:element minOccurs="0" maxOccurs="1" name="security" type="securityType"/>
                             <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
-                            <xsd:element minOccurs="0" maxOccurs="1" name="artifactCleanupStrategy" type="artifactCleanupStrategyType"/>
                         </xsd:all>
                         <xsd:attributeGroup ref="serverAttributeGroup"/>
                     </xsd:complexType>
@@ -75,7 +74,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="76"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="75"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -114,8 +113,7 @@
                         <xsd:element name="package" minOccurs="0" maxOccurs="unbounded">
                             <xsd:complexType>
                                 <xsd:sequence>
-                                    <xsd:element name="configuration" minOccurs="1" maxOccurs="1"
-                                                 type="configurationType"/>
+                                    <xsd:element name="configuration" minOccurs="1" maxOccurs="1" type="configurationType"/>
                                 </xsd:sequence>
                                 <xsd:attribute type="packageIdType" name="id"/>
                                 <xsd:attribute type="nameType" name="name" use="required"/>
@@ -296,7 +294,6 @@
         <xsd:sequence>
             <xsd:element minOccurs="0" maxOccurs="1" name="approval" type="approvalType"/>
             <xsd:element minOccurs="0" maxOccurs="1" ref="environmentvariables"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="artifactCleanupStrategy" type="artifactCleanupStrategyType"/>
             <xsd:element maxOccurs="unbounded" name="jobs" type="jobsType">
                 <xsd:unique name="uniqueJob">
                     <xsd:selector xpath="job"/>
@@ -308,11 +305,6 @@
         <xsd:attribute name="fetchMaterials" type="xsd:boolean"/>
         <xsd:attribute name="cleanWorkingDir" type="xsd:boolean"/>
         <xsd:attribute name="artifactCleanupProhibited" type="xsd:boolean"/>
-    </xsd:complexType>
-    <xsd:complexType name="artifactCleanupStrategyType">
-        <xsd:sequence>
-            <xsd:element name="pluginConfiguration" minOccurs="1" maxOccurs="1" type="pluginConfigurationType"/>
-        </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="approvalType">
         <xsd:sequence>
@@ -412,7 +404,7 @@
         <xsd:sequence>
             <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
         </xsd:sequence>
-        <xsd:attribute name="ref" type="xsd:string" use="required"/>
+        <xsd:attribute name="ref" type="xsd:string" use="required" />
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="jobsType">
@@ -620,9 +612,8 @@
             <xsd:element minOccurs="1" maxOccurs="unbounded" name="pipeline">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element minOccurs="0" maxOccurs="1" name="authorization"
-                                     type="adminOnlyAuthorizationType"/>
-                        <xsd:element minOccurs="1" maxOccurs="unbounded" name="stage" type="stageType"/>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="adminOnlyAuthorizationType"/>
+                        <xsd:element minOccurs="1" maxOccurs="unbounded" name="stage" type="stageType" />
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType"/>
                 </xsd:complexType>
@@ -721,8 +712,7 @@
     </xsd:simpleType>
     <xsd:simpleType name="labelType">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern
-                    value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
+            <xsd:pattern value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="jobnameType">

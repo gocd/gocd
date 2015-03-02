@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.licensing.GoLicense;
+import com.thoughtworks.go.domain.config.ArtifactCleanupStrategy;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
+
+import javax.annotation.PostConstruct;
+import java.util.UUID;
 
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
@@ -45,6 +45,7 @@ public class ServerConfig implements Validatable {
 
     @ConfigSubtag private SecurityConfig securityConfig = new SecurityConfig();
     @ConfigSubtag private MailHost mailHost = new MailHost(new GoCipher());
+    @ConfigSubtag(optional = true) private ArtifactCleanupStrategy artifactCleanupStrategy;
 
     private ConfigErrors errors = new ConfigErrors();
 
@@ -326,5 +327,13 @@ public class ServerConfig implements Validatable {
 
     public void setCommandRepositoryLocation(String location) {
         this.commandRepositoryLocation = location;
+    }
+
+    public void setArtifactCleanupStrategy(ArtifactCleanupStrategy artifactCleanupStrategy) {
+        this.artifactCleanupStrategy = artifactCleanupStrategy;
+    }
+
+    public ArtifactCleanupStrategy getArtifactCleanupStrategy() {
+        return artifactCleanupStrategy;
     }
 }

@@ -16,16 +16,13 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import javax.xml.xpath.XPathExpressionException;
-
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.InputSource;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -146,7 +143,7 @@ public class XpathUtilsTest {
     @Test
     public void shouldEvaluateXpathOfCustomer() throws Exception {
         String xpath = "//coverageReport2/project/@coverage";
-        File file = new File("../../common/test-resources/data/customer/CoverageSummary.xml");
+        File file = new ClassPathResource("/data/customer/CoverageSummary.xml").getFile();
         InputSource inputSource = new InputSource(file.getPath());
         assertThat(XpathUtils.nodeExists(inputSource, xpath), is(true));
         String value = XpathUtils.evaluate(file, xpath);

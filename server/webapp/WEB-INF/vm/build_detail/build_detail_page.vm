@@ -175,7 +175,7 @@
     var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
 
     var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}');
-    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}');
+    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {colorize: $color_logs_feature_toggle_key});
     dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
     dashboard_periodical_executer.start();
 

@@ -38,6 +38,7 @@
 //= require "lib/trimpath-template-1.0.38.js"
 //= require "lib/ui.core-1.7.3.js"
 //= require "lib/ui.dialog-1.7.3.js"
+//= require "lib/ansiparse.js"
 //= require "build_base_observer.js"
 //= require "json_to_css.js"
 //= require "util.js"

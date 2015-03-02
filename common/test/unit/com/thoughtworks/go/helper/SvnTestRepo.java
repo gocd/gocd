@@ -31,6 +31,7 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.Assert;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.apache.commons.io.FileUtils.copyDirectory;
@@ -38,7 +39,7 @@ import static org.apache.commons.io.FileUtils.copyDirectory;
 public class SvnTestRepo extends TestRepo {
     protected File tempRepo;
 
-    private static final File REPO_TEST_DATA_FOLDER = new File("../common/test-resources/data/svnrepo");
+    private static final String REPO_TEST_DATA_FOLDER = "/data/svnrepo";
 
     public SvnTestRepo() throws IOException {
         this("testSvnRepo-" + System.currentTimeMillis());
@@ -48,7 +49,7 @@ public class SvnTestRepo extends TestRepo {
         tempRepo = TestFileUtil.createUniqueTempFolder(tempFolderName);
         tmpFolders.add(tempRepo);
         try {
-            copyDirectory(REPO_TEST_DATA_FOLDER, tempRepo);
+            copyDirectory(new ClassPathResource(REPO_TEST_DATA_FOLDER).getFile(), tempRepo);
         } catch (IOException e) {
             Assert.fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + tempRepo + "] beacuse of " + e.getMessage());
         }

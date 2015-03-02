@@ -41,6 +41,7 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
@@ -131,12 +132,12 @@ public class P4TestRepo extends TestRepo {
         return SystemUtil.getLocalhostName() + ":" + port;
     }
 
-    public static P4TestRepo createP4TestRepo() {
-        return new P4TestRepo(RandomPort.find("P4TestRepo"), "../common/test-resources/data/p4repo", "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
+    public static P4TestRepo createP4TestRepo() throws IOException {
+        return new P4TestRepo(RandomPort.find("P4TestRepo"), new ClassPathResource("/data/p4repo").getFile().getAbsolutePath(), "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false);
     }
 
-    public static P4TestRepo createP4TestRepoWithTickets() {
-        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), "../common/test-resources/data/p4TicketedRepo", "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true);
+    public static P4TestRepo createP4TestRepoWithTickets() throws IOException {
+        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), new ClassPathResource("/data/p4TicketedRepo").getFile().getAbsolutePath(), "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true);
     }
 
     public static P4TestRepo createP4RepoOPS(String repoPrototype) {

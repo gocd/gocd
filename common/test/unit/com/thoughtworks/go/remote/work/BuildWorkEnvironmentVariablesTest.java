@@ -16,39 +16,20 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.RunIfConfigs;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -63,11 +44,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildWorkEnvironmentVariablesTest {
@@ -98,7 +85,7 @@ public class BuildWorkEnvironmentVariablesTest {
         initMocks(this);
         dir = new File("someFolder");
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
         svnRepoFixture.createRepository();
         command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 

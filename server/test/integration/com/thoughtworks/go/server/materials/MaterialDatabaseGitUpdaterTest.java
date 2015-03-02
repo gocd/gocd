@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.materials;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -35,7 +36,7 @@ public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
         return new GitMaterial(testRepo.projectRepositoryUrl());
     }
 
-    protected GitTestRepo repo() {
+    protected GitTestRepo repo() throws IOException {
         return new GitTestRepo();
     }
 

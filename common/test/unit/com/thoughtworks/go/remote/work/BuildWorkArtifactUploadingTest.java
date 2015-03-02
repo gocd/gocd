@@ -16,28 +16,13 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.BuildLogElement;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Property;
-import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
@@ -63,15 +48,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedRuleDoesNotMatchFailure;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.uploadFileToDestination;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildWorkArtifactUploadingTest {
@@ -95,7 +84,7 @@ public class BuildWorkArtifactUploadingTest {
         initMocks(this);
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/test-resources/data/svnrepo");
+        svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
         svnRepoFixture.createRepository();
         SvnCommand command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 

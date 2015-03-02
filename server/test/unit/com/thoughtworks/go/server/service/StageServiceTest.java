@@ -81,7 +81,7 @@ public class StageServiceTest {
     private JobInstanceService jobInstanceService;
     private SecurityService securityService;
     private ChangesetService changesetService;
-	private CruiseConfig cruiseConfig;
+    private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private List<CaseInsensitiveString> pipelineNames;
     private Username user;
@@ -97,13 +97,13 @@ public class StageServiceTest {
     @Before
     public void setUp() throws Exception {
         stageDao = mock(StageDao.class);
-		pipelineDao = mock(PipelineDao.class);
+        pipelineDao = mock(PipelineDao.class);
         jobInstanceService = mock(JobInstanceService.class);
         securityService = mock(SecurityService.class);
         pipelineNames = asList(new CaseInsensitiveString("blah-pipeline"));
         user = new Username(new CaseInsensitiveString("poovan"));
         operationResult = new HttpLocalizedOperationResult();
-		cruiseConfig = mock(CruiseConfig.class);
+        cruiseConfig = mock(CruiseConfig.class);
         goConfigService = mock(GoConfigService.class);
         changesetService = mock(ChangesetService.class);
         goCache = mock(GoCache.class);
@@ -547,9 +547,10 @@ public class StageServiceTest {
         Stage stageBar = StageMother.passedStageInstance("stage-bar", "job", "pipeline-quux");
         Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
         Stage stageQuux = StageMother.passedStageInstance("stage-quux", "job", "pipeline-bar");
-        when(stageDao.oldestStagesHavingArtifacts()).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
+        ArrayList<StageConfigIdentifier> stagesFilter = new ArrayList<StageConfigIdentifier>();
+        when(stageDao.oldestStagesHavingArtifacts(stagesFilter)).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
 
-        List<Stage> stages = service.oldestStagesWithDeletableArtifacts();
+        List<Stage> stages = service.oldestStagesWithDeletableArtifacts(stagesFilter);
         assertThat(stages.size(), is(4));
         assertThat(stages, hasItem(stageFoo));
         assertThat(stages, hasItem(stageBar));
@@ -557,54 +558,54 @@ public class StageServiceTest {
         assertThat(stages, hasItem(stageQuux));
     }
 
-	@Test
-	public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+    @Test
+    public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
 
-		verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
-	}
+        verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+    @Test
+    public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
-		assertThat(stageInstanceModels, is(Matchers.nullValue()));
-		assertThat(result.httpCode(), is(404));
-	}
+        assertThat(stageInstanceModels, is(Matchers.nullValue()));
+        assertThat(result.httpCode(), is(404));
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+    @Test
+    public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
-		assertThat(stageInstanceModels, is(Matchers.nullValue()));
+        assertThat(stageInstanceModels, is(Matchers.nullValue()));
         assertThat(result.httpCode(), is(401));
-	}
+    }
 
     @Test
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
@@ -636,5 +637,42 @@ public class StageServiceTest {
 
         assertThat(stage, is(Matchers.nullValue()));
         assertThat(result.httpCode(), is(401));
+    }
+
+    @Test
+    public void shouldGetStageInstanceDetailsForGivenPipelineAndStage() throws Exception {
+
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        String pipelineName = "pipeline-name";
+        String stageOne = "stage-one";
+        String stageTwo = "stage-two";
+        Long fromId = 0L;
+        Long toId = 10L;
+        boolean ascending = true;
+        List<StageConfigIdentifier> includeStages = asList(new StageConfigIdentifier(pipelineName, stageOne));
+        List<StageConfigIdentifier> excludeStages = asList(new StageConfigIdentifier(pipelineName, stageTwo));
+
+        List<Stage> expectedResult = new ArrayList<Stage>();
+
+        when(stageDao.getStagesWithArtifacts(includeStages, excludeStages, fromId, toId, ascending)).thenReturn(expectedResult);
+
+        List<Stage> actualResult = service.getStagesWithArtifacts(includeStages, excludeStages, fromId, toId, ascending);
+
+        assertThat(actualResult, is(expectedResult));
+        verify(stageDao).getStagesWithArtifacts(includeStages, excludeStages, fromId, toId, ascending);
+    }
+
+    @Test
+    public void shouldGetAllDistinctStages() throws Exception {
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        List<StageConfigIdentifier> expectedResult = new ArrayList<StageConfigIdentifier>();
+        when(stageDao.getAllDistinctStages()).thenReturn(expectedResult);
+
+        List<StageConfigIdentifier> actualResult = service.getAllDistinctStages();
+
+        assertThat(actualResult, is(expectedResult));
+        verify(stageDao).getAllDistinctStages();
     }
 }

@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 public class StageConfigIdentifier {
-private final CaseInsensitiveString pipelineName;
+    private final CaseInsensitiveString pipelineName;
     private final CaseInsensitiveString stageName;
 
     public StageConfigIdentifier(String pipelineName, String stageName) {
@@ -65,5 +65,9 @@ private final CaseInsensitiveString pipelineName;
         int result = pipelineName != null ? pipelineName.hashCode() : 0;
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         return result;
+    }
+
+    public String uniqueStageIdentifier() {
+        return String.format("%s/%s", pipelineName, stageName);
     }
 }

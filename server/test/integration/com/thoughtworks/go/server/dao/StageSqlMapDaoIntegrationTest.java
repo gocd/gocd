@@ -74,6 +74,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -242,7 +243,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetTotalStageCountForChart(){
+    public void shouldGetTotalStageCountForChart() {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
         List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
@@ -774,7 +775,8 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(stage, is(nullValue()));
     }
 
-    @Test public void shouldFindStageWithJobsAndTransitionsByIdentifier() throws Exception {
+    @Test
+    public void shouldFindStageWithJobsAndTransitionsByIdentifier() throws Exception {
         PipelineConfig pipelineConfig = twoBuildPlansWithResourcesAndMaterials("pipeline-1", "stage-1");
 
         Pipeline pipeline = pipelineWithOnePassedAndOneCurrentlyRunning(pipelineConfig)[0];
@@ -805,7 +807,6 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(stageDao.findStageWithIdentifier(new StageIdentifier("no-pipeline", null, "1", "no-stage", "1")),
                 is(instanceOf(NullStage.class)));
     }
-
 
 
     @Test
@@ -1096,7 +1097,8 @@ public class StageSqlMapDaoIntegrationTest {
         jobInstanceDao.ignore(ignored);
     }
 
-    @Test public void shouldGetStageFromBuild() throws Exception {
+    @Test
+    public void shouldGetStageFromBuild() throws Exception {
         Pipeline mingle = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         final Stage stage = pipelineAndFirstStageOf(mingle).stage;
         final JobInstance jobInstance = scheduleBuildInstances(stage);
@@ -1514,26 +1516,45 @@ public class StageSqlMapDaoIntegrationTest {
             dbHelper.pass(pipeline);
             pipelines[i] = pipeline;
         }
-        List<Stage> stages = stageDao.oldestStagesHavingArtifacts();
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(100));
         for (int i = 0; i < 100; i++) {
             Stage stage = stages.get(i);
             assertThat(stage.getIdentifier(), Matchers.is(pipelines[i].getFirstStage().getIdentifier()));
             stageDao.markArtifactsDeletedFor(stage);
         }
-        stages = stageDao.oldestStagesHavingArtifacts();
+        stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
         stageDao.markArtifactsDeletedFor(stages.get(0));
-        assertThat(stageDao.oldestStagesHavingArtifacts().size(), is(0));
+        assertThat(stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>()).size(), is(0));
+    }
+
+    @Test
+    public void shouldNotLoadStagesProvidedInFilterList() {
+        Pipeline pipelineOne = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-one", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineOne);
+
+        Pipeline pipelineTwo = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-two", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineTwo);
+
+        Pipeline pipelineThree = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("pipeline-three", "stage", "job1"), new TimeProvider());
+        dbHelper.pass(pipelineThree);
+
+        List<StageConfigIdentifier> stagesFilter = asList(new StageConfigIdentifier("pipeline-two", "stage"), new StageConfigIdentifier("pipeline-three", "stage"));
+
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(stagesFilter);
+
+        assertThat(stages.size(), is(1));
+        assertThat(stages.get(0).getPipelineId(), is(pipelineOne.getId()));
     }
 
     @Test
     public void shouldOnlyLoadCompletedStagesAsOldestStagesHavingArtifacts() {
         Pipeline pipeline = dbHelper.schedulePipeline(PipelineConfigMother.createPipelineConfig("foo", "stage1", "job1"), new TimeProvider());
-        List<Stage> stages = stageDao.oldestStagesHavingArtifacts();
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(0));
         dbHelper.pass(pipeline);
-        stages = stageDao.oldestStagesHavingArtifacts();
+        stages = stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
         assertThat(stages.size(), is(1));
     }
 
@@ -1646,7 +1667,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldCacheStageHistoryPageAndCountAndOffset() throws Exception{
+    public void shouldCacheStageHistoryPageAndCountAndOffset() throws Exception {
         HgMaterial hg = new HgMaterial("url", null);
         String[] hg_revs = {"h1"};
         scheduleUtil.checkinInOrder(hg, hg_revs);
@@ -1710,117 +1731,117 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(reprimedStageHistoryOffset, is(not(sameInstance(primedStageHistoryOffset))));
     }
 
-	@Test
-	public void shouldGetDetailedStageHistory() throws Exception{
-		HgMaterial hg = new HgMaterial("url", null);
-		String[] hg_revs = {"h1", "h2", "h3"};
-		scheduleUtil.checkinInOrder(hg, hg_revs);
+    @Test
+    public void shouldGetDetailedStageHistory() throws Exception {
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1", "h2", "h3"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
 
-		String pipelineName = "p1";
-		String stageName = "stage_name";
+        String pipelineName = "p1";
+        String stageName = "stage_name";
 
-		ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg),new String[]{"job1","job2"});
-		scheduleUtil.runAndPass(p1, "h1");
-		scheduleUtil.runAndPass(p1, "h2");
-		scheduleUtil.runAndPass(p1, "h3");
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg), new String[]{"job1", "job2"});
+        scheduleUtil.runAndPass(p1, "h1");
+        scheduleUtil.runAndPass(p1, "h2");
+        scheduleUtil.runAndPass(p1, "h3");
 
-		Pagination pagination = Pagination.pageStartingAt(0, 3, 2);
-		StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        Pagination pagination = Pagination.pageStartingAt(0, 3, 2);
+        StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
 
-		assertThat(stageInstanceModels.size(), is(2));
+        assertThat(stageInstanceModels.size(), is(2));
 
-		assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(3));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
-		assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
+        assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(3));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
+        assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
 
-		assertThat(stageInstanceModels.get(1).getResult(), is(StageResult.Passed));
-		assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineName(), is(pipelineName));
-		assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineCounter(), is(2));
-		assertThat(stageInstanceModels.get(1).getIdentifier().getStageName(), is(stageName));
-		assertThat(stageInstanceModels.get(1).getIdentifier().getStageCounter(), is("1"));
-		assertJobDetails(stageInstanceModels.get(1).getBuildHistory());
+        assertThat(stageInstanceModels.get(1).getResult(), is(StageResult.Passed));
+        assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineName(), is(pipelineName));
+        assertThat(stageInstanceModels.get(1).getIdentifier().getPipelineCounter(), is(2));
+        assertThat(stageInstanceModels.get(1).getIdentifier().getStageName(), is(stageName));
+        assertThat(stageInstanceModels.get(1).getIdentifier().getStageCounter(), is("1"));
+        assertJobDetails(stageInstanceModels.get(1).getBuildHistory());
 
-		pagination = Pagination.pageStartingAt(2, 3, 2);
-		stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        pagination = Pagination.pageStartingAt(2, 3, 2);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
 
-		assertThat(stageInstanceModels.size(), is(1));
+        assertThat(stageInstanceModels.size(), is(1));
 
-		assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(1));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
-		assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
-	}
+        assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(1));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
+        assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
+    }
 
-	private void assertJobDetails(JobHistory buildHistory) {
-		assertThat(buildHistory.size(), is(2));
-		Set<String> jobNames = new HashSet<String>(Arrays.asList(buildHistory.get(0).getName(), buildHistory.get(1).getName()));
-		assertThat(jobNames, hasItems("job2", "job1"));
-		assertThat(buildHistory.get(0).getResult(), is(JobResult.Passed));
-		assertThat(buildHistory.get(1).getResult(), is(JobResult.Passed));
-	}
-
-	@Test
-	public void shouldCacheDetailedStageHistoryPageAndCountAndOffset() throws Exception{
-		HgMaterial hg = new HgMaterial("url", null);
-		String[] hg_revs = {"h1"};
-		scheduleUtil.checkinInOrder(hg, hg_revs);
-
-		String pipelineName = "p1";
-		String stageName = "stage_name";
-		Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
-
-		ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg));
-		scheduleUtil.runAndPass(p1, "h1");
-
-		Stage stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
-		stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // PRIME CACHE
-
-		Method cacheKeyForDetailedStageHistories = getMethodViaReflection("cacheKeyForDetailedStageHistories", String.class, String.class);
-		Object primedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
-
-		stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // SHOULD RETURN FROM CACHE
-
-		Object cachedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
-
-		assertThat(cachedDetailedStageHistoryPage, is(sameInstance(primedDetailedStageHistoryPage)));
-	}
-
-	@Test
-	public void shouldInvalidateDetailedStageHistoryCachesOnStageSave() throws Exception {
-		HgMaterial hg = new HgMaterial("url", null);
-		String[] hg_revs = {"h1"};
-		scheduleUtil.checkinInOrder(hg, hg_revs);
-
-		String pipelineName = "p1";
-		String stageName = "stage_name";
-		Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
-
-		ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg));
-		scheduleUtil.runAndPass(p1, "h1");
-
-		Stage stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
-		stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // PRIME CACHE
-
-		Method cacheKeyForDetailedStageHistories = getMethodViaReflection("cacheKeyForDetailedStageHistories", String.class, String.class);
-		Object primedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
-
-		scheduleUtil.runAndPass(p1, "h1"); // NEW RUN OF STAGE, CACHE SHOULD BE INVALIDATED
-
-		stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
-		stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // SHOULD QUERY AGAIN
-
-		Object reprimedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
-
-		assertThat(reprimedDetailedStageHistoryPage, is(not(sameInstance(primedDetailedStageHistoryPage))));
-	}
+    private void assertJobDetails(JobHistory buildHistory) {
+        assertThat(buildHistory.size(), is(2));
+        Set<String> jobNames = new HashSet<String>(Arrays.asList(buildHistory.get(0).getName(), buildHistory.get(1).getName()));
+        assertThat(jobNames, hasItems("job2", "job1"));
+        assertThat(buildHistory.get(0).getResult(), is(JobResult.Passed));
+        assertThat(buildHistory.get(1).getResult(), is(JobResult.Passed));
+    }
 
     @Test
-    public void shouldPaginateBasedOnOffset() throws Exception{
+    public void shouldCacheDetailedStageHistoryPageAndCountAndOffset() throws Exception {
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
+
+        String pipelineName = "p1";
+        String stageName = "stage_name";
+        Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg));
+        scheduleUtil.runAndPass(p1, "h1");
+
+        Stage stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
+        stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // PRIME CACHE
+
+        Method cacheKeyForDetailedStageHistories = getMethodViaReflection("cacheKeyForDetailedStageHistories", String.class, String.class);
+        Object primedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
+
+        stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // SHOULD RETURN FROM CACHE
+
+        Object cachedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
+
+        assertThat(cachedDetailedStageHistoryPage, is(sameInstance(primedDetailedStageHistoryPage)));
+    }
+
+    @Test
+    public void shouldInvalidateDetailedStageHistoryCachesOnStageSave() throws Exception {
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
+
+        String pipelineName = "p1";
+        String stageName = "stage_name";
+        Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, stageName, scheduleUtil.m(hg));
+        scheduleUtil.runAndPass(p1, "h1");
+
+        Stage stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
+        stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // PRIME CACHE
+
+        Method cacheKeyForDetailedStageHistories = getMethodViaReflection("cacheKeyForDetailedStageHistories", String.class, String.class);
+        Object primedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
+
+        scheduleUtil.runAndPass(p1, "h1"); // NEW RUN OF STAGE, CACHE SHOULD BE INVALIDATED
+
+        stage = stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, stageName));
+        stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination); // SHOULD QUERY AGAIN
+
+        Object reprimedDetailedStageHistoryPage = goCache.get((String) cacheKeyForDetailedStageHistories.invoke(stageDao, pipelineName, stageName));
+
+        assertThat(reprimedDetailedStageHistoryPage, is(not(sameInstance(primedDetailedStageHistoryPage))));
+    }
+
+    @Test
+    public void shouldPaginateBasedOnOffset() throws Exception {
         HgMaterial hg = new HgMaterial("url", null);
         String[] hg_revs = {"h1", "h2", "h3"};
         scheduleUtil.checkinInOrder(hg, hg_revs);

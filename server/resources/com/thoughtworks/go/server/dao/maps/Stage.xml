@@ -40,7 +40,8 @@
         <result property="lastTransitionedTime" column="lastTransitionedTime"/>
     </resultMap>
 
-    <resultMap id="select-stage-history-entry" class="com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry" groupBy="id">
+    <resultMap id="select-stage-history-entry"
+               class="com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry" groupBy="id">
         <result property="id" column="stageId"/>
         <result property="identifier" resultMap="Stage.stageIdentifier"/>
         <result property="state" column="stageState"/>
@@ -91,11 +92,13 @@
         <result property="stageCounter" column="stageCounter"/>
     </resultMap>
 
-    <resultMap id="stageIdentifier" class="com.thoughtworks.go.domain.StageIdentifier" extends="stageIdentifier-without-id">
+    <resultMap id="stageIdentifier" class="com.thoughtworks.go.domain.StageIdentifier"
+               extends="stageIdentifier-without-id">
         <result property="id" column="stageId"/>
     </resultMap>
 
-    <resultMap id="stage-without-job-history" class="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel" groupBy="id">
+    <resultMap id="stage-without-job-history"
+               class="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel" groupBy="id">
         <result property="id" column="stageId"/>
         <result property="name" column="stageName"/>
         <result property="approvedBy" column="approvedBy"/>
@@ -106,16 +109,23 @@
         <result property="rerunOfCounter" column="rerunOfCounter"/>
     </resultMap>
 
-    <resultMap id="stage-with-job-history" class="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel" groupBy="id" extends="stage-without-job-history">
+    <resultMap id="stage-with-job-history" class="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel"
+               groupBy="id" extends="stage-without-job-history">
         <result property="buildHistory" resultMap="Stage.join-build-history"/>
     </resultMap>
 
-    <resultMap id="join-build-history" class="com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem" groupBy="id">
+    <resultMap id="join-build-history" class="com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem"
+               groupBy="id">
         <result property="id" column="buildId"/>
         <result property="name" column="buildName"/>
         <result property="state" column="buildState"/>
         <result property="result" column="buildResult"/>
         <result property="scheduledDate" column="scheduledDate"/>
+    </resultMap>
+
+    <resultMap id="result-distinct-stages" class="com.thoughtworks.go.domain.StageConfigIdentifier">
+        <result property="pipelineName" column="pipelineName"/>
+        <result property="stageName" column="name"/>
     </resultMap>
 
     <parameterMap id="insert-stage-param" class="com.thoughtworks.go.domain.Stage">
@@ -157,7 +167,8 @@
 
 
     <insert id="insertStage" parameterMap="insert-stage-param">
-        INSERT INTO stages (name, pipelineId, approvedBy, createdTime, orderId, approvalType, counter, state, latestRun, fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
+        INSERT INTO stages (name, pipelineId, approvedBy, createdTime, orderId, approvalType, counter, state, latestRun,
+        fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey resultClass="long" keyProperty="id" type="post">
             CALL IDENTITY();
@@ -192,7 +203,8 @@
         <flushOnExecute statement="updateStageStatus"/>
     </cacheModel>
 
-    <select id="getLastSuccessfulStageInPipeline" resultMap="Pipeline.pipeline-with-stage" cacheModel="pipelineWithLatestSuccessfulStage">
+    <select id="getLastSuccessfulStageInPipeline" resultMap="Pipeline.pipeline-with-stage"
+            cacheModel="pipelineWithLatestSuccessfulStage">
         SELECT
             name as stageName, id as stageId,
             pipelineId, approvalType, counter as stageCounter, completedByTransitionId, state as stageState, latestRun, fetchMaterials, cleanWorkingDir,
@@ -336,8 +348,8 @@
         inner join buildstatetransitions b on stageid = s.id
         INNER JOIN pipelines ON s.pipelineId = pipelines.id
         WHERE s.result in ('Passed', 'Failed', 'Cancelled')
-        AND  b.currentState = 'Completed'  AND pipelines.name IN (
-            <iterate property="pipelineNames" conjunction=",">#pipelineNames[]#</iterate>
+        AND b.currentState = 'Completed' AND pipelines.name IN (
+        <iterate property="pipelineNames" conjunction=",">#pipelineNames[]#</iterate>
         )
     </sql>
 
@@ -396,7 +408,7 @@
     </sql>
 
     <select id="allCompletedStagesForPipeline" resultMap="stage-feed-entry">
-        <include refid="selectStageFeedForPipeline" />
+        <include refid="selectStageFeedForPipeline"/>
         WHERE completedByTransitionId IS NOT NULL AND pipelines.name = #pipelineName#
         ORDER BY completedByTransitionId DESC
         LIMIT #pageLimit#
@@ -564,16 +576,18 @@
         <include refid="selectStagesInIds"/>
         (
         SELECT
-            stages.id
+        stages.id
         FROM stages
-            INNER JOIN pipelines ON stages.pipelineId = pipelines.id AND stages.name = #stageName# AND pipelines.name = #pipelineName#
-            AND result = 'Passed'
-            ORDER BY id LIMIT #limit# OFFSET #offset#)
+        INNER JOIN pipelines ON stages.pipelineId = pipelines.id AND stages.name = #stageName# AND pipelines.name =
+        #pipelineName#
+        AND result = 'Passed'
+        ORDER BY id LIMIT #limit# OFFSET #offset#)
         AND stages.result = 'Passed'
         ORDER BY stages.id, builds.name, buildstatetransitions.statechangetime
     </select>
 
     <select id="allPassedStageAsDMRsAfter" resultMap="select-stage-as-dmr"><![CDATA[
+
         SELECT
         stages.id as stageId,
         stages.name as stageName,
@@ -589,7 +603,8 @@
         AND stages.result <> 'Failed' AND stages.result <> 'Unknown' AND stages.result <> 'Cancelled'
         ORDER BY stages.id, stages.lastTransitionedTime
         LIMIT #limit# OFFSET #offset#
-    ]]>
+
+        ]]>
     </select>
 
     <select id="getScheduledStages" resultMap="select-stage-map">
@@ -633,7 +648,11 @@
         FROM stages
         INNER JOIN pipelines ON pipelines.id = stages.pipelineId
         LEFT OUTER JOIN stageArtifactCleanupProhibited prohibitedCheck on prohibitedCheck.pipelineName = pipelines.name AND prohibitedCheck.stageName = stages.name
-        WHERE artifactsDeleted = FALSE AND (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND completedByTransitionId IS NOT NULL
+        WHERE
+        UPPER(CONCAT(pipelines.name,'/',stages.name)) NOT IN ($stagesFilter$) AND
+        artifactsDeleted = FALSE AND
+        (prohibitedCheck.prohibited = FALSE OR prohibitedCheck.id IS NULL) AND
+        completedByTransitionId IS NOT NULL
         ORDER BY stages.id ASC
         LIMIT 100
     </select>
@@ -644,7 +663,8 @@
         <flushOnExecute statement="updateStageStatus"/>
     </cacheModel>
 
-    <select id="getStageIdFromBuildId" parameterClass="long" resultClass="java.lang.Long" cacheModel="stageId-from-buildId">
+    <select id="getStageIdFromBuildId" parameterClass="long" resultClass="java.lang.Long"
+            cacheModel="stageId-from-buildId">
         SELECT stages.id FROM stages
         INNER JOIN builds ON stages.id = builds.stageId
         WHERE builds.id = #value#
@@ -657,7 +677,8 @@
         <flushOnExecute statement="updateStageStatus"/>
     </cacheModel>
 
-    <select id="getStageNameByStageId" parameterClass="long" resultClass="java.lang.String" cacheModel="stage-name-from-stageId">
+    <select id="getStageNameByStageId" parameterClass="long" resultClass="java.lang.String"
+            cacheModel="stage-name-from-stageId">
         SELECT name FROM stages WHERE id = #value#
     </select>
 
@@ -758,5 +779,43 @@
         FROM stages s
         INNER JOIN pipelines p on p.id=s.pipelineid
         GROUP BY p.name, s.name
+    </select>
+
+    <select id="getStagesWithArtifacts" resultMap="select-stage-with-identifier">
+        SELECT
+        s.id as stageId,
+        s.name as stageName,
+        s.counter as stageCounter,
+        s.result as stageResult,
+        s.state as stageState,
+        *
+        FROM _stages s
+        WHERE state in ('Passed','Failed','Cancelled')
+        AND artifactsdeleted = FALSE
+        <isNotNull property="excludeStages" prepend="AND">
+            UPPER(CONCAT(pipelineName,'/',s.name)) NOT IN ($excludeStages$)
+        </isNotNull>
+        <isNotNull property="includeStages" prepend="AND">
+            UPPER(CONCAT(pipelineName,'/',s.name)) IN ($includeStages$)
+        </isNotNull>
+        <isNotNull property="fromId" prepend="AND">
+            id &gt;= #fromId#
+        </isNotNull>
+        <isNotNull property="toId" prepend="AND">
+            id &lt;= #toId#
+        </isNotNull>
+        <isEqual property="orderBy" compareValue="ASC">
+            ORDER BY id ASC
+        </isEqual>
+        <isEqual property="orderBy" compareValue="DESC">
+            ORDER BY id DESC
+        </isEqual>
+        LIMIT 100
+    </select>
+
+    <select id="getDistinctStages" resultMap="result-distinct-stages">
+        SELECT  distinct s.name,  s.pipelineName
+        FROM _stages s
+        ORDER BY s.pipelineName ASC
     </select>
 </sqlMap>

@@ -38,9 +38,11 @@ public interface PluginManager {
 
     <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
 
-    void startPluginInfrastructure();
+    void startInfrastructure();
 
-    void stopPluginInfrastructure();
+    void registerZipUpdater();
+
+    void stopInfrastructure();
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
 

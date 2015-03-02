@@ -61,7 +61,7 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
             }
             zipUtil.unzip(agentPluginsZip, pluginsFolder);
             defaultPluginJarLocationMonitor.initialize();
-            pluginManager.startPluginInfrastructure();
+            pluginManager.startInfrastructure();
         } catch (IOException e) {
             LOG.warn("could not extract plugin zip", e);
         } catch (RuntimeException e) {

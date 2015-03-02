@@ -157,11 +157,15 @@ public class ApiBasedPackageRepositoryExtensionTest {
             }
 
             @Override
-            public void startPluginInfrastructure() {
+            public void startInfrastructure() {
             }
 
             @Override
-            public void stopPluginInfrastructure() {
+            public void registerZipUpdater() {
+            }
+
+            @Override
+            public void stopInfrastructure() {
 
             }
 

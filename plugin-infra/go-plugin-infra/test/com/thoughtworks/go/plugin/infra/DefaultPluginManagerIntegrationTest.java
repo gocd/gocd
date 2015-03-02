@@ -80,7 +80,7 @@ public class DefaultPluginManagerIntegrationTest {
         PLUGIN_DIR.mkdirs();
         BUNDLE_DIR.mkdirs();
         try {
-            pluginManager.startPluginInfrastructure();
+            pluginManager.startInfrastructure();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,7 +92,7 @@ public class DefaultPluginManagerIntegrationTest {
         System.clearProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1);
         FileUtils.deleteQuietly(PLUGIN_DIR);
         FileUtils.deleteQuietly(BUNDLE_DIR);
-        pluginManager.stopPluginInfrastructure();
+        pluginManager.stopInfrastructure();
         FileUtils.deleteQuietly(PLUGIN_DIR);
         FileUtils.deleteQuietly(BUNDLE_DIR);
     }

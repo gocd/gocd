@@ -61,7 +61,7 @@ public class GenericPluginPerformanceIntegrationTest  {
         int concurrencyLevel = 10;
         int numberOfDifferentIndexes = 20;
 
-        defaultPluginManager.startPluginInfrastructure();
+        defaultPluginManager.startInfrastructure();
         pluginJarChangeListener.pluginJarAdded(new PluginFileDetails(new File(pathToPluginJar), true));
 
         List<Callable<Object>> operations = new ArrayList<Callable<Object>>();

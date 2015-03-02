@@ -69,7 +69,7 @@ public class PluginsInitializerTest {
     }
 
     @Test
-    public void shouldUnzipPluginsBeforeStartingPluginsFramework() throws IOException {
+    public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
         pluginsInitializer = spy(new PluginsInitializer(pluginManager, systemEnvironment, serverVersion, zipUtil));
         doReturn(new ZipInputStream(new FileInputStream(new File("test/data/dummy-plugins.zip")))).when(pluginsInitializer).getPluginsZipStream();
@@ -78,7 +78,8 @@ public class PluginsInitializerTest {
         InOrder inOrder = inOrder(zipUtil, pluginManager);
 
         inOrder.verify(zipUtil).unzip(Matchers.<ZipInputStream>any(), Matchers.<File>any());
-        inOrder.verify(pluginManager, times(1)).startPluginInfrastructure();
+        inOrder.verify(pluginManager, times(1)).startInfrastructure();
+        inOrder.verify(pluginManager, times(1)).registerZipUpdater();
     }
 
     @Test

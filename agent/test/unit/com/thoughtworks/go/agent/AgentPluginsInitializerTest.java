@@ -60,7 +60,8 @@ public class AgentPluginsInitializerTest {
         agentPluginsInitializer.onApplicationEvent(null);
         inOrder.verify(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
         inOrder.verify(pluginJarLocationMonitor).initialize();
-        inOrder.verify(pluginManager).startPluginInfrastructure();
+        inOrder.verify(pluginManager).startInfrastructure();
+        verify(pluginManager,never()).registerZipUpdater();
     }
 
     @Test

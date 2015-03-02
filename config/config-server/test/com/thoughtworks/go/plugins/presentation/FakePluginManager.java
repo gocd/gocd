@@ -57,12 +57,17 @@ public abstract class FakePluginManager implements PluginManager {
     }
 
     @Override
-    public void startPluginInfrastructure() {
+    public void startInfrastructure() {
         throw new RuntimeException("Not implemented yet");
     }
 
     @Override
-    public void stopPluginInfrastructure() {
+    public void registerZipUpdater() {
+        throw new RuntimeException("Not implemented yet");
+    }
+
+    @Override
+    public void stopInfrastructure() {
         throw new RuntimeException("Not implemented yet");
     }
 

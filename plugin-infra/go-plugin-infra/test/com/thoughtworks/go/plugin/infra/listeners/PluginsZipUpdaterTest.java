@@ -18,32 +18,37 @@ package com.thoughtworks.go.plugin.infra.listeners;
 
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
-import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.junit.Before;
+import org.junit.Test;
 
-@Component
-public class PluginsZipCreator implements PluginJarChangeListener {
+import static org.mockito.Mockito.*;
+
+public class PluginsZipUpdaterTest {
 
     private PluginsZip pluginsZip;
+    private PluginsZipUpdater pluginsZipUpdater;
 
-    @Autowired
-    public PluginsZipCreator(PluginsZip pluginsZip) {
-        this.pluginsZip = pluginsZip;
+    @Before
+    public void setUp() throws Exception {
+        pluginsZip = mock(PluginsZip.class);
+        pluginsZipUpdater = new PluginsZipUpdater(pluginsZip);
     }
 
-    @Override
-    public void pluginJarAdded(PluginFileDetails pluginFileDetails) {
-        pluginsZip.create();
+    @Test
+    public void shouldCreatePluginsWhenPluginsAreAdded() throws Exception {
+        pluginsZipUpdater.pluginJarAdded(mock(PluginFileDetails.class));
+        verify(pluginsZip, times(1)).create();
     }
 
-    @Override
-    public void pluginJarUpdated(PluginFileDetails pluginFileDetails) {
-        pluginsZip.create();
+    @Test
+    public void shouldCreatePluginsWhenPluginsAreUpdated() throws Exception {
+        pluginsZipUpdater.pluginJarUpdated(mock(PluginFileDetails.class));
+        verify(pluginsZip, times(1)).create();
     }
 
-    @Override
-    public void pluginJarRemoved(PluginFileDetails pluginFileDetails) {
-        pluginsZip.create();
+    @Test
+    public void shouldCreatePluginsWhenPluginsAreRemoved() throws Exception {
+        pluginsZipUpdater.pluginJarRemoved(mock(PluginFileDetails.class));
+        verify(pluginsZip, times(1)).create();
     }
 }

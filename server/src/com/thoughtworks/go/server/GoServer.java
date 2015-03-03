@@ -50,7 +50,6 @@ public class GoServer {
         this.systemEnvironment = systemEnvironment;
         this.sslSocketFactory = sslSocketFactory;
         subprocessLogger = new SubprocessLogger();
-//        this.configuration = goWebXmlConfiguration;
     }
 
     public void go() throws Exception {
@@ -129,8 +128,6 @@ public class GoServer {
         }
         return validation;
     }
-
-
 
     ArrayList<Validator> validators() {
         ArrayList<Validator> validators = new ArrayList<Validator>();

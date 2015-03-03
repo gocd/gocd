@@ -66,6 +66,8 @@ public class SystemEnvironmentTest {
     public void shouldFindJettyConfigInTheConfigDir() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
+        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty6.xml")));
     }
 
     @Test

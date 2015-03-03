@@ -78,9 +78,9 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -687,17 +687,51 @@ public class StageServiceIntegrationTest {
         assertStageDetails(result.get(1), p1Run3);
     }
 
-    private void assertStageDetails(Stage stage, Pipeline expectedRunDetails) {
-        assertThat(stage.getId(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getId()));
-        assertThat(stage.getName(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getName()));
-        assertThat(stage.getCounter(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getCounter()));
-        assertThat(stage.getPipelineId(), CoreMatchers.<Object>is(expectedRunDetails.getId()));
-        assertThat(stage.getIdentifier().getPipelineName(), CoreMatchers.<Object>is(expectedRunDetails.getName()));
-        assertThat(stage.getIdentifier().getPipelineCounter(), CoreMatchers.<Object>is(expectedRunDetails.getCounter()));
-        assertThat(formatISO8601(stage.getLastTransitionedTime()), CoreMatchers.<Object>is(formatISO8601(
-                dbHelper.getStageDao().stageById(expectedRunDetails.getFirstStage().getId()).latestTransitionDate())));
-        assertThat(stage.getResult(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getResult()));
+    @Test
+    public void shouldGetStagInstanceCount() {
+        CruiseConfig cruiseConfig = configFileHelper.currentConfig();
+        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+        ReflectionUtil.setField(mingleConfig.get(0), "artifactCleanupProhibited", true);
+        configFileHelper.writeConfigFile(cruiseConfig);
+
+        configDbStateRepository.flushConfigState();
+
+
+        PipelineConfig pipelineCfg2 = configFileHelper.addPipeline("pipeline-2", "stage", "job");
+        Pipeline p2Run1 = dbHelper.schedulePipeline(pipelineCfg2, new TimeProvider());
+        dbHelper.passStage(p2Run1.getFirstStage());
+
+
+        PipelineConfig pipelineCfg1 = configFileHelper.addPipeline("pipeline-1", "stage", "job");
+        Pipeline p1Run1 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.passStage(p1Run1.getFirstStage());
+        stageService.markArtifactsDeletedFor(p1Run1.getFirstStage());
+
+        Pipeline p1Run2 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.passStage(p1Run2.getFirstStage());
+
+        Pipeline p1Run3 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.failStage(p1Run3.getFirstStage());
+
+        Pipeline p1Run4 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.cancelStage(p1Run4.getFirstStage());
+
+        Pipeline p1Run5 = dbHelper.schedulePipeline(pipelineCfg1, new TimeProvider());
+        dbHelper.buildingBuildInstance(p1Run5.getFirstStage());
+
+
+        StageConfigIdentifier stage = new StageConfigIdentifier("pipeline-1", "stage");
+        StageConfigIdentifier anotherStage = new StageConfigIdentifier("pipeline-2", "stage");
+
+        Map<StageConfigIdentifier, Long> stagesInstanceCount = stageService.getStagesInstanceCount(asList(stage, anotherStage),true);
+        assertThat(stagesInstanceCount.get(stage),is(3L));
+        assertThat(stagesInstanceCount.get(anotherStage),is(1L));
+
+        stagesInstanceCount = stageService.getStagesInstanceCount(asList(stage, anotherStage),false);
+        assertThat(stagesInstanceCount.get(stage),is(4L));
+        assertThat(stagesInstanceCount.get(anotherStage),is(1L));
     }
+
 
     @Test
     public void shouldGetAllDistinctStages() throws Exception {
@@ -991,4 +1025,17 @@ public class StageServiceIntegrationTest {
         dbHelper.addRevisionsWithModifications(material, commit);//saved now, used later
         return commit;
     }
+
+    private void assertStageDetails(Stage stage, Pipeline expectedRunDetails) {
+        assertThat(stage.getId(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getId()));
+        assertThat(stage.getName(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getName()));
+        assertThat(stage.getCounter(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getCounter()));
+        assertThat(stage.getPipelineId(), CoreMatchers.<Object>is(expectedRunDetails.getId()));
+        assertThat(stage.getIdentifier().getPipelineName(), CoreMatchers.<Object>is(expectedRunDetails.getName()));
+        assertThat(stage.getIdentifier().getPipelineCounter(), CoreMatchers.<Object>is(expectedRunDetails.getCounter()));
+        assertThat(formatISO8601(stage.getLastTransitionedTime()), CoreMatchers.<Object>is(formatISO8601(
+                dbHelper.getStageDao().stageById(expectedRunDetails.getFirstStage().getId()).latestTransitionDate())));
+        assertThat(stage.getResult(), CoreMatchers.<Object>is(expectedRunDetails.getFirstStage().getResult()));
+    }
+
 }

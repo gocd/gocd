@@ -530,6 +530,10 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.getStagesWithArtifacts(includeStages, excludeStages, fromId, toId, ascending);
     }
 
+    public Map<StageConfigIdentifier,Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts) {
+        return stageDao.getStagesInstanceCount(stages, onlyStagesWithUncleanedArtifacts);
+    }
+
     public List<StageConfigIdentifier> getAllDistinctStages() {
         return stageDao.getAllDistinctStages();
     }

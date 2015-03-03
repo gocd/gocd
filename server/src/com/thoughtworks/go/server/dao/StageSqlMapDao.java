@@ -404,6 +404,19 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
+    public Map<StageConfigIdentifier, Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts) {
+        Map<StageConfigIdentifier, Long> result = new HashMap<StageConfigIdentifier, Long>();
+        Map<String, Object> args = arguments("stages", buildStagesFilter(stages)).and("stagesWithUncleanedArtifacts", onlyStagesWithUncleanedArtifacts).asMap();
+        List<Map> getStageInstanceCount = getSqlMapClientTemplate().queryForList("getStageInstanceCount", args);
+        for (Map map : getStageInstanceCount) {
+            String pipeline = (String) map.get("PIPELINE");
+            String stage = (String) map.get("STAGE");
+            result.put(new StageConfigIdentifier(pipeline, stage), (Long) map.get("INSTANCECOUNT"));
+        }
+        return result;
+    }
+
+    @Override
     public List<StageConfigIdentifier> getAllDistinctStages() {
         return getSqlMapClientTemplate().queryForList("getDistinctStages");
     }

@@ -186,8 +186,8 @@ public class StageSqlMapDaoTest {
 
         ArgumentCaptor<Map> args = ArgumentCaptor.forClass(Map.class);
         verify(sqlMapClientTemplate).queryForList(eq("getStagesWithArtifacts"), args.capture());
-        assertThat(((String) args.getValue().get("includeStages")), is("'some_pipeline_name/stage_one','some_pipeline_name/stage_two'"));
-        assertThat(((String) args.getValue().get("excludeStages")), is("'some_pipeline_name/stage_three','some_pipeline_name/stage_four'"));
+        assertThat(((String) args.getValue().get("includeStages")), is("'SOME_PIPELINE_NAME/STAGE_ONE','SOME_PIPELINE_NAME/STAGE_TWO'"));
+        assertThat(((String) args.getValue().get("excludeStages")), is("'SOME_PIPELINE_NAME/STAGE_THREE','SOME_PIPELINE_NAME/STAGE_FOUR'"));
         assertThat(((Long) args.getValue().get("fromId")), is(fromId));
         assertThat(((Long) args.getValue().get("toId")), is(toId));
         assertThat(((String) args.getValue().get("orderBy")), is("ASC"));
@@ -244,5 +244,33 @@ public class StageSqlMapDaoTest {
 
         List<StageConfigIdentifier> result = stageSqlMapDao.getAllDistinctStages();
         assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldGetStageInstanceCount() throws Exception {
+        StageConfigIdentifier stageOne = new StageConfigIdentifier("pipeline", "stage-one");
+        StageConfigIdentifier stageTwo = new StageConfigIdentifier("pipeline", "stage-two");
+
+        Map stageOneInstanceCount = new HashMap();
+        stageOneInstanceCount.put("STAGE", "STAGE-ONE");
+        stageOneInstanceCount.put("PIPELINE", "PIPELINE");
+        stageOneInstanceCount.put("INSTANCECOUNT", 1L);
+
+        Map stageTwoInstanceCount = new HashMap();
+        stageTwoInstanceCount.put("STAGE", "STAGE-TWO");
+        stageTwoInstanceCount.put("PIPELINE", "PIPELINE");
+        stageTwoInstanceCount.put("INSTANCECOUNT", 2L);
+
+        when(sqlMapClientTemplate.queryForList(eq("getStageInstanceCount"), anyObject())).thenReturn(asList(stageOneInstanceCount, stageTwoInstanceCount));
+
+        Map<StageConfigIdentifier, Long> stagesInstanceCount = stageSqlMapDao.getStagesInstanceCount(asList(stageOne, stageTwo), true);
+
+        assertThat(stagesInstanceCount.get(new StageConfigIdentifier("pipeline","stage-one")), is(1L));
+        assertThat(stagesInstanceCount.get(new StageConfigIdentifier("pipeline","stage-two")), is(2L));
+
+        ArgumentCaptor<Map> args = ArgumentCaptor.forClass(Map.class);
+        verify(sqlMapClientTemplate).queryForList(eq("getStageInstanceCount"), args.capture());
+        assertThat(((String) args.getValue().get("stages")), is("'PIPELINE/STAGE-ONE','PIPELINE/STAGE-TWO'"));
+        assertThat((Boolean) (args.getValue().get("stagesWithUncleanedArtifacts")), is(true));
     }
 }

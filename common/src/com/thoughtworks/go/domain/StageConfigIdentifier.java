@@ -26,7 +26,7 @@ public class StageConfigIdentifier {
         this(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }
 
-    private StageConfigIdentifier(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
+    public StageConfigIdentifier(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
         this.pipelineName = pipelineName;
         this.stageName = stageName;
     }

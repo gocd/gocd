@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -674,5 +671,18 @@ public class StageServiceTest {
 
         assertThat(actualResult, is(expectedResult));
         verify(stageDao).getAllDistinctStages();
+    }
+
+    @Test
+    public void shouldGetStageInstanceCount() throws Exception {
+        StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                goCache);
+        List<StageConfigIdentifier> stages = asList(new StageConfigIdentifier("pipeline", "stage"));
+        boolean onlyStagesWithUncleanedArtifacts = true;
+        Map<StageConfigIdentifier, Long> expectedResult = new HashMap<StageConfigIdentifier, Long>();
+        expectedResult.put(new StageConfigIdentifier("pipeline","stage"), 3L);
+        when(stageDao.getStagesInstanceCount(stages, onlyStagesWithUncleanedArtifacts)).thenReturn(expectedResult);
+        Map<StageConfigIdentifier, Long> stagesInstanceCount = service.getStagesInstanceCount(stages, onlyStagesWithUncleanedArtifacts);
+        assertThat(stagesInstanceCount, is(expectedResult));
     }
 }

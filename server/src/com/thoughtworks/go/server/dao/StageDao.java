@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.util.Pagination;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StageDao extends JobDurationStrategy {
     Stages scheduledStages();
@@ -116,5 +117,7 @@ public interface StageDao extends JobDurationStrategy {
     List<Stage> getStagesWithArtifacts(List<StageConfigIdentifier> includeStages, List<StageConfigIdentifier> excludeStages, Long fromId, Long toId, boolean ascending);
 
     List<StageConfigIdentifier> getAllDistinctStages();
+
+    Map<StageConfigIdentifier,Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts);
 
 }

@@ -813,6 +813,21 @@
         LIMIT 100
     </select>
 
+    <select id="getStageInstanceCount" resultClass="java.util.HashMap">
+        SELECT
+        s.pipelineName as pipeline,
+        s.name as stage,
+        COUNT (1) as instanceCount
+        FROM _stages s
+        WHERE state in ('Passed','Failed','Cancelled')
+        <isEqual property="stagesWithUncleanedArtifacts" prepend="AND" compareValue="TRUE">
+          artifactsdeleted = FALSE
+        </isEqual>
+        AND UPPER(CONCAT(pipelineName,'/',s.name)) IN ($stages$)
+        GROUP BY pipelineName, s.name
+    </select>
+
+
     <select id="getDistinctStages" resultMap="result-distinct-stages">
         SELECT  distinct s.name,  s.pipelineName
         FROM _stages s

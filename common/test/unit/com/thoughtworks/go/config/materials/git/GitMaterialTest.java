@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
@@ -26,7 +27,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
-import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -40,13 +40,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -77,7 +77,7 @@ public class GitMaterialTest {
     private static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
     private static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     private static final String SUBMODULE = "submodule-1";
-    private String gitFooBranchBundleAbsolutePath;
+    private GitTestRepo gitFooBranchBundle;
 
     @Before
     public void setup() throws Exception {
@@ -87,7 +87,7 @@ public class GitMaterialTest {
 
         repositoryUrl = gitRepo.projectRepositoryUrl();
         git = new GitMaterial(repositoryUrl);
-        gitFooBranchBundleAbsolutePath = new ClassPathResource(GitTestRepo.GIT_FOO_BRANCH_BUNDLE).getFile().getAbsolutePath();
+        gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH);
     }
 
     @After
@@ -227,13 +227,13 @@ public class GitMaterialTest {
 
     @Test
     public void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
-        git = new GitMaterial(gitFooBranchBundleAbsolutePath);
+        git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl());
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
         assertThat(output.getStdOut(), Is.is("* master"));
 
-        git = new GitMaterial(gitFooBranchBundleAbsolutePath, "foo");
+        git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl(), "foo");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");

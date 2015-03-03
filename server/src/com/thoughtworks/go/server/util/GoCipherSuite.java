@@ -16,32 +16,33 @@
 
 package com.thoughtworks.go.server.util;
 
+import javax.net.ssl.SSLSocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.net.ssl.SSLSocketFactory;
 
 public class GoCipherSuite {
     private final SSLSocketFactory socketFactory;
-    private List cipherSuitesSupportedByGo = Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5");
+    private List<String> cipherSuitesSupportedByGo = Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5");
 
     public GoCipherSuite(SSLSocketFactory socketFactory) {
         this.socketFactory = socketFactory;
     }
 
-    public String[] getExcludedCipherSuites() {
+    public String[] getCipherSuitsToBeIncluded() {
+
         String[] supportedCipherSuites = socketFactory.getSupportedCipherSuites();
 
-        ArrayList<String> suitesToBeExcluded = new ArrayList<String>();
+        ArrayList<String> suitesToBeIncluded = new ArrayList<String>();
         for (String suite : supportedCipherSuites) {
-            if (!cipherSuitesSupportedByGo.contains(suite)) {
-                suitesToBeExcluded.add(suite);
+            if (cipherSuitesSupportedByGo.contains(suite)) {
+                suitesToBeIncluded.add(suite);
             }
         }
 
-        if (suitesToBeExcluded.size() == supportedCipherSuites.length) {
-            return new String[0];
+        if (suitesToBeIncluded.size() == 0) {
+            return supportedCipherSuites;
         }
-        return suitesToBeExcluded.toArray(new String[suitesToBeExcluded.size()]);
+        return cipherSuitesSupportedByGo.toArray(new String[cipherSuitesSupportedByGo.size()]);
     }
 }

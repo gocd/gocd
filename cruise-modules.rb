@@ -178,6 +178,8 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'server', "**/GoLauncher.class")
     include_fileset_from_target(jar, 'server', "**/GoLauncher.class")
     include_fileset_from_target(jar, 'server', "**/GoSslSocketConnector.class")
+    include_fileset_from_target(jar, 'server', "**/GoPlainSocketConnector.class")
+    include_fileset_from_target(jar, 'server', "**/GoSocketConnector.class")
     include_fileset_from_target(jar, 'server', "**/GoCipherSuite.class")
     include_fileset_from_target(jar, 'server', "**/GoServer*.class")
     include_fileset_from_target(jar, 'server', "**/JettyServer*.class")

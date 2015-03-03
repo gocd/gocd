@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.helper;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -31,9 +26,11 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.springframework.core.io.ClassPathResource;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.apache.commons.io.FileUtils.copyDirectory;

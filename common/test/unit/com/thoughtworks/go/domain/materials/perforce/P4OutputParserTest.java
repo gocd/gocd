@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.materials.perforce;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.SecretString;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
@@ -117,7 +119,9 @@ public class P4OutputParserTest {
      * It caused a frequent StackOverflow in the java regex library.
      */
     @Test public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
-        String output = FileUtils.readFileToString(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getFile());
+        final StringWriter writer = new StringWriter();
+        IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer);
+        String output = writer.toString();
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getModifiedFiles().size(), is(1304));
         assertThat(modification.getModifiedFiles().get(0).getFileName(),

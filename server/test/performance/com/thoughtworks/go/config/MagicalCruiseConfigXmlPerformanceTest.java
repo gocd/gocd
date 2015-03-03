@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
 public class MagicalCruiseConfigXmlPerformanceTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     private MagicalGoConfigXmlWriter xmlWriter;
-    private static final File CONFIG_FILE = new File("../common/test-resources/data/big-uat-cruise-config.xml");
+    private static final File CONFIG_FILE = new File("../common/test-resources/unit/data/big-uat-cruise-config.xml");
     private CruiseConfig cruiseConfig;
     private static ConfigCache configCache;
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();

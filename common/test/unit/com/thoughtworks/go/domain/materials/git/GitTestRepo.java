@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.git;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -29,7 +24,11 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.springframework.core.io.ClassPathResource;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 

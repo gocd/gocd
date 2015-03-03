@@ -16,66 +16,62 @@
 
 package com.thoughtworks.go.server;
 
-import java.util.Arrays;
-import javax.net.ssl.SSLSocketFactory;
-
 import com.thoughtworks.go.server.util.GoCipherSuite;
 import org.junit.Test;
-
+import javax.net.ssl.SSLSocketFactory;
+import java.util.Arrays;
+import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GoCipherSuiteTest {
     @Test
-    public void shouldExcludeEverySuiteOtherThanTheMagicThreeWhichAreSupportedByOurOldJetty() throws Exception {
+    public void shouldIncludeTheMagicThreeWhichAreSupportedByOurJetty() throws Exception {
         SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
 
         when(socketFactory.getSupportedCipherSuites()).thenReturn(new String[]{
                 "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_RSA_WITH_AES_128_CBC_SHA256"
-                ,"SSL_RSA_WITH_RC4_128_SHA"
-                ,"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"SSL_RSA_EXPORT_WITH_RC4_40_MD5"
-                ,"TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
-                ,"SSL_RSA_WITH_RC4_128_MD5"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"});
+                , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_RSA_WITH_AES_128_CBC_SHA256"
+                , "SSL_RSA_WITH_RC4_128_SHA"
+                , "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
+                , "SSL_RSA_EXPORT_WITH_RC4_40_MD5"
+                , "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
+                , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
+                , "SSL_RSA_WITH_RC4_128_MD5"
+                , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"});
         GoCipherSuite goCipherSuite = new GoCipherSuite(socketFactory);
 
-        assertThat(Arrays.asList(goCipherSuite.getExcludedCipherSuites()), is(Arrays.asList(
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA")));
+        assertThat(Arrays.asList(goCipherSuite.getCipherSuitsToBeIncluded()), is(Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5")));
     }
 
     @Test
-    public void shouldNotExcludeAnySuiteIfTheMagicThreeDoNotExist() throws Exception {
+    public void shouldIncludeAllSuitesIfTheMagicThreeDoNotExist() throws Exception {
         SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
 
-        when(socketFactory.getSupportedCipherSuites()).thenReturn(new String[]{
+        String[] supportedSuites = {
                 "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
-                ,"TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
-                ,"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
-                ,"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"});
+                , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
+                , "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256"
+                , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
+                , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
+        when(socketFactory.getSupportedCipherSuites()).thenReturn(supportedSuites);
         GoCipherSuite goCipherSuite = new GoCipherSuite(socketFactory);
 
-        assertTrue(Arrays.asList(goCipherSuite.getExcludedCipherSuites()).isEmpty());
+        List<String> includedSuites = Arrays.asList(goCipherSuite.getCipherSuitsToBeIncluded());
+        assertThat(includedSuites.size(), is(supportedSuites.length));
+
+
+        for (String cipherSuite : includedSuites) {
+            assertThat(Arrays.asList(supportedSuites).contains(cipherSuite), is(true));
+        }
     }
 }

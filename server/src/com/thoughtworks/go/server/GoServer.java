@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.server.util.GoCipherSuite;
+import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SubprocessLogger;
@@ -34,6 +35,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -54,6 +56,7 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class GoServer {
 
@@ -152,16 +155,15 @@ public class GoServer {
     private MBeanContainer mbeans() {
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
         MBeanContainer mbeans = new MBeanContainer(platformMBeanServer);
-        // mbeans.start();
         return mbeans;
     }
 
 	private Connector plainConnector(JettyServer server) {
-		return new GoSslSocketConnector(password, systemEnvironment, goCipherSuite).plainConnector(server.getServer());
+		return new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 	}
 
 	private Connector sslConnector(JettyServer server) {
-		return new GoSslSocketConnector(password, systemEnvironment, goCipherSuite).sslConnector(server.getServer());
+		return new GoSslSocketConnector(server, password, systemEnvironment, goCipherSuite).getConnector();
 	}
 
     WebAppContext webApp() throws IOException, SAXException, ClassNotFoundException, UnavailableException {
@@ -169,9 +171,9 @@ public class GoServer {
 		wac.setDefaultsDescriptor(GoWebXmlConfiguration.configuration(getWarFile()));
 
         wac.setConfigurationClasses(new String[]{
-				WebInfConfiguration.class.getCanonicalName(),
-				WebXmlConfiguration.class.getCanonicalName(),
-				JettyWebXmlConfiguration.class.getCanonicalName()
+                WebInfConfiguration.class.getCanonicalName(),
+                WebXmlConfiguration.class.getCanonicalName(),
+                JettyWebXmlConfiguration.class.getCanonicalName()
         });
         wac.setContextPath(new SystemEnvironment().getWebappContextPath());
         wac.setWar(getWarFile());

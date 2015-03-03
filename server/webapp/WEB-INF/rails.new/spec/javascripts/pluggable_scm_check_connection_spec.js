@@ -116,6 +116,19 @@ describe("pluggable_scm_check_connection", function () {
         assertEquals("Error message not showing up", "Connection NOT OK", jQuery("#pluggable_scm_check_connection_message").text())
     });
 
+    it("testShouldCheckConnectionHandleError", function () {
+        var post_url = "admin/pipelines/pipeline_name/materials/pluggable_scm/check_connection/plugin_id";
+        new PluggableSCMCheckConnection(post_url).bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");
+        jQuery.ajax = function (options) {
+            options.error();
+        };
+
+        jQuery("#check_connection_pluggable_scm").click();
+
+        assertEquals("Should set error_message class", true, jQuery("#pluggable_scm_check_connection_message").hasClass("error_message"))
+        assertEquals("Error message not showing up", "Error occurred!", jQuery("#pluggable_scm_check_connection_message").text())
+    });
+
     it("testShouldAssertThatOnlyTheRelevantFormIsSerialize", function () {
         var post_url = "admin/pipelines/pipeline_name/materials/pluggable_scm/check_connection/plugin_id";
         new PluggableSCMCheckConnection(post_url).bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");

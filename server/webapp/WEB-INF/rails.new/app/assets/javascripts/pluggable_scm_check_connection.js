@@ -30,6 +30,9 @@ PluggableSCMCheckConnection = function (url) {
                     } else {
                         connection_message_element.addClass("ok_message").removeClass("error_message").text(data.messages);
                     }
+                },
+                error: function (data) {
+                    connection_message_element.removeClass("ok_message").addClass("error_message").text("Error occurred!");
                 }
             });
             return false;

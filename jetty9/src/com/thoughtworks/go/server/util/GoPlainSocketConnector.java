@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.util;
 
-import com.thoughtworks.go.server.JettyServer;
+import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
 
@@ -28,12 +28,12 @@ public class GoPlainSocketConnector implements GoSocketConnector {
     private static final int RESPONSE_BUFFER_SIZE = 32768;
     private final Connector httpConnector;
 
-    public GoPlainSocketConnector(JettyServer server, SystemEnvironment systemEnvironment) {
+    public GoPlainSocketConnector(Jetty9Server server, SystemEnvironment systemEnvironment) {
         this.plainPort = systemEnvironment.getServerPort();
         httpConnector = plainConnector(server);
     }
 
-    private Connector plainConnector(JettyServer server) {
+    private Connector plainConnector(Jetty9Server server) {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
 

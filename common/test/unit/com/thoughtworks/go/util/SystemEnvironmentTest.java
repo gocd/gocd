@@ -371,4 +371,14 @@ public class SystemEnvironmentTest {
         System.setProperty("go.database.provider", "foo");
         assertThat(systemEnvironment.getDatabaseProvider(), is("foo"));
     }
+
+    @Test
+    public void shouldUseJetty9ByDefault(){
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
+        assertThat(systemEnvironment.usingJetty9(), is(true));
+
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
+        assertThat(systemEnvironment.usingJetty9(), is(false));
+    }
 }

@@ -149,7 +149,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
 
     public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
+    public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
+    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
+    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -283,7 +286,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public File getJettyConfigFile() {
-        return new File(getConfigDir(), JETTY_XML);
+        return new File(getConfigDir(), get(JETTY_XML_FILE_NAME));
     }
 
     /**
@@ -629,6 +632,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getDatabaseProvider() {
         return GO_DATABASE_PROVIDER.getValue();
+    }
+
+    public boolean usingJetty9() {
+        return get(APP_SERVER).equals(JETTY9);
     }
 
 

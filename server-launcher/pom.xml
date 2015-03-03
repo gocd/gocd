@@ -38,35 +38,6 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
         </dependency>
-
-        <!-- jetty end -->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-jmx</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <!-- jetty end -->
-
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>

@@ -34,13 +34,13 @@ import org.springframework.core.io.ClassPathResource;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class GitTestRepo extends TestRepo {
-    private static final String GIT_3_REVISIONS_BUNDLE = "/data/git/git-3-revisions.git";
-    public static final String GIT_FOO_BRANCH_BUNDLE = "/data/git/foo-branch.git";
-    public static final String GIT_SUBMODULE_REF_BUNDLE = "/data/git/referenced-submodule.git";
+    private static final String GIT_3_REVISIONS_BUNDLE = "../common/test-resources/unit/data/git/git-3-revisions.git";
+    public static final String GIT_FOO_BRANCH_BUNDLE = "../common/test-resources/data/git/foo-branch.git";
+    public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/test-resources/data/git/referenced-submodule.git";
     private File gitRepo;
 
     public GitTestRepo(String path) throws IOException {
-        this(new ClassPathResource(path).getFile());
+        this(new File(path));
     }
 
     public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch) throws IOException {

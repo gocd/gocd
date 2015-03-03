@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.server.util.ServletRequest;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.server.Request;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -43,9 +43,8 @@ public class DeploymentContextWriter {
         if (provider == null) {
             throw new RuntimeException("Could not generate url. ServerConfigService not yet loaded.");
         }
-        Request request = (Request) req;
-        HttpURI uri = request.getUri();
-        String url = request.getRootURL().append(uri.toString()).toString();
+        ServletRequest request = ServletHelper.getServerHelper(env().usingJetty9()).getRequest(req);
+        String url = request.getUrl();
         if (provider.hasAnyUrlConfigured()) {
             try {
                 String newUrl = provider.siteUrlFor(url, true);

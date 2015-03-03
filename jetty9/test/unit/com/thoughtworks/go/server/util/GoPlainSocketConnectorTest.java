@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.server.util;
 
-import com.thoughtworks.go.server.JettyServer;
+import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
 import org.junit.Test;
+
+import javax.net.ssl.SSLSocketFactory;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -31,7 +33,7 @@ public class GoPlainSocketConnectorTest {
     public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
-        JettyServer server = new JettyServer(mock(Server.class));
+        Jetty9Server server = new Jetty9Server(mock(SystemEnvironment.class), null, mock(SSLSocketFactory.class));
         ServerConnector connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 
         assertThat(connector.getPort(), is(1234));

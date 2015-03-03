@@ -14,18 +14,27 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server;
+package com.thoughtworks.go.server.util;
 
-import org.xml.sax.SAXException;
+import org.eclipse.jetty.util.UrlEncoded;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.URLEncoder;
 
-public class GoWebXmlConfiguration {
-	public static String configuration(String warFile) throws IOException, SAXException {
-        if (new File(warFile).isDirectory()) {
-			return new File(warFile, "WEB-INF/webdefault.xml").getPath();
-        }
-		return "jar:file:" + warFile + "!/WEB-INF/webdefault.xml";
+//Do not delete. Invoked using reflection
+public class Jetty9ServletHelper extends ServletHelper {
+    @Override
+    public ServletRequest getRequest(javax.servlet.ServletRequest servletRequest) {
+        return new Jetty9Request(servletRequest);
+    }
+
+    @Override
+    public ServletResponse getResponse(javax.servlet.ServletResponse servletResponse) {
+        return new Jetty9Response(servletResponse);
+    }
+
+    @Override
+    public String encodeString(String string) {
+        return UrlEncoded.encodeString(string);
     }
 }
+

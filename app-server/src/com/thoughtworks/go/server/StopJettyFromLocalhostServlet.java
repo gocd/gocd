@@ -27,10 +27,10 @@ import com.thoughtworks.go.util.SystemUtil;
 
 public class StopJettyFromLocalhostServlet extends HttpServlet {
     final Logger logger = Logger.getLogger(StopJettyFromLocalhostServlet.class);
-    private GoServer goServer;
+    private AppServer jettyServer;
 
-    public StopJettyFromLocalhostServlet(GoServer goServer) {
-        this.goServer = goServer;
+    public StopJettyFromLocalhostServlet(AppServer jettyServer) {
+        this.jettyServer = jettyServer;
     }
 
     public void service(ServletRequest request, ServletResponse response)
@@ -46,7 +46,7 @@ public class StopJettyFromLocalhostServlet extends HttpServlet {
                     waitOneSecondForJettyToReturnAProperReturnCodeToHttpclient();
                     try {
                         logger.info("stopping Jetty...");
-                        goServer.stop();
+                        jettyServer.stop();
                     } catch (Exception e) {
                         e.printStackTrace();
                         logger.info("cannot stop Jetty", e);

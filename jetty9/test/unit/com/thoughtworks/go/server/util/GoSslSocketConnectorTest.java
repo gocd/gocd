@@ -1,25 +1,22 @@
 package com.thoughtworks.go.server.util;
 
-import com.thoughtworks.go.server.JettyServer;
+import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jgit.util.TemporaryBuffer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +39,7 @@ public class GoSslSocketConnectorTest {
         when(systemEnvironment.keystore()).thenReturn(keystore);
         when(systemEnvironment.truststore()).thenReturn(truststore);
 
-        JettyServer jettyServer = mock(JettyServer.class);
+        Jetty9Server jettyServer = mock(Jetty9Server.class);
         when(jettyServer.getServer()).thenReturn(new Server());
         sslSocketConnector = new GoSslSocketConnector(jettyServer, "password", systemEnvironment, cipherSuite);
     }

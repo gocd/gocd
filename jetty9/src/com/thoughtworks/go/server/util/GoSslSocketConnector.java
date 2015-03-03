@@ -17,19 +17,17 @@
 package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.server.JettyServer;
+import com.thoughtworks.go.server.Jetty9Server;
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoSslSocketConnector implements GoSocketConnector {
 
@@ -45,7 +43,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
     static final int RESPONSE_BUFFER_SIZE = 32768;
     private final Connector connector;
 
-    public GoSslSocketConnector(JettyServer server, String password, SystemEnvironment systemEnvironment, GoCipherSuite goCipherSuite) {
+    public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoCipherSuite goCipherSuite) {
         this.password = password;
         this.goCipherSuite = goCipherSuite;
         this.sslPort = systemEnvironment.getSslServerPort();
@@ -92,7 +90,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            throw bomb(e);
+            throw ExceptionUtils.bomb(e);
         }
     }
 

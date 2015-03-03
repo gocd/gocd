@@ -33,6 +33,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -49,6 +50,7 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -166,6 +168,19 @@ public class SCMTest {
 
         assertThat(nonSecureProperty.getConfigurationValue(), is(notNullValue()));
         assertThat(nonSecureProperty.getEncryptedValue(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldThrowUpOnSetConfigAttributesIfPluginIsNotAvailable() throws Exception {
+        try {
+            Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost");
+            SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
+            scm.setConfigAttributes(attributeMap);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e, instanceOf(RuntimeException.class));
+            assertThat(e.getMessage(), is("metadata unavailable for plugin: plugin-id"));
+        }
     }
 
     @Test

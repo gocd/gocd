@@ -95,6 +95,20 @@ public class PluggableScmServiceTest {
     }
 
     @Test
+    public void shouldHandleIncorrectKeyForValidateSCM() {
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        configuration.getProperty("KEY1").setConfigurationValue(new ConfigurationValue("junk"));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("NON-EXISTENT-KEY", "error message"));
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+
+        pluggableScmService.validate(modifiedSCM);
+
+        assertTrue(modifiedSCM.errors().isEmpty());
+    }
+
+    @Test
     public void shouldValidateMandatoryFieldsForSCM() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);

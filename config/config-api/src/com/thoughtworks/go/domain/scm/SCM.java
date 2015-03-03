@@ -236,6 +236,9 @@ public class SCM implements Serializable, Validatable {
 
     protected void setPluginConfigurationAttributes(Map attributes) {
         SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginConfiguration.getId());
+        if (scmConfigurations == null) {
+            throw new RuntimeException("metadata unavailable for plugin: " + pluginConfiguration.getId());
+        }
         for (SCMConfiguration scmConfiguration : scmConfigurations.list()) {
             String key = scmConfiguration.getKey();
             if (attributes.containsKey(key)) {

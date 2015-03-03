@@ -58,7 +58,10 @@ public class PluggableScmService {
         }
 
         for (ValidationError validationError : validationResult.getErrors()) {
-            scmConfig.getConfiguration().getProperty(validationError.getKey()).addError(validationError.getKey(), validationError.getMessage());
+            ConfigurationProperty property = scmConfig.getConfiguration().getProperty(validationError.getKey());
+            if (property != null) {
+                property.addError(validationError.getKey(), validationError.getMessage());
+            }
         }
     }
 

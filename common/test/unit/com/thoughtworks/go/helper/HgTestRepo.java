@@ -42,7 +42,7 @@ import static org.junit.Assert.fail;
 
 public class HgTestRepo extends TestRepo {
     private File remoteRepo;
-    private static final String HG_BUNDLE_FILE = "/data/hgrepo.hgbundle";
+    private static final String HG_BUNDLE_FILE = "../common/test-resources/unit/data/hgrepo.hgbundle";
 
     private final HgCommand hgCommand;
 
@@ -57,7 +57,7 @@ public class HgTestRepo extends TestRepo {
         remoteRepo.mkdirs();
         //Copy file to work around bug in hg
         File bundleToExtract = new File(tempFolder, "repo.bundle");
-        FileUtils.copyFile(new ClassPathResource(HG_BUNDLE_FILE).getFile(), bundleToExtract);
+        FileUtils.copyFile(new File(HG_BUNDLE_FILE), bundleToExtract);
         setUpServerRepoFromHgBundle(remoteRepo, bundleToExtract);
 
         File workingCopy = new File(tempFolder, workingCopyName);

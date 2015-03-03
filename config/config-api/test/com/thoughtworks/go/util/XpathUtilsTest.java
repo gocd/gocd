@@ -18,7 +18,6 @@ package com.thoughtworks.go.util;
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -143,7 +142,7 @@ public class XpathUtilsTest {
     @Test
     public void shouldEvaluateXpathOfCustomer() throws Exception {
         String xpath = "//coverageReport2/project/@coverage";
-        File file = new ClassPathResource("/data/customer/CoverageSummary.xml").getFile();
+        File file = new File("../../common/test-resources/unit/data/customer/CoverageSummary.xml");
         InputSource inputSource = new InputSource(file.getPath());
         assertThat(XpathUtils.nodeExists(inputSource, xpath), is(true));
         String value = XpathUtils.evaluate(file, xpath);

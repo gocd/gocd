@@ -48,7 +48,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +83,7 @@ public class BuildWorkArtifactUploadingTest {
         initMocks(this);
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture(new ClassPathResource("/data/svnrepo").getFile().getAbsolutePath());
+        svnRepoFixture = new SvnRepoFixture("../common/test-resources/unit/data/svnrepo");
         svnRepoFixture.createRepository();
         SvnCommand command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
 

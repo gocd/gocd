@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.UUID;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
@@ -80,7 +77,7 @@ public class UnitTestReportGeneratorTest {
         });
 
 
-        copyAndClose(sourcePath("TestResult.xml"), targetPath("test-result.xml"));
+        copyAndClose(source("TestResult.xml"), target("test-result.xml"));
         final Properties properties = generator.generate(testFolder.listFiles());
         assertThat(testFolder.listFiles().length, is(2));
     }
@@ -97,7 +94,7 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("NunitTestResultWithByteOrderMark.xml"), targetPath("test-result.xml"));
+        copyAndClose(source("NunitTestResultWithByteOrderMark.xml"), target("test-result.xml"));
         generator.generate(testFolder.listFiles());
         assertThat(testFolder.listFiles().length, is(2));
     }
@@ -124,7 +121,7 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("empty.xml"), targetPath("empty.xml"));
+        copyAndClose(source("empty.xml"), target("empty.xml"));
 
         suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
@@ -156,7 +153,7 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("InvalidTestResult.xml"), targetPath("Invalid.xml"));
+        copyAndClose(source("InvalidTestResult.xml"), target("Invalid.xml"));
 
         suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
@@ -177,7 +174,7 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("xml_samples/Coverage.xml"), targetPath("Coverage.xml"));
+        copyAndClose(source("xml_samples/Coverage.xml"), target("Coverage.xml"));
 
         suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
@@ -196,7 +193,7 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("SerializableProjectConfigUtilTest.xml"), targetPath("AgentTest.xml"));
+        copyAndClose(source("SerializableProjectConfigUtilTest.xml"), target("AgentTest.xml"));
 
         generator.generate(testFolder.listFiles());
     }
@@ -214,9 +211,9 @@ public class UnitTestReportGeneratorTest {
         });
 
 
-        copyAndClose(sourcePath("UnitTestReportGeneratorTest.xml"), targetPath("UnitTestReportGeneratorTest.xml"));
-        copyAndClose(sourcePath("SerializableProjectConfigUtilTest.xml"),
-                targetPath("SerializableProjectConfigUtilTest.xml"));
+        copyAndClose(source("UnitTestReportGeneratorTest.xml"), target("UnitTestReportGeneratorTest.xml"));
+        copyAndClose(source("SerializableProjectConfigUtilTest.xml"),
+                target("SerializableProjectConfigUtilTest.xml"));
 
         generator.generate(testFolder.listFiles());
     }
@@ -233,9 +230,8 @@ public class UnitTestReportGeneratorTest {
             }
         });
 
-        copyAndClose(sourcePath("TestReport-Integration.xml"), targetPath("test-result1.xml"));
-        copyAndClose(new FileInputStream(new ClassPathResource("/data/TestReport-Unit.xml").getFile()),
-                new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + "test-result2.xml"));
+        copyAndClose(source("TestReport-Integration.xml"), target("test-result1.xml"));
+        copyAndClose(source("TestReport-Unit.xml"), target("test-result2.xml"));
 
         generator.generate(testFolder.listFiles());
     }
@@ -257,20 +253,20 @@ public class UnitTestReportGeneratorTest {
         reports.mkdir();
         File module = new File(reports, "module");
         module.mkdir();
-        copyAndClose(sourcePath("xml_samples/Coverage.xml"), targetPath("reports/module/Coverage.xml"));
-        copyAndClose(sourcePath("xml_samples/TestResult.xml"), targetPath("reports/TestResult.xml"));
+        copyAndClose(source("xml_samples/Coverage.xml"), target("reports/module/Coverage.xml"));
+        copyAndClose(source("xml_samples/TestResult.xml"), target("reports/TestResult.xml"));
 
         suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
         restoreConsoleOutput();
     }
 
-    private String targetPath(String targetFile) {
-        return testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile;
+    private OutputStream target(String targetFile) throws FileNotFoundException {
+        return new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile);
     }
 
-    private String sourcePath(String filename) throws IOException {
-        return new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename).getFile().getAbsolutePath();
+    private InputStream source(String filename) throws IOException {
+        return new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename).getInputStream();
     }
 
 

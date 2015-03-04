@@ -70,7 +70,6 @@
                                 <li><%= link_to scm_name, '#', :onclick => "Modalbox.show('#{admin_pluggable_scm_new_path(:plugin_id => scm_plugin_id)}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
                             <% end %>
                         <% end %>
-                        <li><%= link_to 'SCM', '#', :onclick => "Modalbox.show('#{admin_pluggable_scm_show_existing_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - Select SCM'})" -%></li>
                     <% else %>
                         <li><%= link_to l.string("SUBVERSION"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("SUBVERSION")}'})" -%></li>
                         <li><%= link_to l.string("GIT"), '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("GIT")}'})" -%></li>
@@ -84,7 +83,6 @@
                                 <li><%= link_to scm_name, '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{scm_name}'})" -%></li>
                             <% end %>
                         <% end %>
-                        <li><%= link_to 'SCM', '#', :onclick => "Modalbox.show(jQuery('.light_box_content')[0], {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - Select SCM'})" -%></li>
                     <% end %>
                     <li class="menu_item_last_with_border">
                         <%= link_to l.string("PIPELINE"), '#', :onclick => "Modalbox.show('#{admin_dependency_new_path}', {overlayClose: false, title: '#{l.string("ADD_MATERIAL")} - #{l.string("PIPELINE")}'})" -%>

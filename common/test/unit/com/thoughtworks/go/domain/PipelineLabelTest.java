@@ -99,6 +99,20 @@ public class PipelineLabelTest {
     }
 
     @Test
+    public void shouldTruncateMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        ScmMaterial material = MaterialsMother.gitMaterial("");
+        material.setName(new CaseInsensitiveString("git"));
+        Modification modification = new Modification();
+        modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+
+        materialRevisions.addRevision(material, modification);
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a27"));
+    }
+
+    @Test
     public void shouldTrimLongLabelTo255() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}");
         HashMap<String, String> namedRevisions = new HashMap<String, String>();

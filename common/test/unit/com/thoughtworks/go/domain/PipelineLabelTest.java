@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -81,6 +82,20 @@ public class PipelineLabelTest {
         materialRevisions.addRevision(material, modification);
         label.updateLabel(materialRevisions.getNamedRevisions());
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-ae09876hj"));
+    }
+
+    @Test
+    public void shouldReplaceTheTemplateWithGitMaterialRevision() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        ScmMaterial material = MaterialsMother.gitMaterial("");
+        material.setName(new CaseInsensitiveString("git"));
+        Modification modification = new Modification();
+        modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+
+        materialRevisions.addRevision(material, modification);
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482f6f666"));
     }
 
     @Test

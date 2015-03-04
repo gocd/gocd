@@ -54,7 +54,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplcateTheTemplateWithMaterialRevision() throws Exception {
+    public void shouldReplaceTheTemplateWithMaterialRevision() throws Exception {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());

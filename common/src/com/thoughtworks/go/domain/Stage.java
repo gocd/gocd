@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.domain.StageStatusHandler;
 import com.thoughtworks.go.util.Clock;
 import org.apache.log4j.Logger;
 import org.joda.time.Duration;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = Logger.getLogger(Stage.class);
@@ -458,6 +458,10 @@ public class Stage extends PersistentObject {
 
     public String getConfigVersion() {
         return this.configVersion;
+    }
+
+    public StageConfigIdentifier getStageConfigIdentifier(){
+        return new StageConfigIdentifier(identifier.getPipelineName(),identifier.getStageName());
     }
 
     /**

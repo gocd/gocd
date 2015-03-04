@@ -135,7 +135,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        goPublisher.consumeLineWithPrefix(format("Current Time: %s\n", dateFormat.format(timeProvider.currentTime())));
+        goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", dateFormat.format(timeProvider.currentTime())));
 
         prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
         setupEnvrionmentContext(environmentVariableContext);

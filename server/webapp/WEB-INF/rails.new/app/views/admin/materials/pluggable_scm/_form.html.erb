@@ -80,7 +80,7 @@
 
             new TaskPluginView().bootstrapAngular();
 
-            new PluggableSCMCheckConnection("<%= admin_pluggable_scm_check_connection_path(:pipeline_name => params[:pipeline_name], :plugin_id => scope[:material].getPluginId()) %>").bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");
+            new PluggableSCMCheckConnection("<%= admin_pluggable_scm_check_connection_path(:plugin_id => scope[:material].getPluginId()) %>").bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");
         });
     </script>
 <% end %>

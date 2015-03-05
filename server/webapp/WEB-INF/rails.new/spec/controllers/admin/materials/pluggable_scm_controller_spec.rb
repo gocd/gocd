@@ -56,8 +56,13 @@ describe Admin::Materials::PluggableScmController do
     end
 
     it "check_connection" do
-      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/check_connection/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'check_connection', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
-      send('admin_pluggable_scm_check_connection_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/check_connection/plugin-id'
+      {:post => '/admin/materials/pluggable_scm/check_connection/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'check_connection', :plugin_id => 'plugin-id')
+      send('admin_pluggable_scm_check_connection_path', :plugin_id => 'plugin-id').should == '/admin/materials/pluggable_scm/check_connection/plugin-id'
+    end
+
+    it "pipelines_used_in" do
+      {:get => '/admin/materials/pluggable_scm/scm-id/pipelines_used_in'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'pipelines_used_in', :scm_id => 'scm-id')
+      send('scm_pipelines_used_in_path', :scm_id => 'scm-id').should == '/admin/materials/pluggable_scm/scm-id/pipelines_used_in'
     end
   end
 
@@ -70,13 +75,17 @@ describe Admin::Materials::PluggableScmController do
       setup_data
       setup_metadata
 
-      @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
 
       @pluggable_scm_service = stub_service(:pluggable_scm_service)
     end
 
     describe "show_existing" do
+      before do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+      end
+
       it "should load all scms" do
         get :show_existing, :pipeline_name => 'pipeline-name'
 
@@ -87,6 +96,11 @@ describe Admin::Materials::PluggableScmController do
     end
 
     describe "choose_existing" do
+      before do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+      end
+
       it "should choose material" do
         stub_save_for_success
 
@@ -120,6 +134,11 @@ describe Admin::Materials::PluggableScmController do
     end
 
     describe "new" do
+      before do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+      end
+
       it "should load new material" do
         get :new, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id'
 
@@ -132,6 +151,8 @@ describe Admin::Materials::PluggableScmController do
 
     describe "create" do
       before :each do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
         @pluggable_scm_service.should_receive(:validate)
       end
 
@@ -168,6 +189,11 @@ describe Admin::Materials::PluggableScmController do
     end
 
     describe "edit" do
+      before do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
+      end
+
       it "should edit an existing material" do
         get :edit, :pipeline_name => 'pipeline-name', :finger_print => @material.getPipelineUniqueFingerprint()
 
@@ -180,6 +206,8 @@ describe Admin::Materials::PluggableScmController do
 
     describe "update" do
       before :each do
+        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
+        @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
         @pluggable_scm_service.should_receive(:validate)
       end
 
@@ -224,9 +252,20 @@ describe Admin::Materials::PluggableScmController do
       end
 
       it "should check connection for pluggable SCM" do
-        post :check_connection, :pipeline_name => 'pipeline-name', :plugin_id => 'plugin-id', :material => create_payload
+        post :check_connection, :plugin_id => 'plugin-id', :material => create_payload
 
         response.body.should == "{\"status\":\"success\",\"messages\":[\"message 1\",\"message 2\"]}"
+      end
+    end
+
+    describe "pipelines_used_in" do
+      it "should show pipelines used in for pluggable SCM" do
+        get :pipelines_used_in, :scm_id => 'scm-id-1'
+
+        response.should render_template "admin/package_definitions/pipelines_used_in"
+        assigns[:pipelines_with_group].size.should == 1
+        assigns[:pipelines_with_group].get(0).first().name().to_s.should == 'pipeline-name'
+        assigns[:pipelines_with_group].get(0).last().getGroup().should == 'defaultGroup'
       end
     end
   end
@@ -261,7 +300,6 @@ describe Admin::Materials::PluggableScmController do
     @go_config_service = stub_service(:go_config_service)
     @pipeline_pause_service = stub_service(:pipeline_pause_service)
     @pause_info = PipelinePauseInfo.paused('just for fun', 'loser')
-    @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
     @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
   end
 

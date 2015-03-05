@@ -20,10 +20,12 @@ PluggableSCMCheckConnection = function (url) {
         jQuery(form_selector).on('click', check_connection_selector, function (e) {
             var connection_message_element = jQuery(connection_message_selector);
             connection_message_element.removeClass("error_message").removeClass("ok_message").text('Checking connection...');
+            var formData = jQuery(form_selector).serialize();
+            formData = formData.replace("_method=PUT", "_method=POST");
             jQuery.ajax({
                 type: "POST",
                 url: url,
-                data: jQuery(form_selector).serialize(),
+                data: formData,
                 success: function (data) {
                     if (data.status == "failure") {
                         connection_message_element.removeClass("ok_message").addClass("error_message").text(data.messages);

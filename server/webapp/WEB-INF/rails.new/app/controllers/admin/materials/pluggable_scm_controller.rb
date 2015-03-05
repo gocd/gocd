@@ -18,7 +18,8 @@ module Admin::Materials
   class PluggableScmController < AdminController
     include PipelineConfigLoader
 
-    load_pipeline_for_all_actions
+    before_filter :load_config_for_edit, :only => [:pipelines_used_in]
+    load_pipeline_except_for :check_connection, :pipelines_used_in
 
     def show_existing
       assert_load :material, PluggableSCMMaterialConfig.new
@@ -101,6 +102,12 @@ module Admin::Materials
 
       result = pluggable_scm_service.checkConnection(scm)
       render json: { status: result.isSuccessful() ? 'success' : 'failure', messages: result.getMessages() }
+    end
+
+    def pipelines_used_in
+      scm_to_pipeline_map
+      @pipelines_with_group = @package_to_pipeline_map.get(params[:scm_id])
+      render 'admin/package_definitions/pipelines_used_in', layout: false
     end
 
     private
@@ -207,6 +214,14 @@ module Admin::Materials
 
     def meta_data_store
       SCMMetadataStore.getInstance()
+    end
+
+    def load_config_for_edit
+      assert_load(:cruise_config, go_config_service.getConfigForEditing())
+    end
+
+    def scm_to_pipeline_map
+      @package_to_pipeline_map = @cruise_config.getGroups().getPluggableSCMMaterialUsageInPipelines()
     end
   end
 end

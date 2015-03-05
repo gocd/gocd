@@ -1,1 +1,13 @@
+<p class="warnings"><%=l.string("GLOBAL_SCM_WARNING")-%></p>
+<div id="pipelines_used_in">
+    <a id="show_pipelines_used_in" href="#"><%=l.string("SCM_USED_IN_PIPELINES_LINK")-%></a>
+</div>
+
 <%= render :partial => "admin/materials/pluggable_scm/form.html", :locals => { :scope => { :material => @material, :url => admin_pluggable_scm_update_path(:plugin_id => @material.getPluginId()), :method => "PUT" , :meta_data_store => @meta_data_store}} -%>
+
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        var url = '<%= scm_pipelines_used_in_path(:scm_id => @material.getSCMConfig().getId()) %>';
+        new FetchPipelinesUsingGivenPackage(url, "#show_pipelines_used_in", "#pipelines_used_in").init();
+    });
+</script>

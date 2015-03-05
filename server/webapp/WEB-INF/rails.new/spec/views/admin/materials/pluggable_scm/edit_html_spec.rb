@@ -40,6 +40,15 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
     setup_meta_data
   end
 
+  it "should render the warning, pipelines used in link" do
+    render
+
+    expect(response.body).to have_selector('.warnings', text: 'This is a global copy. All pipelines using this SCM will be affected.')
+    Capybara.string(response.body).find("#pipelines_used_in").tap do |form|
+      expect(form).to have_selector("a#show_pipelines_used_in", :text => 'Show pipelines using this SCM')
+    end
+  end
+
   it "should render the config md5, form buttons and flash message" do
     render
 

@@ -22,45 +22,46 @@ describe("pluggable_scm_check_connection", function () {
         "\n" +
         "    <input id=\"material_scmId\" name=\"material[scmId]\" type=\"hidden\">\n" +
         "    <div class=\"form_content exec_task_editor\">\n" +
-        "                <div id=\"material\">\n" +
-        "            <p class=\"required\">\n" +
-        "\t<span class=\"asterisk\">*</span> indicates a required field</p>\n" +
-        "\n" +
-        "            <h3>Name</h3>\n" +
+        "        <div id=\"material\">\n" +
         "            <div class=\"fieldset\">\n" +
-        "                <input class=\"form_input MB_focusable\" name=\"material[name]\" type=\"text\" value=\"scm-name\">\n" +
-        "            </div>\n" +
-        "\n" +
-        "            <h3>Basic Settings</h3>\n" +
-        "            <div class=\"task fieldset\">\n" +
         "                <div id=\"material_angular_pluggable_material_git\" name=\"material_angular_pluggable_material_git\" class=\"plugged_material ng-scope\" ng-controller=\"material_angular_pluggable_material_git_controller\">\n" +
-        "                    <div class=\"plugged_material_template required\">\n" +
+        "                    <div class=\"form_item\">\n" +
+        "                        <div class=\"form_item_block required\">\n" +
+        "                            <label for=\"material_name\">Material Name<span class=\"asterisk\">*</span></label>\n" +
+        "                            <input class=\"form_input MB_focusable\" name=\"material[name]\" type=\"text\">                            \n" +
+        "                        </div>\n" +
+        "\n" +
+        "                        <div class=\"plugged_material_template required\">\n" +
+        "                            <div class=\"form_item_block\">\n" +
+        "                                <label>URL:<span class=\"asterisk\">*</span></label>\n" +
+        "                                <input type=\"text\" ng-model=\"url\" ng-required=\"true\" class=\"MB_focusable ng-pristine ng-invalid ng-invalid-required\" name=\"material[url]\" servererror=\"undefined\" required=\"required\" value=\"scm-url\">\n" +
+        "                                <span class=\"form_error ng-binding\" ng-show=\"material_form['material[url]'].$error.server\" style=\"display: none;\"></span>\n" +
+        "                            </div>\n" +
+        "                        </div>\n" +
+        "\n" +
+        "                        <div class=\"form_item_block with-padding-top\">\n" +
+        "                            <button class=\"submit button MB_focusable\" id=\"check_connection_pluggable_scm\" type=\"button\" value=\"CHECK CONNECTION\"><span>CHECK CONNECTION</span></button>                            <span id=\"pluggable_scm_check_connection_message\"></span>\n" +
+        "                        </div>\n" +
+        "\n" +
+        "                        <span id=\"material_data_pluggable_material_git\" class=\"plugged_material_data\" style=\"display: none\">\n" +
+        "                            {}\n" +
+        "                        </span>\n" +
+        "\n" +
+        "                        <div class=\"form_item_block checkbox_row material_options\">\n" +
+        "                            <input name=\"material[autoUpdate]\" type=\"hidden\" value=\"0\"><input checked=\"checked\" class=\"form_input MB_focusable\" id=\"material_autoUpdate\" include_blank=\"true\" name=\"material[autoUpdate]\" type=\"checkbox\" value=\"true\">                            <label for=\"material_autoUpdate\">Poll for new changes</label>\n" +
+        "\n" +
+        "                        </div>\n" +
+        "\n" +
         "                        <div class=\"form_item_block\">\n" +
-        "    <label>URL:<span class=\"asterisk\">*</span></label>\n" +
-        "    <input type=\"text\" ng-model=\"url\" ng-required=\"true\" class=\"MB_focusable ng-pristine ng-invalid ng-invalid-required\" name=\"material[url]\" servererror=\"undefined\" required=\"required\" value=\"scm-url\">\n" +
-        "    <span class=\"form_error ng-binding\" ng-show=\"material_form['material[url]'].$error.server\" style=\"display: none;\"></span>\n" +
-        "</div>\n" +
+        "                            <label>Destination Directory:</label>\n" +
+        "                            <input class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[folder]\" type=\"text\">                            \n" +
+        "                        </div>\n" +
         "                    </div>\n" +
-        "\n" +
-        "                    <div class=\"field no-label-element\">\n" +
-        "                        <button class=\"submit button MB_focusable\" id=\"check_connection_pluggable_scm\" type=\"button\" value=\"CHECK CONNECTION\"><span>CHECK CONNECTION</span></button> <span id=\"pluggable_scm_check_connection_message\"></span>\n" +
-        "                    </div>\n" +
-        "\n" +
-        "                    <span id=\"material_data_pluggable_material_git\" class=\"plugged_material_data\" style=\"display: none\">\n" +
-        "                        {}\n" +
-        "                    </span>\n" +
+        "                    <p class=\"required\">\n" +
+        "                    <span class=\"asterisk\">*</span> indicates a required field</p>\n" +
         "                </div>\n" +
         "            </div>\n" +
         "\n" +
-        "            <div class=\"fieldset\">\n" +
-        "                <input name=\"material[autoUpdate]\" type=\"hidden\" value=\"0\"><input checked=\"checked\" class=\"form_input MB_focusable\" id=\"material_autoUpdate\" include_blank=\"true\" name=\"material[autoUpdate]\" type=\"checkbox\" value=\"true\"> <label for=\"material_autoUpdate\">Poll for new changes</label>\n" +
-        "                \n" +
-        "            </div>\n" +
-        "\n" +
-        "            <h3>Destination Directory</h3>\n" +
-        "            <div class=\"fieldset\">\n" +
-        "                <input class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[folder]\" type=\"text\" value=\"scm-destination\">\n" +
-        "            </div>\n" +
         "\n" +
         "            <h3>Blacklist</h3>\n" +
         "            <div class=\"fieldset\">\n" +
@@ -72,13 +73,13 @@ describe("pluggable_scm_check_connection", function () {
         "        </div>\n" +
         "    </div>\n" +
         "    <div class=\"form_buttons actions\">\n" +
-        "    <button class=\"primary finish submit MB_focusable\" type=\"submit\" value=\"SAVE\"><span>SAVE</span></button>\n" +
-        "    <button class=\"left submit close_modalbox_control MB_focusable\"><span>Cancel</span></button>\n" +
-        "</div>\n" +
-        "    \n" +
+        "        <button class=\"primary finish submit MB_focusable\" type=\"submit\" value=\"SAVE\"><span>SAVE</span></button>\n" +
+        "        <button class=\"left submit close_modalbox_control MB_focusable\"><span>Cancel</span></button>\n" +
+        "    </div>\n" +
         "\n" +
-        "    \n" +
-        "</form>");
+        "\n" +
+        "\n" +
+        "</form>\n");
     });
 
     it("testShouldCheckConnectionAndSetConnectionOkMessage", function () {

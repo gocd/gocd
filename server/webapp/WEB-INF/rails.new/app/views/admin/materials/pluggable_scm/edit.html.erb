@@ -1,6 +1,5 @@
-<p class="warnings"><%=l.string("GLOBAL_SCM_WARNING")-%></p>
-<div id="pipelines_used_in">
-    <a id="show_pipelines_used_in" href="#"><%=l.string("SCM_USED_IN_PIPELINES_LINK")-%></a>
+<p class="warnings"><%= l.string("GLOBAL_SCM_WARNING") -%> <a id="show_pipelines_used_in" href="#"><%=l.string("SCM_USED_IN_PIPELINES_LINK")-%></a></p>
+<div id="pipelines_used_in" class="modal-box-section">
 </div>
 
 <%= render :partial => "admin/materials/pluggable_scm/form.html", :locals => { :scope => { :material => @material, :url => admin_pluggable_scm_update_path(:plugin_id => @material.getPluginId()), :method => "PUT" , :meta_data_store => @meta_data_store}} -%>

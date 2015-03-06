@@ -4,7 +4,7 @@
 <%= form_for(@material, :as => :material, :url => admin_pluggable_scm_choose_existing_path, :html => {"novalidate"=> "novalidate", :id=> "material_form", :name=> "material_form", :method => "POST", :onsubmit => "return AjaxForm.jquery_ajax_submit(this);", :class => "popup_form"}) do |f| %>
     <%= md5_field %>
 
-    <div class="form_content exec_task_editor">
+    <div class="form_content">
         <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
         <div id="material">
             <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>

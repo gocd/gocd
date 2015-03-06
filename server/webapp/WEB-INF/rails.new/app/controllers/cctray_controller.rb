@@ -16,12 +16,20 @@
 
 class CctrayController < ApplicationController
   def index
-    render text: cc_tray_service.getCcTrayXml(site_url_prefix)
+    if Toggles.isToggleOn(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY)
+      render text: cc_tray_service.getCcTrayXml(site_url_prefix)
+    else
+      doc = cc_tray_status_service.createCctrayXmlDocument(request_context_path)
+      render text: com.thoughtworks.go.util.XmlUtils.asXml(doc)
+    end
   end
 
   private
   def site_url_prefix
-    request_context_path = request.url.sub(request.fullpath, $servlet_context.getContextPath)
     server_config_service.siteUrlFor(request_context_path, false)
+  end
+
+  def request_context_path
+    request.url.sub(request.fullpath, $servlet_context.getContextPath)
   end
 end

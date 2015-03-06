@@ -19,30 +19,70 @@ require File.join(File.dirname(__FILE__), "..", "spec_helper")
 describe CctrayController do
   describe "routes" do
     it "should resolve its route" do
-      expect(:get => '/new_cctray.xml').to route_to(:controller => "cctray", :action => "index", :format=> "xml")
+      expect(:get => '/cctray.xml').to route_to(:controller => "cctray", :action => "index", :format => "xml")
     end
   end
 
-  describe "index" do
-    after do
-      $servlet_context = nil
+  context "new cctray" do
+    describe "index" do
+      before do
+        expect(Toggles).to receive(:isToggleOn).with(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY).and_return(true)
+      end
+
+      after do
+        $servlet_context = nil
+      end
+
+      it "should use current request details to get correct url prefix" do
+        expected_prefix = "http://my.site.url:8153/context_path"
+
+        $servlet_context = double("servlet_context")
+        expect($servlet_context).to receive(:getContextPath).and_return("/context_path")
+
+        server_config_service = stub_service(:server_config_service)
+        expect(server_config_service).to receive(:siteUrlFor).with("http://test.host/context_path", false).and_return(expected_prefix)
+
+        cc_tray_service = stub_service(:cc_tray_service)
+        expect(cc_tray_service).to receive(:getCcTrayXml).with(expected_prefix).and_return("RESPONSE_FOR_THIS_URL_PREFIX")
+
+        get :index
+
+        expect(response.body).to eq("RESPONSE_FOR_THIS_URL_PREFIX")
+      end
     end
+  end
 
-    it "should use current request details to get correct url prefix" do
-      expected_prefix = "http://my.site.url:8153/context_path"
+  context "old cctray" do
+    describe "index" do
+      before do
+        expect(Toggles).to receive(:isToggleOn).with(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY).and_return(false)
+      end
 
-      $servlet_context = double("servlet_context")
-      expect($servlet_context).to receive(:getContextPath).and_return("/context_path")
+      after do
+        $servlet_context = nil
+      end
 
-      server_config_service = stub_service(:server_config_service)
-      expect(server_config_service).to receive(:siteUrlFor).with("http://test.host/context_path", false).and_return(expected_prefix)
+      it "should use current request details to get correct context path for XML document" do
+        expected_path = "http://test.host/context_path"
 
-      cc_tray_service = stub_service(:cc_tray_service)
-      expect(cc_tray_service).to receive(:getCcTrayXml).with(expected_prefix).and_return("RESPONSE_FOR_THIS_URL_PREFIX")
+        $servlet_context = double("servlet_context")
+        expect($servlet_context).to receive(:getContextPath).and_return("/context_path")
 
-      get :index
+        cc_tray_status_service = stub_service(:cc_tray_status_service)
+        expect(cc_tray_status_service).to receive(:createCctrayXmlDocument).with(expected_path).and_return(fake_cctray_xml_doc)
 
-      expect(response.body).to eq("RESPONSE_FOR_THIS_URL_PREFIX")
+        get :index
+
+        expect(response.body).to eq("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n  <Project name=\"test\" />\n</Projects>\n\n")
+      end
+
+      def fake_cctray_xml_doc
+        projects_element = org.jdom.Element.new "Projects"
+        project_element = org.jdom.Element.new "Project"
+        project_element.setAttribute("name", "test")
+        projects_element.addContent(project_element)
+        org.jdom.Document.new projects_element
+      end
     end
   end
 end

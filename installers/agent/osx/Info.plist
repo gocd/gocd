@@ -37,7 +37,7 @@
         <key>CFBundleSignature</key>
         <string>????</string>
         <key>CFBundleGetInfoString</key>
-        <string>Go Agent @VERSION@. Copyright ThoughtWorks Inc., (c) 2000-2013</string>
+        <string>Go Agent @VERSION@. Copyright ThoughtWorks Inc., (c) 2000-2015</string>
         <key>CFBundleShortVersionString</key>
         <string>@VERSION@</string>
         <key>CFBundleVersion</key>
@@ -49,7 +49,7 @@
             <key>AGENT_STARTUP_ARGS</key>
             <string>-Xms128m -Xmx256m</string>
         </dict>
-        <key>Java</key>
+        <key>JavaX</key>
         <dict>
             <key>ClassPath</key>
             <string>$APP_PACKAGE/agent-bootstrapper.jar</string>
@@ -57,8 +57,6 @@
             <string>com.simontuffs.onejar.Boot</string>
             <key>Arguments</key>
             <string>127.0.0.1 8153</string>
-            <key>WorkingDirectory</key>
-            <string>$APP_PACKAGE</string>
             <key>Properties</key>
             <dict>
                 <key>com.apple.mrj.application.apple.menu.about.name</key>

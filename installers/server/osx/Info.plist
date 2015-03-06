@@ -37,14 +37,14 @@
         <key>CFBundleSignature</key>
         <string>????</string>
         <key>CFBundleGetInfoString</key>
-        <string>Go Server @VERSION@. Copyright ThoughtWorks Inc., (c) 2000-2013</string>
+        <string>Go Server @VERSION@. Copyright ThoughtWorks Inc., (c) 2000-2015</string>
         <key>CFBundleShortVersionString</key>
         <string>@VERSION@</string>
         <key>CFBundleVersion</key>
         <string>@REGVER@</string>
         <key>LSMultipleInstancesProhibited</key>
         <string>true</string>
-        <key>Java</key>
+        <key>JavaX</key>
         <dict>
             <key>ClassPath</key>
             <string>$APP_PACKAGE/go.jar</string>
@@ -52,8 +52,6 @@
             <string>1.6+</string>
             <key>MainClass</key>
             <string>com.thoughtworks.go.server.util.GoMacLauncher</string>
-            <key>WorkingDirectory</key>
-            <string>$APP_PACKAGE</string>
             <key>Properties</key>
             <dict>
                 <key>com.apple.mrj.application.apple.menu.about.name</key>
@@ -72,6 +70,8 @@
                 <string>en</string>
                 <key>cruise.server.country</key>
                 <string>US</string>
+                <key>go.server.mac.go.jar.dir</key>
+                <string>$APP_PACKAGE</string>
             </dict>
         </dict>
     </dict>

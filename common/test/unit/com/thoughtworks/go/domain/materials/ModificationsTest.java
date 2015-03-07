@@ -207,6 +207,16 @@ public class ModificationsTest {
         assertThat(new Modifications(multipleCheckin(aCheckIn("100", "a.pdf", "b.pdf"), aCheckIn("100", "a.doc", "b.doc"))).shouldBeIgnoredByFilterIn(materialConfig), is(true));
     }
 
+    @Test
+    public void shouldIncludeModificationsIfNoFileIsPresent() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        materialConfig.setFilter(filter);
+
+        Modifications modifications = new Modifications(new Modification("user", "comment", null, new Date(), "revision"));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(false));
+    }
+
     private Modifications modificationWithIds() {
         return new Modifications(modifcation(4), modifcation(3), modifcation(2), modifcation(1));
     }

@@ -46,11 +46,12 @@ public class PipelineLabel implements Serializable {
             label = label.replaceAll("(?i)\\$\\{" + namedRevision.getKey() + "\\}", revision);
         }
 
-        return StringUtils.substring(label, 0, 255);
+        return label;
     }
 
     public void updateLabel(Map<String, String> namedRevisions) {
         this.label = replaceRevisionsInLabel(this.label, namedRevisions);
+        this.label = StringUtils.substring(label, 0, 255);
     }
 
     public boolean equals(Object o) {

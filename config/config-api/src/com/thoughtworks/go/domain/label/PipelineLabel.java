@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.label;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
@@ -39,14 +41,36 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static String replaceRevisionsInLabel(String labelTemplate, Map<String, String> namedRevisions) {
-        String label = new String(labelTemplate);
-        for (Map.Entry<String, String> namedRevision : namedRevisions.entrySet()) {
-            String revision = namedRevision.getValue();
-            label = label.replaceAll("(?i)\\$\\{" + namedRevision.getKey() + "\\}", revision);
+    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([\\w\\.]+)(\\[:(\\d+)\\])?\\}");
+
+    public static String replaceRevisionsInLabel(String labelTemplate, Map<String, String> materialRevisions) {
+        final Matcher matcher = PATTERN.matcher(labelTemplate);
+        final StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            final String revision = lookupMaterialRevision(matcher, materialRevisions);
+            matcher.appendReplacement(buffer, revision);
+        }
+        matcher.appendTail(buffer);
+        return buffer.toString();
+    }
+
+    private static String lookupMaterialRevision(Matcher matcher,  Map<String, String> materialRevisions) {
+        final String material = matcher.group(1);
+
+        if (!materialRevisions.containsKey(material)) {
+            return "\\" + matcher.group(0);
         }
 
-        return label;
+        String revision = materialRevisions.get(material);
+        final String truncationLengthLiteral = matcher.group(3);
+        if (truncationLengthLiteral != null) {
+            int truncationLength = Integer.parseInt(truncationLengthLiteral);
+
+            if (revision.length() > truncationLength) {
+                revision = revision.substring(0, truncationLength);
+            }
+        }
+        return revision;
     }
 
     public void updateLabel(Map<String, String> namedRevisions) {

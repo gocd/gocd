@@ -28,7 +28,7 @@ describe("pluggable_scm_check_connection", function () {
         "                    <div class=\"form_item\">\n" +
         "                        <div class=\"form_item_block required\">\n" +
         "                            <label for=\"material_name\">Material Name<span class=\"asterisk\">*</span></label>\n" +
-        "                            <input class=\"form_input MB_focusable\" name=\"material[name]\" type=\"text\">                            \n" +
+        "                            <input class=\"form_input MB_focusable\" name=\"material[name]\" type=\"text\" value=\"scm-name\">                            \n" +
         "                        </div>\n" +
         "\n" +
         "                        <div class=\"plugged_material_template required\">\n" +
@@ -54,7 +54,7 @@ describe("pluggable_scm_check_connection", function () {
         "\n" +
         "                        <div class=\"form_item_block\">\n" +
         "                            <label>Destination Directory:</label>\n" +
-        "                            <input class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[folder]\" type=\"text\">                            \n" +
+        "                            <input class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[folder]\" type=\"text\" value=\"scm-destination\">                            \n" +
         "                        </div>\n" +
         "                    </div>\n" +
         "                    <p class=\"required\">\n" +

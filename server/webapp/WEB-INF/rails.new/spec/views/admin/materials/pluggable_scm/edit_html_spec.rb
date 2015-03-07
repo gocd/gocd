@@ -19,8 +19,8 @@ require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
 describe "/admin/materials/pluggable_scm/edit.html.erb" do
   include GoUtil, FormUI
 
-  PLUGIN_ID = 'my.scm.plugin'
-  PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
+  SCM_PLUGIN_ID = 'my.scm.plugin'
+  SCM_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
 
   before :each do
     in_params(:pipeline_name => 'pipeline_name')
@@ -30,7 +30,7 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
 
     view.stub(:admin_pluggable_scm_update_path).and_return('admin_pluggable_scm_update_path')
     configuration = Configuration.new([ConfigurationPropertyMother.create('KEY1', false, 'value1'), ConfigurationPropertyMother.create('key2', false, 'value2')].to_java(ConfigurationProperty))
-    scm = SCMMother.create('scm-id', 'scm-name', PLUGIN_ID, '1', configuration)
+    scm = SCMMother.create('scm-id', 'scm-name', SCM_PLUGIN_ID, '1', configuration)
     scm.setAutoUpdate(false)
     filters = Filter.new([IgnoredFiles.new('/sugar'), IgnoredFiles.new('/jaggery')].to_java(IgnoredFiles))
     pluggable_scm = PluggableSCMMaterialConfig.new(nil, scm, 'dest', filters)
@@ -38,6 +38,10 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
     assign(:meta_data_store, @meta_data_store = SCMMetadataStore.getInstance())
 
     setup_meta_data
+  end
+
+  after :each do
+    @meta_data_store.clear()
   end
 
   it "should render the warning, pipelines used in link" do
@@ -90,7 +94,7 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
 
     Capybara.string(response.body).find('div.plugged_material#material_angular_pluggable_material_my_scm_plugin').tap do |div|
       template_text = text_without_whitespace(div.find('div.plugged_material_template'))
-      expect(template_text).to eq(PLUGIN_TEMPLATE)
+      expect(template_text).to eq(SCM_PLUGIN_TEMPLATE)
 
       data_for_template = JSON.parse(div.find('span.plugged_material_data', :visible => false).text)
       expect(data_for_template.keys.sort).to eq(['KEY1', 'key2'])
@@ -125,8 +129,8 @@ describe "/admin/materials/pluggable_scm/edit.html.erb" do
 
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('Display Name')
-    scm_view.stub(:template).and_return(PLUGIN_TEMPLATE)
-    @meta_data_store.addMetadataFor(PLUGIN_ID, SCMConfigurations.new, scm_view)
+    scm_view.stub(:template).and_return(SCM_PLUGIN_TEMPLATE)
+    @meta_data_store.addMetadataFor(SCM_PLUGIN_ID, SCMConfigurations.new, scm_view)
   end
 
   def text_without_whitespace element

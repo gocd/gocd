@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 @ConfigTag("filter")
 @ConfigCollection(IgnoredFiles.class)
@@ -83,6 +84,19 @@ public class Filter extends LinkedHashSet<IgnoredFiles> implements Validatable {
     }
 
     public boolean shouldNeverIgnore() {
+        return false;
+    }
+
+    public boolean hasIgnorePattern() {
+        return size() > 0 ? true : false;
+    }
+
+    public boolean isIgnoredFile(MaterialConfig materialConfig, String fileName) {
+        for (IgnoredFiles ignore : this) {
+            if (ignore.shouldIgnore(materialConfig, fileName)) {
+                return true;
+            }
+        }
         return false;
     }
 }

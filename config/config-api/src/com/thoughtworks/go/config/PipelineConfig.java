@@ -100,6 +100,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "isLocked", optional = true, allowNull = true)
     private String lock;
 
+    @ConfigAttribute(value = "forceScheduleForEveryChange", optional = true, allowNull = true)
+    private String forceScheduleForEveryChange;
+
     @SkipParameterResolution
     @ConfigAttribute(value = "template", optional = true, allowNull = true)
     private CaseInsensitiveString templateName;
@@ -459,6 +462,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public boolean isLock() {
         return Boolean.parseBoolean(lock);
+    }
+
+    public boolean isForceScheduleForEveryChange() {
+        return forceScheduleForEveryChange != null && (Boolean.parseBoolean(forceScheduleForEveryChange) == true);
     }
 
     // only called from tests

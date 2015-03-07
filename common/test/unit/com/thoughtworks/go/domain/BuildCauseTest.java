@@ -72,4 +72,28 @@ public class BuildCauseTest {
         assertThat(buildCause.getBuildCauseMessage(), is("Forced by anonymous"));
     }
 
+    @Test
+    public void shouldAnswerHasOnlyOneMaterialRevisionChange() {
+        MaterialRevision revision1 = new MaterialRevision(MaterialsMother.svnMaterial(), oneModifiedFile("revision1"));
+        MaterialRevision revision2 = new MaterialRevision(MaterialsMother.svnMaterial(), oneModifiedFile("revision1"));
+        MaterialRevisions first = new MaterialRevisions(revision1, revision2);
+        BuildCause buildCause = BuildCause.createManualForced();
+        buildCause.setMaterialRevisions(first);
+
+        revision1.markAsNotChanged();
+        revision2.markAsNotChanged();
+        assertThat(buildCause.hasOnlyOneMaterialRevisionChange(), is(false));
+
+        revision1.markAsChanged();
+        revision2.markAsNotChanged();
+        assertThat(buildCause.hasOnlyOneMaterialRevisionChange(), is(true));
+
+        revision1.markAsNotChanged();
+        revision2.markAsChanged();
+        assertThat(buildCause.hasOnlyOneMaterialRevisionChange(), is(true));
+
+        revision1.markAsChanged();
+        revision2.markAsChanged();
+        assertThat(buildCause.hasOnlyOneMaterialRevisionChange(), is(false));
+    }
 }

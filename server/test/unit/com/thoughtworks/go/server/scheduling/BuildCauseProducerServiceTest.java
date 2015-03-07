@@ -27,6 +27,8 @@ import java.util.Map;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -39,6 +41,7 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -54,15 +57,7 @@ import com.thoughtworks.go.server.materials.MaterialUpdateSuccessfulMessage;
 import com.thoughtworks.go.server.materials.SpecificMaterialRevisionFactory;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.AutoBuild;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.ManualBuild;
-import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
-import com.thoughtworks.go.server.service.PipelineScheduleQueue;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.SchedulingCheckerService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
@@ -70,6 +65,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -81,6 +77,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
+import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static org.hamcrest.core.Is.is;
@@ -324,7 +322,7 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig.addMaterialConfig(dependencyMaterial.config());
         pipelineConfig.addMaterialConfig(svnMaterial.config());
 
-        List<Modification> svnModifications = ModificationsMother.multipleModificationList();
+        List<Modification> svnModifications = multipleModificationList();
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(pipelineConfig.materialConfigs());
 
         MaterialRevision specificMaterialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream-pipeline/2/stage/1", "MOCK_LABEL-12", null));
@@ -432,6 +430,105 @@ public class BuildCauseProducerServiceTest {
         ServerHealthState serverHealthState = buildCauseProducerService.newProduceBuildCause(config, autoBuild, result, 12345);
 
         assertThat(serverHealthState.isSuccess(), is(true));
+    }
+
+    @Test
+    public void shouldAnswerCanPruneRevisions() {
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        BuildCause buildCause = mock(BuildCause.class);
+
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(true);
+        when(buildCause.hasOnlyOneMaterialRevisionChange()).thenReturn(true);
+        assertThat(buildCauseProducerService.canPruneRevisions(mock(ManualBuild.class), pipelineConfig, buildCause), is(false));
+        assertThat(buildCauseProducerService.canPruneRevisions(mock(TimedBuild.class), pipelineConfig, buildCause), is(false));
+
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(false);
+        when(buildCause.hasOnlyOneMaterialRevisionChange()).thenReturn(true);
+        assertThat(buildCauseProducerService.canPruneRevisions(mock(AutoBuild.class), pipelineConfig, buildCause), is(false));
+
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(true);
+        when(buildCause.hasOnlyOneMaterialRevisionChange()).thenReturn(false);
+        assertThat(buildCauseProducerService.canPruneRevisions(mock(AutoBuild.class), pipelineConfig, buildCause), is(false));
+
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(true);
+        when(buildCause.hasOnlyOneMaterialRevisionChange()).thenReturn(true);
+        assertThat(buildCauseProducerService.canPruneRevisions(mock(AutoBuild.class), pipelineConfig, buildCause), is(true));
+    }
+
+    @Test
+    public void shouldPruneRevisionsCorrectly() {
+        AutoBuild buildType = mock(AutoBuild.class);
+
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(true);
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", false);
+        svnMaterialConfig.setFilter(new Filter(new IgnoredFiles("*.log")));
+        materialConfigs.add(svnMaterialConfig);
+        when(pipelineConfig.materialConfigs()).thenReturn(materialConfigs);
+
+        SvnMaterial svnMaterial = new SvnMaterial(svnMaterialConfig);
+        Modification modification1 = oneModifiedFile("revision1");
+        addForwardSlashForModifiedFiles(modification1);
+        Modification modification2 = oneModifiedFile("revision2");
+        addForwardSlashForModifiedFiles(modification2);
+        List<Modification> modifications = new ArrayList<Modification>(Arrays.asList(modification1, modification2));
+        MaterialRevision revision1 = new MaterialRevision(svnMaterial, modifications);
+        revision1.markAsChanged();
+        MaterialRevision revision2 = new MaterialRevision(svnMaterial, oneModifiedFile("revision1"));
+        revision2.markAsNotChanged();
+        MaterialRevisions revisions = new MaterialRevisions(revision1, revision2);
+        BuildCause buildCause = BuildCause.createManualForced();
+        buildCause.setMaterialRevisions(revisions);
+
+        assertThat(buildCause.getMaterialRevisions().getMaterialRevision(0).numberOfModifications(), is(2));
+
+        buildCauseProducerService.pruneRevisionsIfRequired(buildType, pipelineConfig, buildCause);
+
+        assertThat(buildCause.getMaterialRevisions().getMaterialRevision(0).numberOfModifications(), is(1));
+    }
+
+    @Test
+    public void shouldPruneRevisionsOnlyIfModificationIsNotIgnored() {
+        AutoBuild buildType = mock(AutoBuild.class);
+
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        when(pipelineConfig.isForceScheduleForEveryChange()).thenReturn(true);
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", false);
+        svnMaterialConfig.setFilter(new Filter(new IgnoredFiles("*.xml")));
+        materialConfigs.add(svnMaterialConfig);
+        when(pipelineConfig.materialConfigs()).thenReturn(materialConfigs);
+        SvnMaterial svnMaterial = new SvnMaterial(svnMaterialConfig);
+        Modification modification1 = oneModifiedFile("revision1");
+        ReflectionUtil.setField(modification1.getModifiedFiles().get(0), "fileName", "/crap.txt");
+        List<Modification> multipleModifications = multipleModificationList();
+        for (Modification modification : multipleModifications) {
+            addForwardSlashForModifiedFiles(modification);
+        }
+        List<Modification> newModifications = new ArrayList<Modification>(Arrays.asList(modification1));
+        newModifications.addAll(multipleModifications);
+        MaterialRevision revision1 = new MaterialRevision(svnMaterial, newModifications);
+        revision1.markAsChanged();
+        MaterialRevision revision2 = new MaterialRevision(svnMaterial, oneModifiedFile("revision1"));
+        revision2.markAsNotChanged();
+        MaterialRevisions revisions = new MaterialRevisions(revision1, revision2);
+        BuildCause buildCause = BuildCause.createManualForced();
+        buildCause.setMaterialRevisions(revisions);
+
+        assertThat(buildCause.getMaterialRevisions().getMaterialRevision(0).numberOfModifications(), is(4));
+
+        buildCauseProducerService.pruneRevisionsIfRequired(buildType, pipelineConfig, buildCause);
+
+        assertThat(buildCause.getMaterialRevisions().getMaterialRevision(0).numberOfModifications(), is(3));
+    }
+
+    private void addForwardSlashForModifiedFiles(Modification modification) {
+        for (ModifiedFile modifiedFile : modification.getModifiedFiles()) {
+            if (!modifiedFile.getFileName().startsWith("/")) {
+                ReflectionUtil.setField(modifiedFile, "fileName", "/" + modifiedFile.getFileName());
+            }
+        }
     }
 
     private TypeSafeMatcher<ServerHealthState> hasErrorHealthState(final String message, final String description) {

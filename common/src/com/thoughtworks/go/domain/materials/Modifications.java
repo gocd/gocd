@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.thoughtworks.go.config.materials.IgnoredFiles;
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -32,7 +32,6 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 public class Modifications extends BaseCollection<Modification> {
@@ -125,31 +124,18 @@ public class Modifications extends BaseCollection<Modification> {
     }
 
     public boolean shouldBeIgnoredByFilterIn(MaterialConfig materialConfig) {
-        if (materialConfig.filter().shouldNeverIgnore()) {
+        Filter filter = materialConfig.filter();
+        if (filter.shouldNeverIgnore() || !filter.hasIgnorePattern()) {
             return false;
         }
+
         Set<ModifiedFile> allFiles = getAllFiles(this);
-        Set<ModifiedFile> ignoredFiles = new HashSet<ModifiedFile>();
-
         for (ModifiedFile file : allFiles) {
-            appyIgnoreFilter(materialConfig, file, ignoredFiles);
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Checking Ignore filters for " + materialConfig);
-            LOG.debug("Ignored files : " + ignoredFiles + "");
-            LOG.debug("Changed files : " + CollectionUtils.subtract(allFiles, ignoredFiles) + "");
-        }
-
-        return ignoredFiles.containsAll(allFiles);
-    }
-
-    private void appyIgnoreFilter(MaterialConfig materialConfig, ModifiedFile file, Set<ModifiedFile> ignoredFiles) {
-        for (IgnoredFiles ignore : materialConfig.filter()) {
-            if (ignore.shouldIgnore(materialConfig, file.getFileName())) {
-                ignoredFiles.add(file);
+            if (!filter.isIgnoredFile(materialConfig, file.getFileName())) {
+                return false;
             }
         }
+        return true;
     }
 
     private Set<ModifiedFile> getAllFiles(List<Modification> modifications) {

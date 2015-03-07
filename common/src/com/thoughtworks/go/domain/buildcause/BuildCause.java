@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.ModificationSummaries;
 import com.thoughtworks.go.domain.ModificationVisitorAdapter;
@@ -88,6 +89,16 @@ public class BuildCause implements Serializable {
 
     public boolean trumps(BuildCause existingBuildCause) {
         return trigger.trumps(existingBuildCause.trigger);
+    }
+
+    public boolean hasOnlyOneMaterialRevisionChange() {
+        int materialRevisionChangedCount = 0;
+        for (MaterialRevision materialRevision : materialRevisions) {
+            if (materialRevision.isChanged()) {
+                materialRevisionChangedCount++;
+            }
+        }
+        return materialRevisionChangedCount == 1;
     }
 
     public Date getModifiedDate() {

@@ -36,12 +36,12 @@ describe Admin::Materials::PluggableScmController do
     end
 
     it "new" do
-      {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/new/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'new', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
+      {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/new/plugin.id-1'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'new', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin.id-1')
       send('admin_pluggable_scm_new_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/new/plugin-id'
     end
 
     it "create" do
-      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'create', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin-id')
+      {:post => '/admin/pipelines/pipeline.name/materials/pluggable_scm/plugin.id-1'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'create', :pipeline_name => 'pipeline.name', :plugin_id => 'plugin.id-1')
       send('admin_pluggable_scm_create_path', :pipeline_name => 'foo.bar', :plugin_id => 'plugin-id').should == '/admin/pipelines/foo.bar/materials/pluggable_scm/plugin-id'
     end
 
@@ -56,7 +56,7 @@ describe Admin::Materials::PluggableScmController do
     end
 
     it "check_connection" do
-      {:post => '/admin/materials/pluggable_scm/check_connection/plugin-id'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'check_connection', :plugin_id => 'plugin-id')
+      {:post => '/admin/materials/pluggable_scm/check_connection/plugin.id-1'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'check_connection', :plugin_id => 'plugin.id-1')
       send('admin_pluggable_scm_check_connection_path', :plugin_id => 'plugin-id').should == '/admin/materials/pluggable_scm/check_connection/plugin-id'
     end
 

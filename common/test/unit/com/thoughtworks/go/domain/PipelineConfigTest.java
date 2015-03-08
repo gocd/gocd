@@ -59,8 +59,7 @@ import org.junit.Test;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -254,19 +253,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
         pipelineConfig.setLabelTemplate(labelFormat);
 
-        final HashMap map = new HashMap();
-        final HashMap valueHashMap = new HashMap();
-        valueHashMap.put("param-name", "param_foo");
-        valueHashMap.put("param-value", "BAR");
-        map.put(PipelineConfig.PARAMS, Collections.singletonList(valueHashMap));
-        //pipelineConfig.setParams;
-
-        pipelineConfig.setConfigAttributes(map);
-
-
-
         pipelineConfig.validate(null);
-
 
         return pipelineConfig;
     }
@@ -282,8 +269,7 @@ public class PipelineConfigTest {
     public void shouldValidatePipelineLabelWithNonExistingMaterial() {
         String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE),
-                is("You have defined a label template in pipeline cruise that refers to a material called NoSuchMaterial, but no material with this name is defined."));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
     }
 
     @Test
@@ -294,15 +280,29 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldValidateIncorrectPipelineLabelWithTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${noSuch[:7]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+    }
+
+    @Test
+    public void shouldSupportTruncationSyntax() {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-${git[:7]}-alpha");
+
+        Set<String> variables = pipelineConfig.getTemplateVariables();
+        assertThat(variables, contains("COUNT", "git"));
+        assertThat(variables.size(), is(2));
+    }
+
+    @Test
     public void shouldSupportSpecialCharactors() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
         pipelineConfig.setLabelTemplate("pipeline-${COUN_T}-${my-material}${h.i}${**}");
 
         Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables.contains("COUN_T"), is(true));
-        assertThat(variables.contains("my-material"), is(true));
-        assertThat(variables.contains("h.i"), is(true));
-        assertThat(variables.contains("**"), is(true));
+        assertThat(variables, contains("COUN_T", "my-material", "h.i", "**"));
     }
 
     @Test

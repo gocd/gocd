@@ -64,7 +64,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String ENVIRONMENT_VARIABLES = "variables";
     public static final String PARAMS = "params";
     private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z0-9_\\-.!~*'()#:]";
-    public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]\\{" + LABEL_TEMPLATE_CHARACTERS + "+\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
+    private static final String LABEL_TEMPLATE_TRUNC_BLOCK = "(\\[:\\d+\\])?";
+    public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]"
+            + "\\{" + LABEL_TEMPLATE_CHARACTERS + "+" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
     private static final Pattern LABEL_TEMPLATE_FORMAT_REGEX = Pattern.compile(String.format("^(%s)$", LABEL_TEMPLATE_FORMAT));
     public static final String TEMPLATE_NAME = "templateName";
     public static final String LOCK = "lock";
@@ -164,7 +166,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void validateLabelTemplate() {
         if (XmlUtils.doesNotMatchUsingXsdRegex(LABEL_TEMPLATE_FORMAT_REGEX, labelTemplate)) {
-            addError("labelTemplate", "Invalid label. Label should be composed of alphanumeric text, it should contain material revision or ${COUNT}, or use params as #{<param-name>}.");
+            addError("labelTemplate",
+                    "Invalid label. Label should be composed of alphanumeric text, it should contain "
+                    + "the build number (as ${COUNT}), "
+                    + "a material revision (e.g. ${git} for the full revision or ${git[:6]} for an truncated one), "
+                    + "or use params (as #{<param-name>}).");
             return;
         }
 

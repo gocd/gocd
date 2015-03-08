@@ -45,6 +45,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -52,6 +53,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
@@ -64,6 +66,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -236,6 +239,61 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldValidateCorrectPipelineLabelWithoutAnyMaterial() {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
+        pipelineConfig.validate(null);
+        assertThat(pipelineConfig.errors().isEmpty(), is(true));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+    private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
+        GitMaterialConfig git = new GitMaterialConfig("git@github.com:gocd/gocd.git");
+        git.setName(new CaseInsensitiveString("git"));
+
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
+        pipelineConfig.setLabelTemplate(labelFormat);
+
+        final HashMap map = new HashMap();
+        final HashMap valueHashMap = new HashMap();
+        valueHashMap.put("param-name", "param_foo");
+        valueHashMap.put("param-value", "BAR");
+        map.put(PipelineConfig.PARAMS, Collections.singletonList(valueHashMap));
+        //pipelineConfig.setParams;
+
+        pipelineConfig.setConfigAttributes(map);
+
+
+
+        pipelineConfig.validate(null);
+
+
+        return pipelineConfig;
+    }
+
+    @Test
+    public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${git}-454";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldValidatePipelineLabelWithNonExistingMaterial() {
+        String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE),
+                is("You have defined a label template in pipeline cruise that refers to a material called NoSuchMaterial, but no material with this name is defined."));
+    }
+
+    @Test
+    public void shouldValidateCorrectPipelineLabelWithTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${git[:7]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+    @Test
     public void shouldSupportSpecialCharactors() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
         pipelineConfig.setLabelTemplate("pipeline-${COUN_T}-${my-material}${h.i}${**}");
@@ -348,8 +406,9 @@ public class PipelineConfigTest {
     @Test
     public void shouldPopulateParamsFromAttributeMapWhenConfigurationTypeIsNotSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+
+        final HashMap map = new HashMap();
+        final HashMap valueHashMap = new HashMap();
         valueHashMap.put("param-name", "FOO");
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);

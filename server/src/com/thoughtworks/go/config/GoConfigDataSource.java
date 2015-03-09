@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
@@ -48,6 +40,10 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -139,7 +135,7 @@ public class GoConfigDataSource {
         String currentContent = FileUtils.readFileToString(configFile);
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(currentContent);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, false);
+        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, true);
         String postEncryptContent = new String(stream.toByteArray());
         if (!currentContent.equals(postEncryptContent)) {
             LOGGER.debug("[Encrypt] Writing config to file");
@@ -166,6 +162,7 @@ public class GoConfigDataSource {
         }
     }
 
+    @Deprecated
     public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws Exception {
         File configFile = fileLocation();
         FileOutputStream output = null;
@@ -199,11 +196,9 @@ public class GoConfigDataSource {
             channel = randomAccessFile.getChannel();
             lock = channel.lock();
 
-            CruiseConfig modified = getModifiedConfig(updatingCommand, configHolder);
-
             // Need to convert to xml before we try to write it to the config file.
             // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
-            String configAsXml = configAsXml(modified);
+            String configAsXml = getModifiedConfig(updatingCommand, configHolder);
 
             randomAccessFile.seek(0);
             randomAccessFile.setLength(0);
@@ -236,7 +231,7 @@ public class GoConfigDataSource {
         return updatingCommand instanceof UserAware ? ((UserAware) updatingCommand).user() : new ConfigModifyingUser();
     }
 
-    private CruiseConfig getModifiedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) throws Exception {
+    private String getModifiedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) throws Exception {
         LOGGER.debug("[Config Save] ==-- Getting modified config");
         if (shouldMergeConfig(updatingCommand, configHolder)) {
             if(!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
@@ -246,7 +241,7 @@ public class GoConfigDataSource {
         }
         CruiseConfig config = updatingCommand.update(cloner.deepClone(configHolder.configForEdit));
         LOGGER.debug("[Config Save] ==-- Done getting modified config");
-        return config;
+        return configAsXml(config);
     }
 
     private boolean shouldMergeConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
@@ -260,7 +255,7 @@ public class GoConfigDataSource {
         return false;
     }
 
-    CruiseConfig getMergedConfig(NoOverwriteUpdateConfigCommand noOverwriteCommand, String latestMd5) throws Exception {
+    private String getMergedConfig(NoOverwriteUpdateConfigCommand noOverwriteCommand, String latestMd5) throws Exception {
         LOGGER.debug("[Config Save] Getting merged config");
         String oldMd5 = noOverwriteCommand.unmodifiedMd5();
         CruiseConfig modifiedConfig = getOldConfigAndMutateWithChanges(noOverwriteCommand, oldMd5);
@@ -270,10 +265,11 @@ public class GoConfigDataSource {
                 serverVersion.version(), modifiedConfig.edition(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
-        return convertMergedConfigToXml(mergedConfigXml, latestMd5);
+        validateMergedXML(mergedConfigXml, latestMd5);
+        return mergedConfigXml;
     }
 
-    private CruiseConfig convertMergedConfigToXml(String mergedConfigXml, String latestMd5) throws Exception {
+    private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5) throws Exception {
         LOGGER.debug("[Config Save] -=- Converting merged config to XML");
         try {
             return magicalGoConfigXmlLoader.loadConfigHolder(mergedConfigXml).configForEdit;

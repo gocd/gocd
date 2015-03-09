@@ -69,7 +69,6 @@ public class GoCipherSuiteTest {
         List<String> includedSuites = Arrays.asList(goCipherSuite.getCipherSuitsToBeIncluded());
         assertThat(includedSuites.size(), is(supportedSuites.length));
 
-
         for (String cipherSuite : includedSuites) {
             assertThat(Arrays.asList(supportedSuites).contains(cipherSuite), is(true));
         }

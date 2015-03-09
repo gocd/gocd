@@ -43,7 +43,7 @@ public class DeploymentContextWriter {
         if (provider == null) {
             throw new RuntimeException("Could not generate url. ServerConfigService not yet loaded.");
         }
-        ServletRequest request = ServletHelper.getServerHelper(env().usingJetty9()).getRequest(req);
+        ServletRequest request = ServletHelper.getInstance().getRequest(req);
         String url = request.getUrl();
         if (provider.hasAnyUrlConfigured()) {
             try {

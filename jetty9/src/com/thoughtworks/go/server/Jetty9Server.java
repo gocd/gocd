@@ -193,7 +193,8 @@ public class Jetty9Server extends AppServer {
 
 
     private void performCustomConfiguration() throws Exception {
-        File jettyConfig = systemEnvironment.getJettyConfigFile();
+        File jettyConfig = new File(systemEnvironment.getConfigDir(), "jetty.xml");
+
         if (jettyConfig.exists()) {
             LOG.info("Configuring Jetty using " + jettyConfig.getAbsolutePath());
             FileInputStream serverConfiguration = new FileInputStream(jettyConfig);
@@ -228,24 +229,14 @@ public class Jetty9Server extends AppServer {
                 WebXmlConfiguration.class.getCanonicalName(),
                 JettyWebXmlConfiguration.class.getCanonicalName()
         });
-        webAppContext.setContextPath(new SystemEnvironment().getWebappContextPath());
+        webAppContext.setContextPath(systemEnvironment.getWebappContextPath());
         webAppContext.setWar(getWarFile());
-        webAppContext.setParentLoaderPriority(new SystemEnvironment().getParentLoaderPriority());
+        webAppContext.setParentLoaderPriority(systemEnvironment.getParentLoaderPriority());
 //        wac.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/spring-[^/]*\\.jar$");
         return webAppContext;
-    }
-
-    public Container getContainer() {
-        return server;
-    }
-
-    public void setHandler(Handler handler) {
-        server.setHandler(handler);
     }
 
     public Server getServer() {
         return server;
     }
-
-
 }

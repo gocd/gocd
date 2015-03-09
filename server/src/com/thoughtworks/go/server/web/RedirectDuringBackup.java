@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.server.util.ServletRequest;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,22 +29,21 @@ public class RedirectDuringBackup {
 
     static final String BACKUP_IN_PROGRESS = "backupInProgress";
     private static final String REFERER = "Referer";
-    private ServletHelper servletHelper;
 
     public void setServerBackupFlag(HttpServletRequest req) {
-        servletHelper = ServletHelper.getServerHelper(new SystemEnvironment().usingJetty9());
+        ServletHelper servletHelper = ServletHelper.getInstance();
         BackupStatusProvider backupStatusProvider = getBackupStatusProvider(req);
         boolean backingUp = backupStatusProvider.isBackingUp();
         req.setAttribute(BACKUP_IN_PROGRESS, String.valueOf(backingUp));
 
         if (backingUp) {
-            req.setAttribute("redirected_from", servletHelper.encodeString(getRedirectUri(req)));
+            req.setAttribute("redirected_from", servletHelper.encodeString(getRedirectUri(req, servletHelper)));
             req.setAttribute("backup_started_at", servletHelper.encodeString(backupStatusProvider.backupRunningSinceISO8601()));
             req.setAttribute("backup_started_by", servletHelper.encodeString(backupStatusProvider.backupStartedBy()));
         }
     }
 
-    private String getRedirectUri(HttpServletRequest req) {
+    private String getRedirectUri(HttpServletRequest req, ServletHelper servletHelper) {
         ServletRequest request = servletHelper.getRequest(req);
 
         if (isMessagesJson(request) || isMethod(req, "post") || isMethod(req, "put") || isMethod(req, "delete")) {

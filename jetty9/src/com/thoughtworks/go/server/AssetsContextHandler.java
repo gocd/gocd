@@ -45,16 +45,14 @@ public class AssetsContextHandler extends ContextHandler {
         return !systemEnvironment.useCompressedJs();
     }
 
-    private class AssetsHandler extends AbstractHandler
-    {
+    class AssetsHandler extends AbstractHandler {
         private ResourceHandler resourceHandler = new ResourceHandler();
 
         private AssetsHandler() {
             resourceHandler.setCacheControl("max-age=31536000,public");
         }
 
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
-        {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             if (shouldNotHandle()) return;
             this.resourceHandler.handle(target, baseRequest, request, response);
         }

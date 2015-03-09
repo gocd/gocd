@@ -12,8 +12,7 @@ public class Jetty6Request implements ServletRequest {
 
     @Override
     public String getUrl() {
-        HttpURI uri = request.getUri();
-        return request.getRootURL().append(uri.toString()).toString();
+        return request.getRootURL().append(getUriAsString()).toString();
     }
 
     @Override

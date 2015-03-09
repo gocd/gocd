@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.server.util.ServletRequest;
+import com.thoughtworks.go.server.util.ServletResponse;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
@@ -49,6 +52,7 @@ public class RedirectDuringBackupTest {
 
     @Before
     public void setUp() {
+        ServletHelper.init(true);
         provider = mock(BackupStatusProvider.class);
         this.redirectDuringBackup = new RedirectDuringBackup() {
             @Override protected BackupStatusProvider getBackupStatusProvider(HttpServletRequest req) {

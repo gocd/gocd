@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
@@ -43,6 +44,7 @@ public class DeploymentContextWriterTest {
     public void setUp() {
         originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "5050");
+        ServletHelper.init(true);
     }
 
     @After

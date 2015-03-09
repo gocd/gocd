@@ -30,6 +30,10 @@
         <Set name="SpawnOrShrinkAt">2</Set>
         -->
     </Get>
+    <Call name="setAttribute">
+        <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+        <Arg>30000000</Arg>
+    </Call>
 
     <!-- =========================================================== -->
     <!-- Logging                                                     -->

@@ -34,7 +34,7 @@
     <properties>
         <main.dir>${project.basedir}/..</main.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jetty.version>9.1.5.v20140505</jetty.version>
+        <jetty.version>9.2.3.v20140905</jetty.version>
     </properties>
 
     <dependencies>

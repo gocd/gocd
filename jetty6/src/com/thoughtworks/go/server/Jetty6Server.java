@@ -48,15 +48,21 @@ import java.util.Map;
 
 public class Jetty6Server extends AppServer {
 
-    private final Server server = new Server();
-    private final Jetty6GoWebXmlConfiguration configuration = new Jetty6GoWebXmlConfiguration();
+    private final Server server;
     private final GoJetty6CipherSuite goCipherSuite;
+    private Jetty6GoWebXmlConfiguration configuration;
     private WebAppContext webAppContext;
     private static final Logger LOG = Logger.getLogger(Jetty6Server.class);
 
     public Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
+        this(systemEnvironment, password, sslSocketFactory, new Server(), new GoJetty6CipherSuite(sslSocketFactory), new Jetty6GoWebXmlConfiguration());
+    }
+
+    Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, GoJetty6CipherSuite goJetty6CipherSuite, Jetty6GoWebXmlConfiguration configuration) {
         super(systemEnvironment, password, sslSocketFactory);
-        goCipherSuite = new GoJetty6CipherSuite(sslSocketFactory);
+        this.server = server;
+        this.goCipherSuite = goJetty6CipherSuite;
+        this.configuration = configuration;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class Jetty6Server extends AppServer {
     @Override
     void setInitParameter(String name, String value) {
         Map existingParams = webAppContext.getInitParams();
-        existingParams.put("rails.root", "/WEB-INF/rails.new");
+        existingParams.put(name, value);
         webAppContext.setInitParams(existingParams);
     }
 
@@ -114,7 +120,7 @@ public class Jetty6Server extends AppServer {
     }
 
     private void performCustomConfiguration() throws Exception {
-        File jettyConfig = systemEnvironment.getJettyConfigFile();
+        File jettyConfig = new File(systemEnvironment.getConfigDir(), "jetty6.xml");
         if (jettyConfig.exists()) {
             LOG.info("Configuring Jetty using " + jettyConfig.getAbsolutePath());
             FileInputStream serverConfiguration = new FileInputStream(jettyConfig);
@@ -156,9 +162,9 @@ public class Jetty6Server extends AppServer {
                 "org.mortbay.jetty.webapp.WebXmlConfiguration",
                 "org.mortbay.jetty.webapp.JettyWebXmlConfiguration",
         });
-        wac.setContextPath(new SystemEnvironment().getWebappContextPath());
+        wac.setContextPath(systemEnvironment.getWebappContextPath());
         wac.setWar(systemEnvironment.getCruiseWar());
-        wac.setParentLoaderPriority(new SystemEnvironment().getParentLoaderPriority());
+        wac.setParentLoaderPriority(systemEnvironment.getParentLoaderPriority());
         return wac;
     }
 

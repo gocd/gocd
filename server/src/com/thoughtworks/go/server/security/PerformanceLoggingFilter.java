@@ -54,7 +54,7 @@ public class PerformanceLoggingFilter implements Filter {
                 String requestURI = ((HttpServletRequest) servletRequest).getRequestURI();
                 String requestor = servletRequest.getRemoteAddr();
 
-                com.thoughtworks.go.server.util.ServletResponse response = ServletHelper.getServerHelper(usingJetty9).getResponse(servletResponse);
+                com.thoughtworks.go.server.util.ServletResponse response = ServletHelper.getInstance().getResponse(servletResponse);
                 int status = response.getStatus();
                 long contentCount = response.getContentCount();
 

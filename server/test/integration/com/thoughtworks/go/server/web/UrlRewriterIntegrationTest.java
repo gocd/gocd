@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.server.util.HttpTestUtil;
+import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -70,6 +71,7 @@ public class UrlRewriterIntegrationTest {
     public String originalSslPort;
 
     public UrlRewriterIntegrationTest() throws Exception {
+        ServletHelper.init(true);
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
             public void customize(WebAppContext ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);

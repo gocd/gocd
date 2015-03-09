@@ -1,37 +1,33 @@
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Test;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.handler.ResourceHandler;
+import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.resource.Resource;
+
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
-public class AssetsContextHandlerTest {
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+
+public class Jetty6AssetsContextHandlerTest {
     @Test
     public void shouldSetHeadersAndBaseDirectory() throws IOException {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         WebAppContext webAppContext = mock(WebAppContext.class);
-        when(webAppContext.getInitParameter("rails.root")).thenReturn("/rails.root");
+        when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
-
+        Jetty6AssetsContextHandler handler = new Jetty6AssetsContextHandler(systemEnvironment);
         handler.init(webAppContext);
-
-        assertThat(handler.getContextPath(), is("/go/assets"));
-        assertThat(handler.getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
-        AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) handler.getHandler();
-        ResourceHandler resourceHandler = (ResourceHandler) ReflectionUtil.getField(assetsHandler, "resourceHandler");
+        assertThat(handler.getHandler() instanceof ResourceHandler, is(true));
+        ResourceHandler resourceHandler = (ResourceHandler) handler.getHandler();
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
         assertThat(resourceHandler.getResourceBase(), is(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
     }
@@ -44,13 +40,13 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        Jetty6AssetsContextHandler handler = spy(new Jetty6AssetsContextHandler(systemEnvironment));
         handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/go/assets/junk", request, response, 1);
-        verify(handler).superDotHandle(eq("/go/assets/junk"), any(Request.class), eq(request), eq(response));
+        verify(handler).superDotHandle("/go/assets/junk", request, response, 1);
     }
 
     @Test
@@ -61,13 +57,13 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        Jetty6AssetsContextHandler handler = spy(new Jetty6AssetsContextHandler(systemEnvironment));
         handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/junk", request, response, 1);
-        verify(handler, never()).superDotHandle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(handler, never()).superDotHandle("/junk", request, response, 1);
     }
 
     @Test
@@ -78,12 +74,14 @@ public class AssetsContextHandlerTest {
         WebAppContext webAppContext = mock(WebAppContext.class);
         when(webAppContext.getInitParameter("rails.root")).thenReturn("rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
-        AssetsContextHandler handler = spy(new AssetsContextHandler(systemEnvironment));
+        Jetty6AssetsContextHandler handler = spy(new Jetty6AssetsContextHandler(systemEnvironment));
         handler.init(webAppContext);
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.isHandled()).thenReturn(false);
         handler.handle("/go/assets/junk", request, response, 1);
-        verify(handler, never()).superDotHandle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(handler, never()).superDotHandle("/go/assets/junk", request, response, 1);
     }
+
+
 }

@@ -192,6 +192,7 @@ public class GoServerTest {
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
         assertExtraClasspath(appServer, "");
     }
+
     private void assertExtraClasspath(AppServerStub appServer, String... expectedClassPathJars) {
         String extraJars = (String) appServer.calls.get("addExtraJarsToClasspath");
         List<String> actualExtraClassPath = Arrays.asList(extraJars.split(","));
@@ -204,7 +205,7 @@ public class GoServerTest {
     }
 
     private File createInAddonDir(String dirInsideAddonDir) {
-        File addonDir = new File("addons");
+        File addonDir = new File("test-addons");
         File dirWhichWillContainAddons = new File(addonDir, dirInsideAddonDir);
         dirWhichWillContainAddons.mkdirs();
         return dirWhichWillContainAddons;

@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.zip.ZipFile;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
@@ -112,8 +111,8 @@ public class PluginsZipTest {
 
     @Test
     public void shouldThrowExceptionWhileRetrievingChecksumOfUnavailableFile() throws Exception {
-        expectedException.expect(FileNotFoundException.class);
-        expectedException.expectMessage(containsString("go-plugins-all.zip (No such file or directory)"));
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage(containsString("Could not compute md5 of plugins. Exception occurred:"));
 
         temporaryFolder.delete();
         pluginsZip.md5();

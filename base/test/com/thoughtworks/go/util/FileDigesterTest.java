@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.util;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,18 +30,43 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class FileDigesterTest {
-    private File createFileWithSampleData() throws IOException {
-        File tempFile = TestFileUtil.createTempFile("test.txt");
-        FileUtil.writeContentToFile("sample data", tempFile);
-        return tempFile;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Before
+    public void setUp() throws Exception {
+        temporaryFolder.create();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        temporaryFolder.delete();
     }
 
     @Test
     public void shouldReturnSameMd5ForSameData() throws Exception {
-        String digest1 = FileDigester.md5DigestOfFile(createFileWithSampleData());
+        File fileWithSampleData = createFileWithSampleData();
+        String digest1 = FileDigester.md5DigestOfFile(fileWithSampleData);
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
-        String digest2 = FileDigester.md5DigestOfFile(createFileWithSampleData());
+        String digest2 = FileDigester.md5DigestOfFile(fileWithSampleData);
         assertThat(digest1, is(digest2));
+    }
+
+    @Test
+    public void shouldReturnSameMd5ForFolderContents() throws Exception {
+        File folderWithSampleData = createFolderWithSampleData();
+        String digest1 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+        assertThat("md5 should not be empty", digest1.length() > 0, is(true));
+        String digest2 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+        assertThat(digest1, is(digest2));
+    }
+
+    @Test
+    public void shouldReturnConsistentMd5BySortingTheFileList() throws Exception {
+        File folderWithSampleData = createFolderWithSampleData();
+        String digest1 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+        assertThat("md5 should not be empty", digest1.length() > 0, is(true));
+        assertThat(digest1, is("FJ9Q0KO4KE5ukH6Y7r1FIQ=="));
     }
 
     @Test
@@ -48,5 +77,21 @@ public class FileDigesterTest {
             fail("Should have thrown an invalid state exception");
         } catch (Exception ignored) {
         }
+    }
+
+    private File createFileWithSampleData() throws IOException {
+        File tempFile = temporaryFolder.newFile("test.txt");
+        FileUtil.writeContentToFile("sample data", tempFile);
+        return tempFile;
+    }
+
+    private File createFolderWithSampleData() throws IOException {
+        File firstPlugin = temporaryFolder.newFile("first-plugin");
+        File secondPlugin = temporaryFolder.newFile("second-plugin");
+        File thirdPlugin = temporaryFolder.newFile("third-plugin");
+        FileUtil.writeContentToFile("sample plugin for first plugin", firstPlugin);
+        FileUtil.writeContentToFile("sample plugin for third plugin", secondPlugin);
+        FileUtil.writeContentToFile("sample plugin for second plugin", thirdPlugin);
+        return temporaryFolder.getRoot();
     }
 }

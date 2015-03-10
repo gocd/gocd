@@ -16,18 +16,15 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.io.output.NullOutputStream;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class FileDigester {
     private final InputStream input;
@@ -73,6 +70,19 @@ public class FileDigester {
         } finally {
             IOUtils.closeQuietly(stream);
         }
+    }
+
+    public static String md5DigestOfFolderContent(File directory) throws IOException {
+        File[] files = directory.listFiles();
+        Arrays.sort(files, NameFileComparator.NAME_COMPARATOR);
+        StringBuilder md5 = new StringBuilder();
+        for (File file : files) {
+            if (file.isDirectory())
+                md5.append(md5DigestOfFolderContent(file));
+            else
+                md5.append(md5DigestOfFile(file));
+        }
+        return md5DigestOfStream(new ByteArrayInputStream(md5.toString().getBytes(CharEncoding.UTF_8)));
     }
 
     public static String md5DigestOfStream(InputStream stream) throws IOException {

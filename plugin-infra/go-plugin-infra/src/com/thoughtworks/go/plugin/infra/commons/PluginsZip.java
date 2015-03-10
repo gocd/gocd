@@ -22,16 +22,18 @@ import com.thoughtworks.go.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileWriter;
 
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfFile;
+import static com.thoughtworks.go.util.FileDigester.md5DigestOfFolderContent;
 
 @Component
 public class PluginsZip {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsZip.class);
     private ZipUtil zipUtil;
-    private String md5DigestOfFile;
+    private String md5DigestOfPlugins;
     private final File destZipFile;
     private final File bundledPlugins;
     private final File externalPlugins;
@@ -53,16 +55,30 @@ public class PluginsZip {
         try {
             ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(destZipFile, true);
             zipBuilder.add("bundled", bundledPlugins).add("external", externalPlugins).done();
-            md5DigestOfFile = md5DigestOfFile(destZipFile);
+            md5DigestOfPlugins = computeMd5DigestOfPlugins();
         } catch (Exception e) {
             LOG.error("Could not create zip of plugins for agent to download.", e);
         }
     }
 
-    public String md5() throws IOException {
-        if (md5DigestOfFile == null) {
-            return md5DigestOfFile(destZipFile);
+    public String md5() {
+        if (md5DigestOfPlugins == null) {
+            return computeMd5DigestOfPlugins();
         }
-        return md5DigestOfFile;
+        return md5DigestOfPlugins;
+    }
+
+    private String computeMd5DigestOfPlugins() {
+        try {
+            String digestOfBundledFolder = md5DigestOfFolderContent(bundledPlugins);
+            String digestOfExternalFolder = md5DigestOfFolderContent(externalPlugins);
+            File tempFileToStoreMd5 = File.createTempFile("tempFileToStoreMd5", ".txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFileToStoreMd5));
+            writer.write(String.format("digestOfBundledFolder:" + digestOfBundledFolder + "\tdigestOfExternalFolder:" + digestOfExternalFolder));
+            writer.close();
+            return md5DigestOfFile(tempFileToStoreMd5);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Could not compute md5 of plugins. Exception occurred: %s", e.getStackTrace()));
+        }
     }
 }

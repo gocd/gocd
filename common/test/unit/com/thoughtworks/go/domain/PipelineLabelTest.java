@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.*;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;

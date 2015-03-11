@@ -165,7 +165,7 @@ public class PipelineLabelTest {
     private HashMap<String, String> getNamedRevision(final Integer counter) {
         return new HashMap<String, String>() {
             {
-                put("COUNT", counter.toString());
+                put("COUNT".toLowerCase(), counter.toString());
             }
         };
     }
@@ -209,7 +209,7 @@ public class PipelineLabelTest {
 
     @BeforeClass
     public static void setup() {
-        MATERIAL_REVISIONS.put("svnRepo.verynice", SVN_REVISION);
+        MATERIAL_REVISIONS.put("svnRepo.verynice".toLowerCase(), SVN_REVISION);
         MATERIAL_REVISIONS.put("svn", SVN_REVISION);
         MATERIAL_REVISIONS.put("git", GIT_REVISION);
     }

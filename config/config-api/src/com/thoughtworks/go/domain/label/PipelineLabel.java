@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -55,7 +56,7 @@ public class PipelineLabel implements Serializable {
     }
 
     private static String lookupMaterialRevision(Matcher matcher,  Map<String, String> materialRevisions) {
-        final String material = matcher.group(1);
+        final String material = matcher.group(1).toLowerCase();
 
         if (!materialRevisions.containsKey(material)) {
             return "\\" + matcher.group(0);

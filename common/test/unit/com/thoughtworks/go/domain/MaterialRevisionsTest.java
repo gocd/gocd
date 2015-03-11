@@ -502,7 +502,7 @@ public class MaterialRevisionsTest {
         MaterialRevision materialRevision = ModificationsMother.dependencyMaterialRevision(pipelineName, 2, pipelineLabel, "dev", 1, new Date());
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
-        Map<String, String> namedRevisions = materialRevisions.getNamedRevisions();
+        Map<CaseInsensitiveString, String> namedRevisions = materialRevisions.getNamedRevisions();
 
         assertThat(namedRevisions.get(pipelineName), is(pipelineLabel));
     }

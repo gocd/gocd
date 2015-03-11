@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.Map;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.materials.Materials;
@@ -150,8 +151,8 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     private void updateLabel() {
-        Map<String, String> namedRevisions = this.getMaterialRevisions().getNamedRevisions();
-        namedRevisions.put(COUNT, counter.toString());
+        Map<CaseInsensitiveString, String> namedRevisions = this.getMaterialRevisions().getNamedRevisions();
+        namedRevisions.put(new CaseInsensitiveString(COUNT), counter.toString());
         this.pipelineLabel.updateLabel(namedRevisions);
     }
 

@@ -44,7 +44,7 @@ public class PipelineLabel implements Serializable {
 
     public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([\\w\\.]+)(\\[:(\\d+)\\])?\\}");
 
-    public static String replaceRevisionsInLabel(String labelTemplate, Map<String, String> materialRevisions) {
+    public static String replaceRevisionsInLabel(String labelTemplate, Map<CaseInsensitiveString, String> materialRevisions) {
         final Matcher matcher = PATTERN.matcher(labelTemplate);
         final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
@@ -55,10 +55,11 @@ public class PipelineLabel implements Serializable {
         return buffer.toString();
     }
 
-    private static String lookupMaterialRevision(Matcher matcher,  Map<String, String> materialRevisions) {
-        final String material = matcher.group(1).toLowerCase();
+    private static String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
+        final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
 
         if (!materialRevisions.containsKey(material)) {
+            //throw new IllegalStateException("cannot find material '" + material + "'");
             return "\\" + matcher.group(0);
         }
 
@@ -74,7 +75,7 @@ public class PipelineLabel implements Serializable {
         return revision;
     }
 
-    public void updateLabel(Map<String, String> namedRevisions) {
+    public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {
         this.label = replaceRevisionsInLabel(this.label, namedRevisions);
         this.label = StringUtils.substring(label, 0, 255);
     }

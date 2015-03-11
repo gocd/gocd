@@ -119,8 +119,8 @@ public class PipelineLabelTest {
     @Test
     public void shouldTrimLongLabelTo255() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}");
-        HashMap<String, String> namedRevisions = new HashMap<String, String>();
-        namedRevisions.put("upstream", longLabel(300));
+        HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<CaseInsensitiveString, String>();
+        namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
 
         label.updateLabel(namedRevisions);
         assertThat(label.toString().length(), Is.is(255));
@@ -129,8 +129,8 @@ public class PipelineLabelTest {
     @Test
     public void shouldKeepLabelIfLessThan255() {
         PipelineLabel label = PipelineLabel.create("${upstream}");
-        HashMap<String, String> namedRevisions = new HashMap<String, String>();
-        namedRevisions.put("upstream", longLabel(154));
+        HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<CaseInsensitiveString, String>();
+        namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
 
         label.updateLabel(namedRevisions);
         assertThat(label.toString().length(), Is.is(154));
@@ -162,10 +162,10 @@ public class PipelineLabelTest {
         assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}")));
     }
 
-    private HashMap<String, String> getNamedRevision(final Integer counter) {
-        return new HashMap<String, String>() {
+    private HashMap<CaseInsensitiveString, String> getNamedRevision(final Integer counter) {
+        return new HashMap<CaseInsensitiveString, String>() {
             {
-                put("COUNT".toLowerCase(), counter.toString());
+                put(new CaseInsensitiveString("COUNT"), counter.toString());
             }
         };
     }
@@ -173,7 +173,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldNotReplaceTemplateWithoutMaterial() throws Exception {
-        final String label = PipelineLabel.replaceRevisionsInLabel("1.5.0", new HashMap<String, String>());
+        final String label = PipelineLabel.replaceRevisionsInLabel("1.5.0", new HashMap<CaseInsensitiveString, String>());
         assertThat(label, is("1.5.0"));
     }
 
@@ -205,13 +205,13 @@ public class PipelineLabelTest {
         assertThat(actual, is(false));
     }
 
-    public static final Map<String, String> MATERIAL_REVISIONS = new HashMap<String, String>();
+    public static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<CaseInsensitiveString, String>();
 
     @BeforeClass
     public static void setup() {
-        MATERIAL_REVISIONS.put("svnRepo.verynice".toLowerCase(), SVN_REVISION);
-        MATERIAL_REVISIONS.put("svn", SVN_REVISION);
-        MATERIAL_REVISIONS.put("git", GIT_REVISION);
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svn"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("git"), GIT_REVISION);
     }
 
     @Test

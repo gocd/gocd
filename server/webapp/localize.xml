@@ -33,6 +33,8 @@
     <entry key="ADMIN">ADMIN</entry>
     <entry key="HELP">HELP</entry>
     <entry key="HELP_SMALL">Help</entry>
+    <entry key="PLUGINS">Plugins</entry>
+    <entry key="APIS">APIs</entry>
     <entry key="COMMUNITY">Community</entry>
     <entry key="SUPPORT">Support</entry>
     <entry key="CCTRAY_FEED">CCTray Feed</entry>

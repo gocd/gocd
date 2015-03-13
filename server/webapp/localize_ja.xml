@@ -31,6 +31,8 @@
     <entry key="ADMIN">管理</entry>
     <entry key="HELP">ヘルプ</entry>
     <entry key="HELP_SMALL">ヘルプ</entry>
+    <entry key="PLUGINS">Plugins</entry>
+    <entry key="APIS">APIs</entry>
     <entry key="COMMUNITY">コミュニティ</entry>
     <entry key="SUPPORT">サポート</entry>
     <entry key="CCTRAY_FEED">CCTray フィード</entry>

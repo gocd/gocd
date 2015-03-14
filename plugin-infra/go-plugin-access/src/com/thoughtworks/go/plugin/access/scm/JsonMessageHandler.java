@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
-import java.util.List;
+import java.util.Map;
 
 public interface JsonMessageHandler {
     SCMPropertyConfiguration responseMessageForSCMConfiguration(String responseBody);
@@ -35,13 +36,13 @@ public interface JsonMessageHandler {
 
     Result responseMessageForCheckConnectionToSCM(String responseBody);
 
-    String requestMessageForLatestRevision(SCMPropertyConfiguration scmConfiguration, String flyweightFolder);
+    String requestMessageForLatestRevision(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder);
 
-    SCMRevision responseMessageForLatestRevision(String responseBody);
+    MaterialPollResult responseMessageForLatestRevision(String responseBody);
 
-    String requestMessageForLatestRevisionsSince(SCMPropertyConfiguration scmConfiguration, String flyweightFolder, SCMRevision previousRevision);
+    String requestMessageForLatestRevisionsSince(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder, SCMRevision previousRevision);
 
-    List<SCMRevision> responseMessageForLatestRevisionsSince(String responseBody);
+    MaterialPollResult responseMessageForLatestRevisionsSince(String responseBody);
 
     String requestMessageForCheckout(SCMPropertyConfiguration scmConfiguration, String destinationFolder, SCMRevision revision);
 

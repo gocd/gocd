@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -26,14 +27,18 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 import java.io.File;
 import java.util.*;
@@ -44,43 +49,85 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluggableSCMMaterialPollerTest {
-    private PluggableSCMMaterial material;
+    @Mock
+    private MaterialRepository materialRepository;
+    @Mock
     private SCMExtension scmExtension;
+    @Mock
+    private TransactionTemplate transactionTemplate;
+    private PluggableSCMMaterial material;
     private ArgumentCaptor<SCMPropertyConfiguration> scmConfiguration;
+    private ArgumentCaptor<Map> materialData;
     private PluggableSCMMaterialPoller poller;
     private String flyweightFolderPath;
 
     @Before
     public void setup() {
+        initMocks(this);
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "v2");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
         material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        scmExtension = mock(SCMExtension.class);
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("mk-1", "mv-1");
+        materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+        when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
 
-        poller = new PluggableSCMMaterialPoller(scmExtension);
+        poller = new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate);
 
-        scmConfiguration = new ArgumentCaptor<SCMPropertyConfiguration>();
+        scmConfiguration = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
+        materialData = ArgumentCaptor.forClass(Map.class);
 
         flyweightFolderPath = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
     }
 
     @Test
-    public void shouldGetLatestModificationsAlongWithAdditionalDataFromTheSCMRevision() {
+    public void shouldTalkToPlugInToGetLatestModifications() {
+        Date timestamp = new Date();
+        SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(materialPollResult);
+
+        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
+
+        assertThat(modifications.get(0).getRevision(), is("revision-123"));
+        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
+        assertThat(modifications.get(0).getUserName(), is("user"));
+        assertThat(modifications.get(0).getComment(), is("comment"));
+        assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
+        assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
+        assertThat(materialData.getValue().size(), is(1));
+        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+    }
+
+    @Test
+    public void shouldReturnEmptyModificationWhenSCMRevisionIsNull_latestModification() {
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(new MaterialPollResult());
+
+        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
+
+        assertThat(modifications, is(notNullValue()));
+        assertThat(modifications.isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldGetLatestModificationAlongWithAdditionalDataFromTheSCMRevision() {
         Date timestamp = new Date();
         Map<String, String> data = new HashMap<String, String>();
-        String dataKey = "extra_data";
-        String dataValue = "value";
+        String dataKey = "revision_data";
+        String dataValue = "revision_value";
         data.put(dataKey, dataValue);
         List<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>(asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", data, modifiedFiles);
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(scmRevision);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
+        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(materialPollResult);
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
@@ -95,16 +142,53 @@ public class PluggableSCMMaterialPollerTest {
         com.thoughtworks.go.domain.materials.ModifiedFile f3 = new com.thoughtworks.go.domain.materials.ModifiedFile("f3", null, com.thoughtworks.go.domain.materials.ModifiedAction.deleted);
         assertThat(new HashSet(modifications.get(0).getModifiedFiles()), is(new HashSet(asList(f1, f2, f3))));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
+        assertThat(materialData.getValue().size(), is(1));
+        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+    }
+
+    @Test
+    public void shouldTalkToPlugInToGetModificationsSinceAGivenRevision() {
+        Date timestamp = new Date();
+        PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
+        ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
+        SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", null, null, null);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(latestRevision));
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(materialPollResult);
+
+        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
+
+        assertThat(modifications.get(0).getRevision(), is("rev-123"));
+        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
+        assertThat(modifications.get(0).getUserName(), is("user"));
+        assertThat(modifications.get(0).getComment(), is(nullValue()));
+        assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
+        assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
+        assertThat(knownSCMRevision.getValue().getRevision(), is("rev-122"));
+        assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
+        assertThat(materialData.getValue().size(), is(1));
+        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+    }
+
+    @Test
+    public void shouldReturnEmptyModificationWhenSCMRevisionIsNullFor_latestModificationSince() {
+        PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", new Date());
+        ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(new MaterialPollResult());
+
+        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
+
+        assertThat(modifications, is(notNullValue()));
+        assertThat(modifications.isEmpty(), is(true));
     }
 
     @Test
     public void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromTheSCMRevision() {
         String previousRevision = "rev-122";
         Date timestamp = new Date();
-        HashMap<String, String> dataInPreviousRevision = new HashMap<String, String>();
+        Map<String, String> dataInPreviousRevision = new HashMap<String, String>();
         dataInPreviousRevision.put("1", "one");
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
-        ArgumentCaptor<SCMRevision> knownSCMRevision = new ArgumentCaptor<SCMRevision>();
+        ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
 
         Map<String, String> data = new HashMap<String, String>();
         String dataKey = "2";
@@ -112,7 +196,8 @@ public class PluggableSCMMaterialPollerTest {
         data.put(dataKey, dataValue);
         SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", "comment-123", data, null);
 
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(latestRevision));
+        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(materialPollResult);
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
@@ -132,64 +217,8 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(firstModification.getComment(), is("comment-123"));
         assertThat(firstModification.getAdditionalData(), is(JsonHelper.toJsonString(expected)));
         assertThat(firstModification.getModifiedFiles().isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldTalkToPlugInToGetLatestModifications() {
-        Date timestamp = new Date();
-        SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(scmRevision);
-
-        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
-
-        assertThat(modifications.get(0).getRevision(), is("revision-123"));
-        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
-        assertThat(modifications.get(0).getUserName(), is("user"));
-        assertThat(modifications.get(0).getComment(), is("comment"));
-        assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
-        assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
-    }
-
-    @Test
-    public void shouldReturnEmptyModificationWhenSCMRevisionIsNull_latestModification() {
-        when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath))).thenReturn(null);
-
-        List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
-
-        assertThat(modifications, is(notNullValue()));
-        assertThat(modifications.isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldTalkToPlugInToGetModificationsSinceAGivenRevision() {
-        Date timestamp = new Date();
-        PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
-        ArgumentCaptor<SCMRevision> knownSCMRevision = new ArgumentCaptor<SCMRevision>();
-        SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", null, null, null);
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(asList(latestRevision));
-
-        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
-
-        assertThat(modifications.get(0).getRevision(), is("rev-123"));
-        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
-        assertThat(modifications.get(0).getUserName(), is("user"));
-        assertThat(modifications.get(0).getComment(), is(nullValue()));
-        assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
-        assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
-        assertThat(knownSCMRevision.getValue().getRevision(), is("rev-122"));
-        assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
-    }
-
-    @Test
-    public void shouldReturnEmptyModificationWhenSCMRevisionIsNullFor_latestModificationSince() {
-        PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", new Date());
-        ArgumentCaptor<SCMRevision> knownSCMRevision = new ArgumentCaptor<SCMRevision>();
-        when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(null);
-
-        List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
-
-        assertThat(modifications, is(notNullValue()));
-        assertThat(modifications.isEmpty(), is(true));
+        assertThat(materialData.getValue().size(), is(1));
+        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration configurationsSentToPlugin, Configuration configurationInMaterial) {

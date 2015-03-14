@@ -60,7 +60,7 @@ public class MaterialInstanceTest {
     @Test
     public void shouldAnswerRequiresUpdate() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-        MaterialInstance materialInstance = new PluggableSCMMaterialInstance(JsonHelper.toJsonString(material), "flyweight");
+        MaterialInstance materialInstance = material.createMaterialInstance();
         // null
         materialInstance.setAdditionalData(null);
         assertThat(materialInstance.requiresUpdate(null), is(false));

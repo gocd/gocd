@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
@@ -35,13 +36,14 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class JsonMessageHandler1_0Test {
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private JsonMessageHandler1_0 messageHandler;
     private SCMPropertyConfiguration scmPropertyConfiguration;
+    private Map<String, String> materialData;
 
     @Before
     public void setUp() throws Exception {
@@ -49,6 +51,8 @@ public class JsonMessageHandler1_0Test {
         scmPropertyConfiguration = new SCMPropertyConfiguration();
         scmPropertyConfiguration.add(new SCMProperty("key-one", "value-one"));
         scmPropertyConfiguration.add(new SCMProperty("key-two", "value-two"));
+        materialData = new HashMap<String, String>();
+        materialData.put("key-one", "value-one");
     }
 
     @Test
@@ -128,18 +132,28 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {
-        String requestBody = messageHandler.requestMessageForLatestRevision(scmPropertyConfiguration, "flyweight");
+        String requestBody = messageHandler.requestMessageForLatestRevision(scmPropertyConfiguration, materialData, "flyweight");
 
-        assertThat(requestBody, is("{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"flyweight-folder\":\"flyweight\"}"));
+        assertThat(requestBody, is("{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"scm-data\":{\"key-one\":\"value-one\"},\"flyweight-folder\":\"flyweight\"}"));
     }
 
     @Test
     public void shouldBuildSCMRevisionFromLatestRevisionResponse() throws Exception {
-        String responseBody = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
+        String revisionJSON = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
                 "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
-        SCMRevision scmRevision = messageHandler.responseMessageForLatestRevision(responseBody);
+        String responseBody = "{\"revision\": " + revisionJSON + "}";
+        MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevision(responseBody);
 
-        assertSCMRevision(scmRevision, "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        assertThat(pollResult.getMaterialData(), is(nullValue()));
+        assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+
+        String responseBodyWithSCMData = "{\"revision\":" + revisionJSON + ",\"scm-data\":{\"key-one\":\"value-one\"}}";
+        pollResult = messageHandler.responseMessageForLatestRevision(responseBodyWithSCMData);
+
+        Map<String, String> scmData = new HashMap<String, String>();
+        scmData.put("key-one", "value-one");
+        assertThat(pollResult.getMaterialData(), is(scmData));
+        assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
     }
 
     @Test
@@ -149,9 +163,9 @@ public class JsonMessageHandler1_0Test {
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
         SCMRevision previouslyKnownRevision = new SCMRevision("abc.rpm", timestamp, "someuser", "comment", data, null);
-        String requestBody = messageHandler.requestMessageForLatestRevisionsSince(scmPropertyConfiguration, "flyweight", previouslyKnownRevision);
+        String requestBody = messageHandler.requestMessageForLatestRevisionsSince(scmPropertyConfiguration, materialData, "flyweight", previouslyKnownRevision);
 
-        String expectedValue = "{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"flyweight-folder\":\"flyweight\"," +
+        String expectedValue = "{\"scm-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}},\"scm-data\":{\"key-one\":\"value-one\"},\"flyweight-folder\":\"flyweight\"," +
                 "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
         assertThat(requestBody, is(expectedValue));
     }
@@ -163,17 +177,31 @@ public class JsonMessageHandler1_0Test {
         String r2 = "{\"revision\":\"r2\",\"timestamp\":\"2011-07-14T19:43:37.101Z\",\"user\":\"new-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
                 "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"}]}";
         String responseBody = "{\"revisions\":[" + r1 + "," + r2 + "]}";
-        List<SCMRevision> scmRevisions = messageHandler.responseMessageForLatestRevisionsSince(responseBody);
+        MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBody);
 
+        assertThat(pollResult.getMaterialData(), is(nullValue()));
+        List<SCMRevision> scmRevisions = pollResult.getRevisions();
         assertThat(scmRevisions.size(), is(2));
         assertSCMRevision(scmRevisions.get(0), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         assertSCMRevision(scmRevisions.get(1), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added)));
+
+        String responseBodyWithSCMData = "{\"revisions\":[],\"scm-data\":{\"key-one\":\"value-one\"}}";
+        pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBodyWithSCMData);
+
+        Map<String, String> scmData = new HashMap<String, String>();
+        scmData.put("key-one", "value-one");
+        assertThat(pollResult.getMaterialData(), is(scmData));
+        assertThat(pollResult.getRevisions().isEmpty(), is(true));
     }
 
     @Test
     public void shouldBuildNullSCMRevisionFromLatestRevisionsSinceWhenEmptyResponse() throws Exception {
-        assertThat(messageHandler.responseMessageForLatestRevisionsSince(""), nullValue());
-        assertThat(messageHandler.responseMessageForLatestRevisionsSince(null), nullValue());
+        MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince("");
+        assertThat(pollResult.getRevisions(), nullValue());
+        assertThat(pollResult.getMaterialData(), nullValue());
+        pollResult = messageHandler.responseMessageForLatestRevisionsSince(null);
+        assertThat(pollResult.getRevisions(), nullValue());
+        assertThat(pollResult.getMaterialData(), nullValue());
     }
 
     @Test
@@ -266,27 +294,38 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldValidateIncorrectJsonForSCMRevision() {
         assertThat(errorMessageForSCMRevision(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForSCMRevision("[{\"revision\":\"abc.rpm\"}]"), is("Unable to de-serialize json response. SCM revision should be returned as a map"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":{}}"), is("Unable to de-serialize json response. SCM revision should be of type string"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"\"}"), is("Unable to de-serialize json response. SCM revision's 'revision' is a required field"));
+        assertThat(errorMessageForSCMRevision("[]"), is("Unable to de-serialize json response. SCM revision should be returned as a map"));
+        assertThat(errorMessageForSCMRevision("{\"revision\":[]}"), is("Unable to de-serialize json response. SCM revision should be of type map"));
+        assertThat(errorMessageForSCMRevision("{\"crap\":{}}"), is("Unable to de-serialize json response. SCM revision cannot be empty"));
+    }
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":{}}"), is("Unable to de-serialize json response. SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"\"}"), is("Unable to de-serialize json response. SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"12-01-2014\"}"), is("Unable to de-serialize json response. SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
+    @Test
+    public void shouldValidateIncorrectJsonForEachRevision() {
+        assertThat(errorMessageForEachRevision("{\"revision\":{}}"), is("SCM revision should be of type string"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"\"}"), is("SCM revision's 'revision' is a required field"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"revisionComment\":{}}"), is("Unable to de-serialize json response. SCM revision comment should be of type string"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":{}}"), is("SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"\"}"), is("SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"12-01-2014\"}"), is("SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":{}}"), is("Unable to de-serialize json response. SCM revision user should be of type string"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"revisionComment\":{}}"), is("SCM revision comment should be of type string"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":{}}"), is("Unable to de-serialize json response. SCM revision 'modifiedFiles' should be of type list of map"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":{}}"), is("SCM revision user should be of type string"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[\"crap\"]}"), is("Unable to de-serialize json response. SCM revision 'modified file' should be of type map"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":{}}"), is("SCM revision 'modifiedFiles' should be of type list of map"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":{}}]}"), is("Unable to de-serialize json response. modified file 'fileName' should be of type string"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"\"}]}"), is("Unable to de-serialize json response. modified file 'fileName' is a required field"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[\"crap\"]}"), is("SCM revision 'modified file' should be of type map"));
 
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":{}}]}"), is("Unable to de-serialize json response. modified file 'action' should be of type string"));
-        assertThat(errorMessageForSCMRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"crap\"}]}"), is("Unable to de-serialize json response. modified file 'action' can only be added, modified, deleted"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":{}}]}"), is("modified file 'fileName' should be of type string"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"\"}]}"), is("modified file 'fileName' is a required field"));
+
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":{}}]}"), is("modified file 'action' should be of type string"));
+        assertThat(errorMessageForEachRevision("{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"crap\"}]}"), is("modified file 'action' can only be added, modified, deleted"));
+    }
+
+    @Test
+    public void shouldValidateIncorrectJsonForSCMData() {
+        assertThat(errorMessageForSCMData("{\"scm-data\":[]}"), is("Unable to de-serialize json response. SCM data should be of type map"));
     }
 
     private void assertSCMRevision(SCMRevision scmRevision, String revision, String user, String timestamp, String comment, List<ModifiedFile> modifiedFiles) throws ParseException {
@@ -378,6 +417,27 @@ public class JsonMessageHandler1_0Test {
     private String errorMessageForSCMRevision(String message) {
         try {
             messageHandler.toSCMRevision(message);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForEachRevision(String message) {
+        try {
+            Map revisionMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            messageHandler.getScmRevisionFromMap(revisionMap);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return null;
+    }
+
+    private String errorMessageForSCMData(String message) {
+        try {
+            messageHandler.toMaterialDataMap(message);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();

@@ -17,22 +17,26 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
-import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.*;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
+import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.MaterialService;
+import com.thoughtworks.go.server.service.materials.MaterialPoller;
+import com.thoughtworks.go.server.service.materials.PluggableSCMMaterialPoller;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,11 +44,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -55,17 +62,26 @@ import static org.mockito.Mockito.doNothing;
 public class PluggableSCMMaterialUpdaterIntegrationTest {
     @Autowired
     private MaterialRepository materialRepository;
-    private ScmMaterialUpdater scmMaterialUpdater;
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private LegacyMaterialChecker materialChecker;
+    @Autowired
+    private MaterialService materialService;
+
+    private SCMExtension scmExtension;
+    private SubprocessExecutionContext subprocessExecutionContext;
+    private ScmMaterialUpdater scmMaterialUpdater;
     private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
 
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        scmMaterialUpdater = Mockito.mock(ScmMaterialUpdater.class);
+        scmExtension = mock(SCMExtension.class);
+        subprocessExecutionContext = mock(SubprocessExecutionContext.class);
+        scmMaterialUpdater = mock(ScmMaterialUpdater.class);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
     }
 
@@ -96,9 +112,40 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         assertThat(actualInstance.getConfiguration(), is(material.createMaterialInstance().getConfiguration()));
     }
 
+    @Test
+    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdated() throws Exception {
+        final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        final MaterialInstance materialInstance = material.createMaterialInstance();
+        materialRepository.saveOrUpdate(materialInstance);
+
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("k1", "v1");
+        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(new MaterialPollResult(data, new SCMRevision()));
+        mockSCMExtensionInPoller();
+        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
+        pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
+
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications());
+                return null;
+            }
+        });
+
+        MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
+        assertThat(actualInstance.getAdditionalDataMap(), is(data));
+    }
+
     private void addMetadata(PluggableSCMMaterial material, String field, boolean partOfIdentity) {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration(field).with(SCMConfiguration.PART_OF_IDENTITY, partOfIdentity));
         SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), scmConfigurations, null);
+    }
+
+    private void mockSCMExtensionInPoller() {
+        Map<Class, MaterialPoller> materialPollerMap = (Map<Class, MaterialPoller>) ReflectionUtil.getField(materialService, "materialPollerMap");
+        materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate));
+        ReflectionUtil.setField(materialService, "materialPollerMap", materialPollerMap);
     }
 }

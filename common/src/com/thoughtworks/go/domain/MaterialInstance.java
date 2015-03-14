@@ -19,8 +19,12 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -43,6 +47,8 @@ public abstract class MaterialInstance extends PersistentObject {
     protected String projectPath;
     protected String domain;
     protected String configuration;
+    private String additionalData;
+    private Map<String, String> additionalDataMap;
 
     protected MaterialInstance() {
     }
@@ -72,7 +78,8 @@ public abstract class MaterialInstance extends PersistentObject {
         return useTickets == null ? false : useTickets;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE, true);
     }
 
@@ -146,5 +153,25 @@ public abstract class MaterialInstance extends PersistentObject {
 
     public String getConfiguration() {
         return configuration;
+    }
+
+    public String getAdditionalData() {
+        return additionalData;
+    }
+
+    public void setAdditionalData(String additionalData) {
+        this.additionalData = additionalData;
+        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, HashMap.class);
+    }
+
+    public Map<String, String> getAdditionalDataMap() {
+        return additionalDataMap == null ? new HashMap<String, String>() : additionalDataMap;
+    }
+
+    public boolean requiresUpdate(Map<String, String> additionalDataMap) {
+        if (additionalDataMap == null) {
+            additionalDataMap = new HashMap<String, String>();
+        }
+        return !this.getAdditionalDataMap().equals(additionalDataMap);
     }
 }

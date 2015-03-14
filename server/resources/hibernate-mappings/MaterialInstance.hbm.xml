@@ -28,6 +28,7 @@
 
         <property name="flyweightName"/>
         <property name="fingerprint"/>
+        <property name="additionalData" access="property"/>
 
         <subclass name="com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance" discriminator-value="HgMaterial">
             <property name="url"/>

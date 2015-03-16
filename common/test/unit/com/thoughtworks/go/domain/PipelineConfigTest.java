@@ -247,18 +247,6 @@ public class PipelineConfigTest {
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
     }
 
-    private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
-        GitMaterialConfig git = new GitMaterialConfig("git@github.com:gocd/gocd.git");
-        git.setName(new CaseInsensitiveString("git"));
-
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
-        pipelineConfig.setLabelTemplate(labelFormat);
-
-        pipelineConfig.validate(null);
-
-        return pipelineConfig;
-    }
-
     @Test
     public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git}-454";
@@ -356,7 +344,6 @@ public class PipelineConfigTest {
         assertThat(pipelineConfig.getTimer().getTimerSpec(), is(cronSpec));
         assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges(), is(true));
     }
-
 
     @Test
     public void shouldSetLabelTemplateToDefaultValueIfBlankIsEnteredWhileSettingConfigAttributes() {
@@ -840,5 +827,17 @@ public class PipelineConfigTest {
         JobConfigs plans = new JobConfigs();
         plans.add(new JobConfig(BUILDING_PLAN_NAME));
         return new StageConfig(new CaseInsensitiveString("building stage"), plans);
+    }
+
+    private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
+        GitMaterialConfig git = new GitMaterialConfig("git@github.com:gocd/gocd.git");
+        git.setName(new CaseInsensitiveString("git"));
+
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
+        pipelineConfig.setLabelTemplate(labelFormat);
+
+        pipelineConfig.validate(null);
+
+        return pipelineConfig;
     }
 }

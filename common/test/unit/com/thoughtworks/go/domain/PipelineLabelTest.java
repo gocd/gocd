@@ -135,14 +135,6 @@ public class PipelineLabelTest {
         assertThat(label.toString().length(), Is.is(154));
     }
 
-    private String longLabel(int length) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            builder.append("a");
-        }
-        return builder.toString();
-    }
-
     @Test
     public void shouldCreateDefaultLabelIfTemplateIsNull() {
         PipelineLabel label = PipelineLabel.create(null);
@@ -161,56 +153,10 @@ public class PipelineLabelTest {
         assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}")));
     }
 
-    private HashMap<CaseInsensitiveString, String> getNamedRevision(final Integer counter) {
-        return new HashMap<CaseInsensitiveString, String>() {
-            {
-                put(new CaseInsensitiveString("COUNT"), counter.toString());
-            }
-        };
-    }
-
-
     @Test
     public void shouldNotReplaceTemplateWithoutMaterial() throws Exception {
         final String label = PipelineLabel.replaceRevisionsInLabel("1.5.0", new HashMap<CaseInsensitiveString, String>());
         assertThat(label, is("1.5.0"));
-    }
-
-    public static final String SVN_REVISION = "3456";
-    public static final String GIT_REVISION = "c42c0bfa57d00a25496ba899b1f476e6ec8872bd";
-    public static final int GIT_REV_LENGTH = GIT_REVISION.length();
-
-    private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) throws Exception {
-        assertLabelGroupsMatching(labelTemplate, expectedGroups);
-
-        return PipelineLabel.replaceRevisionsInLabel(labelTemplate, MATERIAL_REVISIONS);
-    }
-
-    private void assertLabelGroupsMatching(String labelTemplate, String[][] expectedGroups) {
-        java.util.regex.Matcher matcher = PipelineLabel.PATTERN.matcher(labelTemplate);
-
-        for (String[] groups : expectedGroups) {
-            assertThat(matcher.find(), is(true));
-
-            final String truncationLengthLiteral = matcher.group(3);
-            if (groups.length != 2) {
-                assertNull(truncationLengthLiteral);
-            } else {
-                assertThat(truncationLengthLiteral, is(groups[1]));
-            }
-        }
-
-        final boolean actual = matcher.find();
-        assertThat(actual, is(false));
-    }
-
-    public static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<CaseInsensitiveString, String>();
-
-    @BeforeClass
-    public static void setup() {
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svn"), SVN_REVISION);
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("git"), GIT_REVISION);
     }
 
     @Test
@@ -282,5 +228,58 @@ public class PipelineLabelTest {
         final String[][] expectedGroups = { { "git", "5" }, {"svn", "3"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 5) + "-" + SVN_REVISION.substring(0, 3)));
+    }
+
+    @BeforeClass
+    public static void setup() {
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svn"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(new CaseInsensitiveString("git"), GIT_REVISION);
+    }
+
+    public static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<CaseInsensitiveString, String>();
+
+    public static final String SVN_REVISION = "3456";
+    public static final String GIT_REVISION = "c42c0bfa57d00a25496ba899b1f476e6ec8872bd";
+    public static final int GIT_REV_LENGTH = GIT_REVISION.length();
+
+    private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) throws Exception {
+        assertLabelGroupsMatching(labelTemplate, expectedGroups);
+
+        return PipelineLabel.replaceRevisionsInLabel(labelTemplate, MATERIAL_REVISIONS);
+    }
+
+    private void assertLabelGroupsMatching(String labelTemplate, String[][] expectedGroups) {
+        java.util.regex.Matcher matcher = PipelineLabel.PATTERN.matcher(labelTemplate);
+
+        for (String[] groups : expectedGroups) {
+            assertThat(matcher.find(), is(true));
+
+            final String truncationLengthLiteral = matcher.group(3);
+            if (groups.length != 2) {
+                assertNull(truncationLengthLiteral);
+            } else {
+                assertThat(truncationLengthLiteral, is(groups[1]));
+            }
+        }
+
+        final boolean actual = matcher.find();
+        assertThat(actual, is(false));
+    }
+
+    private HashMap<CaseInsensitiveString, String> getNamedRevision(final Integer counter) {
+        return new HashMap<CaseInsensitiveString, String>() {
+            {
+                put(new CaseInsensitiveString("COUNT"), counter.toString());
+            }
+        };
+    }
+
+    private String longLabel(int length) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            builder.append("a");
+        }
+        return builder.toString();
     }
 }

@@ -212,11 +212,6 @@
 
     <servlet-mapping>
         <servlet-name>spring-rest</servlet-name>
-        <url-pattern>/cctray.xml</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>spring-rest</servlet-name>
         <url-pattern>/rss.xml</url-pattern>
     </servlet-mapping>
 

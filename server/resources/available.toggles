@@ -15,6 +15,11 @@
          "key": "color_logs_feature_toggle_key",
          "description": "Enables colored logs in job detail. Default: off.",
          "value": false
+      },
+      {
+         "key": "new_cctray_feature_toggle_key",
+         "description": "Enables new cctray implementation. See more at: https://github.com/gocd/gocd/pull/877. Default: on.",
+         "value": true
       }
    ]
 }

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -53,6 +50,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -173,27 +173,6 @@ public class PipelineStatusControllerTest {
                 pipelineDao.saveWithStages(pipeline1);
             }
         });
-    }
-
-    @Test
-    public void shouldGenerateCcTrayFeed() throws Exception {
-
-        pipelineFixture.createdPipelineWithAllStagesPassed();
-
-        ModelAndView modelAndView = pipelineStatusController.cctray(new MockHttpServletRequest());
-
-        Document document = (Document) modelAndView.getModel().get("document");
-
-        List projects = XPath.selectNodes(document, "/Projects/Project");
-        assertThat(projects.size(), Matchers.is(4));
-
-        assertHasProject(document, String.format("%s :: %s", pipelineFixture.pipelineName, pipelineFixture.devStage));
-        assertHasProject(document, String.format("%s :: %s", pipelineFixture.pipelineName, pipelineFixture.ftStage));
-        assertHasProject(document, String.format("%s :: %s :: %s", pipelineFixture.pipelineName,
-                pipelineFixture.ftStage, PipelineWithTwoStages.JOB_FOR_FT_STAGE));
-        assertHasProject(document, String.format("%s :: %s :: %s", pipelineFixture.pipelineName,
-                pipelineFixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE));
-
     }
 
     @Test

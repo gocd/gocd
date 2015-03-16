@@ -62,7 +62,7 @@ public class PluginsInitializer implements Initializer {
                 zipUtil.unzip(getPluginsZipStream(), bundledPluginsDirectory);
             }
             pluginManager.startInfrastructure();
-            pluginManager.registerZipUpdater();
+            pluginManager.registerPluginsFolderChangeListener();
         } catch (Exception e) {
             LOG.error("Could not extract bundled plugins to default bundled directory", e);
         }

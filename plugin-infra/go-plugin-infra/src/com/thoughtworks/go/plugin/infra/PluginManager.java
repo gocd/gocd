@@ -40,7 +40,7 @@ public interface PluginManager {
 
     void startInfrastructure();
 
-    void registerZipUpdater();
+    void registerPluginsFolderChangeListener();
 
     void stopInfrastructure();
 

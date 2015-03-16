@@ -65,7 +65,7 @@ public abstract class FakePluginManager implements PluginManager {
     }
 
     @Override
-    public void registerZipUpdater() {
+    public void registerPluginsFolderChangeListener() {
         throw new RuntimeException("Not implemented yet");
     }
 

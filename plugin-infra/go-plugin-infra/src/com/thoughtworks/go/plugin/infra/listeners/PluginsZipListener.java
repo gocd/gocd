@@ -17,33 +17,22 @@
 package com.thoughtworks.go.plugin.infra.listeners;
 
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
-import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
-import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
+import com.thoughtworks.go.plugin.infra.monitor.PluginsFolderChangeListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PluginsZipUpdater implements PluginJarChangeListener {
+public class PluginsZipListener implements PluginsFolderChangeListener {
 
     private PluginsZip pluginsZip;
 
     @Autowired
-    public PluginsZipUpdater(PluginsZip pluginsZip) {
+    public PluginsZipListener(PluginsZip pluginsZip) {
         this.pluginsZip = pluginsZip;
     }
 
     @Override
-    public void pluginJarAdded(PluginFileDetails pluginFileDetails) {
-        pluginsZip.create();
-    }
-
-    @Override
-    public void pluginJarUpdated(PluginFileDetails pluginFileDetails) {
-        pluginsZip.create();
-    }
-
-    @Override
-    public void pluginJarRemoved(PluginFileDetails pluginFileDetails) {
+    public void handle() {
         pluginsZip.create();
     }
 }

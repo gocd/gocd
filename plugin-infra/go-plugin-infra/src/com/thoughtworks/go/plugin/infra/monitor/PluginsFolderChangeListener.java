@@ -14,28 +14,8 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.infra.listeners;
+package com.thoughtworks.go.plugin.infra.monitor;
 
-import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.mockito.Mockito.*;
-
-public class PluginsZipUpdaterTest {
-
-    private PluginsZip pluginsZip;
-    private PluginsZipListener pluginsZipListener;
-
-    @Before
-    public void setUp() throws Exception {
-        pluginsZip = mock(PluginsZip.class);
-        pluginsZipListener = new PluginsZipListener(pluginsZip);
-    }
-
-    @Test
-    public void shouldCreatePluginsWhenPluginsAreAdded() throws Exception {
-        pluginsZipListener.handle();
-        verify(pluginsZip, times(1)).create();
-    }
+public interface PluginsFolderChangeListener {
+    void handle();
 }

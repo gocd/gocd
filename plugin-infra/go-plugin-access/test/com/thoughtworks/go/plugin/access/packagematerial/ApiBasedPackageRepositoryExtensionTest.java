@@ -161,7 +161,7 @@ public class ApiBasedPackageRepositoryExtensionTest {
             }
 
             @Override
-            public void registerZipUpdater() {
+            public void registerPluginsFolderChangeListener() {
             }
 
             @Override

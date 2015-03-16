@@ -79,7 +79,7 @@ public class PluginsInitializerTest {
 
         inOrder.verify(zipUtil).unzip(Matchers.<ZipInputStream>any(), Matchers.<File>any());
         inOrder.verify(pluginManager, times(1)).startInfrastructure();
-        inOrder.verify(pluginManager, times(1)).registerZipUpdater();
+        inOrder.verify(pluginManager, times(1)).registerPluginsFolderChangeListener();
     }
 
     @Test

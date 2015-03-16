@@ -2,68 +2,81 @@
 TFS SDK for Java Redistributables
 =================================
 
-You may redistribute the follow files under the Microsoft Visual Studio 
-Team Foundation Server 2010 Software Development Kit for Java Software 
-License Terms.
+You may redistribute the following files under the 
+Team Foundation Server Software Development Kit for Java 
+Software License Terms.
 
-notice.html
+ThirdPartyNotices.html
 
-lib/com.microsoft.tfs.sdk-10.1.0.jar
+lib/com.microsoft.tfs.sdk-12.0.2.jar
 
-native/aix/ppc/libnative_auth-10.a
-native/aix/ppc/libnative_console-10.a
-native/aix/ppc/libnative_filesystem-10.a
-native/aix/ppc/libnative_misc-10.a
+native/macosx/libnative_misc.jnilib
+native/macosx/libnative_keychain.jnilib
+native/macosx/libnative_synchronization.jnilib
+native/macosx/libnative_auth.jnilib
+native/macosx/libnative_console.jnilib
+native/macosx/libnative_filesystem.jnilib
 
-native/hpux/ia64_32/libnative_auth-10.so
-native/hpux/ia64_32/libnative_console-10.so
-native/hpux/ia64_32/libnative_filesystem-10.so
-native/hpux/ia64_32/libnative_misc-10.so
-native/hpux/PA_RISC/libnative_auth-10.sl
-native/hpux/PA_RISC/libnative_console-10.sl
-native/hpux/PA_RISC/libnative_filesystem-10.sl
-native/hpux/PA_RISC/libnative_misc-10.sl
+native/aix/ppc/libnative_misc.a
+native/aix/ppc/libnative_filesystem.a
+native/aix/ppc/libnative_console.a
+native/aix/ppc/libnative_auth.a
+native/aix/ppc/libnative_synchronization.a
 
-native/linux/ppc/libnative_auth-10.so
-native/linux/ppc/libnative_console-10.so
-native/linux/ppc/libnative_filesystem-10.so
-native/linux/ppc/libnative_misc-10.so
-native/linux/x86/libnative_auth-10.so
-native/linux/x86/libnative_console-10.so
-native/linux/x86/libnative_filesystem-10.so
-native/linux/x86/libnative_misc-10.so
-native/linux/x86_64/libnative_auth-10.so
-native/linux/x86_64/libnative_console-10.so
-native/linux/x86_64/libnative_filesystem-10.so
-native/linux/x86_64/libnative_misc-10.so
+native/win32/x86_64/native_filesystem.dll
+native/win32/x86_64/native_synchronization.dll
+native/win32/x86_64/native_messagewindow.dll
+native/win32/x86_64/native_auth.dll
+native/win32/x86_64/native_console.dll
+native/win32/x86_64/native_misc.dll
+native/win32/x86_64/native_registry.dll
+native/win32/x86/native_filesystem.dll
+native/win32/x86/native_synchronization.dll
+native/win32/x86/native_messagewindow.dll
+native/win32/x86/native_auth.dll
+native/win32/x86/native_console.dll
+native/win32/x86/native_misc.dll
+native/win32/x86/native_registry.dll
 
-native/macosx/libnative_auth-10.jnilib
-native/macosx/libnative_console-10.jnilib
-native/macosx/libnative_filesystem-10.jnilib
-native/macosx/libnative_misc-10.jnilib
-native/macosx/libnative_securestorage_keychain-10.jnilib
+native/linux/x86_64/libnative_auth.so
+native/linux/x86_64/libnative_filesystem.so
+native/linux/x86_64/libnative_synchronization.so
+native/linux/x86_64/libnative_misc.so
+native/linux/x86_64/libnative_console.so
+native/linux/x86/libnative_auth.so
+native/linux/x86/libnative_filesystem.so
+native/linux/x86/libnative_synchronization.so
+native/linux/x86/libnative_misc.so
+native/linux/x86/libnative_console.so
+native/linux/ppc/libnative_auth.so
+native/linux/ppc/libnative_filesystem.so
+native/linux/ppc/libnative_synchronization.so
+native/linux/ppc/libnative_misc.so
+native/linux/ppc/libnative_console.so
 
-native/solaris/sparc/libnative_auth-10.so
-native/solaris/sparc/libnative_console-10.so
-native/solaris/sparc/libnative_filesystem-10.so
-native/solaris/sparc/libnative_misc-10.so
-native/solaris/x86/libnative_auth-10.so
-native/solaris/x86/libnative_console-10.so
-native/solaris/x86/libnative_filesystem-10.so
-native/solaris/x86/libnative_misc-10.so
-native/solaris/x86_64/libnative_auth-10.so
-native/solaris/x86_64/libnative_console-10.so
-native/solaris/x86_64/libnative_filesystem-10.so
-native/solaris/x86_64/libnative_misc-10.so
+native/hpux/ia64_32/libnative_auth.so
+native/hpux/ia64_32/libnative_filesystem.so
+native/hpux/ia64_32/libnative_synchronization.so
+native/hpux/ia64_32/libnative_misc.so
+native/hpux/ia64_32/libnative_console.so
+native/hpux/PA_RISC/libnative_console.sl
+native/hpux/PA_RISC/libnative_synchronization.sl
+native/hpux/PA_RISC/libnative_misc.sl
+native/hpux/PA_RISC/libnative_auth.sl
+native/hpux/PA_RISC/libnative_filesystem.sl
 
-native/win32/x86/native_auth-10.dll
-native/win32/x86/native_console-10.dll
-native/win32/x86/native_filesystem-10.dll
-native/win32/x86/native_misc-10.dll
-native/win32/x86/native_securestorage_dpapi-10.dll
-native/win32/x86_64/native_auth-10.dll
-native/win32/x86_64/native_console-10.dll
-native/win32/x86_64/native_filesystem-10.dll
-native/win32/x86_64/native_misc-10.dll
-native/win32/x86_64/native_securestorage_dpapi-10.dll
-
+native/solaris/x86_64/libnative_auth.so
+native/solaris/x86_64/libnative_filesystem.so
+native/solaris/x86_64/libnative_synchronization.so
+native/solaris/x86_64/libnative_misc.so
+native/solaris/x86_64/libnative_console.so
+native/solaris/x86/libnative_auth.so
+native/solaris/x86/libnative_filesystem.so
+native/solaris/x86/libnative_synchronization.so
+native/solaris/x86/libnative_misc.so
+native/solaris/x86/libnative_console.so
+native/solaris/sparc/libnative_auth.so
+native/solaris/sparc/libnative_filesystem.so
+native/solaris/sparc/libnative_synchronization.so
+native/solaris/sparc/libnative_misc.so
+native/solaris/sparc/libnative_console.so

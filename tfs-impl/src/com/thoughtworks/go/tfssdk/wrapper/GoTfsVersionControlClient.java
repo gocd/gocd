@@ -50,7 +50,7 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace createWorkspace(String workspace) {
-        return new GoTfsWorkspace(client.createWorkspace(null, workspace, ""));
+        return new GoTfsWorkspace(client.createWorkspace(null, workspace, null, null, null, null));
     }
 
     public Changeset[] queryHistory(String projectPath, ChangesetVersionSpec uptoRevision, int revsToLoad) {

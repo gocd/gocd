@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang.StringUtils;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -81,6 +81,21 @@ public class UrlUtil {
             return URLDecoder.decode(query, UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static String getQueryParamFromUrl(String url, String paramName) {
+        try {
+            String query = new URI(url, false).getQuery();
+            List<QueryTuple> parse = QueryTuple.parse(query);
+            for (QueryTuple queryTuple : parse) {
+                if (queryTuple.key.equals(paramName)) {
+                    return queryTuple.val;
+                }
+            }
+            return StringUtils.EMPTY;
+        } catch (URIException e) {
+            return StringUtils.EMPTY;
         }
     }
 

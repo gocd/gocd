@@ -296,6 +296,8 @@
                 /metrics=ROLE_SUPERVISOR
                 /metrics/*=ROLE_SUPERVISOR
                 /config_view/templates/*=ROLE_GROUP_SUPERVISOR, ROLE_SUPERVISOR
+                /add-on/*/admin/*=ROLE_SUPERVISOR
+                /add-on/*/api/*=ROLE_OAUTH_USER
                 /**=ROLE_USER
             ]]></value>
         </property>

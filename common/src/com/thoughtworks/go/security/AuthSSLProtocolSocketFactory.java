@@ -45,6 +45,18 @@
 
 package com.thoughtworks.go.security;
 
+import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSessionContext;
+import javax.net.ssl.TrustManager;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -55,18 +67,6 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
-import javax.net.SocketFactory;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSessionContext;
-import javax.net.ssl.TrustManager;
-
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Example of using custom protocol socket factory for a specific host:
@@ -124,10 +124,10 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
         this.keyManagerFactory = keyManagerFactory;
     }
 
-    public AuthSSLProtocolSocketFactory(File agentTrustFile, File agentCertificateFile, String agentStorePassword) {
+    public AuthSSLProtocolSocketFactory(File trustFile, File certificateFile, String storePassword) {
         super();
-        this.trustManagerFactory = new AuthSSLX509TrustManagerFactory(agentTrustFile, agentStorePassword);
-        this.keyManagerFactory = new AuthSSLKeyManagerFactory(agentCertificateFile, agentStorePassword);
+        this.trustManagerFactory = new AuthSSLX509TrustManagerFactory(trustFile, storePassword);
+        this.keyManagerFactory = new AuthSSLKeyManagerFactory(certificateFile, storePassword);
     }
 
     public void registerAsHttpsProtocol() {

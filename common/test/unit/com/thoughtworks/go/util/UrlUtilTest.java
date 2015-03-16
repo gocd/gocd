@@ -53,4 +53,23 @@ public class UrlUtilTest {
         assertThat(UrlUtil.urlWithQuery("http://baz.quux:1000/hello/world?bang=boom#in_hell", "foo", "bar"), is("http://baz.quux:1000/hello/world?bang=boom&foo=bar"));//fragment should not be sent to the server(commons-http constraint)
         assertThat(UrlUtil.urlWithQuery("http://user:loser@baz.quux:1000/hello/world#in_hell", "foo", "bar"), is("http://user:loser@baz.quux:1000/hello/world?foo=bar"));
     }
+
+    @Test
+    public void shouldGetGivenQueryParamFromUrl() throws Exception {
+        String url = "http://localhost:8153?code=123&new_code=xyz";
+        assertThat(UrlUtil.getQueryParamFromUrl(url, "code"),is("123"));
+        assertThat(UrlUtil.getQueryParamFromUrl(url, "new_code"),is("xyz"));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringIfQueryParamIsNotAvailable() throws Exception {
+        String url = "http://localhost:8153?code=123&new_code=xyz";
+        assertThat(UrlUtil.getQueryParamFromUrl(url, "not_available"),is(""));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringIfUrlIsInvalid() throws Exception {
+        String url = "this is not valid url";
+        assertThat(UrlUtil.getQueryParamFromUrl(url, "param"),is(""));
+    }
 }

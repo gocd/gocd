@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -274,6 +275,8 @@ public class MaterialServiceTest {
     @Test
     public void shouldGetLatestModification_PluggableSCMMaterial() {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, new SCMRevision("blah-123", new Date(), "user", "comment", null, null));
         when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(materialPollResult);
 
@@ -285,6 +288,8 @@ public class MaterialServiceTest {
     @Test
     public void shouldGetModificationSince_PluggableSCMMaterial() {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
         when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class),
                 any(SCMRevision.class))).thenReturn(materialPollResult);

@@ -17,13 +17,11 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.ArrayUtil;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.MovedContextHandler;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -135,24 +133,6 @@ public class Jetty9ServerTest {
 
         Jetty9Server.GoServerWelcomeFileHandler welcomeFileHandler = (Jetty9Server.GoServerWelcomeFileHandler) handler;
         assertThat(welcomeFileHandler.getContextPath(), is("/"));
-    }
-
-    @Test
-    public void shouldAddLegacyUrlRequestHandler() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
-        jetty9Server.configure();
-
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(4));
-
-        Handler handler = handlerCollection.getHandlers()[1];
-        assertThat(handler instanceof Jetty9Server.LegacyUrlRequestHandler, is(true));
-        Jetty9Server.LegacyUrlRequestHandler legacyUrlRequestHandler = (Jetty9Server.LegacyUrlRequestHandler) handler;
-        assertThat(legacyUrlRequestHandler.getHandler() instanceof MovedContextHandler, is(true));
-        MovedContextHandler movedContextHandler = (MovedContextHandler) legacyUrlRequestHandler.getHandler();
-        assertThat(movedContextHandler.getContextPath(), is(GoConstants.OLD_URL_CONTEXT));
-        assertThat(movedContextHandler.getNewContextURL(), is(GoConstants.GO_URL_CONTEXT));
     }
 
     @Test

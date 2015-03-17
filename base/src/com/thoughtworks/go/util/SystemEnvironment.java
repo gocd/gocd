@@ -134,6 +134,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<Integer>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
     public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<String>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
     public static GoSystemProperty<Boolean> CAPTURE_METRICS = new GoBooleanSystemProperty("capture.metrics", true);
+    public static GoSystemProperty<Integer> IDLE_TIMEOUT = new GoIntSystemProperty("idle.timeout", 30000);
+    public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
 
     public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<Integer>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 
@@ -149,7 +151,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
 
     public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
+    public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
+    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
+    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -283,7 +288,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public File getJettyConfigFile() {
-        return new File(getConfigDir(), JETTY_XML);
+        return new File(getConfigDir(), get(JETTY_XML_FILE_NAME));
     }
 
     /**
@@ -629,6 +634,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getDatabaseProvider() {
         return GO_DATABASE_PROVIDER.getValue();
+    }
+
+    public boolean usingJetty9() {
+        return get(APP_SERVER).equals(JETTY9);
     }
 
 

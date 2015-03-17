@@ -33,12 +33,17 @@ public class GoPlainSocketConnectorTest {
     public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
+        when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
+        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
+        when(systemEnvironment.getListenHost()).thenReturn("foo");
         Jetty9Server server = new Jetty9Server(mock(SystemEnvironment.class), null, mock(SSLSocketFactory.class));
+
         ServerConnector connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 
         assertThat(connector.getPort(), is(1234));
-        assertThat(connector.getIdleTimeout(), is(30000l));
+        assertThat(connector.getHost(), is("foo"));
+        assertThat(connector.getIdleTimeout(), is(200l));
         HttpConnectionFactory connectionFactory = (HttpConnectionFactory) connector.getDefaultConnectionFactory();
-        assertThat(connectionFactory.getHttpConfiguration().getOutputBufferSize(), is(32768));
+        assertThat(connectionFactory.getHttpConfiguration().getOutputBufferSize(), is(100));
     }
 }

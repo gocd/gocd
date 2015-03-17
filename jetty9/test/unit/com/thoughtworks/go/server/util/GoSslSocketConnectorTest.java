@@ -54,6 +54,9 @@ public class GoSslSocketConnectorTest {
         when(systemEnvironment.getSslServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(keystore);
         when(systemEnvironment.truststore()).thenReturn(truststore);
+        when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
+        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
+        when(systemEnvironment.getListenHost()).thenReturn("foo");
 
         Jetty9Server jettyServer = mock(Jetty9Server.class);
         when(jettyServer.getServer()).thenReturn(new Server());
@@ -65,7 +68,8 @@ public class GoSslSocketConnectorTest {
         assertThat(sslSocketConnector.getConnector() instanceof ServerConnector, is(true));
         ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
         assertThat(connector.getPort(), is(1234));
-        assertThat(connector.getIdleTimeout(), is(GoSslSocketConnector.MAX_IDLE_TIME));
+        assertThat(connector.getHost(), is("foo"));
+        assertThat(connector.getIdleTimeout(), is(200l));
     }
 
     @Test
@@ -101,7 +105,7 @@ public class GoSslSocketConnectorTest {
                 return factory instanceof HttpConnectionFactory;
             }
         });
-        assertThat(httpConnectionFactory.getHttpConfiguration().getOutputBufferSize(), is(GoSslSocketConnector.RESPONSE_BUFFER_SIZE));
+        assertThat(httpConnectionFactory.getHttpConfiguration().getOutputBufferSize(), is(100));
         assertThat(httpConnectionFactory.getHttpConfiguration().getCustomizers().size(), is(1));
         assertThat(httpConnectionFactory.getHttpConfiguration().getCustomizers().get(0) instanceof SecureRequestCustomizer, is(true));
     }

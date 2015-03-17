@@ -134,6 +134,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<Integer>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
     public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<String>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
     public static GoSystemProperty<Boolean> CAPTURE_METRICS = new GoBooleanSystemProperty("capture.metrics", true);
+    public static GoSystemProperty<Integer> IDLE_TIMEOUT = new GoIntSystemProperty("idle.timeout", 30000);
+    public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
 
     public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<Integer>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 

@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +107,7 @@ public class CcTrayJobStatusChangeHandlerTest {
 
     @Test
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Set<String> viewers = s("viewer1", "viewer2");
+        Viewers viewers = new AllowedViewers(s("viewer1", "viewer2"));
 
         ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         oldStatusInCache.updateViewers(viewers);

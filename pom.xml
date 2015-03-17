@@ -55,6 +55,7 @@
 
         <spring.version>3.1.3.RELEASE</spring.version>
         <spring-security.version>2.0.3</spring-security.version>
+        <jetty.version>6.1.23</jetty.version>
         <commons.io.version>2.4</commons.io.version>
 
         <jmock.version>2.4.0</jmock.version>
@@ -97,12 +98,9 @@
         <module>rack_hack</module>
         <module>server</module>
         <module>server-launcher</module>
-        <module>app-server</module>
-        <module>jetty9</module>
-        <module>jetty6</module>
+
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
-        <module>development-utility/development-server-with-jetty6</module>
     </modules>
     <profiles>
             <profile>

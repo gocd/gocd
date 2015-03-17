@@ -20,14 +20,10 @@
          version="2.4">
 
     <context-param>
-        <param-name>org.eclipse.jetty.servlet.MaxAge</param-name>
+        <param-name>org.mortbay.jetty.servlet.MaxAge</param-name>
         <param-value>36000</param-value>
     </context-param>
 
-    <filter>
-        <filter-name>gizFilter</filter-name>
-        <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
-    </filter>
 
     <filter-mapping>
         <filter-name>gizFilter</filter-name>
@@ -104,9 +100,14 @@
         <url-pattern>*.log</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>gizFilter</filter-name>
+        <filter-class>org.mortbay.servlet.GzipFilter</filter-class>
+    </filter>
+
     <servlet>
         <servlet-name>default</servlet-name>
-        <servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>
+        <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
         <init-param>
             <param-name>cacheControl</param-name>
             <param-value>max-age=36000,public</param-value>

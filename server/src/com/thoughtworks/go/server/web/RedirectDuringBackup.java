@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.server.util.ServletRequest;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.mortbay.jetty.Request;
+import org.mortbay.util.UrlEncoded;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * @understands redirecting all requests to a service unavailable page when the server is being backed up.
@@ -31,29 +31,25 @@ public class RedirectDuringBackup {
     private static final String REFERER = "Referer";
 
     public void setServerBackupFlag(HttpServletRequest req) {
-        ServletHelper servletHelper = ServletHelper.getInstance();
         BackupStatusProvider backupStatusProvider = getBackupStatusProvider(req);
         boolean backingUp = backupStatusProvider.isBackingUp();
         req.setAttribute(BACKUP_IN_PROGRESS, String.valueOf(backingUp));
-
         if (backingUp) {
-            req.setAttribute("redirected_from", servletHelper.encodeString(getRedirectUri(req, servletHelper)));
-            req.setAttribute("backup_started_at", servletHelper.encodeString(backupStatusProvider.backupRunningSinceISO8601()));
-            req.setAttribute("backup_started_by", servletHelper.encodeString(backupStatusProvider.backupStartedBy()));
+            req.setAttribute("redirected_from", UrlEncoded.encodeString(getRedirectUri((Request) req)));
+            req.setAttribute("backup_started_at", UrlEncoded.encodeString(backupStatusProvider.backupRunningSinceISO8601()));
+            req.setAttribute("backup_started_by", UrlEncoded.encodeString(backupStatusProvider.backupStartedBy()));
         }
     }
 
-    private String getRedirectUri(HttpServletRequest req, ServletHelper servletHelper) {
-        ServletRequest request = servletHelper.getRequest(req);
-
-        if (isMessagesJson(request) || isMethod(req, "post") || isMethod(req, "put") || isMethod(req, "delete")) {
+    private String getRedirectUri(Request req) {
+        if (isMessagesJson(req) || isMethod(req, "post") || isMethod(req, "put") || isMethod(req, "delete")) {
             return getReferer(req);
         }
-        return request.getUriAsString();
+        return req.getUri().toString();
     }
 
-    private boolean isMessagesJson(ServletRequest req) {
-        return req.getUriPath().equals("/go/server/messages.json");
+    private boolean isMessagesJson(Request req) {
+        return req.getUri().getPath().equals("/go/server/messages.json");
     }
 
     private String getReferer(HttpServletRequest req) {
@@ -61,7 +57,7 @@ public class RedirectDuringBackup {
         return referer == null? "" : referer;
     }
 
-    private boolean isMethod(HttpServletRequest req, String method) {
+    private boolean isMethod(Request req, String method) {
         return req.getMethod().equalsIgnoreCase(method);
     }
 

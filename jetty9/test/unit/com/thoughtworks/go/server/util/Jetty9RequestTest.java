@@ -53,4 +53,10 @@ public class Jetty9RequestTest {
     public void shouldGetUriAsString() {
         assertThat(jetty9Request.getUriAsString(), is("foo/bar/baz"));
     }
+
+    @Test
+    public void shouldSetRequestUri() {
+        jetty9Request.setRequestURI("foo");
+        verify(request).setRequestURI("foo");
+    }
 }

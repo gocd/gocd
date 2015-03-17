@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.rackhack;
 
+import com.thoughtworks.go.server.util.ServletHelper;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -28,6 +30,7 @@ import java.lang.reflect.Method;
 
 public class DelegatingServlet extends HttpServlet {
     private HttpServlet rackServlet;
+    private ServletHelper servletHelper;
 
     public DelegatingServlet() {
     }
@@ -36,45 +39,13 @@ public class DelegatingServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         rackServlet = (HttpServlet) config.getServletContext().getAttribute(DelegatingListener.DELEGATE_SERVLET);
         rackServlet.init(config);
-    }
-
-    private static Method method(String name, Class klass) throws NoSuchFieldException {
-        if (klass == null) {
-            return null;
-        }
-        Method[] fields = klass.getDeclaredMethods();
-        for (Method field : fields) {
-            if (field.getName().equals(name)) {
-                field.setAccessible(true);
-                return field;
-            }
-        }
-        return method(name, klass.getSuperclass());
-    }
-
-    public static Object invoke(Object o, String method, Object... args) throws Exception {
-        Class[] argTypes = new Class[args.length];
-
-
-        for(int i = 0; i < args.length; i++) {
-            argTypes[i] = args.getClass();
-        }
-        Method mthd = method(method, o.getClass());
-        mthd.setAccessible(true);
-        return mthd.invoke(o, args);
+        servletHelper = ServletHelper.getInstance();
     }
 
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        ((org.eclipse.jetty.server.Request) request).setRequestURI(request.getRequestURI().replaceAll("^/go/rails/", "/go/"));
         String url = request.getRequestURI().replaceAll("^/go/rails/", "/go/");
-
-        try {
-            invoke(request, "setRequestURI", url);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        servletHelper.getRequest(request).setRequestURI(url);
         rackServlet.service(request, response);
     }
 

@@ -147,7 +147,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public MaterialPollResult responseMessageForLatestRevision(String responseBody) {
-        return new MaterialPollResult(toMaterialDataMap(responseBody), toSCMRevision(responseBody));
+        Map responseBodyMap = getResponseMap(responseBody);
+        return new MaterialPollResult(toMaterialDataMap(responseBodyMap), toSCMRevision(responseBodyMap));
     }
 
     @Override
@@ -163,7 +164,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public MaterialPollResult responseMessageForLatestRevisionsSince(String responseBody) {
         if (isEmpty(responseBody)) return new MaterialPollResult();
-        return new MaterialPollResult(toMaterialDataMap(responseBody), toSCMRevisions(responseBody));
+        Map responseBodyMap = getResponseMap(responseBody);
+        return new MaterialPollResult(toMaterialDataMap(responseBodyMap), toSCMRevisions(responseBodyMap));
     }
 
     @Override
@@ -309,60 +311,18 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    List<SCMRevision> toSCMRevisions(String responseBody) {
+    private Map getResponseMap(String responseBody) {
+        Map map = null;
         try {
-            List<SCMRevision> scmRevisions = new ArrayList<SCMRevision>();
-
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("SCM revisions should be returned as a map");
-            }
-
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-            if (map.containsKey("revisions") && map.get("revisions") != null) {
-                List revisionMaps = null;
-                try {
-                    revisionMaps = (List) map.get("revisions");
-                } catch (Exception e) {
-                    throw new RuntimeException("'revisions' should be of type list of map");
-                }
-
-                if (!revisionMaps.isEmpty()) {
-                    for (Object revision : revisionMaps) {
-                        if (!(revision instanceof Map)) {
-                            throw new RuntimeException("SCM revision should be of type map");
-                        }
-                    }
-
-                    for (Object revisionObj : revisionMaps) {
-                        Map revisionMap = (Map) revisionObj;
-
-                        SCMRevision scmRevision = getScmRevisionFromMap(revisionMap);
-
-                        scmRevisions.add(scmRevision);
-                    }
-                }
-            }
-
-            return scmRevisions;
+            map = parseResponseToMap(responseBody);
         } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
+            throw new RuntimeException("Response should be returned as a map");
         }
+        return map;
     }
 
-    Map<String, String> toMaterialDataMap(String responseBody) {
+    Map<String, String> toMaterialDataMap(Map map) {
         try {
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("SCM revision should be returned as a map");
-            }
             if (map == null || map.isEmpty()) {
                 return null;
             }
@@ -379,19 +339,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    SCMRevision toSCMRevision(String responseBody) {
+    SCMRevision toSCMRevision(Map map) {
         try {
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("SCM revision should be returned as a map");
-            }
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-            if (!map.containsKey("revision") || map.get("revision") == null) {
+            if (map == null || map.get("revision") == null) {
                 throw new RuntimeException("SCM revision cannot be empty");
             }
 
@@ -403,6 +353,43 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             }
 
             return getScmRevisionFromMap(revisionMap);
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
+        }
+    }
+
+    List<SCMRevision> toSCMRevisions(Map map) {
+        try {
+            List<SCMRevision> scmRevisions = new ArrayList<SCMRevision>();
+
+            if (map == null || map.get("revisions") == null) {
+                return scmRevisions;
+            }
+
+            List revisionMaps = null;
+            try {
+                revisionMaps = (List) map.get("revisions");
+            } catch (Exception e) {
+                throw new RuntimeException("'revisions' should be of type list of map");
+            }
+
+            if (revisionMaps != null && !revisionMaps.isEmpty()) {
+                for (Object revision : revisionMaps) {
+                    if (!(revision instanceof Map)) {
+                        throw new RuntimeException("SCM revision should be of type map");
+                    }
+                }
+
+                for (Object revisionObj : revisionMaps) {
+                    Map revisionMap = (Map) revisionObj;
+
+                    SCMRevision scmRevision = getScmRevisionFromMap(revisionMap);
+
+                    scmRevisions.add(scmRevision);
+                }
+            }
+
+            return scmRevisions;
         } catch (Exception e) {
             throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
         }

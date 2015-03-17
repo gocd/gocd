@@ -146,14 +146,17 @@ public class JsonMessageHandler1_0Test {
 
         assertThat(pollResult.getMaterialData(), is(nullValue()));
         assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+    }
 
-        String responseBodyWithSCMData = "{\"revision\":" + revisionJSON + ",\"scm-data\":{\"key-one\":\"value-one\"}}";
-        pollResult = messageHandler.responseMessageForLatestRevision(responseBodyWithSCMData);
+    @Test
+    public void shouldBuildSCMDataFromLatestRevisionResponse() throws Exception {
+        String responseBodyWithSCMData = "{\"revision\":{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\"},\"scm-data\":{\"key-one\":\"value-one\"}}";
+        MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevision(responseBodyWithSCMData);
 
         Map<String, String> scmData = new HashMap<String, String>();
         scmData.put("key-one", "value-one");
         assertThat(pollResult.getMaterialData(), is(scmData));
-        assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        assertThat(pollResult.getRevisions().get(0).getRevision(), is("r1"));
     }
 
     @Test
@@ -184,9 +187,12 @@ public class JsonMessageHandler1_0Test {
         assertThat(scmRevisions.size(), is(2));
         assertSCMRevision(scmRevisions.get(0), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         assertSCMRevision(scmRevisions.get(1), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added)));
+    }
 
+    @Test
+    public void shouldBuildSCMDataFromLatestRevisionsSinceResponse() throws Exception {
         String responseBodyWithSCMData = "{\"revisions\":[],\"scm-data\":{\"key-one\":\"value-one\"}}";
-        pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBodyWithSCMData);
+        MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevisionsSince(responseBodyWithSCMData);
 
         Map<String, String> scmData = new HashMap<String, String>();
         scmData.put("key-one", "value-one");
@@ -285,16 +291,13 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldValidateIncorrectJsonForSCMRevisions() {
-        assertThat(errorMessageForSCMRevisions(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForSCMRevisions("[]"), is("Unable to de-serialize json response. SCM revisions should be returned as a map"));
         assertThat(errorMessageForSCMRevisions("{\"revisions\":{}}"), is("Unable to de-serialize json response. 'revisions' should be of type list of map"));
         assertThat(errorMessageForSCMRevisions("{\"revisions\":[\"crap\"]}"), is("Unable to de-serialize json response. SCM revision should be of type map"));
     }
 
     @Test
     public void shouldValidateIncorrectJsonForSCMRevision() {
-        assertThat(errorMessageForSCMRevision(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForSCMRevision("[]"), is("Unable to de-serialize json response. SCM revision should be returned as a map"));
+        assertThat(errorMessageForSCMRevision(""), is("Unable to de-serialize json response. SCM revision cannot be empty"));
         assertThat(errorMessageForSCMRevision("{\"revision\":[]}"), is("Unable to de-serialize json response. SCM revision should be of type map"));
         assertThat(errorMessageForSCMRevision("{\"crap\":{}}"), is("Unable to de-serialize json response. SCM revision cannot be empty"));
     }
@@ -406,7 +409,8 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMRevisions(String message) {
         try {
-            messageHandler.toSCMRevisions(message);
+            Map revisionsMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            messageHandler.toSCMRevisions(revisionsMap);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();
@@ -416,7 +420,8 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMRevision(String message) {
         try {
-            messageHandler.toSCMRevision(message);
+            Map revisionMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            messageHandler.toSCMRevision(revisionMap);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();
@@ -437,7 +442,8 @@ public class JsonMessageHandler1_0Test {
 
     private String errorMessageForSCMData(String message) {
         try {
-            messageHandler.toMaterialDataMap(message);
+            Map dataMap = (Map) new GsonBuilder().create().fromJson(message, Object.class);
+            messageHandler.toMaterialDataMap(dataMap);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();

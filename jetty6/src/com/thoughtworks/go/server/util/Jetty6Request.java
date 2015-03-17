@@ -39,4 +39,9 @@ public class Jetty6Request implements ServletRequest {
     public String getUriAsString() {
         return request.getUri().toString();
     }
+
+    @Override
+    public void setRequestURI(String uri) {
+        request.setRequestURI(uri);
+    }
 }

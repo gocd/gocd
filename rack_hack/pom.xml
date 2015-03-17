@@ -43,6 +43,11 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>app-server</artifactId>
+            <version>1.0</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

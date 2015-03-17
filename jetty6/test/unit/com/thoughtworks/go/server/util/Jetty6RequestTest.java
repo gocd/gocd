@@ -24,6 +24,7 @@ import org.mortbay.jetty.Request;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class Jetty6RequestTest {
@@ -53,4 +54,9 @@ public class Jetty6RequestTest {
         assertThat(jettyRequest.getUriAsString(), is("foo/bar/baz"));
     }
 
+    @Test
+    public void shouldSetRequestUri() {
+        jettyRequest.setRequestURI("foo");
+        verify(request).setRequestURI("foo");
+    }
 }

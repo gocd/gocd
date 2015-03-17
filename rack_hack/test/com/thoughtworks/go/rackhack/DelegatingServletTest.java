@@ -16,40 +16,24 @@
 
 package com.thoughtworks.go.rackhack;
 
-import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
 import org.junit.Test;
+import org.mortbay.jetty.Request;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DelegatingServletTest {
-    private com.thoughtworks.go.server.util.ServletRequest servletRequestWrapper;
-    private HttpServletRequest httpServletRequest;
-
-    @Before
-    public void setUp() throws Exception {
-        ServletHelper servletHelper = mock(ServletHelper.class);
-        ReflectionUtil.setStaticField(ServletHelper.class, "instance", servletHelper);
-        servletRequestWrapper = mock(com.thoughtworks.go.server.util.ServletRequest.class);
-        httpServletRequest = mock(HttpServletRequest.class);
-        when(httpServletRequest.getRequestURI()).thenReturn("/go/rails/stuff/action");
-        when(servletHelper.getRequest(httpServletRequest)).thenReturn(servletRequestWrapper);
-    }
+    public String uri = "/go/rails/stuff/action";
+    public String attrName;
+    public String attrValue;
 
     @Test
     public void shouldDelegateToTheGivenServlet() throws IOException, ServletException {
@@ -61,8 +45,25 @@ public class DelegatingServletTest {
         assertThat((DummyServlet) ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET), isA(DummyServlet.class));
         DelegatingServlet servlet = new DelegatingServlet();
         servlet.init(new MockServletConfig(ctx));
+        Request request = new Request() {
+            @Override
+            public String getRequestURI() {
+                return uri;
+            }
 
-        servlet.service(httpServletRequest, new MockHttpServletResponse());
-        verify(servletRequestWrapper).setRequestURI("/go/stuff/action");
+            @Override
+            public void setRequestURI(String newUri) {
+                uri = newUri;
+            }
+
+            @Override
+            public void setAttribute(String name, Object value) {
+                attrName = name;
+                attrValue = value.toString();
+            }
+        };
+        servlet.service(request, new MockHttpServletResponse());
+        assertThat(attrName, is(DummyServlet.URI_ATTRIBUTE));
+        assertThat(attrValue, is("/go/stuff/action"));
     }
 }

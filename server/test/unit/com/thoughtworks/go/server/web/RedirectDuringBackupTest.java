@@ -16,24 +16,18 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.server.util.ServletRequest;
-import com.thoughtworks.go.server.util.ServletResponse;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpInput;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.util.UrlEncoded;
+import java.io.UnsupportedEncodingException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
+import org.mortbay.jetty.HttpURI;
+import org.mortbay.jetty.Request;
+import org.mortbay.util.UrlEncoded;
 
 import static java.net.URLEncoder.encode;
 import static org.hamcrest.core.Is.is;
@@ -52,7 +46,6 @@ public class RedirectDuringBackupTest {
 
     @Before
     public void setUp() {
-        ServletHelper.init(true);
         provider = mock(BackupStatusProvider.class);
         this.redirectDuringBackup = new RedirectDuringBackup() {
             @Override protected BackupStatusProvider getBackupStatusProvider(HttpServletRequest req) {
@@ -64,7 +57,7 @@ public class RedirectDuringBackupTest {
     @Test
     public void shouldNotRedirectWhenBackupIsNotBeingTaken() {
         when(provider.isBackingUp()).thenReturn(false);
-        Request request = request(HttpMethod.GET, "", "/go/agents");
+        Request request = request("get", "", "/go/agents");
 
         redirectDuringBackup.setServerBackupFlag(request);
 
@@ -72,15 +65,15 @@ public class RedirectDuringBackupTest {
         assertThat(request.getAttribute("redirected_from"), is(nullValue()));
     }
 
-    @DataPoint public static ResponseAssertion GET = new ResponseAssertion(HttpMethod.GET, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
-    @DataPoint public static ResponseAssertion POST = new ResponseAssertion(HttpMethod.POST, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
-    @DataPoint public static ResponseAssertion PUT = new ResponseAssertion(HttpMethod.PUT, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
-    @DataPoint public static ResponseAssertion DELETE = new ResponseAssertion(HttpMethod.DELETE, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
-    @DataPoint public static ResponseAssertion HEAD = new ResponseAssertion(HttpMethod.HEAD, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
-    @DataPoint public static ResponseAssertion OPTIONS = new ResponseAssertion(HttpMethod.OPTIONS, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
-    @DataPoint public static ResponseAssertion CONNECT = new ResponseAssertion(HttpMethod.CONNECT, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
-    @DataPoint public static ResponseAssertion TRACE = new ResponseAssertion(HttpMethod.TRACE, "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
-    @DataPoint public static ResponseAssertion NO_REFERER = new ResponseAssertion(HttpMethod.GET, null, "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion GET = new ResponseAssertion("get", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion POST = new ResponseAssertion("post", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
+    @DataPoint public static ResponseAssertion PUT = new ResponseAssertion("put", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
+    @DataPoint public static ResponseAssertion DELETE = new ResponseAssertion("delete", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents?order=DESC&col=status");
+    @DataPoint public static ResponseAssertion HEAD = new ResponseAssertion("head", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion OPTIONS = new ResponseAssertion("options", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion CONNECT = new ResponseAssertion("connect", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion TRACE = new ResponseAssertion("trace", "go/agents?order=DESC&col=status", "go/agents/edit", "go/agents/edit");
+    @DataPoint public static ResponseAssertion NO_REFERER = new ResponseAssertion("get", null, "go/agents/edit", "go/agents/edit");
 
     @Theory
     public void shouldRedirectWhenBackupIsInProgress(ResponseAssertion responseAssertion) throws UnsupportedEncodingException {
@@ -112,8 +105,8 @@ public class RedirectDuringBackupTest {
         assertThat((String) request.getAttribute("backup_started_by"), is(responseAssertion.backupStartedBy));
     }
 
-    private Request request(HttpMethod method, final String referer, String uri) {
-        Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class)) {
+    private Request request(String method, final String referer, String uri) {
+        Request request = new Request() {
             @Override public String getHeader(String name) {
                 if (name.equals("Referer")) {
                     return referer;
@@ -121,20 +114,20 @@ public class RedirectDuringBackupTest {
                 return super.getHeader(name);
             }
         };
-		request.setMethod(method, method.asString());
+        request.setMethod(method);
         request.setUri(new HttpURI(uri));
         return request;
     }
 
     private static class ResponseAssertion {
-        private HttpMethod method;
+        private String method;
         private String referer;
         private String uri;
         private String expectedRedirectedFrom;
         private String backupStartedAt;
         private String backupStartedBy;
 
-        public ResponseAssertion(HttpMethod method, String referer, String uri, String expectedRedirectedFrom) {
+        public ResponseAssertion(String method, String referer, String uri, String expectedRedirectedFrom) {
             this.method = method;
             this.referer = referer;
             this.uri = uri;

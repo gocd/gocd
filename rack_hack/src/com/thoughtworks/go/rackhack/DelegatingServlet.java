@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.rackhack;
 
-import com.thoughtworks.go.server.util.ServletHelper;
+import org.mortbay.jetty.Request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -26,11 +26,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 public class DelegatingServlet extends HttpServlet {
     private HttpServlet rackServlet;
-    private ServletHelper servletHelper;
 
     public DelegatingServlet() {
     }
@@ -39,13 +37,12 @@ public class DelegatingServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         rackServlet = (HttpServlet) config.getServletContext().getAttribute(DelegatingListener.DELEGATE_SERVLET);
         rackServlet.init(config);
-        servletHelper = ServletHelper.getInstance();
     }
 
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String url = request.getRequestURI().replaceAll("^/go/rails/", "/go/");
-        servletHelper.getRequest(request).setRequestURI(url);
+        Request req = (Request) request;
+        req.setRequestURI(req.getRequestURI().replaceAll("^/go/rails/", "/go/"));
         rackServlet.service(request, response);
     }
 

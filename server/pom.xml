@@ -70,12 +70,44 @@
             <version>1.0</version>
         </dependency>
 
+        <!-- jetty -->
         <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>app-server</artifactId>
-            <version>1.0</version>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>${jetty.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-management</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-naming</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-sslengine</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-plus</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- jetty end -->
 
         <!-- apache commons -->
         <dependency>
@@ -533,16 +565,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.2</version>
-        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
@@ -578,12 +600,7 @@
             <version>1.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>jetty9</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.tlb</groupId>
             <artifactId>tlb-java</artifactId>
@@ -622,22 +639,6 @@
                 <exclusion>
                     <groupId>com.sun</groupId>
                     <artifactId>tools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>servlet-api-2.5</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty-util</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty-servlet-tester</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -744,44 +745,6 @@
                 <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>store-server-test-classpath</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <property name="test_classpath" refid="maven.test.classpath"/>
-                                <echo file="target/server-test-dependencies" append="false">${test_classpath}</echo>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>prepare-webapp</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <exec executable="${main.dir}\tools\bin\go.jruby.bat" failonerror="true" osfamily="windows">
-                                    <arg value="-S"></arg>
-                                    <arg value="rake"></arg>
-                                    <arg value="--rakefile"></arg>
-                                    <arg value="prepare_go_server_webapp.rake"></arg>
-                                    <arg value="prepare_webapp"></arg>
-                                </exec>
-                                <exec executable="${main.dir}/tools/bin/go.jruby" failonerror="true" osfamily="unix">
-                                    <arg value="-S"></arg>
-                                    <arg value="rake"></arg>
-                                    <arg value="--rakefile"></arg>
-                                    <arg value="prepare_go_server_webapp.rake"></arg>
-                                    <arg value="prepare_webapp"></arg>
-                                </exec>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>ant.test.tlb</id>
                         <phase>test</phase>
                         <goals>
@@ -866,26 +829,65 @@
                                 <groupId>com.sun</groupId>
                                 <artifactId>tools</artifactId>
                             </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>servlet-api-2.5</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty-util</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty-servlet-tester</artifactId>
-                            </exclusion>
                         </exclusions>
                     </dependency>
                 </dependencies>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>store-server-test-classpath</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <property name="test_classpath" refid="maven.test.classpath"/>
+                                <echo file="target/server-test-dependencies" append="false">${test_classpath}</echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>prepare-webapp</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <exec executable="${main.dir}\tools\bin\go.jruby.bat" failonerror="true" osfamily="windows">
+                                    <arg value="-S"></arg>
+                                    <arg value="rake"></arg>
+                                    <arg value="--rakefile"></arg>
+                                    <arg value="prepare_go_server_webapp.rake"></arg>
+                                    <arg value="prepare_webapp"></arg>
+                                </exec>
+                                <exec executable="${main.dir}/tools/bin/go.jruby" failonerror="true" osfamily="unix">
+                                    <arg value="-S"></arg>
+                                    <arg value="rake"></arg>
+                                    <arg value="--rakefile"></arg>
+                                    <arg value="prepare_go_server_webapp.rake"></arg>
+                                    <arg value="prepare_webapp"></arg>
+                                </exec>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

@@ -6,7 +6,6 @@ public class Jetty6Response implements ServletResponse {
     private javax.servlet.ServletResponse servletResponse;
 
     public Jetty6Response(javax.servlet.ServletResponse servletResponse) {
-
         this.servletResponse = servletResponse;
     }
 

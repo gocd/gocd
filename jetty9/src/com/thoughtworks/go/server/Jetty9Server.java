@@ -232,7 +232,6 @@ public class Jetty9Server extends AppServer {
         webAppContext.setContextPath(systemEnvironment.getWebappContextPath());
         webAppContext.setWar(getWarFile());
         webAppContext.setParentLoaderPriority(systemEnvironment.getParentLoaderPriority());
-//        wac.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/spring-[^/]*\\.jar$");
         return webAppContext;
     }
 

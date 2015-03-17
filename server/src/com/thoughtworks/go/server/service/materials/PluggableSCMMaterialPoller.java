@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -28,37 +29,58 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 import java.util.List;
-
-import static java.util.Arrays.asList;
+import java.util.Map;
 
 public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMaterial> {
-
+    private MaterialRepository materialRepository;
     private SCMExtension scmExtension;
+    private TransactionTemplate transactionTemplate;
 
-    public PluggableSCMMaterialPoller(SCMExtension scmExtension) {
+    public PluggableSCMMaterialPoller(MaterialRepository materialRepository, SCMExtension scmExtension, TransactionTemplate transactionTemplate) {
+        this.materialRepository = materialRepository;
         this.scmExtension = scmExtension;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
     public List<Modification> latestModification(final PluggableSCMMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
         SCMPropertyConfiguration scmPropertyConfiguration = buildSCMPropertyConfigurations(material.getScmConfig());
-        SCMRevision scmRevision = scmExtension.getLatestRevision(material.getPluginId(), scmPropertyConfiguration, baseDir.getAbsolutePath());
+        final MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
+        MaterialPollResult pollResult = scmExtension.getLatestRevision(material.getPluginId(), scmPropertyConfiguration, materialInstance.getAdditionalDataMap(), baseDir.getAbsolutePath());
+
+        final Map<String, String> materialData = pollResult.getMaterialData();
+        if (materialInstance.requiresUpdate(materialData)) {
+            updateAdditionalData(materialInstance.getId(), materialData);
+        }
+        SCMRevision scmRevision = pollResult.getLatestRevision();
         return scmRevision == null ? new Modifications() : new Modifications(getModification(scmRevision));
     }
 
     @Override
     public List<Modification> modificationsSince(final PluggableSCMMaterial material, File baseDir, final Revision revision, SubprocessExecutionContext execCtx) {
         SCMPropertyConfiguration scmPropertyConfiguration = buildSCMPropertyConfigurations(material.getScmConfig());
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
         PluggableSCMMaterialRevision pluggableSCMMaterialRevision = (PluggableSCMMaterialRevision) revision;
         SCMRevision previouslyKnownRevision = new SCMRevision(pluggableSCMMaterialRevision.getRevision(), pluggableSCMMaterialRevision.getTimestamp(), null, null, pluggableSCMMaterialRevision.getData(), null);
-        List<SCMRevision> scmRevisions = scmExtension.latestModificationSince(material.getPluginId(), scmPropertyConfiguration, baseDir.getAbsolutePath(), previouslyKnownRevision);
+        MaterialPollResult pollResult = scmExtension.latestModificationSince(material.getPluginId(), scmPropertyConfiguration, materialInstance.getAdditionalDataMap(), baseDir.getAbsolutePath(), previouslyKnownRevision);
+
+        final Map<String, String> materialData = pollResult.getMaterialData();
+        if (materialInstance.requiresUpdate(materialData)) {
+            updateAdditionalData(materialInstance.getId(), materialData);
+        }
+        List<SCMRevision> scmRevisions = pollResult.getRevisions();
         return getModifications(scmRevisions);
     }
 
@@ -74,6 +96,19 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
         }
     }
 
+    private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                MaterialInstance materialInstance = materialRepository.find(materialId);
+                String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonString(materialData);
+                materialInstance.setAdditionalData(additionalData);
+                materialRepository.saveOrUpdate(materialInstance);
+                return materialInstance;
+            }
+        });
+    }
+
     private List<Modification> getModifications(List<SCMRevision> scmRevisions) {
         Modifications modifications = new Modifications();
         if (scmRevisions == null || scmRevisions.isEmpty()) {
@@ -86,8 +121,9 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     }
 
     private Modification getModification(SCMRevision scmRevision) {
+        String additionalData = (scmRevision.getData() == null || scmRevision.getData().isEmpty()) ? null : JsonHelper.toJsonString(scmRevision.getData());
         Modification modification = new Modification(scmRevision.getUser(), scmRevision.getRevisionComment(), null,
-                scmRevision.getTimestamp(), scmRevision.getRevision(), JsonHelper.toJsonString(scmRevision.getData()));
+                scmRevision.getTimestamp(), scmRevision.getRevision(), additionalData);
         if (scmRevision.getModifiedFiles() != null && !scmRevision.getModifiedFiles().isEmpty()) {
             for (ModifiedFile modifiedFile : scmRevision.getModifiedFiles()) {
                 modification.createModifiedFile(modifiedFile.getFileName(), null, convertAction(modifiedFile.getAction()));

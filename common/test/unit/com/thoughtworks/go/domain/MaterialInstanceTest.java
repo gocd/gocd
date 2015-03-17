@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -54,5 +55,39 @@ public class MaterialInstanceTest {
         assertThat(unserializedMaterial, Matchers.is(materialInstance));
         assertThat(unserializedMaterial.getId(), is(10L));
         assertThat(unserializedMaterial, is(materialInstance));
+    }
+
+    @Test
+    public void shouldAnswerRequiresUpdate() {
+        PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        MaterialInstance materialInstance = material.createMaterialInstance();
+        // null
+        materialInstance.setAdditionalData(null);
+        assertThat(materialInstance.requiresUpdate(null), is(false));
+        assertThat(materialInstance.requiresUpdate(new HashMap<String, String>()), is(false));
+
+        // empty
+        materialInstance.setAdditionalData(JsonHelper.toJsonString(new HashMap<String, String>()));
+        assertThat(materialInstance.requiresUpdate(null), is(false));
+        assertThat(materialInstance.requiresUpdate(new HashMap<String, String>()), is(false));
+
+        // with data
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("k1", "v1");
+        data.put("k2", "v2");
+        materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+        assertThat(materialInstance.requiresUpdate(null), is(true));
+        assertThat(materialInstance.requiresUpdate(new HashMap<String, String>()), is(true));
+        assertThat(materialInstance.requiresUpdate(data), is(false));
+
+        // missing key-value
+        Map<String, String> dataWithMissingKey = new HashMap<String, String>(data);
+        dataWithMissingKey.remove("k1");
+        assertThat(materialInstance.requiresUpdate(dataWithMissingKey), is(true));
+
+        // extra key-value
+        Map<String, String> dataWithExtraKey = new HashMap<String, String>(data);
+        dataWithExtraKey.put("k3", "v3");
+        assertThat(materialInstance.requiresUpdate(dataWithExtraKey), is(true));
     }
 }

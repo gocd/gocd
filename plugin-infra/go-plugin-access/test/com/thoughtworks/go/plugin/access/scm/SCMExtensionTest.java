@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -28,11 +29,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +52,7 @@ public class SCMExtensionTest {
     private String requestBody = "expected-request";
     private String responseBody = "expected-response";
     private SCMPropertyConfiguration scmPropertyConfiguration;
+    private Map<String, String> materialData;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before
@@ -58,6 +62,7 @@ public class SCMExtensionTest {
         scmExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
         scmPropertyConfiguration = new SCMPropertyConfiguration();
+        materialData = new HashMap<String, String>();
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
@@ -131,14 +136,14 @@ public class SCMExtensionTest {
     @Test
     public void shouldTalkToPluginToGetLatestModification() throws Exception {
         String flyweight = "flyweight";
-        when(jsonMessageHandler.requestMessageForLatestRevision(scmPropertyConfiguration, flyweight)).thenReturn(requestBody);
-        SCMRevision deserializedResponse = new SCMRevision();
+        when(jsonMessageHandler.requestMessageForLatestRevision(scmPropertyConfiguration, materialData, flyweight)).thenReturn(requestBody);
+        MaterialPollResult deserializedResponse = new MaterialPollResult();
         when(jsonMessageHandler.responseMessageForLatestRevision(responseBody)).thenReturn(deserializedResponse);
 
-        SCMRevision response = scmExtension.getLatestRevision(PLUGIN_ID, scmPropertyConfiguration, flyweight);
+        MaterialPollResult response = scmExtension.getLatestRevision(PLUGIN_ID, scmPropertyConfiguration, materialData, flyweight);
 
         assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", SCMExtension.REQUEST_LATEST_REVISION, requestBody);
-        verify(jsonMessageHandler).requestMessageForLatestRevision(scmPropertyConfiguration, flyweight);
+        verify(jsonMessageHandler).requestMessageForLatestRevision(scmPropertyConfiguration, materialData, flyweight);
         verify(jsonMessageHandler).responseMessageForLatestRevision(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -147,14 +152,14 @@ public class SCMExtensionTest {
     public void shouldTalkToPluginToGetLatestModificationSinceLastRevision() throws Exception {
         String flyweight = "flyweight";
         SCMRevision previouslyKnownRevision = new SCMRevision();
-        when(jsonMessageHandler.requestMessageForLatestRevisionsSince(scmPropertyConfiguration, flyweight, previouslyKnownRevision)).thenReturn(requestBody);
-        List<SCMRevision> deserializedResponse = new ArrayList<SCMRevision>();
+        when(jsonMessageHandler.requestMessageForLatestRevisionsSince(scmPropertyConfiguration, materialData, flyweight, previouslyKnownRevision)).thenReturn(requestBody);
+        MaterialPollResult deserializedResponse = new MaterialPollResult();
         when(jsonMessageHandler.responseMessageForLatestRevisionsSince(responseBody)).thenReturn(deserializedResponse);
 
-        List<SCMRevision> response = scmExtension.latestModificationSince(PLUGIN_ID, scmPropertyConfiguration, flyweight, previouslyKnownRevision);
+        MaterialPollResult response = scmExtension.latestModificationSince(PLUGIN_ID, scmPropertyConfiguration, materialData, flyweight, previouslyKnownRevision);
 
         assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", SCMExtension.REQUEST_LATEST_REVISIONS_SINCE, requestBody);
-        verify(jsonMessageHandler).requestMessageForLatestRevisionsSince(scmPropertyConfiguration, flyweight, previouslyKnownRevision);
+        verify(jsonMessageHandler).requestMessageForLatestRevisionsSince(scmPropertyConfiguration, materialData, flyweight, previouslyKnownRevision);
         verify(jsonMessageHandler).responseMessageForLatestRevisionsSince(responseBody);
         assertSame(response, deserializedResponse);
     }

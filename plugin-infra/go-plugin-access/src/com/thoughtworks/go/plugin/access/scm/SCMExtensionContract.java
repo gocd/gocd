@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
-import java.util.List;
+import java.util.Map;
 
 public interface SCMExtensionContract {
     SCMPropertyConfiguration getSCMConfiguration(String pluginId);
@@ -31,9 +32,9 @@ public interface SCMExtensionContract {
 
     Result checkConnectionToSCM(String pluginId, final SCMPropertyConfiguration scmConfiguration);
 
-    SCMRevision getLatestRevision(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String flyweightFolder);
+    MaterialPollResult getLatestRevision(String pluginId, final SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, final String flyweightFolder);
 
-    List<SCMRevision> latestModificationSince(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String flyweightFolder, final SCMRevision previouslyKnownRevision);
+    MaterialPollResult latestModificationSince(String pluginId, final SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, final String flyweightFolder, final SCMRevision previouslyKnownRevision);
 
     Result checkout(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String destinationFolder, final SCMRevision revision);
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -130,11 +131,11 @@ public class SCMExtension implements SCMExtensionContract {
         });
     }
 
-    public SCMRevision getLatestRevision(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String flyweightFolder) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new PluginInteractionCallback<SCMRevision>() {
+    public MaterialPollResult getLatestRevision(String pluginId, final SCMPropertyConfiguration scmConfiguration, final Map<String, String> materialData, final String flyweightFolder) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new PluginInteractionCallback<MaterialPollResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevision(scmConfiguration, flyweightFolder);
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevision(scmConfiguration, materialData, flyweightFolder);
             }
 
             @Override
@@ -143,17 +144,17 @@ public class SCMExtension implements SCMExtensionContract {
             }
 
             @Override
-            public SCMRevision onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public MaterialPollResult onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevision(responseBody);
             }
         });
     }
 
-    public List<SCMRevision> latestModificationSince(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String flyweightFolder, final SCMRevision previouslyKnownRevision) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISIONS_SINCE, new PluginInteractionCallback<List<SCMRevision>>() {
+    public MaterialPollResult latestModificationSince(String pluginId, final SCMPropertyConfiguration scmConfiguration, final Map<String, String> materialData, final String flyweightFolder, final SCMRevision previouslyKnownRevision) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISIONS_SINCE, new PluginInteractionCallback<MaterialPollResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevisionsSince(scmConfiguration, flyweightFolder, previouslyKnownRevision);
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevisionsSince(scmConfiguration, materialData, flyweightFolder, previouslyKnownRevision);
             }
 
             @Override
@@ -162,7 +163,7 @@ public class SCMExtension implements SCMExtensionContract {
             }
 
             @Override
-            public List<SCMRevision> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public MaterialPollResult onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevisionsSince(responseBody);
             }
         });

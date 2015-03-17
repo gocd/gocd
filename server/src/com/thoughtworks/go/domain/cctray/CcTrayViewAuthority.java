@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +36,8 @@ public class CcTrayViewAuthority {
         this.goConfigService = goConfigService;
     }
 
-    public Map<String, Set<String>> groupsAndTheirViewers() {
-        final Map<String, Set<String>> pipelinesAndViewers = new HashMap<String, Set<String>>();
+    public Map<String, Viewers> groupsAndTheirViewers() {
+        final Map<String, Viewers> pipelinesAndViewers = new HashMap<String, Viewers>();
 
         SecurityConfig security = goConfigService.security();
         final Map<String, Set<String>> rolesToUsers = rolesToUsers(security);
@@ -47,20 +49,16 @@ public class CcTrayViewAuthority {
                 Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
                 Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
 
-                addAsViewers(pipelinesAndViewers, pipelineConfigs.getGroup(), superAdmins);
-                addAsViewers(pipelinesAndViewers, pipelineConfigs.getGroup(), pipelineGroupAdmins);
-                addAsViewers(pipelinesAndViewers, pipelineConfigs.getGroup(), pipelineGroupViewers);
+                Set<String> viewers = new HashSet<String>();
+                viewers.addAll(superAdmins);
+                viewers.addAll(pipelineGroupAdmins);
+                viewers.addAll(pipelineGroupViewers);
+
+                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers));
             }
         });
 
         return pipelinesAndViewers;
-    }
-
-    private void addAsViewers(Map<String, Set<String>> groupsAndViewers, String group, Set<String> usersToBeAddedToGroup) {
-        if (!groupsAndViewers.containsKey(group)) {
-            groupsAndViewers.put(group, new HashSet<String>());
-        }
-        groupsAndViewers.get(group).addAll(usersToBeAddedToGroup);
     }
 
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Set<String>> rolesToUsers) {

@@ -1,14 +1,14 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,10 +38,10 @@ public class CcTrayViewAuthorityTest {
         configMother.addUserAsSuperAdmin(config, "superadmin1");
         configMother.addUserAsSuperAdmin(config, "superadmin2");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(1));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("superadmin1", "superadmin2")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("superadmin1", "superadmin2")));
     }
 
     @Test
@@ -53,10 +53,10 @@ public class CcTrayViewAuthorityTest {
         configMother.addRoleAsSuperAdmin(config, "superadminrole1");
         configMother.addRoleAsSuperAdmin(config, "superadminrole2");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(1));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("superadmin1", "superadmin2", "superadmin3")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("superadmin1", "superadmin2", "superadmin3")));
     }
 
     @Test
@@ -67,10 +67,10 @@ public class CcTrayViewAuthorityTest {
         configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
         configMother.addRoleAsSuperAdmin(config, "superadminrole1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(1));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("superadmin1", "superadmin2")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("superadmin1", "superadmin2")));
     }
 
     @Test
@@ -81,11 +81,11 @@ public class CcTrayViewAuthorityTest {
         configMother.addAdminUserForPipelineGroup(config, "groupadmin1", "group1");
         configMother.addAdminUserForPipelineGroup(config, "groupadmin2", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(2));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("groupadmin1", "groupadmin2")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(Collections.<String>emptySet()));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("groupadmin1", "groupadmin2")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers()));
     }
 
     @Test
@@ -98,11 +98,11 @@ public class CcTrayViewAuthorityTest {
         configMother.addAdminRoleForPipelineGroup(config, "group1_admin_role1", "group1");
         configMother.addAdminRoleForPipelineGroup(config, "group1_admin_role2", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(2));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("groupadmin1", "groupadmin2", "groupadmin3")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(Collections.<String>emptySet()));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("groupadmin1", "groupadmin2", "groupadmin3")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers()));
     }
 
     @Test
@@ -113,10 +113,10 @@ public class CcTrayViewAuthorityTest {
         configMother.addAdminUserForPipelineGroup(config, "groupadmin1", "group1");
         configMother.addAdminRoleForPipelineGroup(config, "group1_admin_role1", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(1));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("groupadmin1", "groupadmin2")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("groupadmin1", "groupadmin2")));
     }
 
     @Test
@@ -127,11 +127,11 @@ public class CcTrayViewAuthorityTest {
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer2", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(2));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("viewer1", "viewer2")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(Collections.<String>emptySet()));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("viewer1", "viewer2")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers()));
     }
 
     @Test
@@ -144,11 +144,11 @@ public class CcTrayViewAuthorityTest {
         configMother.addRoleAsViewerOfPipelineGroup(config, "group1_view_role1", "group1");
         configMother.addRoleAsViewerOfPipelineGroup(config, "group1_view_role2", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(2));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("groupviewer1", "groupviewer2", "groupviewer3")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(Collections.<String>emptySet()));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("groupviewer1", "groupviewer2", "groupviewer3")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers()));
     }
 
     @Test
@@ -159,10 +159,10 @@ public class CcTrayViewAuthorityTest {
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
         configMother.addRoleAsViewerOfPipelineGroup(config, "group1_view_role1", "group1");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(1));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("viewer1", "groupviewer2")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("viewer1", "groupviewer2")));
     }
 
     @Test
@@ -181,12 +181,12 @@ public class CcTrayViewAuthorityTest {
         configMother.addRole(config, configMother.createRole("group3_view_role1", "group3viewer1", "group3viewer2"));
         configMother.addRoleAsViewerOfPipelineGroup(config, "group3_view_role1", "group3");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(3));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("superadmin1", "group1admin1", "group1admin2")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(s("superadmin1", "group2viewer1")));
-        assertThat(pipelinesAndTheirViewers.get("group3"), is(s("superadmin1", "group3viewer1", "group3viewer2")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("superadmin1", "group1admin1", "group1admin2")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers("superadmin1", "group2viewer1")));
+        assertThat(pipelinesAndTheirViewers.get("group3"), is(viewers("superadmin1", "group3viewer1", "group3viewer2")));
     }
 
     @Test
@@ -205,18 +205,22 @@ public class CcTrayViewAuthorityTest {
         configMother.addRole(config, configMother.createRole("group3_view_role1", "user2", "user3"));
         configMother.addRoleAsViewerOfPipelineGroup(config, "group3_view_role1", "group3");
 
-        Map<String, Set<String>> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
+        Map<String, Viewers> pipelinesAndTheirViewers = getGroupsAndTheirViewers();
 
         assertThat(pipelinesAndTheirViewers.size(), is(3));
-        assertThat(pipelinesAndTheirViewers.get("group1"), is(s("superadmin1", "user1", "user2")));
-        assertThat(pipelinesAndTheirViewers.get("group2"), is(s("superadmin1", "user1")));
-        assertThat(pipelinesAndTheirViewers.get("group3"), is(s("superadmin1", "user2", "user3")));
+        assertThat(pipelinesAndTheirViewers.get("group1"), is(viewers("superadmin1", "user1", "user2")));
+        assertThat(pipelinesAndTheirViewers.get("group2"), is(viewers("superadmin1", "user1")));
+        assertThat(pipelinesAndTheirViewers.get("group3"), is(viewers("superadmin1", "user2", "user3")));
     }
 
-    private Map<String, Set<String>> getGroupsAndTheirViewers() {
+    private Map<String, Viewers> getGroupsAndTheirViewers() {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.groups()).thenReturn(config.getGroups());
 
         return service.groupsAndTheirViewers();
+    }
+
+    private Viewers viewers(String... users) {
+        return new AllowedViewers(s(users));
     }
 }

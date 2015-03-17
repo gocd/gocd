@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom.Element;
 import org.junit.Test;
@@ -55,16 +57,16 @@ public class ProjectStatusTest {
     public void shouldListViewers() throws Exception {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
 
-        status.updateViewers(s("USER1", "user2", "User3", "AnoTherUsEr"));
+        status.updateViewers(viewers("USER1", "user2", "User3", "AnoTherUsEr"));
 
-        assertThat(status.viewers(), is(s("user1", "user2", "user3", "anotheruser")));
+        assertThat(status.viewers(), is(viewers("user1", "user2", "user3", "anotheruser")));
     }
 
     @Test
     public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
 
-        status.updateViewers(s("USER1", "user2", "User3", "AnoTherUsEr"));
+        status.updateViewers(viewers("USER1", "user2", "User3", "AnoTherUsEr"));
 
         assertThat(status.canBeViewedBy("user1"), is(true));
         assertThat(status.canBeViewedBy("USER1"), is(true));
@@ -100,5 +102,23 @@ public class ProjectStatusTest {
     public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() throws Exception {
         assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation(), is(""));
         assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation(), is(""));
+    }
+
+    @Test
+    public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+
+        assertThat(status.canBeViewedBy("abc"), is(false));
+        assertThat(status.canBeViewedBy("def"), is(false));
+
+        status.updateViewers(new AllowedViewers(s("abc", "ghi")));
+
+        assertThat(status.canBeViewedBy("abc"), is(true));
+        assertThat(status.canBeViewedBy("def"), is(false));
+        assertThat(status.canBeViewedBy("ghi"), is(true));
+    }
+
+    private Viewers viewers(String... users) {
+        return new AllowedViewers(s(users));
     }
 }

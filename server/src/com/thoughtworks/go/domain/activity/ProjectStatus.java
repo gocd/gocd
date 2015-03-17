@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
+import com.thoughtworks.go.domain.cctray.viewers.NoViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
@@ -38,7 +40,7 @@ public class ProjectStatus {
     private Date lastBuildTime;
     private String webUrl;
     public static final String DEFAULT_LAST_BUILD_LABEL = "1";
-    private final Set<String> viewers;
+    private volatile Viewers viewers;
     private String cachedXmlRepresentation;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
@@ -59,7 +61,7 @@ public class ProjectStatus {
         this.breakers = breakers;
         this.lastBuildTime = lastBuildTime == null ? DEFAULT_LAST_BUILD_TIME : lastBuildTime;
         this.webUrl = webUrl;
-        this.viewers = new HashSet<String>();
+        this.viewers = NoViewers.INSTANCE;
     }
 
     public boolean equals(Object o) {
@@ -146,18 +148,17 @@ public class ProjectStatus {
         return element;
     }
 
-    public ProjectStatus updateViewers(Set<String> viewers) {
-        if (viewers != null) {
-            this.viewers.clear();
-            for (String viewer : viewers) {
-                this.viewers.add(viewer.toLowerCase());
-            }
-        }
+    public Viewers viewers() {
+        return viewers;
+    }
+
+    public ProjectStatus updateViewers(Viewers viewers) {
+        this.viewers = viewers;
         return this;
     }
 
     public boolean canBeViewedBy(String userName) {
-        return viewers.contains(userName.toLowerCase());
+        return viewers.contains(userName);
     }
 
     public String xmlRepresentation() {
@@ -169,10 +170,6 @@ public class ProjectStatus {
 
     public Set<String> getBreakers() {
         return breakers;
-    }
-
-    public Set<String> viewers() {
-        return viewers;
     }
 
     private void addBreakers(Element element) {

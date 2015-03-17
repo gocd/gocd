@@ -39,16 +39,16 @@
 
     <dependencies>
         <dependency>
-			<groupId>com.thoughtworks.go</groupId>
-			<artifactId>development-server</artifactId>
-			<version>1.0</version>
-		</dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>development-server</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
-			<groupId>com.thoughtworks.go</groupId>
-			<artifactId>server</artifactId>
-			<version>1.0</version>
-			<classifier>classes</classifier>
-		</dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0</version>
+            <classifier>classes</classifier>
+        </dependency>
 
         <!-- jetty -->
         <dependency>
@@ -83,10 +83,10 @@
         </dependency>
         <!-- jetty end -->
         <dependency>
-			<groupId>com.thoughtworks.go</groupId>
-			<artifactId>jetty6</artifactId>
-			<version>1.0</version>
-		</dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>jetty6</artifactId>
+            <version>1.0</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>

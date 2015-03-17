@@ -30,23 +30,19 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class GoSslSocketConnector implements GoSocketConnector {
-
     private static Logger LOGGER = Logger.getLogger(GoSslSocketConnector.class);
-
     private final String password;
+    private final SystemEnvironment systemEnvironment;
     private final GoCipherSuite goCipherSuite;
-    private final int sslPort;
     private final File keystore;
     private final File truststore;
     private final File agentKeystore;
-    static final long MAX_IDLE_TIME = 30000;
-    static final int RESPONSE_BUFFER_SIZE = 32768;
     private final Connector connector;
 
     public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoCipherSuite goCipherSuite) {
         this.password = password;
+        this.systemEnvironment = systemEnvironment;
         this.goCipherSuite = goCipherSuite;
-        this.sslPort = systemEnvironment.getSslServerPort();
         this.keystore = systemEnvironment.keystore();
         this.truststore = systemEnvironment.truststore();
         this.agentKeystore = systemEnvironment.agentkeystore();
@@ -59,7 +55,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         }
 
         HttpConfiguration httpsConfig = new HttpConfiguration();
-        httpsConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
+        httpsConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
         httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
         SslContextFactory sslContextFactory = new SslContextFactory();
@@ -72,9 +68,9 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setIncludeCipherSuites(goCipherSuite.getCipherSuitsToBeIncluded());
 
         ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
-        // https.setHost(host);
-        https.setPort(sslPort);
-        https.setIdleTimeout(MAX_IDLE_TIME);
+        https.setHost(systemEnvironment.getListenHost());
+        https.setPort(systemEnvironment.getSslServerPort());
+        https.setIdleTimeout(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT));
 
         return https;
     }

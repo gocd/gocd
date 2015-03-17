@@ -19,27 +19,27 @@ package com.thoughtworks.go.server.util;
 import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
+import org.jruby.RubyProcess;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoPlainSocketConnector implements GoSocketConnector {
-    private final int plainPort;
-    private static final int MAX_IDLE_TIME = 30000;
-    private static final int RESPONSE_BUFFER_SIZE = 32768;
     private final Connector httpConnector;
+    private final SystemEnvironment systemEnvironment;
 
     public GoPlainSocketConnector(Jetty9Server server, SystemEnvironment systemEnvironment) {
-        this.plainPort = systemEnvironment.getServerPort();
+        this.systemEnvironment = systemEnvironment;
         httpConnector = plainConnector(server);
     }
 
     private Connector plainConnector(Jetty9Server server) {
         HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
+        httpConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
 
         ServerConnector httpConnector = new ServerConnector(server.getServer(), new HttpConnectionFactory(httpConfig));
-        httpConnector.setPort(plainPort);
-        httpConnector.setIdleTimeout(MAX_IDLE_TIME);
+        httpConnector.setHost(systemEnvironment.getListenHost());
+        httpConnector.setPort(systemEnvironment.getServerPort());
+        httpConnector.setIdleTimeout(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT));
         return httpConnector;
     }
 

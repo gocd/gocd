@@ -27,6 +27,7 @@ import java.util.Date;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProjectStatusTest {
     @Test
@@ -55,26 +56,12 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldListViewers() throws Exception {
+        Viewers viewers = mock(Viewers.class);
+
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+        status.updateViewers(viewers);
 
-        status.updateViewers(viewers("USER1", "user2", "User3", "AnoTherUsEr"));
-
-        assertThat(status.viewers(), is(viewers("user1", "user2", "user3", "anotheruser")));
-    }
-
-    @Test
-    public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
-        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
-
-        status.updateViewers(viewers("USER1", "user2", "User3", "AnoTherUsEr"));
-
-        assertThat(status.canBeViewedBy("user1"), is(true));
-        assertThat(status.canBeViewedBy("USER1"), is(true));
-        assertThat(status.canBeViewedBy("User1"), is(true));
-        assertThat(status.canBeViewedBy("USER2"), is(true));
-        assertThat(status.canBeViewedBy("uSEr3"), is(true));
-        assertThat(status.canBeViewedBy("anotheruser"), is(true));
-        assertThat(status.canBeViewedBy("NON-EXISTENT-USER"), is(false));
+        assertThat(status.viewers(), is(viewers));
     }
 
     @Test
@@ -116,9 +103,5 @@ public class ProjectStatusTest {
         assertThat(status.canBeViewedBy("abc"), is(true));
         assertThat(status.canBeViewedBy("def"), is(false));
         assertThat(status.canBeViewedBy("ghi"), is(true));
-    }
-
-    private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users));
     }
 }

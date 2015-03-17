@@ -72,7 +72,6 @@ public class Jetty9Server extends AppServer {
         server.addConnector(sslConnector());
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(welcomeFileHandler());
-        handlers.addHandler(legacyRequestHandler());
         createWebAppContext();
         addResourceHandler(handlers, webAppContext);
         handlers.addHandler(webAppContext);
@@ -126,41 +125,6 @@ public class Jetty9Server extends AppServer {
 
     ContextHandler welcomeFileHandler() {
         return new GoServerWelcomeFileHandler();
-    }
-
-    Handler legacyRequestHandler() {
-        return new LegacyUrlRequestHandler();
-    }
-
-    static class LegacyUrlRequestHandler extends HandlerWrapper {
-
-        private final String oldContextUrl = GoConstants.OLD_URL_CONTEXT;
-        private final String newContextUrl = GoConstants.GO_URL_CONTEXT;
-        private final MovedContextHandler movedContextHandler;
-
-        private LegacyUrlRequestHandler() {
-            this(new MovedContextHandler());
-        }
-
-        LegacyUrlRequestHandler(MovedContextHandler movedContextHandler) {
-            this.movedContextHandler = movedContextHandler;
-            movedContextHandler.setContextPath(oldContextUrl);
-            movedContextHandler.setNewContextURL(newContextUrl);
-            movedContextHandler.setPermanent(true);
-            setHandler(movedContextHandler);
-        }
-
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            if (target.startsWith(GoConstants.OLD_URL_CONTEXT + "/") || target.equals(GoConstants.OLD_URL_CONTEXT)) {
-                String content = String.format("Url(s) starting in '%s' have been permanently moved to '%s', please use the new path.", oldContextUrl, newContextUrl);
-                response.setHeader("Content-Type", "text/plain");
-                movedContextHandler.handle(target, baseRequest, request, response);
-                response.setHeader("Content-Length", String.valueOf(content.length()));
-                PrintWriter writer = response.getWriter();
-                writer.write(content);
-                writer.close();
-            }
-        }
     }
 
     private Connector plainConnector() {

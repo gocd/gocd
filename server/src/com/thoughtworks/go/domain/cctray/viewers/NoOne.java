@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.domain.cctray.viewers;
 
-public class NoViewers implements Viewers {
-    public static Viewers INSTANCE = new NoViewers();
+/* Denies that it has any viewers. */
+public class NoOne implements Viewers {
+    public static Viewers INSTANCE = new NoOne();
 
-    private NoViewers() {
+    private NoOne() {
     }
 
     @Override

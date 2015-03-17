@@ -1,23 +1,30 @@
-package com.thoughtworks.go.domain.cctray.viewers;
-
-/**
- * **********************GO-LICENSE-START*********************************
+/*************************GO-LICENSE-START*********************************
  * Copyright 2015 ThoughtWorks, Inc.
- * <p/>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * ************************GO-LICENSE-END**********************************
- */
+ *************************GO-LICENSE-END***********************************/
 
-public interface Viewers {
-    boolean contains(String username);
+package com.thoughtworks.go.domain.cctray.viewers;
+
+/* Claims that it has all viewers. */
+public class Everyone implements Viewers {
+    public static Viewers INSTANCE = new Everyone();
+
+    private Everyone() {
+    }
+
+    @Override
+    public boolean contains(String username) {
+        return true;
+    }
 }

@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.domain.cctray.viewers;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import java.util.HashSet;
 import java.util.Set;
 
+/* Understands: The set of viewers it has. */
 public class AllowedViewers implements Viewers {
     private Set<String> allowedUsers = new HashSet<String>();
 
@@ -46,5 +49,10 @@ public class AllowedViewers implements Viewers {
     @Override
     public int hashCode() {
         return allowedUsers.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.domain.cctray.viewers.NoViewers;
+import com.thoughtworks.go.domain.cctray.viewers.NoOne;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,7 +61,7 @@ public class ProjectStatus {
         this.breakers = breakers;
         this.lastBuildTime = lastBuildTime == null ? DEFAULT_LAST_BUILD_TIME : lastBuildTime;
         this.webUrl = webUrl;
-        this.viewers = NoViewers.INSTANCE;
+        this.viewers = NoOne.INSTANCE;
     }
 
     public boolean equals(Object o) {

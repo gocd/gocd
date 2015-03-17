@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Everyone;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,11 @@ public class CcTrayViewAuthority {
         goConfigService.groups().accept(new PipelineGroupVisitor() {
             @Override
             public void visit(PipelineConfigs pipelineConfigs) {
+                if (!pipelineConfigs.hasAuthorizationDefined()) {
+                    pipelinesAndViewers.put(pipelineConfigs.getGroup(), Everyone.INSTANCE);
+                    return;
+                }
+
                 Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
                 Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
 

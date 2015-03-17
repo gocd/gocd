@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -113,7 +114,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdated() throws Exception {
+    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModification() throws Exception {
         final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         final MaterialInstance materialInstance = material.createMaterialInstance();
         materialRepository.saveOrUpdate(materialInstance);
@@ -135,6 +136,34 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
         assertThat(actualInstance.getAdditionalDataMap(), is(data));
+    }
+
+    @Test
+    public void shouldUpdateMaterialInstanceWhenAdditionalDataIsUpdatedDuringLatestModificationsSince() throws Exception {
+        final PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        final MaterialInstance materialInstance = material.createMaterialInstance();
+        Map<String, String> oldData = new HashMap<String, String>();
+        oldData.put("k1", "v1");
+        materialInstance.setAdditionalData(new GsonBuilder().create().toJson(oldData));
+        materialRepository.saveOrUpdate(materialInstance);
+
+        Map<String, String> newData = new HashMap<String, String>(oldData);
+        newData.put("k2", "v2");
+        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class), any(SCMRevision.class))).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
+        mockSCMExtensionInPoller();
+        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
+        pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
+
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(new Modification()));
+                return null;
+            }
+        });
+
+        MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
+        assertThat(actualInstance.getAdditionalDataMap(), is(newData));
     }
 
     private void addMetadata(PluggableSCMMaterial material, String field, boolean partOfIdentity) {

@@ -273,14 +273,14 @@ public class PipelineConfigTest {
     public void shouldValidatePipelineLabelWithBrokenTruncationSyntax1() {
         String labelFormat = "pipeline-${COUNT}-${git[:7}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("Invalid label."));
     }
 
     @Test
     public void shouldValidatePipelineLabelWithBrokenTruncationSyntax2() {
         String labelFormat = "pipeline-${COUNT}-${git[7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("Invalid label."));
     }
 
     @Test

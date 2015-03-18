@@ -26,9 +26,9 @@ class Api::ServerController < Api::ApiController
   def capture_support_info
     information = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
     if !result.isSuccessful()
-      render_localized_operation_result result and return
+      render_localized_operation_result result && return
     end
 
-    send_data information, :disposition => "inline", :stream => false, :type => "text"
+    send_data information, disposition: "inline", stream: false, type: "text"
   end
 end

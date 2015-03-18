@@ -137,6 +137,12 @@
     </servlet>
 
     <servlet>
+        <servlet-name>spring-add-on</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
         <servlet-name>spring-tabs</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
@@ -206,11 +212,6 @@
 
     <servlet-mapping>
         <servlet-name>spring-rest</servlet-name>
-        <url-pattern>/cctray.xml</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>spring-rest</servlet-name>
         <url-pattern>/rss.xml</url-pattern>
     </servlet-mapping>
 
@@ -240,6 +241,11 @@
         <url-pattern>/atom/*</url-pattern>
     </servlet-mapping>
 <!-- END new UI -->
+
+    <servlet-mapping>
+        <servlet-name>spring-add-on</servlet-name>
+        <url-pattern>/add-on/*</url-pattern>
+    </servlet-mapping>
 
 
     <welcome-file-list>

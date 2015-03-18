@@ -19,13 +19,13 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when the config changes. */
 @Component
@@ -47,12 +47,12 @@ public class CcTrayConfigChangeHandler {
 
     private List<ProjectStatus> findAllProjectStatusesForStagesAndJobsIn(CruiseConfig config) {
         final List<ProjectStatus> projectStatuses = new ArrayList<ProjectStatus>();
-        final Map<String, Set<String>> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
+        final Map<String, Viewers> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
 
         config.accept(new PipelineGroupVisitor() {
             @Override
             public void visit(PipelineConfigs pipelineConfigs) {
-                Set<String> usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
+                Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
 
                 for (PipelineConfig pipelineConfig : pipelineConfigs) {
                     for (StageConfig stageConfig : pipelineConfig) {
@@ -120,7 +120,7 @@ public class CcTrayConfigChangeHandler {
         return new ProjectStatus.NullProjectStatus(projectName);
     }
 
-    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Set<String> viewersOfThisGroup) {
+    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Viewers viewersOfThisGroup) {
         for (ProjectStatus status : statuses) {
             status.updateViewers(viewersOfThisGroup);
         }

@@ -2,6 +2,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +90,7 @@ public class CcTrayServiceTest {
     @Test
     public void shouldNotAppendNewLinesForNullProjectStatusesInList() throws Exception {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(s("user1"))));
+        when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
         login("user1", "password");
         String xml = ccTrayService.getCcTrayXml("prefix1");
@@ -101,7 +103,7 @@ public class CcTrayServiceTest {
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) throws Exception {
         ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", DateUtils.parseYYYYMMDD("2010-05-23"), "web-url");
-        status.updateViewers(s(allowedUsers));
+        status.updateViewers(viewers(allowedUsers));
         return status;
     }
 
@@ -113,5 +115,9 @@ public class CcTrayServiceTest {
         expectedXml.append("</Projects>");
 
         assertThat(actualXml, is(expectedXml.toString()));
+    }
+
+    private Viewers viewers(String... users) {
+        return new AllowedViewers(s(users));
     }
 }

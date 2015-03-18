@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
-
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -34,11 +27,10 @@ import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -52,6 +44,13 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
@@ -77,9 +76,9 @@ public class GoConfigDataSourceTest {
 
     @Before
     public void setup() throws Exception {
+        systemEnvironment = new SystemEnvironment();
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
-        systemEnvironment = new SystemEnvironment();
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
         timeProvider = mock(TimeProvider.class);
@@ -342,12 +341,15 @@ public class GoConfigDataSourceTest {
         CruiseConfig oldConfigForEdit = goConfigHolder.configForEdit;
         final String oldMD5 = oldConfigForEdit.getMd5();
         MailHost oldMailHost = oldConfigForEdit.server().mailHost();
+
         assertThat(oldMailHost.getHostName(), is("mailhost.local.old"));
         assertThat(oldMailHost.getHostName(), is(not("mailhost.local")));
 
         goConfigFileDao.updateMailHost(getMailHost("mailhost.local"));
 
-        CruiseConfig mergedConfig = dataSource.getMergedConfig(new NoOverwriteUpdateConfigCommand() {
+        goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
+
+        GoConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public String unmodifiedMd5() {
                 return oldMD5;
@@ -358,10 +360,10 @@ public class GoConfigDataSourceTest {
                 cruiseConfig.addPipeline("g", PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s", "b")));
                 return cruiseConfig;
             }
-        }, goConfigHolder.configForEdit.getMd5());
+        }, goConfigHolder);
 
-        assertThat(mergedConfig.server().mailHost().getHostName(), is("mailhost.local"));
-        assertThat(mergedConfig.hasPipelineNamed(new CaseInsensitiveString("p1")), is(true));
+        assertThat(result.getConfigHolder().config.server().mailHost().getHostName(), is("mailhost.local"));
+        assertThat(result.getConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("p1")), is(true));
     }
 
     @Test

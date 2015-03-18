@@ -99,8 +99,8 @@ public class ApplicationInitializerTest {
     }
 
     @Test
-    public void shouldInitializeCcTrayActivityListenerAfterGoConfigServiceIsInitialize() throws Exception {
-        verifyOrder(goConfigService, ccTrayActivityListener);
+    public void shouldInitializeCcTrayActivityListenerAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
+        verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener);
     }
 
     private void verifyOrder(Initializer... initializers) {

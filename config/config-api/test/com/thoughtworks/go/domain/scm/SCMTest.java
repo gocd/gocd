@@ -18,26 +18,28 @@ package com.thoughtworks.go.domain.scm;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.config.helper.ConfigurationHolder;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-
 
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -48,6 +50,9 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SCMTest {
     @Before
@@ -166,45 +171,120 @@ public class SCMTest {
     }
 
     @Test
+    public void shouldThrowUpOnSetConfigAttributesIfPluginIsNotAvailable() throws Exception {
+        try {
+            Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost");
+            SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
+            scm.setConfigAttributes(attributeMap);
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e, instanceOf(RuntimeException.class));
+            assertThat(e.getMessage(), is("metadata unavailable for plugin: plugin-id"));
+        }
+    }
+
+    @Test
     public void shouldSetConfigAttributesAsAvailable() throws Exception {
-        String pluginId = "plugin-id";
-        //metadata setup
-        SCMConfigurations scmConfiguration = new SCMConfigurations();
-        scmConfiguration.add(new SCMConfiguration("url"));
-        scmConfiguration.add(new SCMConfiguration("username"));
-        scmConfiguration.add(new SCMConfiguration("password").with(SECURE, true));
-        scmConfiguration.add(new SCMConfiguration("secureKeyNotChanged").with(SECURE, true));
-        SCMMetadataStore.getInstance().addMetadataFor(pluginId, scmConfiguration, null);
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("url"));
+        scmConfigurations.add(new SCMConfiguration("username"));
+        scmConfigurations.add(new SCMConfiguration("password").with(SECURE, true));
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, null);
 
-        String scmId = "scm-id";
-        String name = "scm-name";
-        ConfigurationHolder url = new ConfigurationHolder("url", "http://test.com");
-        ConfigurationHolder username = new ConfigurationHolder("username", "user");
-        String oldEncryptedValue = "oldEncryptedValue";
-        ConfigurationHolder password = new ConfigurationHolder("password", "pass", oldEncryptedValue, true, "1");
-        ConfigurationHolder secureKeyNotChanged = new ConfigurationHolder("secureKeyNotChanged", "pass", oldEncryptedValue, true, "0");
-        Map attributes = createSCMConfiguration(scmId, name, pluginId, url, username, password, secureKeyNotChanged);
+        Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost", "username", "user", "password", "pass");
+        SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
+        scm.setConfigAttributes(attributeMap);
 
-        SCM scm = new SCM();
-        scm.setConfigAttributes(attributes);
+        assertThat(scm.getId(), is("scm-id"));
+        assertThat(scm.getName(), is("scm-name"));
+        assertThat(scm.isAutoUpdate(), is(false));
+        assertThat(scm.getPluginConfiguration().getId(), is("plugin-id"));
 
-        assertThat(scm.getId(), is(scmId));
-        assertThat(scm.getName(), is(name));
-        assertThat(scm.getPluginConfiguration().getId(), is(pluginId));
+        assertThat(scm.getConfigAsMap().get("url").get(SCM.VALUE_KEY), is("http://localhost"));
+        assertThat(scm.getConfigAsMap().get("username").get(SCM.VALUE_KEY), is("user"));
+        assertThat(scm.getConfigAsMap().get("password").get(SCM.VALUE_KEY), is("pass"));
 
-        assertThat(scm.getConfiguration().get(0).getConfigurationKey().getName(), is(url.name));
-        assertThat(scm.getConfiguration().get(0).getConfigurationValue().getValue(), is(url.value));
+        assertThat(scm.getConfiguration().getProperty("password").getConfigurationValue(), is(nullValue()));
+        assertThat(scm.getConfiguration().getProperty("password").getEncryptedValue(), is(not(nullValue())));
+    }
 
-        assertThat(scm.getConfiguration().get(1).getConfigurationKey().getName(), is(username.name));
-        assertThat(scm.getConfiguration().get(1).getConfigurationValue().getValue(), is(username.value));
+    @Test
+    public void shouldPopulateItselfFromConfigAttributesMap() throws Exception {
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("KEY1"));
+        scmConfigurations.add(new SCMConfiguration("Key2"));
 
-        assertThat(scm.getConfiguration().get(2).getConfigurationKey().getName(), is(password.name));
-        assertThat(scm.getConfiguration().get(2).getEncryptedValue().getValue(), is(new GoCipher().encrypt(password.value)));
-        assertThat(scm.getConfiguration().get(2).getConfigurationValue(), is(nullValue()));
+        SCMPreference scmPreference = mock(SCMPreference.class);
+        when(scmPreference.getScmConfigurations()).thenReturn(scmConfigurations);
+        SCMMetadataStore.getInstance().setPreferenceFor("plugin-id", scmPreference);
 
-        assertThat(scm.getConfiguration().get(3).getConfigurationKey().getName(), is(secureKeyNotChanged.name));
-        assertThat(scm.getConfiguration().get(3).getEncryptedValue().getValue(), is(oldEncryptedValue));
-        assertThat(scm.getConfiguration().get(3).getConfigurationValue(), is(nullValue()));
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
+        SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
+
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        scm.setConfigAttributes(attributeMap);
+
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is("value2"));
+    }
+
+    @Test
+    public void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() throws Exception {
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("KEY1"));
+        scmConfigurations.add(new SCMConfiguration("Key2"));
+
+        SCMPreference scmPreference = mock(SCMPreference.class);
+        when(scmPreference.getScmConfigurations()).thenReturn(scmConfigurations);
+        SCMMetadataStore.getInstance().setPreferenceFor("plugin-id", scmPreference);
+
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
+        SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
+
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+        scm.setConfigAttributes(attributeMap);
+
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is(nullValue()));
+    }
+
+    @Test
+    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() throws Exception {
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("KEY1"));
+
+        SCMPreference scmPreference = mock(SCMPreference.class);
+        when(scmPreference.getScmConfigurations()).thenReturn(scmConfigurations);
+        SCMMetadataStore.getInstance().setPreferenceFor("plugin-id", scmPreference);
+
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
+
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        scm.setConfigAttributes(attributeMap);
+
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
+        assertFalse(scm.getConfigAsMap().containsKey("Key2"));
+    }
+
+    @Test
+    public void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("KEY1"));
+        scmConfigurations.add(new SCMConfiguration("Key2"));
+
+        SCMPreference scmPreference = mock(SCMPreference.class);
+        when(scmPreference.getScmConfigurations()).thenReturn(scmConfigurations);
+        SCMMetadataStore.getInstance().setPreferenceFor("plugin-id", scmPreference);
+
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
+
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        scm.setConfigAttributes(attributeMap);
+
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is("value2"));
     }
 
     @Test
@@ -267,6 +347,33 @@ public class SCMTest {
     }
 
     @Test
+    public void shouldGetConfigAsMap() throws Exception {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-id", "13.4");
+
+        GoCipher cipher = new GoCipher();
+        List<String> keys = Arrays.asList("Avengers 1", "Avengers 2", "Avengers 3", "Avengers 4");
+        List<String> values = Arrays.asList("Iron man", "Hulk", "Thor", "Captain America");
+
+        Configuration configuration = new Configuration(
+                new ConfigurationProperty(new ConfigurationKey(keys.get(0)), new ConfigurationValue(values.get(0))),
+                new ConfigurationProperty(new ConfigurationKey(keys.get(1)), new ConfigurationValue(values.get(1))),
+                new ConfigurationProperty(new ConfigurationKey(keys.get(2)), new ConfigurationValue(values.get(2))),
+                new ConfigurationProperty(new ConfigurationKey(keys.get(3)), new ConfigurationValue(values.get(3)),
+                        new EncryptedConfigurationValue(cipher.encrypt(values.get(3))), cipher));
+
+        SCM scm = new SCM("scm-id", pluginConfiguration, configuration);
+
+        Map<String, Map<String, String>> configMap = scm.getConfigAsMap();
+
+        assertThat(configMap.keySet().size(), is(keys.size()));
+        assertThat(configMap.values().size(), is(values.size()));
+        assertThat(configMap.keySet().containsAll(keys), is(true));
+        for (int i = 0; i < keys.size(); i++) {
+            assertThat(configMap.get(keys.get(i)).get(SCM.VALUE_KEY), is(values.get(i)));
+        }
+    }
+
+    @Test
     public void shouldGenerateIdIfNotAssigned() {
         SCM scm = new SCM();
         scm.ensureIdExists();
@@ -278,44 +385,12 @@ public class SCMTest {
         assertThat(scm.getId(), is("id"));
     }
 
-    private Map createSCMConfiguration(String scmId, String name, String pluginId, ConfigurationHolder... configurations) {
-        Map attributes = new HashMap();
-        attributes.put(SCM.SCM_ID, scmId);
-        attributes.put(SCM.NAME, name);
+    @Test
+    public void shouldGetSCMTypeCorrectly() {
+        SCM scm = SCMMother.create("scm-id");
+        assertThat(scm.getSCMType(), is("pluggable_material_plugin"));
 
-        HashMap pluginConfiguration = new HashMap();
-        pluginConfiguration.put(PluginConfiguration.ID, pluginId);
-        attributes.put(SCM.PLUGIN_CONFIGURATION, pluginConfiguration);
-
-        createConfigurationKeyValueMap(attributes, configurations);
-
-        return attributes;
-    }
-
-    private void createConfigurationKeyValueMap(Map attributes, ConfigurationHolder[] configurations) {
-        Map configurationMap = new LinkedHashMap();
-        for (int i = 0; i < configurations.length; i++) {
-            ConfigurationHolder currentConfiguration = configurations[i];
-
-            HashMap config = new HashMap();
-            HashMap firstConfigKey = new HashMap();
-            firstConfigKey.put(ConfigurationKey.NAME, currentConfiguration.name);
-            config.put(ConfigurationProperty.CONFIGURATION_KEY, firstConfigKey);
-
-            HashMap firstConfigValue = new HashMap();
-            firstConfigValue.put(ConfigurationValue.VALUE, currentConfiguration.value);
-            config.put(ConfigurationProperty.CONFIGURATION_VALUE, firstConfigValue);
-
-            if (currentConfiguration.isChanged()) {
-                config.put(ConfigurationProperty.IS_CHANGED, "1");
-            }
-            if (currentConfiguration.isSecure) {
-                HashMap encryptedValue = new HashMap();
-                encryptedValue.put(EncryptedConfigurationValue.VALUE, currentConfiguration.encryptedValue);
-                config.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValue);
-            }
-            configurationMap.put(String.valueOf(i), config);
-        }
-        attributes.put(Configuration.CONFIGURATION, configurationMap);
+        scm.setPluginConfiguration(new PluginConfiguration("plugin-id-2", "1"));
+        assertThat(scm.getSCMType(), is("pluggable_material_plugin_id_2"));
     }
 }

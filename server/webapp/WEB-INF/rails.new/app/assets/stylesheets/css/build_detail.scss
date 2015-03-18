@@ -290,9 +290,37 @@ div.build_detail_container_content {
 .widget iframe {
     border: none;
 }
-#buildoutput_pre{
+#buildoutput_pre {
     overflow: auto;
     white-space: pre-wrap;
+
+    padding-left: 10px;
+    padding-bottom: 10px;
+
+    @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'gray' {
+        .fg-#{$color} {
+            color: #{$color};
+        }
+    }
+
+    @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white' {
+        .bg-#{$color} {
+            color: #{$color};
+        }
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+
+    .underline {
+        text-decoration: underline;
+    }
+
 }
 
 .tests li {

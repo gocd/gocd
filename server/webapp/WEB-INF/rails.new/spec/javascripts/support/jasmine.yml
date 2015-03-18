@@ -100,6 +100,7 @@ spec_files:
   - "package_material_definition_for_new_pipeline_wizard_spec.js"
   - "package_material_check_connection_spec.js"
   - "package_repository_treeview_spec.js"
+  - "pluggable_scm_check_connection_spec.js"
   - "view_template_spec.js"
   - "user_options_on_header_spec.js"
   - "package_repository_configuration_spec.js"

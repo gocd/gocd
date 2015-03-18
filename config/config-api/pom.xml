@@ -108,6 +108,11 @@
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>test-resources</directory>
+            </testResource>
+        </testResources>
         <finalName>config-api</finalName>
 
         <plugins>

@@ -16,9 +16,7 @@
 #*************************GO-LICENSE-END**********************************
 
 
-SERVICE_NAME=${0%/*};
-SERVICE_NAME=${SERVICE_NAME##*/};
-
+SERVICE_NAME=${1:-go-agent}
 PRODUCTION_MODE=${PRODUCTION_MODE:-"Y"}
 
 if [ "$PRODUCTION_MODE" == "Y" ]; then
@@ -49,7 +47,7 @@ else
 fi
 
 if [ ! -d ${AGENT_WORK_DIR} ]; then
-    echo Agent working directory ${AGENT_WORK_DIR} does not exists
+    echo Agent working directory ${AGENT_WORK_DIR} does not exist
     exit 2
 fi
 

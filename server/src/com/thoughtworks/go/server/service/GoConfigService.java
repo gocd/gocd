@@ -48,7 +48,10 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -777,14 +780,17 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    @Deprecated
     public XmlPartialSaver buildSaver(String pipeline, String stage, int buildIndex) {
         return new XmlPartialBuildSaver(pipeline, stage, buildIndex, registry);
     }
 
+    @Deprecated
     public XmlPartialSaver stageSaver(String pipelineName, int stageIndex) {
         return new XmlPartialStageSaver(pipelineName, stageIndex);
     }
 
+    @Deprecated
     public XmlPartialSaver pipelineSaver(String groupName, int pipelineIndex) {
         return new XmlPartialPipelineSaver(groupName, pipelineIndex, registry);
     }
@@ -1106,7 +1112,7 @@ public class GoConfigService implements Initializer {
         protected org.dom4j.Document documentRoot() throws Exception {
             CruiseConfig cruiseConfig = goConfigFileDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, false);
+            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, true);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
             Map<String, String> map = new HashMap<String, String>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);
@@ -1169,6 +1175,7 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    @Deprecated
     private class XmlPartialStageSaver extends XmlPartialSaver<StageConfig> {
         private final String pipeline;
         private final int stageIndex;
@@ -1193,6 +1200,7 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    @Deprecated
     private class XmlPartialBuildSaver extends XmlPartialSaver<JobConfig> {
         private final String pipeline;
         private final String stage;
@@ -1220,6 +1228,7 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    @Deprecated
     private class XmlPartialPipelineSaver extends XmlPartialSaver<PipelineConfig> {
         private final int pipelineIndex;
         private final String groupName;
@@ -1244,6 +1253,7 @@ public class GoConfigService implements Initializer {
 
     }
 
+    @Deprecated
     public XmlPartialSaver templateSaver(int pipelineIndex) {
         return new XmlPartialTemplateSaver(pipelineIndex);
     }
@@ -1290,6 +1300,7 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    @Deprecated
     private class XmlPartialTemplateSaver extends XmlPartialSaver<PipelineTemplateConfig> {
         private final int pipelineIndex;
 
@@ -1372,7 +1383,6 @@ public class GoConfigService implements Initializer {
 
         protected Object valid() {
             CruiseConfig config = configForEditing();
-            bombIf(!config.hasPipelineGroup(groupName), "Pipeline group does not exist.");
             PipelineConfigs group = config.findGroup(groupName);
             return group.getCopyForEditing();
         }

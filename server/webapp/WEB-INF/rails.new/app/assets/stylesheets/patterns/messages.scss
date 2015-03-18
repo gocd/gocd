@@ -66,9 +66,10 @@
   background: image_url('g9/icons/icon_error_16.png') no-repeat;
   display:inline-block;
   padding: 2px 2px 2px 20px;
+  margin-left: 8px;
 }
 
-.inline-message{
+.inline-message {
     background-color: transparent;
     background-position: 11px 4px !important;
     border: 0 none;
@@ -89,6 +90,7 @@
   background: image_url('g9/icons/icon_pass_16.png') no-repeat;
   display:inline-block;
   padding: 2px 2px 2px 20px;
+  margin-left: 8px;
 }
 
 /*404 error html*/

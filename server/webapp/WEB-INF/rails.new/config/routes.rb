@@ -149,6 +149,15 @@ Go::Application.routes.draw do
   get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config
   get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config_for_repo
 
+  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/show_existing" => "admin/materials/pluggable_scm#show_existing", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_show_existing
+  post "admin/pipelines/:pipeline_name/materials/pluggable_scm/choose_existing" => "admin/materials/pluggable_scm#choose_existing", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_choose_existing
+  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/new/:plugin_id" => "admin/materials/pluggable_scm#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_new
+  post "admin/pipelines/:pipeline_name/materials/pluggable_scm/:plugin_id" => "admin/materials/pluggable_scm#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_create
+  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/:finger_print/edit" => "admin/materials/pluggable_scm#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_edit
+  put "admin/pipelines/:pipeline_name/materials/pluggable_scm/:finger_print" => "admin/materials/pluggable_scm#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_update
+  post "admin/materials/pluggable_scm/check_connection/:plugin_id" => "admin/materials/pluggable_scm#check_connection", as: :admin_pluggable_scm_check_connection
+  get "admin/materials/pluggable_scm/:scm_id/pipelines_used_in" => "admin/materials/pluggable_scm#pipelines_used_in", as: :scm_pipelines_used_in
+
   get 'agents/filter_autocomplete/:action' => 'agent_autocomplete#%{action}', constraints: {action: /resource|os|ip|name|status|environment/}, as: :agent_filter_autocomplete
 
   scope 'pipelines' do
@@ -322,7 +331,7 @@ Go::Application.routes.draw do
   get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
   get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
 
-  get "new_cctray.xml" => "cctray#index", :format => "xml", as: :cctray
+  get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray
 
   # dummy mappings. for specs to pass
   get 'test' => 'test/test#index', as: :oauth_clients

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.messaging.plugin;
 
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
+import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,18 +32,22 @@ import java.util.Map;
 public class StageStatusPluginNotifier implements StageStatusListener {
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
+    private NotificationPluginRegistry notificationPluginRegistry;
     private PluginNotificationQueue pluginNotificationQueue;
 
     @Autowired
-    public StageStatusPluginNotifier(PluginNotificationQueue pluginNotificationQueue) {
+    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationQueue pluginNotificationQueue) {
+        this.notificationPluginRegistry = notificationPluginRegistry;
         this.pluginNotificationQueue = pluginNotificationQueue;
     }
 
     @Override
     public void stageStatusChanged(final Stage stage) {
-        Map data = createRequestDataMap(stage);
+        if (notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)) {
+            Map data = createRequestDataMap(stage);
 
-        pluginNotificationQueue.post(new PluginNotificationMessage(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
+            pluginNotificationQueue.post(new PluginNotificationMessage(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
+        }
     }
 
     Map createRequestDataMap(Stage stage) {

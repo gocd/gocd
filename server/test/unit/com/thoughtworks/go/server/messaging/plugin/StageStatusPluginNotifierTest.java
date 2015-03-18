@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
+import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,11 +33,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class StageStatusPluginNotifierTest {
+    @Mock
+    private NotificationPluginRegistry notificationPluginRegistry;
     @Mock
     private PluginNotificationQueue pluginNotificationQueue;
 
@@ -51,9 +55,10 @@ public class StageStatusPluginNotifierTest {
 
     @Test
     public void shouldNotifyInterestedPluginsCorrectly() throws Exception {
+        when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         doNothing().when(pluginNotificationQueue).post(pluginNotificationMessage.capture());
 
-        StageStatusPluginNotifier stageStatusPluginNotifier = new StageStatusPluginNotifier(pluginNotificationQueue);
+        StageStatusPluginNotifier stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pluginNotificationQueue);
         Stage stage = new Stage();
         stage.setIdentifier(new StageIdentifier("pipeline-name", 1, "stage-name", "1"));
         ReflectionUtil.setField(stage, "state", StageState.Failed);

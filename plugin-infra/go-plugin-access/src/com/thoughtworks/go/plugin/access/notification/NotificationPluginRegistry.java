@@ -47,6 +47,10 @@ public class NotificationPluginRegistry {
         }
     }
 
+    public boolean isAnyPluginInterestedIn(String notificationName) {
+        return !getPluginsInterestedIn(notificationName).isEmpty();
+    }
+
     public Set<String> getPluginsInterestedIn(String notificationName) {
         Set<String> plugins = notificationNameToPluginsInterestedMap.get(notificationName);
         return plugins == null ? new HashSet<String>() : plugins;

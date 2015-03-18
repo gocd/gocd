@@ -24,11 +24,11 @@ class Api::ServerController < Api::ApiController
   end
 
   def capture_support_info
-    file = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
+    information = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
     if !result.isSuccessful()
-      render_localized_operation_result result
-    else
-      send_file file.getAbsolutePath(), :disposition => "inline", :stream => false, :type => "text"
+      render_localized_operation_result result and return
     end
+
+    send_data information, :disposition => "inline", :stream => false, :type => "text"
   end
 end

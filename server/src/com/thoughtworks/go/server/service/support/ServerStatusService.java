@@ -16,15 +16,6 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -34,6 +25,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @Component
 public class ServerStatusService {
@@ -54,14 +49,12 @@ public class ServerStatusService {
         });
     }
 
-    public File captureServerInfo(Username username, LocalizedOperationResult result) throws IOException {
+    public String captureServerInfo(Username username, LocalizedOperationResult result) throws IOException {
         if (!securityService.isUserAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
             return null;
         }
-        File serverInfoFile = File.createTempFile("serverinfo", "txt");
-        populateServerInfo(serverInfoFile);
-        return serverInfoFile;
+        return serverInfo();
     }
 
     private void populateServerInfo(File serverInfoFile) throws IOException {

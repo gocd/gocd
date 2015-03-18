@@ -88,6 +88,10 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return new TfsMaterialConfig(url, userName, domain, getPassword(), projectPath, goCipher, autoUpdate, filter, folder, name);
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
     @Override public String getUserName() {
         return userName;
     }
@@ -106,6 +110,10 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override public String getEncryptedPassword() {
         return encryptedPassword;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
     }
 
     @Override public boolean isCheckExternals() {

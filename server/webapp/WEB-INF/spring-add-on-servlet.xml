@@ -24,8 +24,6 @@
     <context:annotation-config/>
     <context:component-scan base-package="com.thoughtworks.go.addon"/>
 
-    <bean class="com.thoughtworks.go.server.web.HandlerInterceptorAnnotationAwareHandlerMapping"/>
-
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 
     <bean id="scheduledExecutorService" class="java.util.concurrent.Executors"

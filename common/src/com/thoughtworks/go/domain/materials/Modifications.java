@@ -129,6 +129,11 @@ public class Modifications extends BaseCollection<Modification> {
             return false;
         }
         Set<ModifiedFile> allFiles = getAllFiles(this);
+
+        if (allFiles.isEmpty()) {
+            return false;
+        }
+
         Set<ModifiedFile> ignoredFiles = new HashSet<ModifiedFile>();
 
         for (ModifiedFile file : allFiles) {

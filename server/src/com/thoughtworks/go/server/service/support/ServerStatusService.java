@@ -21,12 +21,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -55,10 +53,6 @@ public class ServerStatusService {
             return null;
         }
         return serverInfo();
-    }
-
-    private void populateServerInfo(File serverInfoFile) throws IOException {
-        FileUtils.writeStringToFile(serverInfoFile, serverInfo());
     }
 
     private String serverInfo() {

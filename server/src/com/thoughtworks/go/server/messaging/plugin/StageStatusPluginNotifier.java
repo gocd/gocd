@@ -76,14 +76,14 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         data.put("stage-state", stage.getState().toString());
         data.put("stage-result", stage.getResult().toString());
 
-        Pipeline pipeline = pipelineSqlMapDao.loadPipeline(stage.getPipelineId());
-        Map<String, Object> pipelineMap = createPipelineDataMap(pipeline);
+        Pipeline pipeline = pipelineSqlMapDao.pipelineWithModsByStageId(stage.getIdentifier().getPipelineName(), stage.getId());
+        Map<String, Object> pipelineMap = createPipelineDataMap(pipeline, stage);
         data.put("pipeline", pipelineMap);
 
         return data;
     }
 
-    private Map<String, Object> createPipelineDataMap(Pipeline pipeline) {
+    private Map<String, Object> createPipelineDataMap(Pipeline pipeline, Stage stage) {
         Map<String, Object> pipelineMap = new LinkedHashMap<String, Object>();
         pipelineMap.put("name", pipeline.getName());
         pipelineMap.put("counter", new Integer(pipeline.getCounter()).toString());
@@ -92,12 +92,8 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         List<Map> materialRevisionList = createBuildCauseDataMap(pipeline.getMaterialRevisions());
         pipelineMap.put("build-cause", materialRevisionList);
 
-        List<Map> stageList = new ArrayList<Map>();
-        for (Stage currentStage : pipeline.getStages()) {
-            Map<String, Object> stageMap = createStageDataMap(currentStage);
-            stageList.add(stageMap);
-        }
-        pipelineMap.put("stages", stageList);
+        Map<String, Object> stageMap = createStageDataMap(stage);
+        pipelineMap.put("stage", stageMap);
 
         return pipelineMap;
     }

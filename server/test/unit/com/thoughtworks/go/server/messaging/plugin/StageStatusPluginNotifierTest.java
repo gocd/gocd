@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -69,9 +66,10 @@ public class StageStatusPluginNotifierTest {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         doNothing().when(pluginNotificationQueue).post(pluginNotificationMessage.capture());
         Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
-        when(pipelineSqlMapDao.loadPipeline(1L)).thenReturn(pipeline);
+        when(pipelineSqlMapDao.pipelineWithModsByStageId("pipeline-name", 1L)).thenReturn(pipeline);
 
         Stage stage = pipeline.getFirstStage();
+        stage.setId(1L);
         stage.setPipelineId(1L);
         stage.setCreatedTime(new Timestamp(getFixedDate().getTime()));
         stage.setLastTransitionedTime(new Timestamp(getFixedDate().getTime()));
@@ -79,6 +77,7 @@ public class StageStatusPluginNotifierTest {
         job.setScheduledDate(getFixedDate());
         job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
         stageStatusPluginNotifier.stageStatusChanged(stage);
+        pipeline.setStages(new Stages()); // to make sure pipeline -> stages is not used
 
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
         assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
@@ -171,8 +170,7 @@ public class StageStatusPluginNotifierTest {
         assertThat((String) scmConfigurationMap.get("k2"), is("v2"));
         assertModification(scmRevisionMap, "1");
 
-        List stagesList = (List) pipelineMap.get("stages");
-        Map stageMap = (Map) stagesList.get(0);
+        Map stageMap = (Map) pipelineMap.get("stage");
         assertThat((String) stageMap.get("name"), is("stage-name"));
         assertThat((String) stageMap.get("counter"), is("1"));
         assertThat((String) stageMap.get("state"), is("Passed"));

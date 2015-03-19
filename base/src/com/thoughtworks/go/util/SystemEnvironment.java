@@ -147,8 +147,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoIntSystemProperty GO_DATABASE_MAX_IDLE = new GoIntSystemProperty("db.maxIdle", 32);
     public static final String H2_DATABASE = "com.thoughtworks.go.server.database.H2Database";
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
-
     public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
+
+    public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
 
 
     private volatile static Integer agentConnectionTimeout;
@@ -631,6 +632,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_DATABASE_PROVIDER.getValue();
     }
 
+    public boolean isServerActive() {
+        return GO_SERVER_STATE.getValue().equalsIgnoreCase("active");
+    }
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;

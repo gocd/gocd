@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
     static final Cloner CLONER = new Cloner();
@@ -370,5 +371,22 @@ public class SystemEnvironmentTest {
         assertThat("default provider should be h2db", systemEnvironment.getDatabaseProvider(), is("com.thoughtworks.go.server.database.H2Database"));
         System.setProperty("go.database.provider", "foo");
         assertThat(systemEnvironment.getDatabaseProvider(), is("foo"));
+    }
+
+    @Test
+    public void shouldFindGoServerStatusToBeActiveByDefault() throws Exception {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        assertThat(systemEnvironment.isServerActive(), is(true));
+    }
+
+    @Test
+    public void shouldFindGoServerStatusToBePassive() throws Exception {
+        try {
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            System.setProperty("go.server.state", "passive");
+            assertThat(systemEnvironment.isServerActive(), is(false));
+        } finally {
+            System.clearProperty("go.server.state");
+        }
     }
 }

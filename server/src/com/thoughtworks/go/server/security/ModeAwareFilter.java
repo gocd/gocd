@@ -16,14 +16,24 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ModeAwareFilter implements Filter {
     private static final Logger LOGGER = Logger.getLogger("GO_MODE_AWARE_FILTER");
+    private final SystemEnvironment systemEnvironment;
+
+    @Autowired
+    public ModeAwareFilter(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -31,12 +41,22 @@ public class ModeAwareFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        /* TODO: Handle Go agents' remoting requests separately. They're POST requests, but maybe they don't change anything. */
-        if (!"GET".equalsIgnoreCase(((HttpServletRequest) servletRequest).getMethod())) {
+        if (shouldBlockRequest((HttpServletRequest) servletRequest)) {
             LOGGER.info("Got a non-GET request: " + servletRequest);
-            /* If handling (rejecting) requests here, consider replying to JSON requests with a JSON response, etc. */
+            ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_FORBIDDEN);
+            servletResponse.getWriter().write("");
+
+        } else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    private boolean shouldBlockRequest(HttpServletRequest servletRequest) {
+        return !(systemEnvironment.isServerActive() || isGetRequest(servletRequest));
+    }
+
+    private boolean isGetRequest(HttpServletRequest servletRequest) {
+        return RequestMethod.GET.name().equalsIgnoreCase(servletRequest.getMethod());
     }
 
     @Override

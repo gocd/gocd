@@ -52,7 +52,11 @@ public class ModeAwareFilter implements Filter {
     }
 
     private boolean shouldBlockRequest(HttpServletRequest servletRequest) {
-        return !(systemEnvironment.isServerActive() || isGetRequest(servletRequest));
+        if (systemEnvironment.isServerActive()) return false;
+        if (isGetRequest(servletRequest)) return false;
+        if ((systemEnvironment.getWebappContextPath() + "/auth/security_check").equals(servletRequest.getRequestURI()))
+            return false;
+        return true;
     }
 
     private boolean isGetRequest(HttpServletRequest servletRequest) {

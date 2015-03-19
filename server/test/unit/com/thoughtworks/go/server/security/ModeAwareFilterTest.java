@@ -17,18 +17,14 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import static org.hamcrest.core.Is.is;
@@ -99,5 +95,17 @@ public class ModeAwareFilterTest {
 
         assertThat(servletResponse.getStatus(), is(HttpServletResponse.SC_FORBIDDEN));
         assertThat(servletResponse.getContentAsString(), is(""));
+    }
+
+    @Test
+    public void shouldAllowLoginPostRequestInPassiveState() throws Exception {
+        when(request.getMethod()).thenReturn("post");
+        when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
+        when(request.getRequestURI()).thenReturn("/go/auth/security_check");
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
     }
 }

@@ -34,8 +34,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.service.PipelineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,13 +48,13 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private NotificationPluginRegistry notificationPluginRegistry;
-    private PipelineService pipelineService;
+    private PipelineSqlMapDao pipelineSqlMapDao;
     private PluginNotificationQueue pluginNotificationQueue;
 
     @Autowired
-    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PipelineService pipelineService, PluginNotificationQueue pluginNotificationQueue) {
+    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PipelineSqlMapDao pipelineSqlMapDao, PluginNotificationQueue pluginNotificationQueue) {
         this.notificationPluginRegistry = notificationPluginRegistry;
-        this.pipelineService = pipelineService;
+        this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.pluginNotificationQueue = pluginNotificationQueue;
     }
 
@@ -76,7 +76,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         data.put("stage-state", stage.getState().toString());
         data.put("stage-result", stage.getResult().toString());
 
-        Pipeline pipeline = pipelineService.fullPipelineById(stage.getPipelineId());
+        Pipeline pipeline = pipelineSqlMapDao.loadPipeline(stage.getPipelineId());
         Map<String, Object> pipelineMap = createPipelineDataMap(pipeline);
         data.put("pipeline", pipelineMap);
 

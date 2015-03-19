@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import com.thoughtworks.go.server.service.PipelineService;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +46,7 @@ public class StageStatusPluginNotifierTest {
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
     @Mock
-    private PipelineService pipelineService;
+    private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
     private PluginNotificationQueue pluginNotificationQueue;
     @Mock
@@ -61,7 +61,7 @@ public class StageStatusPluginNotifierTest {
 
         pluginNotificationMessage = ArgumentCaptor.forClass(PluginNotificationMessage.class);
 
-        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pipelineService, pluginNotificationQueue);
+        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pipelineSqlMapDao, pluginNotificationQueue);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class StageStatusPluginNotifierTest {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         doNothing().when(pluginNotificationQueue).post(pluginNotificationMessage.capture());
         Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
-        when(pipelineService.fullPipelineById(1L)).thenReturn(pipeline);
+        when(pipelineSqlMapDao.loadPipeline(1L)).thenReturn(pipeline);
 
         Stage stage = pipeline.getFirstStage();
         stage.setPipelineId(1L);

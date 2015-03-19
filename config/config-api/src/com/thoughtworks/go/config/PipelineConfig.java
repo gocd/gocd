@@ -75,6 +75,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
     public static final String CONFIGURATION_TYPE_TEMPLATE = "configurationType_template";
+    public static final String LABEL_TEMPLATE_ERROR_MESSAGE = "Invalid label. Please find details about the syntax in the <![CDATA[<a class='' href='http://www.go.cd/documentation/user/current/configuration/admin_use_custom_pipeline_label.html' target='_blank'>documentation</a>]]>.";
 
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
@@ -168,11 +169,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void validateLabelTemplate() {
         if (XmlUtils.doesNotMatchUsingXsdRegex(LABEL_TEMPLATE_FORMAT_REGEX, labelTemplate)) {
-            addError("labelTemplate",
-                    "Invalid label. Label should be composed of alphanumeric text, it should contain "
-                    + "the build number (as ${COUNT}), "
-                    + "a material revision (e.g. ${git} for the full revision or ${git[:6]} for an truncated one), "
-                    + "or use params (as #{<param-name>}).");
+            addError("labelTemplate", LABEL_TEMPLATE_ERROR_MESSAGE);
             return;
         }
 

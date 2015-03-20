@@ -97,7 +97,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         healthService = Mockito.mock(ServerHealthService.class);
         dependencyMaterialUpdater = new DependencyMaterialUpdater(goCache, transactionSynchronizationManager, dependencyMaterialSourceDao, materialRepository, materialService);
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService);
-        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, null, materialExpansionService);
+        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
     }
 
     @After
@@ -314,7 +314,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         final boolean[] flag = new boolean[]{false};
 
         updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache,
-                dependencyMaterialUpdater, scmMaterialUpdater, null, materialExpansionService) {
+                dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService) {
             @Override
             void updateMaterialWithNewRevisions(Material material) {
                 try {

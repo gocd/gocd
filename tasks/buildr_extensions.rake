@@ -436,7 +436,8 @@ module OSXPackageHelper
       cp File.join("..", "..", "..", "..", "build", "osx", "JavaApplicationStub64"), java_application_stub_64_file
       chmod 0755, java_application_stub_64_file
 
-      `zip -q -r -9 #{go_pkg_name_with_release_revision}-osx.zip "#{pkg_dir}"`
+      system("zip -q -r -9 #{go_pkg_name_with_release_revision}-osx.zip \"#{pkg_dir}\"") || \
+        (STDERR.puts "Failed to zip the OSX installer from #{pkg_dir}"; exit 1)
       rm_rf pkg_dir
     end
   end

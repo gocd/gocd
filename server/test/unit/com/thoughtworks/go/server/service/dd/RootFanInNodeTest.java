@@ -37,6 +37,11 @@ public class RootFanInNodeTest {
     }
 
     @Test
+    public void shouldAllowPluggableSCMMaterialAsRootFaninNode() throws Exception {
+        assertThat(new RootFanInNode(MaterialConfigsMother.pluggableSCMMaterialConfig()), is(not(nullValue())));
+    }
+
+    @Test
     public void shouldNotAllowDependencyMaterialAsRootFaninNode() {
         try {
             new RootFanInNode(MaterialConfigsMother.dependencyMaterialConfig());

@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.NantTask;
 import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -88,6 +89,6 @@ public class ConfigElementImplementationRegistrar {
 
     private void registerBuiltinMaterials() {
         registry.registerImplementer(MaterialConfig.class, SvnMaterialConfig.class, HgMaterialConfig.class, GitMaterialConfig.class, DependencyMaterialConfig.class, P4MaterialConfig.class,
-                TfsMaterialConfig.class, PackageMaterialConfig.class);
+                TfsMaterialConfig.class, PackageMaterialConfig.class, PluggableSCMMaterialConfig.class);
     }
 }

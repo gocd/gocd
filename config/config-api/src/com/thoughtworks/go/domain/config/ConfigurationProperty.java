@@ -68,20 +68,22 @@ public class ConfigurationProperty implements Serializable, Validatable {
     }
 
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue) {
+        this();
         this.configurationKey = configurationKey;
         this.configurationValue = configurationValue;
     }
 
     public ConfigurationProperty(ConfigurationKey configurationKey, EncryptedConfigurationValue encryptedValue) {
+        this();
         this.configurationKey = configurationKey;
         this.encryptedValue = encryptedValue;
     }
 
     //for tests only
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue, EncryptedConfigurationValue encryptedValue, GoCipher cipher) {
+        this.cipher = cipher;
         this.configurationKey = configurationKey;
         this.configurationValue = configurationValue;
-        this.cipher = cipher;
         this.encryptedValue = encryptedValue;
     }
 

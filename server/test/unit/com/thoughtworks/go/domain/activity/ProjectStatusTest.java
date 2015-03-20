@@ -16,13 +16,18 @@
 
 package com.thoughtworks.go.domain.activity;
 
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.util.DateUtils;
+import org.jdom.Element;
+import org.junit.Test;
+
 import java.util.Date;
 
-import com.thoughtworks.go.util.DateUtils;
+import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
-import org.jdom.Element;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 public class ProjectStatusTest {
     @Test
@@ -47,10 +52,56 @@ public class ProjectStatusTest {
         assertThat(element.getAttributeValue("lastBuildLabel"), is(lastBuildLabel));
         assertThat(element.getAttributeValue("lastBuildTime"), is(DateUtils.formatIso8601ForCCTray(lastBuildTime)));
         assertThat(element.getAttributeValue("webUrl"), is(contextPath + "/" + webUrl));
-
     }
 
+    @Test
+    public void shouldListViewers() throws Exception {
+        Viewers viewers = mock(Viewers.class);
+
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+        status.updateViewers(viewers);
+
+        assertThat(status.viewers(), is(viewers));
+    }
+
+    @Test
+    public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url");
+
+        assertThat(status.xmlRepresentation(),
+                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\" />"));
+    }
+
+    @Test
+    public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+                DateUtils.parseYYYYMMDD("2010-05-23"), "web-url", s("breaker1", "breaker2"));
+
+        assertThat(status.xmlRepresentation(),
+                is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
+                        "lastBuildTime=\"2010-05-23T00:00:00\" webUrl=\"__SITE_URL_PREFIX__/web-url\">" +
+                        "<messages><message text=\"breaker1, breaker2\" kind=\"Breakers\" /></messages></Project>"));
+    }
+
+    @Test
+    public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() throws Exception {
+        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation(), is(""));
+        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation(), is(""));
+    }
+
+    @Test
+    public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() throws Exception {
+        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+
+        assertThat(status.canBeViewedBy("abc"), is(false));
+        assertThat(status.canBeViewedBy("def"), is(false));
+
+        status.updateViewers(new AllowedViewers(s("abc", "ghi")));
+
+        assertThat(status.canBeViewedBy("abc"), is(true));
+        assertThat(status.canBeViewedBy("def"), is(false));
+        assertThat(status.canBeViewedBy("ghi"), is(true));
+    }
 }
-
-
-

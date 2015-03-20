@@ -33,6 +33,8 @@
     <entry key="ADMIN">ADMIN</entry>
     <entry key="HELP">HELP</entry>
     <entry key="HELP_SMALL">Help</entry>
+    <entry key="PLUGINS">Plugins</entry>
+    <entry key="APIS">APIs</entry>
     <entry key="COMMUNITY">Community</entry>
     <entry key="SUPPORT">Support</entry>
     <entry key="CCTRAY_FEED">CCTray Feed</entry>
@@ -391,6 +393,7 @@
     <entry key="GIT">Git</entry>
     <entry key="PACKAGE">Package</entry>
     <entry key="REPOSITORY">Repository</entry>
+    <entry key="SCM">SCM</entry>
     <entry key="P4">Perforce</entry>
     <entry key="PERFORCE">Perforce</entry>
     <entry key="JOB_SETTINGS">Job Settings</entry>
@@ -789,4 +792,6 @@
     <entry key="APACHE_LICENSE_2_0">Apache License, Version 2.0</entry>
     <entry key="THIRD_PARTY_SOFTWARE">third-party software</entry>
     <entry key="GARAGE_MESSAGE">{0}</entry>
+    <entry key="GLOBAL_SCM_WARNING">This is a global copy. All pipelines using this SCM will be affected.</entry>
+    <entry key="SCM_USED_IN_PIPELINES_LINK">Show pipelines using this SCM</entry>
 </properties>

@@ -72,9 +72,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
 
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (packageAsRepositoryExtension.isPackageRepositoryPlugin(pluginDescriptor.id())) {
-            repositoryMetadataStore.removeMetadata(pluginDescriptor.id());
-            packageMetadataStore.removeMetadata(pluginDescriptor.id());
-        }
+        repositoryMetadataStore.removeMetadata(pluginDescriptor.id());
+        packageMetadataStore.removeMetadata(pluginDescriptor.id());
     }
 }

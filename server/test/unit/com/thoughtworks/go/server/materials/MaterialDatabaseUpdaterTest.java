@@ -50,6 +50,7 @@ public class MaterialDatabaseUpdaterTest {
     @Mock private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Mock private ScmMaterialUpdater scmMaterialUpdater;
     @Mock private PackageMaterialUpdater packageMaterialUpdater;
+    @Mock private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
     @Mock private MaterialExpansionService materialExpansionService;
 
     private MaterialDatabaseUpdater materialDatabaseUpdater;
@@ -58,7 +59,7 @@ public class MaterialDatabaseUpdaterTest {
     public void setUp() throws Exception {
         initMocks(this);
         materialDatabaseUpdater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
-                packageMaterialUpdater, materialExpansionService);
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
     }
 
     @Test
@@ -96,6 +97,7 @@ public class MaterialDatabaseUpdaterTest {
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.dependencyMaterial()), is((MaterialUpdater) dependencyMaterialUpdater));
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.svnMaterial()), is((MaterialUpdater) scmMaterialUpdater));
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.packageMaterial()), is((MaterialUpdater) packageMaterialUpdater));
+        assertThat(materialDatabaseUpdater.updater(MaterialsMother.pluggableSCMMaterial()), is((MaterialUpdater) pluggableSCMMaterialUpdater));
     }
 
     @Test

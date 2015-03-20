@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -26,16 +27,23 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
+import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
@@ -43,6 +51,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -53,37 +62,46 @@ import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(Theories.class)
 public class MaterialServiceTest {
-    private MaterialService materialService;
-    private MaterialRepository materialRepository;
-    private GoConfigService goConfigService;
-    private SecurityService securityService;
-
     private static List MODIFICATIONS = new ArrayList<Modification>();
+
+    @Mock
+    private MaterialRepository materialRepository;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    @Mock
+    private SCMExtension scmExtension;
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
+    private MaterialService materialService;
 
     @Before
     public void setUp() {
-        materialRepository = mock(MaterialRepository.class);
-        goConfigService = mock(GoConfigService.class);
-        securityService = mock(SecurityService.class);
-        packageAsRepositoryExtension = mock(PackageAsRepositoryExtension.class);
-        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension);
+        initMocks(this);
+        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension, scmExtension, transactionTemplate);
     }
 
     @Test
@@ -107,7 +125,7 @@ public class MaterialServiceTest {
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenReturn(materialConfig);
 
-        List<MatchedRevision> expected = Arrays.asList(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
+        List<MatchedRevision> expected = asList(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
         when(materialRepository.findRevisionsMatching(materialConfig, "23")).thenReturn(expected);
         assertThat(materialService.searchRevisions("pipeline", "sha", "23", new Username(new CaseInsensitiveString("pavan")), operationResult), is(expected));
     }
@@ -251,6 +269,34 @@ public class MaterialServiceTest {
                 any(RepositoryConfiguration.class),
                 any(PackageRevision.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
+        assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
+    }
+
+    @Test
+    public void shouldGetLatestModification_PluggableSCMMaterial() {
+        PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, new SCMRevision("blah-123", new Date(), "user", "comment", null, null));
+        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(materialPollResult);
+
+        List<Modification> modifications = materialService.latestModification(pluggableSCMMaterial, new File("/tmp/flyweight"), null);
+
+        assertThat(modifications.get(0).getRevision(), is("blah-123"));
+    }
+
+    @Test
+    public void shouldGetModificationSince_PluggableSCMMaterial() {
+        PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
+        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class),
+                any(SCMRevision.class))).thenReturn(materialPollResult);
+
+        PluggableSCMMaterialRevision previouslyKnownRevision = new PluggableSCMMaterialRevision("revision-124", new Date());
+        List<Modification> modifications = materialService.modificationsSince(pluggableSCMMaterial, new File("/tmp/flyweight"), previouslyKnownRevision, null);
+
         assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
     }
 

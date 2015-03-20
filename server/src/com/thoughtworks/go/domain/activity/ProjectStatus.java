@@ -16,17 +16,21 @@
 
 package com.thoughtworks.go.domain.activity;
 
+import com.thoughtworks.go.domain.cctray.viewers.NoOne;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.util.DateUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.thoughtworks.go.util.DateUtils;
-import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-
 public class ProjectStatus {
     public static final Date DEFAULT_LAST_BUILD_TIME = new Date();
     public static final String DEFAULT_LAST_BUILD_STATUS = "Success";
+    public static final String SITE_URL_PREFIX = "__SITE_URL_PREFIX__";
 
     private String name;
     private String activity;
@@ -36,6 +40,8 @@ public class ProjectStatus {
     private Date lastBuildTime;
     private String webUrl;
     public static final String DEFAULT_LAST_BUILD_LABEL = "1";
+    private volatile Viewers viewers;
+    private String cachedXmlRepresentation;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
                          Date lastBuildTime, String webUrl) {
@@ -55,6 +61,7 @@ public class ProjectStatus {
         this.breakers = breakers;
         this.lastBuildTime = lastBuildTime == null ? DEFAULT_LAST_BUILD_TIME : lastBuildTime;
         this.webUrl = webUrl;
+        this.viewers = NoOne.INSTANCE;
     }
 
     public boolean equals(Object o) {
@@ -121,6 +128,10 @@ public class ProjectStatus {
         return lastBuildStatus;
     }
 
+    public String name() {
+        return name;
+    }
+
     public Element ccTrayXmlElement(String fullContextPath) {
         Element element = new Element("Project");
         element.setAttribute("name", name);
@@ -137,6 +148,30 @@ public class ProjectStatus {
         return element;
     }
 
+    public Viewers viewers() {
+        return viewers;
+    }
+
+    public ProjectStatus updateViewers(Viewers viewers) {
+        this.viewers = viewers;
+        return this;
+    }
+
+    public boolean canBeViewedBy(String userName) {
+        return viewers.contains(userName);
+    }
+
+    public String xmlRepresentation() {
+        if (cachedXmlRepresentation == null) {
+            cachedXmlRepresentation = new XMLOutputter().outputString(ccTrayXmlElement(SITE_URL_PREFIX));
+        }
+        return cachedXmlRepresentation;
+    }
+
+    public Set<String> getBreakers() {
+        return breakers;
+    }
+
     private void addBreakers(Element element) {
         Element messages = new Element("messages");
         Element message = new Element("message");
@@ -151,9 +186,10 @@ public class ProjectStatus {
         public NullProjectStatus(String name) {
             super(name, "", DEFAULT_LAST_BUILD_STATUS, DEFAULT_LAST_BUILD_LABEL, DEFAULT_LAST_BUILD_TIME, "");
         }
-    }
 
-    public Set<String> getBreakers() {
-        return breakers;
+        @Override
+        public String xmlRepresentation() {
+            return "";
+        }
     }
 }

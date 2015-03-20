@@ -20,7 +20,9 @@ import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
@@ -62,13 +64,17 @@ public class AgentController {
     private SubprocessLogger subprocessLogger;
     private final SystemEnvironment systemEnvironment;
     private AgentUpgradeService agentUpgradeService;
+    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private SCMExtension scmExtension;
     private TaskExtension taskExtension;
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
                            AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger, SystemEnvironment systemEnvironment,
-                           PluginManager pluginManager, TaskExtension taskExtension) {
+                           PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         this.agentUpgradeService = agentUpgradeService;
+        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
@@ -177,7 +183,7 @@ public class AgentController {
                 }
             }
             runner = new JobRunner();
-            runner.run(work, agentIdentifier, server, manipulator, agentRuntimeInfo, taskExtension);
+            runner.run(work, agentIdentifier, server, manipulator, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
         } catch (UnregisteredAgentException e) {
             LOG.warn(String.format("[Agent Loop] Invalid agent certificate with fingerprint %s. Registering with server on next iteration.", e.getUuid()));
             sslInfrastructureService.invalidateAgentCertificate();

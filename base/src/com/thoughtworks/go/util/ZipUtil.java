@@ -16,20 +16,14 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 import static java.lang.String.format;
 
@@ -103,7 +97,9 @@ public class ZipUtil {
             BufferedInputStream inputStream = null;
             try {
                 inputStream = new BufferedInputStream(new FileInputStream(srcFile));
-                zip.putNextEntry(path.with(srcFile).asZipEntry());
+                ZipEntry zipEntry = path.with(srcFile).asZipEntry();
+                zipEntry.setTime(srcFile.lastModified());
+                zip.putNextEntry(zipEntry);
                 int len;
                 while ((len = inputStream.read(buff)) > 0) {
                     zip.write(buff, 0, len);

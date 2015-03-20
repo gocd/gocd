@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 
 # chkconfig: 345 90 10
 # description: Go Agent
+# processname: java
 ### BEGIN INIT INFO
 # Provides: go-agent
 # Required-Start: $network $remote_fs
@@ -25,31 +26,32 @@
 # Default-Stop: 0 1 2 6
 # Description: Start the Go Agent
 ### END INIT INFO
+SERVICE_NAME=${0##*/}
 
-PID_FILE="/var/run/go-agent/go-agent.pid"
+PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 CUR_USER=`whoami`
 
 # LSB implimentation is not standard across distros, so we have to roll our own...
 killproc() {
-    pkill -u go -f /usr/share/go-agent/agent-bootstrapper.jar
+    pkill -u go -f /usr/share/${SERVICE_NAME}/agent-bootstrapper.jar
 }
 
 start_daemon() {
-    eval "$*"
+    eval "$@"
 }
 
 log_success_msg() {
-    echo "$*"
+    echo "$@"
 }
 
 log_failure_msg() {
-    echo "$*"
+    echo "$@"
 }
 
-. /etc/default/go-agent
+. /etc/default/${SERVICE_NAME}
 
 check_proc() {
-    pgrep -u go -f /usr/share/go-agent/agent-bootstrapper.jar >/dev/null
+    pgrep -u go -f /usr/share/${SERVICE_NAME}/agent-bootstrapper.jar >/dev/null    
 }
 
 start_go_agent() {
@@ -60,17 +62,17 @@ start_go_agent() {
 
     check_proc
     if [ $? -eq 0 ]; then
-	    log_success_msg "Go Agent already running."
-	    exit 0
+        log_success_msg "Go Agent already running."
+        exit 0
     fi
 
     [ -d /var/run/go-agent ] || (mkdir /var/run/go-agent && chown -R go:go /var/run/go-agent)
 
     if [ "$JAVA_HOME" != "" ]; then
         if [ "${CUR_USER}" == "root" ]; then
-            start_daemon /bin/su - go -c /usr/share/go-agent/agent.sh
+            start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}'"
         else
-            start_daemon /usr/share/go-agent/agent.sh
+            start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}
         fi
     else
         log_failure_msg "Starting up of Go Agent requires JAVA_HOME to be set in /etc/default/go-agent. Please set JAVA_HOME to proceed."
@@ -97,7 +99,7 @@ stop_go_agent() {
     check_proc
 
     if [ $? -eq 0 ]; then
-        killproc -p $PID_FILE /usr/share/go-agent/agent.sh >/dev/null
+        killproc -p $PID_FILE /usr/share/${SERVICE_NAME}/agent.sh >/dev/null
 
         # Make sure it's dead before we return
         until [ $? -ne 0 ]; do
@@ -120,10 +122,10 @@ stop_go_agent() {
 go_status() {
     check_proc
     if [ $? -eq 0 ]; then
-	    log_success_msg "Go Agent is running."
+        log_success_msg "Go Agent is running."
     else
-	    log_failure_msg "Go Agent is stopped."
-	    exit 3
+        log_failure_msg "Go Agent is stopped."
+        exit 3
     fi
 }
 
@@ -147,4 +149,3 @@ case "$1" in
 esac
 
 exit 0
-

@@ -21,10 +21,10 @@ import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import java.lang.reflect.Field;
 
 /**
- * Logger for use by the plugin developers.
+ * Logger for use by plugin developers.
  *
  * @author Go Team
- * @see <a href="http://www.go.cd/documentation/user/current/extension_points/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
+ * @see <a href="http://www.go.cd/documentation/developer/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  */
 public class Logger {
     private String pluginId;
@@ -151,7 +151,7 @@ public class Logger {
      * Messages to be logged in error mode.
      *
      * @param message a string containing the message to be logged.
-     * @param throwable a string containing the message to be logged.
+     * @param throwable
      */
     public void error(String message, Throwable throwable) {
         if (loggingService == null) {

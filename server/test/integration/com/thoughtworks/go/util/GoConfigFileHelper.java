@@ -31,6 +31,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
@@ -104,6 +105,7 @@ public class GoConfigFileHelper {
     }
 
      private GoConfigFileHelper(String xml, GoConfigFileDao goConfigFileDao) {
+         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
          this.originalXml = xml;
          assignFileDao(goConfigFileDao);
          try {
@@ -815,6 +817,16 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
+    public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, Resources resources,
+                                             ArtifactPlans artifactPlans, ArtifactPropertiesGenerators artifactPropertiesGenerators) {
+        CruiseConfig config = load();
+        JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
+        ReflectionUtil.setField(jobConfig, "resources", resources);
+        ReflectionUtil.setField(jobConfig, "artifactPlans", artifactPlans);
+        ReflectionUtil.setField(jobConfig, "artifactPropertiesGenerators", artifactPropertiesGenerators);
+        writeConfigFile(config);
+    }
+
     public PipelineConfig addMaterialToPipeline(String pipelineName, MaterialConfig materialConfig) {
         CruiseConfig config = load();
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
@@ -947,6 +959,12 @@ public class GoConfigFileHelper {
         CruiseConfig config = load();
         PackageRepository repository = packageMaterialConfig.getPackageDefinition().getRepository();
         config.getPackageRepositories().add(repository);
+        writeConfigFile(config);
+    }
+
+    public void addSCMConfig(SCM scmConfig) {
+        CruiseConfig config = load();
+        config.getSCMs().add(scmConfig);
         writeConfigFile(config);
     }
 

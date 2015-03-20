@@ -53,7 +53,6 @@ public class ConsoleOutMatcher {
         };
     }
 
-
     public static TypeSafeMatcher<String> printedEnvVariable(final String key, final Object value) {
         return new TypeSafeMatcher<String>() {
             private String consoleOut;
@@ -62,16 +61,13 @@ public class ConsoleOutMatcher {
 
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
-                set = format("environment variable '%s' to value '%s'",
-                        key, value);
-                override = format("environment variable '%s' with value '%s'",
-                        key, value);
+                set = format("environment variable '%s' to value '%s'", key, value);
+                override = format("environment variable '%s' with value '%s'", key, value);
                 return StringUtils.contains(consoleOut, set) || StringUtils.contains(consoleOut, override);
             }
 
             public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + set + "] or [" + override + "]"
-                        + " but was " + consoleOut);
+                description.appendText("expected console to contain [" + set + "] or [" + override + "]" + " but was " + consoleOut);
             }
         };
     }
@@ -88,8 +84,7 @@ public class ConsoleOutMatcher {
             }
 
             public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]"
-                        + " but was " + consoleOut);
+                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
         };
     }
@@ -106,8 +101,7 @@ public class ConsoleOutMatcher {
             }
 
             public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]"
-                        + " but was " + consoleOut);
+                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
         };
     }
@@ -124,8 +118,7 @@ public class ConsoleOutMatcher {
             }
 
             public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]"
-                        + " but was " + consoleOut);
+                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
             }
         };
     }
@@ -276,7 +269,6 @@ public class ConsoleOutMatcher {
         };
     }
 
-
     public static TypeSafeMatcher<String> printedExcRunIfInfo(final String command, final String status) {
         return printedExcRunIfInfo(command, "", status);
 
@@ -291,13 +283,11 @@ public class ConsoleOutMatcher {
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 if (StringUtils.isEmpty(args)) {
-                    this.message = format(
-                            "[%s] Current job status: %s.\n\n[%s] Start to execute task: <exec command=\"%s\" />.",
-                            GoConstants.PRODUCT_NAME, status, GoConstants.PRODUCT_NAME, command);
+                    this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
+                    this.message = format("[%s] Start to execute task: <exec command=\"%s\" />.", GoConstants.PRODUCT_NAME, command);
                 } else {
-                    this.message = format(
-                            "[%s] Current job status: %s.\n\n[%s] Start to execute task: <exec command=\"%s\" args=\"%s\" />.",
-                            GoConstants.PRODUCT_NAME, status, GoConstants.PRODUCT_NAME, command, args);
+                    this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
+                    this.message = format("[%s] Start to execute task: <exec command=\"%s\" args=\"%s\" />.", GoConstants.PRODUCT_NAME, command, args);
                 }
                 return StringUtils.contains(consoleOut, message);
             }
@@ -342,7 +332,6 @@ public class ConsoleOutMatcher {
         };
     }
 
-
     public static TypeSafeMatcher<List<UploadEntry>> uploadFileToDestination(final File file, final String dest) {
         return new TypeSafeMatcher<List<UploadEntry>>() {
             private List<UploadEntry> entries;
@@ -360,6 +349,4 @@ public class ConsoleOutMatcher {
             }
         };
     }
-
-
 }

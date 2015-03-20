@@ -135,6 +135,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<String>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
     public static GoSystemProperty<Boolean> CAPTURE_METRICS = new GoBooleanSystemProperty("capture.metrics", true);
 
+    public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<Integer>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
+
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
     public static GoSystemProperty<String> GO_DATABASE_PORT = new GoStringSystemProperty("db.port", "");
@@ -381,6 +383,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getNumberOfMaterialCheckListener() {
         return Integer.parseInt(getPropertyImpl("material.check.threads", "10"));
+    }
+
+    public int getNumberOfPluginNotificationListener() {
+        return PLUGIN_NOTIFICATION_LISTENER_COUNT.getValue();
     }
 
     public File getAgentJarFile() {

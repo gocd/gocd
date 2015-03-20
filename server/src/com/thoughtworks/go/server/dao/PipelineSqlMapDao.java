@@ -31,6 +31,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -56,7 +57,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
 @SuppressWarnings({"ALL"})
 @Component
-public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements PipelineDao, StageStatusListener {
+public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initializer, PipelineDao, StageStatusListener {
     private static final Logger LOGGER = Logger.getLogger(PipelineSqlMapDao.class);
     private StageDao stageDao;
     private MaterialRepository materialRepository;
@@ -87,14 +88,15 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Pipelin
 
     }
 
-    public void initialize() throws Exception {
+    @Override
+    public void initialize() {
         try {
             LOGGER.info("Loading active pipelines into memory.");
             cacheActivePipelines();
             LOGGER.info("Done loading active pipelines into memory.");
         } catch (Exception e) {
             LOGGER.fatal(e.getMessage(), e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 

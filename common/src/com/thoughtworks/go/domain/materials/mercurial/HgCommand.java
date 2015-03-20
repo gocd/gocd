@@ -16,20 +16,16 @@
 
 package com.thoughtworks.go.domain.materials.mercurial;
 
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.SCMCommand;
+import com.thoughtworks.go.util.command.*;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.SCMCommand;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.log4j.Logger;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
@@ -42,16 +38,18 @@ public class HgCommand extends SCMCommand {
     private final File workingDir;
     private static String templatePath;
     private final String branch;
+    private final String url;
 
-    public HgCommand(String materialFingerprint, File workingDir, String branch) {
+    public HgCommand(String materialFingerprint, File workingDir, String branch, String url) {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.branch = branch;
+        this.url = url;
     }
 
 
     private boolean pull(ProcessOutputStreamConsumer outputStreamConsumer) {
-        CommandLine hg = hg("pull", "-b", branch);
+        CommandLine hg = hg("pull", "-b", branch, "--config", String.format("paths.default=%s", url));
         return execute(hg, outputStreamConsumer) == 0;
     }
 
@@ -132,7 +130,13 @@ public class HgCommand extends SCMCommand {
 
     public ConsoleResult workingRepositoryUrl() {
         CommandLine hg = hg("showconfig", "paths.default");
-        return execute(hg);
+
+        final ConsoleResult result = execute(hg);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Current repository url of [" + workingDir + "]: " + result.outputForDisplayAsString());
+            LOGGER.trace("Target repository url: " + url);
+        }
+        return result;
     }
 
     private CommandLine hg(String... arguments) {

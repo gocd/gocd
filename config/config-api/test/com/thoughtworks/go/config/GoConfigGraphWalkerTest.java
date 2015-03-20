@@ -17,8 +17,10 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
@@ -68,5 +70,19 @@ public class GoConfigGraphWalkerTest {
             }
         });
         verify(packageDefinition, never()).validate(any(ValidationContext.class));
+    }
+
+    @Test
+    public void shouldNotWalkSCMMaterialWhileTraversingPluggableSCMMaterial() {
+        SCM scmConfig = mock(SCM.class);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
+        setField(pluggableSCMMaterialConfig, "scmConfig", scmConfig);
+        new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
+            @Override
+            public void handle(Validatable validatable, ValidationContext ctx) {
+                validatable.validate(ctx);
+            }
+        });
+        verify(scmConfig, never()).validate(any(ValidationContext.class));
     }
 }

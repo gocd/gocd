@@ -24,11 +24,13 @@ import java.util.Set;
 
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -114,6 +116,10 @@ public class Modifications extends BaseCollection<Modification> {
         if(material instanceof PackageMaterial) {
             Modification latestModification = this.get(0);
             return new PackageMaterialRevision(latestModification.getRevision(),latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
+        }
+        if (material instanceof PluggableSCMMaterial) {
+            Modification latestModification = this.get(0);
+            return new PluggableSCMMaterialRevision(latestModification.getRevision(), latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
         }
         return Modification.latestRevision(this);
     }

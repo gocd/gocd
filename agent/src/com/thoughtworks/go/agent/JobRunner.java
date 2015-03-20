@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.agent;
 
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
@@ -45,10 +47,10 @@ public class JobRunner {
         handled = true;
     }
 
-    public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server,
-                    GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+    public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
+                    PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         this.work = work;
-        work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, taskExtension);
+        work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
     }
 
     public boolean isJobCancelled() {

@@ -138,8 +138,8 @@ describe AgentsController do
       controller.should_receive(:bulk_edit).and_return(bulk_edit_result)
       bulk_edit_result.stub(:message).and_return("successfuly managed to edit")
       bulk_edit_result.stub(:canContinue).and_return(false)
-      get :edit_agents, :column => "foo", :order => "bar"
-      expect(response).to redirect_to("/agents?column=foo&order=bar")
+      get :edit_agents, :column => "foo", :order => "bar", :filter => "criteria"
+      expect(response).to redirect_to("/agents?column=foo&filter=criteria&order=bar")
     end
   end
 

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -93,7 +94,7 @@ public class PipelineXmlViewModel implements XmlRepresentable {
         final AbstractMaterial material;
 
         static MaterialXmlViewModel viewModelFor(Material material) {
-            if(material instanceof ScmMaterial) return new ScmXmlViewModel(material);
+            if(material instanceof ScmMaterial || material instanceof PluggableSCMMaterial) return new ScmXmlViewModel(material);
             if(material instanceof DependencyMaterial) return new DependencyXmlViewModel(material);
             if(material instanceof PackageMaterial) return new PackageXmlViewModel(material);
             throw new RuntimeException("Unknown material type");

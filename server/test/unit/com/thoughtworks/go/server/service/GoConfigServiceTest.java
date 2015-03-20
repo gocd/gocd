@@ -62,6 +62,7 @@ import org.jdom.input.JDOMParseException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -74,15 +75,13 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static java.lang.String.format;
-import static org.junit.Assert.fail;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -106,6 +105,8 @@ public class GoConfigServiceTest {
 
     @Before
     public void setup() throws Exception {
+        new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
+
         configRepo = mock(ConfigRepository.class);
         goConfigFileDao = mock(GoConfigFileDao.class);
         pipelineRepository = mock(PipelineRepository.class);
@@ -491,6 +492,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
+    @Ignore("Deprecated usage. Will be removed soon")
     public void shouldReturnValidWhenJobPartialIsValid() throws Exception {
         CruiseConfig config = configWithPipeline();
         when(goConfigFileDao.loadForEditing()).thenReturn(config);
@@ -1324,6 +1326,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
+    @Ignore("Deprecated usage. Will be removed soon")
     public void shouldReturnConfigValidityWithMergedStateWhenConfigIsMerged() throws Exception {
         CruiseConfig config = configWithPipeline();
         when(goConfigFileDao.loadForEditing()).thenReturn(config);
@@ -1371,7 +1374,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
 
         GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.enableSuperAdminForConfig(config, "theSuperAdmin");
+        GoConfigMother.addUserAsSuperAdmin(config, "theSuperAdmin");
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
@@ -1390,7 +1393,7 @@ public class GoConfigServiceTest {
         CaseInsensitiveString secondTemplateAdminName = new CaseInsensitiveString("secondTemplateAdmin");
 
         GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.enableSuperAdminForConfig(config, theSuperAdmin);
+        GoConfigMother.addUserAsSuperAdmin(config, theSuperAdmin);
         config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
         config.addTemplate(createTemplate(secondTemplateName, new Authorization(new AdminsConfig(new AdminUser(secondTemplateAdminName)))));
 
@@ -1408,7 +1411,7 @@ public class GoConfigServiceTest {
         String templateName = "template";
 
         GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
-        GoConfigMother.enableSuperAdminForConfig(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
+        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 

@@ -112,7 +112,7 @@ public class DefaultJobPlan implements JobPlan {
             for (ArtifactPlan artifactPlan : failedArtifact) {
                 artifactPlan.printSrc(builder);
             }
-            throw new RuntimeException(String.format("\n[%s] Uploading finished. Failed to upload %s", GoConstants.PRODUCT_NAME, builder));
+            throw new RuntimeException(String.format("[%s] Uploading finished. Failed to upload %s", GoConstants.PRODUCT_NAME, builder));
         }
     }
 

@@ -42,6 +42,14 @@ public class FanInNodeFactoryTest {
     }
 
     @Test
+    public void shouldCreateRootNodeForPluggableSCMMaterial() {
+        MaterialConfig material = MaterialConfigsMother.pluggableSCMMaterialConfig();
+        FanInNode node = FanInNodeFactory.create(material);
+        assertThat(node instanceof RootFanInNode, is(true));
+        assertThat(node.materialConfig, is(material));
+    }
+
+    @Test
     public void shouldCreateDependencyNodeForScmMaterial() {
         MaterialConfig material = MaterialConfigsMother.dependencyMaterialConfig();
         FanInNode node = FanInNodeFactory.create(material);

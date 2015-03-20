@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -177,7 +172,7 @@ public class TestUtils {
         };
     }
 
-    public static void copyAndClose(FileInputStream fileInputStream, FileOutputStream fileOutputStream) {
+    public static void copyAndClose(InputStream fileInputStream, OutputStream fileOutputStream) {
         try {
             IOUtils.copy(fileInputStream, fileOutputStream);
         } catch (IOException e) {

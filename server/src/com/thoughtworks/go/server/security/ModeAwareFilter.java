@@ -42,7 +42,7 @@ public class ModeAwareFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         if (shouldBlockRequest((HttpServletRequest) servletRequest)) {
-            LOGGER.info("Got a non-GET request: " + servletRequest);
+            LOGGER.warn("Got a non-GET request: " + servletRequest);
             ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_FORBIDDEN);
             servletResponse.getWriter().write("");
 

@@ -1,5 +1,4 @@
 ../../build/windows-installer-base.nsi
-../../common/test-resources/data/customer/CoverageSummary.xml
 ../../installers/agent/deb/copyright.go-agent
 ../../installers/agent/deb/postinst.go-agent
 ../../installers/agent/deb/postrm.go-agent

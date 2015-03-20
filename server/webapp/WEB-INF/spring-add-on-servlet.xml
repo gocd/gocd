@@ -26,6 +26,4 @@
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 
-    <bean id="scheduledExecutorService" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadScheduledExecutor"/>
 </beans>

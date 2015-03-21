@@ -60,11 +60,11 @@ public class PipelineMother {
     }
 
     public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName) {
-        GitMaterial gitMaterial = MaterialsMother.gitMaterial("url", null, "branch");
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial("url");
-        SvnMaterial svnMaterial = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
-        TfsMaterial tfsMaterial = MaterialsMother.tfsMaterial();
-        P4Material p4Material = MaterialsMother.p4Material("url", "username", "password", "view", false);
+        GitMaterial gitMaterial = MaterialsMother.gitMaterial("http://user:password@gitrepo.com", null, "branch");
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial("http://user:password@hgrepo.com");
+        SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://user:password@svnrepo.com", null, "username", "password", false, null);
+        TfsMaterial tfsMaterial = MaterialsMother.tfsMaterial("http://user:password@tfsrepo.com");
+        P4Material p4Material = MaterialsMother.p4Material("127.0.0.1:1666", "username", "password", "view", false);
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial();
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();

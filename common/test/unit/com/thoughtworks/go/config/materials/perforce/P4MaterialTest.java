@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.perforce;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Map;
 
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -151,5 +152,37 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         assertThat(config.getPassword(), is("password"));
         assertThat(config.getEncryptedPassword(), is(Matchers.not(Matchers.nullValue())));
+    }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        P4Material material = new P4Material("host:1234", "view", "username");
+        material.setPassword("password");
+        material.setUseTickets(true);
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("perforce"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        assertThat((String) configuration.get("url"), is("host:1234"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is("password"));
+        assertThat((String) configuration.get("view"), is("view"));
+        assertThat((Boolean) configuration.get("use-tickets"), is(true));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        P4Material material = new P4Material("host:1234", "view", "username");
+        material.setPassword("password");
+        material.setUseTickets(true);
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("perforce"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        assertThat((String) configuration.get("url"), is("host:1234"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat(configuration.get("password"), is(nullValue()));
+        assertThat((String) configuration.get("view"), is("view"));
+        assertThat((Boolean) configuration.get("use-tickets"), is(true));
     }
 }

@@ -45,7 +45,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.upperCase;
 
-public class PluggableSCMMaterial extends AbstractMaterial {
+public class PluggableSCMMaterial extends AbstractMaterial implements InformationProvider {
     public static final String TYPE = "PluggableSCMMaterial";
 
     private String scmId;
@@ -222,6 +222,16 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public String getUriForDisplay() {
         return scmConfig.getConfigForDisplay();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "scm");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> configurationMap = scmConfig.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("scm-configuration", configurationMap);
+        return materialMap;
     }
 
     @Override

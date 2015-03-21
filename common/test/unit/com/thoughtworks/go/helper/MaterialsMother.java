@@ -183,8 +183,8 @@ public class MaterialsMother {
         return material;
     }
 
-    public static TfsMaterial tfsMaterial() {
-        return new TfsMaterial(new GoCipher(), new UrlArgument("url"), "username", "domain", "password", "project-path");
+    public static TfsMaterial tfsMaterial(String url) {
+        return new TfsMaterial(new GoCipher(), new UrlArgument(url), "username", "domain", "password", "project-path");
     }
 
     public static SvnMaterial svnMaterial(String svnUrl, String folder) {

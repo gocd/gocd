@@ -29,12 +29,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.MatchedRevision;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.NullRevision;
-import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -50,7 +45,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.upperCase;
 
-public class PackageMaterial extends AbstractMaterial {
+public class PackageMaterial extends AbstractMaterial implements InformationProvider {
     public static final String TYPE = "PackageMaterial";
 
     private String packageId;
@@ -220,6 +215,18 @@ public class PackageMaterial extends AbstractMaterial {
     @Override
     public String getUriForDisplay() {
         return packageDefinition.getConfigForDisplay();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "package");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> repositoryConfigurationMap = packageDefinition.getRepository().getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("repository-configuration", repositoryConfigurationMap);
+        Map<String, Object> packageConfigurationMap = packageDefinition.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("package-configuration", packageConfigurationMap);
+        return materialMap;
     }
 
     @Override

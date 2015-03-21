@@ -412,4 +412,34 @@ public class PluggableSCMMaterialTest {
         material.setFolder(null);
         assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(baseFolder));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("scm"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat((String) configuration.get("k2"), is("v2"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("scm"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k2"), is(nullValue()));
+    }
+
+    private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {
+        PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        return material;
+    }
 }

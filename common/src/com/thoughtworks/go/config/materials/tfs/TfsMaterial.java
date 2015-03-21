@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.tfs;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,10 +29,7 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
@@ -48,7 +46,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 
-public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
+public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter, InformationProvider {
     private static final Logger LOGGER = Logger.getLogger(TfsMaterial.class);
 
     public static final String TYPE = "TfsMaterial";
@@ -188,6 +186,26 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     public String getTypeForDisplay() {
         return "Tfs";
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "tfs");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        configurationMap.put("domain", domain);
+        configurationMap.put("username", userName);
+        if (addSecureFields) {
+            configurationMap.put("password", getPassword());
+        }
+        configurationMap.put("project-path", projectPath);
+        materialMap.put("tfs-configuration", configurationMap);
+        return materialMap;
     }
 
     public Class getInstanceType() {

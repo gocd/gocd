@@ -24,7 +24,11 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.Material;
@@ -69,27 +73,29 @@ public class StageStatusPluginNotifier implements StageStatusListener {
 
     Map createRequestDataMap(Stage stage) {
         Map<String, Object> data = new LinkedHashMap<String, Object>();
-        data.put("pipeline-name", stage.getIdentifier().getPipelineName());
-        data.put("pipeline-counter", new Integer(stage.getIdentifier().getPipelineCounter()).toString());
+        String pipelineName = stage.getIdentifier().getPipelineName();
+        Integer pipelineCounter = new Integer(stage.getIdentifier().getPipelineCounter());
+
+        data.put("pipeline-name", pipelineName);
+        data.put("pipeline-counter", pipelineCounter.toString());
         data.put("stage-name", stage.getIdentifier().getStageName());
         data.put("stage-counter", stage.getIdentifier().getStageCounter());
         data.put("stage-state", stage.getState().toString());
         data.put("stage-result", stage.getResult().toString());
 
-        Pipeline pipeline = pipelineSqlMapDao.pipelineWithModsByStageId(stage.getIdentifier().getPipelineName(), stage.getId());
-        Map<String, Object> pipelineMap = createPipelineDataMap(pipeline, stage);
+        Map<String, Object> pipelineMap = createPipelineDataMap(pipelineName, pipelineCounter, stage);
         data.put("pipeline", pipelineMap);
 
         return data;
     }
 
-    private Map<String, Object> createPipelineDataMap(Pipeline pipeline, Stage stage) {
+    private Map<String, Object> createPipelineDataMap(String pipelineName, Integer pipelineCounter, Stage stage) {
         Map<String, Object> pipelineMap = new LinkedHashMap<String, Object>();
-        pipelineMap.put("name", pipeline.getName());
-        pipelineMap.put("counter", new Integer(pipeline.getCounter()).toString());
-        pipelineMap.put("label", pipeline.getLabel());
+        pipelineMap.put("name", pipelineName);
+        pipelineMap.put("counter", pipelineCounter.toString());
 
-        List<Map> materialRevisionList = createBuildCauseDataMap(pipeline.getMaterialRevisions());
+        BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        List<Map> materialRevisionList = createBuildCauseDataMap(buildCause.getMaterialRevisions());
         pipelineMap.put("build-cause", materialRevisionList);
 
         Map<String, Object> stageMap = createStageDataMap(stage);

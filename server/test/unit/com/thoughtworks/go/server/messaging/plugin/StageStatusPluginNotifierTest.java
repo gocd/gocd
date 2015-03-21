@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -27,7 +30,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -65,19 +67,10 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotifyInterestedPluginsCorrectly() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         doNothing().when(pluginNotificationQueue).post(pluginNotificationMessage.capture());
-        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
-        when(pipelineSqlMapDao.pipelineWithModsByStageId("pipeline-name", 1L)).thenReturn(pipeline);
+        Pipeline pipeline = createPipeline();
+        when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter("pipeline-name", 1)).thenReturn(pipeline.getBuildCause());
 
-        Stage stage = pipeline.getFirstStage();
-        stage.setId(1L);
-        stage.setPipelineId(1L);
-        stage.setCreatedTime(new Timestamp(getFixedDate().getTime()));
-        stage.setLastTransitionedTime(new Timestamp(getFixedDate().getTime()));
-        JobInstance job = stage.getJobInstances().get(0);
-        job.setScheduledDate(getFixedDate());
-        job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
-        stageStatusPluginNotifier.stageStatusChanged(stage);
-        pipeline.setStages(new Stages()); // to make sure pipeline -> stages is not used
+        stageStatusPluginNotifier.stageStatusChanged(pipeline.getFirstStage());
 
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
         assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
@@ -91,8 +84,7 @@ public class StageStatusPluginNotifierTest {
 
         Map pipelineMap = (Map) requestMap.get("pipeline");
         assertThat((String) pipelineMap.get("name"), is("pipeline-name"));
-        assertThat((String) pipelineMap.get("counter"), is("0"));
-        assertThat((String) pipelineMap.get("label"), is("${COUNT}"));
+        assertThat((String) pipelineMap.get("counter"), is("1"));
 
         List revisionsList = (List) pipelineMap.get("build-cause");
         Map gitRevisionMap = (Map) revisionsList.get(0);
@@ -197,6 +189,23 @@ public class StageStatusPluginNotifierTest {
         verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
     }
 
+    private Pipeline createPipeline() throws Exception {
+        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
+        Stage stage = pipeline.getFirstStage();
+        stage.setId(1L);
+        stage.setPipelineId(1L);
+        stage.setCreatedTime(new Timestamp(getFixedDate().getTime()));
+        stage.setLastTransitionedTime(new Timestamp(getFixedDate().getTime()));
+        JobInstance job = stage.getJobInstances().get(0);
+        job.setScheduledDate(getFixedDate());
+        job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
+        return pipeline;
+    }
+
+    private Date getFixedDate() throws Exception {
+        return new SimpleDateFormat(StageStatusPluginNotifier.DATE_PATTERN).parse("2011-07-13T19:43:37.100Z");
+    }
+
     private void assertModification(Map revisionMap, String revision) {
         assertThat((Boolean) revisionMap.get("changed"), is(true));
 
@@ -205,9 +214,5 @@ public class StageStatusPluginNotifierTest {
         assertThat((String) modificationMap.get("revision"), is(revision));
         assertThat(modificationMap.get("modified-time"), is(notNullValue()));
         assertThat(modificationMap.get("data"), is(notNullValue()));
-    }
-
-    private Date getFixedDate() throws ParseException {
-        return new SimpleDateFormat(StageStatusPluginNotifier.DATE_PATTERN).parse("2011-07-13T19:43:37.100Z");
     }
 }

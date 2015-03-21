@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Pipeline;
@@ -24,6 +25,7 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,6 +47,8 @@ public class StageStatusPluginNotifierTest {
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
     @Mock
+    private GoConfigService goConfigService;
+    @Mock
     private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
     private PluginNotificationQueue pluginNotificationQueue;
@@ -60,7 +64,7 @@ public class StageStatusPluginNotifierTest {
 
         pluginNotificationMessage = ArgumentCaptor.forClass(PluginNotificationMessage.class);
 
-        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pipelineSqlMapDao, pluginNotificationQueue);
+        stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, goConfigService, pipelineSqlMapDao, pluginNotificationQueue);
     }
 
     @Test
@@ -68,6 +72,7 @@ public class StageStatusPluginNotifierTest {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         doNothing().when(pluginNotificationQueue).post(pluginNotificationMessage.capture());
         Pipeline pipeline = createPipeline();
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline-name"))).thenReturn("pipeline-group");
         when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter("pipeline-name", 1)).thenReturn(pipeline.getBuildCause());
 
         stageStatusPluginNotifier.stageStatusChanged(pipeline.getFirstStage());
@@ -75,6 +80,7 @@ public class StageStatusPluginNotifierTest {
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
         assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
         Map requestMap = message.getRequestData();
+        assertThat((String) requestMap.get("pipeline-group"), is("pipeline-group"));
         assertThat((String) requestMap.get("pipeline-name"), is("pipeline-name"));
         assertThat((String) requestMap.get("pipeline-counter"), is("1"));
         assertThat((String) requestMap.get("stage-name"), is("stage-name"));

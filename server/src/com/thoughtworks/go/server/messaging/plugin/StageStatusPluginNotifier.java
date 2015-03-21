@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -40,6 +41,7 @@ import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,12 +54,14 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private NotificationPluginRegistry notificationPluginRegistry;
+    private GoConfigService goConfigService;
     private PipelineSqlMapDao pipelineSqlMapDao;
     private PluginNotificationQueue pluginNotificationQueue;
 
     @Autowired
-    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PipelineSqlMapDao pipelineSqlMapDao, PluginNotificationQueue pluginNotificationQueue) {
+    public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, GoConfigService goConfigService, PipelineSqlMapDao pipelineSqlMapDao, PluginNotificationQueue pluginNotificationQueue) {
         this.notificationPluginRegistry = notificationPluginRegistry;
+        this.goConfigService = goConfigService;
         this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.pluginNotificationQueue = pluginNotificationQueue;
     }
@@ -76,6 +80,9 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = new Integer(stage.getIdentifier().getPipelineCounter());
 
+        String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+
+        data.put("pipeline-group", pipelineGroup);
         data.put("pipeline-name", pipelineName);
         data.put("pipeline-counter", pipelineCounter.toString());
         data.put("stage-name", stage.getIdentifier().getStageName());

@@ -28,6 +28,9 @@
 ### END INIT INFO
 SERVICE_NAME=${0##*/}
 
+# Strips initV leading chars if the script is located in rcX.d (automatically executed on runlevel change)
+INIT_DIR=${0%/*}; echo ${INIT_DIR##*/} | grep -e '^rc[0-9]\.d$' >/dev/null && SERVICE_NAME=$(echo "${SERVICE_NAME}" | sed 's/^[SK][0-9][0-9]//');
+
 PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 CUR_USER=`whoami`
 

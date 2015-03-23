@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.domain.label;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 
 public class PipelineLabel implements Serializable {
     protected String label;
@@ -44,8 +44,8 @@ public class PipelineLabel implements Serializable {
 
     public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([\\w\\.]+)(\\[:(\\d+)\\])?\\}");
 
-    public static String replaceRevisionsInLabel(String labelTemplate, Map<CaseInsensitiveString, String> materialRevisions) {
-        final Matcher matcher = PATTERN.matcher(labelTemplate);
+    private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
+        final Matcher matcher = PATTERN.matcher(this.label);
         final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             final String revision = lookupMaterialRevision(matcher, materialRevisions);
@@ -55,7 +55,7 @@ public class PipelineLabel implements Serializable {
         return buffer.toString();
     }
 
-    private static String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
+    private String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
         final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
 
         if (!materialRevisions.containsKey(material)) {
@@ -76,7 +76,7 @@ public class PipelineLabel implements Serializable {
     }
 
     public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {
-        this.label = replaceRevisionsInLabel(this.label, namedRevisions);
+        this.label = replaceRevisionsInLabel(namedRevisions);
         this.label = StringUtils.substring(label, 0, 255);
     }
 

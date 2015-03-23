@@ -16,12 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -29,6 +26,9 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import org.hamcrest.core.Is;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
@@ -155,8 +155,9 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldNotReplaceTemplateWithoutMaterial() throws Exception {
-        final String label = PipelineLabel.replaceRevisionsInLabel("1.5.0", new HashMap<CaseInsensitiveString, String>());
-        assertThat(label, is("1.5.0"));
+        PipelineLabel label = new PipelineLabel("1.5.0");
+        label.updateLabel(new HashMap<CaseInsensitiveString, String>());
+        assertThat(label, is(new PipelineLabel("1.5.0")));
     }
 
     @Test
@@ -246,7 +247,9 @@ public class PipelineLabelTest {
     private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) throws Exception {
         assertLabelGroupsMatching(labelTemplate, expectedGroups);
 
-        return PipelineLabel.replaceRevisionsInLabel(labelTemplate, MATERIAL_REVISIONS);
+        PipelineLabel label = new PipelineLabel(labelTemplate);
+        label.updateLabel(MATERIAL_REVISIONS);
+        return label.toString();
     }
 
     private void assertLabelGroupsMatching(String labelTemplate, String[][] expectedGroups) {

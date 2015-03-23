@@ -19,14 +19,12 @@ package com.thoughtworks.go.plugin.infra.commons;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 
-import static com.thoughtworks.go.util.FileDigester.md5DigestOfFile;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfFolderContent;
 
 @Component
@@ -72,11 +70,8 @@ public class PluginsZip {
         try {
             String digestOfBundledFolder = md5DigestOfFolderContent(bundledPlugins);
             String digestOfExternalFolder = md5DigestOfFolderContent(externalPlugins);
-            File tempFileToStoreMd5 = File.createTempFile("tempFileToStoreMd5", ".txt");
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFileToStoreMd5));
-            writer.write(String.format("digestOfBundledFolder:" + digestOfBundledFolder + "\tdigestOfExternalFolder:" + digestOfExternalFolder));
-            writer.close();
-            return md5DigestOfFile(tempFileToStoreMd5);
+            String digestOfPlugins = digestOfBundledFolder + digestOfExternalFolder;
+            return DigestUtils.md5Hex(digestOfPlugins);
         } catch (Exception e) {
             throw new RuntimeException(String.format("Could not compute md5 of plugins. Exception occurred: %s", e.getStackTrace()));
         }

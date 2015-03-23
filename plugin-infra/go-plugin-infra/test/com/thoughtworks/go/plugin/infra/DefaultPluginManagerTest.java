@@ -427,7 +427,6 @@ public class DefaultPluginManagerTest {
         InOrder inOrder = inOrder(monitor);
 
         inOrder.verify(monitor).addPluginJarChangeListener(jarChangeListener);
-//        inOrder.verify(monitor).addPluginJarChangeListener(pluginsZipUpdater);
     }
 
     @After

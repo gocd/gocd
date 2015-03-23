@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.ResourceHandler;
@@ -45,7 +49,7 @@ public class Jetty6AssetsContextHandlerTest {
         assertThat(handler.getHandler() instanceof ResourceHandler, is(true));
         ResourceHandler resourceHandler = (ResourceHandler) handler.getHandler();
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
-        assertThat(resourceHandler.getResourceBase(), is(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
+        assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
     }
 
     @Test
@@ -99,5 +103,22 @@ public class Jetty6AssetsContextHandlerTest {
         verify(handler, never()).superDotHandle("/go/assets/junk", request, response, 1);
     }
 
+    private Matcher<? super String> isSameFileAs(final String expected) {
+        return new BaseMatcher<String>() {
+            @Override
+            public boolean matches(Object o) {
+                String actualFile = (String) o;
 
+                if (OperatingSystem.WINDOWS.equals(new SystemEnvironment().getCurrentOperatingSystem())) {
+                    return expected.equalsIgnoreCase(actualFile);
+                }
+                return expected.equals(actualFile);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("     " + expected);
+            }
+        };
+    }
 }

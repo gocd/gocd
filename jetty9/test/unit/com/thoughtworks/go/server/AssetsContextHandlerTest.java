@@ -16,12 +16,16 @@
 
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,7 +64,7 @@ public class AssetsContextHandlerTest {
         AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) handler.getHandler();
         ResourceHandler resourceHandler = (ResourceHandler) ReflectionUtil.getField(assetsHandler, "resourceHandler");
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
-        assertThat(resourceHandler.getResourceBase(), is(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
+        assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
     }
 
     @Test
@@ -90,5 +94,24 @@ public class AssetsContextHandlerTest {
 
         handler.getHandler().handle(target, baseRequest, request, response);
         verify(resourceHandler, never()).handle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+    }
+
+    private Matcher<? super String> isSameFileAs(final String expected) {
+        return new BaseMatcher<String>() {
+            @Override
+            public boolean matches(Object o) {
+                String actualFile = (String) o;
+
+                if (OperatingSystem.WINDOWS.equals(new SystemEnvironment().getCurrentOperatingSystem())) {
+                    return expected.equalsIgnoreCase(actualFile);
+                }
+                return expected.equals(actualFile);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("     " + expected);
+            }
+        };
     }
 }

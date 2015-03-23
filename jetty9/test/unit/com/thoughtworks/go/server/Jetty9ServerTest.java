@@ -64,6 +64,8 @@ public class Jetty9ServerTest {
         when(systemEnvironment.getCruiseWar()).thenReturn("cruise.war");
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
+        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
 
         sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
@@ -127,7 +129,7 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(4));
+        assertThat(handlerCollection.getHandlers().length, is(3));
         Handler handler = handlerCollection.getHandlers()[0];
         assertThat(handler instanceof Jetty9Server.GoServerWelcomeFileHandler, is(true));
 
@@ -142,9 +144,9 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(4));
+        assertThat(handlerCollection.getHandlers().length, is(3));
 
-        Handler handler = handlerCollection.getHandlers()[2];
+        Handler handler = handlerCollection.getHandlers()[1];
         assertThat(handler instanceof AssetsContextHandler, is(true));
         AssetsContextHandler assetsContextHandler = (AssetsContextHandler) handler;
         assertThat(assetsContextHandler.getContextPath(), is("context/assets"));
@@ -157,9 +159,9 @@ public class Jetty9ServerTest {
 
         verify(server, times(1)).setHandler(captor.capture());
         HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(4));
+        assertThat(handlerCollection.getHandlers().length, is(3));
 
-        Handler handler = handlerCollection.getHandlers()[3];
+        Handler handler = handlerCollection.getHandlers()[2];
         assertThat(handler instanceof WebAppContext, is(true));
         WebAppContext webAppContext = (WebAppContext) handler;
         List<String> configClasses = ArrayUtil.asList(webAppContext.getConfigurationClasses());

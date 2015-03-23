@@ -80,6 +80,8 @@ public class Jetty6ServerTest {
         when(systemEnvironment.useNioSslSocket()).thenReturn(true);
         when(systemEnvironment.getListenHost()).thenReturn("localhost");
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(false);
+        when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
+        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
 
         sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
@@ -136,11 +138,6 @@ public class Jetty6ServerTest {
         assertThat(connector.getPort(), is(4567));
         assertThat(connector.getHost(), is("localhost"));
         assertThat(connector.getMaxIdleTime(), is(30000));
-//        assertThat(connector.getKeystore(), is(nullValue()));
-//        assertThat(connector.getPassword(), is());
-//        assertThat(connector.getKeyPassword(), is());
-//        assertThat(connector.getTruststore(), is(nullValue()));
-//        assertThat(connector.setTrustPassword(password), is());
         assertThat(connector.getWantClientAuth(), is(true));
         assertThat(connector.getExcludeCipherSuites(), is(new String[]{"CS1", "CS2"}));
     }

@@ -67,16 +67,6 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = new Integer(stage.getIdentifier().getPipelineCounter());
 
-        String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-
-        data.put("pipeline-group", pipelineGroup);
-        data.put("pipeline-name", pipelineName);
-        data.put("pipeline-counter", pipelineCounter.toString());
-        data.put("stage-name", stage.getIdentifier().getStageName());
-        data.put("stage-counter", stage.getIdentifier().getStageCounter());
-        data.put("stage-state", stage.getState().toString());
-        data.put("stage-result", stage.getResult().toString());
-
         Map<String, Object> pipelineMap = createPipelineDataMap(pipelineName, pipelineCounter, stage);
         data.put("pipeline", pipelineMap);
 
@@ -87,6 +77,9 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         Map<String, Object> pipelineMap = new LinkedHashMap<String, Object>();
         pipelineMap.put("name", pipelineName);
         pipelineMap.put("counter", pipelineCounter.toString());
+
+        String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        pipelineMap.put("group", pipelineGroup);
 
         BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, pipelineCounter);
 

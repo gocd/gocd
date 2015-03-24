@@ -82,17 +82,12 @@ public class StageStatusPluginNotifierTest {
         PluginNotificationMessage message = pluginNotificationMessage.getValue();
         assertThat(message.getRequestName(), is(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION));
         Map requestMap = message.getRequestData();
-        assertThat((String) requestMap.get("pipeline-group"), is("pipeline-group"));
-        assertThat((String) requestMap.get("pipeline-name"), is("pipeline-name"));
-        assertThat((String) requestMap.get("pipeline-counter"), is("1"));
-        assertThat((String) requestMap.get("stage-name"), is("stage-name"));
-        assertThat((String) requestMap.get("stage-counter"), is("1"));
-        assertThat((String) requestMap.get("stage-state"), is("Passed"));
-        assertThat((String) requestMap.get("stage-result"), is("Passed"));
 
         Map pipelineMap = (Map) requestMap.get("pipeline");
         assertThat((String) pipelineMap.get("name"), is("pipeline-name"));
         assertThat((String) pipelineMap.get("counter"), is("1"));
+
+        assertThat((String) pipelineMap.get("group"), is("pipeline-group"));
 
         List revisionsList = (List) pipelineMap.get("build-cause");
         Map gitRevisionMap = (Map) revisionsList.get(0);

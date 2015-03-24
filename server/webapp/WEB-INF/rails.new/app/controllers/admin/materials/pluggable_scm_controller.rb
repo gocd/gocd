@@ -75,7 +75,7 @@ module Admin::Materials
     def edit
       assert_load :material, @pipeline.materialConfigs().getByFingerPrint(params[:finger_print])
       assert_load :meta_data_store, meta_data_store
-      render layout: false
+      render layout: false unless performed?
     end
 
     def update

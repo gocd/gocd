@@ -44,7 +44,8 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
     private final StageService stageService;
-    @Autowired private LogParser logParser;
+    @Autowired
+    private LogParser logParser;
     public static final Logger LOGGER = Logger.getLogger(ArtifactsService.class);
     public static final String LOG_XML_NAME = "log.xml";
     private ArtifactDirectoryChooser chooser;
@@ -140,6 +141,16 @@ public class ArtifactsService implements ArtifactUrlReader {
         return new File(logFile.getParent(), "." + logFile.getName() + ".ser");
     }
 
+    public void moveAllArtifacts(LocatableEntity locatableEntity) {
+        try {
+            File from = temporaryArtifactRootDirectory(locatableEntity);
+            File to = chooser.preferredRoot(locatableEntity).getParentFile();
+            FileUtils.moveDirectoryToDirectory(from, to, true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static interface LineListener {
         LineListener NO_OP_LINE_LISTENER = new LineListener() {
             public void copyLine(CharSequence line) {
@@ -156,6 +167,10 @@ public class ArtifactsService implements ArtifactUrlReader {
             newAlloc[i] = old[i];
         }
         return newAlloc;
+    }
+
+    private File temporaryArtifactRootDirectory(LocatableEntity locatableEntity) {
+        return new File("tempArtifacts", String.format("pipelines/%s", locatableEntity.entityLocator()));
     }
 
     public boolean updateConsoleLog(File dest, InputStream in, LineListener lineListener) throws IOException {
@@ -275,7 +290,15 @@ public class ArtifactsService implements ArtifactUrlReader {
     }
 
     public File findArtifact(JobIdentifier identifier, String path) throws IllegalArtifactLocationException {
-        return chooser.findArtifact(identifier, path);
+        File file = temporaryArtifactDirectory(identifier, path);
+        if (!file.exists()) {
+            file = chooser.findArtifact(identifier, path);
+        }
+        return file;
+    }
+
+    public File temporaryArtifactDirectory(JobIdentifier identifier, String path) {
+        return new File(temporaryArtifactRootDirectory(identifier), path);
     }
 
     public String findArtifactRoot(JobIdentifier identifier) throws IllegalArtifactLocationException {

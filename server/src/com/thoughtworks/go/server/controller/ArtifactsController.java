@@ -16,24 +16,11 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.RestfulService;
-import com.thoughtworks.go.server.service.ScheduleService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.view.artifacts.ArtifactsView;
 import com.thoughtworks.go.server.view.artifacts.LocalArtifactsView;
@@ -52,12 +39,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.thoughtworks.go.server.web.ZipArtifactFolderViewFactory.zipViewFactory;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
-import static com.thoughtworks.go.util.GoConstants.CHECKSUM_MULTIPART_FILENAME;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
-import static com.thoughtworks.go.util.GoConstants.REGULAR_MULTIPART_FILENAME;
-import static com.thoughtworks.go.util.GoConstants.ZIP_MULTIPART_FILENAME;
+import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Controller
@@ -73,8 +66,9 @@ public class ArtifactsController {
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
 
-    @Autowired ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
-                                   ScheduleService scheduleService, ConsoleActivityMonitor consoleActivityMonitor, GoConfigService goConfigService) {
+    @Autowired
+    ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
+                        ScheduleService scheduleService, ConsoleActivityMonitor consoleActivityMonitor, GoConfigService goConfigService) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
         this.scheduleService = scheduleService;
@@ -188,8 +182,7 @@ public class ArtifactsController {
             synchronized (checksumFilePath.intern()) {
                 return artifactsService.saveOrAppendFile(checksumFile, checksumMultipartFile.getInputStream());
             }
-        }
-        else {
+        } else {
             LOGGER.warn(String.format("[Artifacts Upload] Checksum file not uploaded for artifact at path '%s'", filePath));
         }
         return true;
@@ -313,8 +306,12 @@ public class ArtifactsController {
     }
 
     private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final String filePath, final InputStream inputStream) throws Exception {
-        File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
-        boolean updated = artifactsService.updateConsoleLog(artifact, inputStream, ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
+        File artifact = artifactsService.temporaryArtifactDirectory(jobIdentifier, filePath);
+        String lines = IOUtils.toString(inputStream);
+        boolean updated = artifactsService.updateConsoleLog(artifact, IOUtils.toInputStream(lines), ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
+        if (lines.contains("Job completed")) {
+            artifactsService.moveAllArtifacts(jobIdentifier);
+        }
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
             return FileModelAndView.fileAppended(filePath);
@@ -325,7 +322,7 @@ public class ArtifactsController {
 
     private ModelAndView putArtifact(JobIdentifier jobIdentifier, String filePath,
                                      InputStream inputStream) throws Exception {
-        File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
+        File artifact = artifactsService.temporaryArtifactDirectory(jobIdentifier, filePath);
         if (artifactsService.saveOrAppendFile(artifact, inputStream)) {
             return FileModelAndView.fileAppended(filePath);
         } else {

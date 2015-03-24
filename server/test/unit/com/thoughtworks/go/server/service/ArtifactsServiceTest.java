@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipInputStream;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.domain.ConsoleOut;
@@ -35,11 +27,7 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -47,6 +35,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -59,10 +55,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class ArtifactsServiceTest {
@@ -74,7 +67,6 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageService stageService;
     private LogFixture logFixture;
-    private ArtifactsService artifactsService;
 
     @Before
     public void setUp() {
@@ -244,7 +236,7 @@ public class ArtifactsServiceTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldProvideArtifactRootForAJobOnLinux() throws Exception {
         assumeArtifactsRoot(fakeRoot);
-        artifactsService = new ArtifactsService(systemService, artifactsDirHolder, zipUtil, resolverService, stageService);
+        ArtifactsService artifactsService = new ArtifactsService(systemService, artifactsDirHolder, zipUtil, resolverService, stageService);
         artifactsService.initialize();
         JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null);
         when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 2, "2.2", "functional", "3", "mac-safari"));

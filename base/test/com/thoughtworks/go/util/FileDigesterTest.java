@@ -45,28 +45,27 @@ public class FileDigesterTest {
 
     @Test
     public void shouldReturnSameMd5ForSameData() throws Exception {
-        File fileWithSampleData = createFileWithSampleData();
-        String digest1 = FileDigester.md5DigestOfFile(fileWithSampleData);
+        String digest1 = FileDigester.md5DigestOfFile(createFileWithSampleData("test1.txt"));
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
-        String digest2 = FileDigester.md5DigestOfFile(fileWithSampleData);
+        String digest2 = FileDigester.md5DigestOfFile(createFileWithSampleData("test2.txt"));
         assertThat(digest1, is(digest2));
     }
 
     @Test
-    public void shouldReturnSameMd5ForFolderContents() throws Exception {
-        File folderWithSampleData = createFolderWithSampleData();
-        String digest1 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+    public void shouldReturnSameMd5ForSameFolderContents() throws Exception {
+        String digest1 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test1", 3));
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
-        String digest2 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+        temporaryFolder.delete();
+        temporaryFolder.create();
+        String digest2 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test2", 3));
         assertThat(digest1, is(digest2));
     }
 
     @Test
     public void shouldReturnConsistentMd5BySortingTheFileList() throws Exception {
-        File folderWithSampleData = createFolderWithSampleData();
-        String digest1 = FileDigester.md5DigestOfFolderContent(folderWithSampleData);
+        String digest1 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test", 3));
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
-        assertThat(digest1, is("FJ9Q0KO4KE5ukH6Y7r1FIQ=="));
+        assertThat(digest1, is("SCRRYY4W1zLuiA++CSuy6A=="));
     }
 
     @Test
@@ -79,19 +78,17 @@ public class FileDigesterTest {
         }
     }
 
-    private File createFileWithSampleData() throws IOException {
-        File tempFile = temporaryFolder.newFile("test.txt");
+    private File createFileWithSampleData(String fileName) throws IOException {
+        File tempFile = temporaryFolder.newFile(fileName);
         FileUtil.writeContentToFile("sample data", tempFile);
         return tempFile;
     }
 
-    private File createFolderWithSampleData() throws IOException {
-        File firstPlugin = temporaryFolder.newFile("first-plugin");
-        File secondPlugin = temporaryFolder.newFile("second-plugin");
-        File thirdPlugin = temporaryFolder.newFile("third-plugin");
-        FileUtil.writeContentToFile("sample plugin for first plugin", firstPlugin);
-        FileUtil.writeContentToFile("sample plugin for third plugin", secondPlugin);
-        FileUtil.writeContentToFile("sample plugin for second plugin", thirdPlugin);
+    private File createFolderWithSampleData(String fileNamePrefix, int count) throws IOException {
+        for (int i = 0; i < count; i++) {
+            File file = temporaryFolder.newFile(fileNamePrefix + i);
+            FileUtil.writeContentToFile("sample plugin for plugin " + count, file);
+        }
         return temporaryFolder.getRoot();
     }
 }

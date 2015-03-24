@@ -25,17 +25,17 @@ import static org.mockito.Mockito.*;
 public class PluginsZipUpdaterTest {
 
     private PluginsZip pluginsZip;
-    private PluginsZipListener pluginsZipListener;
+    private PluginsZipUpdater pluginsZipUpdater;
 
     @Before
     public void setUp() throws Exception {
         pluginsZip = mock(PluginsZip.class);
-        pluginsZipListener = new PluginsZipListener(pluginsZip);
+        pluginsZipUpdater = new PluginsZipUpdater(pluginsZip);
     }
 
     @Test
     public void shouldCreatePluginsWhenPluginsAreAdded() throws Exception {
-        pluginsZipListener.handle();
+        pluginsZipUpdater.handle();
         verify(pluginsZip, times(1)).create();
     }
 }

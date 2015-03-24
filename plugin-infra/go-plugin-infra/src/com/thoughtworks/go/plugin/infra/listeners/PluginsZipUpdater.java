@@ -22,12 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PluginsZipListener implements PluginsFolderChangeListener {
+public class PluginsZipUpdater implements PluginsFolderChangeListener {
 
     private PluginsZip pluginsZip;
 
     @Autowired
-    public PluginsZipListener(PluginsZip pluginsZip) {
+    public PluginsZipUpdater(PluginsZip pluginsZip) {
         this.pluginsZip = pluginsZip;
     }
 

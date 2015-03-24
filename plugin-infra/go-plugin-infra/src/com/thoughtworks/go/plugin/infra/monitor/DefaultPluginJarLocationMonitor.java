@@ -60,7 +60,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     public void addPluginsFolderChangeListener(PluginsFolderChangeListener pluginsFolderChangeListener) {
         this.pluginsFolderChangeListener.add(new WeakReference<PluginsFolderChangeListener>(pluginsFolderChangeListener));
-        removeClearedWeakReferences();
+        removeClearedWeakReferencesForFolder();
     }
 
     @Override
@@ -144,6 +144,16 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         Iterator<WeakReference<PluginJarChangeListener>> iterator = pluginJarChangeListener.iterator();
         while (iterator.hasNext()) {
             WeakReference<PluginJarChangeListener> next = iterator.next();
+            if (next.get() == null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void removeClearedWeakReferencesForFolder() {
+        Iterator<WeakReference<PluginsFolderChangeListener>> iterator = pluginsFolderChangeListener.iterator();
+        while (iterator.hasNext()) {
+            WeakReference<PluginsFolderChangeListener> next = iterator.next();
             if (next.get() == null) {
                 iterator.remove();
             }
@@ -323,14 +333,6 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void handle() {
-                doOnAllPluginsFolderChangeListener(new Closure() {
-                    public void execute(Object o) {
-                        ((PluginsFolderChangeListener) o).handle();
-                    }
-                });
-            }
-
-            private void doOnAllPluginsFolderChangeListener(Closure closure) {
                 for (WeakReference<PluginsFolderChangeListener> listener : listeners) {
                     PluginsFolderChangeListener changeListener = listener.get();
                     if (changeListener == null) {
@@ -338,12 +340,17 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                     }
 
                     try {
-                        closure.execute(changeListener);
+                        new Closure() {
+                    public void execute(Object o) {
+                        ((PluginsFolderChangeListener) o).handle();
+                    }
+                }.execute(changeListener);
                     } catch (Exception e) {
                         LOGGER.warn("Plugin listener failed", e);
                     }
                 }
             }
+
         }
     }
 }

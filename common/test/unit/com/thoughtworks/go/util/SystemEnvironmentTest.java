@@ -66,6 +66,8 @@ public class SystemEnvironmentTest {
     public void shouldFindJettyConfigInTheConfigDir() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
+        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty6.xml")));
     }
 
     @Test
@@ -370,5 +372,15 @@ public class SystemEnvironmentTest {
         assertThat("default provider should be h2db", systemEnvironment.getDatabaseProvider(), is("com.thoughtworks.go.server.database.H2Database"));
         System.setProperty("go.database.provider", "foo");
         assertThat(systemEnvironment.getDatabaseProvider(), is("foo"));
+    }
+
+    @Test
+    public void shouldUseJetty9ByDefault(){
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
+        assertThat(systemEnvironment.usingJetty9(), is(true));
+
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
+        assertThat(systemEnvironment.usingJetty9(), is(false));
     }
 }

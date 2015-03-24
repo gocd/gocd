@@ -70,8 +70,6 @@ function find_root_directory_resolving_symlinks() {
 
 # Finds some JVM, any JVM.
 function find_best_available_java() {
-  local BUNDLE_NAME="$1"
-
   # first check system variable "$JAVA_HOME"
   if [ -n "$JAVA_HOME" ]; then
     JAVACMD="$JAVA_HOME/bin/java"
@@ -170,13 +168,14 @@ function add_all_args() {
 # ------------------------------------------------------------------------------
 
 # Creates directory if it does not exist.
+# Expects: APPLICATION_NAME (optional): If it exists, the name might be used in a message.
 # Arguments:
 #   1. The directory
 function create_directory_if_needed() {
   local DIR="$1"
 
   log "Got directory: $DIR $(test -d "$DIR" && echo " [It exists]")"
-  if [ ! -d "$DIR" ]; then mkdir "$DIR" || show_message_and_exit 3 "$BUNDLE_NAME" "Cannot create: $DIR"; fi
+  if [ ! -d "$DIR" ]; then mkdir "$DIR" || show_message_and_exit 3 "${APPLICATION_NAME:-Go Application}" "Cannot create: $DIR"; fi
   echo "$DIR"
 }
 # ------------------------------------------------------------------------------
@@ -199,7 +198,7 @@ function start_logging_in() {
 # Expects: Will use APPLICATION_NAME if set. Will use WORKING_DIRECTORY if set.
 # Arguments: None
 function start_waiting_for_unexpected_exit() {
-  trap 'show_message_and_exit 4 "Something went wrong" "${APPLICATION_NAME:-Application} exited unexpectedly." "" \
+  trap 'show_message_and_exit 4 "Something went wrong" "${APPLICATION_NAME:-Go Application} exited unexpectedly." "" \
     "Look at this directory for any logs: ${WORKING_DIRECTORY:-working directory}"' QUIT EXIT INT TERM
 }
 # ------------------------------------------------------------------------------
@@ -227,7 +226,7 @@ APPLICATION_NAME="${GO_APPLICATION_NAME:-$(/usr/libexec/PlistBuddy -c "print :CF
 WORKING_DIRECTORY="$(create_directory_if_needed "${WORKING_DIRECTORY:-$HOME/Library/Application Support/${APPLICATION_NAME}}")"
 start_logging_in "$WORKING_DIRECTORY"
 
-JAVACMD=$(find_best_available_java "$APPLICATION_NAME")
+JAVACMD=$(find_best_available_java)
 JVM_CLASSPATH="$(/usr/libexec/PlistBuddy -c "print :JavaX:ClassPath" "${INFO_PLIST}" || echo "No ClassPath found" >&2)"
 JVM_MAINCLASS="$(/usr/libexec/PlistBuddy -c "print :JavaX:MainClass" "${INFO_PLIST}" || echo "No MainClass found" >&2)"
 CF_BUNDLE_ICON="$(/usr/libexec/PlistBuddy -c "print :CFBundleIconFile" "${INFO_PLIST}" || echo "No CFBundleIconFile found" >&2)"

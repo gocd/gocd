@@ -22,7 +22,10 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
@@ -199,8 +202,8 @@ public class SCM implements Serializable, Validatable {
         SCMMetadataStore metadataStore = SCMMetadataStore.getInstance();
         List<ConfigurationProperty> propertiesToBeUsedForDisplay = ConfigurationDisplayUtil.getConfigurationPropertiesToBeUsedForDisplay(metadataStore, pluginId, configuration);
 
-        String prefix = metadataStore.hasPlugin(pluginId) ? "" : "WARNING! Plugin missing for ";
-        return prefix + "SCM: " + configuration.forDisplay(propertiesToBeUsedForDisplay);
+        String prefix = metadataStore.hasPlugin(pluginId) ? "" : "WARNING! Plugin missing. ";
+        return prefix + configuration.forDisplay(propertiesToBeUsedForDisplay);
     }
 
     private String getPluginId() {

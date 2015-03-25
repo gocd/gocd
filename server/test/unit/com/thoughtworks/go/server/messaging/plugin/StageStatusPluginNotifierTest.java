@@ -169,6 +169,8 @@ public class StageStatusPluginNotifierTest {
         Map stageMap = (Map) pipelineMap.get("stage");
         assertThat((String) stageMap.get("name"), is("stage-name"));
         assertThat((String) stageMap.get("counter"), is("1"));
+        assertThat((String) stageMap.get("approval-type"), is("success"));
+        assertThat((String) stageMap.get("approved-by"), is("changes"));
         assertThat((String) stageMap.get("state"), is("Passed"));
         assertThat((String) stageMap.get("result"), is("Passed"));
         assertThat((String) stageMap.get("create-time"), is("2011-07-13T19:43:37.100Z"));

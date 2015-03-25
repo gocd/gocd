@@ -123,6 +123,8 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         Map<String, Object> stageMap = new LinkedHashMap<String, Object>();
         stageMap.put("name", stage.getName());
         stageMap.put("counter", new Integer(stage.getCounter()).toString());
+        stageMap.put("approval-type", stage.getApprovalType());
+        stageMap.put("approved-by", stage.getApprovedBy());
         stageMap.put("state", stage.getState().toString());
         stageMap.put("result", stage.getResult().toString());
         stageMap.put("create-time", timestampToString(stage.getCreatedTime()));

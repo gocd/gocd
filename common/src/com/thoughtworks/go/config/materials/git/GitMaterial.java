@@ -50,7 +50,7 @@ import static java.lang.String.format;
 /**
  * Understands configuration for git version control
  */
-public class GitMaterial extends ScmMaterial implements InformationProvider {
+public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
 
     private UrlArgument url;

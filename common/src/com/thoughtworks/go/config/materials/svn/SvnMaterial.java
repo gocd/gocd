@@ -49,7 +49,7 @@ import static java.lang.String.format;
 /**
  * @understands configuration for subversion
  */
-public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial, InformationProvider {
+public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = Logger.getLogger(SvnMaterial.class);
     private UrlArgument url;
     private String userName;

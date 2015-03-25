@@ -51,7 +51,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 
-public class P4Material extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial, InformationProvider {
+public class P4Material extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private String serverAndPort;
     private String userName;
     private String password;

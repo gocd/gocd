@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -28,6 +24,10 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.json.JsonMap;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.Map;
 
 public interface Material extends Serializable {
 
@@ -99,4 +99,6 @@ public interface Material extends Serializable {
     String getLongDescription();
 
     MaterialConfig config();
+
+    public Map<String, Object> getAttributes(boolean addSecureFields);
 }

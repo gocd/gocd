@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
-public class DependencyMaterial extends AbstractMaterial implements InformationProvider {
+public class DependencyMaterial extends AbstractMaterial {
     private static final Logger LOGGER = Logger.getLogger(DependencyMaterial.class);
     public static final String TYPE = "DependencyMaterial";
 

@@ -47,7 +47,7 @@ import static java.lang.String.format;
 /**
  * @understands configuration for mercurial version control
  */
-public class HgMaterial extends ScmMaterial implements InformationProvider {
+public class HgMaterial extends ScmMaterial {
     private static final Pattern HG_VERSION_PATTERN = Pattern.compile(".*\\(.*\\s+(\\d(\\.\\d)+.*)\\)");
     private static final Logger LOGGER = Logger.getLogger(HgMaterial.class);
     private HgUrlArgument url;

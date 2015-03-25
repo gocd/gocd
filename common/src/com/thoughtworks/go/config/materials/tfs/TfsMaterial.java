@@ -46,7 +46,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 
-public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter, InformationProvider {
+public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
     private static final Logger LOGGER = Logger.getLogger(TfsMaterial.class);
 
     public static final String TYPE = "TfsMaterial";

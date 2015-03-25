@@ -182,4 +182,9 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public MaterialConfig config() {
         throw new RuntimeException("You need to implement this");
     }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        throw new RuntimeException("You need to implement this");
+    }
 }

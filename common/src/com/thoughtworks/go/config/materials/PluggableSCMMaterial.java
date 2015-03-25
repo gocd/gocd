@@ -45,7 +45,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.upperCase;
 
-public class PluggableSCMMaterial extends AbstractMaterial implements InformationProvider {
+public class PluggableSCMMaterial extends AbstractMaterial {
     public static final String TYPE = "PluggableSCMMaterial";
 
     private String scmId;

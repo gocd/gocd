@@ -45,7 +45,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.upperCase;
 
-public class PackageMaterial extends AbstractMaterial implements InformationProvider {
+public class PackageMaterial extends AbstractMaterial {
     public static final String TYPE = "PackageMaterial";
 
     private String packageId;

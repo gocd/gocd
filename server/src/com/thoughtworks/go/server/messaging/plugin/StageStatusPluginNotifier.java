@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.InformationProvider;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
@@ -97,7 +96,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         for (MaterialRevision currentRevision : materialRevisions) {
             Map<String, Object> materialRevisionMap = new LinkedHashMap<String, Object>();
 
-            materialRevisionMap.put("material", ((InformationProvider) currentRevision.getMaterial()).getAttributes(false));
+            materialRevisionMap.put("material", currentRevision.getMaterial().getAttributes(false));
             materialRevisionMap.put("changed", currentRevision.isChanged());
 
             List<Map> modificationList = new ArrayList<Map>();

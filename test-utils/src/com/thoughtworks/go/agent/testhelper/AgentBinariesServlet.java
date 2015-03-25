@@ -19,6 +19,7 @@ package com.thoughtworks.go.agent.testhelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+
+import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
 public class AgentBinariesServlet extends HttpServlet {
 
@@ -47,8 +50,7 @@ public class AgentBinariesServlet extends HttpServlet {
     protected void doHead(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            response.setHeader("Content-MD5",
-                    new String(new Base64().encode(MessageDigest.getInstance("MD5").digest(getAgentAsByteStream()))));
+            response.setHeader("Content-MD5", md5DigestOfStream(new FileInputStream(file)));
             response.setHeader("Cruise-Server-Ssl-Port", "9443");
         } catch (Exception e) {
             throw new RuntimeException(e);

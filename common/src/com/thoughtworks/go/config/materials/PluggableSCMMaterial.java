@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -210,7 +211,8 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
     @Override
     public String getTypeForDisplay() {
-        return "SCM";
+        String type = scmConfig == null ? null : SCMMetadataStore.getInstance().displayValue(scmConfig.getPluginConfiguration().getId());
+        return type == null ? "SCM" : type;
     }
 
     @Override

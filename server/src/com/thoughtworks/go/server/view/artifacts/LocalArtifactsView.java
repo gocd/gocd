@@ -16,14 +16,16 @@
 
 package com.thoughtworks.go.server.view.artifacts;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.web.ArtifactFolder;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.FileModelAndView;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.File;
+
+import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
 
 public class LocalArtifactsView implements ArtifactsView {
     private ArtifactsService artifactsService;
@@ -38,7 +40,9 @@ public class LocalArtifactsView implements ArtifactsView {
 
     public final ModelAndView createView(String filePath, String sha) throws Exception {
         //return the artifact itself if this is a single file
-        File file = artifactsService.findArtifact(translatedId, filePath);
+        File file = isConsoleOutput(filePath) ? artifactsService.findConsoleArtifact(translatedId)
+                : artifactsService.findArtifact(translatedId, filePath);
+
         if (file.exists() && file.isFile()) {
             return FileModelAndView.createFileView(file, sha);
         }

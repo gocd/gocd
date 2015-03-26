@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.legacywrapper.LogParser;
+import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
@@ -39,11 +40,11 @@ import static java.lang.String.format;
 @Service
 public class ArtifactsService implements ArtifactUrlReader {
     public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
-    private final SystemService systemService;
     private final ArtifactsDirHolder artifactsDirHolder;
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
-    private final StageService stageService;
+    private final StageDao stageDao;
+    private SystemService systemService;
     @Autowired
     private LogParser logParser;
     public static final Logger LOGGER = Logger.getLogger(ArtifactsService.class);
@@ -51,15 +52,16 @@ public class ArtifactsService implements ArtifactUrlReader {
     private ArtifactDirectoryChooser chooser;
 
     @Autowired
-    public ArtifactsService(SystemService systemService, ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, JobResolverService jobResolverService, StageService stageService) {
-        this.systemService = systemService;
+    public ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
+                            ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService) {
         this.artifactsDirHolder = artifactsDirHolder;
         this.zipUtil = zipUtil;
         this.jobResolverService = jobResolverService;
-        this.stageService = stageService;
+        this.stageDao = stageDao;
+        this.systemService = systemService;
 
         //This is a Chain of Responsibility to decide which view should be shown for a particular artifact URL
-        chooser = new ArtifactDirectoryChooser();
+        this.chooser = new ArtifactDirectoryChooser();
 
     }
 
@@ -141,14 +143,18 @@ public class ArtifactsService implements ArtifactUrlReader {
         return new File(logFile.getParent(), "." + logFile.getName() + ".ser");
     }
 
-    public void moveAllArtifacts(LocatableEntity locatableEntity) {
+    public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
         try {
-            File from = temporaryArtifactRootDirectory(locatableEntity);
+            File from = chooser.temporaryConsoleDirectory(locatableEntity);
             File to = chooser.preferredRoot(locatableEntity).getParentFile();
             FileUtils.moveDirectoryToDirectory(from, to, true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public File temporaryConsoleFile(JobIdentifier jobIdentifier) {
+        return chooser.temporaryConsoleFile(jobIdentifier);
     }
 
     public static interface LineListener {
@@ -167,10 +173,6 @@ public class ArtifactsService implements ArtifactUrlReader {
             newAlloc[i] = old[i];
         }
         return newAlloc;
-    }
-
-    private File temporaryArtifactRootDirectory(LocatableEntity locatableEntity) {
-        return new File("tempArtifacts", String.format("pipelines/%s", locatableEntity.entityLocator()));
     }
 
     public boolean updateConsoleLog(File dest, InputStream in, LineListener lineListener) throws IOException {
@@ -285,20 +287,20 @@ public class ArtifactsService implements ArtifactUrlReader {
         return new ConsoleOut(buffer.toString(), startingLine, lineNumber);
     }
 
-    public ConsoleOut getConsoleOut(File logFile, int startingLine) throws IOException {
-        return getConsoleOut(startingLine, new LogFile(logFile).getInputStream());
+    public ConsoleOut getConsoleOut(JobIdentifier identifier, int startingLine) throws IOException, IllegalArtifactLocationException {
+        return getConsoleOut(startingLine, new FileInputStream(findConsoleArtifact(identifier)));
     }
 
-    public File findArtifact(JobIdentifier identifier, String path) throws IllegalArtifactLocationException {
-        File file = temporaryArtifactDirectory(identifier, path);
+    public File findConsoleArtifact(JobIdentifier identifier) throws IllegalArtifactLocationException {
+        File file = chooser.temporaryConsoleFile(identifier);
         if (!file.exists()) {
-            file = chooser.findArtifact(identifier, path);
+            file = chooser.findArtifact(identifier, ArtifactLogUtil.getConsoleOutputFolderAndFileName());
         }
         return file;
     }
 
-    public File temporaryArtifactDirectory(JobIdentifier identifier, String path) {
-        return new File(temporaryArtifactRootDirectory(identifier), path);
+    public File findArtifact(JobIdentifier identifier, String path) throws IllegalArtifactLocationException {
+        return chooser.findArtifact(identifier, path);
     }
 
     public String findArtifactRoot(JobIdentifier identifier) throws IllegalArtifactLocationException {
@@ -351,7 +353,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         } catch (Exception e) {
             LOGGER.error(String.format("Error occurred while clearing artifacts for '%s'. Error: '%s'", stageIdentifier.entityLocator(), e.getMessage()), e);
         }
-        stageService.markArtifactsDeletedFor(stage);
+        stageDao.markArtifactsDeletedFor(stage);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Marked stage '%s' as artifacts deleted.", stageIdentifier.entityLocator()));
         }
@@ -388,4 +390,5 @@ public class ArtifactsService implements ArtifactUrlReader {
         File file = findArtifact(jobIdentifier, ArtifactLogUtil.getConsoleLogOutputFolderAndFileName());
         updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()), LineListener.NO_OP_LINE_LISTENER);
     }
+
 }

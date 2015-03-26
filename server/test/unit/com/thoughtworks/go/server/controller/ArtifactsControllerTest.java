@@ -18,7 +18,9 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.ArtifactsService;
+import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
+import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import org.junit.Before;
@@ -59,7 +61,7 @@ public class ArtifactsControllerTest {
 
         restfulService = mock(RestfulService.class);
         artifactService = mock(ArtifactsService.class);
-        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), mock(ScheduleService.class), consoleActivityMonitor, mock(GoConfigService.class));
+        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor);
 
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -73,7 +75,7 @@ public class ArtifactsControllerTest {
         when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103l)).thenReturn(jobIdentifier);
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
-        when(artifactService.temporaryArtifactDirectory(jobIdentifier, path)).thenReturn(artifactFile);
+        when(artifactService.temporaryConsoleFile(jobIdentifier)).thenReturn(artifactFile);
         when(artifactService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ArtifactsService.LineListener.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
@@ -101,7 +103,7 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
-        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), mock(ScheduleService.class), consoleActivityMonitor, mock(GoConfigService.class)) {
+        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor) {
             @Override ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
                                                String buildName, String sha, String serverAlias) throws Exception {
                 return returnVal;

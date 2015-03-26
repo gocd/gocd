@@ -54,4 +54,8 @@ public class ArtifactLogUtil {
         return FileUtil.normalizePath(new File(path));
     }
 
+    public static boolean isConsoleOutput(String filePath) {
+        return getConsoleOutputFolderAndFileName().equalsIgnoreCase(filePath);
+    }
+
 }

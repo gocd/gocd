@@ -20,7 +20,9 @@ import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.ArtifactsService;
+import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
+import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.view.artifacts.ArtifactsView;
 import com.thoughtworks.go.server.view.artifacts.LocalArtifactsView;
@@ -49,7 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.web.ZipArtifactFolderViewFactory.zipViewFactory;
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
+import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -59,21 +61,17 @@ public class ArtifactsController {
     private RestfulService restfulService;
 
     private static final Logger LOGGER = Logger.getLogger(ArtifactsController.class);
-    private ScheduleService scheduleService;
     private final ConsoleActivityMonitor consoleActivityMonitor;
-    private final GoConfigService goConfigService;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
 
     @Autowired
     ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
-                        ScheduleService scheduleService, ConsoleActivityMonitor consoleActivityMonitor, GoConfigService goConfigService) {
+                        ConsoleActivityMonitor consoleActivityMonitor) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
-        this.scheduleService = scheduleService;
         this.consoleActivityMonitor = consoleActivityMonitor;
-        this.goConfigService = goConfigService;
 
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
@@ -223,7 +221,7 @@ public class ArtifactsController {
         }
 
         if (isConsoleOutput(filePath)) {
-            return putConsoleOutput(jobIdentifier, filePath, request.getInputStream());
+            return putConsoleOutput(jobIdentifier, request.getInputStream());
         } else {
             return putArtifact(jobIdentifier, filePath, request.getInputStream());
         }
@@ -244,9 +242,7 @@ public class ArtifactsController {
         try {
             JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
                     buildName);
-            String consoleOutPath = ArtifactLogUtil.CRUISE_OUTPUT_FOLDER + '/' + ArtifactLogUtil.CONSOLE_LOG_FILE_NAME;
-            File artifact = artifactsService.findArtifact(identifier, consoleOutPath);
-            ConsoleOut consoleOut = artifactsService.getConsoleOut(artifact, startLine);
+            ConsoleOut consoleOut = artifactsService.getConsoleOut(identifier, startLine);
             return new ModelAndView(new ConsoleOutView(consoleOut.calculateNextStart(), consoleOut.output()));
         } catch (FileNotFoundException e) {
             return new ModelAndView(new ConsoleOutView(0, ""));
@@ -301,28 +297,20 @@ public class ArtifactsController {
         return request.getFile(CHECKSUM_MULTIPART_FILENAME);
     }
 
-    private boolean isConsoleOutput(String filePath) {
-        return getConsoleOutputFolderAndFileName().equalsIgnoreCase(filePath);
-    }
-
-    private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final String filePath, final InputStream inputStream) throws Exception {
-        File artifact = artifactsService.temporaryArtifactDirectory(jobIdentifier, filePath);
-        String lines = IOUtils.toString(inputStream);
-        boolean updated = artifactsService.updateConsoleLog(artifact, IOUtils.toInputStream(lines), ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
-        if (lines.contains("Job completed")) {
-            artifactsService.moveAllArtifacts(jobIdentifier);
-        }
+    private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws Exception {
+        File consoleFile = artifactsService.temporaryConsoleFile(jobIdentifier);
+        boolean updated = artifactsService.updateConsoleLog(consoleFile, inputStream, ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
-            return FileModelAndView.fileAppended(filePath);
+            return FileModelAndView.fileAppended(consoleFile.getPath());
         } else {
-            return FileModelAndView.errorSavingFile(filePath);
+            return FileModelAndView.errorSavingFile(consoleFile.getPath());
         }
     }
 
     private ModelAndView putArtifact(JobIdentifier jobIdentifier, String filePath,
                                      InputStream inputStream) throws Exception {
-        File artifact = artifactsService.temporaryArtifactDirectory(jobIdentifier, filePath);
+        File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
         if (artifactsService.saveOrAppendFile(artifact, inputStream)) {
             return FileModelAndView.fileAppended(filePath);
         } else {

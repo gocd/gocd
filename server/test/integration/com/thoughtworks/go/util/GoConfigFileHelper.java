@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
@@ -106,6 +105,7 @@ public class GoConfigFileHelper {
     }
 
      private GoConfigFileHelper(String xml, GoConfigFileDao goConfigFileDao) {
+         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
          this.originalXml = xml;
          assignFileDao(goConfigFileDao);
          try {

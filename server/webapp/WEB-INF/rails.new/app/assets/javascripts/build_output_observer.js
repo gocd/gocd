@@ -17,13 +17,16 @@
 var BuildOutputObserver = Class.create();
 
 BuildOutputObserver.prototype = {
-    initialize: function(buildLocator, name) {
+    initialize: function(buildLocator, name, options) {
         this.name = name;
         this.buildLocator = buildLocator;
         this.start_line_number = 0;
         this.was_building = false;
         this.is_output_empty = false;
         this.is_completed = false;
+
+        options = options || {};
+        this.chosen_update_of_live_output = options.colorize == true ? this._update_live_output_color : this._update_live_output_raw;
     },
     notify : function(jsonArray) {
         for (var i = 0; i < jsonArray.length; i++) {
@@ -58,7 +61,7 @@ BuildOutputObserver.prototype = {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
                         var build_output = transport.responseText;
-                        _this.is_output_empty = _this._update_live_output(build_output);
+                        _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, build_output);
                     } else {
                         _this.is_output_empty = true;
                     }
@@ -66,7 +69,8 @@ BuildOutputObserver.prototype = {
             });
         }
     },
-    _update_live_output: function (build_output) {
+
+    _update_live_output_raw: function (build_output) {
         var is_output_empty = !build_output;
         var buildoutputPreElement = $('buildoutput_pre');
         if (!is_output_empty && buildoutputPreElement) {
@@ -81,6 +85,37 @@ BuildOutputObserver.prototype = {
         }
         return is_output_empty;
     },
+
+    _update_live_output_color: function(build_output) {
+        var is_output_empty = !build_output;
+        if (!is_output_empty) {
+            var tempArea = jQuery('<div></div>');
+            jQuery.each(ansiparse(build_output), function () {
+                var output = jQuery('<span></span>').html(this.text.escapeHTML());
+                if (this.foreground) {
+                    output.addClass("fg-" + this.foreground);
+                }
+                if (this.background) {
+                    output.addClass("bg-" + this.background);
+                }
+
+                if (this.bold) {
+                    output.addClass('bold');
+                }
+                if (this.italic) {
+                    output.addClass('italic');
+                }
+                if (this.underline) {
+                    output.addClass('underline');
+                }
+                tempArea.append(output);
+            });
+
+            jQuery('#buildoutput_pre').append(tempArea.html());
+        }
+        return is_output_empty;
+    },
+
     update_page : function(json) {
         this.update_build_detail_summary_result(json);
         this.display_error_message_if_necessary(json);

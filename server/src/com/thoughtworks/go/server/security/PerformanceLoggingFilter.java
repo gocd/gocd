@@ -17,23 +17,28 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.server.perf.WebRequestPerformanceLogger;
+import com.thoughtworks.go.server.util.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.jetty.Response;
 
 import javax.servlet.*;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class PerformanceLoggingFilter implements Filter {
     private static final Log LOGGER = LogFactory.getLog(PerformanceLoggingFilter.class);
+    private final boolean usingJetty9;
     private boolean logRequestTimings;
     private WebRequestPerformanceLogger webRequestPerformanceLogger;
 
     public PerformanceLoggingFilter(WebRequestPerformanceLogger webRequestPerformanceLogger) {
         this.webRequestPerformanceLogger = webRequestPerformanceLogger;
-        logRequestTimings = new SystemEnvironment().getEnableRequestTimeLogging();
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        logRequestTimings = systemEnvironment.getEnableRequestTimeLogging();
+        usingJetty9 = systemEnvironment.usingJetty9();
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -48,14 +53,17 @@ public class PerformanceLoggingFilter implements Filter {
                 long amountOfTimeItTookInMilliseconds = System.currentTimeMillis() - start;
                 String requestURI = ((HttpServletRequest) servletRequest).getRequestURI();
                 String requestor = servletRequest.getRemoteAddr();
-                int status = ((Response) servletResponse).getStatus();
-                long contentCount = ((Response) servletResponse).getContentCount();
+
+                com.thoughtworks.go.server.util.ServletResponse response = ServletHelper.getInstance().getResponse(servletResponse);
+                int status = response.getStatus();
+                long contentCount = response.getContentCount();
 
                 webRequestPerformanceLogger.logRequest(requestURI, requestor, status, contentCount, amountOfTimeItTookInMilliseconds);
                 LOGGER.warn(requestURI + " took: " + amountOfTimeItTookInMilliseconds + " ms");
             }
         }
     }
+
 
     public void destroy() {
     }

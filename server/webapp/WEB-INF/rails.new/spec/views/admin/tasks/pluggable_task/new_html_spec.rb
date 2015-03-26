@@ -20,8 +20,8 @@ require File.join(File.dirname(__FILE__), "../../../../spec_helper")
 describe "admin/tasks/plugin/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
-  PLUGIN_ID = "my.curl.plugin"
-  PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
+  TASK_PLUGIN_ID = "my.curl.plugin"
+  TASK_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
 
   before :each do
     assign(:cruise_config, config = CruiseConfig.new)
@@ -32,19 +32,19 @@ describe "admin/tasks/plugin/new.html.erb" do
 
     # Fake a plugin loaded into Go's plugin registry.
     @registry = Spring.bean "defaultPluginRegistry"
-    @registry.loadPlugin GoPluginDescriptor.new(PLUGIN_ID, "1.0", GoPluginDescriptor::About.new(nil, nil, nil, nil, nil, ["Linux"]), nil, nil, false)
+    @registry.loadPlugin GoPluginDescriptor.new(TASK_PLUGIN_ID, "1.0", GoPluginDescriptor::About.new(nil, nil, nil, nil, nil, ["Linux"]), nil, nil, false)
 
     # Fake more of its initialisation. Fake the part where Go talks to the plugin and gets its config for caching.
-    PluggableTaskConfigStore.store().setPreferenceFor(PLUGIN_ID, TaskPreference.new(TaskMother::ApiTaskForTest.new({:display_value => "test curl", :template => PLUGIN_TEMPLATE})))
+    PluggableTaskConfigStore.store().setPreferenceFor(TASK_PLUGIN_ID, TaskPreference.new(TaskMother::ApiTaskForTest.new({:display_value => "test curl", :template => TASK_PLUGIN_TEMPLATE})))
   end
 
   after :each do
-    PluggableTaskConfigStore.store().removePreferenceFor(PLUGIN_ID)
+    PluggableTaskConfigStore.store().removePreferenceFor(TASK_PLUGIN_ID)
     @registry.unloadAll() if @registry
   end
 
   it "should render plugin template and data for a new pluggable task" do
-    pluggable_task = plugin_task PLUGIN_ID, [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", false, "value2")]
+    pluggable_task = plugin_task TASK_PLUGIN_ID, [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("key2", false, "value2")]
     task = assign(:task, pluggable_task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
@@ -52,7 +52,7 @@ describe "admin/tasks/plugin/new.html.erb" do
 
     Capybara.string(response.body).find('div.plugged_task#task_angular_pluggable_task_my_curl_plugin').tap do |div|
       template_text = text_without_whitespace(div.find("div.plugged_task_template"))
-      expect(template_text).to eq(PLUGIN_TEMPLATE)
+      expect(template_text).to eq(TASK_PLUGIN_TEMPLATE)
 
       data_for_template = JSON.parse(div.find("span.plugged_task_data", :visible => false).text)
       expect(data_for_template.keys.sort).to eq(["KEY1", "key2"])

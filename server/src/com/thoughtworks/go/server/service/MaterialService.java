@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.*;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -57,16 +58,18 @@ public class MaterialService {
     private final SecurityService securityService;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private SCMExtension scmExtension;
+    private TransactionTemplate transactionTemplate;
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<Class, MaterialPoller>();
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
-                           PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {
+                           PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TransactionTemplate transactionTemplate) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
+        this.transactionTemplate = transactionTemplate;
         populatePollerImplementations();
     }
 
@@ -78,7 +81,7 @@ public class MaterialService {
         materialPollerMap.put(P4Material.class, new P4Poller());
         materialPollerMap.put(DependencyMaterial.class, new DependencyMaterialPoller());
         materialPollerMap.put(PackageMaterial.class, new PackageMaterialPoller(packageAsRepositoryExtension));
-        materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(scmExtension));
+        materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate));
     }
 
     public boolean hasModificationFor(Material material) {

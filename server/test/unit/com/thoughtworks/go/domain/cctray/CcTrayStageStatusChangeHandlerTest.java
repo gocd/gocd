@@ -20,6 +20,8 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import org.junit.Before;
@@ -31,7 +33,6 @@ import org.mockito.Mock;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.CoreMatchers.is;
@@ -154,7 +155,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Set<String> viewers = s("viewer1", "viewer2");
+        Viewers viewers = viewers("viewer1", "viewer2");
 
         String projectName = "pipeline :: stage1";
         ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
@@ -206,5 +207,9 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     private String webUrlFor(final String stageName) {
         return "some-path/pipelines/pipeline/1/" + stageName + "/1";
+    }
+
+    private Viewers viewers(String... users) {
+        return new AllowedViewers(s(users));
     }
 }

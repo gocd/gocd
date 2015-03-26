@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -28,6 +27,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -37,13 +37,12 @@ import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevis
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
-import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
@@ -52,6 +51,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -66,9 +66,9 @@ import org.mockito.Mock;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static java.util.Arrays.asList;
@@ -93,13 +93,15 @@ public class MaterialServiceTest {
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     private MaterialService materialService;
 
     @Before
     public void setUp() {
         initMocks(this);
-        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension, scmExtension);
+        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension, scmExtension, transactionTemplate);
     }
 
     @Test
@@ -273,7 +275,10 @@ public class MaterialServiceTest {
     @Test
     public void shouldGetLatestModification_PluggableSCMMaterial() {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
-        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(String.class))).thenReturn(new SCMRevision("blah-123", new Date(), "user", "comment", null, null));
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, new SCMRevision("blah-123", new Date(), "user", "comment", null, null));
+        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(materialPollResult);
 
         List<Modification> modifications = materialService.latestModification(pluggableSCMMaterial, new File("/tmp/flyweight"), null);
 
@@ -283,8 +288,11 @@ public class MaterialServiceTest {
     @Test
     public void shouldGetModificationSince_PluggableSCMMaterial() {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
-        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(String.class),
-                any(SCMRevision.class))).thenReturn(asList(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
+        MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
+        when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
+        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class),
+                any(SCMRevision.class))).thenReturn(materialPollResult);
 
         PluggableSCMMaterialRevision previouslyKnownRevision = new PluggableSCMMaterialRevision("revision-124", new Date());
         List<Modification> modifications = materialService.modificationsSince(pluggableSCMMaterial, new File("/tmp/flyweight"), previouslyKnownRevision, null);

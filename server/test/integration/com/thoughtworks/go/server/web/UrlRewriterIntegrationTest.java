@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.server.util.HttpTestUtil;
+import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -29,6 +30,9 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.eclipse.jetty.util.UrlEncoded;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -36,16 +40,15 @@ import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.resource.Resource;
-import org.mortbay.util.UrlEncoded;
 import org.springframework.web.context.WebApplicationContext;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
+import javax.servlet.DispatcherType;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,8 +71,9 @@ public class UrlRewriterIntegrationTest {
     public String originalSslPort;
 
     public UrlRewriterIntegrationTest() throws Exception {
+        ServletHelper.init(true);
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
-            public void customize(Context ctx) throws Exception {
+            public void customize(WebAppContext ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);
                 ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
 
@@ -79,7 +83,7 @@ public class UrlRewriterIntegrationTest {
                 }
 
                 ctx.setBaseResource(Resource.newResource(new File(resource.getFile()).getParent()));
-                ctx.addFilter(UrlRewriteFilter.class, "/*", 1).setInitParameter("confPath", "/urlrewrite.xml");
+				ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
                 ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
             }
         });
@@ -238,6 +242,7 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion PLUGINS_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/plugins", "http://127.1.1.1:" + HTTP + "/go/rails/admin/plugins", true);
     @DataPoint public static ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/package_repositories", "http://127.1.1.1:" + HTTP + "/go/rails/admin/package_repositories", true);
     @DataPoint public static ResponseAssertion PACKAGE_DEFINITIONS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/package_definitions", "http://127.1.1.1:" + HTTP + "/go/rails/admin/package_definitions", true);
+    @DataPoint public static ResponseAssertion PLUGGABLE_SCM = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/materials/pluggable_scm/check_connection/plugin_id", "http://127.1.1.1:" + HTTP + "/go/rails/admin/materials/pluggable_scm/check_connection/plugin_id", true);
     @DataPoint public static ResponseAssertion CONFIG_CHANGE = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/config_change/md5_value", "http://127.1.1.1:" + HTTP + "/go/rails/config_change/md5_value", true);
     @DataPoint public static ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/config_xml", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml", METHOD.GET, true);
     @DataPoint public static ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/config_xml/edit", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml/edit", METHOD.GET, true);

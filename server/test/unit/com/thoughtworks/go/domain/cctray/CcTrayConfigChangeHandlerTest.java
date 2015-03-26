@@ -5,6 +5,8 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
+import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
+import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Before;
 import org.junit.Test;
@@ -214,7 +216,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get("pipeline1 :: stage1 :: job1")).thenReturn(pipeline1_stage1_job);
         when(cache.get("pipeline2 :: stage2")).thenReturn(pipeline2_stage2);
         when(cache.get("pipeline2 :: stage2 :: job2")).thenReturn(pipeline2_stage2_job);
-        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", s("user1", "user2"), "group2", s("user3")));
+        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", viewers("user3")));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
@@ -247,6 +249,10 @@ public class CcTrayConfigChangeHandlerTest {
         assertThat(statuses.get(3).canBeViewedBy("user1"), is(false));
         assertThat(statuses.get(3).canBeViewedBy("user2"), is(false));
         assertThat(statuses.get(3).canBeViewedBy("user3"), is(true));
+    }
+
+    private Viewers viewers(String... users) {
+        return new AllowedViewers(s(users));
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

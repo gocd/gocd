@@ -16,17 +16,20 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
-
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.HttpInput;
+import org.eclipse.jetty.server.Request;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.HttpURI;
-import org.mortbay.jetty.Request;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -41,6 +44,7 @@ public class DeploymentContextWriterTest {
     public void setUp() {
         originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "5050");
+        ServletHelper.init(true);
     }
 
     @After
@@ -65,7 +69,7 @@ public class DeploymentContextWriterTest {
         when(serverConfigService.hasAnyUrlConfigured()).thenReturn(true);
         when(serverConfigService.siteUrlFor("http://url/go/admin?tab=oAuth", true)).thenReturn("https://url/go/admin?tab=oAuth");
 
-        Request request = new Request();
+        Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class));
         request.setUri(new HttpURI("/go/admin?tab=oAuth"));
         request.setServerName("url");
 
@@ -84,11 +88,11 @@ public class DeploymentContextWriterTest {
         final ServerConfigService serverConfigService = mock(ServerConfigService.class);
         when(serverConfigService.hasAnyUrlConfigured()).thenReturn(false);
 
-        Request req = new Request();
+        Request req = new Request(mock(HttpChannel.class), mock(HttpInput.class));
         req.setUri(new HttpURI("/go/admin?tab=oAuth"));
         req.setServerName("url");
         req.setServerPort(8153);
-        req.setProtocol("http");
+        //req.setProtocol("http");
 
         DeploymentContextWriter writer = new DeploymentContextWriter() {
             @Override protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {
@@ -106,11 +110,11 @@ public class DeploymentContextWriterTest {
         when(serverConfigService.hasAnyUrlConfigured()).thenReturn(true);
         when(serverConfigService.siteUrlFor("http://url:8153/go/admin?tab=oAuth", true)).thenReturn("http://url:8153/go/admin?tab=oAuth");
 
-        Request req = new Request();
+        Request req = new Request(mock(HttpChannel.class), mock(HttpInput.class));
         req.setUri(new HttpURI("/go/admin?tab=oAuth"));
         req.setServerName("url");
         req.setServerPort(8153);
-        req.setProtocol("http");
+        //req.setProtocol("http");
 
         DeploymentContextWriter writer = new DeploymentContextWriter() {
             @Override protected BaseUrlProvider getBaseUrlProvider(HttpServletRequest req) {

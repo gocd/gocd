@@ -223,7 +223,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateApprovalsCorrectlyBug2112() throws Exception {
-        File bjcruise = new File("../common/test-resources/data/bjcruise-cruise-config-1.0.xml");
+        File bjcruise = new File("../common/test-resources/unit/data/bjcruise-cruise-config-1.0.xml");
         assertThat(bjcruise.exists(), is(true));
         String xml = readToEnd(bjcruise);
 
@@ -277,7 +277,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldMigrateDependsOnTagToBeADependencyMaterial() throws Exception {
         String content = FileUtils.readFileToString(
-                new File("../common/test-resources/data/config/version4/cruise-config-dependency-migration.xml"));
+                new File("../common/test-resources/unit/data/config/version4/cruise-config-dependency-migration.xml"));
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
         MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().first();
         assertThat(actual, instanceOf(DependencyMaterialConfig.class));

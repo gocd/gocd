@@ -16,26 +16,21 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.util.HashMap;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
-import com.thoughtworks.go.config.GoMailSender;
-import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
-import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.controller.actions.RestfulAction;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
+import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
+import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +40,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonUnauthorized;
-import static com.thoughtworks.go.server.controller.actions.XmlAction.xmlFound;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+
 import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
@@ -74,6 +70,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/build/GET/xml")
+    @Deprecated
     public void getBuildAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                      @RequestParam("stageName")String stageName,
                                      @RequestParam("buildIndex")int buildIndex,
@@ -83,6 +80,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/stage/GET/xml")
+    @Deprecated
     public void getStageAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                      @RequestParam("stageIndex")int stageIndex,
                                      @RequestParam(value = "md5", required = false)String md5,
@@ -91,6 +89,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/pipeline/GET/xml")
+    @Deprecated
     public void getPipelineAsXmlPartial(@RequestParam("pipelineIndex")int pipelineIndex,
                                         @RequestParam("pipelineGroup")String groupName,
                                         @RequestParam(value = "md5", required = false)String md5,
@@ -115,6 +114,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/group/GET/xml")
+    @Deprecated
     public void getGroupAsXmlPartial(@RequestParam("pipelineGroup")String groupName,
                                      @RequestParam(value = "md5", required = false)String md5,
                                      HttpServletResponse response) throws Exception {
@@ -138,6 +138,7 @@ public class GoConfigAdministrationController {
 
 
     @RequestMapping("/restful/configuration/build/POST/xml")
+    @Deprecated
     public ModelAndView postBuildAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                               @RequestParam("stageName")String stageName,
                                               @RequestParam("buildIndex")int buildIndex,
@@ -149,6 +150,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/stage/POST/xml")
+    @Deprecated
     public ModelAndView postStageAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                               @RequestParam("stageIndex")int stageIndex,
                                               @RequestParam("xmlPartial")String xmlPartial,
@@ -159,6 +161,7 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping("/restful/configuration/pipeline/POST/xml")
+    @Deprecated
     public ModelAndView postPipelineAsXmlPartial(@RequestParam("pipelineIndex")int pipelineIndex,
                                                  @RequestParam("pipelineGroup")String groupName,
                                                  @RequestParam("xmlPartial")String xmlPartial,

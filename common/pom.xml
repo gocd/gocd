@@ -165,13 +165,28 @@
                     <groupId>com.sun</groupId>
                     <artifactId>tools</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api-2.5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-servlet-tester</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
         <resources>
             <resource>
                 <directory>resources</directory>
@@ -179,12 +194,35 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>test-resources</directory>
+                <directory>test-resources/unit</directory>
+            </testResource>
+            <testResource>
+                <directory>test-resources/integration</directory>
             </testResource>
         </testResources>
         <finalName>common</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>add-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/test/unit</source>
+                                <source>${project.basedir}/test/integration</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -207,7 +245,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks if="run.tests.using.tlb">
+                            <target if="run.tests.using.tlb">
                                 <property name="target.dir" location="target"/>
                                 <property name="classes.dir" location="${target.dir}/classes"/>
                                 <property name="instrumented.dir" location="${target.dir}/instrumented-classes"/>
@@ -223,7 +261,7 @@
 
                                 <cobertura-instrument todir="${instrumented.dir}">
                                     <fileset dir="${classes.dir}">
-                                        <include name="**/*.class" />
+                                        <include name="**/*.class"/>
                                     </fileset>
                                 </cobertura-instrument>
 
@@ -233,21 +271,25 @@
                                     <path refid="maven.test.classpath"/>
                                 </path>
 
-                                <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="classpath.for.tests"/>
+                                <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet"
+                                         classpathref="classpath.for.tests"/>
 
-                                <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false" haltonerror="false" showoutput="true" fork="true">
-                                    <sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.dir}/cobertura.ser" />
+                                <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false"
+                                       haltonerror="false" showoutput="true" fork="true">
+                                    <sysproperty key="net.sourceforge.cobertura.datafile"
+                                                 file="${cobertura.dir}/cobertura.ser"/>
 
                                     <classpath refid="classpath.for.tests"/>
 
                                     <batchtest todir="${reports.dir}">
-                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class" moduleName="common" />
+                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"
+                                                               excludes="**/*DockerTest.class" moduleName="common"/>
                                         <formatter classname="tlb.ant.JunitDataRecorder"/>
                                         <formatter type="xml"/>
                                     </batchtest>
                                 </junit>
                                 <fail if="test.failed"/>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -265,6 +307,22 @@
                             <exclusion>
                                 <groupId>com.sun</groupId>
                                 <artifactId>tools</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.mortbay.jetty</groupId>
+                                <artifactId>servlet-api-2.5</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.mortbay.jetty</groupId>
+                                <artifactId>jetty</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.mortbay.jetty</groupId>
+                                <artifactId>jetty-util</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.mortbay.jetty</groupId>
+                                <artifactId>jetty-servlet-tester</artifactId>
                             </exclusion>
                         </exclusions>
                     </dependency>
@@ -305,4 +363,71 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker-tests</id>
+            <activation></activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>start.hg.container</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <exec executable="git" dir="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted">
+                                            <arg value="clone"/>
+                                            <arg value="https://github.com/gocd/hg-textauth"/>
+                                        </exec>
+                                        <exec executable="docker">
+                                            <arg value="run"/>
+                                            <arg value="--privileged=true"/>
+                                            <arg value="-d"/>
+                                            <arg value="--name=hg_container"/>
+                                            <arg value="-p"/>
+                                            <arg value="9999:8000"/>
+                                            <arg value="-v"/>
+                                            <arg value="${project.build.testOutputDirectory}/hg-material/volume_to_be_mounted/:/mounted_volume:ro"/>
+                                            <arg value="-w"/>
+                                            <arg value="/mounted_volume"/>
+                                            <arg value="gocd/ubuntu-hg"/>
+                                            <arg value="/bin/sh"/>
+                                            <arg value="setup.sh"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop.and.remove.hg.container</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <exec executable="docker">
+                                            <arg value="stop"/>
+                                            <arg value="hg_container"/>
+                                        </exec>
+                                        <exec executable="docker" >
+                                            <arg value="rm"/>
+                                            <arg value="hg_container"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

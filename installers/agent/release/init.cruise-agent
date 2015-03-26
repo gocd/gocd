@@ -28,6 +28,9 @@
 ### END INIT INFO
 SERVICE_NAME=${0##*/}
 
+# Strips initV leading chars if the script is located in rcX.d (automatically executed on runlevel change)
+INIT_DIR=${0%/*}; echo ${INIT_DIR##*/} | grep -e '^rc[0-9]\.d$' >/dev/null && SERVICE_NAME=$(echo "${SERVICE_NAME}" | sed 's/^[SK][0-9][0-9]//');
+
 PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 CUR_USER=`whoami`
 
@@ -37,15 +40,15 @@ killproc() {
 }
 
 start_daemon() {
-    eval "$*"
+    eval "$@"
 }
 
 log_success_msg() {
-    echo "$*"
+    echo "$@"
 }
 
 log_failure_msg() {
-    echo "$*"
+    echo "$@"
 }
 
 . /etc/default/${SERVICE_NAME}
@@ -70,9 +73,9 @@ start_go_agent() {
 
     if [ "$JAVA_HOME" != "" ]; then
         if [ "${CUR_USER}" == "root" ]; then
-            start_daemon "/bin/su - go -c /usr/share/${SERVICE_NAME}/agent.sh"
+            start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}'"
         else
-            start_daemon /usr/share/${SERVICE_NAME}/agent.sh
+            start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}
         fi
     else
         log_failure_msg "Starting up of Go Agent requires JAVA_HOME to be set in /etc/default/go-agent. Please set JAVA_HOME to proceed."

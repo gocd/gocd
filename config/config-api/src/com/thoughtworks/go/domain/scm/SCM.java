@@ -43,9 +43,13 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @ConfigTag("scm")
 @ConfigReferenceCollection(collectionName = "scms", idFieldName = "id")
 public class SCM implements Serializable, Validatable {
-    public static final String NAME = "name";
     public static final String SCM_ID = "scmId";
+    public static final String NAME = "name";
+    public static final String AUTO_UPDATE = "autoUpdate";
     public static final String PLUGIN_CONFIGURATION = "pluginConfiguration";
+    public static final String VALUE_KEY = "value";
+    public static final String ERRORS_KEY = "errors";
+
     private ConfigErrors errors = new ConfigErrors();
 
     @ConfigAttribute(value = "id", allowNull = true)
@@ -68,6 +72,12 @@ public class SCM implements Serializable, Validatable {
     private Configuration configuration = new Configuration();
 
     public SCM() {
+    }
+
+    public SCM(String id, PluginConfiguration pluginConfiguration, Configuration configuration) {
+        this.id = id;
+        this.pluginConfiguration = pluginConfiguration;
+        this.configuration = configuration;
     }
 
     public String getId() {
@@ -171,6 +181,19 @@ public class SCM implements Serializable, Validatable {
         errors.add(fieldName, message);
     }
 
+    public Map<String, Map<String, String>> getConfigAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        for (ConfigurationProperty property : configuration) {
+            Map<String, String> mapValue = new HashMap<String, String>();
+            mapValue.put(VALUE_KEY, property.getValue());
+            if (!property.errors().isEmpty()) {
+                mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
+    }
+
     public String getConfigForDisplay() {
         String pluginId = getPluginId();
         SCMMetadataStore metadataStore = SCMMetadataStore.getInstance();
@@ -198,34 +221,34 @@ public class SCM implements Serializable, Validatable {
 
     public void setConfigAttributes(Object attributes) {
         Map attributesMap = (Map) attributes;
-        if (attributesMap.containsKey(NAME)) {
-            name = ((String) attributesMap.get(NAME));
-        }
         if (attributesMap.containsKey(SCM_ID)) {
             id = ((String) attributesMap.get(SCM_ID));
         }
+        if (attributesMap.containsKey(NAME)) {
+            name = ((String) attributesMap.get(NAME));
+        }
+        this.setAutoUpdate("true".equals(attributesMap.get(AUTO_UPDATE)));
         if (attributesMap.containsKey(PLUGIN_CONFIGURATION)) {
             pluginConfiguration.setConfigAttributes(attributesMap.get(PLUGIN_CONFIGURATION));
         }
-        if (attributesMap.containsKey(Configuration.CONFIGURATION)) {
-            configuration.clear();
-            configuration.setConfigAttributes(attributesMap.get(Configuration.CONFIGURATION), getSecureKeyInfoProvider());
-        }
+        setPluginConfigurationAttributes(attributesMap);
     }
 
-    private SecureKeyInfoProvider getSecureKeyInfoProvider() {
-        final SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();
-        final SCMConfigurations metadata = scmMetadataStore.getConfigurationMetadata(getPluginId());
-        if (metadata == null) {
-            return null;
+    protected void setPluginConfigurationAttributes(Map attributes) {
+        SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginConfiguration.getId());
+        if (scmConfigurations == null) {
+            throw new RuntimeException("metadata unavailable for plugin: " + pluginConfiguration.getId());
         }
-        return new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                SCMConfiguration configuration = metadata.get(key);
-                return configuration.getOption(SCMConfiguration.SECURE);
+        for (SCMConfiguration scmConfiguration : scmConfigurations.list()) {
+            String key = scmConfiguration.getKey();
+            if (attributes.containsKey(key)) {
+                if (configuration.getProperty(key) == null) {
+                    configuration.addNewConfiguration(scmConfiguration.getKey(), scmConfiguration.getOption(Property.SECURE));
+                }
+                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                configuration.getProperty(key).handleSecureValueConfiguration(scmConfiguration.getOption(Property.SECURE));
             }
-        };
+        }
     }
 
     public String getFingerprint() {
@@ -256,10 +279,6 @@ public class SCM implements Serializable, Validatable {
         }
     }
 
-    public void addConfigurationErrorFor(String key, String message) {
-        configuration.addErrorFor(key, message);
-    }
-
     public boolean isNew() {
         return isEmpty(id);
     }
@@ -273,5 +292,9 @@ public class SCM implements Serializable, Validatable {
         if (StringUtil.isBlank(getId())) {
             setId(UUID.randomUUID().toString());
         }
+    }
+
+    public String getSCMType() {
+        return "pluggable_material_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
     }
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
@@ -25,7 +26,6 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.util.ListUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -137,31 +137,35 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForLatestRevision(SCMPropertyConfiguration scmConfiguration, String flyweightFolder) {
+    public String requestMessageForLatestRevision(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
         return toJsonString(configuredValues);
     }
 
     @Override
-    public SCMRevision responseMessageForLatestRevision(String responseBody) {
-        return toSCMRevision(responseBody);
+    public MaterialPollResult responseMessageForLatestRevision(String responseBody) {
+        Map responseBodyMap = getResponseMap(responseBody);
+        return new MaterialPollResult(toMaterialDataMap(responseBodyMap), toSCMRevision(responseBodyMap));
     }
 
     @Override
-    public String requestMessageForLatestRevisionsSince(SCMPropertyConfiguration scmConfiguration, String flyweightFolder, SCMRevision previousRevision) {
+    public String requestMessageForLatestRevisionsSince(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder, SCMRevision previousRevision) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
         configuredValues.put("previous-revision", scmRevisionToMap(previousRevision));
         return toJsonString(configuredValues);
     }
 
     @Override
-    public List<SCMRevision> responseMessageForLatestRevisionsSince(String responseBody) {
-        if (isEmpty(responseBody)) return null;
-        return toSCMRevisions(responseBody);
+    public MaterialPollResult responseMessageForLatestRevisionsSince(String responseBody) {
+        if (isEmpty(responseBody)) return new MaterialPollResult();
+        Map responseBodyMap = getResponseMap(responseBody);
+        return new MaterialPollResult(toMaterialDataMap(responseBodyMap), toSCMRevisions(responseBodyMap));
     }
 
     @Override
@@ -307,43 +311,81 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    List<SCMRevision> toSCMRevisions(String responseBody) {
+    private Map getResponseMap(String responseBody) {
+        Map map = null;
+        try {
+            map = parseResponseToMap(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Response should be returned as a map");
+        }
+        return map;
+    }
+
+    Map<String, String> toMaterialDataMap(Map map) {
+        try {
+            if (map == null || map.isEmpty()) {
+                return null;
+            }
+
+            Map scmData = null;
+            try {
+                scmData = (Map) map.get("scm-data");
+            } catch (Exception e) {
+                throw new RuntimeException("SCM data should be of type map");
+            }
+            return scmData;
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
+        }
+    }
+
+    SCMRevision toSCMRevision(Map map) {
+        try {
+            if (map == null || map.get("revision") == null) {
+                throw new RuntimeException("SCM revision cannot be empty");
+            }
+
+            Map revisionMap = null;
+            try {
+                revisionMap = (Map) map.get("revision");
+            } catch (Exception e) {
+                throw new RuntimeException("SCM revision should be of type map");
+            }
+
+            return getScmRevisionFromMap(revisionMap);
+        } catch (Exception e) {
+            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
+        }
+    }
+
+    List<SCMRevision> toSCMRevisions(Map map) {
         try {
             List<SCMRevision> scmRevisions = new ArrayList<SCMRevision>();
 
-            Map map;
+            if (map == null || map.get("revisions") == null) {
+                return scmRevisions;
+            }
+
+            List revisionMaps = null;
             try {
-                map = parseResponseToMap(responseBody);
+                revisionMaps = (List) map.get("revisions");
             } catch (Exception e) {
-                throw new RuntimeException("SCM revisions should be returned as a map");
+                throw new RuntimeException("'revisions' should be of type list of map");
             }
 
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-            if (map.containsKey("revisions") && map.get("revisions") != null) {
-                List revisionMaps = null;
-                try {
-                    revisionMaps = (List) map.get("revisions");
-                } catch (Exception e) {
-                    throw new RuntimeException("'revisions' should be of type list of map");
+            if (revisionMaps != null && !revisionMaps.isEmpty()) {
+                for (Object revision : revisionMaps) {
+                    if (!(revision instanceof Map)) {
+                        throw new RuntimeException("SCM revision should be of type map");
+                    }
                 }
 
-                if (!revisionMaps.isEmpty()) {
-                    for (Object revision : revisionMaps) {
-                        if (!(revision instanceof Map)) {
-                            throw new RuntimeException("SCM revision should be of type map");
-                        }
-                    }
+                for (Object revisionObj : revisionMaps) {
+                    Map revisionMap = (Map) revisionObj;
 
-                    for (Object revisionObj : revisionMaps) {
-                        Map revisionMap = (Map) revisionObj;
+                    SCMRevision scmRevision = getScmRevisionFromMap(revisionMap);
 
-                        SCMRevision scmRevision = getScmRevisionFromMap(revisionMap);
-
-                        scmRevisions.add(scmRevision);
-                    }
+                    scmRevisions.add(scmRevision);
                 }
             }
 
@@ -353,25 +395,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    SCMRevision toSCMRevision(String responseBody) {
-        try {
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("SCM revision should be returned as a map");
-            }
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-            return getScmRevisionFromMap(map);
-        } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
-        }
-    }
-
-    private SCMRevision getScmRevisionFromMap(Map map) {
+    SCMRevision getScmRevisionFromMap(Map map) {
         String revision;
         try {
             revision = (String) map.get("revision");

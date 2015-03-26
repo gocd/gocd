@@ -15,43 +15,49 @@
  * limitations under the License.
  *************************GO-LICENSE-END******************************* -->
 
-<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
-<Configure id="Server" class="org.mortbay.jetty.Server">
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
 
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
-    <Set name="ThreadPool">
-      <New class="org.mortbay.thread.QueuedThreadPool">
+    <Get name="ThreadPool">
         <Set name="minThreads">20</Set>
         <Set name="maxThreads">300</Set>
+        <!-- New Jetty QTP does not have these two properties below.
         <Set name="lowThreads">10</Set>
         <Set name="SpawnOrShrinkAt">2</Set>
-      </New>
-    </Set>
+        -->
+    </Get>
+    <Call name="setAttribute">
+        <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+        <Arg>30000000</Arg>
+    </Call>
 
     <!-- =========================================================== -->
     <!-- Logging                                                     -->
     <!-- =========================================================== -->
     <!-- Note: Please create the weblogs directory if not exist -->
     <!--
+    <Get name="handler">
         <Call name="addHandler">
-        <Arg>
-            <New class="org.mortbay.jetty.handler.RequestLogHandler">
-              <Set name="requestLog">
-                <New class="org.mortbay.jetty.NCSARequestLog">
-                    <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
-                    <Set name="filenameDateFormat">yyyy_MM_dd</Set>
-                    <Set name="retainDays">7</Set>
-                    <Set name="append">true</Set>
-                    <Set name="extended">false</Set>
-                    <Set name="logCookies">false</Set>
-                    <Set name="logLatency">false</Set>
+            <Arg>
+                <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                    <Set name="requestLog">
+                        <New class="org.eclipse.jetty.server.NCSARequestLog">
+                            <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
+                            <Set name="filenameDateFormat">yyyy_MM_dd</Set>
+                            <Set name="retainDays">7</Set>
+                            <Set name="append">true</Set>
+                            <Set name="extended">false</Set>
+                            <Set name="logCookies">false</Set>
+                            <Set name="logLatency">false</Set>
+                        </New>
+                    </Set>
                 </New>
-              </Set>
-            </New>
-        </Arg>
-      </Call>
+            </Arg>
+        </Call>
+    </Get>
     -->
 </Configure>

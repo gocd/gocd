@@ -1086,7 +1086,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowBothCounterAndTruncatedGitMaterialInLabelTemplate() throws Exception {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}")).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0-${COUNT}-${git[:7]}", 75)).config;
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("cruise")).getLabelTemplate(), is("1.3.0-${COUNT}-${git[:7]}"));
     }
 
@@ -1097,10 +1097,25 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldHaveAtLeastOneTemplate() throws Exception {
+    public void shouldNotAllowInvalidLabelTemplate() throws Exception {
+        assertPipelineLabelTemplate("1.3.0");
+
+        assertPipelineLabelTemplate("1.3.0-{COUNT}");
+        assertPipelineLabelTemplate("1.3.0-$COUNT}");
+        assertPipelineLabelTemplate("1.3.0-${COUNT");
+        assertPipelineLabelTemplate("1.3.0-${}");
+
+        assertPipelineLabelTemplate("1.3.0-${COUNT}-${git:7]}");
+        assertPipelineLabelTemplate("1.3.0-${COUNT}-${git[:7}");
+        assertPipelineLabelTemplate("1.3.0-${COUNT}-${git[7]}");
+        assertPipelineLabelTemplate("1.3.0-${COUNT}-${git[:]}");
+        assertPipelineLabelTemplate("1.3.0-${COUNT}-${git[:-1]}");
+    }
+
+    public void assertPipelineLabelTemplate(String labelTemplate) {
         try {
-            ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE("1.3.0"));
-            fail("should have at least one template definition (e.g. ${COUNT}");
+            ConfigMigrator.loadWithMigration(ConfigFileFixture.LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(labelTemplate, 75));
+            fail("should have failed");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Label is invalid."));
         }

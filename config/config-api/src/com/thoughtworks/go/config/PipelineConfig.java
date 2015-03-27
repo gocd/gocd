@@ -41,6 +41,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -63,14 +64,19 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String TIMER_CONFIG = "timer";
     public static final String ENVIRONMENT_VARIABLES = "variables";
     public static final String PARAMS = "params";
-    private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z0-9_\\-.!~*'()#:]";
-    public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]\\{" + LABEL_TEMPLATE_CHARACTERS + "+\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
+    private static final String LABEL_TEMPLATE_TRUNC_BLOCK = "(\\[:\\d+\\])?";
+    private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z0-9_\\-.!~*'()#:]"; // why a '#'?
+    private static final String LABEL_TEMPLATE_VARIABLE_REGEX = "[$]\\{(" + LABEL_TEMPLATE_CHARACTERS + "+)" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}";
+    public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]"
+            + "\\{" + LABEL_TEMPLATE_CHARACTERS + "+" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
     private static final Pattern LABEL_TEMPLATE_FORMAT_REGEX = Pattern.compile(String.format("^(%s)$", LABEL_TEMPLATE_FORMAT));
     public static final String TEMPLATE_NAME = "templateName";
     public static final String LOCK = "lock";
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
     public static final String CONFIGURATION_TYPE_TEMPLATE = "configurationType_template";
+    public static final String LABEL_TEMPLATE_ERROR_MESSAGE =
+            "Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.";
 
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
@@ -164,7 +170,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void validateLabelTemplate() {
         if (XmlUtils.doesNotMatchUsingXsdRegex(LABEL_TEMPLATE_FORMAT_REGEX, labelTemplate)) {
-            addError("labelTemplate", "Invalid label. Label should be composed of alphanumeric text, it should contain material revision or ${COUNT}, or use params as #{<param-name>}.");
+            addError("labelTemplate", LABEL_TEMPLATE_ERROR_MESSAGE);
             return;
         }
 
@@ -402,8 +408,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public Set<String> getTemplateVariables() {
-        Pattern pattern = Pattern.compile("\\$\\{([a-zA-Z0-9_\\-.!~*'():]+)\\}");
-        java.util.regex.Matcher matcher = pattern.matcher(this.labelTemplate);
+        Pattern pattern = Pattern.compile(LABEL_TEMPLATE_VARIABLE_REGEX);
+        Matcher matcher = pattern.matcher(this.labelTemplate);
         LinkedHashSet<String> result = new LinkedHashSet<String>();
         while (matcher.find()) {
             result.add(matcher.group(1));

@@ -440,7 +440,7 @@ public class MaterialRevisionsTest {
                 svnMaterialRevision(yesterdayMod, oneHourAgoMod)
         );
         assertThat(materialRevisions.getNamedRevisions().size(), is(1));
-        assertThat(materialRevisions.getNamedRevisions().get("Foo"), is("9"));
+        assertThat(materialRevisions.getNamedRevisions().get(new CaseInsensitiveString("Foo")), is("9"));
     }
 
     @Test
@@ -497,12 +497,12 @@ public class MaterialRevisionsTest {
 
     @Test
     public void shouldUseUpstreamPipelineLabelForDependencyMaterial() {
-        String pipelineName = "upstream";
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString("upstream");
         String pipelineLabel = "1.3.0-1234";
-        MaterialRevision materialRevision = ModificationsMother.dependencyMaterialRevision(pipelineName, 2, pipelineLabel, "dev", 1, new Date());
+        MaterialRevision materialRevision = ModificationsMother.dependencyMaterialRevision(pipelineName.toString(), 2, pipelineLabel, "dev", 1, new Date());
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
-        Map<String, String> namedRevisions = materialRevisions.getNamedRevisions();
+        Map<CaseInsensitiveString, String> namedRevisions = materialRevisions.getNamedRevisions();
 
         assertThat(namedRevisions.get(pipelineName), is(pipelineLabel));
     }

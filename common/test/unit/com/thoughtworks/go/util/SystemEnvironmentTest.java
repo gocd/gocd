@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.util.Properties;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.rits.cloning.Cloner;
@@ -29,9 +26,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.util.Properties;
+
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
     static final Cloner CLONER = new Cloner();
@@ -375,7 +376,23 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldUseJetty9ByDefault(){
+    public void shouldFindGoServerStatusToBeActiveByDefault() throws Exception {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        assertThat(systemEnvironment.isServerActive(), is(true));
+    }
+
+    @Test
+    public void shouldFindGoServerStatusToBePassive() throws Exception {
+        try {
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            System.setProperty("go.server.state", "passive");
+            assertThat(systemEnvironment.isServerActive(), is(false));
+        } finally {
+            System.clearProperty("go.server.state");
+        }
+    }
+
+    public void shouldUseJetty9ByDefault() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
         assertThat(systemEnvironment.usingJetty9(), is(true));

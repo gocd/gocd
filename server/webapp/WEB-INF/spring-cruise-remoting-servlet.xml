@@ -33,39 +33,39 @@
           p:service-ref="buildRepositoryImpl"
           p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote"/>
 
-    <bean id="produceBuildCausesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="produceBuildCausesTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="pipelineScheduler"
           p:targetMethod="onTimer"/>
 
-    <bean id="consumeBuildCausesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="consumeBuildCausesTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="scheduleService"
           p:targetMethod="autoSchedulePipelinesFromRequestBuffer"/>
 
-    <bean id="rescheduleHungBuildTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="rescheduleHungBuildTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="scheduleService"
           p:targetMethod="rescheduleHungJobs"/>
 
-    <bean id="cancelHungJob" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="cancelHungJob" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="scheduleService"
           p:targetMethod="cancelHungJobs"/>
 
-    <bean id="checkDiskSpaceTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="checkDiskSpaceTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="goDiskSpaceMonitor"
         p:targetMethod="onTimer"/>
 
-    <bean id="buildAssignmentServiceRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="buildAssignmentServiceRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="buildAssignmentService"
           p:targetMethod="onTimer"/>
 
-    <bean id="cachedGoConfigRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="cachedGoConfigRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="cachedGoConfig"
           p:targetMethod="onTimer"/>
 
-    <bean id="materialUpdaterExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="materialUpdaterExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="materialUpdateService"
           p:targetMethod="onTimer"/>
 
-    <bean id="checkLicenseViolation" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="checkLicenseViolation" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="licenseViolationChecker"
           p:targetMethod="checkForViolation"/>
 
@@ -179,7 +179,7 @@
 
     <bean id="buildRepositoryImpl" class="com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer" autowire="constructor"/>
 
-    <bean id="agentServiceRefreshExecutor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+    <bean id="agentServiceRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="agentService"
           p:targetMethod="refresh"/>
 

@@ -392,6 +392,7 @@ public class SystemEnvironmentTest {
         }
     }
 
+    @Test
     public void shouldUseJetty9ByDefault() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));

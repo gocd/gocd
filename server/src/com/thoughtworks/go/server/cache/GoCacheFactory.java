@@ -33,6 +33,10 @@ public class GoCacheFactory {
     private EhCacheFactoryBean factoryBean;
     private Boolean clearOnFlush = true;
 
+    static {
+        System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
+    }
+
     public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager) {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         factoryBean = new EhCacheFactoryBean();

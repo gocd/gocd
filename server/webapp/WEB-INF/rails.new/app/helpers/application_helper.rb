@@ -103,6 +103,10 @@ module ApplicationHelper
     prefix + java.util.UUID.randomUUID().to_s
   end
 
+  def sanitize_for_dom_id(value)
+    value.gsub(".", "_dot_").tr("^a-zA-Z0-9_-", "_")
+  end
+
   def onclick_lambda(options)
     on_click_lambda = ''
     if options.has_key? :onclick_lambda

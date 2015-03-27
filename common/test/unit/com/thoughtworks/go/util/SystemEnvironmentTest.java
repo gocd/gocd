@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.util.Properties;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.rits.cloning.Cloner;
@@ -28,6 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -67,6 +67,8 @@ public class SystemEnvironmentTest {
     public void shouldFindJettyConfigInTheConfigDir() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
+        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty6.xml")));
     }
 
     @Test
@@ -388,5 +390,14 @@ public class SystemEnvironmentTest {
         } finally {
             System.clearProperty("go.server.state");
         }
+    }
+
+    public void shouldUseJetty9ByDefault() {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
+        assertThat(systemEnvironment.usingJetty9(), is(true));
+
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
+        assertThat(systemEnvironment.usingJetty9(), is(false));
     }
 }

@@ -123,7 +123,7 @@ describe Admin::Plugins::PluginsController do
       get :index
 
       assigns[:tab_name].should == "plugins-listing"
-      assert_template layout : "admin"
+      assert_template layout: "admin"
     end
 
     it "should populate the current list of plugins and the external plugins path" do
@@ -183,7 +183,7 @@ describe Admin::Plugins::PluginsController do
       get :edit, :plugin_id => 'sample'
       expect(assigns(:tab_name)).to eq('plugins-listing')
       expect(assigns(:settings_template)).to eq(settings_template)
-      assert_template layout : "admin"
+      assert_template layout: "admin"
     end
 
     it 'should set error when plugin manager throws exception' do

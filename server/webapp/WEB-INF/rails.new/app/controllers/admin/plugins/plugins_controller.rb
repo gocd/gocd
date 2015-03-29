@@ -48,7 +48,7 @@ class Admin::Plugins::PluginsController < AdminController
 
   def edit
     begin
-      @settings_template = default_plugin_manager.loadPluginSettings(params[:plugin_id]);
+      @settings_template = default_plugin_manager.loadPluginSettings(params[:plugin_id])
     rescue => e
       @error = "#{e.message}"
     end
@@ -56,7 +56,7 @@ class Admin::Plugins::PluginsController < AdminController
 
   def save
     begin
-      default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json);
+      default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json)
       redirect_to :action => "edit", :plugin_id => params[:plugin_id] and return
     rescue => e
       @error = "#{e.message}"

@@ -81,13 +81,13 @@ public class StageService implements StageRunFinder, StageFinder {
     private StageStatusCache stageStatusCache;
     private Cloner cloner = new Cloner();
     private GoCache goCache;
-	private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     @Autowired
     public StageService(StageDao stageDao, JobInstanceService jobInstanceService, StageStatusTopic stageStatusTopic, StageStatusCache stageStatusCache,
                         SecurityService securityService, PipelineDao pipelineDao, ChangesetService changesetService, GoConfigService goConfigService,
                         TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, GoCache goCache,
-                                StageStatusListener... stageStatusListeners) {
+                        StageStatusListener... stageStatusListeners) {
         this.stageDao = stageDao;
         this.jobInstanceService = jobInstanceService;
         this.stageStatusTopic = stageStatusTopic;
@@ -163,7 +163,8 @@ public class StageService implements StageRunFinder, StageFinder {
         cancel(stage);
         notifyStageStatusChangeListeners(stage);
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 stageStatusTopic.post(new StageStatusMessage(stage.getIdentifier(), stage.stageState(), stage.getResult(), UserHelper.getUserName()));
             }
         });
@@ -171,7 +172,8 @@ public class StageService implements StageRunFinder, StageFinder {
 
     private void cancel(final Stage stage) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 for (JobInstance job : stage.getJobInstances()) {
                     jobInstanceService.cancelJob(job);
                 }
@@ -228,7 +230,8 @@ public class StageService implements StageRunFinder, StageFinder {
 
     private void notifyStageStatusChangeListeners(final Stage savedStage) {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 StageStatusListener[] prototype = new StageStatusListener[0];
                 for (StageStatusListener stageStatusListener : stageStatusListeners.toArray(prototype)) {
                     try {
@@ -291,9 +294,11 @@ public class StageService implements StageRunFinder, StageFinder {
     private void updateStageWithoutNotifications(final Stage stage) {
         stage.calculateResult();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         clearCachedCompletedStageFeeds(stage.getIdentifier().getPipelineName());
                     }
                 });
@@ -409,18 +414,18 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
 
-	public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination, String username, OperationResult result) {
-		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-			return null;
-		}
-		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-			return null;
-		}
+    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination, String username, OperationResult result) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return null;
+        }
 
-		return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
-	}
+        return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+    }
 
     public Long findStageIdByLocator(String locator) {
         String[] parts = locator.split("/");
@@ -468,7 +473,8 @@ public class StageService implements StageRunFinder, StageFinder {
 
     private void changeJob(final JobOperation jobOperation, final JobIdentifier identifier) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 jobOperation.invoke();
                 stageDao.clearCachedStage(identifier.getStageIdentifier());
                 Stage stage = stageDao.findStageWithIdentifier(identifier.getStageIdentifier());
@@ -504,8 +510,12 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findAllStagesFor(pipelineName, counter).isAnyStageActive();
     }
 
+    public List<Stage> oldestStagesWithDeletableArtifacts(List<StageConfigIdentifier> excludeStagesFilter) {
+        return stageDao.oldestStagesHavingArtifacts(excludeStagesFilter);
+    }
+
     public List<Stage> oldestStagesWithDeletableArtifacts() {
-        return stageDao.oldestStagesHavingArtifacts();
+        return stageDao.oldestStagesHavingArtifacts(new ArrayList<StageConfigIdentifier>());
     }
 
     public void markArtifactsDeletedFor(Stage stage) {
@@ -515,6 +525,19 @@ public class StageService implements StageRunFinder, StageFinder {
     public List<StageIdentity> findLatestStageInstances() {
         return stageDao.findLatestStageInstances();
     }
+
+    public List<Stage> getStagesWithArtifacts(List<StageConfigIdentifier> includeStages, List<StageConfigIdentifier> excludeStages, Long fromId, Long toId, boolean ascending) {
+        return stageDao.getStagesWithArtifacts(includeStages, excludeStages, fromId, toId, ascending);
+    }
+
+    public Map<StageConfigIdentifier,Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts) {
+        return stageDao.getStagesInstanceCount(stages, onlyStagesWithUncleanedArtifacts);
+    }
+
+    public List<StageConfigIdentifier> getAllDistinctStages() {
+        return stageDao.getAllDistinctStages();
+    }
+
 
     public static interface JobOperation {
         void invoke();

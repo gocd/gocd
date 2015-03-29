@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
@@ -27,11 +24,12 @@ import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 
 public class StageTest {
@@ -196,5 +194,18 @@ public class StageTest {
 
         stage = new Stage("foo-stage", new JobInstances(), "admin", "manual", new TimeProvider());
         assertThat(stage.getConfigVersion(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldBuildStageConfigIdentifierFromStageIdentifier()  {
+        String stageName = "stage";
+        String pipelineName = "pipeline";
+        StageConfigIdentifier expectedResult = new StageConfigIdentifier(pipelineName, stageName);
+
+        Stage stage = new Stage();
+        stage.setIdentifier(new StageIdentifier(pipelineName, 1, stageName, "1"));
+
+        StageConfigIdentifier stageConfigIdentifier = stage.getStageConfigIdentifier();
+        assertThat(stageConfigIdentifier,is(expectedResult));
     }
 }

@@ -79,7 +79,7 @@ public class GoDiskSpaceMonitorTest {
         stageService = mock(StageService.class);
         configDbStateRepository = mock(ConfigDbStateRepository.class);
         goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment, serverHealthService, emailSender, mockDiskSpaceChecker, mock(ArtifactsService.class),
-                stageService, configDbStateRepository);
+                stageService, configDbStateRepository, null);
         goDiskSpaceMonitor.initialize();
         diskSpaceCacheRefresherInterval = systemEnvironment.getDiskSpaceCacheRefresherInterval();
         systemEnvironment.setDiskSpaceCacheRefresherInterval(-1);

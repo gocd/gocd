@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.ZipInputStream;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.domain.ConsoleOut;
@@ -35,11 +27,7 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.junit.After;
@@ -47,6 +35,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -59,10 +56,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class ArtifactsServiceTest {
@@ -115,7 +109,8 @@ public class ArtifactsServiceTest {
         }
     }
 
-    @Test public void shouldUnzipWhenFileIsZip() throws Exception {
+    @Test
+    public void shouldUnzipWhenFileIsZip() throws Exception {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
@@ -324,6 +319,76 @@ public class ArtifactsServiceTest {
     }
 
     @Test
+    public void shouldHonorExcludePathsWhilePurgingArtifacts() throws IOException {
+        File artifactsRoot = new File("artifact-root");
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = new File("artifact-root/pipelines/pipeline/10/stage/20/job");
+        jobDir.mkdirs();
+
+        File deleteFile = new File(jobDir, "delete.txt");
+        FileUtil.writeContentToFile("content", deleteFile);
+
+        File doNotDeleteFile = new File(jobDir, "doNotDelete.txt");
+        FileUtil.writeContentToFile("content", doNotDeleteFile);
+
+        File cruiseOutputDir = new File(jobDir, "cruise-output");
+        cruiseOutputDir.mkdir();
+        File consoleLog = new File(cruiseOutputDir, "console.log");
+        FileUtil.writeContentToFile("Build Logs", consoleLog);
+        File checksumFile = new File(cruiseOutputDir, "md5.checksum");
+        FileUtil.writeContentToFile("foo:25463254625346", checksumFile);
+
+
+        ArtifactsService artifactsService = new ArtifactsService(systemService, artifactsDirHolder, zipUtil, resolverService, stageService);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        artifactsService.purgeArtifactsForStageExcept(stage, Arrays.asList("pipelines/pipeline/10/stage/20/job/doNotDelete.txt"));
+
+        assertThat(deleteFile.exists(), is(false));
+        assertThat(doNotDeleteFile.exists(), is(true));
+        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists(), is(true));
+        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists(), is(true));
+
+        verify(stageService, never()).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    public void shouldHonorIncludePathsWhilePurgingArtifacts() throws IOException {
+        File artifactsRoot = new File("artifact-root");
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = new File("artifact-root/pipelines/pipeline/10/stage/20/job");
+        jobDir.mkdirs();
+
+        File deleteFile = new File(jobDir, "delete.txt");
+        FileUtil.writeContentToFile("content", deleteFile);
+
+        File doNotDeleteFile = new File(jobDir, "doNotDelete.txt");
+        FileUtil.writeContentToFile("content", doNotDeleteFile);
+
+        File cruiseOutputDir = new File(jobDir, "cruise-output");
+        cruiseOutputDir.mkdir();
+        File consoleLog = new File(cruiseOutputDir, "console.log");
+        FileUtil.writeContentToFile("Build Logs", consoleLog);
+        File checksumFile = new File(cruiseOutputDir, "md5.checksum");
+        FileUtil.writeContentToFile("foo:25463254625346", checksumFile);
+
+
+        ArtifactsService artifactsService = new ArtifactsService(systemService, artifactsDirHolder, zipUtil, resolverService, stageService);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        artifactsService.purgeArtifactsForStage(stage, Arrays.asList("pipelines/pipeline/10/stage/20/job/delete.txt"));
+
+        assertThat(deleteFile.exists(), is(false));
+        assertThat(doNotDeleteFile.exists(), is(true));
+        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists(), is(true));
+        assertThat(new File("artifact-root/pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists(), is(true));
+
+        verify(stageService, never()).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
     public void shouldPurgeCachedArtifactsForGivenStageWhilePurgingArtifactsForAStage() throws IOException {
         File artifactsRoot = new File("artifact-root");
         assumeArtifactsRoot(artifactsRoot);
@@ -340,7 +405,7 @@ public class ArtifactsServiceTest {
         File job1CacheDirFromADifferentStageRun = createJobArtifactFolder("artifact-root/cache/artifacts/pipelines/pipeline/10/stage/25/job2");
 
         artifactsService.purgeArtifactsForStage(stage);
-        
+
         assertThat(job1Dir.exists(), is(true));
         assertThat(job1Dir.listFiles().length, is(0));
         assertThat(job2Dir.exists(), is(true));
@@ -351,7 +416,7 @@ public class ArtifactsServiceTest {
         assertThat(job2CacheDir.exists(), is(false));
         assertThat(job1CacheDirFromADifferentStageRun.exists(), is(true));
     }
-    
+
     private File createJobArtifactFolder(final String path) throws IOException {
         File jobDir = new File(path);
         jobDir.mkdirs();
@@ -369,7 +434,7 @@ public class ArtifactsServiceTest {
         ReflectionUtil.setField(artifactsService, "chooser", chooser);
 
         when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
-        
+
         artifactsService.purgeArtifactsForStage(stage);
 
         assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'"), is(true));
@@ -385,4 +450,3 @@ public class ArtifactsServiceTest {
         resourcesToBeCleanedOnTeardown.add(file);
     }
 }
-

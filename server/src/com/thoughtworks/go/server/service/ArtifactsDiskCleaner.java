@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
@@ -27,6 +25,8 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 
+import java.util.List;
+
 public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     private static final Logger LOGGER = Logger.getLogger(ArtifactsDiskCleaner.class);
     private final Object triggerCleanup = new Object();
@@ -34,13 +34,15 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     private final ArtifactsService artifactService;
     private final StageService stageService;
     private final ConfigDbStateRepository configDbStateRepository;
+    private ArtifactCleanupExtensionInvoker artifactCleanupExtensionInvoker;
 
     public ArtifactsDiskCleaner(SystemEnvironment systemEnvironment, GoConfigService goConfigService, final SystemDiskSpaceChecker diskSpaceChecker, ArtifactsService artifactService,
-                                StageService stageService, ConfigDbStateRepository configDbStateRepository) {
+                                StageService stageService, ConfigDbStateRepository configDbStateRepository, ArtifactCleanupExtensionInvoker artifactCleanupExtensionInvoker) {
         super(null, systemEnvironment, goConfigService.artifactsDir(), goConfigService, ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID, diskSpaceChecker);
         this.artifactService = artifactService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
+        this.artifactCleanupExtensionInvoker = artifactCleanupExtensionInvoker;
         cleaner = new Thread(new Runnable() {
             public void run() {
                 try {
@@ -65,24 +67,59 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         if (serverConfig.isArtifactPurgingAllowed()) {
             double requiredSpace = requiredSpaceInGb * GoConstants.GIGA_BYTE;
             LOGGER.info(String.format("Clearing old artifacts as the disk space is low. Current space: '%s'. Need to clear till we hit: '%s'.", availableSpace(), requiredSpace));
-            List<Stage> stages;
+
             int numberOfStagesPurged = 0;
-            do {
-                configDbStateRepository.flushConfigState();
-                stages = stageService.oldestStagesWithDeletableArtifacts();
-                for (Stage stage : stages) {
-                    if (availableSpace() > requiredSpace) {
-                        break;
-                    }
-                    numberOfStagesPurged++;
-                    artifactService.purgeArtifactsForStage(stage);
-                }
-            } while ((availableSpace() < requiredSpace) && !stages.isEmpty());
+
+            if (serverConfig.getArtifactCleanupStrategy() == null) {
+                numberOfStagesPurged += defaultArtifactCleanupStrategy(requiredSpace);
+            } else {
+                numberOfStagesPurged += deleteArtifactsWithGlobalStrategy(requiredSpace);
+            }
+            numberOfStagesPurged += deleteArtifactsWithLocalCleanupStrategy(requiredSpace);
+
             if (availableSpace() < requiredSpace) {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
             }
+
             LOGGER.info(String.format("Finished clearing old artifacts. Deleted artifacts for '%s' stages. Current space: '%s'", numberOfStagesPurged, availableSpace()));
         }
+    }
+
+    int deleteArtifactsWithGlobalStrategy(double requiredSpace) {
+        int numberOfStagesPurged = 0;
+        do {
+            int count = artifactCleanupExtensionInvoker.invokeGlobalArtifactCleanupPlugin();
+            if (count == 0) break;
+            numberOfStagesPurged += count;
+        } while ((availableSpace() < requiredSpace));
+        return numberOfStagesPurged;
+    }
+
+    int deleteArtifactsWithLocalCleanupStrategy(double requiredSpace) {
+        int numberOfStagesPurged = 0;
+        while ((availableSpace() < requiredSpace)) {
+            int count = artifactCleanupExtensionInvoker.invokeStageLevelArtifactCleanupPlugins();
+            if (count == 0) break;
+            numberOfStagesPurged += count;
+        }
+        return numberOfStagesPurged;
+    }
+
+    private int defaultArtifactCleanupStrategy(double requiredSpace) {
+        List<Stage> stages;
+        int numberOfStagesPurged = 0;
+        do {
+            configDbStateRepository.flushConfigState();
+            stages = stageService.oldestStagesWithDeletableArtifacts();
+            for (Stage stage : stages) {
+                if (availableSpace() > requiredSpace) {
+                    break;
+                }
+                numberOfStagesPurged++;
+                artifactService.purgeArtifactsForStage(stage);
+            }
+        } while ((availableSpace() < requiredSpace) && !stages.isEmpty());
+        return numberOfStagesPurged;
     }
 
     protected void createFailure(OperationResult result, long size, long availableSpace) {
@@ -100,7 +137,8 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         return serverConfig.isArtifactPurgingAllowed() ? new Double(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;
     }
 
-    @Override public OperationResult resultFor(OperationResult result) {
+    @Override
+    public OperationResult resultFor(OperationResult result) {
         return new ServerHealthStateOperationResult();
     }
 }

@@ -7,7 +7,7 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.DefaultGoApplicationAccessor;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
-import com.thoughtworks.go.server.service.ArtifactCleanupExtensionMapBuilder;
+import com.thoughtworks.go.server.service.ArtifactCleanupExtensionInvoker;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +23,7 @@ public class StageHistoryRequestProcessor implements GoPluginApiRequestProcessor
 
     private StageService stageService;
 
-    private ArtifactCleanupExtensionMapBuilder artifactCleanupExtensionMapBuilder;
+    private ArtifactCleanupExtensionInvoker artifactCleanupExtensionMapBuilder;
 
     @Autowired
     public StageHistoryRequestProcessor(DefaultGoApplicationAccessor goApplicationAccessor, StageService stageService) {

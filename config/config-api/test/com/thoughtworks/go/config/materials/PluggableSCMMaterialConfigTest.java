@@ -22,6 +22,10 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMView;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -34,6 +38,16 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialConfigTest {
+    @Before
+    public void setUp() {
+        SCMMetadataStore.getInstance().clear();
+    }
+
+    @After
+    public void tearDown() {
+        SCMMetadataStore.getInstance().clear();
+    }
+
     @Test
     public void shouldAddErrorIfMaterialDoesNotHaveASCMId() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
@@ -235,5 +249,22 @@ public class PluggableSCMMaterialConfigTest {
 
         assertThat(pluggableSCMMaterialConfig.getName(), is(nullValue()));
         assertThat(pluggableSCMMaterialConfig.getDisplayName(), is("k1:v1"));
+    }
+
+    @Test
+    public void shouldCorrectlyGetTypeDisplay() {
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        pluggableSCMMaterialConfig.setSCMConfig(SCMMother.create("scm-id"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        SCMMetadataStore.getInstance().addMetadataFor("plugin", null, null);
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        SCMView scmView = mock(SCMView.class);
+        when(scmView.displayValue()).thenReturn("scm-name");
+        SCMMetadataStore.getInstance().addMetadataFor("plugin", null, scmView);
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("scm-name"));
     }
 }

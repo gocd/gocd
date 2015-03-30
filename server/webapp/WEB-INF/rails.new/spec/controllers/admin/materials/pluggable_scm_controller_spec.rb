@@ -307,6 +307,7 @@ describe Admin::Materials::PluggableScmController do
     scm_configurations = SCMConfigurations.new
     scm_configurations.add(SCMConfiguration.new('url'))
     scm_configurations.add(SCMConfiguration.new('branch'))
+    scm_configurations.add(SCMConfiguration.new('optional-field'))
 
     scm_view = double('SCMView')
     scm_view.stub(:displayValue).and_return('display name')
@@ -321,11 +322,11 @@ describe Admin::Materials::PluggableScmController do
   end
 
   def create_payload
-    {:name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', :folder => 'scm-folder'}
+    {:name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', 'optional-field' => '', :folder => 'scm-folder'}
   end
 
   def update_payload(scmId)
-    {:scmId => scmId, :name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', :folder => 'scm-folder'}
+    {:scmId => scmId, :name => 'scm-name', :url => 'scm-url', :branch => 'scm-branch', 'optional-field' => '', :folder => 'scm-folder'}
   end
 
   def assert_successful_save(material_config)
@@ -337,5 +338,6 @@ describe Admin::Materials::PluggableScmController do
     scm_configuration_map = scm_config.configAsMap()
     scm_configuration_map.get('url').get('value').should == 'scm-url'
     scm_configuration_map.get('branch').get('value').should == 'scm-branch'
+    scm_configuration_map.get('optional-field').should == nil
   end
 end

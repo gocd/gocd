@@ -374,9 +374,8 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-//        artifactsService.temporaryConsoleFile()
-
-
+        File file = artifactsService.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
+        assertThat(file.getPath(), is("work/pipelines/cruise/1/dev/2/linux-firefox/cruise-output/console.log"));
     }
 
     private void assumeArtifactsRoot(final File artifactsRoot) {

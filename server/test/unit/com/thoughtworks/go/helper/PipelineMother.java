@@ -16,28 +16,29 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.perforce.P4Material;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.TimeProvider;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 
@@ -56,6 +57,20 @@ public class PipelineMother {
     public static Pipeline pipeline(String pipelineName, Stage... stages) {
         Materials materials = com.thoughtworks.go.helper.MaterialsMother.defaultMaterials();
         return new Pipeline(pipelineName, BuildCause.createWithModifications(com.thoughtworks.go.helper.ModificationsMother.modifyOneFile(materials, com.thoughtworks.go.helper.ModificationsMother.nextRevision()), ""), stages);
+    }
+
+    public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName) {
+        GitMaterial gitMaterial = MaterialsMother.gitMaterial("http://user:password@gitrepo.com", null, "branch");
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial("http://user:password@hgrepo.com");
+        SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://user:password@svnrepo.com", null, "username", "password", false, null);
+        TfsMaterial tfsMaterial = MaterialsMother.tfsMaterial("http://user:password@tfsrepo.com");
+        P4Material p4Material = MaterialsMother.p4Material("127.0.0.1:1666", "username", "password", "view", false);
+        DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial();
+        PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
+        PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+        Materials materials = new Materials(gitMaterial, hgMaterial, svnMaterial, tfsMaterial, p4Material, dependencyMaterial, packageMaterial, pluggableSCMMaterial);
+
+        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(materials, ModificationsMother.nextRevision()), ""), StageMother.passedStageInstance(stageName, jobName, pipelineName));
     }
 
     public static Pipeline schedule(PipelineConfig pipelineConfig, BuildCause cause) {

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.perforce;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,10 +31,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
@@ -228,6 +226,22 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public void populateEnvironmentContext(EnvironmentVariableContext environmentVariableContext, MaterialRevision materialRevision, final File baseDir) {
         super.populateEnvironmentContext(environmentVariableContext, materialRevision, baseDir);
         setVariableWithName(environmentVariableContext, clientName(baseDir), "GO_P4_CLIENT");
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "perforce");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        configurationMap.put("url", serverAndPort);
+        configurationMap.put("username", userName);
+        if (addSecureFields) {
+            configurationMap.put("password", getPassword());
+        }
+        configurationMap.put("view", getView());
+        configurationMap.put("use-tickets", useTickets);
+        materialMap.put("perforce-configuration", configurationMap);
+        return materialMap;
     }
 
     public Class getInstanceType() {

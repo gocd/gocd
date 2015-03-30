@@ -1,7 +1,8 @@
-package com.thoughtworks.go.config.materials;
+package com.thoughtworks.go.config.materials.scm;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
@@ -410,5 +411,35 @@ public class PluggableSCMMaterialTest {
         assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(workingFolder));
         material.setFolder(null);
         assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(baseFolder));
+    }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("scm"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat((String) configuration.get("k2"), is("v2"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("scm"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
+        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k2"), is(nullValue()));
+    }
+
+    private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {
+        PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        return material;
     }
 }

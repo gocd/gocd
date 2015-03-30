@@ -59,7 +59,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class GitMaterialTest {
-    @Rule public TestName name = new TestName();
+    @Rule
+    public TestName name = new TestName();
     private static final String BRANCH = "foo";
 
     private GitMaterial git;
@@ -502,5 +503,27 @@ public class GitMaterialTest {
         assertThat(new File(workingDir, ".git").isDirectory(), is(true));
         assertThat(new File(workingDir, workingDirSpecifiedInMaterial).isDirectory(), is(false));
         assertThat(new File(new File(workingDir, workingDirSpecifiedInMaterial), ".git").isDirectory(), is(false));
+    }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
+        Map<String, Object> attributes = git.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("git"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@gitrepo.com"));
+        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
+        Map<String, Object> attributes = git.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("git"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
+        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
     }
 }

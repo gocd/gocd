@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class NotificationPluginRegistryTest {
@@ -75,5 +76,11 @@ public class NotificationPluginRegistryTest {
         assertThat(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS), containsInAnyOrder(PLUGIN_ID_3));
         assertThat(notificationPluginRegistry.getPluginsInterestedIn(JOB_STATUS), containsInAnyOrder());
         assertThat(notificationPluginRegistry.getPluginsInterestedIn(UNKNOWN_NOTIFICATION), containsInAnyOrder());
+    }
+
+    @Test
+    public void should_isAnyPluginInterestedIn_Correctly() {
+        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(PIPELINE_STATUS), is(true));
+        assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(UNKNOWN_NOTIFICATION), is(false));
     }
 }

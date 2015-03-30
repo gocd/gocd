@@ -404,4 +404,24 @@ public class HgMaterialTest {
         HgMaterial material = new HgMaterial("http://user:pwd@url##branch", "folder");
         assertThat(material.getDisplayName(), is("http://user:******@url##branch"));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("mercurial"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@hgrepo.com"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("mercurial"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@hgrepo.com"));
+    }
 }

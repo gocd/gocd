@@ -126,4 +126,14 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
             property.validateKeyUniqueness(map, entity);
         }
     }
+
+    public Map<String, Object> getConfigurationAsMap(boolean addSecureFields) {
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        for (ConfigurationProperty currentConfiguration : this) {
+            if (addSecureFields || !currentConfiguration.isSecure()) {
+                configurationMap.put(currentConfiguration.getConfigKeyName(), currentConfiguration.getValue());
+            }
+        }
+        return configurationMap;
+    }
 }

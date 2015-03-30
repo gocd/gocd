@@ -227,6 +227,16 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     }
 
     @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "scm");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> configurationMap = scmConfig.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("scm-configuration", configurationMap);
+        return materialMap;
+    }
+
+    @Override
     public boolean isAutoUpdate() {
         return scmConfig.isAutoUpdate();
     }

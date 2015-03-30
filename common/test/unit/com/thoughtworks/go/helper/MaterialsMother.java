@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -37,7 +38,9 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.util.command.UrlArgument;
 
 public class MaterialsMother {
 
@@ -178,6 +181,10 @@ public class MaterialsMother {
         material.setPassword(password);
         material.setUseTickets(useTickets);
         return material;
+    }
+
+    public static TfsMaterial tfsMaterial(String url) {
+        return new TfsMaterial(new GoCipher(), new UrlArgument(url), "username", "domain", "password", "project-path");
     }
 
     public static SvnMaterial svnMaterial(String svnUrl, String folder) {

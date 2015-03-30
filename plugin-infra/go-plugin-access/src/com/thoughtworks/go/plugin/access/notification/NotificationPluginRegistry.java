@@ -18,11 +18,15 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NotificationPluginRegistry {
-    private final Map<String, Set<String>> notificationNameToPluginsInterestedMap = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> notificationNameToPluginsInterestedMap = new ConcurrentHashMap<String, Set<String>>();
 
     public void registerPluginInterests(String pluginId, List<String> notificationNames) {
         if (notificationNames != null && !notificationNames.isEmpty()) {
@@ -45,6 +49,10 @@ public class NotificationPluginRegistry {
                 notificationNameToPluginsInterestedMap.get(key).remove(pluginId);
             }
         }
+    }
+
+    public boolean isAnyPluginInterestedIn(String notificationName) {
+        return !getPluginsInterestedIn(notificationName).isEmpty();
     }
 
     public Set<String> getPluginsInterestedIn(String notificationName) {

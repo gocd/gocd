@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.work;
 
-import java.io.File;
-
-import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -33,6 +31,8 @@ import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
 
 import static java.lang.String.format;
 
@@ -106,12 +106,13 @@ public class DefaultGoPublisher implements GoPublisher {
     public void reportCompleted(JobResult result) {
         LOG.info(String.format("%s is reporting build result [%s] to Go Server for %s", agentIdentifier, result,
                 jobIdentifier.toFullString()));
-        remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
         reportCompletedAction();
+        remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
     }
 
     public void reportCompletedAction() {
         reportAction("Job completed");
+        stop();
     }
 
     public boolean isIgnored() {

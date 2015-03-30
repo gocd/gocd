@@ -78,6 +78,7 @@ public class ArtifactDirectoryChooser {
     }
 
     public File temporaryConsoleDirectory(LocatableEntity locatableEntity) {
-        return new File("tempArtifacts", String.format("pipelines/%s", locatableEntity.entityLocator()));
+        return new File("work", String.format("pipelines/%s", locatableEntity.entityLocator()));
     }
+
 }

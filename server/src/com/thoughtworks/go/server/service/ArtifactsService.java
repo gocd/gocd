@@ -147,7 +147,8 @@ public class ArtifactsService implements ArtifactUrlReader {
         try {
             File from = chooser.temporaryConsoleDirectory(locatableEntity);
             File to = chooser.preferredRoot(locatableEntity).getParentFile();
-            FileUtils.moveDirectoryToDirectory(from, to, true);
+            FileUtils.copyDirectoryToDirectory(from, to);
+            FileUtils.deleteQuietly(from);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -16,17 +16,9 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -36,7 +28,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -47,6 +38,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -117,8 +115,8 @@ public class BuildWork implements Work {
         try {
             builders.waitForCancelTasks();
             if (result == null) {
-                goPublisher.reportCurrentStatus(JobState.Completed);
                 goPublisher.reportCompletedAction();
+                goPublisher.reportCurrentStatus(JobState.Completed);
             } else {
                 goPublisher.reportCompleted(result);
             }

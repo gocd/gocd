@@ -3,6 +3,7 @@ package com.thoughtworks.go.config.materials.scm;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
@@ -16,11 +17,14 @@ import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMView;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.util.json.JsonMap;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -33,11 +37,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialTest {
+    @Before
+    public void setUp() {
+        SCMMetadataStore.getInstance().clear();
+    }
+
+    @After
+    public void tearDown() {
+        SCMMetadataStore.getInstance().clear();
+    }
+
     @Test
     public void shouldCreatePluggableSCMMaterialInstance() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
@@ -320,7 +332,7 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getUriForDisplay(), is("SCM: [k1=scm-v1, k2=scm-v2]"));
+        assertThat(material.getUriForDisplay(), is("[k1=scm-v1, k2=scm-v2]"));
     }
 
     @Test
@@ -371,7 +383,7 @@ public class PluggableSCMMaterialTest {
 
         SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new SCMConfigurations(), null);
 
-        assertThat(material.toString(), is("'PluggableSCMMaterial{SCM: [k1=v1, k2=v2]}'"));
+        assertThat(material.toString(), is("'PluggableSCMMaterial{[k1=v1, k2=v2]}'"));
     }
 
     @Test
@@ -435,6 +447,23 @@ public class PluggableSCMMaterialTest {
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
         assertThat((String) configuration.get("k1"), is("v1"));
         assertThat(configuration.get("k2"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldCorrectlyGetTypeDisplay() {
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        pluggableSCMMaterialConfig.setSCMConfig(SCMMother.create("scm-id"));
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        SCMMetadataStore.getInstance().addMetadataFor("plugin", null, null);
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("SCM"));
+
+        SCMView scmView = mock(SCMView.class);
+        when(scmView.displayValue()).thenReturn("scm-name");
+        SCMMetadataStore.getInstance().addMetadataFor("plugin", null, scmView);
+        assertThat(pluggableSCMMaterialConfig.getTypeForDisplay(), is("scm-name"));
     }
 
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {

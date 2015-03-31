@@ -46,6 +46,24 @@ class Admin::Plugins::PluginsController < AdminController
     end
   end
 
+  def edit
+    begin
+      @settings_template = default_plugin_manager.loadPluginSettings(params[:plugin_id])
+    rescue => e
+      @error = "#{e.message}"
+    end
+  end
+
+  def save
+    begin
+      default_plugin_manager.savePluginSettings(params[:plugin_id], params[:settings].to_json)
+      redirect_to :action => "edit", :plugin_id => params[:plugin_id] and return
+    rescue => e
+      @error = "#{e.message}"
+      render "edit"
+    end
+  end
+
   private
   def set_tab_name
     @tab_name = 'plugins-listing'

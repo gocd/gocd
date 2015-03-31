@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
@@ -51,6 +52,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class DefaultPluginManagerTest {
@@ -145,7 +148,7 @@ public class DefaultPluginManagerTest {
         String pluginJarFile = "descriptor-aware-test-plugin.should.be.deleted.jar";
         copyPluginToTheDirectory(BUNDLE_DIR, pluginJarFile);
 
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator,systemEnvironment).startPluginInfrastructure();
+        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment).startPluginInfrastructure();
 
         assertThat(BUNDLE_DIR.exists(), is(false));
     }
@@ -413,6 +416,97 @@ public class DefaultPluginManagerTest {
             fail("should have thrown exception for not finding matching extension version");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not find matching extension version between Plugin[plugin-id] and Go"));
+        }
+    }
+
+    @Test
+    public void shouldSubmitPluginRequestToLoadSettings() throws Exception {
+        DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+
+        final DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success("<div></div");
+        final String pluginId = "plugin-id";
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                assertThat(((String) invocationOnMock.getArguments()[0]), is(pluginId));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).extension(), is(""));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).extensionVersion(), is(""));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).requestName(), is("load-settings"));
+                return response;
+            }
+        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+
+        String settingsTemplate = pluginManager.loadPluginSettings(pluginId);
+        assertThat(settingsTemplate, is(response.responseBody()));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPluginLoadingSettingsFail() throws Exception {
+        try {
+            DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+            doThrow(new GoPluginFrameworkException("Failed")).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            pluginManager.loadPluginSettings("plugin-id");
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Could not load settings for Plugin plugin-id. Failed"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPluginReturnsUnsuccessfulResponseLoadingSettings() throws Exception {
+        try {
+            DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+            DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.error("error");
+            doReturn(response).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            pluginManager.loadPluginSettings("plugin-id");
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error while loading settings for plugin plugin-id. [error]"));
+        }
+    }
+
+    @Test
+    public void shouldSavePluginSettings() throws Exception {
+        DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+
+        final DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success("");
+        final String pluginId = "plugin-id";
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                assertThat(((String) invocationOnMock.getArguments()[0]), is(pluginId));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).extension(), is(""));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).extensionVersion(), is(""));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).requestName(), is("save-settings"));
+                assertThat(((GoPluginApiRequest) invocationOnMock.getArguments()[1]).requestBody(), is("{}"));
+                return response;
+            }
+        }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
+        pluginManager.savePluginSettings(pluginId, "{}");
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPluginSaveSettingsFails() throws Exception {
+        try {
+            DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+            doThrow(new GoPluginFrameworkException("Failed")).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            pluginManager.savePluginSettings("plugin-id", "{}");
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Could not save settings for Plugin plugin-id. Failed"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPluginReturnsUnsuccessfulResponseSavingSettings() throws Exception {
+        try {
+            DefaultPluginManager pluginManager = spy(new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment));
+            DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.error("error");
+            doReturn(response).when(pluginManager).submitTo(eq("plugin-id"), any(GoPluginApiRequest.class));
+            pluginManager.savePluginSettings("plugin-id", "{}");
+            fail("should have thrown exception");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Error while saving settings for plugin plugin-id. [error]"));
         }
     }
 

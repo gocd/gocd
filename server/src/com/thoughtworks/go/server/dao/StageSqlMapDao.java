@@ -38,10 +38,12 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.FuncVarArg;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -56,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static org.apache.commons.collections.CollectionUtils.collect;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
@@ -389,6 +392,35 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return stageIdentities;
     }
 
+    @Override
+    public List<Stage> getStagesWithArtifacts(List<StageConfigIdentifier> includeStages, List<StageConfigIdentifier> excludeStages, Long fromId, Long toId, boolean ascending) {
+        Map<String, Object> args =
+                arguments("includeStages", buildStagesFilter(includeStages)).
+                        and("excludeStages", buildStagesFilter(excludeStages)).
+                        and("fromId", fromId).
+                        and("toId", toId).
+                        and("orderBy", ascending ? "ASC" : "DESC").asMap();
+        return getSqlMapClientTemplate().queryForList("getStagesWithArtifacts", args);
+    }
+
+    @Override
+    public Map<StageConfigIdentifier, Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts) {
+        Map<StageConfigIdentifier, Long> result = new HashMap<StageConfigIdentifier, Long>();
+        Map<String, Object> args = arguments("stages", buildStagesFilter(stages)).and("stagesWithUncleanedArtifacts", onlyStagesWithUncleanedArtifacts).asMap();
+        List<Map> getStageInstanceCount = getSqlMapClientTemplate().queryForList("getStageInstanceCount", args);
+        for (Map map : getStageInstanceCount) {
+            String pipeline = (String) map.get("PIPELINE");
+            String stage = (String) map.get("STAGE");
+            result.put(new StageConfigIdentifier(pipeline, stage), (Long) map.get("INSTANCECOUNT"));
+        }
+        return result;
+    }
+
+    @Override
+    public List<StageConfigIdentifier> getAllDistinctStages() {
+        return getSqlMapClientTemplate().queryForList("getDistinctStages");
+    }
+
 
     public StageHistoryPage findStageHistoryPageByNumber(final String pipelineName, final String stageName, final int pageNumber, final int pageSize) {
         return findStageHistoryPage(pipelineName, stageName, new FuncVarArg<Pagination, Object>() {
@@ -684,9 +716,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return new Stages(stages);
     }
 
-    public List<Stage> oldestStagesHavingArtifacts() {
-        return getSqlMapClientTemplate().queryForList("oldestStagesHavingArtifacts");
+    public List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> excludeStagesFilter) {
+        String stageFilter = buildStagesFilter(excludeStagesFilter);
+        return getSqlMapClientTemplate().queryForList("oldestStagesHavingArtifacts", arguments("stagesFilter", stageFilter).asMap());
     }
+
 
     public void markArtifactsDeletedFor(Stage stage) {
         getSqlMapClientTemplate().update("markStageArtifactDeleted", arguments("stageId", stage.getId()).asMap());
@@ -730,5 +764,18 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     private Stage stageByIdWithBuildsWithNoAssociations(long id) {
         return stageById(id);
     }
+
+    private String buildStagesFilter(List<StageConfigIdentifier> stageConfigIdentifiers) {
+        if (stageConfigIdentifiers == null || stageConfigIdentifiers.isEmpty()) return null;
+        List<String> stagesFilterString = (List<String>) collect(stageConfigIdentifiers, new Transformer() {
+            @Override
+            public String transform(Object o) {
+                StageConfigIdentifier stageConfigIdentifier = (StageConfigIdentifier) o;
+                return stageConfigIdentifier.uniqueStageIdentifier().toUpperCase();
+            }
+        });
+        return SqlUtil.joinWithQuotesForSql(stagesFilterString.toArray());
+    }
+
 
 }

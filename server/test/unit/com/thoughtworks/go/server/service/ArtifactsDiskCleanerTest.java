@@ -16,12 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Semaphore;
-
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.config.ArtifactCleanupStrategy;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.result.DiskSpaceOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -36,17 +34,16 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.Semaphore;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ArtifactsDiskCleanerTest {
     private SystemEnvironment sysEnv;
@@ -58,6 +55,7 @@ public class ArtifactsDiskCleanerTest {
     private ArtifactsService artifactService;
     private ConfigDbStateRepository configDbStateRepository;
     private ServerHealthService serverHealthService;
+    private ArtifactCleanupExtensionInvoker artifactCleanupExtensionInvoker;
 
     @Before
     public void setUp() throws Exception {
@@ -76,7 +74,9 @@ public class ArtifactsDiskCleanerTest {
 
         configDbStateRepository = mock(ConfigDbStateRepository.class);
 
-        artifactsDiskCleaner = new ArtifactsDiskCleaner(sysEnv, goConfigService, diskSpaceChecker, artifactService, stageService, configDbStateRepository);
+        artifactCleanupExtensionInvoker = mock(ArtifactCleanupExtensionInvoker.class);
+
+        artifactsDiskCleaner = new ArtifactsDiskCleaner(sysEnv, goConfigService, diskSpaceChecker, artifactService, stageService, configDbStateRepository, artifactCleanupExtensionInvoker);
     }
 
     @Test
@@ -96,15 +96,16 @@ public class ArtifactsDiskCleanerTest {
         final Thread[] artifactDeleterThread = {null};
         final Semaphore sem = new Semaphore(1);
         sem.acquire();
-        artifactsDiskCleaner = new ArtifactsDiskCleaner(sysEnv, goConfigService, diskSpaceChecker, artifactService, stageService, configDbStateRepository) {
-            @Override void deleteOldArtifacts() {
+        artifactsDiskCleaner = new ArtifactsDiskCleaner(sysEnv, goConfigService, diskSpaceChecker, artifactService, stageService, configDbStateRepository, null) {
+            @Override
+            void deleteOldArtifacts() {
                 artifactDeleterThread[0] = Thread.currentThread();
                 artifactsDeletionTriggered[0] = true;
                 sem.release();
             }
         };
         Thread cleaner = (Thread) ReflectionUtil.getField(artifactsDiskCleaner, "cleaner");
-        while(true) {
+        while (true) {
             if (cleaner.getState().equals(Thread.State.WAITING)) {
                 break;
             }
@@ -122,7 +123,7 @@ public class ArtifactsDiskCleanerTest {
         Stage stageOne = StageMother.passedStageInstance("stage", "build", "pipeline");
         Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
         Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
-        
+
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageOne, stageTwo, stageThree));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
 
@@ -147,7 +148,7 @@ public class ArtifactsDiskCleanerTest {
         verify(configDbStateRepository).flushConfigState();
         verifyNoMoreInteractions(artifactService);
     }
-    
+
     @Test
     public void shouldDeleteMultiplePagesOfOldestStagesHavingArtifacts() {
         serverConfig.setPurgeLimits(5.0, 9.0);
@@ -159,6 +160,7 @@ public class ArtifactsDiskCleanerTest {
 
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageOne, stageTwo));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
+        when(artifactCleanupExtensionInvoker.invokeStageLevelArtifactCleanupPlugins()).thenReturn(0);
 
         doAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -194,11 +196,84 @@ public class ArtifactsDiskCleanerTest {
         verifyNoMoreInteractions(artifactService);
         verifyNoMoreInteractions(stageService);
     }
-    
+
     @Test
     public void shouldUseA_NonServerHealthAware_result() {
         serverHealthService = mock(ServerHealthService.class);
         OperationResult operationResult = artifactsDiskCleaner.resultFor(new DiskSpaceOperationResult(serverHealthService));
         assertThat(operationResult, is(instanceOf(ServerHealthStateOperationResult.class)));
     }
+
+    @Test
+    public void shouldDeleteArtifactsWithDefaultStrategy() throws Exception {
+        serverConfig.setPurgeLimits(20.0 * GoConstants.GIGA_BYTE, 30.0 * GoConstants.GIGA_BYTE);
+        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(new ArrayList<Stage>());
+
+        artifactsDiskCleaner.deleteOldArtifacts();
+
+        verify(artifactCleanupExtensionInvoker, never()).invokeGlobalArtifactCleanupPlugin();
+    }
+
+    @Test
+    public void shouldDeleteArtifactsWithGlobalArtifactCleanupStrategy() throws Exception {
+        serverConfig.setPurgeLimits(20.0 * GoConstants.GIGA_BYTE, 30.0 * GoConstants.GIGA_BYTE);
+        serverConfig.setArtifactCleanupStrategy(new ArtifactCleanupStrategy(new PluginConfiguration()));
+        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(new ArrayList<Stage>());
+
+        artifactsDiskCleaner.deleteOldArtifacts();
+
+        verify(artifactCleanupExtensionInvoker).invokeGlobalArtifactCleanupPlugin();
+        verify(stageService, never()).oldestStagesWithDeletableArtifacts();
+    }
+
+    @Test
+    public void shouldDeleteArtifactsWithGlobalStrategyTillAvailableSpaceLessThanRequired() throws Exception {
+
+        when(artifactCleanupExtensionInvoker.invokeGlobalArtifactCleanupPlugin()).thenReturn(1);
+        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir()))
+                .thenReturn(4 * GoConstants.GIGA_BYTE).thenReturn(50 * GoConstants.GIGA_BYTE).thenReturn(60 * GoConstants.GIGA_BYTE);
+
+        int numberOfArtifactsDeleted = artifactsDiskCleaner.deleteArtifactsWithGlobalStrategy(30.0 * GoConstants.GIGA_BYTE);
+
+        assertThat(numberOfArtifactsDeleted, is(2));
+        verify(artifactCleanupExtensionInvoker, times(2)).invokeGlobalArtifactCleanupPlugin();
+    }
+
+    @Test
+    public void shouldDeleteArtifactsWithGlobalStrategyTillInstancesAvailableForCleanup() throws Exception {
+
+        when(artifactCleanupExtensionInvoker.invokeGlobalArtifactCleanupPlugin()).thenReturn(1).thenReturn(1).thenReturn(0);
+        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
+
+        int numberOfArtifactsDeleted = artifactsDiskCleaner.deleteArtifactsWithGlobalStrategy(30.0 * GoConstants.GIGA_BYTE);
+
+        assertThat(numberOfArtifactsDeleted, is(2));
+        verify(artifactCleanupExtensionInvoker, times(3)).invokeGlobalArtifactCleanupPlugin();
+    }
+
+    @Test
+    public void shouldDeleteArtifactsWithLocalStrategyTillAvailableSpaceLessThanRequired() throws Exception {
+
+        when(artifactCleanupExtensionInvoker.invokeStageLevelArtifactCleanupPlugins()).thenReturn(1);
+        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir()))
+                .thenReturn(4 * GoConstants.GIGA_BYTE).thenReturn(20 * GoConstants.GIGA_BYTE).thenReturn(60 * GoConstants.GIGA_BYTE);
+
+        int numberOfArtifactsDeleted = artifactsDiskCleaner.deleteArtifactsWithLocalCleanupStrategy(30.0 * GoConstants.GIGA_BYTE);
+
+        assertThat(numberOfArtifactsDeleted, is(2));
+        verify(artifactCleanupExtensionInvoker, times(2)).invokeStageLevelArtifactCleanupPlugins();
+    }
+
+    @Test
+    public void shouldDeleteArtifactsWithLocalStrategyTillInstancesAvailableForCleanup() throws Exception {
+
+        when(artifactCleanupExtensionInvoker.invokeStageLevelArtifactCleanupPlugins()).thenReturn(1).thenReturn(1).thenReturn(0);
+        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
+
+        int numberOfArtifactsDeleted = artifactsDiskCleaner.deleteArtifactsWithLocalCleanupStrategy(30.0 * GoConstants.GIGA_BYTE);
+
+        assertThat(numberOfArtifactsDeleted, is(2));
+        verify(artifactCleanupExtensionInvoker, times(3)).invokeStageLevelArtifactCleanupPlugins();
+    }
+
 }

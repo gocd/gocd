@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.util.Pagination;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StageDao extends JobDurationStrategy {
     Stages scheduledStages();
@@ -35,9 +36,10 @@ public interface StageDao extends JobDurationStrategy {
     String stageNameByStageId(long stageId);
 
     Stage save(Pipeline pipeline, Stage stage);
+
     @Deprecated
-    // This is only used in test for legacy purpose.
-    // Please call pipelineService.save(aPipeline) instead
+        // This is only used in test for legacy purpose.
+        // Please call pipelineService.save(aPipeline) instead
     Stage saveWithJobs(Pipeline pipeline, Stage stage);
 
     int getCount(String pipelineName, String stageName);
@@ -92,7 +94,7 @@ public interface StageDao extends JobDurationStrategy {
 
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
 
-	StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
+    StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
 
     Long findStageIdByPipelineAndStageNameAndCounter(long pipeline, String name, String counter);
 
@@ -102,7 +104,7 @@ public interface StageDao extends JobDurationStrategy {
 
     Stages findAllStagesFor(String pipelineName, int counter);
 
-    List<Stage> oldestStagesHavingArtifacts();
+    List<Stage> oldestStagesHavingArtifacts(List<StageConfigIdentifier> excludeStagesFilter);
 
     void markArtifactsDeletedFor(Stage stage);
 
@@ -111,4 +113,11 @@ public interface StageDao extends JobDurationStrategy {
     int getTotalStageCountForChart(String pipelineName, String stageName);
 
     List<StageIdentity> findLatestStageInstances();
+
+    List<Stage> getStagesWithArtifacts(List<StageConfigIdentifier> includeStages, List<StageConfigIdentifier> excludeStages, Long fromId, Long toId, boolean ascending);
+
+    List<StageConfigIdentifier> getAllDistinctStages();
+
+    Map<StageConfigIdentifier,Long> getStagesInstanceCount(List<StageConfigIdentifier> stages, boolean onlyStagesWithUncleanedArtifacts);
+
 }

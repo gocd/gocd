@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
@@ -42,9 +43,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static java.lang.Double.parseDouble;
+import static java.lang.String.format;
 
 @Service
 public class DefaultPluginManager implements PluginManager {
@@ -217,11 +220,40 @@ public class DefaultPluginManager implements PluginManager {
         return resolvedExtensionVersion;
     }
 
+    public String loadPluginSettings(String pluginId) {
+        GoPluginApiResponse response;
+        try {
+            response = submitTo(pluginId, new DefaultGoPluginApiRequest("", "", "load-settings"));
+        } catch (Exception e) {
+            LOGGER.warn(format("Could not load settings for Plugin %s", pluginId), e);
+            throw new RuntimeException(format("Could not load settings for Plugin %s. %s", pluginId, e.getMessage()));
+        }
+        if (SUCCESS_RESPONSE_CODE == response.responseCode()) {
+            return response.responseBody();
+        }
+        throw new RuntimeException(format("Error while loading settings for plugin %s. [%s]", pluginId, response.responseBody()));
+    }
+
+    public void savePluginSettings(String pluginId, String settingsAsJson) {
+        DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("", "", "save-settings");
+        request.setRequestBody(settingsAsJson);
+        GoPluginApiResponse response;
+        try {
+            response = submitTo(pluginId, request);
+        } catch (Exception e) {
+            LOGGER.warn(format("Could not save settings for Plugin %s. %s", pluginId, e.getMessage()), e);
+            throw new RuntimeException(format("Could not save settings for Plugin %s. %s", pluginId, e.getMessage()));
+        }
+        if (SUCCESS_RESPONSE_CODE != response.responseCode()) {
+            throw new RuntimeException(format("Error while saving settings for plugin %s. [%s]", pluginId, response.responseBody()));
+        }
+    }
+
     private void removeBundleDirectory() {
         try {
             FileUtils.deleteDirectory(bundleLocation);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to copy delete bundle directory %s", bundleLocation), e);
+            throw new RuntimeException(format("Failed to copy delete bundle directory %s", bundleLocation), e);
         }
     }
 

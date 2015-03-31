@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
@@ -44,7 +45,8 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
     private final StageService stageService;
-    @Autowired private LogParser logParser;
+    @Autowired
+    private LogParser logParser;
     public static final Logger LOGGER = Logger.getLogger(ArtifactsService.class);
     public static final String LOG_XML_NAME = "log.xml";
     private ArtifactDirectoryChooser chooser;
@@ -261,9 +263,7 @@ public class ArtifactsService implements ArtifactUrlReader {
                 lineNumber++;
             }
         } catch (FileNotFoundException ex) {
-            String message = "Could not read console out: " + ex.getMessage();
-            LOGGER.error(message);
-            LOGGER.trace(message, ex);
+            LOGGER.error("Could not read console out: " + ex.getMessage());
         } finally {
             inputStream.close();
         }
@@ -315,16 +315,24 @@ public class ArtifactsService implements ArtifactUrlReader {
     }
 
     public void purgeArtifactsForStage(Stage stage) {
+        purgeArtifactsForStageWithFilter(stage, new EmptyFilter());
+    }
+
+    public void purgeArtifactsForStageExcept(Stage stage, List<String> excludePaths) {
+        purgeArtifactsForStageWithFilter(stage, new ExcludeFromDeletion(excludePaths, artifactsDirHolder.getArtifactsDir()));
+    }
+
+    public void purgeArtifactsForStage(Stage stage, List<String> includePaths) {
+        purgeArtifactsForStageWithFilter(stage, new IncludeForDeletion(includePaths, artifactsDirHolder.getArtifactsDir()));
+    }
+
+    private void purgeArtifactsForStageWithFilter(Stage stage, PathFilter pathFilter) {
         StageIdentifier stageIdentifier = stage.getIdentifier();
         try {
             File stageRoot = chooser.findArtifact(stageIdentifier, "");
             File cachedStageRoot = chooser.findCachedArtifact(stageIdentifier);
             deleteFile(cachedStageRoot);
-            boolean didDelete = deleteArtifactsExceptCruiseOutput(stageRoot);
-
-            if (!didDelete) {
-                LOGGER.error(String.format("Artifacts for stage '%s' at path '%s' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath()));
-            }
+            deleteArtifactsExceptCruiseOutput(stageIdentifier, stageRoot, pathFilter);
         } catch (Exception e) {
             LOGGER.error(String.format("Error occurred while clearing artifacts for '%s'. Error: '%s'", stageIdentifier.entityLocator(), e.getMessage()), e);
         }
@@ -334,7 +342,8 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
-    private boolean deleteArtifactsExceptCruiseOutput(File stageRoot) throws IOException {
+
+    private void deleteArtifactsExceptCruiseOutput(StageIdentifier stageIdentifier, File stageRoot, PathFilter pathFilter) throws IOException {
         File[] jobs = stageRoot.listFiles();
         if (jobs == null) {  // null if security restricted
             throw new IOException("Failed to list contents of " + stageRoot);
@@ -351,10 +360,14 @@ public class ArtifactsService implements ArtifactUrlReader {
                 if (artifact.isDirectory() && artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER)) {
                     continue;
                 }
-                didDelete &= deleteFile(artifact);
+                if (pathFilter.shouldDelete(artifact)) {
+                    didDelete &= deleteFile(artifact);
+                }
             }
         }
-        return didDelete;
+        if (!didDelete) {
+            LOGGER.error(String.format("Artifacts for stage '%s' at path '%s' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath()));
+        }
     }
 
     private boolean deleteFile(File file) {
@@ -364,5 +377,58 @@ public class ArtifactsService implements ArtifactUrlReader {
     public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
         File file = findArtifact(jobIdentifier, ArtifactLogUtil.getConsoleLogOutputFolderAndFileName());
         updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()), LineListener.NO_OP_LINE_LISTENER);
+    }
+}
+
+interface PathFilter {
+    boolean shouldDelete(File artifact);
+}
+
+class EmptyFilter implements PathFilter {
+
+    @Override
+    public boolean shouldDelete(File artifact) {
+        return true;
+    }
+}
+
+class IncludeForDeletion implements PathFilter {
+    private List<String> paths;
+    private File artifactsDirectory;
+
+    IncludeForDeletion(List<String> paths, File artifactsDirectory) {
+        this.paths = paths;
+        this.artifactsDirectory = artifactsDirectory;
+    }
+
+
+    @Override
+    public boolean shouldDelete(File artifact) {
+        for (String path : paths) {
+            if (new File(artifactsDirectory, path).getAbsolutePath().equals(artifact.getAbsolutePath())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+class ExcludeFromDeletion implements PathFilter {
+    private List<String> paths;
+    private File artifactsDirectory;
+
+    ExcludeFromDeletion(List<String> paths, File artifactsDirectory) {
+        this.paths = paths;
+        this.artifactsDirectory = artifactsDirectory;
+    }
+
+    @Override
+    public boolean shouldDelete(File artifact) {
+        for (String path : paths) {
+            if (new File(artifactsDirectory, path).getAbsolutePath().equals(artifact.getAbsolutePath())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

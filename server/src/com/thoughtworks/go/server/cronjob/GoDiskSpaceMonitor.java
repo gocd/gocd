@@ -16,18 +16,7 @@
 
 package com.thoughtworks.go.server.cronjob;
 
-import com.thoughtworks.go.server.service.ArtifactsDiskCleaner;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceWarningChecker;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConfigDbStateRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceWarningChecker;
-import com.thoughtworks.go.server.service.DiskSpaceChecker;
-import com.thoughtworks.go.server.service.EmailSender;
-import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.service.SystemDiskSpaceChecker;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceFullChecker;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.DiskSpaceOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -47,6 +36,7 @@ public class GoDiskSpaceMonitor {
     private ArtifactsService artifactsService;
     private StageService stageService;
     private ConfigDbStateRepository configDbStateRepository;
+    private ArtifactCleanupExtensionInvoker artifactCleanupExtensionInvoker;
     private DiskSpaceChecker[] checkers;
     private volatile boolean lowOnDisk;
 
@@ -58,11 +48,11 @@ public class GoDiskSpaceMonitor {
                               ArtifactsService artifactsService,
                               StageService stageService,
                               ConfigDbStateRepository configDbStateRepository) {
-        this(goConfigService, systemEnvironment, serverHealthService, emailSender, new SystemDiskSpaceChecker(), artifactsService, stageService, configDbStateRepository);
+        this(goConfigService, systemEnvironment, serverHealthService, emailSender, new SystemDiskSpaceChecker(), artifactsService, stageService, configDbStateRepository, null);
     }
 
     public GoDiskSpaceMonitor(GoConfigService goConfigService, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService, EmailSender emailSender,
-                              SystemDiskSpaceChecker systemDiskSpaceChecker, ArtifactsService artifactsService, StageService stageService, ConfigDbStateRepository configDbStateRepository) {
+                              SystemDiskSpaceChecker systemDiskSpaceChecker, ArtifactsService artifactsService, StageService stageService, ConfigDbStateRepository configDbStateRepository, ArtifactCleanupExtensionInvoker artifactCleanupExtensionInvoker) {
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.serverHealthService = serverHealthService;
@@ -71,6 +61,7 @@ public class GoDiskSpaceMonitor {
         this.artifactsService = artifactsService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
+        this.artifactCleanupExtensionInvoker = artifactCleanupExtensionInvoker;
     }
 
     public void initialize() {
@@ -79,7 +70,7 @@ public class GoDiskSpaceMonitor {
                 new ArtifactsDiskSpaceWarningChecker(systemEnvironment, emailSender, goConfigService, systemDiskSpaceChecker, serverHealthService),
                 new DatabaseDiskSpaceFullChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker),
                 new DatabaseDiskSpaceWarningChecker(emailSender, systemEnvironment, goConfigService, systemDiskSpaceChecker, serverHealthService),
-                new ArtifactsDiskCleaner(systemEnvironment, goConfigService, systemDiskSpaceChecker, artifactsService, stageService, configDbStateRepository)};
+                new ArtifactsDiskCleaner(systemEnvironment, goConfigService, systemDiskSpaceChecker, artifactsService, stageService, configDbStateRepository, artifactCleanupExtensionInvoker)};
     }
 
     //Note: This method is called from a Spring timer task

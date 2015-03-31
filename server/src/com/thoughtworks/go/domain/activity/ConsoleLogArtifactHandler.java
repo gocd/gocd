@@ -38,5 +38,4 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
             service.moveConsoleArtifacts(job.getIdentifier());
         }
     }
-
 }

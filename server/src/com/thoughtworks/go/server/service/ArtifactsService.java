@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static java.lang.String.format;
 
 @Service
@@ -145,11 +146,13 @@ public class ArtifactsService implements ArtifactUrlReader {
 
     public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
         try {
-            File from = chooser.temporaryConsoleDirectory(locatableEntity);
-            File to = chooser.preferredRoot(locatableEntity).getParentFile();
-            FileUtils.copyDirectoryToDirectory(from, to);
-            FileUtils.deleteQuietly(from);
+            File from = chooser.temporaryConsoleFile(locatableEntity);
+            File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
+            FileUtils.copyFile(from, to, true);
+            FileUtils.deleteQuietly(chooser.temporaryConsoleFile(locatableEntity));
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArtifactLocationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -295,7 +298,7 @@ public class ArtifactsService implements ArtifactUrlReader {
     public File findConsoleArtifact(JobIdentifier identifier) throws IllegalArtifactLocationException {
         File file = chooser.temporaryConsoleFile(identifier);
         if (!file.exists()) {
-            file = chooser.findArtifact(identifier, ArtifactLogUtil.getConsoleOutputFolderAndFileName());
+            file = chooser.findArtifact(identifier, getConsoleOutputFolderAndFileName());
         }
         return file;
     }

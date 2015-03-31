@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.server.view.artifacts;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
+import java.io.File;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -55,9 +56,13 @@ public class ArtifactDirectoryChooserTest {
     }
 
     @After
-    public void removeTestDirectories(){
-        if (root1.exists()) { FileUtil.deleteFolder(root1); }
-        if (root2.exists()) { FileUtil.deleteFolder(root2); } 
+    public void removeTestDirectories() {
+        if (root1.exists()) {
+            FileUtil.deleteFolder(root1);
+        }
+        if (root2.exists()) {
+            FileUtil.deleteFolder(root2);
+        }
     }
 
     @Test
@@ -82,7 +87,7 @@ public class ArtifactDirectoryChooserTest {
     @Test
     public void shouldLocateCachedArtifactIfItExists() throws IllegalArtifactLocationException {
         StageIdentifier stageIdentifier = new StageIdentifier("P1", 1, "S1", "1");
-        File cachedStageFolder= new File(root2, "cache/artifacts/pipelines/P1/1/S1/1");
+        File cachedStageFolder = new File(root2, "cache/artifacts/pipelines/P1/1/S1/1");
         cachedStageFolder.mkdirs();
         assertThat(chooser.findCachedArtifact(stageIdentifier), is(cachedStageFolder));
     }
@@ -102,4 +107,19 @@ public class ArtifactDirectoryChooserTest {
         }
     }
 
+    @Test
+    public void shouldReturnAUniqueLocationForConsoleFilesWithDifferentJobIdentifiers() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
+        JobIdentifier anotherJobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "2", "now");
+        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath(),
+                not(equalToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath())));
+    }
+
+    @Test
+    public void shouldReturnASameLocationForConsoleFilesWithSimilarJobIdentifiers() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
+        JobIdentifier anotherJobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
+        assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath(),
+                equalToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath()));
+    }
 }

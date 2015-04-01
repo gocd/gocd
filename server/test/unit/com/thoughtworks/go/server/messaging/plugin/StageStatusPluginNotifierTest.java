@@ -111,7 +111,7 @@ public class StageStatusPluginNotifierTest {
         Map svnConfigurationMap = (Map) svnMaterialMap.get("svn-configuration");
         assertThat((String) svnConfigurationMap.get("url"), is("http://user:******@svnrepo.com"));
         assertThat((String) svnConfigurationMap.get("username"), is("username"));
-        assertThat((String) svnConfigurationMap.get("password"), is(nullValue()));
+        assertThat(svnConfigurationMap.get("password"), is(nullValue()));
         assertThat((Boolean) svnConfigurationMap.get("check-externals"), is(false));
         assertModification(svnRevisionMap, "1");
 
@@ -122,7 +122,7 @@ public class StageStatusPluginNotifierTest {
         assertThat((String) tfsConfigurationMap.get("url"), is("http://user:******@tfsrepo.com"));
         assertThat((String) tfsConfigurationMap.get("domain"), is("domain"));
         assertThat((String) tfsConfigurationMap.get("username"), is("username"));
-        assertThat((String) tfsConfigurationMap.get("password"), is(nullValue()));
+        assertThat(tfsConfigurationMap.get("password"), is(nullValue()));
         assertThat((String) tfsConfigurationMap.get("project-path"), is("project-path"));
         assertModification(tfsRevisionMap, "1");
 
@@ -132,7 +132,7 @@ public class StageStatusPluginNotifierTest {
         Map p4ConfigurationMap = (Map) p4MaterialMap.get("perforce-configuration");
         assertThat((String) p4ConfigurationMap.get("url"), is("127.0.0.1:1666"));
         assertThat((String) p4ConfigurationMap.get("username"), is("username"));
-        assertThat((String) p4ConfigurationMap.get("password"), is(nullValue()));
+        assertThat(p4ConfigurationMap.get("password"), is(nullValue()));
         assertThat((String) p4ConfigurationMap.get("view"), is("view"));
         assertThat((Boolean) p4ConfigurationMap.get("use-tickets"), is(false));
         assertModification(p4RevisionMap, "1");
@@ -195,6 +195,41 @@ public class StageStatusPluginNotifierTest {
         verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
     }
 
+    @Test
+    public void shouldNotNotifyInterestedPluginsIfStageStateIsNotScheduledOrCompleted() throws Exception {
+        when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
+        when(stage.isScheduled()).thenReturn(false);
+        when(stage.getState()).thenReturn(StageState.Building);
+
+        stageStatusPluginNotifier.stageStatusChanged(stage);
+
+        verify(pluginNotificationQueue, never()).post(any(PluginNotificationMessage.class));
+    }
+
+    @Test
+    public void shouldNotifyInterestedPluginsIfStageStateIsScheduled() throws Exception {
+        when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
+        when(stage.isScheduled()).thenReturn(true);
+        when(stage.getState()).thenReturn(StageState.Unknown);
+
+        stageStatusPluginNotifier = getMockedStageStatusPluginNotifier();
+        stageStatusPluginNotifier.stageStatusChanged(stage);
+
+        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+    }
+
+    @Test
+    public void shouldNotifyInterestedPluginsIfStageStateIsCompleted() throws Exception {
+        when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
+        when(stage.isScheduled()).thenReturn(false);
+        when(stage.getState()).thenReturn(StageState.Passed);
+
+        stageStatusPluginNotifier = getMockedStageStatusPluginNotifier();
+        stageStatusPluginNotifier.stageStatusChanged(stage);
+
+        verify(pluginNotificationQueue).post(any(PluginNotificationMessage.class));
+    }
+
     private Pipeline createPipeline() throws Exception {
         Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
         List<MaterialRevision> materialRevisions = pipeline.getMaterialRevisions().getRevisions();
@@ -227,5 +262,13 @@ public class StageStatusPluginNotifierTest {
         assertThat((String) modificationMap.get("revision"), is(revision));
         assertThat(modificationMap.get("modified-time"), is(notNullValue()));
         assertThat(modificationMap.get("data"), is(notNullValue()));
+    }
+
+    private StageStatusPluginNotifier getMockedStageStatusPluginNotifier() {
+        return new StageStatusPluginNotifier(notificationPluginRegistry, goConfigService, pipelineSqlMapDao, pluginNotificationQueue) {
+            Map createRequestDataMap(Stage stage) {
+                return null;
+            }
+        };
     }
 }

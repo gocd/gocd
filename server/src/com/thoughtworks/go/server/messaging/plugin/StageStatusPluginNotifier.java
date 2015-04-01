@@ -54,11 +54,19 @@ public class StageStatusPluginNotifier implements StageStatusListener {
 
     @Override
     public void stageStatusChanged(final Stage stage) {
-        if (notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)) {
+        if (isAnyPluginInterestedInStageStatus() && isStageStateScheduledOrCompleted(stage)) {
             Map data = createRequestDataMap(stage);
 
             pluginNotificationQueue.post(new PluginNotificationMessage(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, data));
         }
+    }
+
+    private boolean isAnyPluginInterestedInStageStatus() {
+        return notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION);
+    }
+
+    private boolean isStageStateScheduledOrCompleted(Stage stage) {
+        return stage.isScheduled() || stage.getState().completed();
     }
 
     Map createRequestDataMap(Stage stage) {

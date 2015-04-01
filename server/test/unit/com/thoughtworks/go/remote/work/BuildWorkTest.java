@@ -16,28 +16,15 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.servlet.http.HttpServletResponse;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
-import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
@@ -50,15 +37,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.server.service.builders.AntTaskBuilder;
-import com.thoughtworks.go.server.service.builders.BuilderFactory;
-import com.thoughtworks.go.server.service.builders.ExecTaskBuilder;
-import com.thoughtworks.go.server.service.builders.FetchTaskBuilder;
-import com.thoughtworks.go.server.service.builders.KillAllChildProcessTaskBuilder;
-import com.thoughtworks.go.server.service.builders.NantTaskBuilder;
-import com.thoughtworks.go.server.service.builders.NullTaskBuilder;
-import com.thoughtworks.go.server.service.builders.PluggableTaskBuilderCreator;
-import com.thoughtworks.go.server.service.builders.RakeTaskBuilder;
+import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -72,24 +51,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static com.thoughtworks.go.domain.JobState.Building;
-import static com.thoughtworks.go.domain.JobState.Completing;
-import static com.thoughtworks.go.domain.JobState.Preparing;
+import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsState;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnUnix;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnWindows;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedBuildFailed;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedBuildingInfo;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedExcRunIfInfo;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedJobCompletedInfo;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedPreparingInfo;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingFailure;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingInfo;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.hamcrest.CoreMatchers.is;
@@ -97,9 +70,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(JunitExtRunner.class)
@@ -435,7 +406,6 @@ public class BuildWorkTest {
 
         assertThat(buildRepository.results.isEmpty(), is(true));
         assertThat(buildRepository.states, containsResult(JobState.Completed));
-        assertThat(artifactManipulator.consoleOut(), printedJobCompletedInfo(JOB_IDENTIFIER.buildLocator()));
     }
 
     @Test
@@ -446,7 +416,6 @@ public class BuildWorkTest {
 
         assertThat(buildRepository.results, containsResult(JobResult.Passed));
         assertThat(buildRepository.states, containsResult(JobState.Completed));
-        assertThat(artifactManipulator.consoleOut(), printedJobCompletedInfo(JOB_IDENTIFIER.buildLocator()));
     }
 
     @Test
@@ -484,7 +453,6 @@ public class BuildWorkTest {
         assertThat(consoleOutAsString, printedBuildingInfo(locator));
         assertThat(consoleOutAsString, printedUploadingInfo(locator));
         assertThat(consoleOutAsString, printedBuildFailed());
-        assertThat(consoleOutAsString, printedJobCompletedInfo(locator));
     }
 
     @Test

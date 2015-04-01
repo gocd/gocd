@@ -1,11 +1,3 @@
-package com.thoughtworks.go.domain.activity;
-
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.server.domain.JobStatusListener;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 /**
  * **********************GO-LICENSE-START*********************************
  * Copyright 2015 ThoughtWorks, Inc.
@@ -23,6 +15,19 @@ import org.springframework.stereotype.Component;
  * limitations under the License.
  * ************************GO-LICENSE-END**********************************
  */
+
+package com.thoughtworks.go.domain.activity;
+
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.service.ArtifactsService;
+import com.thoughtworks.go.util.GoConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import static java.lang.String.format;
+
 @Component
 public class ConsoleLogArtifactHandler implements JobStatusListener {
     private ArtifactsService service;
@@ -35,7 +40,14 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
     @Override
     public void jobStatusChanged(JobInstance job) {
         if (job.getState().isCompleted()) {
-            service.moveConsoleArtifacts(job.getIdentifier());
+            try {
+                JobIdentifier identifier = job.getIdentifier();
+                service.moveConsoleArtifacts(identifier);
+                service.appendToConsoleLog(identifier, format("[%s] %s %s", GoConstants.PRODUCT_NAME, "Job Completed"
+                        , identifier.buildLocatorForDisplay()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

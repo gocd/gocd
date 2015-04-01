@@ -106,13 +106,7 @@ public class DefaultGoPublisher implements GoPublisher {
     public void reportCompleted(JobResult result) {
         LOG.info(String.format("%s is reporting build result [%s] to Go Server for %s", agentIdentifier, result,
                 jobIdentifier.toFullString()));
-        reportCompletedAction();
         remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
-    }
-
-    public void reportCompletedAction() {
-        reportAction("Job completed");
-        stop();
     }
 
     public boolean isIgnored() {

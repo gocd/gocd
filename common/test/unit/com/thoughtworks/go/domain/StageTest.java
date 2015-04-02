@@ -82,6 +82,26 @@ public class StageTest {
         assertThat(stage.getState(), is(StageState.Passed));
     }
 
+    @Test
+    public void shouldAnswerIsScheduled() throws Exception {
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Scheduled);
+
+        assertThat(stage.isScheduled(), is(true));
+
+        firstJob.setState(JobState.Completed);
+        secondJob.setState(JobState.Scheduled);
+        assertThat(stage.isScheduled(), is(false));
+
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Completed);
+        assertThat(stage.isScheduled(), is(false));
+
+        firstJob.setState(JobState.Completed);
+        secondJob.setState(JobState.Completed);
+        assertThat(stage.isScheduled(), is(false));
+    }
+
     private void complete(JobInstance job, DateTime fiveMinsForNow) {
         job.completing(JobResult.Passed, fiveMinsForNow.toDate());
         job.completed(fiveMinsForNow.plusSeconds(10).toDate());

@@ -341,10 +341,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
                     try {
                         new Closure() {
-                    public void execute(Object o) {
-                        ((PluginsFolderChangeListener) o).handle();
-                    }
-                }.execute(changeListener);
+                            public void execute(Object o) {
+                                ((PluginsFolderChangeListener) o).handle();
+                            }
+                        }.execute(changeListener);
                     } catch (Exception e) {
                         LOGGER.warn("Plugin listener failed", e);
                     }

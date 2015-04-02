@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,8 @@ public class AgentPluginsInitializerTest {
         agentPluginsInitializer.onApplicationEvent(null);
         inOrder.verify(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
         inOrder.verify(pluginJarLocationMonitor).initialize();
-        inOrder.verify(pluginManager).startPluginInfrastructure();
+        inOrder.verify(pluginManager).startInfrastructure();
+        verify(pluginManager,never()).registerPluginsFolderChangeListener();
     }
 
     @Test

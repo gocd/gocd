@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
             }
             zipUtil.unzip(agentPluginsZip, pluginsFolder);
             defaultPluginJarLocationMonitor.initialize();
-            pluginManager.startPluginInfrastructure();
+            pluginManager.startInfrastructure();
         } catch (IOException e) {
             LOG.warn("could not extract plugin zip", e);
         } catch (RuntimeException e) {

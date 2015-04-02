@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,6 @@
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,16 +25,21 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
-import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS;
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 
 @Component
 public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor {
     private static final Logger LOGGER = Logger.getLogger(DefaultPluginJarLocationMonitor.class);
 
 
-    private List<WeakReference<PluginJarChangeListener>> listeners = new CopyOnWriteArrayList<WeakReference<PluginJarChangeListener>>();
+    private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener = new CopyOnWriteArrayList<WeakReference<PluginJarChangeListener>>();
+    private List<WeakReference<PluginsFolderChangeListener>> pluginsFolderChangeListener = new CopyOnWriteArrayList<WeakReference<PluginsFolderChangeListener>>();
 
     private File bundledPluginDirectory;
     private final File externalPluginDirectory;
@@ -63,15 +58,20 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         validateExternalPluginDirectory();
     }
 
+    public void addPluginsFolderChangeListener(PluginsFolderChangeListener pluginsFolderChangeListener) {
+        this.pluginsFolderChangeListener.add(new WeakReference<PluginsFolderChangeListener>(pluginsFolderChangeListener));
+        removeClearedWeakReferencesForFolder();
+    }
+
     @Override
     public void addPluginJarChangeListener(PluginJarChangeListener listener) {
-        listeners.add(new WeakReference<PluginJarChangeListener>(listener));
+        pluginJarChangeListener.add(new WeakReference<PluginJarChangeListener>(listener));
         removeClearedWeakReferences();
     }
 
     @Override
     public void removePluginJarChangeListener(final PluginJarChangeListener listener) {
-        Object referenceOfListenerToBeRemoved = CollectionUtils.find(listeners, new Predicate() {
+        Object referenceOfListenerToBeRemoved = CollectionUtils.find(pluginJarChangeListener, new Predicate() {
             @Override
             public boolean evaluate(Object object) {
                 WeakReference<PluginJarChangeListener> listenerWeakReference = (WeakReference<PluginJarChangeListener>) object;
@@ -79,7 +79,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                 return registeredListener != null && registeredListener == listener;
             }
         });
-        listeners.remove(referenceOfListenerToBeRemoved);
+        pluginJarChangeListener.remove(referenceOfListenerToBeRemoved);
         removeClearedWeakReferences();
     }
 
@@ -88,7 +88,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         if (monitorThread != null) {
             throw new IllegalStateException("Cannot start the monitor multiple times.");
         }
-        monitorThread = new PluginLocationMonitorThread(bundledPluginDirectory, externalPluginDirectory, listeners, systemEnvironment);
+        monitorThread = new PluginLocationMonitorThread(bundledPluginDirectory, externalPluginDirectory, pluginJarChangeListener, pluginsFolderChangeListener, systemEnvironment);
         monitorThread.setDaemon(true);
         monitorThread.start();
     }
@@ -141,9 +141,19 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     private void removeClearedWeakReferences() {
-        Iterator<WeakReference<PluginJarChangeListener>> iterator = listeners.iterator();
+        Iterator<WeakReference<PluginJarChangeListener>> iterator = pluginJarChangeListener.iterator();
         while (iterator.hasNext()) {
             WeakReference<PluginJarChangeListener> next = iterator.next();
+            if (next.get() == null) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void removeClearedWeakReferencesForFolder() {
+        Iterator<WeakReference<PluginsFolderChangeListener>> iterator = pluginsFolderChangeListener.iterator();
+        while (iterator.hasNext()) {
+            WeakReference<PluginsFolderChangeListener> next = iterator.next();
             if (next.get() == null) {
                 iterator.remove();
             }
@@ -155,13 +165,15 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         private Set<PluginFileDetails> knownExternalPluginFileDetails = new HashSet<PluginFileDetails>();
         private File bundledPluginDirectory;
         private File externalPluginDirectory;
-        private List<WeakReference<PluginJarChangeListener>> listeners;
+        private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
+        private List<WeakReference<PluginsFolderChangeListener>> pluginsFolderChangeListener;
         private SystemEnvironment systemEnvironment;
 
-        public PluginLocationMonitorThread(File bundledPluginDirectory, File externalPluginDirectory, List<WeakReference<PluginJarChangeListener>> listeners, SystemEnvironment systemEnvironment) {
+        public PluginLocationMonitorThread(File bundledPluginDirectory, File externalPluginDirectory, List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener, List<WeakReference<PluginsFolderChangeListener>> pluginsFolderChangeListener, SystemEnvironment systemEnvironment) {
             this.bundledPluginDirectory = bundledPluginDirectory;
             this.externalPluginDirectory = externalPluginDirectory;
-            this.listeners = listeners;
+            this.pluginJarChangeListener = pluginJarChangeListener;
+            this.pluginsFolderChangeListener = pluginsFolderChangeListener;
             this.systemEnvironment = systemEnvironment;
         }
 
@@ -181,40 +193,50 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
         private Set<PluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory, Set<PluginFileDetails> knownPluginFiles, boolean isBundledPluginsLocation) {
             Set<PluginFileDetails> currentPluginFiles = getDetailsOfCurrentPluginFilesFrom(pluginDirectory, isBundledPluginsLocation);
-            notifyListenersOfRemovedPlugins(currentPluginFiles, knownPluginFiles);
-            notifyListenersOfUpdatedPlugins(currentPluginFiles, knownPluginFiles);
-            notifyListenersOfAddedPlugins(currentPluginFiles, knownPluginFiles);
+            boolean notifyListenersOfRemovedPlugins = notifyListenersOfRemovedPlugins(currentPluginFiles, knownPluginFiles);
+            boolean notifyListenersOfUpdatedPlugins = notifyListenersOfUpdatedPlugins(currentPluginFiles, knownPluginFiles);
+            boolean notifyListenersOfAddedPlugins = notifyListenersOfAddedPlugins(currentPluginFiles, knownPluginFiles);
+            if (notifyListenersOfRemovedPlugins || notifyListenersOfUpdatedPlugins || notifyListenersOfAddedPlugins) {
+                doOnPluginsFolderChangeListener().handle();
+            }
             return currentPluginFiles;
         }
 
-        private void notifyListenersOfAddedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
+        private boolean notifyListenersOfAddedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
             HashSet<PluginFileDetails> currentPlugins = new HashSet<PluginFileDetails>(currentPluginFiles);
             currentPlugins.removeAll(previouslyKnownPluginFiles);
 
             for (PluginFileDetails newlyAddedPluginFile : currentPlugins) {
                 doOnAllListeners().pluginJarAdded(newlyAddedPluginFile);
             }
+            return !currentPlugins.isEmpty();
         }
 
-        private void notifyListenersOfRemovedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
+        private boolean notifyListenersOfRemovedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
             HashSet<PluginFileDetails> previouslyKnownPlugins = new HashSet<PluginFileDetails>(previouslyKnownPluginFiles);
             previouslyKnownPlugins.removeAll(currentPluginFiles);
 
             for (PluginFileDetails removedPluginFile : previouslyKnownPlugins) {
                 doOnAllListeners().pluginJarRemoved(removedPluginFile);
             }
+            return !previouslyKnownPlugins.isEmpty();
         }
 
-        private void notifyListenersOfUpdatedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> knownPluginFileDetails) {
+        private boolean notifyListenersOfUpdatedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> knownPluginFileDetails) {
             final ArrayList<PluginFileDetails> updatedPlugins = findUpdatedPlugins(currentPluginFiles, knownPluginFileDetails);
 
             for (PluginFileDetails updatedPlugin : updatedPlugins) {
                 doOnAllListeners().pluginJarUpdated(updatedPlugin);
             }
+            return !updatedPlugins.isEmpty();
         }
 
         private PluginJarChangeListener doOnAllListeners() {
-            return new DoOnAllListeners(listeners);
+            return new DoOnAllListeners(pluginJarChangeListener);
+        }
+
+        private DoOnPluginsFolderChangeListener doOnPluginsFolderChangeListener() {
+            return new DoOnPluginsFolderChangeListener(pluginsFolderChangeListener);
         }
 
         private void waitForMonitorInterval(int interval) {
@@ -261,7 +283,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void pluginJarAdded(final PluginFileDetails pluginFileDetails) {
-                doOnAll(new Closure() {
+                doOnAllPluginJarChangeListener(new Closure() {
                     public void execute(Object o) {
                         ((PluginJarChangeListener) o).pluginJarAdded(pluginFileDetails);
                     }
@@ -270,7 +292,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void pluginJarUpdated(final PluginFileDetails pluginFileDetails) {
-                doOnAll(new Closure() {
+                doOnAllPluginJarChangeListener(new Closure() {
                     public void execute(Object o) {
                         ((PluginJarChangeListener) o).pluginJarUpdated(pluginFileDetails);
                     }
@@ -279,14 +301,14 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
             @Override
             public void pluginJarRemoved(final PluginFileDetails pluginFileDetails) {
-                doOnAll(new Closure() {
+                doOnAllPluginJarChangeListener(new Closure() {
                     public void execute(Object o) {
                         ((PluginJarChangeListener) o).pluginJarRemoved(pluginFileDetails);
                     }
                 });
             }
 
-            private void doOnAll(Closure closure) {
+            private void doOnAllPluginJarChangeListener(Closure closure) {
                 for (WeakReference<PluginJarChangeListener> listener : listeners) {
                     PluginJarChangeListener changeListener = listener.get();
                     if (changeListener == null) {
@@ -300,6 +322,35 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                     }
                 }
             }
+        }
+
+        public static class DoOnPluginsFolderChangeListener implements PluginsFolderChangeListener {
+            private List<WeakReference<PluginsFolderChangeListener>> listeners;
+
+            public DoOnPluginsFolderChangeListener(List<WeakReference<PluginsFolderChangeListener>> listeners) {
+                this.listeners = listeners;
+            }
+
+            @Override
+            public void handle() {
+                for (WeakReference<PluginsFolderChangeListener> listener : listeners) {
+                    PluginsFolderChangeListener changeListener = listener.get();
+                    if (changeListener == null) {
+                        continue;
+                    }
+
+                    try {
+                        new Closure() {
+                    public void execute(Object o) {
+                        ((PluginsFolderChangeListener) o).handle();
+                    }
+                }.execute(changeListener);
+                    } catch (Exception e) {
+                        LOGGER.warn("Plugin listener failed", e);
+                    }
+                }
+            }
+
         }
     }
 }

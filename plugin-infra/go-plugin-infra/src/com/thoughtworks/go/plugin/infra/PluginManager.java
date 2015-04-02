@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,11 @@ public interface PluginManager {
 
     <T> void doOnIfHasReference(Class<T> serviceReferenceClass, String pluginId, Action<T> action);
 
-    void startPluginInfrastructure();
+    void startInfrastructure();
 
-    void stopPluginInfrastructure();
+    void registerPluginsFolderChangeListener();
+
+    void stopInfrastructure();
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
 

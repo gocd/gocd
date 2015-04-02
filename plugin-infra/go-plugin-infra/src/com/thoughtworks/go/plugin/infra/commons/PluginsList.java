@@ -36,14 +36,12 @@ public class PluginsList {
     private String pluginsJSON;
 
     private SystemEnvironment systemEnvironment;
-    private final Map<String, String> bundledPluginsMap;
-    private final Map<String, String> externalPluginsMap;
+    private final Map<String, String> bundledPluginsMap = new LinkedHashMap<String, String>();
+    private final Map<String, String> externalPluginsMap = new LinkedHashMap<String, String>();
 
     @Autowired
     public PluginsList(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        bundledPluginsMap = new LinkedHashMap<String, String>();
-        externalPluginsMap = new LinkedHashMap<String, String>();
     }
 
     public void updatePluginsList() {
@@ -71,14 +69,14 @@ public class PluginsList {
         }
     }
 
-    public String getPluginsJSON() throws IOException {
+    public String getPluginsJSON() {
         if (pluginsJSON == null) {
             createPluginsJSON();
         }
         return pluginsJSON;
     }
 
-    private void createPluginsJSON() throws IOException {
+    private void createPluginsJSON() {
         Map<String, Map<String, String>> allPluginsMap = new LinkedHashMap<String, Map<String, String>>();
         allPluginsMap.put("bundled", bundledPluginsMap);
         allPluginsMap.put("external", externalPluginsMap);

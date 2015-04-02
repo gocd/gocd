@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -24,6 +23,6 @@ public class PluginsListListenerTest {
     public void shouldUpdatePluginListOnHandle() throws Exception {
         pluginsListListener.handle();
 
-        verify(pluginsList, times(1)).updatePluginsList();
+        verify(pluginsList).updatePluginsList();
     }
 }

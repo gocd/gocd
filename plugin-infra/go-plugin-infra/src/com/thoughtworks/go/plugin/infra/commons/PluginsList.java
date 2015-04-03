@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.plugin.infra.commons;
 
-import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.comparator.NameFileComparator;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfFile;
 
@@ -36,54 +36,81 @@ public class PluginsList {
     private String pluginsJSON;
 
     private SystemEnvironment systemEnvironment;
-    private final Map<String, String> bundledPluginsMap = new LinkedHashMap<String, String>();
-    private final Map<String, String> externalPluginsMap = new LinkedHashMap<String, String>();
+
+    @Expose
+    @SerializedName("bundled")
+    private final PluginEntries bundled = new PluginEntries();
+
+    @Expose
+    @SerializedName("external")
+    private final PluginEntries external = new PluginEntries();
 
     @Autowired
     public PluginsList(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
 
-    public void updatePluginsList() {
+    public void update() {
         try {
-            File bundledPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH));
-            fillDetailsOfPluginsInDirectory(bundledPlugins, bundledPluginsMap);
-
-            File externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
-            fillDetailsOfPluginsInDirectory(externalPlugins, externalPluginsMap);
-
+            bundled.initialize(new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)));
+            external.initialize(new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH)));
             clearPluginsJSON();
         } catch (Exception e) {
             LOG.warn("Error occurred while generating plugin map.", e);
         }
     }
 
-    void fillDetailsOfPluginsInDirectory(File directory, Map<String, String> pluginsMap) throws Exception {
-        pluginsMap.clear();
-        File[] pluginJars = directory.exists() ? directory.listFiles() : null;
-        if (pluginJars != null && pluginJars.length != 0) {
-            Arrays.sort(pluginJars, NameFileComparator.NAME_COMPARATOR);
-            for (File pluginJar : pluginJars) {
-                pluginsMap.put(pluginJar.getName(), md5DigestOfFile(pluginJar));
-            }
-        }
-    }
-
     public String getPluginsJSON() {
         if (pluginsJSON == null) {
-            createPluginsJSON();
+            pluginsJSON = JsonHelper.toJsonString(this);
         }
         return pluginsJSON;
-    }
-
-    private void createPluginsJSON() {
-        Map<String, Map<String, String>> allPluginsMap = new LinkedHashMap<String, Map<String, String>>();
-        allPluginsMap.put("bundled", bundledPluginsMap);
-        allPluginsMap.put("external", externalPluginsMap);
-        pluginsJSON = new Gson().toJson(allPluginsMap);
     }
 
     private void clearPluginsJSON() {
         pluginsJSON = null;
     }
+
+    static class PluginEntries extends ArrayList<PluginEntry> {
+        private void initialize(File parent) throws IOException {
+            clear();
+            File[] pluginJars = parent.exists() ? parent.listFiles() : null;
+            if (pluginJars!=null && pluginJars.length != 0) {
+                for (File pluginJar : pluginJars) {
+                    add(new PluginEntry(pluginJar));
+                }
+            }
+            Collections.sort(this);
+        }
+    }
+
+    static class PluginEntry implements Comparable<PluginEntry> {
+        @Expose
+        @SerializedName("name")
+        private final String name;
+
+        @Expose
+        @SerializedName("md5")
+        private final String md5;
+
+        private PluginEntry(File pluginJar) throws IOException {
+            this.name = pluginJar.getName();
+            this.md5 = md5DigestOfFile(pluginJar);
+        }
+
+        @Override
+        public int compareTo(PluginEntry other) {
+            if(other == null) return 1;
+            return this.name.compareTo(other.name);
+        }
+
+        protected String getName() {
+            return name;
+        }
+
+        protected String getMd5() {
+            return md5;
+        }
+    }
 }
+

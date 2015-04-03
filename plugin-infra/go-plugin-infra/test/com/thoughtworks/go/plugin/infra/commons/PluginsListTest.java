@@ -16,10 +16,11 @@
 
 package com.thoughtworks.go.plugin.infra.commons;
 
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,8 +28,6 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_GO_PROVIDED_PATH;
@@ -69,51 +68,64 @@ public class PluginsListTest {
         pluginsList = new PluginsList(systemEnvironment);
     }
 
-    @After
-    public void tearDown() throws Exception {
-        temporaryFolder.delete();
+    @Test
+    public void shouldUpdatePluginsList() throws Exception {
+        pluginsList.update();
+        PluginsList.PluginEntries bundled = (PluginsList.PluginEntries) ReflectionUtil.getField(pluginsList, "bundled");
+        PluginsList.PluginEntries external = (PluginsList.PluginEntries) ReflectionUtil.getField(pluginsList, "external");
+
+        assertThat(bundled.size(), is(1));
+        assertThat(bundled.get(0).getName(), is("yum.jar"));
+        assertThat(bundled.get(0).getMd5(), is("LAVBbwaDykricDnAP57klg=="));
+
+        assertThat(external.size(), is(3));
+        assertThat(external.get(0).getName(), is("external1.jar"));
+        assertThat(external.get(0).getMd5(), is("+yWDK4+tYQtfqyh3tmT95A=="));
+        assertThat(external.get(1).getName(), is("external2.jar"));
+        assertThat(external.get(1).getMd5(), is("DS/Oa0vv5URteXfzSU7mvQ=="));
+        assertThat(external.get(2).getName(), is("external3.jar"));
+        assertThat(external.get(2).getMd5(), is("OQV644wsBJgbtQWR+L3UXA=="));
     }
 
     @Test
-    public void shouldPopulateJarDetails() throws Exception {
-        final Map<String, String> bundledPluginsMap = new LinkedHashMap<String, String>();
-        pluginsList.fillDetailsOfPluginsInDirectory(bundledPluginsDir, bundledPluginsMap);
+    public void shouldHaveThePluginsListedInSortedOrderBasedOnNameInPluginsJSON() throws Exception {
+        FileUtils.cleanDirectory(externalPluginsDir);
+        FileUtil.createFilesByPath(externalPluginsDir, "foo", "bar", "baz", "ano");
+        pluginsList.update();
 
-        assertThat(bundledPluginsMap.size(), is(1));
-        assertThat(bundledPluginsMap.get("yum.jar"), is("LAVBbwaDykricDnAP57klg=="));
+        String pluginsJSON = pluginsList.getPluginsJSON();
 
-        final Map<String, String> externalPluginsMap = new LinkedHashMap<String, String>();
-        pluginsList.fillDetailsOfPluginsInDirectory(externalPluginsDir, externalPluginsMap);
+        PluginsList deserialized = JsonHelper.fromJson(pluginsJSON, PluginsList.class);
+        PluginsList.PluginEntries externalPlugins = (PluginsList.PluginEntries) ReflectionUtil.getField(deserialized, "external");
 
-        assertThat(externalPluginsMap.size(), is(3));
-        assertThat(externalPluginsMap.get("external1.jar"), is("+yWDK4+tYQtfqyh3tmT95A=="));
-        assertThat(externalPluginsMap.get("external2.jar"), is("DS/Oa0vv5URteXfzSU7mvQ=="));
-        assertThat(externalPluginsMap.get("external3.jar"), is("OQV644wsBJgbtQWR+L3UXA=="));
+        assertThat(externalPlugins.size(), is(4));
+        assertThat(externalPlugins.get(0).getName(), is("ano"));
+        assertThat(externalPlugins.get(1).getName(), is("bar"));
+        assertThat(externalPlugins.get(2).getName(), is("baz"));
+        assertThat(externalPlugins.get(3).getName(), is("foo"));
     }
 
     @Test
-    public void shouldRemoveOlderEntriesInPluginsMap() throws Exception {
-        final Map<String, String> bundledPluginsMap = new LinkedHashMap<String, String>();
-        pluginsList.fillDetailsOfPluginsInDirectory(bundledPluginsDir, bundledPluginsMap);
-
-        assertThat(bundledPluginsMap.size(), is(1));
-        assertThat(bundledPluginsMap.get("yum.jar"), is("LAVBbwaDykricDnAP57klg=="));
+    public void shouldRemoveOlderEntriesDuringUpdate() throws Exception {
+        pluginsList.update();
+        PluginsList.PluginEntries bundled = (PluginsList.PluginEntries) ReflectionUtil.getField(pluginsList, "bundled");
+        assertThat(bundled.size(), is(1));
 
         File bundledYumPlugin = new File(bundledPluginsDir, "yum.jar");
         FileUtils.deleteQuietly(bundledYumPlugin);
 
-        pluginsList.fillDetailsOfPluginsInDirectory(bundledPluginsDir, bundledPluginsMap);
-        assertThat(bundledPluginsMap.isEmpty(), is(true));
+        pluginsList.update();
+        assertThat(bundled.isEmpty(), is(true));
     }
 
     @Test
     public void shouldGetPluginsJSON() throws Exception {
-        pluginsList.updatePluginsList();
+        pluginsList.update();
         assertThat(ReflectionUtil.getField(pluginsList, "pluginsJSON"), is(nullValue()));
 
         String allPluginsJSON = pluginsList.getPluginsJSON();
 
         assertThat(ReflectionUtil.getField(pluginsList, "pluginsJSON"), is(notNullValue()));
-        assertThat(allPluginsJSON, is("{\"bundled\":{\"yum.jar\":\"LAVBbwaDykricDnAP57klg\\u003d\\u003d\"},\"external\":{\"external1.jar\":\"+yWDK4+tYQtfqyh3tmT95A\\u003d\\u003d\",\"external2.jar\":\"DS/Oa0vv5URteXfzSU7mvQ\\u003d\\u003d\",\"external3.jar\":\"OQV644wsBJgbtQWR+L3UXA\\u003d\\u003d\"}}"));
+        assertThat(allPluginsJSON, is("{\"bundled\":[{\"name\":\"yum.jar\",\"md5\":\"LAVBbwaDykricDnAP57klg\\u003d\\u003d\"}],\"external\":[{\"name\":\"external1.jar\",\"md5\":\"+yWDK4+tYQtfqyh3tmT95A\\u003d\\u003d\"},{\"name\":\"external2.jar\",\"md5\":\"DS/Oa0vv5URteXfzSU7mvQ\\u003d\\u003d\"},{\"name\":\"external3.jar\",\"md5\":\"OQV644wsBJgbtQWR+L3UXA\\u003d\\u003d\"}]}"));
     }
 }

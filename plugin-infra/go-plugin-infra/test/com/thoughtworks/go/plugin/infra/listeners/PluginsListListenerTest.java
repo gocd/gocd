@@ -23,6 +23,6 @@ public class PluginsListListenerTest {
     public void shouldUpdatePluginListOnHandle() throws Exception {
         pluginsListListener.handle();
 
-        verify(pluginsList).updatePluginsList();
+        verify(pluginsList).update();
     }
 }

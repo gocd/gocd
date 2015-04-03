@@ -32,6 +32,6 @@ public class PluginsListListener implements PluginsFolderChangeListener {
 
     @Override
     public void handle() {
-        pluginsList.updatePluginsList();
+        pluginsList.update();
     }
 }

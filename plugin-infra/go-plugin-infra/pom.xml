@@ -44,6 +44,11 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
             <artifactId>go-plugin-activator</artifactId>
             <version>1.0</version>
         </dependency>

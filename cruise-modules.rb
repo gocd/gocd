@@ -105,9 +105,7 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
       pkg_dir = "Go Agent.app"
       pkg_dir_path = File.join(osx_dir, pkg_dir)
 
-      mkdir_p osx_dir
-
-      filter.from(explode).into(pkg_dir_path).run
+      copy_with_mode _(explode, "agent-bootstrapper.jar"), dest_with_mode(_(pkg_dir_path, "Contents", "Resources", "agent-bootstrapper.jar"), 0644)
 
       build_osx_installer(pkg, pkg_dir)
     end
@@ -353,9 +351,7 @@ define "cruise:server", :layout => server_layout("server") do
       pkg_dir = "Go Server.app"
       pkg_dir_path = File.join(osx_dir, pkg_dir)
 
-      mkdir_p osx_dir
-
-      filter.from(explode).into(pkg_dir_path).run
+      copy_with_mode _(explode, "go.jar"), dest_with_mode(_(pkg_dir_path, "Contents", "Resources", "go.jar"), 0644)
 
       build_osx_installer(pkg, pkg_dir)
     end
@@ -602,7 +598,7 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
 
   task :installer_links do
     go_site_url = ENV['GO_SITE_URL'] || ENV['GO_SERVER_URL']
-    raise 'Can only works on GO agent' unless go_site_url
+    raise 'Can only work on GO agent' unless go_site_url
     artifacts_dir = go_site_url + 'files/'
     artifacts_dir << %w{GO_PIPELINE_NAME GO_PIPELINE_COUNTER GO_STAGE_NAME GO_STAGE_COUNTER GO_JOB_NAME}.collect { |v| ENV[v] }.join("/")
 

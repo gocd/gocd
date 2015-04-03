@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class ArtifactDirectoryChooser {
     List<ArtifactLocator> locators = new ArrayList<ArtifactLocator>();
 
@@ -73,7 +75,7 @@ public class ArtifactDirectoryChooser {
     }
 
     public File temporaryConsoleFile(LocatableEntity locatableEntity) {
-        return new File("local", DigestUtils.md5Hex(locatableEntity.entityLocator()));
+        return new File("local", format("%s.log", DigestUtils.md5Hex(locatableEntity.entityLocator())));
     }
 
 }

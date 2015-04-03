@@ -259,7 +259,7 @@
 
     <mime-mapping>
         <extension>log</extension>
-        <mime-type>text/plain</mime-type>
+        <mime-type>text/plain;charset=utf-8</mime-type>
     </mime-mapping>
 
     <mime-mapping>

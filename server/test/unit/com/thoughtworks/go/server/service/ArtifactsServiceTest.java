@@ -391,7 +391,7 @@ public class ArtifactsServiceTest {
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         File file = artifactsService.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
-        assertThat(file.getPath(), is("local/d0132b209429f7dc5b9ffffe87b02a7c"));
+        assertThat(file.getPath(), is("local/d0132b209429f7dc5b9ffffe87b02a7c.log"));
     }
 
     private void assumeArtifactsRoot(final File artifactsRoot) {

@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
+import com.thoughtworks.go.server.presentation.html.Htmlable;
 import com.thoughtworks.go.util.json.Json;
 import com.thoughtworks.go.util.json.JsonAware;
 import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.util.json.JsonUrl;
+
 import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.cssClass;
 import static com.thoughtworks.go.server.presentation.html.HtmlElement.ul;
-import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
-import com.thoughtworks.go.server.presentation.html.Htmlable;
 
 public abstract class DirectoryEntry implements Htmlable, JsonAware {
     private final String fileName;
@@ -57,5 +58,27 @@ public abstract class DirectoryEntry implements Htmlable, JsonAware {
         fileOrFolder.put("url", new JsonUrl(url));
         fileOrFolder.put("type", type);
         return fileOrFolder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DirectoryEntry that = (DirectoryEntry) o;
+
+        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fileName != null ? fileName.hashCode() : 0;
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
     }
 }

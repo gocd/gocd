@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-
-import com.thoughtworks.go.util.json.Json;
-import com.thoughtworks.go.util.json.JsonAware;
-import com.thoughtworks.go.util.json.JsonList;
 import com.thoughtworks.go.server.presentation.html.HtmlElement;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
 import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
+import com.thoughtworks.go.util.json.Json;
+import com.thoughtworks.go.util.json.JsonAware;
+import com.thoughtworks.go.util.json.JsonList;
+
+import java.util.ArrayList;
 
 import static com.thoughtworks.go.server.presentation.html.HtmlElement.p;
 
@@ -56,5 +56,15 @@ public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlR
 
     public void setIsArtifactsDeleted(boolean artifactsDeleted) {
         isArtifactsDeleted = artifactsDeleted;
+    }
+
+    public FolderDirectoryEntry addFolder(String folderName) {
+        FolderDirectoryEntry folderDirectoryEntry = new FolderDirectoryEntry(folderName, "", new DirectoryEntries());
+        add(folderDirectoryEntry);
+        return folderDirectoryEntry;
+    }
+
+    public void addFile(String fileName, String url) {
+        add(new FileDirectoryEntry(fileName, url));
     }
 }

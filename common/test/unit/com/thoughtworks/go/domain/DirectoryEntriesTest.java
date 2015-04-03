@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.IOException;
-import java.io.StringReader;
-
 import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
 import org.hamcrest.Matchers;
 import org.jdom.Element;
@@ -26,6 +23,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.StringReader;
+
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -83,10 +84,26 @@ public class DirectoryEntriesTest {
         Element document = getRenderedDocument(renderer);
 
         assertThat(document.getChildren().size(), is(2));
-        Element cruiseOutputElement = (Element)document.getChildren().get(0);
+        Element cruiseOutputElement = (Element) document.getChildren().get(0);
         assertThat(cruiseOutputElement.getChild("div").getChild("span").getChild("a").getTextNormalize(), is("cruise-output"));
-        Element artifactElement = (Element)document.getChildren().get(1);
+        Element artifactElement = (Element) document.getChildren().get(1);
         assertThat(artifactElement.getChild("div").getChild("span").getChild("a").getTextNormalize(), is("some-artifact"));
+    }
+
+    @Test
+    public void shouldAddFolder() throws Exception {
+        DirectoryEntries directoryEntries = new DirectoryEntries();
+        directoryEntries.addFolder("cruise-output");
+
+        assertThat(directoryEntries, hasItem(new FolderDirectoryEntry("cruise-output", "", new DirectoryEntries())));
+    }
+
+    @Test
+    public void shouldAddFile() throws Exception {
+        DirectoryEntries directoryEntries = new DirectoryEntries();
+        directoryEntries.addFile("console.log", "path");
+
+        assertThat(directoryEntries, hasItem(new FileDirectoryEntry("console.log", "path")));
     }
 
     private Element getRenderedDocument(HtmlRenderer renderer) throws JDOMException, IOException {

@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -108,7 +109,8 @@ public class ArtifactsServiceTest {
         }
     }
 
-    @Test public void shouldUnzipWhenFileIsZip() throws Exception {
+    @Test
+    public void shouldUnzipWhenFileIsZip() throws Exception {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
@@ -219,8 +221,22 @@ public class ArtifactsServiceTest {
     public void shouldConvertArtifactPathToUrl() throws Exception {
         assumeArtifactsRoot(new File("artifact-root"));
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        String url = artifactsService.getArtifactUrl("foo/bar/baz");
-        assertThat(url, is("/files/foo/bar/baz"));
+        JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
+        when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
+
+        String url = artifactsService.findArtifactUrl(identifier);
+        assertThat(url, is("/files/p/1/s/2/j"));
+    }
+
+    @Test
+    public void shouldConvertArtifactPathWithLocationToUrl() throws Exception {
+        assumeArtifactsRoot(new File("artifact-root"));
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
+        when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
+
+        String url = artifactsService.findArtifactUrl(identifier, "console.log");
+        assertThat(url, is("/files/p/1/s/2/j/console.log"));
     }
 
     @Test
@@ -333,7 +349,7 @@ public class ArtifactsServiceTest {
         File job1CacheDirFromADifferentStageRun = createJobArtifactFolder("artifact-root/cache/artifacts/pipelines/pipeline/10/stage/25/job2");
 
         artifactsService.purgeArtifactsForStage(stage);
-        
+
         assertThat(job1Dir.exists(), is(true));
         assertThat(job1Dir.listFiles().length, is(0));
         assertThat(job2Dir.exists(), is(true));
@@ -344,7 +360,7 @@ public class ArtifactsServiceTest {
         assertThat(job2CacheDir.exists(), is(false));
         assertThat(job1CacheDirFromADifferentStageRun.exists(), is(true));
     }
-    
+
     private File createJobArtifactFolder(final String path) throws IOException {
         File jobDir = new File(path);
         jobDir.mkdirs();
@@ -362,7 +378,7 @@ public class ArtifactsServiceTest {
         ReflectionUtil.setField(artifactsService, "chooser", chooser);
 
         when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
-        
+
         artifactsService.purgeArtifactsForStage(stage);
 
         assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'"), is(true));
@@ -375,7 +391,7 @@ public class ArtifactsServiceTest {
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         File file = artifactsService.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
-        assertThat(file.getPath(), is("work/pipelines/cruise/1/dev/2/linux-firefox/cruise-output/console.log"));
+        assertThat(file.getPath(), is("local/d0132b209429f7dc5b9ffffe87b02a7c"));
     }
 
     private void assumeArtifactsRoot(final File artifactsRoot) {

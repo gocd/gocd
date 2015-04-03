@@ -148,8 +148,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         try {
             File from = chooser.temporaryConsoleFile(locatableEntity);
             File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
-            FileUtils.copyFile(from, to, true);
-            FileUtils.deleteQuietly(chooser.temporaryConsoleFile(locatableEntity));
+            FileUtils.moveFile(from, to);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (IllegalArtifactLocationException e) {
@@ -324,7 +323,11 @@ public class ArtifactsService implements ArtifactUrlReader {
 
     public String findArtifactUrl(JobIdentifier jobIdentifier) {
         JobIdentifier actualId = jobResolverService.actualJobIdentifier(jobIdentifier);
-        return getArtifactUrl(actualId.buildLocator());
+        return format("/files/%s", actualId.buildLocator());
+    }
+
+    public String findArtifactUrl(JobIdentifier jobIdentifier, String path) {
+        return format("%s/%s", findArtifactUrl(jobIdentifier), path);
     }
 
     public File getArtifactLocation(String path) throws IllegalArtifactLocationException {
@@ -339,10 +342,6 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
-    public String getArtifactUrl(String path) {
-        return "/files/" + path;
-    }
-
     public void purgeArtifactsForStage(Stage stage) {
         StageIdentifier stageIdentifier = stage.getIdentifier();
         try {
@@ -352,14 +351,14 @@ public class ArtifactsService implements ArtifactUrlReader {
             boolean didDelete = deleteArtifactsExceptCruiseOutput(stageRoot);
 
             if (!didDelete) {
-                LOGGER.error(String.format("Artifacts for stage '%s' at path '%s' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath()));
+                LOGGER.error(format("Artifacts for stage '%s' at path '%s' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath()));
             }
         } catch (Exception e) {
-            LOGGER.error(String.format("Error occurred while clearing artifacts for '%s'. Error: '%s'", stageIdentifier.entityLocator(), e.getMessage()), e);
+            LOGGER.error(format("Error occurred while clearing artifacts for '%s'. Error: '%s'", stageIdentifier.entityLocator(), e.getMessage()), e);
         }
         stageDao.markArtifactsDeletedFor(stage);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Marked stage '%s' as artifacts deleted.", stageIdentifier.entityLocator()));
+            LOGGER.debug(format("Marked stage '%s' as artifacts deleted.", stageIdentifier.entityLocator()));
         }
     }
 

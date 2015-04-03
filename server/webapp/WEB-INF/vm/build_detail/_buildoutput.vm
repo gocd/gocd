@@ -15,6 +15,9 @@
  *************************GO-LICENSE-END***********************************#
 
 <div id="tab-content-of-console" $buildoutput_extra_attrs>
+    <div id="raw-console-file">
+        <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
+    </div>
     #if($presenter.isCompleted())
         <div class="console_iframe_container"></div>
         <iframe id="build-output-console-iframe" style="display: none;"></iframe>

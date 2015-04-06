@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -221,7 +222,7 @@ public class PipelineLabelTest {
     public void canMatchWithOneTruncationAsFirstRevision() throws Exception {
         final String[][] expectedGroups = { {"git", "4"}, { "svn" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:4]}-${svn}", expectedGroups);
-        assertThat(res, is("release-" + GIT_REVISION.substring(0, 4)  + "-" + SVN_REVISION));
+        assertThat(res, is("release-" + GIT_REVISION.substring(0, 4) + "-" + SVN_REVISION));
     }
 
     @Test
@@ -229,6 +230,21 @@ public class PipelineLabelTest {
         final String[][] expectedGroups = { { "git", "5" }, {"svn", "3"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 5) + "-" + SVN_REVISION.substring(0, 3)));
+    }
+
+    @Test
+    public void shouldReplaceTheTemplateWithSpecialCharacters() throws Exception {
+        ensureLabelIsReplaced("SVNMaterial");
+        ensureLabelIsReplaced("SVN-Material");
+        ensureLabelIsReplaced("SVN_Material");
+        ensureLabelIsReplaced("SVN!Material");
+        ensureLabelIsReplaced("SVN*MATERIAL");
+        ensureLabelIsReplaced("SVN**__##Material_1023_WithNumbers");
+        ensureLabelIsReplaced("SVN_Material-_!!_**");
+        ensureLabelIsReplaced("svn_Material'WithQuote");
+
+        ensureLabelIsNOTReplaced("SVN+Material");
+        ensureLabelIsNOTReplaced("SVN^Material");
     }
 
     @BeforeClass
@@ -284,5 +300,24 @@ public class PipelineLabelTest {
             builder.append("a");
         }
         return builder.toString();
+    }
+
+    private void ensureLabelIsReplaced(String name) {
+        PipelineLabel label = getReplacedLabelFor(name, String.format("release-${%s}", name));
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision()));
+    }
+
+    private void ensureLabelIsNOTReplaced(String name) {
+        String labelFormat = String.format("release-${%s}", name);
+        PipelineLabel label = getReplacedLabelFor(name, labelFormat);
+        assertThat(label.toString(), is(labelFormat));
+    }
+
+    private PipelineLabel getReplacedLabelFor(String name, String labelFormat) {
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        PipelineLabel label = PipelineLabel.create(labelFormat);
+        ((SvnMaterial) materialRevisions.getRevisions().get(0).getMaterial()).setName(new CaseInsensitiveString(name));
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        return label;
     }
 }

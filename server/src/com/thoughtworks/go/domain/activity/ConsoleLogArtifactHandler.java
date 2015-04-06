@@ -43,8 +43,7 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
             try {
                 JobIdentifier identifier = job.getIdentifier();
                 service.moveConsoleArtifacts(identifier);
-                // TODO: Put message on the finish of artifact upload
-                // TODO: Put timestamp of job completion
+                // TODO: Put correct timestamp of job completion the agent and the server maybe on different timezones.
                 service.appendToConsoleLog(identifier, format("[%s] %s %s", GoConstants.PRODUCT_NAME, "Job Completed"
                         , identifier.buildLocatorForDisplay()));
             } catch (Exception e) {

@@ -155,6 +155,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
+    public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -642,6 +643,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isServerActive() {
         return GO_SERVER_STATE.getValue().equalsIgnoreCase("active");
+    }
+
+    public String landingPage() {
+        return GO_LANDING_PAGE.getValue();
     }
 
     public boolean usingJetty9() {

@@ -617,6 +617,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return new File(get(PLUGIN_EXTERNAL_PROVIDED_PATH)).getAbsolutePath();
     }
 
+    public String getBundledPluginAbsolutePath() {
+        return new File(get(PLUGIN_BUNDLE_PATH)).getAbsolutePath();
+    }
+
     public <T> void reset(GoSystemProperty<T> systemProperty) {
         System.clearProperty(systemProperty.propertyName());
         if (systemProperty instanceof CachedProperty) {

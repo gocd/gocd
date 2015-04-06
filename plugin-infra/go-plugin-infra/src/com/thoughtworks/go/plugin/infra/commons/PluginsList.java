@@ -52,8 +52,8 @@ public class PluginsList {
 
     public void update() {
         try {
-            bundled.initialize(new File(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)));
-            external.initialize(new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH)));
+            bundled.initialize(new File(systemEnvironment.getBundledPluginAbsolutePath()));
+            external.initialize(new File(systemEnvironment.getExternalPluginAbsolutePath()));
             clearPluginsJSON();
         } catch (Exception e) {
             LOG.warn("Error occurred while generating plugin map.", e);

@@ -436,6 +436,17 @@ public class DefaultPluginManagerTest {
         inOrder.verify(monitor).addPluginJarChangeListener(jarChangeListener);
     }
 
+    @Test
+    public void shouldAddPluginsFolderChangeListener() throws Exception {
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
+        pluginManager.registerPluginsFolderChangeListener();
+
+        InOrder inOrder = inOrder(monitor);
+
+        inOrder.verify(monitor).addPluginsFolderChangeListener(pluginsZipUpdater);
+        inOrder.verify(monitor).addPluginsFolderChangeListener(pluginsListListener);
+    }
+
     @After
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(BUNDLE_DIR);

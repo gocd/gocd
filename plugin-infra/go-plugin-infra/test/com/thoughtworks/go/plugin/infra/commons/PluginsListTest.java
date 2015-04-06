@@ -62,8 +62,8 @@ public class PluginsListTest {
         FileUtils.writeStringToFile(externalPlugin2, externalPlugin2.getName());
         FileUtils.writeStringToFile(externalPlugin3, externalPlugin3.getName());
 
-        when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
-        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
+        when(systemEnvironment.getBundledPluginAbsolutePath()).thenReturn(bundledPluginsDir.getAbsolutePath());
+        when(systemEnvironment.getExternalPluginAbsolutePath()).thenReturn(externalPluginsDir.getAbsolutePath());
 
         pluginsList = new PluginsList(systemEnvironment);
     }

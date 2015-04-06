@@ -233,18 +233,33 @@ public class PipelineLabelTest {
     }
 
     @Test
+    public void canNotMatchWithTruncationWhenMaterialNameHasAColon() throws Exception {
+        final String[][] expectedGroups = { { "git:one", "7" } };
+        String res = assertLabelGroupsMatchingAndReplace("release-${git:one[:7]}", expectedGroups);
+        assertThat(res, is("release-${git:one[:7]}"));
+    }
+
+    @Test
     public void shouldReplaceTheTemplateWithSpecialCharacters() throws Exception {
         ensureLabelIsReplaced("SVNMaterial");
         ensureLabelIsReplaced("SVN-Material");
         ensureLabelIsReplaced("SVN_Material");
         ensureLabelIsReplaced("SVN!Material");
-        ensureLabelIsReplaced("SVN*MATERIAL");
-        ensureLabelIsReplaced("SVN**__##Material_1023_WithNumbers");
-        ensureLabelIsReplaced("SVN_Material-_!!_**");
+        ensureLabelIsReplaced("SVN__##Material_1023_WithNumbers");
+        ensureLabelIsReplaced("SVN_Material-_!!_");
         ensureLabelIsReplaced("svn_Material'WithQuote");
+        ensureLabelIsReplaced("SVN_Material.With.Period");
+        ensureLabelIsReplaced("SVN_Material#With#Hash");
+        ensureLabelIsReplaced("SVN_Material:With:Colon");
+        ensureLabelIsReplaced("SVN_Material~With~Tilde");
 
+        ensureLabelIsNOTReplaced("SVN*MATERIAL");
         ensureLabelIsNOTReplaced("SVN+Material");
         ensureLabelIsNOTReplaced("SVN^Material");
+        ensureLabelIsNOTReplaced("SVN_Material(With)Parentheses");
+        ensureLabelIsNOTReplaced("SVN_Material{With}Braces");
+        ensureLabelIsNOTReplaced("SVN**Material");
+        ensureLabelIsNOTReplaced("SVN\\Material_With_Backslash");
     }
 
     @BeforeClass

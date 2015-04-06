@@ -42,7 +42,7 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z0-9_\\-\\.!~*'()#]+)(\\[:(\\d+)\\])?\\}");
+    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
 
     private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
         final Matcher matcher = PATTERN.matcher(this.label);

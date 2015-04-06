@@ -401,4 +401,23 @@ public class SystemEnvironmentTest {
         systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
         assertThat(systemEnvironment.usingJetty9(), is(false));
     }
+
+    @Test
+    public void shouldGetDefaultLandingPageAsPipelines() throws Exception {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        String landingPage = systemEnvironment.landingPage();
+        assertThat(landingPage, is("/pipelines"));
+    }
+
+    @Test
+    public void shouldAbleToOverrideDefaultLandingPageAsPipelines() throws Exception {
+        try {
+            System.setProperty("go.landing.page","/admin/pipelines");
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            String landingPage = systemEnvironment.landingPage();
+            assertThat(landingPage, is("/admin/pipelines"));
+        } finally {
+            System.clearProperty("go.landing.page");
+        }
+    }
 }

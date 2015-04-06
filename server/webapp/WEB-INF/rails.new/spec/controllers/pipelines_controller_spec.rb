@@ -102,7 +102,6 @@ describe PipelinesController do
     it "should resolve" do
       expect({:get => "/pipelines"}).to route_to(:controller => "pipelines", :action => "index", :format => "html")
       expect({:get => "/pipelines.json"}).to route_to(:controller => "pipelines", :action => "index", :format => "json")
-      expect({:get => "/home"}).to route_to(:controller => "pipelines", :action => "index")
     end
 
     it "should redirect to 'add pipeline wizard' when there are no pipelines in config only if the user is an admin" do

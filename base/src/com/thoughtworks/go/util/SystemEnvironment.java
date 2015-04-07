@@ -618,7 +618,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public String getBundledPluginAbsolutePath() {
-        return new File(get(PLUGIN_BUNDLE_PATH)).getAbsolutePath();
+        return new File(get(PLUGIN_GO_PROVIDED_PATH)).getAbsolutePath();
     }
 
     public <T> void reset(GoSystemProperty<T> systemProperty) {

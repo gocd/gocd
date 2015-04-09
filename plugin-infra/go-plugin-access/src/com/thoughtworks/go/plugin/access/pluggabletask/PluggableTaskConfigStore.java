@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 
-public final class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
-    private static final PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
+public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
+    private static PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
 
     public static PluggableTaskConfigStore store() {
         return PLUGGABLE_TASK_CONFIG_STORE;

@@ -414,5 +414,42 @@ public class PackageMaterialTest {
         material.getPackageDefinition().setAutoUpdate(false);
         assertThat(material.isAutoUpdate(), is(false));
     }
-}
 
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        PackageMaterial material = createPackageMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("package"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
+        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat((String) repositoryConfiguration.get("k2"), is("repo-v2"));
+        Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
+        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
+        assertThat((String) packageConfiguration.get("k4"), is("package-v2"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        PackageMaterial material = createPackageMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("package"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
+        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k2"), is(nullValue()));
+        Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
+        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k4"), is(nullValue()));
+    }
+
+    private PackageMaterial createPackageMaterialWithSecureConfiguration() {
+        PackageMaterial material = MaterialsMother.packageMaterial();
+        material.getPackageDefinition().getRepository().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        material.getPackageDefinition().getConfiguration().addNewConfigurationWithValue("k4", "package-v2", false);
+        material.getPackageDefinition().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        return material;
+    }
+}

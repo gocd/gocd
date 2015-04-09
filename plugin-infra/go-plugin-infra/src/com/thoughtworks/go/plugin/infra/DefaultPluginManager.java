@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
+import com.thoughtworks.go.plugin.infra.listeners.PluginsListListener;
+import com.thoughtworks.go.plugin.infra.listeners.PluginsZipUpdater;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -51,22 +53,27 @@ public class DefaultPluginManager implements PluginManager {
     private static final Logger LOGGER = Logger.getLogger(DefaultPluginManager.class);
     private final DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
-    private final DefaultPluginJarChangeListener listener;
+    private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;
     private GoApplicationAccessor goApplicationAccessor;
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
+    private PluginsZipUpdater pluginsZipUpdater;
+    private PluginsListListener pluginsListListener;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener listener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter, PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter,
+                                PluginValidator pluginValidator, SystemEnvironment systemEnvironment, PluginsZipUpdater pluginsZipUpdater, PluginsListListener pluginsListListener) {
         this.monitor = monitor;
         this.registry = registry;
-        this.listener = listener;
+        this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
         this.goApplicationAccessor = goApplicationAccessor;
         this.systemEnvironment = systemEnvironment;
+        this.pluginsZipUpdater = pluginsZipUpdater;
+        this.pluginsListListener = pluginsListListener;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
         this.pluginWriter = pluginWriter;
@@ -77,7 +84,6 @@ public class DefaultPluginManager implements PluginManager {
     public List<GoPluginDescriptor> plugins() {
         return registry.plugins();
     }
-
 
     public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
         if (!pluginValidator.namecheckForJar(filename)) {
@@ -121,7 +127,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public void startPluginInfrastructure() {
+    public void startInfrastructure() {
         if (!systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)) {
             return;
         }
@@ -129,12 +135,18 @@ public class DefaultPluginManager implements PluginManager {
         removeBundleDirectory();
         goPluginOSGiFramework.start();
 
-        monitor.addPluginJarChangeListener(listener);
+        monitor.addPluginJarChangeListener(defaultPluginJarChangeListener);
         monitor.start();
     }
 
     @Override
-    public void stopPluginInfrastructure() {
+    public void registerPluginsFolderChangeListener() {
+        monitor.addPluginsFolderChangeListener(pluginsZipUpdater);
+        monitor.addPluginsFolderChangeListener(pluginsListListener);
+    }
+
+    @Override
+    public void stopInfrastructure() {
         if (!systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)) {
             return;
         }

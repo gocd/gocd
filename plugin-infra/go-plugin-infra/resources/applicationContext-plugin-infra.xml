@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,5 +36,10 @@
     <bean id="defaultGoPluginOSGiManifestCreator" class="com.thoughtworks.go.plugin.infra.plugininfo.GoPluginOSGiManifest$DefaultGoPluginOSGiManifestCreator" />
     <bean id="defaultGoApplicationAccessor" class="com.thoughtworks.go.plugin.infra.DefaultGoApplicationAccessor" />
 
+    <bean id="PluginsZipUpdater" class="com.thoughtworks.go.plugin.infra.listeners.PluginsZipUpdater"/>
+    <bean id="PluginsListListener" class="com.thoughtworks.go.plugin.infra.listeners.PluginsListListener"/>
+    <bean id="pluginsZip"  class="com.thoughtworks.go.plugin.infra.commons.PluginsZip"/>
+    <bean id="pluginsList"  class="com.thoughtworks.go.plugin.infra.commons.PluginsList"/>
+    <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 </beans>

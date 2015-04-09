@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.domain.label;
 
-import java.io.Serializable;
-import java.util.Map;
-
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PipelineLabel implements Serializable {
     protected String label;
@@ -39,12 +42,42 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public void updateLabel(Map<String, String> namedRevisions) {
-        for (Map.Entry<String, String> namedRevision : namedRevisions.entrySet()) {
-            String revision = namedRevision.getValue();
-            label = label.replaceAll("(?i)\\$\\{" + namedRevision.getKey() + "\\}", revision);
+    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
+
+    private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
+        final Matcher matcher = PATTERN.matcher(this.label);
+        final StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            final String revision = lookupMaterialRevision(matcher, materialRevisions);
+            matcher.appendReplacement(buffer, revision);
         }
-        label = StringUtils.substring(label, 0, 255);
+        matcher.appendTail(buffer);
+        return buffer.toString();
+    }
+
+    private String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
+        final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
+
+        if (!materialRevisions.containsKey(material)) {
+            //throw new IllegalStateException("cannot find material '" + material + "'");
+            return "\\" + matcher.group(0);
+        }
+
+        String revision = materialRevisions.get(material);
+        final String truncationLengthLiteral = matcher.group(3);
+        if (truncationLengthLiteral != null) {
+            int truncationLength = Integer.parseInt(truncationLengthLiteral);
+
+            if (revision.length() > truncationLength) {
+                revision = revision.substring(0, truncationLength);
+            }
+        }
+        return revision;
+    }
+
+    public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {
+        this.label = replaceRevisionsInLabel(namedRevisions);
+        this.label = StringUtils.substring(label, 0, 255);
     }
 
     public boolean equals(Object o) {

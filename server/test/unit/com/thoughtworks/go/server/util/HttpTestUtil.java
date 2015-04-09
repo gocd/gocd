@@ -16,16 +16,26 @@
 
 package com.thoughtworks.go.server.util;
 
+import org.apache.commons.io.IOUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.webapp.WebAppContext;
+
+import javax.security.auth.x500.X500Principal;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -34,23 +44,6 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import javax.security.auth.x500.X500Principal;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.SessionManager;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.HashSessionManager;
-import org.mortbay.jetty.servlet.SessionHandler;
 
 import static com.thoughtworks.go.util.TestFileUtil.createTempFile;
 
@@ -66,6 +59,9 @@ public class HttpTestUtil {
     private Server server;
     private Thread blocker;
     private File serverKeyStore;
+
+	private static final int MAX_IDLE_TIME = 30000;
+	private static final int RESPONSE_BUFFER_SIZE = 32768;
 
     public static class EchoServlet extends HttpServlet {
         @Override protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
@@ -102,7 +98,7 @@ public class HttpTestUtil {
     }
 
     public static interface ContextCustomizer {
-        void customize(Context ctx) throws Exception;
+        void customize(WebAppContext ctx) throws Exception;
     }
 
     public HttpTestUtil(final ContextCustomizer customizer) throws Exception {
@@ -110,42 +106,50 @@ public class HttpTestUtil {
         serverKeyStore = createTempFile("server.jks");
         prepareCertStore(serverKeyStore);
         server = new Server();
-        Context ctx = new Context();
+		WebAppContext ctx = new WebAppContext();
         SessionManager sm = new HashSessionManager();
         SessionHandler sh = new SessionHandler(sm);
         ctx.setSessionHandler(sh);
         customizer.customize(ctx);
         ctx.setContextPath("/go");
-        server.addHandler(ctx);
+		server.setHandler(ctx);
     }
 
     public void httpConnector(final int port) {
-        SelectChannelConnector connector = connectorWithPort(port);
+		ServerConnector connector = connectorWithPort(port);
         server.addConnector(connector);
     }
 
     public void httpConnector(final int port, final String host) {
-        SelectChannelConnector connector = connectorWithPort(port);
+		ServerConnector connector = connectorWithPort(port);
         connector.setHost(host);
         server.addConnector(connector);
     }
 
-    private SelectChannelConnector connectorWithPort(int port) {
-        SelectChannelConnector connector = new SelectChannelConnector();
-        connector.setPort(port);
-        return connector;
-    }
+	private ServerConnector connectorWithPort(int port) {
+		ServerConnector http = new ServerConnector(server);
+		http.setPort(port);
+		return http;
+	}
 
-    public void httpsConnector(final int port) {
-        SslSocketConnector socketConnector = new SslSocketConnector();
-        socketConnector.setPort(port);
-        socketConnector.setMaxIdleTime(30000);
-        socketConnector.setKeystore(serverKeyStore.getAbsolutePath());
-        socketConnector.setPassword(STORE_PASSWORD);
-        socketConnector.setKeyPassword(STORE_PASSWORD);
-        socketConnector.setWantClientAuth(false);
-        server.addConnector(socketConnector);
-    }
+	public void httpsConnector(final int port) {
+		HttpConfiguration httpsConfig = new HttpConfiguration();
+		httpsConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE); // 32 MB
+		httpsConfig.addCustomizer(new SecureRequestCustomizer());
+
+		SslContextFactory sslContextFactory = new SslContextFactory();
+		sslContextFactory.setKeyStorePath(serverKeyStore.getAbsolutePath());
+		sslContextFactory.setKeyStorePassword(STORE_PASSWORD);
+		sslContextFactory.setKeyManagerPassword(STORE_PASSWORD);
+		sslContextFactory.setWantClientAuth(true);
+
+		ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(httpsConfig));
+		// https.setHost(host);
+		https.setPort(port);
+		https.setIdleTimeout(MAX_IDLE_TIME);
+
+		server.addConnector(https);
+	}
 
     public synchronized void start() throws InterruptedException {
         if (blocker != null)

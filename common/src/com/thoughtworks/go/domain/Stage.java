@@ -251,6 +251,15 @@ public class Stage extends PersistentObject {
         return jobInstances.getByName(name);
     }
 
+    public boolean isScheduled() {
+        for (JobInstance instance : jobInstances) {
+            if (instance.getState() != JobState.Scheduled) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isCompleted() {
         return stageState().completed();
     }

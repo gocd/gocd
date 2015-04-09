@@ -418,20 +418,16 @@ module OSXPackageHelper
   def build_osx_installer(pkg, pkg_dir)
     go_pkg_name_with_release_revision = "#{"go-#{pkg}-#{VERSION_NUMBER}"}-#{RELEASE_REVISION}"
 
-
     Dir.chdir(osx_dir) do
-      contents_dir = File.join(pkg_dir, "Contents")
-      mkdir_p contents_dir
+      contents_dir = create_dir_if_not_present(pkg_dir, "Contents")
       cp File.join("..", "..", "..", "..", "installers", pkg, "osx", "Info.plist"), contents_dir
       replace_content_in_file(File.join(contents_dir, "Info.plist"), "@VERSION@", "#{VERSION_NUMBER}.#{RELEASE_REVISION}")
       replace_content_in_file(File.join(contents_dir, "Info.plist"), "@REGVER@", "#{RELEASE_REVISION}")
 
-      resources_dir = File.join(contents_dir, "Resources")
-      mkdir_p resources_dir
+      resources_dir = create_dir_if_not_present(contents_dir, "Resources")
       cp File.join("..", "..", "..", "..", "build", "icons", "go-#{pkg}.icns"), resources_dir
 
-      mac_os_dir = File.join(contents_dir, "MacOS")
-      mkdir_p mac_os_dir
+      mac_os_dir = create_dir_if_not_present(contents_dir, "MacOS")
       java_application_stub_64_file = File.join(mac_os_dir, "go-#{pkg}")
       cp File.join("..", "..", "..", "..", "build", "osx", "JavaApplicationStub64"), java_application_stub_64_file
       chmod 0755, java_application_stub_64_file
@@ -446,6 +442,12 @@ module OSXPackageHelper
     text = File.read(file_name)
     text.gsub!(pattern, replacement)
     File.open(file_name, 'w') {|file| file.puts text}
+  end
+
+  def create_dir_if_not_present path, dir
+    dir_to_create = File.join(path, dir)
+    mkdir_p dir_to_create unless File.directory? dir_to_create
+    dir_to_create
   end
 end
 

@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -210,7 +211,8 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
     @Override
     public String getTypeForDisplay() {
-        return "SCM";
+        String type = scmConfig == null ? null : SCMMetadataStore.getInstance().displayValue(scmConfig.getPluginConfiguration().getId());
+        return type == null ? "SCM" : type;
     }
 
     @Override
@@ -222,6 +224,16 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public String getUriForDisplay() {
         return scmConfig.getConfigForDisplay();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "scm");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> configurationMap = scmConfig.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("scm-configuration", configurationMap);
+        return materialMap;
     }
 
     @Override

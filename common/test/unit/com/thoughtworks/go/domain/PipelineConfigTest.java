@@ -45,6 +45,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -57,8 +58,10 @@ import org.junit.Test;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -236,15 +239,74 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldValidateCorrectPipelineLabelWithoutAnyMaterial() {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
+        pipelineConfig.validate(null);
+        assertThat(pipelineConfig.errors().isEmpty(), is(true));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${git}-454";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldValidatePipelineLabelWithNonExistingMaterial() {
+        String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+    }
+
+    @Test
+    public void shouldValidateCorrectPipelineLabelWithTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${git[:7]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
+    }
+
+
+    @Test
+    public void shouldValidatePipelineLabelWithBrokenTruncationSyntax1() {
+        String labelFormat = "pipeline-${COUNT}-${git[:7}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("Invalid label."));
+    }
+
+    @Test
+    public void shouldValidatePipelineLabelWithBrokenTruncationSyntax2() {
+        String labelFormat = "pipeline-${COUNT}-${git[7]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("Invalid label."));
+    }
+
+    @Test
+    public void shouldValidateIncorrectPipelineLabelWithTruncationSyntax() {
+        String labelFormat = "pipeline-${COUNT}-${noSuch[:7]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+    }
+
+    @Test
+    public void shouldSupportTruncationSyntax() {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-${git[:7]}-alpha");
+
+        Set<String> variables = pipelineConfig.getTemplateVariables();
+        assertThat(variables, contains("COUNT", "git"));
+        assertThat(variables.size(), is(2));
+    }
+
+    @Test
     public void shouldSupportSpecialCharactors() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
         pipelineConfig.setLabelTemplate("pipeline-${COUN_T}-${my-material}${h.i}${**}");
 
         Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables.contains("COUN_T"), is(true));
-        assertThat(variables.contains("my-material"), is(true));
-        assertThat(variables.contains("h.i"), is(true));
-        assertThat(variables.contains("**"), is(true));
+        assertThat(variables, contains("COUN_T", "my-material", "h.i", "**"));
     }
 
     @Test
@@ -298,7 +360,6 @@ public class PipelineConfigTest {
         assertThat(pipelineConfig.getTimer().shouldTriggerOnlyOnChanges(), is(true));
     }
 
-
     @Test
     public void shouldSetLabelTemplateToDefaultValueIfBlankIsEnteredWhileSettingConfigAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
@@ -348,8 +409,9 @@ public class PipelineConfigTest {
     @Test
     public void shouldPopulateParamsFromAttributeMapWhenConfigurationTypeIsNotSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+
+        final HashMap map = new HashMap();
+        final HashMap valueHashMap = new HashMap();
         valueHashMap.put("param-name", "FOO");
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);
@@ -780,5 +842,17 @@ public class PipelineConfigTest {
         JobConfigs plans = new JobConfigs();
         plans.add(new JobConfig(BUILDING_PLAN_NAME));
         return new StageConfig(new CaseInsensitiveString("building stage"), plans);
+    }
+
+    private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
+        GitMaterialConfig git = new GitMaterialConfig("git@github.com:gocd/gocd.git");
+        git.setName(new CaseInsensitiveString("git"));
+
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
+        pipelineConfig.setLabelTemplate(labelFormat);
+
+        pipelineConfig.validate(null);
+
+        return pipelineConfig;
     }
 }

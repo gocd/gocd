@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         PLUGIN_DIR.mkdirs();
         BUNDLE_DIR.mkdirs();
         try {
-            pluginManager.startPluginInfrastructure();
+            pluginManager.startInfrastructure();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,7 +97,7 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         System.clearProperty(PLUGIN_DESC_PROPERTY_SET_BY_PLUGIN_EXT_2);
         FileUtils.deleteQuietly(PLUGIN_DIR);
         FileUtils.deleteQuietly(BUNDLE_DIR);
-        pluginManager.stopPluginInfrastructure();
+        pluginManager.stopInfrastructure();
         FileUtils.deleteQuietly(PLUGIN_DIR);
         FileUtils.deleteQuietly(BUNDLE_DIR);
     }

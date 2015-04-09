@@ -105,9 +105,7 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
       pkg_dir = "Go Agent.app"
       pkg_dir_path = File.join(osx_dir, pkg_dir)
 
-      mkdir_p osx_dir
-
-      filter.from(explode).into(pkg_dir_path).run
+      copy_with_mode _(explode, "agent-bootstrapper.jar"), dest_with_mode(_(pkg_dir_path, "Contents", "Resources", "agent-bootstrapper.jar"), 0644)
 
       build_osx_installer(pkg, pkg_dir)
     end
@@ -177,16 +175,41 @@ define "cruise:server", :layout => server_layout("server") do
   package(:jar, :file => _(:target, 'main.jar')).clean.with(:manifest => main_manifest).enhance do |jar|
     include_fileset_from_target(jar, 'server', "**/GoLauncher.class")
     include_fileset_from_target(jar, 'server', "**/GoLauncher.class")
-    include_fileset_from_target(jar, 'server', "**/GoSslSocketConnector.class")
-    include_fileset_from_target(jar, 'server', "**/GoCipherSuite.class")
     include_fileset_from_target(jar, 'server', "**/GoServer*.class")
-    include_fileset_from_target(jar, 'server', "**/JettyServer*.class")
-    include_fileset_from_target(jar, 'server', "**/GoWebXmlConfiguration*.class")
-    include_fileset_from_target(jar, 'server', "**/StopJettyFromLocalhostServlet*.class")
     include_fileset_from_target(jar, 'server', "**/DeploymentContextWriter*.class")
     include_fileset_from_target(jar, 'server', "**/BaseUrlProvider*.class")
-    include_fileset_from_target(jar, 'server', "**/AssetsContextHandler*.class")
-    include_fileset_from_target(jar, 'server', "**/AssetsContextHandlerInitializer*.class")
+
+    include_fileset_from_target(jar, 'app-server', "**/StopJettyFromLocalhostServlet*.class")
+    include_fileset_from_target(jar, 'app-server', "**/AppServer.class")
+    include_fileset_from_target(jar, 'app-server', "**/ServletHelper.class")
+    include_fileset_from_target(jar, 'app-server', "**/ServletRequest.class")
+    include_fileset_from_target(jar, 'app-server', "**/ServletResponse.class")
+
+    # ---- Jetty 9 start ---
+    include_fileset_from_target(jar, 'jetty9', "**/GoSslSocketConnector.class")
+    include_fileset_from_target(jar, 'jetty9', "**/GoPlainSocketConnector.class")
+    include_fileset_from_target(jar, 'jetty9', "**/GoSocketConnector.class")
+    include_fileset_from_target(jar, 'jetty9', "**/GoCipherSuite.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Jetty9Server*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/GoWebXmlConfiguration*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/AssetsContextHandler*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/AssetsContextHandlerInitializer*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Jetty9ServletHelper*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Jetty9Request.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
+    # # ---- Jetty 9 end ---
+
+    # # ---- Jetty 6 start ---
+    include_fileset_from_target(jar, 'jetty6', "**/GoJetty6SslSocketConnector.class")
+    include_fileset_from_target(jar, 'jetty6', "**/GoJetty6CipherSuite.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Server*.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6GoWebXmlConfiguration*.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6AssetsContextHandler*.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6AssetsContextHandlerInitializer*.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6ServletHelper*.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Request.class")
+    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Response.class")
+    # ---- Jetty 6 end ---
 
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")
     include_fileset_from_target(jar, 'common', "**/validators/*.class")
@@ -252,9 +275,10 @@ define "cruise:server", :layout => server_layout("server") do
             _("../installers/server/release/cruise-config.xml"),
             _("../installers/server/release/config.properties"),
             _("properties/src/log4j.properties"),
-            _("config/jetty.xml"))
+            _("config/jetty.xml"),
+            _("config/jetty6.xml"))
 
-    onejar.path('lib/').include(server_launcher_dependencies).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
+    onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")
     include_fileset_from_target(onejar, 'server', "**/Mac*")
     include_fileset_from_target(onejar, 'common', "log4j.upgrade.*.properties")
@@ -327,9 +351,7 @@ define "cruise:server", :layout => server_layout("server") do
       pkg_dir = "Go Server.app"
       pkg_dir_path = File.join(osx_dir, pkg_dir)
 
-      mkdir_p osx_dir
-
-      filter.from(explode).into(pkg_dir_path).run
+      copy_with_mode _(explode, "go.jar"), dest_with_mode(_(pkg_dir_path, "Contents", "Resources", "go.jar"), 0644)
 
       build_osx_installer(pkg, pkg_dir)
     end
@@ -576,7 +598,7 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
 
   task :installer_links do
     go_site_url = ENV['GO_SITE_URL'] || ENV['GO_SERVER_URL']
-    raise 'Can only works on GO agent' unless go_site_url
+    raise 'Can only work on GO agent' unless go_site_url
     artifacts_dir = go_site_url + 'files/'
     artifacts_dir << %w{GO_PIPELINE_NAME GO_PIPELINE_COUNTER GO_STAGE_NAME GO_STAGE_COUNTER GO_JOB_NAME}.collect { |v| ENV[v] }.join("/")
 

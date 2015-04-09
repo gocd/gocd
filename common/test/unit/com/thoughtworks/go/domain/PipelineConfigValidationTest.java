@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -96,7 +97,7 @@ public class PipelineConfigValidationTest {
         ConfigErrors configErrors = pipeline.errors();
         List<String> errors = configErrors.getAllOn("labelTemplate");
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Invalid label. Label should be composed of alphanumeric text, it should contain material revision or ${COUNT}, or use params as #{<param-name>}."));
+        assertThat(errors.get(0), startsWith("Invalid label"));
     }
 
     @Test
@@ -108,7 +109,7 @@ public class PipelineConfigValidationTest {
         assertThat(configErrors.isEmpty(), is(false));
         List<String> errors = configErrors.getAllOn("labelTemplate");
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Invalid label. Label should be composed of alphanumeric text, it should contain material revision or ${COUNT}, or use params as #{<param-name>}."));
+        assertThat(errors.get(0), startsWith("Invalid label"));
     }
 
     @Test

@@ -16,22 +16,21 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.awt.BorderLayout;
-import java.awt.HeadlessException;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationEvent;
 import sun.net.www.protocol.http.HttpURLConnection;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 import static java.util.Arrays.asList;
 
@@ -41,74 +40,14 @@ public class GoMacLauncher extends JFrame {
     private Application application = Application.getApplication();
     private static final int MAX_SLEEP_SECONDS = 2400;
     private static final int SLEEP_MILLIS = 1000;
-    private static final String APPLICATION_SUPPORT_PATHNAME = System.getProperty("user.home")+"/Library/Application Support/Go Server/";
+    private static final String APPLICATION_SUPPORT_PATHNAME =
+            MessageFormat.format("{0}/Library/Application Support/{1}/", System.getProperty("user.home"), System.getProperty("go.application.name", "Go Server"));
     private static final String GO_CONFIG_DIRECTORY_PATH = APPLICATION_SUPPORT_PATHNAME + "config/";
     private static final String CRUISE_SERVER_URL = "http://localhost:8153/go/";
 
     public static void main(String[] args) {
         new File(GO_CONFIG_DIRECTORY_PATH).mkdirs();
-
-        //TODO: remove this call after a few releases
-        moveFilesFromGoServerDirToConfigDir();
-
         new GoMacLauncher().spawnProcessAndWait();
-    }
-
-    private static void moveFilesFromGoServerDirToConfigDir() {
-        File dir = new File(APPLICATION_SUPPORT_PATHNAME);
-        File[] files = null;
-
-        try {
-            files = dir.listFiles(new FileFilter() {
-                @Override public boolean accept(File file) {
-                    if (file.isDirectory()) {
-                        return false;
-                    }
-                    String fileName = file.getName();
-                    if (fileName.matches("cruise-config\\.xml.*")) {
-                        return true;
-                    }
-                    if (fileName.matches(".*\\.properties.*")) {
-                        return true;
-                    }
-                    if (fileName.matches(".*\\.jks")) {
-                        return true;
-                    }
-                    if (fileName.matches(".*store$")) {
-                        return true;
-                    }
-                    if (fileName.matches("cruise-config\\.xsd")) {
-                        return true;
-                    }
-                    if (fileName.matches("^go-server$")) {
-                        return true;
-                    }
-                    if (fileName.matches("jetty\\.xml")) {
-                        return true;
-                    }
-                    if (fileName.matches("cipher")) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-            if (files != null && files.length > 0) {
-                for (File currentFile : files) {
-                    moveFileToConfigDir(currentFile);
-                }
-            }
-        } catch (Exception e) {
-            LOG.severe("Exception while moving files: " + e.toString());
-        }
-    }
-
-    private static void moveFileToConfigDir(File file) throws IOException {
-        LOG.info("Moving file: " + file.getAbsolutePath());
-        boolean success = file.renameTo(new File(GO_CONFIG_DIRECTORY_PATH + file.getName()));
-        if (!success) {
-            throw new IOException("Could not move file: " + file.getAbsolutePath());
-        }
     }
 
     public GoMacLauncher() throws HeadlessException {
@@ -126,8 +65,9 @@ public class GoMacLauncher extends JFrame {
     private int spawnProcessAndWait() {
         int exitValue = 0;
 
-        String java = System.getProperty("java.home") + System.getProperty("file.separator") +
-                "bin" + System.getProperty("file.separator") + "java";
+        String sep = System.getProperty("file.separator");
+        String defaultJava = System.getProperty("java.home") + sep + "bin" + sep + "java";
+        String java = System.getProperty("go.java.to.use", defaultJava);
 
         String startMem = System.getProperty("cruise.server.mem", "512");
         String maxMem = System.getProperty("cruise.server.maxmem", "1024");
@@ -137,32 +77,31 @@ public class GoMacLauncher extends JFrame {
         String country = System.getProperty("cruise.server.country", "US");
         boolean dbDebugMode = System.getProperty("cruise.server.db_debug_mode") != null;
 
-        final String[] args = new String[]{
-                java,
-                "-Xms" + startMem + "m",
-                "-Xmx" + maxMem + "m",
-                "-XX:PermSize=" + perm + "m",
-                "-XX:MaxPermSize=" + maxPerm + "m",
-                // Stupid exec doesn't support an empty or null argument.
-                dbDebugMode ? "-DDB_DEBUG_MODE=true" : "-Dignored=true",
-                "-Duser.language=" + lang,
-                "-Duser.country=" + country,
-                "-Dcruise.config.file=" + GO_CONFIG_DIRECTORY_PATH + "cruise-config.xml",
-                "-Dcruise.config.dir=" + GO_CONFIG_DIRECTORY_PATH,
-                "-Dcruise.server.port=8153",
-                "-Dcruise.server.ssl.port=8154",
-                "-jar", new File("go.jar").getAbsolutePath()
-        };
+        final java.util.List<String> arguments = new ArrayList<String>();
+        arguments.add(java);
+        arguments.add("-Xms" + startMem + "m");
+        arguments.add("-Xmx" + maxMem + "m");
+        arguments.add("-XX:PermSize=" + perm + "m");
+        arguments.add("-XX:MaxPermSize=" + maxPerm + "m");
+        if (dbDebugMode) { arguments.add("-DDB_DEBUG_MODE=true"); }
+        arguments.add("-Dapple.awt.UIElement=true");
+        arguments.add("-Duser.language=" + lang);
+        arguments.add("-Duser.country=" + country);
+        arguments.add("-Dcruise.config.file=" + GO_CONFIG_DIRECTORY_PATH + "cruise-config.xml");
+        arguments.add("-Dcruise.config.dir=" + GO_CONFIG_DIRECTORY_PATH);
+        arguments.add("-Dcruise.server.port=" + System.getProperty("cruise.server.port", "8153"));
+        arguments.add("-Dcruise.server.ssl.port=" + System.getProperty("cruise.server.ssl.port", "8154"));
+        addOtherArguments(arguments);
+        arguments.add("-jar");
+        arguments.add(new File(System.getProperty("go.server.mac.go.jar.dir", "."), "go.jar").getAbsolutePath());
+        LOG.info("Running server as: " + arguments);
 
-        LOG.info("Running server as: " + asList(args));
-
+        String[] args = arguments.toArray(new String[arguments.size()]);
 
         try {
             setUpApplicationSupport();
 
-            final Process server = Runtime.getRuntime().exec(args, null,
-                    new File(APPLICATION_SUPPORT_PATHNAME));
-            // The next three lines prevent the child process from blocking on Windows
+            final Process server = Runtime.getRuntime().exec(args, null, new File(APPLICATION_SUPPORT_PATHNAME));
             server.getErrorStream().close();
             server.getInputStream().close();
             server.getOutputStream().close();
@@ -177,7 +116,7 @@ public class GoMacLauncher extends JFrame {
                     } catch (InterruptedException e) {
                         // Don't care
                     } catch (IOException e) {
-                        LOG.severe("Exception while executing command: " + asList(args) + " - " + e.toString());
+                        LOG.severe("Exception while executing command: " + arguments + " - " + e.toString());
                     }
                 }
             });
@@ -202,6 +141,18 @@ public class GoMacLauncher extends JFrame {
             LOG.severe("Exception while executing command: " + asList(args) + " - " + e.toString());
         }
         return exitValue;
+    }
+
+    /* Any property prefixed by GO_, is passed along as a property, after stripping the GO_ from it. */
+    private void addOtherArguments(List<String> currentArguments) {
+        Properties properties = System.getProperties();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            String key = String.valueOf(entry.getKey());
+            if (key.startsWith("GO_")) {
+                String value = String.valueOf(entry.getValue());
+                currentArguments.add("-D" + key.substring(3) + "=" + value);
+            }
+        }
     }
 
     private void displayLaunchingProgress(Process server)

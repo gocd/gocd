@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
@@ -154,7 +155,8 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public String getTypeForDisplay() {
-        return "SCM";
+        String type = scmConfig == null ? null : SCMMetadataStore.getInstance().displayValue(scmConfig.getPluginConfiguration().getId());
+        return type == null ? "SCM" : type;
     }
 
     @Override

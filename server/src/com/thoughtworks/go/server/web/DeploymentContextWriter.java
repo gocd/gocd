@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
-
+import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.server.util.ServletRequest;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.mortbay.jetty.HttpURI;
-import org.mortbay.jetty.Request;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URISyntaxException;
 
 /**
  * @understands sets https port the server is deployed on, in request attributes
@@ -43,9 +43,8 @@ public class DeploymentContextWriter {
         if (provider == null) {
             throw new RuntimeException("Could not generate url. ServerConfigService not yet loaded.");
         }
-        Request request = (Request) req;
-        HttpURI uri = request.getUri();
-        String url = request.getRootURL().append(uri.toString()).toString();
+        ServletRequest request = ServletHelper.getInstance().getRequest(req);
+        String url = request.getUrl();
         if (provider.hasAnyUrlConfigured()) {
             try {
                 String newUrl = provider.siteUrlFor(url, true);

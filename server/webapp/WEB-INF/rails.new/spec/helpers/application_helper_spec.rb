@@ -285,6 +285,10 @@ describe ApplicationHelper do
   end
 
   describe 'submit button' do
+    before :each do
+      should_receive(:system_environment).and_return(env = double('sys_env'))
+      env.should_receive(:isServerActive).and_return(true)
+    end
 
     it "should have class 'image' and type 'submit' for image button" do
       submit_button("name", :type => 'image', :id=> 'id', :class=> "class", :onclick => "onclick", :disabled => "true").should ==
@@ -351,6 +355,21 @@ describe ApplicationHelper do
 
     it "should add onclick handler with the passed in onclick_lambda" do
       submit_button("name", :onclick_lambda => 'pavan_likes_this').should =~ /.*?function\(evt\) \{ pavan_likes_this\(evt\).*/
+    end
+  end
+
+  describe 'disable submit button' do
+    before :each do
+      should_receive(:system_environment).and_return(env = double('sys_env'))
+      env.should_receive(:isServerActive).and_return(false)
+    end
+
+    it "should make submit button disabled if server is in passive state" do
+      submit_button("name").should == "<button class=\"submit disabled\" disabled=\"disabled\" type=\"submit\" value=\"name\">" +
+          "<span>" +
+          "NAME" +
+          "</span>" +
+          "</button>"
     end
   end
 

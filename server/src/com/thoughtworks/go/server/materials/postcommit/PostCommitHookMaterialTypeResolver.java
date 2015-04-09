@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.mercurial.MercurialPostCommitHookImplementer;
+import com.thoughtworks.go.server.materials.postcommit.pluggablescm.PluggableSCMPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,7 @@ public class PostCommitHookMaterialTypeResolver {
         allKnownMaterialTypes.add(new SvnPostCommitHookMaterialType());
         allKnownMaterialTypes.add(new GitPostCommitHookMaterialType());
         allKnownMaterialTypes.add(new MercurialPostCommitHookMaterialType());
+        allKnownMaterialTypes.add(new PluggableSCMPostCommitHookMaterialType());
     }
 
     public PostCommitHookMaterialType toType(String type) {
@@ -112,6 +114,25 @@ public class PostCommitHookMaterialTypeResolver {
         @Override
         public PostCommitHookImplementer getImplementer() {
             return new MercurialPostCommitHookImplementer();
+        }
+    }
+
+    final class PluggableSCMPostCommitHookMaterialType implements PostCommitHookMaterialType {
+        private static final String TYPE = "scm";
+
+        @Override
+        public boolean isKnown() {
+            return true;
+        }
+
+        @Override
+        public boolean isValid(String type) {
+            return TYPE.equalsIgnoreCase(type);
+        }
+
+        @Override
+        public PostCommitHookImplementer getImplementer() {
+            return new PluggableSCMPostCommitHookImplementer();
         }
     }
 }

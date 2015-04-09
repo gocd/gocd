@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import static com.thoughtworks.go.util.FileUtil.recreateDirectory;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
@@ -36,25 +37,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
     private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private static final Random RANDOM = new Random();
     private File BUNDLED_PLUGIN_DIR;
+    private DefaultPluginJarLocationMonitor monitor;
     private File PLUGIN_EXTERNAL_DIR;
 
-    private DefaultPluginJarLocationMonitor monitor;
-    private PluginJarChangeListener changeListener;
+    @Mock
     private SystemEnvironment systemEnvironment;
+    @Mock
+    private PluginJarChangeListener changeListener;
+    @Mock
+    private PluginsFolderChangeListener pluginsFolderChangeListener;
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         if (WINDOWS.satisfy()) {
             return;
         }
@@ -66,12 +68,10 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         PLUGIN_EXTERNAL_DIR = new File(pluginExternalDirName);
         recreateDirectory(PLUGIN_EXTERNAL_DIR);
 
-        systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(pluginDirName);
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDirName);
 
-        changeListener = mock(PluginJarChangeListener.class);
         monitor = new DefaultPluginJarLocationMonitor(systemEnvironment);
         monitor.initialize();
     }
@@ -289,6 +289,79 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
 
         verify(changeListener).pluginJarUpdated(pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin.jar", true));
         verifyNoMoreInteractions(changeListener);
+    }
+
+    @Test
+    public void shouldCreatePluginZipIfPluginJarIsAdded() throws Exception {
+        if (WINDOWS.satisfy()) {
+            return;
+        }
+        monitor.addPluginJarChangeListener(changeListener);
+        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
+        monitor.start();
+        copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin.jar");
+        waitAMoment();
+        verify(changeListener).pluginJarAdded(pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin.jar", true));
+
+        verify(pluginsFolderChangeListener, atLeast(1)).handle();
+        verifyNoMoreInteractions(pluginsFolderChangeListener);
+    }
+
+    @Test
+    public void shouldCreatePluginZipIfPluginJarIsRemoved() throws Exception {
+        if (WINDOWS.satisfy()) {
+            return;
+        }
+        monitor.addPluginJarChangeListener(changeListener);
+        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
+        monitor.start();
+        String pluginJar = "descriptor-aware-test-plugin.jar";
+        copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, pluginJar);
+        waitAMoment();
+        verify(changeListener).pluginJarAdded(pluginFileDetails(BUNDLED_PLUGIN_DIR, pluginJar, true));
+
+        FileUtils.deleteQuietly(new File(BUNDLED_PLUGIN_DIR, pluginJar));
+        waitAMoment();
+        verify(changeListener).pluginJarRemoved(pluginFileDetails(BUNDLED_PLUGIN_DIR, pluginJar, true));
+
+        verify(pluginsFolderChangeListener, atLeast(1)).handle();
+        verifyNoMoreInteractions(pluginsFolderChangeListener);
+    }
+
+    @Test
+    public void shouldCreatePluginZipIfPluginJarIsUpdated() throws Exception {
+        if (WINDOWS.satisfy()) {
+            return;
+        }
+        monitor.addPluginJarChangeListener(changeListener);
+        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
+        monitor.start();
+
+        copyPluginToThePluginDirectory(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin-1.jar");
+        waitAMoment();
+        PluginFileDetails orgFile = pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin-1.jar", true);
+        verify(changeListener).pluginJarAdded(orgFile);
+
+        PluginFileDetails newFile = pluginFileDetails(BUNDLED_PLUGIN_DIR, "descriptor-aware-test-plugin-1-new.jar", true);
+        FileUtils.moveFile(orgFile.file(), newFile.file());
+        waitAMoment();
+
+        verify(pluginsFolderChangeListener, atLeast(1)).handle();
+        verifyNoMoreInteractions(pluginsFolderChangeListener);
+    }
+
+    @Test
+    public void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() throws Exception {
+        if (WINDOWS.satisfy()) {
+            return;
+        }
+        monitor.addPluginJarChangeListener(changeListener);
+        monitor.addPluginsFolderChangeListener(pluginsFolderChangeListener);
+        monitor.start();
+        waitAMoment();
+
+        verify(pluginsFolderChangeListener, never()).handle();
+        verifyNoMoreInteractions(pluginsFolderChangeListener);
     }
 
     @Test

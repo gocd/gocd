@@ -96,7 +96,7 @@ public class SCMTest {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", false, "value2"), create("key3", true, "value3"), create("key4", true, "value4"), create("key5", false, "value5"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("SCM: [key1=value1, key5=value5]"));
+        assertThat(scm.getConfigForDisplay(), is("[key1=value1, key5=value5]"));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class SCMTest {
         Configuration configuration = new Configuration(create("kEY1", false, "vALue1"), create("KEY_MORE_2", false, "VALUE_2"), create("key_3", false, "value3"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("SCM: [key1=vALue1, key_more_2=VALUE_2, key_3=value3]"));
+        assertThat(scm.getConfigForDisplay(), is("[key1=vALue1, key_more_2=VALUE_2, key_3=value3]"));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class SCMTest {
         Configuration configuration = new Configuration(create("rk1", false, ""), create("rk2", false, "some-non-empty-value"), create("rk3", false, null));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("SCM: [rk2=some-non-empty-value]"));
+        assertThat(scm.getConfigForDisplay(), is("[rk2=some-non-empty-value]"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class SCMTest {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", true, "value2"), create("key3", false, "value3"));
         SCM scm = SCMMother.create("scm", "scm-name", "some-plugin-which-does-not-exist", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("WARNING! Plugin missing for SCM: [key1=value1, key3=value3]"));
+        assertThat(scm.getConfigForDisplay(), is("WARNING! Plugin missing. [key1=value1, key3=value3]"));
     }
 
     @Test

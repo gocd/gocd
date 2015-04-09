@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.tfs;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.config.PasswordEncrypter;
@@ -257,5 +258,33 @@ public class TfsMaterialTest {
 
         assertThat(config.getPassword(), is("password"));
         assertThat(config.getEncryptedPassword(), is(Matchers.not(Matchers.nullValue())));
+    }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("tfs"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@tfsrepo.com"));
+        assertThat((String) configuration.get("domain"), is("domain"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is("password"));
+        assertThat((String) configuration.get("project-path"), is("$project/path/"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("tfs"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@tfsrepo.com"));
+        assertThat((String) configuration.get("domain"), is("domain"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is(nullValue()));
+        assertThat((String) configuration.get("project-path"), is("$project/path/"));
     }
 }

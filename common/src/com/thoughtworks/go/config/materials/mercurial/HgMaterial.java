@@ -20,10 +20,7 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
@@ -35,6 +32,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -289,6 +287,20 @@ public class HgMaterial extends ScmMaterial {
         if (revision == null) return null;
         if (revision.length()<12) return revision;
         return revision.substring(0,12);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "mercurial");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        materialMap.put("mercurial-configuration", configurationMap);
+        return materialMap;
     }
 
     public Class getInstanceType() {

@@ -103,6 +103,10 @@ module ApplicationHelper
     prefix + java.util.UUID.randomUUID().to_s
   end
 
+  def sanitize_for_dom_id(value)
+    value.gsub(".", "_dot_").tr("^a-zA-Z0-9_-", "_")
+  end
+
   def onclick_lambda(options)
     on_click_lambda = ''
     if options.has_key? :onclick_lambda
@@ -116,6 +120,7 @@ module ApplicationHelper
     # DESIGN TODO: this is used for action/submit buttons on environments, pipeline dashboard, etc.  Probably not 100% complete to match the features above
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(:type => 'submit')
+    options.merge!(:disabled => 'disabled') unless system_environment.isServerActive()
     options[:value] = name
     lambda_text, options_without_onclick = onclick_lambda(options)
     if( options[:type] == "image" )

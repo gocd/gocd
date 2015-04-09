@@ -16,25 +16,31 @@
 
 package com.thoughtworks.go.agent.testhelpers;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import com.thoughtworks.go.security.X509CertificateGenerator;
+import com.thoughtworks.go.util.TestFileUtil;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
-
-import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.webapp.WebAppContext;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class FakeGoServer {
-    private Server server;
     public static final String PASSWORD = "Crui3CertSigningPassword";
+	private static final int MAX_IDLE_TIME = 30000;
+	private static final int RESPONSE_BUFFER_SIZE = 32768;
+
+	private Server server;
     private int serverPort;
     private int sslPort;
 
@@ -54,14 +60,14 @@ public class FakeGoServer {
         server.addConnector(sslConnector(keystore, truststore, sslPort));
         WebAppContext wac = new WebAppContext("testdata/goserverstub", "/go");
         wac.setConfigurationClasses(new String[]{
-                "org.mortbay.jetty.webapp.WebInfConfiguration",
-                "org.mortbay.jetty.webapp.WebXmlConfiguration",
-                "org.mortbay.jetty.webapp.JettyWebXmlConfiguration",
+				WebInfConfiguration.class.getCanonicalName(),
+				WebXmlConfiguration.class.getCanonicalName(),
+				JettyWebXmlConfiguration.class.getCanonicalName()
         });
         addStopServlet(server, wac);
         addFakeArtifactiPublisherServlet(wac);
         addFakeAgentCertificateServlet(wac);
-        server.addHandler(wac);
+        server.setHandler(wac);
         server.setStopAtShutdown(true);
         server.start();
     }
@@ -91,17 +97,26 @@ public class FakeGoServer {
     }
 
 
-    public SslSocketConnector sslConnector(File keystore, File truststore, int sslPort) {
-        SslSocketConnector sslSocketConnector = new SslSocketConnector();
-        sslSocketConnector.setPort(sslPort);
-        sslSocketConnector.setMaxIdleTime(30000);
-        sslSocketConnector.setKeystore(keystore.getAbsolutePath());
-        sslSocketConnector.setPassword(PASSWORD);
-        sslSocketConnector.setKeyPassword(PASSWORD);
-        sslSocketConnector.setTruststore(truststore.getAbsolutePath());
-        sslSocketConnector.setTrustPassword(PASSWORD);
-        return sslSocketConnector;
-    }
+	public Connector sslConnector(File keystore, File truststore, int sslPort) {
+		HttpConfiguration httpsConfig = new HttpConfiguration();
+		httpsConfig.setOutputBufferSize(RESPONSE_BUFFER_SIZE);
+		httpsConfig.addCustomizer(new SecureRequestCustomizer());
+
+		SslContextFactory sslContextFactory = new SslContextFactory();
+		sslContextFactory.setKeyStorePath(keystore.getAbsolutePath());
+		sslContextFactory.setKeyStorePassword(PASSWORD);
+		sslContextFactory.setKeyManagerPassword(PASSWORD);
+		sslContextFactory.setTrustStorePath(truststore.getAbsolutePath());
+		sslContextFactory.setTrustStorePassword(PASSWORD);
+		sslContextFactory.setWantClientAuth(true);
+
+		ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(httpsConfig));
+		// https.setHost(host);
+		https.setPort(sslPort);
+		https.setIdleTimeout(MAX_IDLE_TIME);
+
+		return https;
+	}
 
     private void createX509Certificate(File keystore, File truststore, File agentKeystore) {
         final String principalDn = "ou=Cruise server webserver certificate, cn=" + getHostname();

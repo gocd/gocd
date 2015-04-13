@@ -20,15 +20,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -86,18 +83,6 @@ public class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldGetForbiddenResponseCodeForNonGetRequestWhenInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("post");
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-
-        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        filter.doFilter(request, servletResponse, filterChain);
-
-        assertThat(servletResponse.getStatus(), is(HttpServletResponse.SC_FORBIDDEN));
-        assertThat(servletResponse.getContentAsString(), is(""));
-    }
-
-    @Test
     public void shouldAllowLoginPostRequestInPassiveState() throws Exception {
         when(request.getMethod()).thenReturn("post");
         when(systemEnvironment.isServerActive()).thenReturn(false);
@@ -107,5 +92,17 @@ public class ModeAwareFilterTest {
         filter.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldRedirectToPassiveServerErrorPageForNonGetRequestWhenInPassiveState() throws Exception {
+        when(request.getMethod()).thenReturn("post");
+        when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(response).sendRedirect("/go/errors/inactive");
     }
 }

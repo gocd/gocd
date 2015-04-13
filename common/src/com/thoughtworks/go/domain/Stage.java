@@ -251,9 +251,23 @@ public class Stage extends PersistentObject {
         return jobInstances.getByName(name);
     }
 
+    // This is to differentiate b/w scheduled & building
     public boolean isScheduled() {
         for (JobInstance instance : jobInstances) {
             if (instance.getState() != JobState.Scheduled) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // This is to differentiate b/w re-scheduled & building
+    public boolean isReScheduled() {
+        if (rerunOfCounter == null) {
+            return false;
+        }
+        for (JobInstance instance : jobInstances) {
+            if (instance.isRerun() && instance.getState() != JobState.Scheduled) {
                 return false;
             }
         }

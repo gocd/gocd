@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
@@ -27,11 +24,12 @@ import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 
 public class StageTest {
@@ -86,7 +84,6 @@ public class StageTest {
     public void shouldAnswerIsScheduled() throws Exception {
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
-
         assertThat(stage.isScheduled(), is(true));
 
         firstJob.setState(JobState.Completed);
@@ -100,6 +97,26 @@ public class StageTest {
         firstJob.setState(JobState.Completed);
         secondJob.setState(JobState.Completed);
         assertThat(stage.isScheduled(), is(false));
+    }
+
+    @Test
+    public void shouldAnswerIsReScheduled() throws Exception {
+        stage.setRerunOfCounter(null);
+        assertThat(stage.isReScheduled(), is(false));
+
+        stage.setRerunOfCounter(1);
+        firstJob.setRerun(true);
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setRerun(false);
+        secondJob.setState(JobState.Completed);
+        assertThat(stage.isReScheduled(), is(true));
+
+        stage.setRerunOfCounter(1);
+        firstJob.setRerun(true);
+        firstJob.setState(JobState.Building);
+        secondJob.setRerun(false);
+        secondJob.setState(JobState.Completed);
+        assertThat(stage.isReScheduled(), is(false));
     }
 
     private void complete(JobInstance job, DateTime fiveMinsForNow) {

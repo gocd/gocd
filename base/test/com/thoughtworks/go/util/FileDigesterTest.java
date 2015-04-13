@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -57,15 +58,25 @@ public class FileDigesterTest {
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
         temporaryFolder.delete();
         temporaryFolder.create();
-        String digest2 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test2", 3));
+        String digest2 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test1", 3));
         assertThat(digest1, is(digest2));
+    }
+
+    @Test
+    public void shouldReturnDifferentMd5ForSameFileContentButDifferentFileName() throws Exception {
+        String digest1 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test1", 1));
+        assertThat("md5 should not be empty", digest1.length() > 0, is(true));
+        temporaryFolder.delete();
+        temporaryFolder.create();
+        String digest2 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test2", 1));
+        assertThat(digest1, not(digest2));
     }
 
     @Test
     public void shouldReturnConsistentMd5BySortingTheFileList() throws Exception {
         String digest1 = FileDigester.md5DigestOfFolderContent(createFolderWithSampleData("test", 3));
         assertThat("md5 should not be empty", digest1.length() > 0, is(true));
-        assertThat(digest1, is("SCRRYY4W1zLuiA++CSuy6A=="));
+        assertThat(digest1, is("qGpmuFY5fs+Ap0jLQTWeXQ=="));
     }
 
     @Test

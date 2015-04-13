@@ -81,42 +81,76 @@ public class StageTest {
     }
 
     @Test
-    public void shouldAnswerIsScheduled() throws Exception {
+    public void shouldAnswerIsScheduledTrueWhenAllJobsAreInScheduleState() throws Exception {
+        stage.setCounter(1);
         firstJob.setState(JobState.Scheduled);
         secondJob.setState(JobState.Scheduled);
         assertThat(stage.isScheduled(), is(true));
+    }
 
-        firstJob.setState(JobState.Completed);
-        secondJob.setState(JobState.Scheduled);
-        assertThat(stage.isScheduled(), is(false));
-
+    @Test
+    public void shouldAnswerIsScheduledFalseWhenAJobIsNotInScheduledState() {
+        stage.setCounter(1);
         firstJob.setState(JobState.Scheduled);
-        secondJob.setState(JobState.Completed);
-        assertThat(stage.isScheduled(), is(false));
-
-        firstJob.setState(JobState.Completed);
         secondJob.setState(JobState.Completed);
         assertThat(stage.isScheduled(), is(false));
     }
 
     @Test
-    public void shouldAnswerIsReScheduled() throws Exception {
-        stage.setRerunOfCounter(null);
-        assertThat(stage.isReScheduled(), is(false));
+    public void shouldAnswerIsScheduledFalseWhenAStageIsAReRun() {
+        stage.setCounter(2);
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Scheduled);
+        assertThat(stage.isScheduled(), is(false));
+    }
 
+    @Test
+    public void shouldAnswerIsReRunTrueWhenAllJobsAreInScheduleState() throws Exception {
+        stage.setCounter(2);
+        stage.setRerunOfCounter(null);
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Scheduled);
+        assertThat(stage.isReRun(), is(true));
+    }
+
+    @Test
+    public void shouldAnswerIsReRunFalseWhenAJobIsNotInScheduledState() {
+        stage.setCounter(2);
+        stage.setRerunOfCounter(null);
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Completed);
+        assertThat(stage.isReRun(), is(false));
+    }
+
+    @Test
+    public void shouldAnswerIsReRunFalseWhenStageIsScheduledFirstTime() {
+        stage.setCounter(1);
+        stage.setRerunOfCounter(null);
+        firstJob.setState(JobState.Scheduled);
+        secondJob.setState(JobState.Scheduled);
+        assertThat(stage.isReRun(), is(false));
+    }
+
+    @Test
+    public void shouldAnswerIsReRunTrueWhenAllReRunJobsAreInScheduleState() {
+        stage.setCounter(2);
         stage.setRerunOfCounter(1);
         firstJob.setRerun(true);
         firstJob.setState(JobState.Scheduled);
         secondJob.setRerun(false);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isReScheduled(), is(true));
+        assertThat(stage.isReRun(), is(true));
+    }
 
+    @Test
+    public void shouldAnswerIsReRunFalseWhenAReRunJobIsNotInScheduleState() {
+        stage.setCounter(2);
         stage.setRerunOfCounter(1);
         firstJob.setRerun(true);
         firstJob.setState(JobState.Building);
         secondJob.setRerun(false);
         secondJob.setState(JobState.Completed);
-        assertThat(stage.isReScheduled(), is(false));
+        assertThat(stage.isReRun(), is(false));
     }
 
     private void complete(JobInstance job, DateTime fiveMinsForNow) {

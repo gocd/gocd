@@ -199,7 +199,7 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotNotifyInterestedPluginsIfStageStateIsNotScheduledOrCompleted() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
-        when(stage.isReScheduled()).thenReturn(false);
+        when(stage.isReRun()).thenReturn(false);
         when(stage.getState()).thenReturn(StageState.Unknown);
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
@@ -211,7 +211,7 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotifyInterestedPluginsIfStageStateIsScheduled() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(true);
-        when(stage.isReScheduled()).thenReturn(false);
+        when(stage.isReRun()).thenReturn(false);
         when(stage.getState()).thenReturn(StageState.Unknown);
 
         stageStatusPluginNotifier = getMockedStageStatusPluginNotifier();
@@ -224,7 +224,7 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotifyInterestedPluginsIfStageStateIsReScheduled() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
-        when(stage.isReScheduled()).thenReturn(true);
+        when(stage.isReRun()).thenReturn(true);
         when(stage.getState()).thenReturn(StageState.Unknown);
 
         stageStatusPluginNotifier = getMockedStageStatusPluginNotifier();
@@ -237,7 +237,7 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotifyInterestedPluginsIfStageStateIsCompleted() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
-        when(stage.isReScheduled()).thenReturn(false);
+        when(stage.isReRun()).thenReturn(false);
         when(stage.getState()).thenReturn(StageState.Passed);
 
         stageStatusPluginNotifier = getMockedStageStatusPluginNotifier();

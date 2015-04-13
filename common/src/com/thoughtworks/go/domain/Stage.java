@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.server.domain.StageStatusHandler;
 import com.thoughtworks.go.util.Clock;
 import org.apache.log4j.Logger;
 import org.joda.time.Duration;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = Logger.getLogger(Stage.class);
@@ -253,6 +253,22 @@ public class Stage extends PersistentObject {
 
     // This is to differentiate b/w scheduled & building
     public boolean isScheduled() {
+        if (counter == 1) {
+            return areAllJobsInScheduledState();
+        }
+        return false;
+    }
+
+    // This is to differentiate b/w re-run & building
+    public boolean isReRun() {
+        if (counter > 1) {
+            // stage re-run || job re-run
+            return areAllJobsInScheduledState() || (rerunOfCounter != null && areAllReRunJobsInScheduledState());
+        }
+        return false;
+    }
+
+    private boolean areAllJobsInScheduledState() {
         for (JobInstance instance : jobInstances) {
             if (instance.getState() != JobState.Scheduled) {
                 return false;
@@ -261,11 +277,7 @@ public class Stage extends PersistentObject {
         return true;
     }
 
-    // This is to differentiate b/w re-scheduled & building
-    public boolean isReScheduled() {
-        if (rerunOfCounter == null) {
-            return false;
-        }
+    private boolean areAllReRunJobsInScheduledState() {
         for (JobInstance instance : jobInstances) {
             if (instance.isRerun() && instance.getState() != JobState.Scheduled) {
                 return false;

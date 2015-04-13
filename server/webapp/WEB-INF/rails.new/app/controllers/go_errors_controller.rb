@@ -19,7 +19,7 @@ class GoErrorsController < ApplicationController
 
   def inactive
     render_error_template "Sorry, that operation is not allowed at this time, since the Go Server has been put into an inactive state." +
-                              "<br>" +
-                              "Please contact the Go Administrator for more information.", 503
+      "<br>" +
+      "Please contact the Go Administrator for more information.", 503
   end
 end

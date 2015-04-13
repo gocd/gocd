@@ -18,9 +18,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe GoErrorsController do
   describe "inactive" do
-
     it "should resolve" do
-      expect({:get => "/errors/inactive"}).to route_to(:controller => "go_errors", :action => "inactive")
+      expect(get: "/errors/inactive").to route_to(controller: "go_errors", action: "inactive")
     end
 
     it 'should show the error page, with a message' do
@@ -30,6 +29,5 @@ describe GoErrorsController do
       expect(assigns[:status]).to eq(503)
       expect(response).to render_template("shared/error")
     end
-
   end
 end

@@ -64,13 +64,14 @@ public class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldNotBlockGetRequestWhenInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("get");
+    public void shouldNotBlockGetOrHeadRequestWhenInPassiveState() throws Exception {
+        when(request.getMethod()).thenReturn("get").thenReturn("head");
         when(systemEnvironment.isServerActive()).thenReturn(false);
 
         filter.doFilter(request, response, filterChain);
+        filter.doFilter(request, response, filterChain);
 
-        verify(filterChain).doFilter(request, response);
+        verify(filterChain, times(2)).doFilter(request, response);
     }
 
     @Test

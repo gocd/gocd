@@ -53,14 +53,15 @@ public class ModeAwareFilter implements Filter {
 
     private boolean shouldBlockRequest(HttpServletRequest servletRequest) {
         if (systemEnvironment.isServerActive()) return false;
-        if (isGetRequest(servletRequest)) return false;
+        if (isReadOnlyRequest(servletRequest)) return false;
         if ((systemEnvironment.getWebappContextPath() + "/auth/security_check").equals(servletRequest.getRequestURI()))
             return false;
         return true;
     }
 
-    private boolean isGetRequest(HttpServletRequest servletRequest) {
-        return RequestMethod.GET.name().equalsIgnoreCase(servletRequest.getMethod());
+    private boolean isReadOnlyRequest(HttpServletRequest servletRequest) {
+        return RequestMethod.GET.name().equalsIgnoreCase(servletRequest.getMethod()) ||
+                RequestMethod.HEAD.name().equalsIgnoreCase(servletRequest.getMethod());
     }
 
     @Override

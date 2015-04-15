@@ -895,6 +895,7 @@
                     <warName>cruise</warName>
                     <attachClasses>true</attachClasses>
                     <classesClassifier>classes</classesClassifier>
+                    <packagingExcludes>**/log4j.properties</packagingExcludes>
                     <archive>
                         <manifestEntries>
                             <Go-Version>${go.version}</Go-Version>

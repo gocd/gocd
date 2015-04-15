@@ -92,6 +92,7 @@ public class Jetty9Server extends AppServer {
 
     @Override
     public void addExtraJarsToClasspath(String extraClasspath) {
+        extraClasspath = new StringBuilder(extraClasspath).append(",").append(systemEnvironment.configDir().getAbsoluteFile()).toString();
         webAppContext.setExtraClasspath(extraClasspath);
     }
 

@@ -34,6 +34,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 
 import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,6 +52,7 @@ public class Jetty9ServerTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private SSLSocketFactory sslSocketFactory;
+    private File configDir;
 
 
     @Before
@@ -66,6 +68,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
+        when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFile());
 
         sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
@@ -184,7 +187,7 @@ public class Jetty9ServerTest {
     public void shouldAddExtraJarsIntoClassPath() throws Exception {
         jetty9Server.configure();
         jetty9Server.addExtraJarsToClasspath("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar");
-        assertThat(getWebAppContext(jetty9Server).getExtraClasspath(), is("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar"));
+        assertThat(getWebAppContext(jetty9Server).getExtraClasspath(), is("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar," + configDir));
     }
 
     @Test

@@ -128,6 +128,7 @@ public class TaskViewServiceTest {
         List<PluggableViewModel> viewModels = taskViewService.getTaskViewModels();
 
         assertThat(viewModels.size(), is(3));
+        assertThat(viewModels.get(0).getModel(), instanceOf(ExecTask.class));
         assertThat(viewModels.get(1).getModel(), instanceOf(PluggableTask.class));
         assertThat(viewModels.get(2).getModel(), instanceOf(PluggableTask.class));
 

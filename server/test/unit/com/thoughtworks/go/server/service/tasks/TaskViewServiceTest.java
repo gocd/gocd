@@ -98,12 +98,12 @@ public class TaskViewServiceTest {
         assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "", Renderer.ERB)));
     }
 
-    private void storeTaskPreferences(String pluginId, String... properties){
+    private void storeTaskPreferences(String pluginId, String... properties) {
         FakeTask task = new FakeTask(properties);
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(task));
     }
 
-    private void storeTaskPreferences(String pluginId, Property... properties){
+    private void storeTaskPreferences(String pluginId, Property... properties) {
         FakeTask task = new FakeTask(properties);
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, new TaskPreference(task));
     }
@@ -253,14 +253,19 @@ public class TaskViewServiceTest {
     @Test
     public void shouldNotThrowNullPointerExceptionWhenPluginDescriptorOrTaskPreferenceBecomesNullDueToRaceCondition() throws Exception {
         PluggableTaskConfigStore pluggableTaskConfigStore = mock(PluggableTaskConfigStore.class);
-        ReflectionUtil.setStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE", pluggableTaskConfigStore);
+        Object original = ReflectionUtil.getStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE");
+        try {
+            ReflectionUtil.setStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE", pluggableTaskConfigStore);
 
-        String pluginId = "some.plugin.id";
-        when(pluggableTaskConfigStore.pluginsWithPreference()).thenReturn(s(pluginId));
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(null);
+            String pluginId = "some.plugin.id";
+            when(pluggableTaskConfigStore.pluginsWithPreference()).thenReturn(s(pluginId));
+            when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(null);
 
-        TaskViewService taskViewService = new TaskViewService(registry, pluginManager);
-        taskViewService.getTaskViewModelsWith(mock(Task.class));
+            TaskViewService taskViewService = new TaskViewService(registry, pluginManager);
+            taskViewService.getTaskViewModelsWith(mock(Task.class));
+        } finally {
+            ReflectionUtil.setStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE", original);
+        }
     }
 
     private List<Class<? extends Task>> taskImplementations() {

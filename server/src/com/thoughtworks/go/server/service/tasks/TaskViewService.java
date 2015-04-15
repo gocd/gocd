@@ -16,26 +16,26 @@
 
 package com.thoughtworks.go.server.service.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
+import com.thoughtworks.go.service.TaskFactory;
+import com.thoughtworks.go.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @understands providing view model to render a onCancelTask
@@ -133,7 +133,9 @@ public class TaskViewService implements TaskFactory {
         for (final String pluginId : PluggableTaskConfigStore.store().pluginsWithPreference()) {
             GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
-            tasks.add(new PluggableTask("", new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
+            if (pluginDescriptor != null && taskPreference != null) {
+                tasks.add(new PluggableTask("", new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
+            }
         }
         return tasks;
     }

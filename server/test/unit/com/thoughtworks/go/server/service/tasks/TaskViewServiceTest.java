@@ -37,6 +37,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.plugins.presentation.Renderer;
 import com.thoughtworks.go.presentation.TaskViewModel;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -246,6 +248,19 @@ public class TaskViewServiceTest {
         assertThat(viewModels.contains(viewModel(ant)), is(true));
         assertThat(viewModels.contains(viewModel(fetch)), is(true));
         assertThat(viewModels.contains(viewModel(given)), is(true));
+    }
+
+    @Test
+    public void shouldNotThrowNullPointerExceptionWhenPluginDescriptorOrTaskPreferenceBecomesNullDueToRaceCondition() throws Exception {
+        PluggableTaskConfigStore pluggableTaskConfigStore = mock(PluggableTaskConfigStore.class);
+        ReflectionUtil.setStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE", pluggableTaskConfigStore);
+
+        String pluginId = "some.plugin.id";
+        when(pluggableTaskConfigStore.pluginsWithPreference()).thenReturn(s(pluginId));
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(null);
+
+        TaskViewService taskViewService = new TaskViewService(registry, pluginManager);
+        taskViewService.getTaskViewModelsWith(mock(Task.class));
     }
 
     private List<Class<? extends Task>> taskImplementations() {

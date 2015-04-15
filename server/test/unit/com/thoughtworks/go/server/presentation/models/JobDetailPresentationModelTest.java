@@ -60,9 +60,9 @@ public class JobDetailPresentationModelTest {
 
         JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null, null
                 , null, null, null, artifactsService, null, stage);
-        jobDetailPresentationModel.getArtifactFiles(directoryReader);
+        DirectoryEntries artifactFiles = jobDetailPresentationModel.getArtifactFiles(directoryReader);
 
-        assertThat(directoryEntries.isArtifactsDeleted(), is(true));
+        assertThat(artifactFiles.isArtifactsDeleted(), is(true));
     }
 
     @Test

@@ -16,15 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.zip.ZipInputStream;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +24,15 @@ import org.jmock.cglib.MockObjectTestCase;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static org.mockito.Mockito.when;
@@ -115,8 +115,11 @@ public class FileViewTest extends MockObjectTestCase {
         file = TestFileUtil.createTempFile("console.log");
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("targetFile", file);
+
+        mockServletContext.expects(once()).method("getMimeType").will(returnValue("text/plain;charset=utf-8"));
+
         view.render(model, mockRequest, mockResponse);
-        assertEquals("text/plain; charset=utf-8", mockResponse.getContentType());
+        assertEquals("text/plain;charset=utf-8", mockResponse.getContentType());
         assertEquals("utf-8", mockResponse.getCharacterEncoding());
     }
 

@@ -16,14 +16,17 @@
 
 package com.thoughtworks.go.server.view.artifacts;
 
+import com.thoughtworks.go.domain.LocatableEntity;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.domain.LocatableEntity;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.util.FileUtil;
+import static java.lang.String.format;
 
 public class ArtifactDirectoryChooser {
     List<ArtifactLocator> locators = new ArrayList<ArtifactLocator>();
@@ -66,8 +69,13 @@ public class ArtifactDirectoryChooser {
     public File findCachedArtifact(LocatableEntity locatableEntity) {
         for (ArtifactLocator locator : locators) {
             File cachedArtifact = locator.findCachedArtifact(locatableEntity);
-            if(cachedArtifact!=null && cachedArtifact.exists()) return cachedArtifact;
+            if (cachedArtifact != null && cachedArtifact.exists()) return cachedArtifact;
         }
         return null;
     }
+
+    public File temporaryConsoleFile(LocatableEntity locatableEntity) {
+        return new File("work/local", format("%s.log", DigestUtils.md5Hex(locatableEntity.entityLocator())));
+    }
+
 }

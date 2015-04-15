@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.server.presentation.html.HtmlElement;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
-import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.cssClass;
-import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.onclick;
-import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.style;
-import static com.thoughtworks.go.server.presentation.html.ListedElements.sequence;
 import com.thoughtworks.go.util.json.Json;
 import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.server.presentation.html.HtmlElement;
+
+import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.*;
+import static com.thoughtworks.go.server.presentation.html.ListedElements.sequence;
 
 public class FolderDirectoryEntry extends DirectoryEntry {
     private final DirectoryEntries subDirectory;
@@ -54,5 +53,26 @@ public class FolderDirectoryEntry extends DirectoryEntry {
         JsonMap json = (JsonMap) super.toJson();
         json.put("files", subDirectory.toJson());
         return json;
+    }
+
+    public void addFile(String fileName, String url) {
+        subDirectory.addFile(fileName, url);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FolderDirectoryEntry that = (FolderDirectoryEntry) o;
+
+        if (!subDirectory.equals(that.subDirectory)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return subDirectory.hashCode();
     }
 }

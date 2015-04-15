@@ -16,16 +16,6 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.zip.Deflater;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -59,12 +49,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.zip.Deflater;
+
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_CREATED;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.hamcrest.core.Is.is;
@@ -92,11 +84,12 @@ public class ArtifactsControllerIntegrationTest {
     private MockHttpServletResponse response;
     private Pipeline pipeline;
     private Stage stage;
-    private File artifactRootForJob;
+    private File artifactsRoot;
     private Long buildId;
     private JobInstance job;
     private GoConfigFileHelper configHelper;
     private String pipelineName;
+    private File consoleArtifactFile;
 
 
     @Before public void setup() throws Exception {
@@ -118,15 +111,20 @@ public class ArtifactsControllerIntegrationTest {
         stage = pipeline.getStages().byName("stage");
         job = stage.getJobInstances().getByName("build");
         buildId = job.getId();
-        JobIdentifier jobId = new JobIdentifier(pipeline.getName(), -2, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
-        artifactRootForJob = artifactService.findArtifact(jobId, "");
-        deleteDirectory(artifactRootForJob);
-        artifactRootForJob.mkdirs();
+        JobIdentifier jobId = new JobIdentifier(pipeline.getName(), -2, pipeline.getLabel(),
+                stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
+
+        artifactsRoot = artifactService.findArtifact(jobId, "");
+        consoleArtifactFile = artifactService.temporaryConsoleFile(jobId);
+
+        deleteDirectory(consoleArtifactFile.getParentFile());
+        deleteDirectory(artifactsRoot);
+        artifactsRoot.mkdirs();
     }
 
     @After public void teardown() throws Exception {
-        if (artifactRootForJob != null) {
-            deleteDirectory(artifactRootForJob);
+        if (artifactsRoot != null) {
+            deleteDirectory(artifactsRoot);
         }
         dbHelper.onTearDown();
         configHelper.onTearDown();
@@ -213,51 +211,51 @@ public class ArtifactsControllerIntegrationTest {
 
 
     @Test public void shouldGetArtifactFileRestfully() throws Exception {
-        createFile(artifactRootForJob, "foo.xml");
+        createFile(artifactsRoot, "foo.xml");
 
         ModelAndView mav = getFileAsHtml("/foo.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
     @Test public void shouldGetDirectoryWithHtmlView() throws Exception {
-        createFile(artifactRootForJob, "directory/foo");
+        createFile(artifactsRoot, "directory/foo");
 
         ModelAndView mav = getFileAsHtml("/directory.html");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
-        createFile(artifactRootForJob, "foo");
+        createFile(artifactsRoot, "foo");
 
         ModelAndView view = getFileAsHtml("/foo.html");
         assertStatus(view, SC_NOT_FOUND);
     }
 
     @Test public void shouldChooseFileOverDirectory() throws Exception {
-        createFile(artifactRootForJob, "foo.html");
-        createFile(artifactRootForJob, "foo/bar.xml");
+        createFile(artifactsRoot, "foo.html");
+        createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo.html");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
     @Test public void shouldReturnFolderInHtmlView() throws Exception {
-        createFile(artifactRootForJob, "foo/bar.xml");
+        createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
-        createFile(artifactRootForJob, "foo/bar.xml");
+        createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test public void shouldReturnForbiddenWhenTryingToAccessArtifactsWithDotDot() throws Exception {
-        createFile(artifactRootForJob, "foo/1.xml");
-        createFile(artifactRootForJob, "bar/2.xml");
+        createFile(artifactsRoot, "foo/1.xml");
+        createFile(artifactsRoot, "bar/2.xml");
 
         ModelAndView mav = getFileAsHtml("/foo/../bar/2.xml");
         assertStatus(mav, SC_FORBIDDEN);
@@ -265,84 +263,84 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test public void shouldTreatSlashSlashAsOne() throws Exception {
-        createFile(artifactRootForJob, "tmp/1.xml");
+        createFile(artifactsRoot, "tmp/1.xml");
 
         ModelAndView mav = getFileAsHtml("//tmp/1.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
     @Test public void shouldCreateNewFile() throws Exception {
-        createFile(artifactRootForJob, "dir/foo");
+        createFile(artifactsRoot, "dir/foo");
 
         ModelAndView mav = postFile("/dir/bar.xml");
-        assertThat(file(artifactRootForJob, "dir/bar.xml"), exists());
-        assertThat(file(artifactRootForJob, "dir/bar.xml"), is(not(directory())));
+        assertThat(file(artifactsRoot, "dir/bar.xml"), exists());
+        assertThat(file(artifactsRoot, "dir/bar.xml"), is(not(directory())));
         assertStatus(mav, SC_CREATED);
 
         mav = postFile("/notexists/quux.txt");
-        assertThat(file(artifactRootForJob, "notexists/quux.txt"), exists());
-        assertThat(file(artifactRootForJob, "notexists/quux.txt"), is(not(directory())));
+        assertThat(file(artifactsRoot, "notexists/quux.txt"), exists());
+        assertThat(file(artifactsRoot, "notexists/quux.txt"), is(not(directory())));
         assertStatus(mav, SC_CREATED);
     }
 
     @Test public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
-        createFile(artifactRootForJob, "dir/foo.txt");
+        createFile(artifactsRoot, "dir/foo.txt");
         ModelAndView view = postFile("/dir/foo.txt");
         assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already directoryExists.");
     }
 
     @Test public void shouldCreateAndUnzipNewFileWhenFolderAlreadyExists() throws Exception {
-        artifactRootForJob.mkdir();
-        createFile(artifactRootForJob, "dir/foo");
+        artifactsRoot.mkdir();
+        createFile(artifactsRoot, "dir/foo");
 
-        createTmpFile(artifactRootForJob, "dir/bar.xml");
-        createTmpFile(artifactRootForJob, "dir/quux.txt");
+        createTmpFile(artifactsRoot, "dir/bar.xml");
+        createTmpFile(artifactsRoot, "dir/quux.txt");
 
-        ModelAndView view = postZipFolderFromTmp(artifactRootForJob, "/dir/");
+        ModelAndView view = postZipFolderFromTmp(artifactsRoot, "/dir/");
 
         assertStatus(view, SC_CREATED);
-        assertThat(file(artifactRootForJob, "dir/bar.xml"), exists());
-        assertThat(file(artifactRootForJob, "dir/bar.xml"), is(not(directory())));
-        assertThat(file(artifactRootForJob, "dir/quux.txt"), exists());
-        assertThat(file(artifactRootForJob, "dir/quux.txt"), is(not(directory())));
+        assertThat(file(artifactsRoot, "dir/bar.xml"), exists());
+        assertThat(file(artifactsRoot, "dir/bar.xml"), is(not(directory())));
+        assertThat(file(artifactsRoot, "dir/quux.txt"), exists());
+        assertThat(file(artifactsRoot, "dir/quux.txt"), is(not(directory())));
     }
 
     @Test public void shouldCreateAndUnzipNewFileWhenFolderDoesNotExists() throws Exception {
-        createTmpFile(artifactRootForJob, "notexists/bar.csv");
-        createTmpFile(artifactRootForJob, "notexists/quux.tmp");
+        createTmpFile(artifactsRoot, "notexists/bar.csv");
+        createTmpFile(artifactsRoot, "notexists/quux.tmp");
 
-        ModelAndView view = postZipFolderFromTmp(artifactRootForJob, "/notexists/");
+        ModelAndView view = postZipFolderFromTmp(artifactsRoot, "/notexists/");
 
-        assertThat(file(artifactRootForJob, "notexists/bar.csv"), exists());
-        assertThat(file(artifactRootForJob, "notexists/bar.csv"), is(not(directory())));
-        assertThat(file(artifactRootForJob, "notexists/quux.tmp"), exists());
-        assertThat(file(artifactRootForJob, "notexists/quux.tmp"), is(not(directory())));
+        assertThat(file(artifactsRoot, "notexists/bar.csv"), exists());
+        assertThat(file(artifactsRoot, "notexists/bar.csv"), is(not(directory())));
+        assertThat(file(artifactsRoot, "notexists/quux.tmp"), exists());
+        assertThat(file(artifactsRoot, "notexists/quux.tmp"), is(not(directory())));
         assertStatus(view, SC_CREATED);
     }
 
     @Test public void shouldNotAllowPathsOutsideTheArtifactDirectory() throws Exception {
         ModelAndView mav = postFile("/dir/../../foo/bar.txt");
-        assertThat(file(artifactRootForJob, "foo/bar.txt"), not(exists()));
-        assertThat(file(artifactRootForJob, "dir"), not(exists()));
+        assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
+        assertThat(file(artifactsRoot, "dir"), not(exists()));
         assertStatus(mav, SC_FORBIDDEN);
     }
 
     @Test public void shouldEnforceUsingRequiredNameInMultipartRequest() throws Exception {
         ModelAndView mav = postFile("/foo/bar.txt", "badname");
-        assertThat(file(artifactRootForJob, "foo/bar.txt"), not(exists()));
-        assertThat(file(artifactRootForJob, "notfoo/bar.txt"), not(exists()));
+        assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
+        assertThat(file(artifactsRoot, "notfoo/bar.txt"), not(exists()));
         assertStatus(mav, SC_BAD_REQUEST);
     }
 
     @Test public void shouldPutNewFile() throws Exception {
-        assertThat(file(artifactRootForJob, "foo/bar.txt"), not(exists()));
+        assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
 
         putFile("/foo/bar.txt");
-        assertThat(file(artifactRootForJob, "foo/bar.txt"), exists());
-        String original = readFileToString(file(artifactRootForJob, "foo/bar.txt"));
+        assertThat(file(artifactsRoot, "foo/bar.txt"), exists());
+        String original = readFileToString(file(artifactsRoot, "foo/bar.txt"));
 
         putFile("/foo/bar.txt");
-        assertThat(original.length(), is(lessThan(readFileToString(file(artifactRootForJob, "foo/bar.txt")).length())));
+        assertThat(original.length(), is(lessThan(readFileToString(file(artifactsRoot, "foo/bar.txt")).length())));
     }
 
     @Test
@@ -358,7 +356,7 @@ public class ArtifactsControllerIntegrationTest {
         }
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
 
-        String consoleLogContent = FileUtils.readFileToString(file(artifactRootForJob, "cruise-output/console.log"));
+        String consoleLogContent = FileUtils.readFileToString(file(consoleArtifactFile));
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(2 * numberOfLines));
         String hundredThLine = null;
@@ -391,7 +389,7 @@ public class ArtifactsControllerIntegrationTest {
 
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
 
-        String consoleLogContent = FileUtils.readFileToString(file(artifactRootForJob, "cruise-output/console.log"));
+        String consoleLogContent = FileUtils.readFileToString(file(consoleArtifactFile));
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(3));
         assertThat(lines[0], is(longLineStr));
@@ -448,26 +446,26 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
-        File fooFile = createFile(artifactRootForJob, "/tmp/foobar.html");
+        File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
         FileUtils.writeStringToFile(fooFile, "FooBarBaz...");
-        File checksumFile = createFile(artifactRootForJob, "/tmp/foobar.html.checksum");
+        File checksumFile = createFile(artifactsRoot, "/tmp/foobar.html.checksum");
         FileUtils.writeStringToFile(checksumFile, "baz/foobar.html:FooMD5\n");
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
         
-        assertThat(file(artifactRootForJob, "baz/foobar.html"), exists());
-        File uploadedChecksumFile = file(artifactRootForJob, "cruise-output/md5.checksum");
+        assertThat(file(artifactsRoot, "baz/foobar.html"), exists());
+        File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
         assertThat(uploadedChecksumFile, exists());
         assertThat(FileUtils.readLines(uploadedChecksumFile).get(0).toString(), is("baz/foobar.html:FooMD5"));
     }
 
     @Test
     public void shouldAppendChecksumInTheCruiseOutputFolder() throws Exception {
-        File fooFile = createFileWithContent(artifactRootForJob, "/tmp/foobar.html", "FooBarBaz...");
-        createFileWithContent(artifactRootForJob, "cruise-output/md5.checksum", "oldbaz/foobar.html:BazMD5\n");
-        File checksumFile = createFileWithContent(artifactRootForJob, "/tmp/foobar.html.checksum", "baz/foobar.html:FooMD5\n");
+        File fooFile = createFileWithContent(artifactsRoot, "/tmp/foobar.html", "FooBarBaz...");
+        createFileWithContent(artifactsRoot, "cruise-output/md5.checksum", "oldbaz/foobar.html:BazMD5\n");
+        File checksumFile = createFileWithContent(artifactsRoot, "/tmp/foobar.html.checksum", "baz/foobar.html:FooMD5\n");
 
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
@@ -475,8 +473,8 @@ public class ArtifactsControllerIntegrationTest {
         
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
-        assertThat(file(artifactRootForJob, "baz/foobar.html"), exists());
-        File uploadedChecksumFile = file(artifactRootForJob, "cruise-output/md5.checksum");
+        assertThat(file(artifactsRoot, "baz/foobar.html"), exists());
+        File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
         assertThat(uploadedChecksumFile, exists());
         List list = FileUtils.readLines(uploadedChecksumFile);
 
@@ -504,6 +502,10 @@ public class ArtifactsControllerIntegrationTest {
 
     private File file(File buildIdArtifactRoot, String fileName) {
         return new File(buildIdArtifactRoot, fileName);
+    }
+
+    private File file(File buildIdArtifactRoot) {
+        return new File(buildIdArtifactRoot, "");
     }
 
     private ModelAndView getFileAsHtml(String file) throws Exception {

@@ -16,22 +16,22 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Map;
-import java.util.zip.Deflater;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.View;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Map;
+import java.util.zip.Deflater;
 
 public class FileView implements View, ServletContextAware {
 
@@ -90,9 +90,7 @@ public class FileView implements View, ServletContextAware {
         if (needToZip) {
             return "application/zip";
         }
-        if("console.log".equals(filename)){
-            return "text/plain; charset=utf-8";
-        }
+
         String mimeType = this.getServletContext().getMimeType(filename);
         if (StringUtils.isEmpty(mimeType)) {
             mimeType = "application/octet-stream";

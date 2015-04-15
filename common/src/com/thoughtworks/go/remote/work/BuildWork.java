@@ -94,8 +94,6 @@ public class BuildWork implements Work {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
         } catch (Exception e) {
             reportFailure(e);
-        } finally {
-            goPublisher.stop();
         }
     }
 
@@ -112,14 +110,14 @@ public class BuildWork implements Work {
     private void reportCompletion(JobResult result) {
         try {
             builders.waitForCancelTasks();
+            goPublisher.stop();
             if (result == null) {
                 goPublisher.reportCurrentStatus(JobState.Completed);
-                goPublisher.reportCompletedAction();
             } else {
                 goPublisher.reportCompleted(result);
             }
         } catch (Exception ex) {
-            LOGGER.error("New error occured during error handling:\n"
+            LOGGER.error("New error occurred during error handling:\n"
                     + "build will be rescheduled when agent starts asking for work again", ex);
         }
     }

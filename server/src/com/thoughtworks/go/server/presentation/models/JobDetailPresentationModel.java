@@ -16,24 +16,10 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.DirectoryEntries;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.ModificationSummaries;
-import com.thoughtworks.go.domain.ModificationVisitor;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Properties;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.TestReportGenerator;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.web.JsonStringRenderer;
@@ -42,8 +28,13 @@ import com.thoughtworks.go.util.DirectoryReader;
 import com.thoughtworks.go.util.TimeConverter;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.go.config.TestArtifactPlan.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.domain.TestReportGenerator.TEST_RESULTS_FILE;
+import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.math.NumberUtils.toInt;
@@ -132,10 +123,15 @@ public class JobDetailPresentationModel {
     }
 
     public DirectoryEntries getArtifactFiles(final DirectoryReader directoryReader) throws IllegalArtifactLocationException {
-        File artifact = artifactsService.findArtifact(jobIdentifier, "");
-        DirectoryEntries directoryEntries = directoryReader.listEntries(artifact, "");
-        directoryEntries.setIsArtifactsDeleted(stage.isArtifactsDeleted());
-        return directoryEntries;
+        return new DirectoryEntries() {{
+            if (!job.isCompleted()) {
+                addFolder(CRUISE_OUTPUT_FOLDER).addFile(CONSOLE_LOG_FILE_NAME,
+                        artifactsService.findArtifactUrl(jobIdentifier,
+                                getConsoleOutputFolderAndFileName()));
+            }
+            addAll(directoryReader.listEntries(artifactsService.findArtifact(jobIdentifier, ""), ""));
+            setIsArtifactsDeleted(stage.isArtifactsDeleted());
+        }};
     }
 
     public ModificationVisitor getModificationSummaries() {

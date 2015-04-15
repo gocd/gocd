@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.DirectoryEntries;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
@@ -25,19 +23,34 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.util.DirectoryReader;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
+import static com.thoughtworks.go.helper.JobInstanceMother.building;
+import static com.thoughtworks.go.helper.StageMother.custom;
+import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JobDetailPresentationModelTest {
 
+    private DirectoryReader directoryReader;
+    private ArtifactsService artifactsService;
+
+    @Before
+    public void setUp() throws Exception {
+        directoryReader = mock(DirectoryReader.class);
+        artifactsService = mock(ArtifactsService.class);
+    }
+
     @Test
     public void shouldShowMessage() throws IllegalArtifactLocationException {
-        DirectoryReader directoryReader = mock(DirectoryReader.class);
         JobInstance jobInstance = JobInstanceMother.completed("job-1");
         Stage stage = new Stage();
         stage.setArtifactsDeleted(true);
@@ -45,10 +58,26 @@ public class JobDetailPresentationModelTest {
         DirectoryEntries directoryEntries = new DirectoryEntries();
         when(directoryReader.listEntries(any(File.class), any(String.class))).thenReturn(directoryEntries);
 
-        JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance,null,null,null,null,null,mock(ArtifactsService.class),null, stage);
+        JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null, null
+                , null, null, null, artifactsService, null, stage);
         jobDetailPresentationModel.getArtifactFiles(directoryReader);
 
         assertThat(directoryEntries.isArtifactsDeleted(), is(true));
     }
 
+    @Test
+    public void shouldAddFakeConsoleOutputEntryIfJobIsNotCompleted() throws Exception {
+        JobInstance job = building("job");
+        JobDetailPresentationModel model = new JobDetailPresentationModel(job, null, null,
+                null, null, null, artifactsService, null, custom("stage"));
+
+        when(artifactsService.findArtifact(job.getIdentifier(), "")).thenReturn(mock(File.class));
+        when(artifactsService.findArtifactUrl(job.getIdentifier(), getConsoleOutputFolderAndFileName())).thenReturn("path/to/console");
+        when(directoryReader.listEntries(any(File.class), eq(""))).thenReturn(new DirectoryEntries());
+
+        DirectoryEntries expected = new DirectoryEntries();
+        expected.addFolder("cruise-output").addFile("console.log", "path/to/console");
+
+        assertThat(model.getArtifactFiles(directoryReader), is(expected));
+    }
 }

@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.dao.sparql.StageRunFinder;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -70,7 +69,6 @@ public class StageService implements StageRunFinder, StageFinder {
     private StageDao stageDao;
     private JobInstanceService jobInstanceService;
     private SecurityService securityService;
-    private ShineDao shineDao;
     private PipelineDao pipelineDao;
     private final ChangesetService changesetService;
     private final GoConfigService goConfigService;

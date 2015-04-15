@@ -16,21 +16,7 @@
 
 package com.thoughtworks.go.helpers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigDataSource;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.GoConfigMigration;
-import com.thoughtworks.go.config.DoNotUpgrade;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
@@ -40,18 +26,16 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.SystemService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.helpers.LogFileHelper.FailedJunitPage.failedHtml;
 import static com.thoughtworks.go.helpers.LogFileHelper.FailedJunitPage.failedLogTemplate;
@@ -79,7 +63,7 @@ public final class LogFileHelper {
     }
 
     private static ArtifactsService artifactsDao(File artifactsDir) throws IOException {
-        return new ArtifactsService(new SystemService(null, null), new ArtifactsDirHolder(null, new FakeGoConfigService(artifactsDir)), new ZipUtil(), null, null);
+        return new ArtifactsService(null, null, new ArtifactsDirHolder(null, new FakeGoConfigService(artifactsDir)), new ZipUtil(), null);
     }
 
     public void onTearDown() {

@@ -22,7 +22,7 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" />
+        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
       </materials>
       <stage name="up42_stage">
         <jobs>
@@ -35,8 +35,5 @@
       </stage>
     </pipeline>
   </pipelines>
-  <agents>
-    <agent hostname="blrstdcrspair02" ipaddress="10.4.7.202" uuid="f6a76eaa-96ac-43a2-8255-7c898236ba22" />
-  </agents>
 </cruise>
 

@@ -1444,3 +1444,17 @@ a:hover#link-to-this-page {
     float: left;
 }
 
+#raw-console-file a:link,
+#raw-console-file a:visited {
+  padding-left:16px;
+  padding-right: 5px;
+  font-size: 11px;
+  float: right;
+}
+#raw-console-file a:hover {
+  text-decoration:none;
+}
+
+#raw-console-file {
+  float: right;
+}

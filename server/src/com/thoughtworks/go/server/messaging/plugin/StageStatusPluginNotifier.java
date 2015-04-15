@@ -66,7 +66,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private boolean isStageStateScheduledOrCompleted(Stage stage) {
-        return stage.isScheduled() || stage.getState().completed();
+        return stage.isScheduled() || stage.isReRun() || stage.getState().completed();
     }
 
     Map createRequestDataMap(Stage stage) {

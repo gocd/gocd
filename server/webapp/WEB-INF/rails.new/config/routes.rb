@@ -327,6 +327,7 @@ Go::Application.routes.draw do
 
   get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
+  get "errors/inactive" => 'go_errors#inactive'
 
   get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
   get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content

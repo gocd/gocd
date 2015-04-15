@@ -116,7 +116,7 @@ public class P4TestRepo extends TestRepo {
     }
 
     public String serverAndPort() {
-        return SystemUtil.getLocalhostName() + ":" + port;
+        return "localhost:" + port;
     }
 
     public static P4TestRepo createP4TestRepo() throws IOException {

@@ -136,6 +136,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> CAPTURE_METRICS = new GoBooleanSystemProperty("capture.metrics", true);
     public static GoSystemProperty<Integer> IDLE_TIMEOUT = new GoIntSystemProperty("idle.timeout", 30000);
     public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
+    public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", 300);
 
     public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<Integer>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 

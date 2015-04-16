@@ -49,6 +49,7 @@ import java.util.zip.ZipInputStream;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
+import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static java.lang.System.getProperty;
 import static junit.framework.Assert.fail;
@@ -69,6 +70,7 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageDao stageService;
     private LogFixture logFixture;
+    private ArtifactDirectoryChooser chooser;
 
     @Before
     public void setUp() {
@@ -80,6 +82,7 @@ public class ArtifactsServiceTest {
 
         fakeRoot = TestFileUtil.createTempFolder("ArtifactsServiceTest");
         logFixture = LogFixture.startListening();
+        chooser = mock(ArtifactDirectoryChooser.class);
     }
 
     @After
@@ -388,12 +391,71 @@ public class ArtifactsServiceTest {
 
 
     @Test
-    public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        File file = artifactsService.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
-        String filePathSeparator = System.getProperty("file.separator");
-        assertThat(file.getPath(), is(String.format("work%slocal%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
+    public void shouldReturnTemporaryArtifactFileIfItExists() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File consoleFile = mock(File.class);
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
+        when(consoleFile.exists()).thenReturn(true);
+
+        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
+
+        File file = service.temporaryConsoleFile(jobIdentifier);
+
+        assertThat(file, is(consoleFile));
+        verify(chooser).temporaryConsoleFile(jobIdentifier);
+        verify(chooser, never()).findArtifact(any(LocatableEntity.class), anyString());
     }
+
+    @Test
+    public void shouldReturnFinalArtifactFileIfItExists() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File consoleFile = mock(File.class);
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
+        when(consoleFile.exists()).thenReturn(false);
+
+        File finalConsoleFile = mock(File.class);
+
+        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
+        when(finalConsoleFile.exists()).thenReturn(true);
+
+        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
+
+        File file = service.temporaryConsoleFile(jobIdentifier);
+
+        assertThat(file, is(finalConsoleFile));
+
+        verify(chooser).temporaryConsoleFile(jobIdentifier);
+        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
+    }
+
+    @Test
+    public void shouldReturnTemporaryFileIfBothTemporaryAndFinalFilesDoNotExist() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File consoleFile = mock(File.class);
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
+        when(consoleFile.exists()).thenReturn(false);
+
+        File finalConsoleFile = mock(File.class);
+
+        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
+        when(finalConsoleFile.exists()).thenReturn(false);
+
+        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
+
+        File file = service.temporaryConsoleFile(jobIdentifier);
+
+        assertThat(file, is(consoleFile));
+
+        verify(chooser).temporaryConsoleFile(jobIdentifier);
+        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
+    }
+
 
     private void assumeArtifactsRoot(final File artifactsRoot) {
         Mockito.when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsRoot);

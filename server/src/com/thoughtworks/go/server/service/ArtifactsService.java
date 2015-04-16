@@ -55,6 +55,11 @@ public class ArtifactsService implements ArtifactUrlReader {
     @Autowired
     public ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
                             ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService) {
+        this(jobResolverService, stageDao, artifactsDirHolder, zipUtil, systemService, new ArtifactDirectoryChooser());
+    }
+
+    protected ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
+                               ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService, ArtifactDirectoryChooser chooser) {
         this.artifactsDirHolder = artifactsDirHolder;
         this.zipUtil = zipUtil;
         this.jobResolverService = jobResolverService;
@@ -62,7 +67,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         this.systemService = systemService;
 
         //This is a Chain of Responsibility to decide which view should be shown for a particular artifact URL
-        this.chooser = new ArtifactDirectoryChooser();
+        this.chooser = chooser;
 
     }
 
@@ -156,8 +161,14 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
-    public File temporaryConsoleFile(JobIdentifier jobIdentifier) {
-        return chooser.temporaryConsoleFile(jobIdentifier);
+    public File temporaryConsoleFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
+        File file = chooser.temporaryConsoleFile(jobIdentifier);
+        if (file.exists()) {
+            return file;
+        }
+        File finalConsole = chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
+        if (finalConsole.exists()) return finalConsole;
+        return file;
     }
 
     public static interface LineListener {
@@ -390,7 +401,7 @@ public class ArtifactsService implements ArtifactUrlReader {
     }
 
     public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
-        File file = findArtifact(jobIdentifier, ArtifactLogUtil.getConsoleLogOutputFolderAndFileName());
+        File file = findConsoleArtifact(jobIdentifier);
         updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()), LineListener.NO_OP_LINE_LISTENER);
     }
 

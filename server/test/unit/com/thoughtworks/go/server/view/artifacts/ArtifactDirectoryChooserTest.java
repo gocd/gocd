@@ -28,7 +28,9 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -121,5 +123,12 @@ public class ArtifactDirectoryChooserTest {
         JobIdentifier anotherJobIdentifier = JobIdentifierMother.jobIdentifier("come", 1, "together", "1", "right");
         assertThat(chooser.temporaryConsoleFile(jobIdentifier).getPath(),
                 equalToIgnoringCase(chooser.temporaryConsoleFile(anotherJobIdentifier).getPath()));
+    }
+
+    @Test
+    public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
+        File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
+        String filePathSeparator = System.getProperty("file.separator");
+        assertThat(consoleFile.getPath(), is(String.format("work%slocal%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
     }
 }

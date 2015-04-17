@@ -46,23 +46,23 @@ public class ScheduledPipelineLoader {
     final private GoConfigService goConfigService;
     final private JobInstanceService jobInstanceService;
     final private ServerHealthService serverHealthService;
-    final private ArtifactsService artifactsService;
     final private TransactionSynchronizationManager transactionSynchronizationManager;
     private final ScheduleService scheduleService;
     private MaterialExpansionService materialExpansionService;
+    private ConsoleService consoleService;
 
     @Autowired
     public ScheduledPipelineLoader(TransactionSynchronizationManager transactionSynchronizationManager, PipelineSqlMapDao pipelineDao, GoConfigService goConfigService,
-                                   JobInstanceService jobInstanceService, ServerHealthService serverHealthService, ArtifactsService artifactsService, ScheduleService scheduleService,
-                                   MaterialExpansionService materialExpansionService) {
+                                   JobInstanceService jobInstanceService, ServerHealthService serverHealthService, ScheduleService scheduleService,
+                                   MaterialExpansionService materialExpansionService, ConsoleService consoleService) {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.pipelineDao = pipelineDao;
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.serverHealthService = serverHealthService;
-        this.artifactsService = artifactsService;
         this.scheduleService = scheduleService;
         this.materialExpansionService = materialExpansionService;
+        this.consoleService = consoleService;
     }
 
     //TODO: Do we need to do this differently than PipelineService#fullPipeline?
@@ -124,7 +124,7 @@ public class ScheduledPipelineLoader {
 
     private void appendToConsoleLog(JobInstance jobInstance, String message) {
         try {
-            artifactsService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n");
+            consoleService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

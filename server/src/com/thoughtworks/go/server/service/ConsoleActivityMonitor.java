@@ -41,18 +41,18 @@ public class ConsoleActivityMonitor {
     private final JobInstanceService jobInstanceService;
     private final ServerHealthService serverHealthService;
     private final GoConfigService goConfigService;
-    private final ArtifactsService artifactService;
+    private ConsoleService consoleService;
     private final ConcurrentHashMap<JobIdentifier, Long> jobLastActivityMap;
     private final long warningThreshold;
 
     @Autowired
     public ConsoleActivityMonitor(TimeProvider timeProvider, SystemEnvironment systemEnvironment, JobInstanceService jobInstanceService, ServerHealthService serverHealthService,
-                                  GoConfigService goConfigService, ArtifactsService artifactService) {
+                                  GoConfigService goConfigService, ConsoleService consoleService) {
         this.timeProvider = timeProvider;
         this.jobInstanceService = jobInstanceService;
         this.serverHealthService = serverHealthService;
         this.goConfigService = goConfigService;
-        this.artifactService = artifactService;
+        this.consoleService = consoleService;
         this.jobLastActivityMap = new ConcurrentHashMap<JobIdentifier, Long>();
         warningThreshold = systemEnvironment.getUnresponsiveJobWarningThreshold();
         jobInstanceService.registerJobStateChangeListener(new ActiveJobListener(this));
@@ -82,7 +82,7 @@ public class ConsoleActivityMonitor {
             if (shouldCancelHungJob(jobIdentifier, difference)) {
                 scheduleService.cancelJob(jobIdentifier);
                 try {
-                    artifactService.appendToConsoleLog(jobIdentifier,
+                    consoleService.appendToConsoleLog(jobIdentifier,
                             String.format("Go cancelled this job as it has not generated any console output for more than %s minute(s)", inMinutes(jobTerminationThreshold(jobIdentifier))));
                 } catch (Exception e) {
                     LOGGER.error(String.format("Failed to update console log with reason for cancelling hung job '%s'", jobIdentifier.buildLocator()), e);

@@ -60,7 +60,7 @@ public class ConsoleActivityMonitorTest {
     private ServerHealthService serverHealthService;
     private GoConfigService goConfigService;
     private ScheduleService scheduleService;
-    private ArtifactsService artifactService;
+    private ConsoleService consoleService;
 
     @Before public void setUp() throws Exception {
         timeProvider = mock(TimeProvider.class);
@@ -69,7 +69,7 @@ public class ConsoleActivityMonitorTest {
         jobInstanceService = mock(JobInstanceService.class);
         scheduleService = mock(ScheduleService.class);
         goConfigService = mock(GoConfigService.class);
-        artifactService = mock(ArtifactsService.class);
+        consoleService = mock(ConsoleService.class);
 
         when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(UNRESPONSIVE_JOB_KILL_THRESHOLD);//5 mins
         when(systemEnvironment.getUnresponsiveJobWarningThreshold()).thenReturn(UNRESPONSIVE_JOB_WARNING_THRESHOLD);//2 mins
@@ -81,7 +81,7 @@ public class ConsoleActivityMonitorTest {
                 return null;
             }
         }).when(jobInstanceService).registerJobStateChangeListener(Mockito.any(JobStatusListener.class));
-        consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, artifactService);
+        consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, consoleService);
         consoleActivityMonitor.populateActivityMap();
         stubInitializerCallsForActivityMonitor(jobInstanceService);
     }
@@ -235,7 +235,8 @@ public class ConsoleActivityMonitorTest {
 
         JobInstanceService jobInstanceService = mock(JobInstanceService.class);
         when(jobInstanceService.allBuildingJobs()).thenReturn(Arrays.asList(firstJob, secondJob));
-        consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, artifactService);
+        consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService,
+                serverHealthService, goConfigService, consoleService);
         consoleActivityMonitor.populateActivityMap();
         stubInitializerCallsForActivityMonitor(jobInstanceService);
 
@@ -329,7 +330,7 @@ public class ConsoleActivityMonitorTest {
         when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(artifactService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
+        verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
     }
 
     @Test

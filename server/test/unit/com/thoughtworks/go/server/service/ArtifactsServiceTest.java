@@ -70,7 +70,6 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageDao stageService;
     private LogFixture logFixture;
-    private ArtifactDirectoryChooser chooser;
 
     @Before
     public void setUp() {
@@ -82,7 +81,6 @@ public class ArtifactsServiceTest {
 
         fakeRoot = TestFileUtil.createTempFolder("ArtifactsServiceTest");
         logFixture = LogFixture.startListening();
-        chooser = mock(ArtifactDirectoryChooser.class);
     }
 
     @After
@@ -153,26 +151,6 @@ public class ArtifactsServiceTest {
         artifactsService.saveFile(destFile, stream, false, 1);
 
         Mockito.verify(systemService).streamToFile(eq(stream), eq(destFile));
-    }
-
-    @Test
-    public void shouldReturnConsoleUpdates() throws IOException {
-        String separator = getProperty("line.separator");
-        String output = "line1" + separator + "line2" + separator + "line3";
-        ByteArrayInputStream stream = new ByteArrayInputStream(output.getBytes());
-
-        assumeArtifactsRoot(new File("logs"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        ConsoleOut consoleOut = artifactsService.getConsoleOut(0, stream);
-        assertThat(consoleOut.output(), is(output + separator));
-        assertThat(consoleOut.calculateNextStart(), is(3));
-
-        output += separator + "line4" + separator + "line5";
-
-        stream = new ByteArrayInputStream(output.getBytes());
-        consoleOut = artifactsService.getConsoleOut(3, stream);
-        assertThat(consoleOut.output(), is("line4" + separator + "line5" + separator));
-        assertThat(consoleOut.calculateNextStart(), is(5));
     }
 
     @Test
@@ -388,74 +366,6 @@ public class ArtifactsServiceTest {
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }
-
-
-    @Test
-    public void shouldReturnTemporaryArtifactFileIfItExists() throws Exception {
-        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
-
-        File consoleFile = mock(File.class);
-
-        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
-        when(consoleFile.exists()).thenReturn(true);
-
-        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
-
-        File file = service.temporaryConsoleFile(jobIdentifier);
-
-        assertThat(file, is(consoleFile));
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser, never()).findArtifact(any(LocatableEntity.class), anyString());
-    }
-
-    @Test
-    public void shouldReturnFinalArtifactFileIfItExists() throws Exception {
-        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
-
-        File consoleFile = mock(File.class);
-
-        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
-        when(consoleFile.exists()).thenReturn(false);
-
-        File finalConsoleFile = mock(File.class);
-
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
-        when(finalConsoleFile.exists()).thenReturn(true);
-
-        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
-
-        File file = service.temporaryConsoleFile(jobIdentifier);
-
-        assertThat(file, is(finalConsoleFile));
-
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
-    }
-
-    @Test
-    public void shouldReturnTemporaryFileIfBothTemporaryAndFinalFilesDoNotExist() throws Exception {
-        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
-
-        File consoleFile = mock(File.class);
-
-        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
-        when(consoleFile.exists()).thenReturn(false);
-
-        File finalConsoleFile = mock(File.class);
-
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
-        when(finalConsoleFile.exists()).thenReturn(false);
-
-        ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
-
-        File file = service.temporaryConsoleFile(jobIdentifier);
-
-        assertThat(file, is(consoleFile));
-
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
-    }
-
 
     private void assumeArtifactsRoot(final File artifactsRoot) {
         Mockito.when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsRoot);

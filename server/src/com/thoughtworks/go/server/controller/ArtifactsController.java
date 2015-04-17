@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
+import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.view.artifacts.ArtifactsView;
@@ -62,16 +63,18 @@ public class ArtifactsController {
 
     private static final Logger LOGGER = Logger.getLogger(ArtifactsController.class);
     private final ConsoleActivityMonitor consoleActivityMonitor;
+    private ConsoleService consoleService;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
 
     @Autowired
     ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
-                        ConsoleActivityMonitor consoleActivityMonitor) {
+                        ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
         this.consoleActivityMonitor = consoleActivityMonitor;
+        this.consoleService = consoleService;
 
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
@@ -131,7 +134,7 @@ public class ArtifactsController {
                                      @RequestParam("filePath") String filePath,
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
-        JobIdentifier jobIdentifier = null;
+        JobIdentifier jobIdentifier;
         try {
             jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
                     buildName, buildId);
@@ -213,7 +216,7 @@ public class ArtifactsController {
             return FileModelAndView.forbiddenUrl(filePath);
         }
 
-        JobIdentifier jobIdentifier = null;
+        JobIdentifier jobIdentifier;
         try {
             jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
         } catch (Exception e) {
@@ -242,7 +245,7 @@ public class ArtifactsController {
         try {
             JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
                     buildName);
-            ConsoleOut consoleOut = artifactsService.getConsoleOut(identifier, startLine);
+            ConsoleOut consoleOut = consoleService.getConsoleOut(identifier, startLine);
             return new ModelAndView(new ConsoleOutView(consoleOut.calculateNextStart(), consoleOut.output()));
         } catch (FileNotFoundException e) {
             return new ModelAndView(new ConsoleOutView(0, ""));
@@ -250,7 +253,7 @@ public class ArtifactsController {
     }
 
     @ErrorHandler
-    public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception e) {
+    public ModelAndView handleError(Exception e) {
         LOGGER.error("Error loading artifacts: ", e);
         Map model = new HashMap();
         model.put(ERROR_FOR_PAGE, "Artifact does not exist.");
@@ -260,7 +263,7 @@ public class ArtifactsController {
     ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha, String serverAlias) throws Exception {
         LOGGER.info(String.format("[Artifact Download] Trying to resolve '%s' for '%s/%s/%s/%s/%s'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName));
         long before = System.currentTimeMillis();
-        ArtifactsView view = null;
+        ArtifactsView view;
         //Work out the job that we are trying to retrieve
         JobIdentifier translatedId;
         try {
@@ -273,7 +276,7 @@ public class ArtifactsController {
             return FileModelAndView.forbiddenUrl(filePath);
         }
 
-        view = new LocalArtifactsView(folderViewFactory, artifactsService, translatedId);
+        view = new LocalArtifactsView(folderViewFactory, artifactsService, translatedId, consoleService);
 
         ModelAndView createdView = view.createView(filePath, sha);
         LOGGER.info(String.format("[Artifact Download] Successfully resolved '%s' for '%s/%s/%s/%s/%s'. It took: %sms", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName,
@@ -298,13 +301,13 @@ public class ArtifactsController {
     }
 
     private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws Exception {
-        File consoleFile = artifactsService.temporaryConsoleFile(jobIdentifier);
-        boolean updated = artifactsService.updateConsoleLog(consoleFile, inputStream, ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
+        File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
+        boolean updated = consoleService.updateConsoleLog(consoleLogFile, inputStream, ConsoleService.LineListener.NO_OP_LINE_LISTENER);
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
-            return FileModelAndView.fileAppended(consoleFile.getPath());
+            return FileModelAndView.fileAppended(consoleLogFile.getPath());
         } else {
-            return FileModelAndView.errorSavingFile(consoleFile.getPath());
+            return FileModelAndView.errorSavingFile(consoleLogFile.getPath());
         }
     }
 

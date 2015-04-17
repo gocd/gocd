@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.ArtifactUrlReader;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.legacywrapper.LogParser;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -30,17 +33,17 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static java.lang.String.format;
 
 @Service
 public class ArtifactsService implements ArtifactUrlReader {
-    public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
     private final ArtifactsDirHolder artifactsDirHolder;
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
@@ -149,170 +152,6 @@ public class ArtifactsService implements ArtifactUrlReader {
         return new File(logFile.getParent(), "." + logFile.getName() + ".ser");
     }
 
-    public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
-        try {
-            File from = chooser.temporaryConsoleFile(locatableEntity);
-            File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
-            FileUtils.moveFile(from, to);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArtifactLocationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public File temporaryConsoleFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
-        File file = chooser.temporaryConsoleFile(jobIdentifier);
-        if (file.exists()) {
-            return file;
-        }
-        File finalConsole = chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
-        if (finalConsole.exists()) return finalConsole;
-        return file;
-    }
-
-    public static interface LineListener {
-        LineListener NO_OP_LINE_LISTENER = new LineListener() {
-            public void copyLine(CharSequence line) {
-
-            }
-        };
-
-        void copyLine(CharSequence line);
-    }
-
-    private char[] realloc(char[] old) {
-        char[] newAlloc = new char[old.length * 2];
-        for (int i = 0; i < old.length; i++) {
-            newAlloc[i] = old[i];
-        }
-        return newAlloc;
-    }
-
-    public boolean updateConsoleLog(File dest, InputStream in, LineListener lineListener) throws IOException {
-        File parentFile = dest.getParentFile();
-        parentFile.mkdirs();
-
-        LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
-
-        char[] data = new char[DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE];
-        char[] overflow = new char[DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE];
-
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(dest, dest.exists()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            int hasRead, overflowIndex, offset = 0, end;
-            while ((hasRead = reader.read(data, offset, data.length - offset)) != -1) {
-                end = offset + hasRead;
-                overflowIndex = end;
-                for (int i = end; i > 0; i--) {
-                    int index = i - 1;
-                    char c = data[index];
-                    if ('\n' == c) {
-                        break;
-                    }
-                    overflow[index] = data[index];
-                    overflowIndex = index;
-                }
-                if (overflowIndex == 0) {
-                    if (end == data.length) {//realloc if line is bigger than our buffer
-                        data = realloc(data);
-                        overflow = realloc(overflow);
-                        offset = end;
-                        continue;
-                    } else {
-                        overflowIndex = end;
-                        offset = 0;
-                    }
-                }
-                lineListener.copyLine(new CharArraySequence(data, 0, overflowIndex));
-                writer.write(data, 0, overflowIndex);
-                //place overflow back in data
-                for (int i = overflowIndex; i < end; i++) {
-                    data[i - overflowIndex] = overflow[i];
-                }
-                offset = end - overflowIndex;
-            }
-        } catch (IOException e) {
-            LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
-            return false;
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Console log [" + dest.getAbsolutePath() + "] saved.");
-        }
-        return true;
-    }
-
-    static class CharArraySequence implements CharSequence {
-        private final char[] chars;
-        private final int start;
-        private final int end;
-
-        CharArraySequence(char[] chars, int start, int end) {
-            this.chars = chars;
-            this.start = start;
-            this.end = end;
-        }
-
-        public int length() {
-            return end;
-        }
-
-        public char charAt(int index) {
-            return chars[start + index];
-        }
-
-        public CharSequence subSequence(int start, int end) {
-            return new CharArraySequence(chars, start, end);
-        }
-
-        @Override
-        public String toString() {
-            return new String(chars, start, end - start);
-        }
-    }
-
-    ConsoleOut getConsoleOut(int startingLine, InputStream inputStream) throws IOException {
-        int lineNumber = 0;
-
-        StringBuffer buffer = new StringBuffer();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String consoleLine;
-            while (null != (consoleLine = reader.readLine())) {
-                if (lineNumber >= startingLine) {
-                    buffer.append(consoleLine);
-                    buffer.append(FileUtil.lineSeparator());
-                }
-                lineNumber++;
-            }
-        } catch (FileNotFoundException ex) {
-            String message = "Could not read console out: " + ex.getMessage();
-            LOGGER.error(message);
-            LOGGER.trace(message, ex);
-        } finally {
-            inputStream.close();
-        }
-        return new ConsoleOut(buffer.toString(), startingLine, lineNumber);
-    }
-
-    public ConsoleOut getConsoleOut(JobIdentifier identifier, int startingLine) throws IOException, IllegalArtifactLocationException {
-        return getConsoleOut(startingLine, new FileInputStream(findConsoleArtifact(identifier)));
-    }
-
-    public File findConsoleArtifact(JobIdentifier identifier) throws IllegalArtifactLocationException {
-        File file = chooser.temporaryConsoleFile(identifier);
-        if (!file.exists()) {
-            file = chooser.findArtifact(identifier, getConsoleOutputFolderAndFileName());
-        }
-        return file;
-    }
-
     public File findArtifact(JobIdentifier identifier, String path) throws IllegalArtifactLocationException {
         return chooser.findArtifact(identifier, path);
     }
@@ -398,11 +237,6 @@ public class ArtifactsService implements ArtifactUrlReader {
 
     private boolean deleteFile(File file) {
         return FileUtils.deleteQuietly(file);
-    }
-
-    public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
-        File file = findConsoleArtifact(jobIdentifier);
-        updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()), LineListener.NO_OP_LINE_LISTENER);
     }
 
 }

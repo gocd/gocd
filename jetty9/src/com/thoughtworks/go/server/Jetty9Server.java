@@ -19,17 +19,17 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.util.GoCipherSuite;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -43,11 +43,10 @@ import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.management.ManagementFactory;
+
+import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
     private Server server;
@@ -59,8 +58,9 @@ public class Jetty9Server extends AppServer {
         this(systemEnvironment, password, sslSocketFactory, new Server());
     }
 
-    Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server){
+    Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server) {
         super(systemEnvironment, password, sslSocketFactory);
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty.xml");
         this.server = server;
         goCipherSuite = new GoCipherSuite(sslSocketFactory);
     }
@@ -158,9 +158,9 @@ public class Jetty9Server extends AppServer {
 
 
     private void performCustomConfiguration() throws Exception {
-        File jettyConfig = new File(systemEnvironment.getConfigDir(), "jetty.xml");
-
+        File jettyConfig = systemEnvironment.getJettyConfigFile();
         if (jettyConfig.exists()) {
+            replaceJettyXmlIfItBelongsToADifferentVersion(jettyConfig);
             LOG.info("Configuring Jetty using " + jettyConfig.getAbsolutePath());
             FileInputStream serverConfiguration = new FileInputStream(jettyConfig);
             XmlConfiguration configuration = new XmlConfiguration(serverConfiguration);
@@ -172,6 +172,29 @@ public class Jetty9Server extends AppServer {
             LOG.info(message);
         }
     }
+
+    protected void replaceJettyXmlIfItBelongsToADifferentVersion(File jettyConfig) throws IOException {
+        if (FileUtil.readContentFromFile(jettyConfig).contains("jetty-v9.2.3")) return;
+        replaceFileWithPackagedOne(jettyConfig);
+    }
+
+    private void replaceFileWithPackagedOne(File jettyConfig) {
+        String srcDir = "/defaultFiles/config";
+        String fileName = jettyConfig.getName();
+        File destinationFile = new File(systemEnvironment.getConfigDir(), fileName);
+        InputStream inputStream = getClass().getResourceAsStream(srcDir + "/" + fileName);
+        try {
+            if (inputStream == null) {
+                throw new RuntimeException(format("Resource {0}/{1} does not exist in the classpath", srcDir, fileName));
+            }
+            FileUtil.writeToFile(inputStream, destinationFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+
 
     private void addResourceHandler(HandlerCollection handlers, WebAppContext webAppContext) throws IOException {
         if (!systemEnvironment.useCompressedJs()) return;

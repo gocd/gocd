@@ -49,6 +49,9 @@ import java.lang.management.ManagementFactory;
 import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
+    private static final String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
+    private static final String JETTY_XML = "jetty.xml";
+    private static final String JETTY_VERSION = "jetty-v9.2.3";
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = Logger.getLogger(Jetty9Server.class);
@@ -60,7 +63,7 @@ public class Jetty9Server extends AppServer {
 
     Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server) {
         super(systemEnvironment, password, sslSocketFactory);
-        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty.xml");
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
         goCipherSuite = new GoCipherSuite(sslSocketFactory);
     }
@@ -174,12 +177,12 @@ public class Jetty9Server extends AppServer {
     }
 
     protected void replaceJettyXmlIfItBelongsToADifferentVersion(File jettyConfig) throws IOException {
-        if (FileUtil.readContentFromFile(jettyConfig).contains("jetty-v9.2.3")) return;
+        if (FileUtil.readContentFromFile(jettyConfig).contains(JETTY_VERSION)) return;
         replaceFileWithPackagedOne(jettyConfig);
     }
 
     private void replaceFileWithPackagedOne(File jettyConfig) {
-        String srcDir = "/defaultFiles/config";
+        String srcDir = JETTY_XML_LOCATION_IN_JAR;
         String fileName = jettyConfig.getName();
         File destinationFile = new File(systemEnvironment.getConfigDir(), fileName);
         InputStream inputStream = getClass().getResourceAsStream(srcDir + "/" + fileName);

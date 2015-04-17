@@ -18,6 +18,7 @@
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
+    <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
     <!--jetty-v9.2.3-->
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->

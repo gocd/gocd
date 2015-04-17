@@ -28,7 +28,9 @@ import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.*;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -49,7 +51,7 @@ import java.lang.management.ManagementFactory;
 import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
-    private static final String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
+    protected static String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
     private static final String JETTY_XML = "jetty.xml";
     private static final String JETTY_VERSION = "jetty-v9.2.3";
     private Server server;
@@ -182,13 +184,13 @@ public class Jetty9Server extends AppServer {
     }
 
     private void replaceFileWithPackagedOne(File jettyConfig) {
-        File destinationFile = new File(systemEnvironment.getConfigDir(), jettyConfig.getName());
-        InputStream inputStream = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName());
+        InputStream inputStream = null;
         try {
+            inputStream  = getClass().getResourceAsStream(JETTY_XML_LOCATION_IN_JAR + "/" + jettyConfig.getName());
             if (inputStream == null) {
                 throw new RuntimeException(format("Resource {0}/{1} does not exist in the classpath", JETTY_XML_LOCATION_IN_JAR, jettyConfig.getName()));
             }
-            FileUtil.writeToFile(inputStream, destinationFile);
+            FileUtil.writeToFile(inputStream, systemEnvironment.getJettyConfigFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

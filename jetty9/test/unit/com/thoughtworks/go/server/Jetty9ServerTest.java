@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.ArrayUtil;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.jmx.MBeanContainer;
@@ -35,6 +36,7 @@ import org.mockito.ArgumentCaptor;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -74,6 +76,7 @@ public class Jetty9ServerTest {
         sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, "pwd", sslSocketFactory, server);
+        ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
     }
 
     @Test
@@ -197,6 +200,28 @@ public class Jetty9ServerTest {
         jetty9Server.setInitParameter("name", "value");
 
         assertThat(getWebAppContext(jetty9Server).getInitParameter("name"), CoreMatchers.is("value"));
+    }
+
+    @Test
+    public void shouldReplaceJettyXmlIfItDoesNotContainCorrespondingJettyVersionNumber() throws IOException {
+        File jettyXml = temporaryFolder.newFile("jetty.xml");
+        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
+
+        String originalContent = "jetty-v6.2.3\nsome other local changes";
+        FileUtil.writeContentToFile(originalContent, jettyXml);
+        jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
+        assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(FileUtil.readContentFromFile(new File(getClass().getResource("config/jetty.xml").getPath()))));
+    }
+
+    @Test
+    public void shouldNotReplaceJettyXmlIfItAlreadyContainsCorrespondingVersionNumber() throws IOException {
+        File jettyXml = temporaryFolder.newFile("jetty.xml");
+        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
+
+        String originalContent = "jetty-v9.2.3\nsome other local changes";
+        FileUtil.writeContentToFile(originalContent, jettyXml);
+        jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
+        assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(originalContent));
     }
 
     private WebAppContext getWebAppContext(Jetty9Server server) {

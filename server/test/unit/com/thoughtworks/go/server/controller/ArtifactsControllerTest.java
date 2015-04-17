@@ -75,7 +75,7 @@ public class ArtifactsControllerTest {
         when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103l)).thenReturn(jobIdentifier);
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
-        when(artifactService.temporaryConsoleFile(jobIdentifier)).thenReturn(artifactFile);
+        when(artifactService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
         when(artifactService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ArtifactsService.LineListener.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);

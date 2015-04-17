@@ -89,7 +89,7 @@ public class ArtifactsControllerIntegrationTest {
     private JobInstance job;
     private GoConfigFileHelper configHelper;
     private String pipelineName;
-    private File consoleArtifactFile;
+    private File consoleLogFile;
 
 
     @Before public void setup() throws Exception {
@@ -115,9 +115,9 @@ public class ArtifactsControllerIntegrationTest {
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
 
         artifactsRoot = artifactService.findArtifact(jobId, "");
-        consoleArtifactFile = artifactService.temporaryConsoleFile(jobId);
+        consoleLogFile = artifactService.consoleLogFile(jobId);
 
-        deleteDirectory(consoleArtifactFile.getParentFile());
+        deleteDirectory(consoleLogFile.getParentFile());
         deleteDirectory(artifactsRoot);
         artifactsRoot.mkdirs();
     }
@@ -356,7 +356,7 @@ public class ArtifactsControllerIntegrationTest {
         }
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleArtifactFile));
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(2 * numberOfLines));
         String hundredThLine = null;
@@ -389,7 +389,7 @@ public class ArtifactsControllerIntegrationTest {
 
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
 
-        String consoleLogContent = FileUtils.readFileToString(file(consoleArtifactFile));
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(3));
         assertThat(lines[0], is(longLineStr));

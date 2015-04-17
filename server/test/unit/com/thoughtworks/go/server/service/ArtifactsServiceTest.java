@@ -401,7 +401,7 @@ public class ArtifactsServiceTest {
 
         ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
 
-        File file = service.temporaryConsoleFile(jobIdentifier);
+        File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(consoleFile));
         verify(chooser).temporaryConsoleFile(jobIdentifier);
@@ -424,7 +424,7 @@ public class ArtifactsServiceTest {
 
         ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
 
-        File file = service.temporaryConsoleFile(jobIdentifier);
+        File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(finalConsoleFile));
 
@@ -448,7 +448,7 @@ public class ArtifactsServiceTest {
 
         ArtifactsService service = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, chooser);
 
-        File file = service.temporaryConsoleFile(jobIdentifier);
+        File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(consoleFile));
 

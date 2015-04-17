@@ -161,7 +161,7 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
-    public File temporaryConsoleFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
+    public File consoleLogFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
         File file = chooser.temporaryConsoleFile(jobIdentifier);
         if (file.exists()) {
             return file;

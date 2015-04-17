@@ -298,13 +298,13 @@ public class ArtifactsController {
     }
 
     private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws Exception {
-        File consoleFile = artifactsService.temporaryConsoleFile(jobIdentifier);
-        boolean updated = artifactsService.updateConsoleLog(consoleFile, inputStream, ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
+        File consoleLogFile = artifactsService.consoleLogFile(jobIdentifier);
+        boolean updated = artifactsService.updateConsoleLog(consoleLogFile, inputStream, ArtifactsService.LineListener.NO_OP_LINE_LISTENER);
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
-            return FileModelAndView.fileAppended(consoleFile.getPath());
+            return FileModelAndView.fileAppended(consoleLogFile.getPath());
         } else {
-            return FileModelAndView.errorSavingFile(consoleFile.getPath());
+            return FileModelAndView.errorSavingFile(consoleLogFile.getPath());
         }
     }
 

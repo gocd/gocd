@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
+import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.ResponseCodeView;
@@ -50,10 +51,10 @@ public class ArtifactsControllerTest {
     private ArtifactsController artifactsController;
 
     private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
     private ConsoleActivityMonitor consoleActivityMonitor;
     private RestfulService restfulService;
     private ArtifactsService artifactService;
+    private ConsoleService consoleService;
 
     @Before
     public void setUp() {
@@ -61,10 +62,11 @@ public class ArtifactsControllerTest {
 
         restfulService = mock(RestfulService.class);
         artifactService = mock(ArtifactsService.class);
-        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor);
+        consoleService = mock(ConsoleService.class);
+
+        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService);
 
         request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
     }
 
     @Test
@@ -75,8 +77,8 @@ public class ArtifactsControllerTest {
         when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103l)).thenReturn(jobIdentifier);
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
-        when(artifactService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
-        when(artifactService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ArtifactsService.LineListener.class))).thenReturn(true);
+        when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
+        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ConsoleService.LineListener.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }
@@ -103,7 +105,7 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
-        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor) {
+        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService) {
             @Override ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
                                                String buildName, String sha, String serverAlias) throws Exception {
                 return returnVal;

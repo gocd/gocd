@@ -75,6 +75,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Autowired private BackupService backupService;
     @Autowired private ArtifactsService artifactsService;
+    @Autowired private ConsoleService consoleService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
@@ -102,6 +103,9 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             //artifacts
             artifactsDirHolder.initialize();
             artifactsService.initialize();
+
+            //console logs
+            consoleService.initialize();
 
             //change listener
             environmentConfigService.initialize();

@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ArtifactsService;
+import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -76,6 +77,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 public class ArtifactsControllerIntegrationTest {
     @Autowired private ArtifactsController artifactsController;
     @Autowired private ArtifactsService artifactService;
+    @Autowired private ConsoleService consoleService;
     @Autowired private AgentService agentService;
     @Autowired private ZipUtil zipUtil;
     @Autowired private GoConfigFileDao goConfigFileDao;
@@ -115,7 +117,7 @@ public class ArtifactsControllerIntegrationTest {
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
 
         artifactsRoot = artifactService.findArtifact(jobId, "");
-        consoleLogFile = artifactService.consoleLogFile(jobId);
+        consoleLogFile = consoleService.consoleLogFile(jobId);
 
         deleteDirectory(consoleLogFile.getParentFile());
         deleteDirectory(artifactsRoot);
@@ -347,7 +349,7 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldPutConsoleOutput_whenContentMoreThanBufferSizeUsed() throws Exception {
         StringBuilder builder = new StringBuilder();
         String str = "This is one full line of text. With 2 sentences without newline separating them.\n";
-        int numberOfLines = ArtifactsService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE / 10;
+        int numberOfLines = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE / 10;
         for (int i = 0; i < numberOfLines; i++) {
             builder.append(str);
         }
@@ -375,7 +377,7 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldPutConsoleOutput_withHugeSingleLine() throws Exception {
         StringBuilder builder = new StringBuilder();
         String str = "a ";
-        int numberOfChars = ArtifactsService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE * 4;
+        int numberOfChars = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE * 4;
 
         StringBuilder longLine = new StringBuilder();
         for (int i = 0; i < numberOfChars; i++) {

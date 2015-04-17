@@ -40,6 +40,7 @@ import org.mortbay.jetty.webapp.WebXmlConfiguration;
 import org.mortbay.management.MBeanContainer;
 
 import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,6 +83,7 @@ public class Jetty6ServerTest {
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(false);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
+        when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
 
         sslSocketFactory = mock(SSLSocketFactory.class);
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});

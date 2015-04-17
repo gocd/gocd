@@ -60,6 +60,7 @@ public class Jetty6Server extends AppServer {
 
     Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, GoJetty6CipherSuite goJetty6CipherSuite, Jetty6GoWebXmlConfiguration configuration) {
         super(systemEnvironment, password, sslSocketFactory);
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
         this.server = server;
         this.goCipherSuite = goJetty6CipherSuite;
         this.configuration = configuration;
@@ -120,7 +121,7 @@ public class Jetty6Server extends AppServer {
     }
 
     private void performCustomConfiguration() throws Exception {
-        File jettyConfig = new File(systemEnvironment.getConfigDir(), "jetty6.xml");
+        File jettyConfig = systemEnvironment.getJettyConfigFile();
         if (jettyConfig.exists()) {
             LOG.info("Configuring Jetty using " + jettyConfig.getAbsolutePath());
             FileInputStream serverConfiguration = new FileInputStream(jettyConfig);

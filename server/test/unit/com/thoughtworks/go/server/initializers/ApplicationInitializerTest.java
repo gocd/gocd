@@ -121,7 +121,8 @@ public class ApplicationInitializerTest {
     private FeatureToggleService featureToggleService;
     @Mock
     private CcTrayActivityListener ccTrayActivityListener;
-
+    @Mock
+    private ConsoleService consoleService;
     @Mock
     private ContextRefreshedEvent contextRefreshedEvent;
 

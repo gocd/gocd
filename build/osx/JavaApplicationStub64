@@ -68,23 +68,18 @@ function find_root_directory_resolving_symlinks() {
 }
 # ------------------------------------------------------------------------------
 
-# Finds some JVM, any JVM.
+# Finds some JVM newer than 1.7. Prints the path to such a "java" executable or empty.
+# Expects: Nothing.
+# Arguments: None.
 function find_best_available_java() {
-  # first check system variable "$JAVA_HOME"
-  if [ -n "$JAVA_HOME" ]; then
-    JAVACMD="$JAVA_HOME/bin/java"
+  # first check GO_JAVA_HOME
+  if [ -n "$GO_JAVA_HOME" ]; then
+    JAVACMD="$GO_JAVA_HOME/bin/java"
 
   # otherwise check "/usr/libexec/java_home" symlinks
-  elif [ -x /usr/libexec/java_home ] && [ -d "`/usr/libexec/java_home 2>/dev/null`" ]; then
-    JAVACMD="`/usr/libexec/java_home`/bin/java"
-
-  # otherwise check Java standard symlink (old Apple Java)
-  elif [ -h /Library/Java/Home ]; then
-    JAVACMD="/Library/Java/Home/bin/java"
-
-  # fallback: public JRE plugin (Oracle Java)
-  else
-    JAVACMD="/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
+  elif [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "1.7+" >/dev/null 2>&1; echo $?)" = "0" ] \
+    && [ -d "$(/usr/libexec/java_home -v "1.7+" 2>/dev/null)" ]; then
+    JAVACMD="$(/usr/libexec/java_home -v "1.7+")/bin/java"
   fi
 
   echo "$JAVACMD"
@@ -243,7 +238,10 @@ test -f "overrides.env" && log "Sourcing overrides.env\n" && source "overrides.e
 log "Final environment variables $(test -f "overrides.env" && echo "after sourcing overrides.env ")are:\n$(env | sort)\n"
 
 test -z "${JAVACMD}" -o ! -x "${JAVACMD}" && show_message_and_exit 2 "${APPLICATION_NAME}" "Error launching ${APPLICATION_NAME}" "" \
-      "You need to have Java installed to run the ${APPLICATION_NAME} application." "" "Resolved Java was: ${JAVACMD}"
+      "You need to have Java 1.7 or newer installed to run the ${APPLICATION_NAME} application." "" \
+      "Java found was: \\\"${JAVACMD}\\\"" "" \
+      "If you do have Java 1.7 or newer installed, please see: \
+http://www.go.cd/documentation/user/current/installation/troubleshoot_installer.html#mac_java"
 
 COMMAND=()
 add_arg "$JAVACMD"

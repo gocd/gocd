@@ -62,14 +62,13 @@ if [ "$1" = "1" ] ; then  # first install
         fix_server_log4j_properties
     fi
 
-    fix_server_java_home_declaration_for_rpm
-
     fix_server_defaults_ownership
     create_necessary_server_directories_and_fix_ownership
     
     chkconfig --add go-server
 fi
 
+fix_server_java_home_declaration_for_rpm
 fix_go_server_lib_ownership
 go_owned /etc/go
 

@@ -96,13 +96,24 @@ function fix_agent_defaults_ownership {
 }
 
 function fix_java_home_declaration {
-    grep -q -E '^((\s)*export(\s)+JAVA_HOME=)|^((\s)*JAVA_HOME=)' $1 || JAVA_HOME_SET=false
+    determine_java_home_path
+    if [ "$JAVA_HOME_PATH" = "" ]; then
+        echo "WARNING: Unable to determine JAVA_HOME. Not setting or updating it in \"$1\". You might need to set it manually, after this." >&2
+        return
+    fi
+
+    local file_to_update="$1"
+    local java_home_check_pattern='^\s*export\s+JAVA_HOME=.*# SET_BY_GO_INSTALLER__DONT_REMOVE'
+    local final_java_home_line="export JAVA_HOME=\"$JAVA_HOME_PATH\" # SET_BY_GO_INSTALLER__DONT_REMOVE"
+
+    grep -q -E "$java_home_check_pattern" "$file_to_update" || JAVA_HOME_SET=false
     if [ "$JAVA_HOME_SET" = false ]; then
-        determine_java_home_path
-        if [ "$JAVA_HOME_PATH" != "" ]; then
-            echo "JAVA_HOME=$JAVA_HOME_PATH" >> $1
-            echo "export JAVA_HOME" >> $1
-        fi
+        echo "Appending to \"$file_to_update\": $final_java_home_line"
+        echo "$final_java_home_line" >>"$file_to_update"
+    elif [ "$(grep -E "$java_home_check_pattern" "$file_to_update")" != "$final_java_home_line" ]; then
+        echo "Current line with JAVA_HOME in \"$file_to_update\" is: $(grep -E "$java_home_check_pattern" "$file_to_update")"
+        echo "Updating it to: $final_java_home_line"
+        sed -r -i -e "s!$java_home_check_pattern!$final_java_home_line!" "$file_to_update"
     fi
 }
 

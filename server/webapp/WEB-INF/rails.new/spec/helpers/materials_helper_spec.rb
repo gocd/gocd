@@ -106,6 +106,14 @@ describe MaterialsHelper do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL"}'
       expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Trackback: Not Provided")
     end
+
+    it "should render a nil comment as empty" do
+      should_receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
+      service.should_receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://somehost/${ID}", "\\d+"))
+
+      comment_str = nil
+      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("<p></p>")
+    end
   end
 
   describe :render_simple_comment do
@@ -122,6 +130,16 @@ describe MaterialsHelper do
     it "should display only trackback url as not provided when comment and trackback url are not provided" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL"}'
       expect(render_simple_comment(comment_str)).to eq("Trackback: Not Provided")
+    end
+
+    it "should render a nil comment as empty" do
+      comment_str = nil
+      expect(render_simple_comment(comment_str)).to eq("")
+    end
+
+    it "should render an empty comment as empty" do
+      comment_str = ''
+      expect(render_simple_comment(comment_str)).to eq("")
     end
   end
 end

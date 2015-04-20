@@ -46,17 +46,17 @@ module MaterialsHelper
   end
 
   def render_simple_comment(comment)
-    if comment.match(/\"TYPE\":\"PACKAGE_MATERIAL\"/)
+    if /\"TYPE\":\"PACKAGE_MATERIAL\"/.match(comment)
       package_comment_map = package_material_display_comment(comment)
       trackback_url = package_comment_map['TRACKBACK_URL'].blank? ? l.string('NOT_PROVIDED') : package_comment_map['TRACKBACK_URL']
       result = package_comment_map['COMMENT'] || "#{l.string('TRACKBACK')}#{trackback_url}"
       return result
     end
-    comment
+    comment || ""
   end
 
   def render_comment_markup_for(comment, pipeline_name)
-    if comment.match(/\"TYPE\":\"PACKAGE_MATERIAL\"/)
+    if /\"TYPE\":\"PACKAGE_MATERIAL\"/.match(comment)
       render_comment_for_package_material(comment)
     else
       render_tracking_tool_link_for_comment(comment, pipeline_name).html_safe

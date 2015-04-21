@@ -302,6 +302,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     static class SvnInfo {
         private String path = "";
         private String encodedUrl = "";
+        private String root = "";
         private static final String ENCODING = "UTF-8";
 
 
@@ -324,6 +325,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             String encodedPath = StringUtils.replace(encodedUrl, root, "");
 
             this.path = URLDecoder.decode(encodedPath, ENCODING);
+            this.root = root;
             this.encodedUrl = encodedUrl;
         }
 
@@ -334,5 +336,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         public String getUrl() {
             return encodedUrl;
         }
+
+        public String getRoot() { return root; }
     }
 }

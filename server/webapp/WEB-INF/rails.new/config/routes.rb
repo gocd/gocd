@@ -217,7 +217,7 @@ Go::Application.routes.draw do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
 
-      #state
+      # state
       get 'state/status' => 'server_state#status'
       post 'state/active' => 'server_state#to_active'
       post 'state/passive' => 'server_state#to_passive'

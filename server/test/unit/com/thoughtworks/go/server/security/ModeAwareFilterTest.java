@@ -96,7 +96,7 @@ public class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowSwitchToActiveStageChangePostRequestInPassiveState() throws Exception {
+    public void shouldAllowSwitchToActiveStateChangePostRequestInPassiveState() throws Exception {
         when(request.getMethod()).thenReturn("post");
         when(systemEnvironment.isServerActive()).thenReturn(false);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");

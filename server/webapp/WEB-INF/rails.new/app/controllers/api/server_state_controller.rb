@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
-class Api::ServerStateController < Api::ApiController
 
+class Api::ServerStateController < Api::ApiController
   def status
     if system_environment.isServerActive
       render text: 'active'
@@ -32,5 +32,4 @@ class Api::ServerStateController < Api::ApiController
     system_environment.switchToPassiveState
     render text: 'passive'
   end
-
 end

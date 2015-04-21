@@ -642,10 +642,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_DATABASE_PROVIDER.getValue();
     }
 
-    public boolean isServerActive() {
-        return GO_SERVER_STATE.getValue().equalsIgnoreCase("active");
-    }
-
     public String landingPage() {
         return GO_LANDING_PAGE.getValue();
     }
@@ -654,12 +650,16 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(APP_SERVER).equals(JETTY9);
     }
 
+    public boolean isServerActive() {
+        return GO_SERVER_STATE.getValue().equalsIgnoreCase("active");
+    }
+
     public void switchToActiveState() {
-        set(GO_SERVER_STATE,"active");
+        set(GO_SERVER_STATE, "active");
     }
 
     public void switchToPassiveState() {
-        set(GO_SERVER_STATE,"passive");
+        set(GO_SERVER_STATE, "passive");
     }
 
     public static abstract class GoSystemProperty<T> {

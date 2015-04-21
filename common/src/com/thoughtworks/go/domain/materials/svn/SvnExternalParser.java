@@ -143,6 +143,10 @@ public class SvnExternalParser {
             }
         }
 
+        protected String replaceRootRelativePathWithAbsoluteFor(String external, String repoUrl) {
+            return external.replace("^", repoUrl);
+        }
+
         protected abstract Pattern pattern();
 
         protected abstract String root(Matcher matcher, SvnExternalParser.SvnExternalRoot svnExternalRoot);
@@ -169,6 +173,13 @@ public class SvnExternalParser {
             return matcher.group(1);
         }
 
+        @Override
+        public boolean match(String external, String repoUrl, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
+            external = replaceRootRelativePathWithAbsoluteFor(external, repoUrl);
+
+            return super.match(external, repoUrl, results, svnExternalRoot);
+        }
+
         protected String externalDir(Matcher matcher) {
             return matcher.group(5);
         }
@@ -190,6 +201,13 @@ public class SvnExternalParser {
 
         protected String root(Matcher matcher, SvnExternalRoot svnExternalRoot) {
             return svnExternalRoot.getRoot();
+        }
+
+        @Override
+        public boolean match(String external, String repoUrl, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
+            external = replaceRootRelativePathWithAbsoluteFor(external, repoUrl);
+
+            return super.match(external, repoUrl, results, svnExternalRoot);
         }
 
         protected String externalDir(Matcher matcher) {

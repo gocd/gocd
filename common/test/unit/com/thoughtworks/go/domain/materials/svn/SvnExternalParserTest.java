@@ -192,4 +192,17 @@ public class SvnExternalParserTest {
                 is(new SvnExternal("lib/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk/")));
         assertThat(externals.get(1), is(new SvnExternal("lib/externals-6", "svn://10.18.3.171:8080/svn/CSharpProject/trunk/")));
     }
+
+    @Test
+    public void shouldParseSvnExternalsWithRootRelativePathsForSvn15() {
+        String svnExternals = "http://10.18.3.171:8080/svn/externalstest - ^/repo1/trunk lib/repo1\n" +
+                "^/repo2/trunk repo2\n" +
+                "^/repo3/trunk app/repo3\n" +
+                "^/repo4/trunk app/repo4";
+
+        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn");
+        assertThat(externals.size(), is(4));
+        assertThat(externals.get(0), is(new SvnExternal("externalstest/lib/repo1", "http://10.18.3.171:8080/svn/repo1/trunk")));
+        assertThat(externals.get(3), is(new SvnExternal("externalstest/app/repo4", "http://10.18.3.171:8080/svn/repo4/trunk")));
+    }
 }

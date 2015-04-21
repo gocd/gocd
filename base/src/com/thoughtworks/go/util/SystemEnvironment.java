@@ -654,6 +654,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(APP_SERVER).equals(JETTY9);
     }
 
+    public void switchToActiveState() {
+        set(GO_SERVER_STATE,"active");
+    }
+
+    public void switchToPassiveState() {
+        set(GO_SERVER_STATE,"passive");
+    }
+
     public static abstract class GoSystemProperty<T> {
         private String propertyName;
         private T defaultValue;

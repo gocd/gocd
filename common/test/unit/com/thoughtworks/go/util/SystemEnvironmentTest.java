@@ -382,6 +382,32 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    public void shouldPutServerInActiveMode() throws Exception {
+        String key = "go.server.state";
+        try {
+            System.setProperty(key, "passive");
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            systemEnvironment.switchToActiveState();
+            assertThat(systemEnvironment.isServerActive(), is(true));
+        } finally {
+            System.clearProperty(key);
+        }
+    }
+
+    @Test
+    public void shouldPutServerInPassiveMode() throws Exception {
+        String key = "go.server.state";
+        try {
+            System.setProperty(key, "active");
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            systemEnvironment.switchToPassiveState();
+            assertThat(systemEnvironment.isServerActive(), is(false));
+        } finally {
+            System.clearProperty(key);
+        }
+    }
+
+    @Test
     public void shouldFindGoServerStatusToBePassive() throws Exception {
         try {
             SystemEnvironment systemEnvironment = new SystemEnvironment();
@@ -412,7 +438,7 @@ public class SystemEnvironmentTest {
     @Test
     public void shouldAbleToOverrideDefaultLandingPageAsPipelines() throws Exception {
         try {
-            System.setProperty("go.landing.page","/admin/pipelines");
+            System.setProperty("go.landing.page", "/admin/pipelines");
             SystemEnvironment systemEnvironment = new SystemEnvironment();
             String landingPage = systemEnvironment.landingPage();
             assertThat(landingPage, is("/admin/pipelines"));

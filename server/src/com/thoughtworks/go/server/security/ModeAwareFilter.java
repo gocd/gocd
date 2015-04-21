@@ -54,6 +54,8 @@ public class ModeAwareFilter implements Filter {
         if (isReadOnlyRequest(servletRequest)) return false;
         if ((systemEnvironment.getWebappContextPath() + "/auth/security_check").equals(servletRequest.getRequestURI()))
             return false;
+        if ((systemEnvironment.getWebappContextPath() + "/api/state/active").equals(servletRequest.getRequestURI()))
+            return false;
         return true;
     }
 

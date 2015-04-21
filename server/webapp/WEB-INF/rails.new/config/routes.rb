@@ -217,6 +217,11 @@ Go::Application.routes.draw do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
 
+      #state
+      get 'state/status' => 'server_state#status'
+      post 'state/active' => 'server_state#to_active'
+      post 'state/passive' => 'server_state#to_passive'
+
       # history
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
       get 'stages/:pipeline_name/:stage_name/history/(:offset)' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :stage_history_api

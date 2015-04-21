@@ -96,6 +96,18 @@ public class ModeAwareFilterTest {
     }
 
     @Test
+    public void shouldAllowSwitchToActiveStageChangePostRequestInPassiveState() throws Exception {
+        when(request.getMethod()).thenReturn("post");
+        when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
+        when(request.getRequestURI()).thenReturn("/go/api/state/active");
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
     public void shouldRedirectToPassiveServerErrorPageForNonGetRequestWhenInPassiveState() throws Exception {
         when(request.getMethod()).thenReturn("post");
         when(systemEnvironment.isServerActive()).thenReturn(false);

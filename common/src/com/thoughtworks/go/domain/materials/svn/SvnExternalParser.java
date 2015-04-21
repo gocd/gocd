@@ -38,19 +38,19 @@ public class SvnExternalParser {
         return StringUtils.isBlank(root) ? externalDir : root + "/" + externalDir;
     }
 
-    public List<SvnExternal> parse(String externals, String repoUrl) {
+    public List<SvnExternal> parse(String externals, String repoUrl, String repoRoot) {
         List<SvnExternal> results = new ArrayList<SvnExternal>();
         for (String externalSection : externals.split("\n\n")) {
-            parseSection(externalSection, repoUrl, results);
+            parseSection(externalSection, repoUrl, repoRoot, results);
         }
         return results;
     }
 
-    private void parseSection(String externalSection, String repoUrl, List<SvnExternal> results) {
+    private void parseSection(String externalSection, String repoUrl, String repoRoot, List<SvnExternal> results) {
         SvnExternalRoot svnExternalRoot = new SvnExternalRoot();
         for (String external : externalSection.split("\n")) {
             for (SvnExternalMatcher matcher : matchers) {
-                if (matcher.match(external, repoUrl, results, svnExternalRoot)) {
+                if (matcher.match(external, repoUrl, repoRoot, results, svnExternalRoot)) {
                     break;
                 }
             }
@@ -73,8 +73,8 @@ public class SvnExternalParser {
     }
 
     private interface SvnExternalMatcher {
-        boolean match(String external, String repoUrl, List<SvnExternal> results,
-                      SvnExternalParser.SvnExternalRoot svnExternalRoot);
+        boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results,
+                      SvnExternalRoot svnExternalRoot);
     }
 
     private class Svn14WithRootMatcher extends BaseSvnExternalMatcher {
@@ -126,7 +126,7 @@ public class SvnExternalParser {
     }
 
     private abstract class BaseSvnExternalMatcher implements SvnExternalMatcher {
-        public boolean match(String external, String repoUrl, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
+        public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
             Matcher matcher = pattern().matcher(external);
             try {
                 if (matcher.matches()) {
@@ -174,10 +174,10 @@ public class SvnExternalParser {
         }
 
         @Override
-        public boolean match(String external, String repoUrl, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
-            external = replaceRootRelativePathWithAbsoluteFor(external, repoUrl);
+        public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
+            external = replaceRootRelativePathWithAbsoluteFor(external, repoRoot);
 
-            return super.match(external, repoUrl, results, svnExternalRoot);
+            return super.match(external, repoUrl, repoRoot, results, svnExternalRoot);
         }
 
         protected String externalDir(Matcher matcher) {
@@ -204,10 +204,10 @@ public class SvnExternalParser {
         }
 
         @Override
-        public boolean match(String external, String repoUrl, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
-            external = replaceRootRelativePathWithAbsoluteFor(external, repoUrl);
+        public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
+            external = replaceRootRelativePathWithAbsoluteFor(external, repoRoot);
 
-            return super.match(external, repoUrl, results, svnExternalRoot);
+            return super.match(external, repoUrl, repoRoot, results, svnExternalRoot);
         }
 
         protected String externalDir(Matcher matcher) {

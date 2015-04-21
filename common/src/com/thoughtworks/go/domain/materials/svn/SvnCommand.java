@@ -99,10 +99,12 @@ public class SvnCommand extends SCMCommand implements Subversion {
                 .withArg(repositoryUrl);
         ConsoleResult result = executeCommand(svnExternalCommand);
         String svnExternalConsoleOut = result.outputAsString();
-        String repoUrl = remoteInfo(new SAXBuilder(false)).getUrl();
+        SvnInfo remoteInfo = remoteInfo(new SAXBuilder(false));
+        String repoUrl = remoteInfo.getUrl();
+        String repoRoot = remoteInfo.getRoot();
         List<SvnExternal> svnExternalList = null;
         try {
-            svnExternalList = new SvnExternalParser().parse(svnExternalConsoleOut, repoUrl);
+            svnExternalList = new SvnExternalParser().parse(svnExternalConsoleOut, repoUrl, repoRoot);
         } catch (RuntimeException e) {
             throw (RuntimeException) result.smudgedException(e);
         }

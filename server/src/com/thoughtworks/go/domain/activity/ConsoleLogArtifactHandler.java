@@ -22,11 +22,8 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.service.ConsoleService;
-import com.thoughtworks.go.util.GoConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static java.lang.String.format;
 
 @Component
 public class ConsoleLogArtifactHandler implements JobStatusListener {
@@ -43,9 +40,6 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
             try {
                 JobIdentifier identifier = job.getIdentifier();
                 consoleService.moveConsoleArtifacts(identifier);
-                // TODO: Put correct timestamp of job completion the agent and the server maybe on different timezones.
-                consoleService.appendToConsoleLog(identifier, format("[%s] %s %s", GoConstants.PRODUCT_NAME, "Job Completed"
-                        , identifier.buildLocatorForDisplay()));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

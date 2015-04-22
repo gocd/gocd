@@ -94,6 +94,8 @@ public class BuildWork implements Work {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
         } catch (Exception e) {
             reportFailure(e);
+        } finally {
+            goPublisher.stop();
         }
     }
 
@@ -110,9 +112,9 @@ public class BuildWork implements Work {
     private void reportCompletion(JobResult result) {
         try {
             builders.waitForCancelTasks();
-            goPublisher.stop();
             if (result == null) {
                 goPublisher.reportCurrentStatus(JobState.Completed);
+                goPublisher.reportCompletedAction();
             } else {
                 goPublisher.reportCompleted(result);
             }

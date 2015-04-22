@@ -36,12 +36,6 @@ public class ConsoleLogArtifactHandlerTest {
     }
 
     @Test
-    public void shouldReportJobAsCompletedOnConsole() throws Exception {
-        handler.jobStatusChanged(completedJobInstance);
-        verify(consoleService).appendToConsoleLog(completedJobInstance.getIdentifier(), "[go] Job Completed pipeline/label-1/stage/1/job");
-    }
-
-    @Test
     public void shouldReportJobAsCompletedOnConsoleOnlyWhenStatusIsCompleted() throws Exception {
         handler.jobStatusChanged(buildingJobInstance);
         verify(consoleService, never()).appendToConsoleLog(buildingJobInstance.getIdentifier(), "[go] Job Completed pipeline/label-1/stage/1/job");

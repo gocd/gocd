@@ -75,7 +75,7 @@ public class MacAboutBox extends JFrame implements ActionListener {
         aboutLabel[4] = new JLabel("");
         aboutLabel[5] = new JLabel("Java Version " + System.getProperty("java.version"));
         aboutLabel[5].setFont(bodyFont);
-        aboutLabel[6] = new JLabel("Copyright (C) 2013 ThoughtWorks Inc.");
+        aboutLabel[6] = new JLabel("Copyright (C) 2015 ThoughtWorks Inc.");
         aboutLabel[6].setFont(bodyFont);
         aboutLabel[7] = new JLabel("");
 

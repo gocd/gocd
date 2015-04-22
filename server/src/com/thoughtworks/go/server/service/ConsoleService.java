@@ -173,6 +173,7 @@ public class ConsoleService {
     public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
         try {
             File from = chooser.temporaryConsoleFile(locatableEntity);
+            from.createNewFile(); // Job cancellation skips temporary file creation. Force create one if it does not exist.
             File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
             FileUtils.moveFile(from, to);
         } catch (IOException e) {

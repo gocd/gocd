@@ -101,10 +101,13 @@ public class GoMacLauncher extends JFrame {
         try {
             setUpApplicationSupport();
 
-            final Process server = Runtime.getRuntime().exec(args, null, new File(APPLICATION_SUPPORT_PATHNAME));
-            server.getErrorStream().close();
-            server.getInputStream().close();
+            ProcessBuilder processBuilder = new ProcessBuilder(args);
+            processBuilder.directory(new File(APPLICATION_SUPPORT_PATHNAME));
+            processBuilder.redirectErrorStream(true);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(new File(APPLICATION_SUPPORT_PATHNAME, "go-server.log")));
+            final Process server = processBuilder.start();
             server.getOutputStream().close();
+
             Thread shutdownHook = new Thread(new Shutdown(server));
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

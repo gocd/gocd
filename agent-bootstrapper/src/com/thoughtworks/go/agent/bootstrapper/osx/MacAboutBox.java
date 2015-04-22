@@ -55,7 +55,7 @@ public class MacAboutBox extends JFrame implements ActionListener {
         aboutLabels.add(bodyLabel("Bootstrapper Version " + getBootstrapperVersion()));
         aboutLabels.add(emptyLabel());
         aboutLabels.add(bodyLabel("Java Version " + System.getProperty("java.version")));
-        aboutLabels.add(bodyLabel("Copyright (C) 2013 ThoughtWorks Inc."));
+        aboutLabels.add(bodyLabel("Copyright (C) 2015 ThoughtWorks Inc."));
         aboutLabels.add(emptyLabel());
 
         Panel textPanel2 = new Panel(new GridLayout(aboutLabels.size(), 1));

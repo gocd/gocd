@@ -172,7 +172,7 @@ public class UserSqlMapDaoCachingTest {
 
     @Test(timeout = 60000)
     public void enabledUserCacheShouldBeThreadSafe() throws Exception {
-        ThreadSafetyChecker threadSafetyChecker = new ThreadSafetyChecker(5000);
+        ThreadSafetyChecker threadSafetyChecker = new ThreadSafetyChecker(10000);
 
         threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
             @Override

@@ -15,21 +15,29 @@
 ##########################GO-LICENSE-END##################################
 
 class Api::ServerStateController < Api::ApiController
+
   def status
-    if system_environment.isServerActive
-      render text: 'active'
-      return
-    end
-    render text: 'passive'
+    render json: state_hash
   end
 
   def to_active
     system_environment.switchToActiveState
-    render text: 'active'
+    render json: state_hash
   end
 
   def to_passive
     system_environment.switchToPassiveState
-    render text: 'passive'
+    render json: state_hash
   end
+
+  private
+
+  def state_hash
+    if system_environment.isServerActive
+      {state: 'active'}
+    else
+      {state: 'passive'}
+    end
+  end
+
 end

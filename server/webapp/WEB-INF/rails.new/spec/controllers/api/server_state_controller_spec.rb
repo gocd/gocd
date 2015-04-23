@@ -17,6 +17,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
 describe Api::ServerStateController do
+
   before :each do
     @system_environment = double('system_environment')
     controller.stub(:system_environment).and_return(@system_environment)
@@ -36,25 +37,35 @@ describe Api::ServerStateController do
 
   it 'should return server state status as active' do
     @system_environment.should_receive(:isServerActive).and_return(true)
-    get :status, no_layout: true
-    expect(response.body).to eq('active')
+    get :status
+    expected_state('active')
+    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
   end
 
   it 'should return server state status as passive' do
     @system_environment.should_receive(:isServerActive).and_return(false)
-    get :status, no_layout: true
-    expect(response.body).to eq('passive')
+    get :status
+    expected_state('passive')
+    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
   end
 
   it 'should update server state to passive' do
+    @system_environment.should_receive(:isServerActive).and_return(false)
     @system_environment.should_receive(:switchToPassiveState)
-    post :to_passive, no_layout: true
-    expect(response.body).to eq('passive')
+    post :to_passive
+    expected_state('passive')
+    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
   end
 
   it 'should update server state to active' do
+    @system_environment.should_receive(:isServerActive).and_return(true)
     @system_environment.should_receive(:switchToActiveState)
-    post :to_active, no_layout: true
-    expect(response.body).to eq('active')
+    post :to_active
+    expected_state('active')
+    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
+  end
+
+  def expected_state(state)
+    expect(JSON.parse(response.body)).to eq({'state' => state})
   end
 end

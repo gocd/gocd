@@ -39,14 +39,14 @@ describe Api::ServerStateController do
     @system_environment.should_receive(:isServerActive).and_return(true)
     get :status
     expected_state('active')
-    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
+    expect_content_type_json
   end
 
   it 'should return server state status as passive' do
     @system_environment.should_receive(:isServerActive).and_return(false)
     get :status
     expected_state('passive')
-    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
+    expect_content_type_json
   end
 
   it 'should update server state to passive' do
@@ -54,7 +54,7 @@ describe Api::ServerStateController do
     @system_environment.should_receive(:switchToPassiveState)
     post :to_passive
     expected_state('passive')
-    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
+    expect_content_type_json
   end
 
   it 'should update server state to active' do
@@ -62,10 +62,14 @@ describe Api::ServerStateController do
     @system_environment.should_receive(:switchToActiveState)
     post :to_active
     expected_state('active')
-    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
+    expect_content_type_json
   end
 
   def expected_state(state)
     expect(JSON.parse(response.body)).to eq({'state' => state})
+  end
+
+  def expect_content_type_json
+    expect(response.header['Content-Type']).to eq('application/json; charset=utf-8')
   end
 end

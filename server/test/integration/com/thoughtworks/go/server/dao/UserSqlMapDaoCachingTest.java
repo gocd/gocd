@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StopWatch;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -67,12 +68,13 @@ public class UserSqlMapDaoCachingTest {
         User first = new User("first");
         first.addNotificationFilter(new NotificationFilter("pipline", "stage1", StageEvent.Fails, true));
         first.addNotificationFilter(new NotificationFilter("pipline", "stage2", StageEvent.Fails, true));
-
+        int originalUserCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size();
+        int originalNotificationsCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters").getEntries().size();
         userDao.saveOrUpdate(first);
         long userId = userDao.findUser("first").getId();
-        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size(), is(1));
+        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size(), is(originalUserCacheSize + 1));
         SecondLevelCacheStatistics notificationFilterCollectionCache = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters");
-        assertThat(notificationFilterCollectionCache.getEntries().size(), is(1));
+        assertThat(notificationFilterCollectionCache.getEntries().size(), is(originalNotificationsCacheSize + 1));
         assertThat(notificationFilterCollectionCache.getEntries().get(userId), is(Matchers.notNullValue()));
     }
 
@@ -168,35 +170,51 @@ public class UserSqlMapDaoCachingTest {
         assertThatEnabledUserCacheExists();
     }
 
-    @Test(timeout = 20000)
+    @Test(timeout = 60000)
     public void enabledUserCacheShouldBeThreadSafe() throws Exception {
         ThreadSafetyChecker threadSafetyChecker = new ThreadSafetyChecker(5000);
 
         threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
             @Override
             public void execute(int runIndex) {
+                StopWatch stopWatch = new StopWatch("enabledUserCount");
+                stopWatch.start("enabledUserCount");
                 userDao.enabledUserCount();
+                stopWatch.stop();
+                System.out.println(stopWatch.shortSummary());
             }
         });
 
         threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
             @Override
             public void execute(int runIndex) {
+                StopWatch stopWatch = new StopWatch("deleteAll");
+                stopWatch.start("deleteAll");
                 userDao.deleteAll();
+                stopWatch.stop();
+                System.out.println(stopWatch.shortSummary());
             }
         });
 
         threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
             @Override
             public void execute(int runIndex) {
+                StopWatch stopWatch = new StopWatch("saveOrUpdate");
+                stopWatch.start("saveOrUpdate");
                 userDao.saveOrUpdate(new User("some-random-user " + runIndex));
+                stopWatch.stop();
+                System.out.println(stopWatch.shortSummary());
             }
         });
 
         threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
             @Override
             public void execute(int runIndex) {
+                StopWatch stopWatch = new StopWatch("enableUsers");
+                stopWatch.start("enableUsers");
                 userDao.enableUsers(Arrays.asList("some-random-user " + runIndex));
+                stopWatch.stop();
+                System.out.println(stopWatch.shortSummary());
             }
         });
 

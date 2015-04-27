@@ -24,20 +24,31 @@ public class ConsoleLogArtifactHandlerTest {
     }
 
     @Test
-    public void shouldMoveConsoleArtifactWhenJobCompletes() throws Exception {
+    public void shouldMoveConsoleArtifactWhenJobThatIsRunOrRerunCompletes() throws Exception {
+        completedJobInstance.setOriginalJobId(null);
         handler.jobStatusChanged(completedJobInstance);
         verify(consoleService).moveConsoleArtifacts(completedJobInstance.getIdentifier());
     }
 
     @Test
-    public void shouldMoveConsoleArtifactOnlyWhenJobCompletes() throws Exception {
+    public void shouldNotMoveConsoleArtifactWhenJobCompletedIsWasNotActuallyRunWhenAnotherJobInItsStageWasRerun() throws Exception {
+        completedJobInstance.setOriginalJobId(1L);
+        handler.jobStatusChanged(completedJobInstance);
+        verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());
+    }
+
+    @Test
+    public void shouldNotMoveConsoleArtifactWhenJobIsACopyIsNotYetCompleted() throws Exception {
+        completedJobInstance.setOriginalJobId(1L);
         handler.jobStatusChanged(buildingJobInstance);
         verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());
     }
 
     @Test
-    public void shouldReportJobAsCompletedOnConsoleOnlyWhenStatusIsCompleted() throws Exception {
+    public void shouldNotMoveConsoleArtifactWhenJobIsNotYetCompleted() throws Exception {
+        completedJobInstance.setOriginalJobId(null);
         handler.jobStatusChanged(buildingJobInstance);
-        verify(consoleService, never()).appendToConsoleLog(buildingJobInstance.getIdentifier(), "[go] Job Completed pipeline/label-1/stage/1/job");
+        verify(consoleService, never()).moveConsoleArtifacts(buildingJobInstance.getIdentifier());
     }
+
 }

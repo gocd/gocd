@@ -36,7 +36,12 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
 
     @Override
     public void jobStatusChanged(JobInstance job) {
-        if (job.getState().isCompleted()) {
+        /*
+            We are checking for jobs which are a copy because the completion event is fired for a job that's a part
+            of a stage which have rerun jobs. The read fix is to not raise this event for those jobs.
+            TODO: Do not fire completed event for jobs that do not run in the stage.
+         */
+        if (!job.isCopy() && job.isCompleted()) {
             try {
                 JobIdentifier identifier = job.getIdentifier();
                 consoleService.moveConsoleArtifacts(identifier);

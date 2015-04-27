@@ -419,13 +419,13 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldUseJetty6ByDefault() {
+    public void shouldUseJetty9ByDefault() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY6));
-        assertThat(systemEnvironment.usingJetty9(), is(false));
-
-        systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY9);
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
         assertThat(systemEnvironment.usingJetty9(), is(true));
+
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
+        assertThat(systemEnvironment.usingJetty9(), is(false));
     }
 
     @Test

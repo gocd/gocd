@@ -75,6 +75,7 @@ public class GoServer {
     }
 
     AppServer configureServer() throws Exception {
+        this.systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY6);
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
         server.configure();

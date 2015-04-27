@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.validators.*;
@@ -76,9 +75,11 @@ public class GoServer {
     }
 
     AppServer configureServer() throws Exception {
-        if(StringUtil.isBlank(System.getProperty(SystemEnvironment.APP_SERVER.propertyName()))){
+        String chosenAppServer = System.getProperty(SystemEnvironment.APP_SERVER.propertyName());
+        if (chosenAppServer == null || chosenAppServer.trim().isEmpty()) {
             systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY6);
         }
+
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
         server.configure();

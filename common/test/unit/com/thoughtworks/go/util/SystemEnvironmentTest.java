@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -419,17 +419,13 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldUseJetty6ByDefault() {
+    public void shouldUseJetty9ByDefault() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        try {
-            assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY6));
-            assertThat(systemEnvironment.usingJetty9(), is(false));
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
+        assertThat(systemEnvironment.usingJetty9(), is(true));
 
-            systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY9);
-            assertThat(systemEnvironment.usingJetty9(), is(true));
-        } finally {
-            systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY6);
-        }
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
+        assertThat(systemEnvironment.usingJetty9(), is(false));
     }
 
     @Test

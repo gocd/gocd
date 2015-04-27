@@ -153,9 +153,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
     public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
-    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static final String JETTY6 = "com.thoughtworks.go.server.Jetty6Server";
-    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY6));
+    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
+    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 

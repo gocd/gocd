@@ -580,7 +580,7 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>jetty6</artifactId>
+            <artifactId>jetty9</artifactId>
             <version>1.0</version>
             <scope>test</scope>
         </dependency>

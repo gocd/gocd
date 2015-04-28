@@ -129,6 +129,6 @@ public class ArtifactDirectoryChooserTest {
     public void shouldFetchATemporaryConsoleOutLocation() throws Exception {
         File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
         String filePathSeparator = System.getProperty("file.separator");
-        assertThat(consoleFile.getPath(), is(String.format("work%slocal%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
+        assertThat(consoleFile.getPath(), is(String.format("data%sconsole%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator)));
     }
 }

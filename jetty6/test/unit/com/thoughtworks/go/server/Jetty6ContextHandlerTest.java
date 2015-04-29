@@ -40,7 +40,7 @@ public class Jetty6ContextHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        jetty6Server = new Jetty6Server(mock(SystemEnvironment.class), "pwd", mock(SSLSocketFactory.class), mock(Server.class), mock(GoJetty6CipherSuite.class), mock(Jetty6GoWebXmlConfiguration.class));
+        jetty6Server = new Jetty6Server(mock(SystemEnvironment.class), "pwd", mock(SSLSocketFactory.class), mock(Server.class), mock(GoJetty6CipherSuite.class));
     }
 
     @Test

@@ -43,7 +43,7 @@ public class GoServerContextHandlersTest {
 
     @Before
     public void setUp() throws Exception {
-        Jetty6Server jettyServer = new Jetty6Server(mock(SystemEnvironment.class), "pwd", mock(SSLSocketFactory.class), new Server(), mock(GoJetty6CipherSuite.class), mock(Jetty6GoWebXmlConfiguration.class));
+        Jetty6Server jettyServer = new Jetty6Server(mock(SystemEnvironment.class), "pwd", mock(SSLSocketFactory.class), new Server(), mock(GoJetty6CipherSuite.class));
         legacyHandler = jettyServer.legacyRequestHandler();
     }
 

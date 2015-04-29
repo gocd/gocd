@@ -50,20 +50,18 @@ public class Jetty6Server extends AppServer {
 
     private final Server server;
     private final GoJetty6CipherSuite goCipherSuite;
-    private Jetty6GoWebXmlConfiguration configuration;
     private WebAppContext webAppContext;
     private static final Logger LOG = Logger.getLogger(Jetty6Server.class);
 
     public Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
-        this(systemEnvironment, password, sslSocketFactory, new Server(), new GoJetty6CipherSuite(sslSocketFactory), new Jetty6GoWebXmlConfiguration());
+        this(systemEnvironment, password, sslSocketFactory, new Server(), new GoJetty6CipherSuite(sslSocketFactory));
     }
 
-    Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, GoJetty6CipherSuite goJetty6CipherSuite, Jetty6GoWebXmlConfiguration configuration) {
+    Jetty6Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, GoJetty6CipherSuite goJetty6CipherSuite) {
         super(systemEnvironment, password, sslSocketFactory);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
         this.server = server;
         this.goCipherSuite = goJetty6CipherSuite;
-        this.configuration = configuration;
     }
 
     @Override
@@ -153,10 +151,13 @@ public class Jetty6Server extends AppServer {
         return connector;
     }
 
+    private String getWarFile() {
+        return systemEnvironment.getCruiseWar();
+    }
+
     WebAppContext webApp() throws IOException, SAXException, ClassNotFoundException, UnavailableException {
         WebAppContext wac = new WebAppContext();
-        configuration.setWebAppContext(wac);
-        configuration.initialize(systemEnvironment.getCruiseWar());
+        wac.setDefaultsDescriptor(Jetty6GoWebXmlConfiguration.configuration(getWarFile()));
 
         wac.setConfigurationClasses(new String[]{
                 "org.mortbay.jetty.webapp.WebInfConfiguration",

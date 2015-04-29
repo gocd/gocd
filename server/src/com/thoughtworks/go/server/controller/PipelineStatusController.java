@@ -94,40 +94,6 @@ public class PipelineStatusController {
         }
     }
 
-    /**
-     * @deprecated #5839 - unsupported since 12.3 sriki/sachin
-     */
-    @RequestMapping(value = "/**/pausePipeline.json", method = RequestMethod.POST)
-    public void pauseViaPost(@RequestParam(value = "pipelineName")String pipelineName,
-                             @RequestParam(value = "pauseCause")String pauseCause,
-                             HttpServletRequest request,
-                             HttpServletResponse response) throws SQLException, NamingException {
-        if (isEmpty(pipelineName)) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            return;
-        }
-        Username userName = UserHelper.getUserName();
-        pipelinePauseService.pause(pipelineName, pauseCause, userName);
-        LOGGER.info(String.format("[JSON API] Pipeline[%s] is paused by [%s] because [%s]", pipelineName, userName.getDisplayName(), pauseCause));
-    }
-
-    /**
-     * @deprecated #5839 - unsupported since 12.3 sriki/sachin
-     */
-    @RequestMapping(value = "/**/unpausePipeline.json", method = RequestMethod.POST)
-    public void unpauseViaPost(@RequestParam(value = "pipelineName")String pipelineName,
-                               HttpServletRequest request,
-                               HttpServletResponse response) throws SQLException, NamingException {
-        if (isEmpty(pipelineName)) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            return;
-        }
-        pipelinePauseService.unpause(pipelineName);
-
-        String userName = UserHelper.getUserName().getDisplayName();
-        LOGGER.info(String.format("[JSON API] Pipeline [%s] is unpaused by [%s]", pipelineName, userName));
-    }
-
     @RequestMapping(value = "/**/pipelineStatus.json", method = RequestMethod.GET)
     public ModelAndView list(@RequestParam(value = "pipelineName", required = false)String pipelineName,
                              @RequestParam(value = "useCache", required = false)Boolean useCache,

@@ -290,22 +290,63 @@ div.build_detail_container_content {
 .widget iframe {
     border: none;
 }
+
+#console-action-bar {
+    min-height: 20px;
+    padding: 10px;
+
+    background-color: #333;
+
+    div {
+        float: right;
+    }
+
+    a {
+        padding-right: 15px;
+        color: yellow;
+    }
+
+    &.white-theme {
+        background-color: white;
+        a {
+            color: #1F66BD;
+        }
+    }
+}
+
 #buildoutput_pre {
     overflow: auto;
+
+    white-space: pre;
     white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
 
     padding-left: 10px;
     padding-bottom: 10px;
 
-    @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'gray' {
-        .fg-#{$color} {
-            color: #{$color};
-        }
+
+    background-color: #333;
+    color: white;
+
+    &.white-theme {
+        background-color: white;
+        color: black;
+    }
+
+    * {
+        font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        line-height: 19px;
     }
 
     @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white' {
-        .bg-#{$color} {
+        .fg-#{$color} {
             color: #{$color};
+        }
+
+        .bg-#{$color} {
+            background-color: #{$color};
         }
     }
 
@@ -319,6 +360,10 @@ div.build_detail_container_content {
 
     .underline {
         text-decoration: underline;
+    }
+
+    .invisible {
+        color: transparent;
     }
 
 }

@@ -16,13 +16,19 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.io.PrintWriter;
-import java.util.Map;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.server.web.ansi.AnsiAttributeElement;
+import com.thoughtworks.go.server.web.ansi.HtmlAnsiOutputStream;
+import com.thoughtworks.go.util.GoConstants;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.web.servlet.View;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.util.GoConstants;
-import org.springframework.web.servlet.View;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
 
 public class ConsoleOutView implements View {
     private int offset;
@@ -30,22 +36,42 @@ public class ConsoleOutView implements View {
 
     public ConsoleOutView(int offset, String content) {
         this.offset = offset;
-        this.content = content;
+        this.content = StringEscapeUtils.escapeHtml(content);
     }
 
     public String getContentType() {
-        return GoConstants.RESPONSE_CHARSET;
+        return GoConstants.RESPONSE_CHARSET_HTML;
     }
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.addHeader("X-JSON", "[" + getOffset() + "]");
+        response.setContentType(getContentType());
         PrintWriter writer = response.getWriter();
         try {
-            writer.write(getContent());
+            writeConsoleOutputTo(writer);
         } finally {
             writer.close();
         }
+    }
 
+    private void writeConsoleOutputTo(final PrintWriter writer) {
+        if (!Toggles.isToggleOn(Toggles.COLOR_LOGS_FEATURE_TOGGLE_KEY)){
+            writer.write(content);
+            return;
+        }
+
+        try {
+            final WriterOutputStream os = new WriterOutputStream(writer);
+            HtmlAnsiOutputStream ansiStream = new HtmlAnsiOutputStream(os, new AnsiAttributeElement.Emitter() {
+                public void emitHtml(String html) throws IOException {
+                    os.write(html.getBytes("UTF-8"));
+                }
+            });
+            ansiStream.write(content.getBytes("UTF-8"));
+            ansiStream.close();
+        } catch (Exception e) {
+            writer.write(content);
+        }
     }
 
     public int getOffset() {

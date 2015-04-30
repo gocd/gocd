@@ -1396,6 +1396,7 @@ a:visited#link-to-this-page {
     font-size: 11px;
     /*text-decoration: underline;*/
     float: right;
+    color: white;
 }
 a:hover#link-to-this-page {
     text-decoration:none;
@@ -1442,19 +1443,4 @@ a:hover#link-to-this-page {
 }
 .add_pipeline_admin_contents a.link_as_button{
     float: left;
-}
-
-#raw-console-file a:link,
-#raw-console-file a:visited {
-  padding-left:16px;
-  padding-right: 5px;
-  font-size: 11px;
-  float: right;
-}
-#raw-console-file a:hover {
-  text-decoration:none;
-}
-
-#raw-console-file {
-  float: right;
 }

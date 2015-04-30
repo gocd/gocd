@@ -108,13 +108,13 @@
                                         </li>
                                     #end
                                 </ul>
+                                <a href="#" id="link-to-this-page" title="The permanent link of this tab, you can share this url with other team members.">Link to this tab</a>
                                 <div class="clear"></div>
                             </div>
                             <div class="build_detail_container sub_tab_container rounded-corner-for-tab-container">
 
 
                                 <div class="sub_tab_container_content">
-                                    <a href="#" id="link-to-this-page" title="The permanent link of this tab, you can share this url with other team members.">Link to this tab</a>
                                     <div class="clear"></div>
 
                                     #set($buildoutput_extra_attrs="")
@@ -161,11 +161,7 @@
 <script type="text/javascript">
     var cruise_stage_or_build_detail_page_status = '$presenter.result';
     var subtab_callback_map = {
-        'console' : new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#build_console')[0], function() {
-            #if($presenter.isCompleted())
-                jQuery(".console_tab_content_container .console_iframe_container").html("<iframe src='$req.getContextPath()/files/${presenter.consoleoutLocator}' frameborder='0' id='console_iframe'></iframe>");
-            #end
-        }),
+        'console' : new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#build_console')[0]),
         'failures' : new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#failures_console')[0], function() {
             #if($presenter.isCompleted())
                 jQuery(".failures_tab_content_container .console_iframe_container").html("<iframe src='$req.getContextPath()/files/${presenter.consoleoutLocator}' frameborder='0' id='console_iframe'></iframe>");
@@ -175,13 +171,11 @@
     var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
 
     var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}');
-    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {colorize: $color_logs_feature_toggle_key});
+    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}');
     dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
     dashboard_periodical_executer.start();
 
-    #if($presenter.isBuilding())
-        observer.update_live_output();
-    #end
+    observer.update_live_output();
 
 </script>
  #parse("shared/_footer.vm")

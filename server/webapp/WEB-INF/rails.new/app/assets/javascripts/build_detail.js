@@ -86,18 +86,11 @@ var BuildOutputDetector = Class.create({
             on404: this.showNoOutputWarnning,
             onFailure: this.showNoOutputWarnning,
             onExeption: this.showNoOutputWarnning, 
-            onSuccess: this.updateIframeSrc.bind(this)
         });
     },
     showNoOutputWarnning: function(){
         try{
             $('build-output-console-warnning').show();
         }catch(e){}
-    },
-    updateIframeSrc: function(){
-        var iframe = $('build-output-console-iframe');
-        if(iframe){
-            iframe.src = this.url;
-        }
     }
 });

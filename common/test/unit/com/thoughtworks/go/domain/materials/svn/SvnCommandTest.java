@@ -307,9 +307,9 @@ public class SvnCommandTest {
                 + "   kind=\"dir\"\n"
                 + "   path=\"someotherline\"\n"
                 + "   revision=\"36788\">\n"
-                + "<url>http://svn.somewhere.com/someotherline</url>\n"
+                + "<url>http://svn.somewhere.com/svn/someotherline</url>\n"
                 + "<repository>\n"
-                + "<root>http://svn.somewhere.com/someotherline</root>\n"
+                + "<root>http://svn.somewhere.com/svn</root>\n"
                 + "<uuid>f6689194-972b-e749-89bf-11ebdadc4dc5</uuid>\n"
                 + "</repository>\n"
                 + "<commit\n"
@@ -321,9 +321,10 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder(false));
-        assertThat(svnInfo.getPath(), is(""));
+        assertThat(svnInfo.getPath(), is("/someotherline"));
         assertThat(svnInfo.getUrl(),
-                is("http://svn.somewhere.com/someotherline"));
+                is("http://svn.somewhere.com/svn/someotherline"));
+        assertThat(svnInfo.getRoot(), is("http://svn.somewhere.com/svn"));
     }
 
     @Test

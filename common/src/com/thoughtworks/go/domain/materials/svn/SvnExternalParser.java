@@ -144,7 +144,7 @@ public class SvnExternalParser {
         }
 
         protected String replaceRootRelativePathWithAbsoluteFor(String external, String repoUrl) {
-            final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<!/)\\^/");
+            final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
             Matcher matcher = CARET_AT_START_OF_BOUNDARY.matcher(external);
             return matcher.replaceAll(repoUrl + "/");
         }

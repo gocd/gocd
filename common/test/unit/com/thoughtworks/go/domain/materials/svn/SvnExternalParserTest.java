@@ -209,11 +209,12 @@ public class SvnExternalParserTest {
     @Test
     public void shouldLeaveCaretsUntouchedUnlessAtFront() {
         String svnExternals = "http://10.18.3.171:8080/svn/externalstest - http://10.18.3.171:8080/svn/^/repo1/trunk lib/repo1\n" +
+                "http://10.18.3.171:8080/svn/a^/repo1/trunk lib/repo1\n" +
                 "http://10.18.3.171:8080/svn/^/repo2/trunk repo2\n";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/externalstest", "http://10.18.3.171:8080/svn");
-        assertThat(externals.size(), is(2));
+        assertThat(externals.size(), is(3));
         assertThat(externals.get(0), is(new SvnExternal("lib/repo1", "http://10.18.3.171:8080/svn/^/repo1/trunk")));
-        assertThat(externals.get(1), is(new SvnExternal("repo2", "http://10.18.3.171:8080/svn/^/repo2/trunk")));
+        assertThat(externals.get(2), is(new SvnExternal("repo2", "http://10.18.3.171:8080/svn/^/repo2/trunk")));
     }
 }

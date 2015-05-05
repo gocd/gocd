@@ -23,8 +23,6 @@ public abstract class ServletHelper {
 
     public abstract ServletResponse getResponse(javax.servlet.ServletResponse servletResponse);
 
-    public abstract String encodeString(String string);
-
     private static ServletHelper instance;
 
     public static void init(Boolean usingJetty9) {

@@ -17,14 +17,11 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.server.util.ServletRequest;
-import com.thoughtworks.go.server.util.ServletResponse;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.util.UrlEncoded;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
@@ -62,7 +59,7 @@ public class RedirectDuringBackupTest {
     }
 
     @Test
-    public void shouldNotRedirectWhenBackupIsNotBeingTaken() {
+    public void shouldNotRedirectWhenBackupIsNotBeingTaken() throws Exception {
         when(provider.isBackingUp()).thenReturn(false);
         Request request = request(HttpMethod.GET, "", "/go/agents");
 
@@ -108,7 +105,7 @@ public class RedirectDuringBackupTest {
 
         assertThat((String) request.getAttribute("backupInProgress"), is("true"));
         assertThat((String) request.getAttribute("redirected_from"), is(encode(responseAssertion.expectedRedirectedFrom, "UTF-8")));
-        assertThat((String) request.getAttribute("backup_started_at"), is(UrlEncoded.encodeString(responseAssertion.backupStartedAt)));
+        assertThat((String) request.getAttribute("backup_started_at"), is(encode(responseAssertion.backupStartedAt, "UTF-8")));
         assertThat((String) request.getAttribute("backup_started_by"), is(responseAssertion.backupStartedBy));
     }
 

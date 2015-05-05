@@ -44,6 +44,12 @@ public class DevelopmentServer {
 
         copyActivatorJarToClassPath();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
+
+        String chosenAppServer = System.getProperty(SystemEnvironment.APP_SERVER.propertyName());
+        if (chosenAppServer == null || chosenAppServer.trim().isEmpty()) {
+            systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY9);
+        }
+
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
         systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webApp.getAbsolutePath());
 

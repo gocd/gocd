@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.util;
 
-import org.mortbay.util.UrlEncoded;
-
 //Do not delete. Invoked using reflection
 public class Jetty6ServletHelper extends ServletHelper {
     @Override
@@ -28,11 +26,6 @@ public class Jetty6ServletHelper extends ServletHelper {
     @Override
     public ServletResponse getResponse(javax.servlet.ServletResponse servletResponse) {
         return new Jetty6Response(servletResponse);
-    }
-
-    @Override
-    public String encodeString(String string) {
-        return UrlEncoded.encodeString(string);
     }
 
 }

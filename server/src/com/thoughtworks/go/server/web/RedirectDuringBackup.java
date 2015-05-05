@@ -21,6 +21,8 @@ import com.thoughtworks.go.server.util.ServletRequest;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * @understands redirecting all requests to a service unavailable page when the server is being backed up.
@@ -30,17 +32,21 @@ public class RedirectDuringBackup {
     static final String BACKUP_IN_PROGRESS = "backupInProgress";
     private static final String REFERER = "Referer";
 
-    public void setServerBackupFlag(HttpServletRequest req) {
+    public void setServerBackupFlag(HttpServletRequest req) throws UnsupportedEncodingException {
         ServletHelper servletHelper = ServletHelper.getInstance();
         BackupStatusProvider backupStatusProvider = getBackupStatusProvider(req);
         boolean backingUp = backupStatusProvider.isBackingUp();
         req.setAttribute(BACKUP_IN_PROGRESS, String.valueOf(backingUp));
 
         if (backingUp) {
-            req.setAttribute("redirected_from", servletHelper.encodeString(getRedirectUri(req, servletHelper)));
-            req.setAttribute("backup_started_at", servletHelper.encodeString(backupStatusProvider.backupRunningSinceISO8601()));
-            req.setAttribute("backup_started_by", servletHelper.encodeString(backupStatusProvider.backupStartedBy()));
+            req.setAttribute("redirected_from", urlEncode(getRedirectUri(req, servletHelper)));
+            req.setAttribute("backup_started_at", urlEncode(backupStatusProvider.backupRunningSinceISO8601()));
+            req.setAttribute("backup_started_by", urlEncode(backupStatusProvider.backupStartedBy()));
         }
+    }
+
+    private String urlEncode(String string) throws UnsupportedEncodingException {
+        return URLEncoder.encode(string, "UTF-8");
     }
 
     private String getRedirectUri(HttpServletRequest req, ServletHelper servletHelper) {

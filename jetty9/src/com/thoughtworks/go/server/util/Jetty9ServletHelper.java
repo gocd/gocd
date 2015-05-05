@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.util;
 
-import org.eclipse.jetty.util.UrlEncoded;
-
-import java.net.URLEncoder;
-
 //Do not delete. Invoked using reflection
 public class Jetty9ServletHelper extends ServletHelper {
     @Override
@@ -32,9 +28,5 @@ public class Jetty9ServletHelper extends ServletHelper {
         return new Jetty9Response(servletResponse);
     }
 
-    @Override
-    public String encodeString(String string) {
-        return UrlEncoded.encodeString(string);
-    }
 }
 

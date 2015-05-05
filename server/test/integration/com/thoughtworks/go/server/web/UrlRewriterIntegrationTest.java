@@ -30,7 +30,6 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.eclipse.jetty.util.UrlEncoded;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.time.DateTime;
@@ -46,8 +45,10 @@ import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 import javax.servlet.DispatcherType;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -260,7 +261,11 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/dashboard.json", "http://127.1.1.1:" + HTTP + "/go/rails/dashboard.json", METHOD.GET);
 
     public static String enc(String str) {
-        return UrlEncoded.encodeString(str);
+        try {
+            return URLEncoder.encode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Theory

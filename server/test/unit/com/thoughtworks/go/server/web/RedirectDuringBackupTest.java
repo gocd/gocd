@@ -22,7 +22,6 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.util.UrlEncoded;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
@@ -106,7 +105,7 @@ public class RedirectDuringBackupTest {
 
         assertThat((String) request.getAttribute("backupInProgress"), is("true"));
         assertThat((String) request.getAttribute("redirected_from"), is(encode(responseAssertion.expectedRedirectedFrom, "UTF-8")));
-        assertThat((String) request.getAttribute("backup_started_at"), is(UrlEncoded.encodeString(responseAssertion.backupStartedAt)));
+        assertThat((String) request.getAttribute("backup_started_at"), is(encode(responseAssertion.backupStartedAt, "UTF-8")));
         assertThat((String) request.getAttribute("backup_started_by"), is(responseAssertion.backupStartedBy));
     }
 

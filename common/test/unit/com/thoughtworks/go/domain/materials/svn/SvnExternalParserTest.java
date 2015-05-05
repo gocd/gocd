@@ -194,7 +194,7 @@ public class SvnExternalParserTest {
     }
 
     @Test
-    public void shouldParseSvnExternalsWithRootRelativePathsForSvn15() {
+    public void shouldParseSvnExternalsWithRootSvn15AndAboveWithRootMatcherRelativePathsForSvn15() {
         String svnExternals = "http://10.18.3.171:8080/svn/externalstest - ^/repo1/trunk lib/repo1\n" +
                 "^/repo2/trunk repo2\n" +
                 "^/repo3/trunk app/repo3\n" +
@@ -204,5 +204,17 @@ public class SvnExternalParserTest {
         assertThat(externals.size(), is(4));
         assertThat(externals.get(0), is(new SvnExternal("lib/repo1", "http://10.18.3.171:8080/svn/repo1/trunk")));
         assertThat(externals.get(3), is(new SvnExternal("app/repo4", "http://10.18.3.171:8080/svn/repo4/trunk")));
+    }
+
+    @Test
+    public void shouldLeaveCaretsUntouchedUnlessAtFront() {
+        String svnExternals = "http://10.18.3.171:8080/svn/externalstest - http://10.18.3.171:8080/svn/^/repo1/trunk lib/repo1\n" +
+                "http://10.18.3.171:8080/svn/a^/repo1/trunk lib/repo1\n" +
+                "http://10.18.3.171:8080/svn/^/repo2/trunk repo2\n";
+
+        List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/externalstest", "http://10.18.3.171:8080/svn");
+        assertThat(externals.size(), is(3));
+        assertThat(externals.get(0), is(new SvnExternal("lib/repo1", "http://10.18.3.171:8080/svn/^/repo1/trunk")));
+        assertThat(externals.get(2), is(new SvnExternal("repo2", "http://10.18.3.171:8080/svn/^/repo2/trunk")));
     }
 }

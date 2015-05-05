@@ -30,8 +30,8 @@ public class SvnExternalParser {
     public SvnExternalParser() {
         matchers.add(new Svn14WithRootMatcher());
         matchers.add(new Svn14NoRootMatcher());
-        matchers.add(new Svn15WithRootMatcher());
-        matchers.add(new Svn15NoRootMatcher());
+        matchers.add(new Svn15AndAboveWithRootMatcher());
+        matchers.add(new Svn15AndAboveNoRootMatcher());
     }
 
     private static String combine(String root, String externalDir) {
@@ -144,7 +144,9 @@ public class SvnExternalParser {
         }
 
         protected String replaceRootRelativePathWithAbsoluteFor(String external, String repoUrl) {
-            return external.replace("^", repoUrl);
+            final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
+            Matcher matcher = CARET_AT_START_OF_BOUNDARY.matcher(external);
+            return matcher.replaceAll(repoUrl + "/");
         }
 
         protected abstract Pattern pattern();
@@ -162,7 +164,7 @@ public class SvnExternalParser {
         return StringUtils.strip(StringUtils.remove(absoluteRoot, repoUrl), "/");
     }
 
-    private class Svn15WithRootMatcher extends BaseSvnExternalMatcher {
+    private class Svn15AndAboveWithRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_15_ROOT_PATTERN = Pattern.compile("(\\S+) - (-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+.*)\\s+(\\S+)\\s*");
 
         protected Pattern pattern() {
@@ -193,7 +195,7 @@ public class SvnExternalParser {
         }
     }
 
-    private class Svn15NoRootMatcher extends BaseSvnExternalMatcher {
+    private class Svn15AndAboveNoRootMatcher extends BaseSvnExternalMatcher {
         private Pattern SVN_15_SAMEFOLER_PATTERN = Pattern.compile("\\s*(-r\\s*\\d)?\\s*(\\S+:(//|\\\\)+\\S+)\\s+(\\S+)\\s*");
         protected Pattern pattern() {
             return SVN_15_SAMEFOLER_PATTERN;

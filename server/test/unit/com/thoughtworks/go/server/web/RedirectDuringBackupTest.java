@@ -17,8 +17,6 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.server.util.ServletRequest;
-import com.thoughtworks.go.server.util.ServletResponse;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.HttpChannel;
@@ -62,7 +60,7 @@ public class RedirectDuringBackupTest {
     }
 
     @Test
-    public void shouldNotRedirectWhenBackupIsNotBeingTaken() {
+    public void shouldNotRedirectWhenBackupIsNotBeingTaken() throws Exception {
         when(provider.isBackingUp()).thenReturn(false);
         Request request = request(HttpMethod.GET, "", "/go/agents");
 

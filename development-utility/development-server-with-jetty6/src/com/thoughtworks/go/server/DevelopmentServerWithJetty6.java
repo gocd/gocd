@@ -29,8 +29,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 public class DevelopmentServerWithJetty6 {
     public static void main(String[] args) throws Exception {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        systemEnvironment.set(SystemEnvironment.APP_SERVER, Jetty6Server.class.getCanonicalName());
-        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
+        systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY6);
         DevelopmentServer.main(args);
     }
 }

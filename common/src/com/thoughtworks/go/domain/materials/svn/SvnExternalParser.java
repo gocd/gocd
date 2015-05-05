@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import org.apache.commons.lang.StringUtils;
 
 public class SvnExternalParser {
     private final List<SvnExternalMatcher> matchers = new ArrayList<SvnExternalMatcher>();
@@ -126,6 +127,8 @@ public class SvnExternalParser {
     }
 
     private abstract class BaseSvnExternalMatcher implements SvnExternalMatcher {
+        final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
+
         public boolean match(String external, String repoUrl, String repoRoot, List<SvnExternal> results, SvnExternalRoot svnExternalRoot) {
             Matcher matcher = pattern().matcher(external);
             try {
@@ -144,7 +147,6 @@ public class SvnExternalParser {
         }
 
         protected String replaceRootRelativePathWithAbsoluteFor(String external, String repoUrl) {
-            final Pattern CARET_AT_START_OF_BOUNDARY = Pattern.compile("(?<![/\\w])\\^/");
             Matcher matcher = CARET_AT_START_OF_BOUNDARY.matcher(external);
             return matcher.replaceAll(repoUrl + "/");
         }

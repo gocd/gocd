@@ -254,6 +254,7 @@
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-launcher.jar=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-plugins.zip=IS_AUTHENTICATED_ANONYMOUSLY
+                /plugins/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /tab/admin/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/configuration/file/**=ROLE_SUPERVISOR
                 /admin/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR

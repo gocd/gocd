@@ -22,12 +22,12 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>config-api</artifactId>
-    <version>15.2.0</version>
+    <version>1.0</version>
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>15.2.0</version>
+        <version>1.0</version>
         <relativePath>../../</relativePath>
     </parent>
 
@@ -40,22 +40,22 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>util</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>licensing</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>go-plugin-access</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>db</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>test-utils</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
             <scope>test</scope>
         </dependency>
 

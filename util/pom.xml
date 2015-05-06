@@ -22,12 +22,12 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>util</artifactId>
-    <version>15.2.0</version>
+    <version>1.0</version>
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>15.2.0</version>
+        <version>1.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>base</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>

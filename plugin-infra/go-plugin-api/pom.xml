@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>15.2.0</version>
+        <version>1.0</version>
         <relativePath>../../</relativePath>
     </parent>
 
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>go-plugin-api-internal</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
         </dependency>
 
         <!-- test dependencies -->
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>test-utils</artifactId>
-            <version>15.2.0</version>
+            <version>1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

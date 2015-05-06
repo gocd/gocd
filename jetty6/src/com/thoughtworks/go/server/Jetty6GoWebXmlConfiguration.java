@@ -16,36 +16,18 @@
 
 package com.thoughtworks.go.server;
 
-import org.mortbay.jetty.webapp.WebXmlConfiguration;
-import org.mortbay.xml.XmlParser;
 import org.xml.sax.SAXException;
 
-import javax.servlet.UnavailableException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-public class Jetty6GoWebXmlConfiguration extends WebXmlConfiguration {
+public class Jetty6GoWebXmlConfiguration {
     private static String webdefaultXml = "WEB-INF/webdefault-jetty6.xml";
 
-    public void initialize(String warFileLocation) throws IOException, SAXException, UnavailableException, ClassNotFoundException {
-        super.initialize(configuration(WebXmlConfiguration.webXmlParser(), warFileLocation));
-    }
-
-    private XmlParser.Node configuration(XmlParser parser, String warFile) throws IOException, SAXException {
-        XmlParser.Node node;
+    public static String configuration(String warFile) throws IOException, SAXException {
         if (new File(warFile).isDirectory()) {
-            FileInputStream in = new FileInputStream(new File(warFile, webdefaultXml));
-            node = parser.parse(in);
-            in.close();
+            return new File(warFile, webdefaultXml).getPath();
         }
-        else {
-            ZipFile file = new ZipFile(warFile);
-            node = parser.parse(file.getInputStream(new ZipEntry(webdefaultXml)));
-            file.close();
-        }
-        return node;
+        return "jar:file:" + warFile + "!/" + webdefaultXml;
     }
 }

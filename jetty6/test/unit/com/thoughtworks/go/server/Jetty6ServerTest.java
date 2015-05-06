@@ -21,7 +21,6 @@ import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +40,6 @@ import org.mortbay.management.MBeanContainer;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -90,12 +88,7 @@ public class Jetty6ServerTest {
         goJetty6CipherSuite = mock(GoJetty6CipherSuite.class);
         when(goJetty6CipherSuite.getExcludedCipherSuites()).thenReturn(new String[]{"CS1", "CS2"});
         configuration = mock(Jetty6GoWebXmlConfiguration.class);
-        jetty6Server = new Jetty6Server(systemEnvironment, "pwd", sslSocketFactory, server, goJetty6CipherSuite, configuration);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        verify(configuration).initialize(systemEnvironment.getCruiseWar());
+        jetty6Server = new Jetty6Server(systemEnvironment, "pwd", sslSocketFactory, server, goJetty6CipherSuite);
     }
 
     @Test
@@ -205,7 +198,7 @@ public class Jetty6ServerTest {
         assertThat(webAppContext.getContextPath(), is("context"));
         assertThat(webAppContext.getWar(), is("cruise.war"));
         assertThat(webAppContext.isParentLoaderPriority(), is(false));
-        assertThat(webAppContext.getDefaultsDescriptor(), is("org/mortbay/jetty/webapp/webdefault.xml"));
+        assertThat(webAppContext.getDefaultsDescriptor(), is("jar:file:cruise.war!/WEB-INF/webdefault-jetty6.xml"));
     }
 
     @Test

@@ -20,15 +20,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.thoughtworks.go</groupId>
     <artifactId>server</artifactId>
-    <version>1.0</version>
     <packaging>war</packaging>
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>1.0</version>
+        <version>15.2.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -47,33 +45,33 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>database</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>licensing</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-server</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>common</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>rack_hack</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>app-server</artifactId>
-            <version>1.0</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -547,47 +545,47 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>common</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-server</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-api</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>metrics</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>test-utils</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>jetty6</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>jetty9</artifactId>
-            <version>1.0</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

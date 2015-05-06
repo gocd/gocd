@@ -18,8 +18,8 @@
 <go-plugin id="curl.task.plugin.old.api.based" version="1">
     <about>
         <name>Curl Task Plugin - Old API Based</name>
-        <version>1.0</version>
-        <target-go-version>14.3.0</target-go-version>
+        <version>PLUGIN_VERSION_NUMBER</version>
+        <target-go-version>GO_TARGET_VERSION_NUMBER</target-go-version>
         <description>
            Task plugin that supports configuration and execution of curl tasks in Go
         </description>

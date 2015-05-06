@@ -22,7 +22,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>gocd</artifactId>
-    <version>1.0</version>
+    <version>15.2.0</version>
     <name>Thoughtworks Go</name>
     <url>http://www.thoughtworks.com/products/go-continuous-delivery</url>
     <packaging>pom</packaging>
@@ -50,7 +50,7 @@
     </pluginRepositories>
 
     <properties>
-        <go.version>15.1.0</go.version>
+        <go.version>${project.version}</go.version>
         <main.dir>${project.basedir}</main.dir>
 
         <spring.version>3.1.3.RELEASE</spring.version>

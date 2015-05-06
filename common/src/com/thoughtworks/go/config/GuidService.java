@@ -40,7 +40,7 @@ public class GuidService {
 
     public static String loadGuid() {
         try {
-            return FileUtils.readFileToString(AGENT_GUID_FILE);
+            return FileUtils.readFileToString(AGENT_GUID_FILE).trim();
         } catch (IOException ioe) {
             throw bomb("Couldn't load GUID from filesystem", ioe);
         }

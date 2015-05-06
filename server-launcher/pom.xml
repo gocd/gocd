@@ -22,13 +22,13 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>server-launcher</artifactId>
-    <version>1.0</version>
+    <version>15.2.0</version>
 	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>com.thoughtworks.go</groupId>
 		<artifactId>gocd</artifactId>
-		<version>1.0</version>
+		<version>15.2.0</version>
 		<relativePath>../</relativePath>
 	</parent>
 

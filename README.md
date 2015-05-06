@@ -6,6 +6,10 @@ This is a Java/JRuby on Rails project. Here is the guide to setup your [developm
 
 All information to help you get started with Go can be found on the <a href="http://www.go.cd/">go.cd</a> website.
 
+## Upcoming release
+
+See [#1076](https://github.com/gocd/gocd/issues/1076) for what's planned for the upcoming release
+
 ## Contributing
 
 We encourage you to contribute to Go. For information on contributing to this project, please see our <a href="http://www.go.cd/contribute/">contributor's guide</a>.

@@ -123,6 +123,11 @@
                 </div>
                 #end
                 <div class='clear-both'><!-- Clear floats --></div>
+
+#foreach ($authentication_plugin_id in $authentication_plugin_registry.getAuthenticationPlugins())
+    <a href="/go/plugins/interact/$authentication_plugin_id/index">$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)</a>
+#end
+
                 <div id="graphic-dialog-container" style="padding-top:1px">
                     <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
                         <div id="logo-login"><h2>&nbsp;</h2></div>

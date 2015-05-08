@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
@@ -44,18 +43,6 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     }
 
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        Set<String> plugins = authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication();
-        boolean isAuthenticated = false;
-        for (String pluginId : plugins) {
-            Result result = authenticationExtension.authenticateUser(pluginId, userDetails.getUsername(), (String) authentication.getCredentials());
-            if (result.isSuccessful()) {
-                isAuthenticated = true;
-                break;
-            }
-        }
-        if (!isAuthenticated) {
-            throw new BadCredentialsException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credential"));
-        }
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {

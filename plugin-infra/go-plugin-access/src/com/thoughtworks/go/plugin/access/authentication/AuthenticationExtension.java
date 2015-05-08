@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,8 @@ public class AuthenticationExtension {
     private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String PLUGIN_CONFIGURATION = "plugin-configuration";
+    public static final String AUTHENTICATE_USER = "authenticate-user";
+    public static final String GET_USER_DETAILS = "get-user-details";
     public static final String SEARCH_USER = "search-user";
 
     private PluginManager pluginManager;
@@ -64,6 +67,44 @@ public class AuthenticationExtension {
             @Override
             public AuthenticationPluginConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginConfiguration(responseBody);
+            }
+        });
+    }
+
+    public Result authenticateUser(String pluginId, final String username, final String password) {
+        return pluginRequestHelper.submitRequest(pluginId, AUTHENTICATE_USER, new PluginInteractionCallback<Result>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForAuthenticateUser(username, password);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForAuthenticateUser(responseBody);
+            }
+        });
+    }
+
+    public User getUserDetails(String pluginId, final String username) {
+        return pluginRequestHelper.submitRequest(pluginId, GET_USER_DETAILS, new PluginInteractionCallback<User>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForGetUserDetails(username);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public User onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForGetUserDetails(responseBody);
             }
         });
     }

@@ -18,11 +18,20 @@ package com.thoughtworks.go.plugin.access.authentication;
 
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.api.response.Result;
 
 import java.util.List;
 
 public interface JsonMessageHandler {
     AuthenticationPluginConfiguration responseMessageForPluginConfiguration(String responseBody);
+
+    String requestMessageForAuthenticateUser(String username, String password);
+
+    Result responseMessageForAuthenticateUser(String responseBody);
+
+    String requestMessageForGetUserDetails(String username);
+
+    User responseMessageForGetUserDetails(String responseBody);
 
     String requestMessageForSearchUser(String searchTerm);
 

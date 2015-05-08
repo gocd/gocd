@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.authentication;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,8 +40,32 @@ public class AuthenticationPluginRegistry {
         return pluginToConfigurationMap.keySet();
     }
 
+    public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
+        Set<String> pluginsThatSupportsPasswordBasedAuthentication = new HashSet<String>();
+        for (String pluginId : pluginToConfigurationMap.keySet()) {
+            if (pluginToConfigurationMap.get(pluginId).supportsPasswordBasedAuthentication()) {
+                pluginsThatSupportsPasswordBasedAuthentication.add(pluginId);
+            }
+        }
+        return pluginsThatSupportsPasswordBasedAuthentication;
+    }
+
+    public Set<String> getPluginsThatSupportsUserSearch() {
+        Set<String> pluginsThatSupportsUserSearch = new HashSet<String>();
+        for (String pluginId : pluginToConfigurationMap.keySet()) {
+            if (pluginToConfigurationMap.get(pluginId).supportsUserSearch()) {
+                pluginsThatSupportsUserSearch.add(pluginId);
+            }
+        }
+        return pluginsThatSupportsUserSearch;
+    }
+
     public String getDisplayNameFor(String pluginId) {
         return pluginToConfigurationMap.get(pluginId).getDisplayName();
+    }
+
+    public boolean supportsPasswordBasedAuthentication(String pluginId) {
+        return pluginToConfigurationMap.get(pluginId).supportsPasswordBasedAuthentication();
     }
 
     public boolean supportsUserSearch(String pluginId) {

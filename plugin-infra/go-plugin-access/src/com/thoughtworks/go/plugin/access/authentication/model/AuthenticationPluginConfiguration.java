@@ -18,10 +18,12 @@ package com.thoughtworks.go.plugin.access.authentication.model;
 
 public class AuthenticationPluginConfiguration {
     private String displayName;
+    private boolean supportsPasswordBasedAuthentication;
     private boolean supportsUserSearch;
 
-    public AuthenticationPluginConfiguration(String displayName, boolean supportsUserSearch) {
+    public AuthenticationPluginConfiguration(String displayName, boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
         this.displayName = displayName;
+        this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
         this.supportsUserSearch = supportsUserSearch;
     }
 
@@ -31,6 +33,14 @@ public class AuthenticationPluginConfiguration {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public boolean supportsPasswordBasedAuthentication() {
+        return supportsPasswordBasedAuthentication;
+    }
+
+    public void setSupportsPasswordBasedAuthentication(boolean supportsPasswordBasedAuthentication) {
+        this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
     }
 
     public boolean supportsUserSearch() {

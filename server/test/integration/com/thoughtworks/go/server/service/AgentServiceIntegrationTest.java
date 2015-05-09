@@ -840,15 +840,6 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn404WhenAgentUUIDNotKnownForDelete() {
-        String agentId = "unknown-agent-id";
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.deleteAgents(USERNAME, operationResult, Arrays.asList(agentId));
-        assertThat(operationResult.httpCode(), is(404));
-        assertThat(operationResult.message(), is("Agent not found."));
-    }
-
-    @Test
     public void shouldDeleteOnlyDisabledAgentGivenUUID() throws Exception {
         AgentConfig disabledAgent = createDisabledAndIdleAgent(UUID);
         AgentConfig enabledAgent = createEnabledAgent(UUID2);

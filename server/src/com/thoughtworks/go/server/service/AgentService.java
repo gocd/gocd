@@ -16,15 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -48,6 +43,13 @@ import com.thoughtworks.go.utils.Timeout;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -164,6 +166,27 @@ public class AgentService {
             return false;
         }
         return true;
+    }
+
+    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources) {
+        if (!hasOperatePermission(username, result)) {
+            return;
+        }
+
+        AgentInstance agentInstance = findAgent(uuid);
+        if (isUnknownAgent(agentInstance, result)) {
+            return;
+        }
+
+        try {
+            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources);
+            result.ok(String.format("Updated agent with uuid %s.", uuid));
+        }  catch (GoConfigInvalidException e){
+           result.unprocessibleEntity("Updating agents failed", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+        } catch (Exception e) {
+            result.internalServerError("Updating agents failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+        }
+
     }
 
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {

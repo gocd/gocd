@@ -1,0 +1,43 @@
+From 02b30799fe2f8a572f6eefb27b2b9f1265fc0db7 Mon Sep 17 00:00:00 2001
+From: Imran Azeezullah <uqsazeez@uq.edu.au>
+Date: Mon, 30 Sep 2013 10:18:03 +0800
+Subject: [PATCH 14/14] Fix for bug 436589
+
+https://bugzilla.gnome.org/show_bug.cgi?id=436589
+
+Need to check availablility of argument before scanning it
+---
+ xsltproc/xsltproc.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/xsltproc/xsltproc.c b/xsltproc/xsltproc.c
+index 45adf5d..b22df37 100644
+--- a/xsltproc/xsltproc.c
++++ b/xsltproc/xsltproc.c
+@@ -730,6 +730,11 @@ main(int argc, char **argv)
+             int value;
+ 
+             i++;
++            if (i == argc) {
++                fprintf(stderr, "XSLT maxdepth value not specified!\n");
++                return (2);
++            }
++
+             if (sscanf(argv[i], "%d", &value) == 1) {
+                 if (value > 0)
+                     xsltMaxDepth = value;
+@@ -748,6 +753,11 @@ main(int argc, char **argv)
+             int value;
+ 
+             i++;
++            if (i == argc) {
++                fprintf(stderr, "XML maxparserdepth value not specified!\n");
++                return (2);
++            }
++
+             if (sscanf(argv[i], "%d", &value) == 1) {
+                 if (value > 0)
+                     xmlParserMaxDepth = value;
+-- 
+1.8.4.1
+

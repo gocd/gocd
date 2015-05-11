@@ -6,6 +6,8 @@ require "oauth2_provider"
 require "dynamic_form"
 require "gadgets"
 require "sprockets/railtie"
+require "versionist"
+require "roar"
 require "jasmine-rails" if ENV['RAILS_ENV']!= 'production'
 require "jasmine-core" if ENV['RAILS_ENV']!= 'production'
 
@@ -24,7 +26,11 @@ module Go
     # config.i18n.default_locale = :de
 
     # Rails4 does not load lib/* by default. Forcing it to do so.
-    config.autoload_paths += Dir[Rails.root.join('lib', '**/'), Rails.root.join('app', 'models', '**/')]
+    config.autoload_paths += Dir[
+        Rails.root.join('lib', '**/'),
+        Rails.root.join('app', 'models', '**/'),
+        Rails.root.join('app', 'presenters')
+    ]
 
     # Replacement for "helper :all", used to make all helper methods available to controllers.
     config.action_controller.include_all_helpers = true
@@ -41,5 +47,10 @@ module Go
 
     require Rails.root.join("lib", "log4j_logger.rb")
     config.logger = Log4jLogger.new
+
+    config.generators do |g|
+      g.test_framework        :rspec, :fixture_replacement => nil
+    end
+
   end
 end

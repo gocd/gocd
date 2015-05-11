@@ -1,0 +1,19 @@
+Description:
+    Creates the infrastructure for a new API version.
+
+Example:
+    rails generate versionist:new_api_version v2.0.0 V2_0_0 header:Accept value:application/vnd.mycompany.com-v2.0.0
+
+    This will create:
+
+       route  api_version(:module => "V2__0__0", :header=>"Accept", :value=>"application/vnd.mycompany.com-v2.0.0") do
+       end
+       create  app/controllers/v2_0_0
+       create  app/controllers/v2_0_0/base_controller.rb
+       create  app/presenters/v2_0_0
+       create  app/presenters/v2_0_0/base_presenter.rb
+       create  public/docs/v2.0.0
+       create  public/docs/v2.0.0/index.html
+       create  public/docs/v2.0.0/style.css
+
+    In addition this will create tests for base_controller.rb and base_presenter.rb using the test_framework currently configured in your Rails app.

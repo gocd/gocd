@@ -1,0 +1,129 @@
+#! /usr/bin/env bash
+#
+#  script to build gems for all relevant platforms:
+#  - MRI et al (standard gem)
+#  - windows (x86-mingw32 and x64-mingw32)
+#  - jruby
+#
+#  here's what I recommend for building all the gems:
+#
+#  set up a rake-compiler-dev-box as described here:
+#      https://github.com/tjschuck/rake-compiler-dev-box
+#  It is prepared with all the necessary build tools and environments.
+#
+#  or alternatively do:
+#   1. Setup a ubuntu 12.04+ machine
+#   2. install rvm, and install 1.9.3, 2.0.0 and jruby.
+#   3. `sudo apt-get install mingw32 gcc-mingw-w64-i686 gcc-mingw-w64-x86-64`
+#
+#  as you build, you may run into these problems:
+#
+#  - if you're using Virtualbox shared directories, you'll get a mingw
+#    "Protocol error" at linktime. Boo! Either use NFS or a
+#    locally-checked-out repository.
+#
+#  - on ubuntus 11 and later, you may have issues with building
+#    rake-compiler's rubies against openssl v2. Just comment the lines
+#    out from ossl_ssl.c and you'll be fine.
+#
+#  - you may have issues with Pathname conversion to String in
+#    bundler. Add this to the offending bundler file:
+#
+#      class Pathname
+#        def to_str
+#          to_s
+#        end
+#      end
+#
+#  - you may also have to hack rubygems.rb to eliminate a reference to
+#    RUBY_ENGINE (just comment it out)
+#
+
+DEFAULT_RUBY=2.0.0
+
+HOST=
+
+# Load RVM into a shell session *as a function*
+if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
+    source "$HOME/.rvm/scripts/rvm"
+elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+    source "/usr/local/rvm/scripts/rvm"
+else
+    echo "ERROR: An RVM installation was not found.\n"
+fi
+
+rvm_use () {
+    current_ruby=$1
+    rvm use "${1}@nokogiri" --create
+}
+
+rvm_do () {
+    local ver=$1
+    shift
+    rvm "${ver}@nokogiri" do "$@"
+}
+
+cross_rubies () {
+    grep -v '#' .cross_rubies
+}
+
+ruby_vers () {
+    cross_rubies | while read -r line; do
+        echo "${line%%[-:]*}"
+    done | uniq
+}
+
+set -o errexit
+
+for ver in `ruby_vers`; do
+    rvm_use $ver
+    gem install bundler --conservative
+    bundle install --quiet --local || bundle install
+done
+
+rvm_use $DEFAULT_RUBY
+
+rm -rf tmp pkg
+bundle exec rake clean
+
+# holding pen
+rm -rf gems
+mkdir -p gems
+
+# windows
+for verspec in `cross_rubies`; do
+    version="${verspec%%:*}"
+    ver="${version%%-*}"
+    host="${verspec#*:}"
+
+    case $ver in
+        1.9.3)
+            # Parallel make does not work in 1.9.3, as it has a
+            # missing dependency problem with main.o.
+            make="make"
+            ;;
+        *)
+            make="$MAKE"
+    esac
+
+    MAKE="$make" rvm_do $ver rake-compiler cross-ruby VERSION=$version HOST=$host debugflags="-g"
+done
+
+bundle exec rake gem:windows
+cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
+
+# MRI
+bundle exec rake clean
+bundle exec rake gem
+cp -v pkg/nokogiri*.gem gems
+
+# jruby
+rvm_use jruby
+gem install bundler --conservative
+bundle install --quiet --local || bundle install
+bundle exec rake clean clobber
+rvm_use $DEFAULT_RUBY
+bundle exec rake generate
+rvm_use jruby
+bundle exec rake gem
+cp -v pkg/nokogiri*java.gem gems

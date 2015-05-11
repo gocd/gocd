@@ -11,6 +11,8 @@ gem 'sprockets-rails'
 gem 'sass-rails'
 gem 'yui-compressor'
 gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
+gem 'versionist'
+gem 'roar'
 
 group :development, :test do
   gem "jasmine-rails"

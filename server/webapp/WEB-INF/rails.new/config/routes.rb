@@ -214,6 +214,15 @@ Go::Application.routes.draw do
   end
   match "environments(.:format)" => 'environments#index', defaults: {:format => :html}, via: [:post, :get], as: :environments
 
+  scope :api, as: :api do
+    api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+      resources :agents, param: :uuid, except: [:new] do
+        put :enable, on: :member
+        put :disable, on: :member
+      end
+    end
+  end
+
   namespace :api, as: "" do
     defaults :no_layout => true do
       delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}

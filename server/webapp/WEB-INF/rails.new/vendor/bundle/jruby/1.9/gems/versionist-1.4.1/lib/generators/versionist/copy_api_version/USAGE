@@ -1,0 +1,19 @@
+Description:
+    Copies an existing API version to a new API version.
+
+Example:
+    rails generate versionist:copy_api_version v2.0.0 V2_0_0 v3.0.0 V3_0_0
+
+    This will do the following:
+
+    route  api_version(:module => "V3__0__0", :header=>"Accept", :value=>"application/vnd.mycompany.com-v3.0.0") do
+    end
+    Copying all files from app/controllers/v2_0_0 to app/controllers/v3_0_0
+    Copying all files from spec/controllers/v2_0_0 to spec/controllers/v3_0_0
+    Copying all files from app/presenters/v2_0_0 to app/presenters/v3_0_0
+    Copying all files from spec/presenters/v2_0_0 to spec/presenters/v3_0_0
+    Copying all files from public/docs/v2.0.0 to public/docs/v3.0.0
+
+Note: routes can only be copied with MRI Ruby 1.9 and above, as this feature relies on Ripper which is only available 
+in stdlib in MRI Ruby 1.9 and above. Outside of routes copying, the other copy steps will work just fine in Ruby 1.8 and other
+non-MRI Ruby implementations.

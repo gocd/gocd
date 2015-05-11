@@ -1,0 +1,587 @@
+From a0116212e6dde5efe311e8240e45ae1477f8988f Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Sun, 4 Aug 2013 20:28:19 +0200
+Subject: [PATCH 07/14] Separate function for predicate matching in patterns
+
+No functional change, only make the predicate matching code more
+readable.
+---
+ libxslt/pattern.c | 546 +++++++++++++++++++++++++++---------------------------
+ 1 file changed, 274 insertions(+), 272 deletions(-)
+
+diff --git a/libxslt/pattern.c b/libxslt/pattern.c
+index 63ec25a..414363b 100644
+--- a/libxslt/pattern.c
++++ b/libxslt/pattern.c
+@@ -621,6 +621,278 @@ xsltTestCompMatchDirect(xsltTransformContextPtr ctxt, xsltCompMatchPtr comp,
+ }
+ 
+ /**
++ * xsltTestPredicateMatch:
++ * @ctxt: a XSLT process context
++ * @comp: the precompiled pattern
++ * @node: a node
++ * @step: the predicate step
++ * @sel:  the previous step
++ *
++ * Test whether the node matches the predicate
++ *
++ * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
++ */
++static int
++xsltTestPredicateMatch(xsltTransformContextPtr ctxt, xsltCompMatchPtr comp,
++                       xmlNodePtr node, xsltStepOpPtr step,
++                       xsltStepOpPtr sel) {
++    xmlNodePtr oldNode;
++    xmlDocPtr doc;
++    int oldCS, oldCP;
++    int pos = 0, len = 0;
++    int isRVT;
++    int match;
++
++    if (step->value == NULL)
++        return(0);
++    if (step->comp == NULL)
++        return(0);
++
++    doc = node->doc;
++    if (XSLT_IS_RES_TREE_FRAG(doc))
++        isRVT = 1;
++    else
++        isRVT = 0;
++
++    /*
++     * Depending on the last selection, one may need to
++     * recompute contextSize and proximityPosition.
++     */
++    oldCS = ctxt->xpathCtxt->contextSize;
++    oldCP = ctxt->xpathCtxt->proximityPosition;
++    if ((sel != NULL) &&
++        (sel->op == XSLT_OP_ELEM) &&
++        (sel->value != NULL) &&
++        (node->type == XML_ELEMENT_NODE) &&
++        (node->parent != NULL)) {
++        xmlNodePtr previous;
++        int nocache = 0;
++
++        previous = (xmlNodePtr)
++            XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr);
++        if ((previous != NULL) &&
++            (previous->parent == node->parent)) {
++            /*
++             * just walk back to adjust the index
++             */
++            int indx = 0;
++            xmlNodePtr sibling = node;
++
++            while (sibling != NULL) {
++                if (sibling == previous)
++                    break;
++                if ((sibling->type == XML_ELEMENT_NODE) &&
++                    (previous->name != NULL) &&
++                    (sibling->name != NULL) &&
++                    (previous->name[0] == sibling->name[0]) &&
++                    (xmlStrEqual(previous->name, sibling->name)))
++                {
++                    if ((sel->value2 == NULL) ||
++                        ((sibling->ns != NULL) &&
++                         (xmlStrEqual(sel->value2, sibling->ns->href))))
++                        indx++;
++                }
++                sibling = sibling->prev;
++            }
++            if (sibling == NULL) {
++                /* hum going backward in document order ... */
++                indx = 0;
++                sibling = node;
++                while (sibling != NULL) {
++                    if (sibling == previous)
++                        break;
++                    if ((sibling->type == XML_ELEMENT_NODE) &&
++                        (previous->name != NULL) &&
++                        (sibling->name != NULL) &&
++                        (previous->name[0] == sibling->name[0]) &&
++                        (xmlStrEqual(previous->name, sibling->name)))
++                    {
++                        if ((sel->value2 == NULL) ||
++                            ((sibling->ns != NULL) &&
++                            (xmlStrEqual(sel->value2,
++                            sibling->ns->href))))
++                        {
++                            indx--;
++                        }
++                    }
++                    sibling = sibling->next;
++                }
++            }
++            if (sibling != NULL) {
++                pos = XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) + indx;
++                /*
++                 * If the node is in a Value Tree we need to
++                 * save len, but cannot cache the node!
++                 * (bugs 153137 and 158840)
++                 */
++                if (node->doc != NULL) {
++                    len = XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival);
++                    if (!isRVT) {
++                        XSLT_RUNTIME_EXTRA(ctxt,
++                            sel->previousExtra, ptr) = node;
++                        XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) = pos;
++                    }
++                }
++            } else
++                pos = 0;
++        } else {
++            /*
++             * recompute the index
++             */
++            xmlNodePtr parent = node->parent;
++            xmlNodePtr siblings = NULL;
++
++            if (parent) siblings = parent->children;
++
++            while (siblings != NULL) {
++                if (siblings->type == XML_ELEMENT_NODE) {
++                    if (siblings == node) {
++                        len++;
++                        pos = len;
++                    } else if ((node->name != NULL) &&
++                               (siblings->name != NULL) &&
++                        (node->name[0] == siblings->name[0]) &&
++                        (xmlStrEqual(node->name, siblings->name))) {
++                        if ((sel->value2 == NULL) ||
++                            ((siblings->ns != NULL) &&
++                             (xmlStrEqual(sel->value2, siblings->ns->href))))
++                            len++;
++                    }
++                }
++                siblings = siblings->next;
++            }
++            if ((parent == NULL) || (node->doc == NULL))
++                nocache = 1;
++            else {
++                while (parent->parent != NULL)
++                    parent = parent->parent;
++                if (((parent->type != XML_DOCUMENT_NODE) &&
++                     (parent->type != XML_HTML_DOCUMENT_NODE)) ||
++                     (parent != (xmlNodePtr) node->doc))
++                    nocache = 1;
++            }
++        }
++        if (pos != 0) {
++            ctxt->xpathCtxt->contextSize = len;
++            ctxt->xpathCtxt->proximityPosition = pos;
++            /*
++             * If the node is in a Value Tree we cannot
++             * cache it !
++             */
++            if ((!isRVT) && (node->doc != NULL) &&
++                (nocache == 0)) {
++                XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr) = node;
++                XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) = pos;
++                XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival) = len;
++            }
++        }
++    } else if ((sel != NULL) && (sel->op == XSLT_OP_ALL) &&
++               (node->type == XML_ELEMENT_NODE)) {
++        xmlNodePtr previous;
++        int nocache = 0;
++
++        previous = (xmlNodePtr)
++            XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr);
++        if ((previous != NULL) &&
++            (previous->parent == node->parent)) {
++            /*
++             * just walk back to adjust the index
++             */
++            int indx = 0;
++            xmlNodePtr sibling = node;
++
++            while (sibling != NULL) {
++                if (sibling == previous)
++                    break;
++                if (sibling->type == XML_ELEMENT_NODE)
++                    indx++;
++                sibling = sibling->prev;
++            }
++            if (sibling == NULL) {
++                /* hum going backward in document order ... */
++                indx = 0;
++                sibling = node;
++                while (sibling != NULL) {
++                    if (sibling == previous)
++                        break;
++                    if (sibling->type == XML_ELEMENT_NODE)
++                        indx--;
++                    sibling = sibling->next;
++                }
++            }
++            if (sibling != NULL) {
++                pos = XSLT_RUNTIME_EXTRA(ctxt,
++                    sel->indexExtra, ival) + indx;
++                /*
++                 * If the node is in a Value Tree we cannot
++                 * cache it !
++                 */
++                if ((node->doc != NULL) && !isRVT) {
++                    len = XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival);
++                    XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr) = node;
++                    XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) = pos;
++                }
++            } else
++                pos = 0;
++        } else {
++            /*
++             * recompute the index
++             */
++            xmlNodePtr parent = node->parent;
++            xmlNodePtr siblings = NULL;
++
++            if (parent) siblings = parent->children;
++
++            while (siblings != NULL) {
++                if (siblings->type == XML_ELEMENT_NODE) {
++                    len++;
++                    if (siblings == node) {
++                        pos = len;
++                    }
++                }
++                siblings = siblings->next;
++            }
++            if ((parent == NULL) || (node->doc == NULL))
++                nocache = 1;
++            else {
++                while (parent->parent != NULL)
++                    parent = parent->parent;
++                if (((parent->type != XML_DOCUMENT_NODE) &&
++                     (parent->type != XML_HTML_DOCUMENT_NODE)) ||
++                     (parent != (xmlNodePtr) node->doc))
++                    nocache = 1;
++            }
++        }
++        if (pos != 0) {
++            ctxt->xpathCtxt->contextSize = len;
++            ctxt->xpathCtxt->proximityPosition = pos;
++            /*
++             * If the node is in a Value Tree we cannot
++             * cache it !
++             */
++            if ((node->doc != NULL) && (nocache == 0) && !isRVT) {
++                XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr) = node;
++                XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) = pos;
++                XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival) = len;
++            }
++        }
++    }
++
++    oldNode = ctxt->node;
++    ctxt->node = node;
++
++    match = xsltEvalXPathPredicate(ctxt, step->comp, comp->nsList, comp->nsNr);
++
++    if (pos != 0) {
++        ctxt->xpathCtxt->contextSize = oldCS;
++        ctxt->xpathCtxt->proximityPosition = oldCP;
++    }
++    ctxt->node = oldNode;
++
++    return match;
++}
++
++/**
+  * xsltTestCompMatch:
+  * @ctxt:  a XSLT process context
+  * @comp: the precompiled pattern
+@@ -854,12 +1126,6 @@ restart:
+ 		    goto rollback;
+ 		break;
+ 	    case XSLT_OP_PREDICATE: {
+-		xmlNodePtr oldNode;
+-		xmlDocPtr doc;
+-		int oldCS, oldCP;
+-		int pos = 0, len = 0;
+-		int isRVT;
+-
+ 		/*
+ 		 * when there is cascading XSLT_OP_PREDICATE, then use a
+ 		 * direct computation approach. It's not done directly
+@@ -875,274 +1141,10 @@ restart:
+ 						   comp->nsList, comp->nsNr));
+ 		}
+ 
+-		doc = node->doc;
+-		if (XSLT_IS_RES_TREE_FRAG(doc))
+-		    isRVT = 1;
+-		else
+-		    isRVT = 0;
+-
+-		/*
+-		 * Depending on the last selection, one may need to
+-		 * recompute contextSize and proximityPosition.
+-		 */
+-		oldCS = ctxt->xpathCtxt->contextSize;
+-		oldCP = ctxt->xpathCtxt->proximityPosition;
+-		if ((sel != NULL) &&
+-		    (sel->op == XSLT_OP_ELEM) &&
+-		    (sel->value != NULL) &&
+-		    (node->type == XML_ELEMENT_NODE) &&
+-		    (node->parent != NULL)) {
+-		    xmlNodePtr previous;
+-		    int nocache = 0;
+-
+-		    previous = (xmlNodePtr)
+-			XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr);
+-		    if ((previous != NULL) &&
+-			(previous->parent == node->parent)) {
+-			/*
+-			 * just walk back to adjust the index
+-			 */
+-			int indx = 0;
+-			xmlNodePtr sibling = node;
+-
+-			while (sibling != NULL) {
+-			    if (sibling == previous)
+-				break;
+-			    if ((sibling->type == XML_ELEMENT_NODE) &&
+-				(previous->name != NULL) &&
+-				(sibling->name != NULL) &&
+-				(previous->name[0] == sibling->name[0]) &&
+-				(xmlStrEqual(previous->name, sibling->name)))
+-			    {
+-				if ((sel->value2 == NULL) ||
+-				    ((sibling->ns != NULL) &&
+-				     (xmlStrEqual(sel->value2,
+-						  sibling->ns->href))))
+-				    indx++;
+-			    }
+-			    sibling = sibling->prev;
+-			}
+-			if (sibling == NULL) {
+-			    /* hum going backward in document order ... */
+-			    indx = 0;
+-			    sibling = node;
+-			    while (sibling != NULL) {
+-				if (sibling == previous)
+-				    break;
+-				if ((sibling->type == XML_ELEMENT_NODE) &&
+-				    (previous->name != NULL) &&
+-				    (sibling->name != NULL) &&
+-				    (previous->name[0] == sibling->name[0]) &&
+-				    (xmlStrEqual(previous->name, sibling->name)))
+-				{
+-				    if ((sel->value2 == NULL) ||
+-					((sibling->ns != NULL) &&
+-					(xmlStrEqual(sel->value2,
+-					sibling->ns->href))))
+-				    {
+-					indx--;
+-				    }
+-				}
+-				sibling = sibling->next;
+-			    }
+-			}
+-			if (sibling != NULL) {
+-		            pos = XSLT_RUNTIME_EXTRA(ctxt,
+-                                sel->indexExtra, ival) + indx;
+-			    /*
+-			     * If the node is in a Value Tree we need to
+-			     * save len, but cannot cache the node!
+-			     * (bugs 153137 and 158840)
+-			     */
+-			    if (node->doc != NULL) {
+-				len = XSLT_RUNTIME_EXTRA(ctxt,
+-				        sel->lenExtra, ival);
+-				if (!isRVT) {
+-				    XSLT_RUNTIME_EXTRA(ctxt,
+-					sel->previousExtra, ptr) = node;
+-				    XSLT_RUNTIME_EXTRA(ctxt,
+-				        sel->indexExtra, ival) = pos;
+-				}
+-			    }
+-			} else
+-			    pos = 0;
+-		    } else {
+-			/*
+-			 * recompute the index
+-			 */
+-			xmlNodePtr parent = node->parent;
+-			xmlNodePtr siblings = NULL;
+-
+-                        if (parent) siblings = parent->children;
+-
+-			while (siblings != NULL) {
+-			    if (siblings->type == XML_ELEMENT_NODE) {
+-				if (siblings == node) {
+-				    len++;
+-				    pos = len;
+-				} else if ((node->name != NULL) &&
+-					   (siblings->name != NULL) &&
+-				    (node->name[0] == siblings->name[0]) &&
+-				    (xmlStrEqual(node->name, siblings->name))) {
+-				    if ((sel->value2 == NULL) ||
+-					((siblings->ns != NULL) &&
+-					 (xmlStrEqual(sel->value2,
+-						      siblings->ns->href))))
+-					len++;
+-				}
+-			    }
+-			    siblings = siblings->next;
+-			}
+-			if ((parent == NULL) || (node->doc == NULL))
+-			    nocache = 1;
+-			else {
+-			    while (parent->parent != NULL)
+-				parent = parent->parent;
+-			    if (((parent->type != XML_DOCUMENT_NODE) &&
+-				 (parent->type != XML_HTML_DOCUMENT_NODE)) ||
+-				 (parent != (xmlNodePtr) node->doc))
+-				nocache = 1;
+-			}
+-		    }
+-		    if (pos != 0) {
+-			ctxt->xpathCtxt->contextSize = len;
+-			ctxt->xpathCtxt->proximityPosition = pos;
+-			/*
+-			 * If the node is in a Value Tree we cannot
+-			 * cache it !
+-			 */
+-			if ((!isRVT) && (node->doc != NULL) &&
+-			    (nocache == 0)) {
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr) =
+-				node;
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) =
+-				pos;
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival) =
+-				len;
+-			}
+-		    }
+-		} else if ((sel != NULL) && (sel->op == XSLT_OP_ALL) &&
+-			   (node->type == XML_ELEMENT_NODE)) {
+-		    xmlNodePtr previous;
+-		    int nocache = 0;
+-
+-		    previous = (xmlNodePtr)
+-			XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr);
+-		    if ((previous != NULL) &&
+-			(previous->parent == node->parent)) {
+-			/*
+-			 * just walk back to adjust the index
+-			 */
+-			int indx = 0;
+-			xmlNodePtr sibling = node;
+-
+-			while (sibling != NULL) {
+-			    if (sibling == previous)
+-				break;
+-			    if (sibling->type == XML_ELEMENT_NODE)
+-				indx++;
+-			    sibling = sibling->prev;
+-			}
+-			if (sibling == NULL) {
+-			    /* hum going backward in document order ... */
+-			    indx = 0;
+-			    sibling = node;
+-			    while (sibling != NULL) {
+-				if (sibling == previous)
+-				    break;
+-				if (sibling->type == XML_ELEMENT_NODE)
+-				    indx--;
+-				sibling = sibling->next;
+-			    }
+-			}
+-			if (sibling != NULL) {
+-			    pos = XSLT_RUNTIME_EXTRA(ctxt,
+-                                sel->indexExtra, ival) + indx;
+-			    /*
+-			     * If the node is in a Value Tree we cannot
+-			     * cache it !
+-			     */
+-			    if ((node->doc != NULL) && !isRVT) {
+-				len = XSLT_RUNTIME_EXTRA(ctxt,
+-				        sel->lenExtra, ival);
+-				XSLT_RUNTIME_EXTRA(ctxt,
+-					sel->previousExtra, ptr) = node;
+-				XSLT_RUNTIME_EXTRA(ctxt,
+-					sel->indexExtra, ival) = pos;
+-			    }
+-			} else
+-			    pos = 0;
+-		    } else {
+-			/*
+-			 * recompute the index
+-			 */
+-			xmlNodePtr parent = node->parent;
+-			xmlNodePtr siblings = NULL;
+-
+-                        if (parent) siblings = parent->children;
+-
+-			while (siblings != NULL) {
+-			    if (siblings->type == XML_ELEMENT_NODE) {
+-				len++;
+-				if (siblings == node) {
+-				    pos = len;
+-				}
+-			    }
+-			    siblings = siblings->next;
+-			}
+-			if ((parent == NULL) || (node->doc == NULL))
+-			    nocache = 1;
+-			else {
+-			    while (parent->parent != NULL)
+-				parent = parent->parent;
+-			    if (((parent->type != XML_DOCUMENT_NODE) &&
+-				 (parent->type != XML_HTML_DOCUMENT_NODE)) ||
+-				 (parent != (xmlNodePtr) node->doc))
+-				nocache = 1;
+-			}
+-		    }
+-		    if (pos != 0) {
+-			ctxt->xpathCtxt->contextSize = len;
+-			ctxt->xpathCtxt->proximityPosition = pos;
+-			/*
+-			 * If the node is in a Value Tree we cannot
+-			 * cache it !
+-			 */
+-			if ((node->doc != NULL) && (nocache == 0) && !isRVT) {
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->previousExtra, ptr) =
+-				node;
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->indexExtra, ival) =
+-				pos;
+-			    XSLT_RUNTIME_EXTRA(ctxt, sel->lenExtra, ival) =
+-				len;
+-			}
+-		    }
+-		}
+-		oldNode = ctxt->node;
+-		ctxt->node = node;
+-
+-		if (step->value == NULL)
+-		    goto wrong_index;
+-		if (step->comp == NULL)
+-		    goto wrong_index;
+-
+-		if (!xsltEvalXPathPredicate(ctxt, step->comp, comp->nsList,
+-			                    comp->nsNr))
+-		    goto wrong_index;
++		if (!xsltTestPredicateMatch(ctxt, comp, node, step, sel))
++		    goto rollback;
+ 
+-		if (pos != 0) {
+-		    ctxt->xpathCtxt->contextSize = oldCS;
+-		    ctxt->xpathCtxt->proximityPosition = oldCP;
+-		}
+-		ctxt->node = oldNode;
+ 		break;
+-wrong_index:
+-		if (pos != 0) {
+-		    ctxt->xpathCtxt->contextSize = oldCS;
+-		    ctxt->xpathCtxt->proximityPosition = oldCP;
+-		}
+-		ctxt->node = oldNode;
+-		goto rollback;
+ 	    }
+             case XSLT_OP_PI:
+ 		if (node->type != XML_PI_NODE)
+-- 
+1.8.4.1
+

@@ -17,10 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
-import com.thoughtworks.go.config.exceptions.ConfigMergeException;
-import com.thoughtworks.go.config.exceptions.ConfigMergePostValidationException;
-import com.thoughtworks.go.config.exceptions.ConfigMergePreValidationException;
+import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -208,10 +205,13 @@ public class GoConfigDataSource {
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
             return new GoConfigSaveResult(internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand)), configSaveState);
         } catch (ConfigFileHasChangedException e) {
-            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit : " + e.getMessage(), e);
+            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit: " + e.getMessage(), e);
+            throw e;
+        } catch (GoConfigInvalidException e){
+            LOGGER.warn("Configuration file is invalid: " + e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOGGER.error("Configuration file is not valid : " + e.getMessage(), e);
+            LOGGER.error("Configuration file is not valid: " + e.getMessage(), e);
             throw bomb(e.getMessage(), e);
         } finally {
             if (channel != null && lock != null) {

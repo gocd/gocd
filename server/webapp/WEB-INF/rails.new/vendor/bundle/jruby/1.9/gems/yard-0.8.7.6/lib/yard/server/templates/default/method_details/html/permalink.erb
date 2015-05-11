@@ -1,0 +1,4 @@
+<script>
+$("#<%= anchor_for(object) %>").prepend(
+  '<a class="permalink" href="/<%= base_path(router.docs_prefix) %>/<%= serializer.serialized_path(object) %>">permalink</a>');
+</script>

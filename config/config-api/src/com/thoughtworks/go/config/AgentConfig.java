@@ -154,6 +154,10 @@ public class AgentConfig implements Validatable {
         return this.hostName;
     }
 
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
     public String getHostNameForDispaly() {
         return this.hostName;
     }

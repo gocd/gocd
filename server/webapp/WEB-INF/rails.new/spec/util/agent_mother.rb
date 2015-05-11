@@ -60,10 +60,10 @@ module AgentMother
   def handle_options(agent, options)
     options.each do |option|
       value = option[1]
-      key = option[0]
+      key   = option[0]
       respond_to?(key.to_s) && send(key, agent, value)
     end
-    AgentViewModel.new(agent,java.util.HashSet.new(options[:environments] || []))
+    AgentViewModel.new(agent, options[:environments] || [])
   end
 
   public
@@ -101,4 +101,3 @@ module AgentMother
   end
 
 end
-

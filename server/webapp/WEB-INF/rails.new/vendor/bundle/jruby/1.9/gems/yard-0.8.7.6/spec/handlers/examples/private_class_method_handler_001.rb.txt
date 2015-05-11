@@ -1,0 +1,9 @@
+class A
+  def self.b; end
+  def self.c; end
+  def self.d; end
+  def self.e; end
+
+  private_class_method(:c, :d)
+  private_class_method("e")
+end

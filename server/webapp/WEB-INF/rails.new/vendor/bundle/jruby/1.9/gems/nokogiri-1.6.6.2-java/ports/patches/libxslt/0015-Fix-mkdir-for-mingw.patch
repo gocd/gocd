@@ -1,0 +1,41 @@
+From a7ff3f0043f02d4ade966b6ac05b8be39166daa7 Mon Sep 17 00:00:00 2001
+From: Lars Kanis <lars@greiz-reinsdorf.de>
+Date: Sun, 6 Oct 2013 22:04:46 +0200
+Subject: [PATCH] Use mkdir macro also in case if mingw32.
+
+This fixes bug 676511.
+---
+ libxslt/libxslt.h     | 6 ++++++
+ libxslt/win32config.h | 1 -
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/libxslt/libxslt.h b/libxslt/libxslt.h
+index 2f6f20d..e6d4c83 100644
+--- a/libxslt/libxslt.h
++++ b/libxslt/libxslt.h
+@@ -27,4 +27,10 @@
+ #endif
+ #endif
+ 
++#if defined(_MSC_VER) || defined(__MINGW32__)
++#include <io.h>
++#include <direct.h>
++#define mkdir(p,m) _mkdir(p)
++#endif
++
+ #endif /* ! __XSLT_LIBXSLT_H__ */
+diff --git a/libxslt/win32config.h b/libxslt/win32config.h
+index 9f60e55..e1ceae1 100644
+--- a/libxslt/win32config.h
++++ b/libxslt/win32config.h
+@@ -78,7 +78,6 @@ static int isnan (double d) {
+ 
+ #include <direct.h>
+ #if defined(_MSC_VER) || defined(__MINGW32__)
+-#define mkdir(p,m) _mkdir(p)
+ #define snprintf _snprintf
+ #if _MSC_VER < 1500
+ #define vsnprintf(b,c,f,a) _vsnprintf(b,c,f,a)
+-- 
+1.8.3.2
+

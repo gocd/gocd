@@ -76,13 +76,30 @@ public class HttpOperationResultTest {
     }
 
     @Test
+    public void successShouldReturnTrueIfStatusIs2xx(){
+        assertThat(httpOperationResult.isSuccess(), is(false));
+
+        httpOperationResult.notAcceptable("not acceptable", HealthStateType.general(HealthStateScope.GLOBAL));
+        assertThat(httpOperationResult.isSuccess(), is(false));
+
+        httpOperationResult.ok("message");
+        assertThat(httpOperationResult.isSuccess(), is(true));
+
+        httpOperationResult.error("message", "desc", HealthStateType.general(HealthStateScope.GLOBAL));
+        assertThat(httpOperationResult.isSuccess(), is(false));
+
+        httpOperationResult.accepted("Request to schedule pipeline 'baboon' accepted", "blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
+        assertThat(httpOperationResult.isSuccess(), is(true));
+    }
+
+    @Test
     public void shouldReturnOnlyMessage_whenDescriptionIsBlank() {
         httpOperationResult.notAcceptable("message", "", HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(httpOperationResult.httpCode(), is(406));
         assertThat(httpOperationResult.message(), is("message"));
         assertThat(httpOperationResult.detailedMessage(), is("message\n"));
     }
-    
+
     @Test
     public void shouldReturnOnlyMessage_whenServerHealthStateDoesntExist() {
         httpOperationResult.ok("message");

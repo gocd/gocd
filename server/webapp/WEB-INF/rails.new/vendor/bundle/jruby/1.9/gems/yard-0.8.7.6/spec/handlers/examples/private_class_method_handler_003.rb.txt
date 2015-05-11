@@ -1,0 +1,11 @@
+class SingletonClass
+  # Reopening singleton class from
+  # private_class_method_handler_002.rb.txt
+  
+  private_class_method :baz
+  
+  # Public from reopened class.
+  def self.bat
+  end
+  
+end

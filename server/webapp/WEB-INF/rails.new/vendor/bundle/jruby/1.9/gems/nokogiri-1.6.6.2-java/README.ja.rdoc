@@ -1,0 +1,112 @@
+= Nokogiri (鋸) {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri]
+
+* http://nokogiri.org
+* https://github.com/sparklemotion/nokogiri
+* https://groups.google.com/group/nokogiri-talk
+* https://github.com/sparklemotion/nokogiri/issues
+
+== DESCRIPTION:
+
+Nokogiri はHTMLとXMLとSAXとXSLTとReaderのパーサーです。とりわけ重要な特徴は、
+ドキュメントをXPathやCSS3セレクター経由で探索する機能を持つことです。
+
+XMLは暴力に似ている - XMLが君の問題を解決しないとしたら、君はXMLを十分に
+使いこなしていない事になる。
+
+== FEATURES:
+
+* XPath 1.0による探索
+* CSS3 のセレクターによる探索
+* XML/HTMLのビルダー
+
+XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath 1.0をサポートしています。
+
+== SUPPORT:
+
+日本語でNokogiriの
+{メーリングリスト}[https://groups.google.com/group/nokogiri-list]
+
+  * https://groups.google.com/group/nokogiri-list
+
+{バグ報告}[https://github.com/sparklemotion/nokogiri/issues]
+
+  * https://github.com/sparklemotion/nokogiri/issues
+
+IRCのチャンネルはfreenodeの #nokogiri です。
+
+== SYNOPSIS:
+
+  require 'nokogiri'
+  require 'open-uri'
+
+  # Fetch and parse HTML document
+  doc = Nokogiri::HTML(open('http://www.nokogiri.org/tutorials/installing_nokogiri.html'))
+
+  ####
+  # Search for nodes by css
+  doc.css('nav ul.menu li a').each do |link|
+    puts link.content
+  end
+
+  ####
+  # Search for nodes by xpath
+  doc.xpath('//h2 | //h3').each do |link|
+    puts link.content
+  end
+
+  ####
+  # Or mix and match.
+  doc.search('code.sh', '//h2').each do |link|
+    puts link.content
+  end
+
+
+== REQUIREMENTS:
+
+* ruby 1.9.3以上
+
+* Nokogiri 1.6.0以降ではlibxml2とlibxsltは同梱されているが、
+  もしインストール済みのものを使いたい場合:
+
+  * libxml2 2.6.21以上, iconvサポート付きのもの
+    (libxml2-dev/-develパッケージも必要)
+
+  * libxslt 上記のlibxml2でビルドされ、サポートされているもの
+    (libxslt-dev/-develパッケージも必要)
+
+== INSTALL:
+
+* sudo gem install nokogiri
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008 - 2015:
+
+* {Aaron Patterson}[http://tenderlovemaking.com]
+* {Mike Dalessio}[http://mike.daless.io]
+* {Charles Nutter}[http://blog.headius.com]
+* {Sergio Arbeo}[http://www.serabe.com]
+* {Patrick Mahoney}[http://polycrystal.org]
+* {Yoko Harada}[http://yokolet.blogspot.com]
+* {Akinori MUSHA}[https://akinori.org]
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

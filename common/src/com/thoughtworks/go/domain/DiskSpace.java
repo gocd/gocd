@@ -42,6 +42,14 @@ public class DiskSpace implements Comparable<DiskSpace> {
         return FileUtil.byteCountToDisplaySize(space);
     }
 
+    public Long space(){
+        return space;
+    }
+
+    public boolean isNullDiskspace() {
+        return false;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) { return true; }
@@ -64,6 +72,10 @@ public class DiskSpace implements Comparable<DiskSpace> {
 
         public String toString() {
             return UNKNOWN_DISK_SPACE;
+        }
+
+        public boolean isNullDiskspace() {
+            return true;
         }
     }
 }

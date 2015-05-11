@@ -1,0 +1,61 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:garbage_collect
+   fun:rb_newobj
+   fun:rb_node_newnode
+   fun:ruby_yyparse
+   fun:yycompile
+   fun:load_file
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_call0
+   fun:rb_call
+   fun:eval_fcall
+   fun:rb_eval
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_call0
+   fun:rb_call
+   fun:eval_fcall
+   fun:rb_eval
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_protect
+   fun:require_libraries
+   fun:proc_options
+   fun:ruby_process_options
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:garbage_collect_0
+   fun:rb_newobj
+   fun:rb_node_newnode
+   fun:ruby_yyparse
+   fun:yycompile
+   fun:load_file
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_call0
+   fun:rb_call
+   fun:eval_fcall
+   fun:rb_eval
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_call0
+   fun:rb_call
+   fun:eval_fcall
+   fun:rb_eval
+   fun:rb_load
+   fun:rb_require_safe
+   fun:rb_protect
+   fun:require_libraries
+   fun:proc_options
+   fun:ruby_process_options
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:rb_gc_wipe_stack
+}

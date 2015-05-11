@@ -61,6 +61,10 @@ public class AgentConfigService {
         goConfigService.updateAgentIpByUuid(uuid, ipAdress, userName);
     }
 
+    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources) {
+        goConfigService.updateAgentAttributes(uuid, userName, hostname, resources);
+    }
+
     public void saveOrUpdateAgent(AgentInstance agentInstance) {
         goConfigService.saveOrUpdateAgent(agentInstance);
     }

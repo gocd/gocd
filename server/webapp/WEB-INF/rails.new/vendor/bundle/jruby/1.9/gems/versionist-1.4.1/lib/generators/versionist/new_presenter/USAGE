@@ -1,0 +1,10 @@
+Description:
+    Creates a new presenter class with the given name under the given version
+
+Example:
+    rails generate versionist:new_presenter foo V2_0_0
+
+    This will create:
+        app/presenters/v2_0_0/foo_presenter.rb
+
+    In addition this will create a test for the new controller using the test_framework currently configured in your Rails app.

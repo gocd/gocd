@@ -3,3 +3,6 @@ ruby:
 
 java_script:
   enabled: false
+
+scss:
+  enabled: false

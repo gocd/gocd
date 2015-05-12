@@ -1,4 +1,5 @@
 RUNNING_TESTS = 'running_tests'
+ENV["RAILS_ENV"]="test"
 
 def running_tests?
   ENV[RUNNING_TESTS] == 'true'
@@ -25,7 +26,7 @@ def property_file_path
   File.join(File.dirname(__FILE__), 'properties', 'test')
 end
 
-RAILS_WORKING_DIR = File.join(File.dirname(__FILE__), 'webapp', 'WEB-INF', 'rails')
+RAILS_WORKING_DIR = File.join(File.dirname(__FILE__), 'webapp', 'WEB-INF', 'rails.new')
 SPEC_SERVER_DIR = File.join(File.dirname(__FILE__), 'target', 'rails', 'spec_server')
 
 def execute_under_rails command
@@ -41,7 +42,7 @@ def execute_under_rails command
 
   log4j_properties = File.join(File.dirname(__FILE__), 'properties', 'test', 'log4j.properties')
 
-  jruby = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'old.go.jruby')
+  jruby = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.jruby')
 
   mkpath db_dir # create SPEC_SERVER_DIR & db_dir so that SPEC_SERVER_DIR/config, SPEC_SERVER_DIR/db/h2db & SPEC_SERVER_DIR/db/h2deltas get copied correctly.
 
@@ -113,39 +114,67 @@ task "spec" => RAILS_DEPENDENCIES do
   rm_rf SPEC_SERVER_DIR
   reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
   puts "reports directory: " + reports_dir
-  str = 'script/spec' +
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
           ' --require rspec-extra-formatters' +
-          ' --format specdoc' +
-          ' --format specdoc:' + reports_dir + '/spec_full_report.txt' +
-          ' --format html:' + reports_dir + '/spec_full_report.html' +
-          ' --format JUnitFormatter:' + reports_dir + '/spec_full_report.xml' +
+          ' --format progress' +
+          ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
+          ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
+          ' --drb' +
           ' spec '
-  str=str+ "--pattern "+ ENV['spec_module']+'/**/*_spec.rb' if ENV.has_key? 'spec_module'
+  str = str + "--pattern " + ENV['spec_module'] +'/**/*_spec.rb' if ENV.has_key? 'spec_module'
   execute_under_rails(str)
 end
 
-task "spec_file" => RAILS_DEPENDENCIES do
-  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/old.go.jruby -S rake --rakefile server/run_rspec_tests.rake spec_file" unless ENV.has_key? 'spec_file'
+task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_module" if args[:spec_module_path] == nil
+
+  path = args[:spec_module_path].split('rails.new/spec/')[1]
 
   running_tests!
   rm_rf SPEC_SERVER_DIR
   reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
-  str = 'script/spec' +
+  puts "reports directory: " + reports_dir
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
           ' --require rspec-extra-formatters' +
-          ' --format specdoc' +
-          ' --format specdoc:' + reports_dir + '/spec_full_report.txt' +
-          ' --format html:' + reports_dir + '/spec_full_report.html' +
-          ' --format JUnitFormatter:' + reports_dir + '/spec_full_report.xml' +
+          ' --format progress' +
+          ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
+          ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
+          ' --drb' +
           ' spec' +
-          " --pattern #{ENV['spec_file']}"
+          ' --pattern ' + "#{path}/**/*_spec.rb"
   execute_under_rails(str)
 
-  puts File.read(File.join(reports_dir, 'spec_full_report.txt'))
+  puts File.read(File.join(reports_dir, 'spec_full_report'))
+end
+
+task "spec_file", [:spec_file_path, :spec_file_line] => RAILS_DEPENDENCIES do |t, args|
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" if args[:spec_file_path] == nil
+
+  running_tests!
+  rm_rf SPEC_SERVER_DIR
+  reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
+  str = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.rspec') +
+          ' --require rspec-extra-formatters' +
+          ' --format progress' +
+          ' --format TapFormatter -o ' + reports_dir + '/spec_full_report' +
+          ' --format JUnitFormatter -o ' + reports_dir + '/spec_full_report.xml' +
+          ' --drb' +
+          " #{args[:spec_file_path]}"
+  str += " --line #{args[:spec_file_line]}" unless args[:spec_file_line] == nil
+  execute_under_rails(str)
+
+  puts File.read(File.join(reports_dir, 'spec_full_report'))
 end
 
 task "exec" => RAILS_DEPENDENCIES do
   not_running_tests!
   execute_under_rails ENV['command']
+end
+
+task "spork" => RAILS_DEPENDENCIES do
+  not_running_tests!
+  rm_rf SPEC_SERVER_DIR
+  execute_under_rails "spork"
 end
 
 task "spec_server" => RAILS_DEPENDENCIES do

@@ -28,6 +28,7 @@ public class AgentRegistrationPropertiesReader {
     public static final String AGENT_AUTO_REGISTER_KEY = "agent.auto.register.key";
     public static final String AGENT_AUTO_REGISTER_RESOURCES = "agent.auto.register.resources";
     public static final String AGENT_AUTO_REGISTER_ENVIRONMENTS = "agent.auto.register.environments";
+    public static final String AGENT_AUTO_REGISTER_HOSTNAME = "agent.auto.register.hostname";
 
     private Properties agentAutoRegisterProperties;
 
@@ -65,6 +66,10 @@ public class AgentRegistrationPropertiesReader {
 
     public String getAgentAutoRegisterEnvironments() {
         return agentAutoRegisterProperties.getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS, "");
+    }
+
+    public String getAgentAutoRegisterHostname() {
+        return agentAutoRegisterProperties.getProperty(AGENT_AUTO_REGISTER_HOSTNAME, "");
     }
 
 }

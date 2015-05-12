@@ -199,6 +199,7 @@ public class SslInfrastructureService {
             postMethod.addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.getAgentAutoRegisterKey());
             postMethod.addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.getAgentAutoRegisterResources());
             postMethod.addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.getAgentAutoRegisterEnvironments());
+            postMethod.addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.getAgentAutoRegisterHostname());
             try {
                 httpClient.executeMethod(postMethod);
                 InputStream is = postMethod.getResponseBodyAsStream();

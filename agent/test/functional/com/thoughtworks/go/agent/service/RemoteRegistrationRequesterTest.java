@@ -59,7 +59,13 @@ public class RemoteRegistrationRequesterTest {
         String url = "http://cruise.com/go";
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentRegistrationPropertiesReader(new Properties()));
+        Properties properties = new Properties();
+        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+
+        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentRegistrationPropertiesReader(properties));
         verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid())));
     }
 
@@ -72,9 +78,10 @@ public class RemoteRegistrationRequesterTest {
                 String workingDir = SystemUtil.currentWorkingDirectory();
                 assertThat(postMethod.getParameter("location").getValue(),is(workingDir));
                 assertThat(postMethod.getParameter("operating_system").getValue(),is("minix"));
-                assertThat(postMethod.getParameter("agentAutoRegisterKey").getValue(),is(""));
-                assertThat(postMethod.getParameter("agentAutoRegisterResources").getValue(),is(""));
-                assertThat(postMethod.getParameter("agentAutoRegisterEnvironments").getValue(),is(""));
+                assertThat(postMethod.getParameter("agentAutoRegisterKey").getValue(),is("t0ps3cret"));
+                assertThat(postMethod.getParameter("agentAutoRegisterResources").getValue(),is("linux, java"));
+                assertThat(postMethod.getParameter("agentAutoRegisterEnvironments").getValue(),is("uat, staging"));
+                assertThat(postMethod.getParameter("agentAutoRegisterHostname").getValue(),is("agent01.example.com"));
                 return true;
             }
 

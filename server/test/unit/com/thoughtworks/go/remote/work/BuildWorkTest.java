@@ -579,6 +579,22 @@ public class BuildWorkTest {
                 containsString("[" + SystemUtil.currentWorkingDirectory() + "]"));
     }
 
+    @Test
+    public void shouldReportEnvironmentVariables() throws Exception {
+        buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
+
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_TRIGGER_USER' to value ''\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_PIPELINE_NAME' to value 'pipeline1'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_PIPELINE_COUNTER' to value '-2'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_PIPELINE_LABEL' to value '100'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_STAGE_NAME' to value 'mingle'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_STAGE_COUNTER' to value '100'\n"));
+        assertThat(artifactManipulator.consoleOut(), containsString("[go] setting environment variable 'GO_JOB_NAME' to value 'run-ant'"));
+    }
+
     private void createDummyFilesAndDirectories(File workingdir) {
         for (int i = 0; i < 2; i++) {
             File directory = new File(workingdir.getPath() + "/dir" + i);

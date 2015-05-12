@@ -17,12 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.thoughtworks.go.util.GoConstants;
+import java.util.*;
 
 import static java.lang.String.*;
 
@@ -193,6 +188,20 @@ public class EnvironmentVariableContext implements Serializable {
         this.properties.addAll(another.properties);
     }
 
+    public void accept(EnvironmentVariableVisitor visitor) {
+        Set<String> environmentVariableNames = new HashSet<String>();
+
+        for (EnvironmentVariableContext.EnvironmentVariable environmentVariable : properties) {
+            if (environmentVariableNames.contains(environmentVariable.name())) {
+                visitor.overrideEnvironmentVariable(environmentVariable.name(), environmentVariable.valueForDisplay());
+            } else {
+                visitor.setEnvironmentVariable(environmentVariable.name(), environmentVariable.valueForDisplay());
+            }
+
+            environmentVariableNames.add(environmentVariable.name());
+        }
+    }
+
     @Override public String toString() {
         return "EnvironmentVariableContext{" +
                 "properties=" + properties +
@@ -231,19 +240,11 @@ public class EnvironmentVariableContext implements Serializable {
         throw new RuntimeException("IMPLEMENT ME");
     }
 
-    public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer) {
+    public void setupRuntimeEnvironment(Map<String, String> env) {
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
             if (value != null) {
-                String line;
-                if (env.containsKey(name)) {
-                    line = format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
-                } else {
-                    line = format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
-                }
-
-                consumer.stdOutput(line);
                 env.put(name, value);
             }
         }

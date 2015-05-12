@@ -17,13 +17,10 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -49,63 +46,10 @@ public class EnvironmentVariableContextTest {
     }
 
     @Test
-    public void shouldReportWhenAVariableIsSet() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext();
-        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(PROPERTY_VALUE));
-        assertThat(consumer.getAllOutput(),
-                containsString("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
-    }
-
-    @Test
-    public void shouldReportWhenAVariableIsOverridden() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext();
-        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
-        context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();        
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(NEW_VALUE));
-        assertThat(consumer.getAllOutput(), containsString("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
-        assertThat(consumer.getAllOutput(), containsString("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'"));
-    }
-
-    @Test
-    public void shouldMaskOverRiddenSecureVariable() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext();
-        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
-        context.setProperty(PROPERTY_NAME, NEW_VALUE, true);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(NEW_VALUE));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
-    }
-
-    @Test
-    public void shouldReportSecureVariableAsMaskedValue() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext();
-        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(PROPERTY_VALUE));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
-    }
-
-    @Test
     public void shouldBeAbleToSerialize() throws ClassNotFoundException, IOException {
         EnvironmentVariableContext original = new EnvironmentVariableContext("blahKey", "blahValue");
         EnvironmentVariableContext clone = (EnvironmentVariableContext) SerializationTester.serializeAndDeserialize(original);
-        assertThat(clone,is(original));
+        assertThat(clone, is(original));
     }
 
     @Test
@@ -138,6 +82,24 @@ public class EnvironmentVariableContextTest {
         assertThat(secureEnvironmentVariables, hasItem(new EnvironmentVariableContext.EnvironmentVariable("secure_foo", "secure_foo_value", true)));
     }
 
+    @Test
+    public void shouldVisitEnvironmentVariablesCorrectly() {
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
+        context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
+
+        context.accept(new EnvironmentVariableVisitor() {
+            @Override
+            public void setEnvironmentVariable(String name, String valueForDisplay) {
+                assertThat(name, is(PROPERTY_NAME));
+                assertThat(valueForDisplay, is(PROPERTY_VALUE));
+            }
+
+            @Override
+            public void overrideEnvironmentVariable(String name, String valueForDisplay) {
+                assertThat(name, is(PROPERTY_NAME));
+                assertThat(valueForDisplay, is(NEW_VALUE));
+            }
+        });
+    }
 }
-
-

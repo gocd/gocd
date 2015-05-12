@@ -31,6 +31,8 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.EnvironmentVariableVisitor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -136,5 +138,19 @@ public class DefaultGoPublisher implements GoPublisher {
     public void reportErrorMessage(String message, Exception e) {
         LOG.error(message, e);
         consumeLine(message);
+    }
+
+    public void reportEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
+        environmentVariableContext.accept(new EnvironmentVariableVisitor() {
+            @Override
+            public void setEnvironmentVariable(String name, String valueForDisplay) {
+                consumeLine(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, valueForDisplay));
+            }
+
+            @Override
+            public void overrideEnvironmentVariable(String name, String valueForDisplay) {
+                consumeLine(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, valueForDisplay));
+            }
+        });
     }
 }

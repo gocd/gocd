@@ -44,7 +44,6 @@ module ApiV1
     property :isEnabled, as: :enabled
     property :getLocation, as: :sandbox
     property :get_status_for_display, as: :status
-    property :buildLocator, as: :build_locator
     property :getOperatingSystem, as: :os
     property :free_space, exec_context: :decorator
     property :getResources, as: :resources

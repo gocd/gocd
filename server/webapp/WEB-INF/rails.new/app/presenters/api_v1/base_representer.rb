@@ -22,6 +22,12 @@ require 'representable/debug'
 module ApiV1
   class BaseRepresenter < Roar::Decorator
     include Roar::JSON::HAL
-    
+
+    class <<self
+      def property(name, options={})
+        super(name, options.merge!(render_nil: true))
+      end
+    end
+
   end
 end

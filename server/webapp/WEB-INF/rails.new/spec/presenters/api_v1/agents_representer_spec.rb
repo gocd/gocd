@@ -46,7 +46,6 @@ describe ApiV1::AgentsRepresenter do
       enabled:       true,
       sandbox:       '/var/lib/go-server',
       status:        'Idle',
-      build_locator: '',
       os:            'Linux',
       free_space:    10.gigabytes,
       resources:     ['firefox', 'linux'],

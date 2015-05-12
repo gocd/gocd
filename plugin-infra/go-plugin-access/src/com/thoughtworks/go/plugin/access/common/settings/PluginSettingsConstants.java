@@ -14,25 +14,10 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.plugin.access.pluggabletask;
+package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
-
-import java.util.Set;
-
-public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
-    private static PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
-
-    public static PluggableTaskConfigStore store() {
-        return PLUGGABLE_TASK_CONFIG_STORE;
-    }
-
-    @Deprecated
-    // only for test usage
-    public void clear() {
-        Set<String> plugins = pluginsWithPreference();
-        for (String pluginId : plugins) {
-            removePreferenceFor(pluginId);
-        }
-    }
+public interface PluginSettingsConstants {
+    public static final String REQUEST_PLUGIN_SETTINGS_CONFIGURATION = "plugin-settings-configuration";
+    public static final String REQUEST_PLUGIN_SETTINGS_VIEW = "plugin-settings-view";
+    public static final String REQUEST_VALIDATE_PLUGIN_SETTINGS = "validate-plugin-settings";
 }

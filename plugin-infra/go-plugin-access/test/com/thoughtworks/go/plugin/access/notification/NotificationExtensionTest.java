@@ -16,9 +16,13 @@
 
 package com.thoughtworks.go.plugin.access.notification;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,9 +50,12 @@ public class NotificationExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
+    @Mock
     private JsonMessageHandler1_0 jsonMessageHandler;
 
     private NotificationExtension notificationExtension;
+    private PluginSettingsConfiguration pluginSettingsConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before
@@ -57,13 +65,53 @@ public class NotificationExtensionTest {
         REQUEST_BODY.put("key", "value");
 
         notificationExtension = new NotificationExtension(pluginManager);
+        notificationExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
         notificationExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
+        pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(NotificationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+        PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        PluginSettingsConfiguration response = notificationExtension.getPluginSettingsConfiguration(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+        String deserializedResponse = "";
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        String response = notificationExtension.getPluginSettingsView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+        String requestBody = "expected-request";
+        when(pluginSettingsJSONMessageHandler.requestMessageForPluginSettingsValidation(pluginSettingsConfiguration)).thenReturn(requestBody);
+        ValidationResult deserializedResponse = new ValidationResult();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        ValidationResult response = notificationExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
+
+        assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
     }
 
     @Test

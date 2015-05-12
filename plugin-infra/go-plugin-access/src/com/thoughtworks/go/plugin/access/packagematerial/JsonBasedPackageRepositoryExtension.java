@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -28,11 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
-public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryExtensionContract {
+public class JsonBasedPackageRepositoryExtension extends AbstractExtension implements PackageAsRepositoryExtensionContract {
     public static final String EXTENSION_NAME = "package-repository";
+    private static final List<String> goSupportedVersions = asList("1.0");
+
     public static final String REQUEST_REPOSITORY_CONFIGURATION = "repository-configuration";
     public static final String REQUEST_PACKAGE_CONFIGURATION = "package-configuration";
     public static final String REQUEST_VALIDATE_REPOSITORY_CONFIGURATION = "validate-repository-configuration";
@@ -41,15 +45,11 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
     public static final String REQUEST_LATEST_REVISION_SINCE = "latest-revision-since";
     public static final String REQUEST_CHECK_REPOSITORY_CONNECTION = "check-repository-connection";
     public static final String REQUEST_CHECK_PACKAGE_CONNECTION = "check-package-connection";
-    private static final List<String> goSupportedVersions = asList("1.0");
-    private final PluginRequestHelper pluginRequestHelper;
-    private PluginManager pluginManager;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
 
-
-    public JsonBasedPackageRepositoryExtension(PluginManager defaultPluginManager) {
-        pluginRequestHelper = new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME);
-        this.pluginManager = defaultPluginManager;
+    public JsonBasedPackageRepositoryExtension(PluginManager pluginManager) {
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME));
+        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
@@ -71,7 +71,6 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
         });
     }
-
 
     public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration getPackageConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PACKAGE_CONFIGURATION, new PluginInteractionCallback<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>() {
@@ -112,7 +111,6 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
         });
     }
 
-
     public ValidationResult isPackageConfigurationValid(String pluginId, final com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration, final RepositoryConfiguration repositoryConfiguration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PACKAGE_CONFIGURATION, new PluginInteractionCallback<ValidationResult>() {
             @Override
@@ -131,7 +129,6 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
             }
         });
     }
-
 
     public PackageRevision getLatestRevision(String pluginId, final com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration, final RepositoryConfiguration repositoryConfiguration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new PluginInteractionCallback<PackageRevision>() {
@@ -190,7 +187,6 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
         });
     }
 
-
     public Result checkConnectionToPackage(String pluginId, final com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration, final RepositoryConfiguration repositoryConfiguration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CHECK_PACKAGE_CONNECTION, new PluginInteractionCallback<Result>() {
             @Override
@@ -208,5 +204,13 @@ public class JsonBasedPackageRepositoryExtension implements PackageAsRepositoryE
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForCheckConnectionToPackage(responseBody);
             }
         });
+    }
+
+    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
+        return pluginSettingsMessageHandlerMap;
+    }
+    
+    Map<String, JsonMessageHandler> getMessageHandlerMap() {
+        return messageHandlerMap;
     }
 }

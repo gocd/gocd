@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -24,6 +25,10 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import java.util.Map;
 
 public interface SCMExtensionContract {
+    PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId);
+
+    String getPluginSettingsView(String pluginId);
+
     SCMPropertyConfiguration getSCMConfiguration(String pluginId);
 
     SCMView getSCMView(String pluginId);

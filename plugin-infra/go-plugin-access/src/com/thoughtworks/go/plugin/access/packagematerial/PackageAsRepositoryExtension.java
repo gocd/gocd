@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
@@ -42,6 +43,21 @@ public class PackageAsRepositoryExtension implements PackageAsRepositoryExtensio
         this.pluginManager = defaultPluginManager;
         apiBasedPackageRepositoryExtension = new ApiBasedPackageRepositoryExtension(pluginManager);
         jsonBasedPackageRepositoryExtension = new JsonBasedPackageRepositoryExtension(pluginManager);
+    }
+
+    @Override
+    public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
+        return resolveBy(pluginId).getPluginSettingsConfiguration(pluginId);
+    }
+
+    @Override
+    public String getPluginSettingsView(String pluginId) {
+        return resolveBy(pluginId).getPluginSettingsView(pluginId);
+    }
+
+    @Override
+    public ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration) {
+        return resolveBy(pluginId).validatePluginSettings(pluginId, configuration);
     }
 
     public RepositoryConfiguration getRepositoryConfiguration(String pluginId) {
@@ -83,7 +99,7 @@ public class PackageAsRepositoryExtension implements PackageAsRepositoryExtensio
         return jsonBasedPackageRepositoryExtension;
     }
 
-    boolean isPackageRepositoryPlugin(String pluginId) {
+    public boolean isPackageRepositoryPlugin(String pluginId) {
         return pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId) || pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, pluginId);
     }
 }

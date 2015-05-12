@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
@@ -31,6 +32,21 @@ public class ApiBasedPackageRepositoryExtension implements PackageAsRepositoryEx
 
     public ApiBasedPackageRepositoryExtension(PluginManager defaultPluginManager) {
         this.pluginManager = defaultPluginManager;
+    }
+
+    @Override
+    public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public String getPluginSettingsView(String pluginId) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration) {
+        throw new RuntimeException("not implemented");
     }
 
     public RepositoryConfiguration getRepositoryConfiguration(String pluginId) {

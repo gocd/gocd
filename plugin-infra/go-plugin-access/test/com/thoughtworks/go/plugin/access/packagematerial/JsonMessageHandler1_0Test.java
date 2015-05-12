@@ -168,7 +168,6 @@ public class JsonMessageHandler1_0Test {
         assertFailureResult(messageHandler.responseMessageForCheckConnectionToPackage("{\"status\":\"failure\"}"), new ArrayList<String>());
     }
 
-
     @Test
     public void shouldBuildRequestBodyForLatestRevisionRequest() throws Exception {
         String requestBody = messageHandler.requestMessageForLatestRevision(packageConfiguration, repositoryConfiguration);
@@ -269,24 +268,6 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldValidateIncorrectJsonForValidationResult() {
-        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list or errors, with  each error represented as a map"));
-        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Each validation error should be represented as a map"));
-        assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]"), is("Unable to de-serialize json response. Validation error key should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
-    }
-
-    @Test
-    public void shouldValidateIncorrectJsonForCheckConnectionResult() {
-        assertThat(errorMessageForCheckConnectionResult(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with key represented as string and messages represented as list"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":true}"), is("Unable to de-serialize json response. Check connection 'status' should be of type string"));
-        assertThat(errorMessageForCheckConnectionResult("{\"result\":true}"), is("Unable to de-serialize json response. Check connection 'status' is a required field"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Check connection 'message' should be of type string"));
-    }
-
-    @Test
     public void shouldValidateIncorrectJsonForPackageRevision() {
         assertThat(errorMessageForPackageRevision(""), is("Unable to de-serialize json response. Empty response body"));
         assertThat(errorMessageForPackageRevision("[{\"revision\":\"abc.rpm\"}]"), is("Unable to de-serialize json response. Package revision should be returned as a map"));
@@ -296,7 +277,6 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForPackageRevision("{\"timestamp\":{}}"), is("Unable to de-serialize json response. Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
         assertThat(errorMessageForPackageRevision("{\"timestamp\":\"12-01-2014\"}"), is("Unable to de-serialize json response. Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
     }
-
 
     private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {
         assertThat(packageRevision.getRevision(), is(revision));
@@ -309,7 +289,6 @@ public class JsonMessageHandler1_0Test {
         assertThat(packageRevision.getDataFor("dataKeyTwo"), is("data-value-two"));
     }
 
-
     private void assertSuccessResult(Result result, List<String> messages) {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.getMessages(), is(messages));
@@ -319,7 +298,6 @@ public class JsonMessageHandler1_0Test {
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.getMessages(), is(messages));
     }
-
 
     private void assertValidationError(ValidationError validationError, String expectedKey, String expectedMessage) {
         assertThat(validationError.getKey(), is(expectedKey));
@@ -349,26 +327,6 @@ public class JsonMessageHandler1_0Test {
     private String errorMessageForPackageConfiguration(String message) {
         try {
             messageHandler.responseMessageForPackageConfiguration(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
-    }
-
-    private String errorMessageForValidationResult(String message) {
-        try {
-            messageHandler.toValidationResult(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
-    }
-
-    private String errorMessageForCheckConnectionResult(String message) {
-        try {
-            messageHandler.toResult(message);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();

@@ -18,6 +18,9 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -33,8 +36,10 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 @Component
-public class SCMExtension implements SCMExtensionContract {
+public class SCMExtension extends AbstractExtension implements SCMExtensionContract {
     public static final String EXTENSION_NAME = "scm";
+    private static final List<String> goSupportedVersions = asList("1.0");
+
     public static final String REQUEST_SCM_CONFIGURATION = "scm-configuration";
     public static final String REQUEST_SCM_VIEW = "scm-view";
     public static final String REQUEST_VALIDATE_SCM_CONFIGURATION = "validate-scm-configuration";
@@ -42,16 +47,13 @@ public class SCMExtension implements SCMExtensionContract {
     public static final String REQUEST_LATEST_REVISION = "latest-revision";
     public static final String REQUEST_LATEST_REVISIONS_SINCE = "latest-revisions-since";
     public static final String REQUEST_CHECKOUT = "checkout";
-    private static final List<String> goSupportedVersions = asList("1.0");
 
-    private PluginManager pluginManager;
-    private final PluginRequestHelper pluginRequestHelper;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
 
     @Autowired
-    public SCMExtension(PluginManager defaultPluginManager) {
-        this.pluginManager = defaultPluginManager;
-        pluginRequestHelper = new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME);
+    public SCMExtension(PluginManager pluginManager) {
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME));
+        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
@@ -188,8 +190,12 @@ public class SCMExtension implements SCMExtensionContract {
         });
     }
 
-    boolean isSCMPlugin(String pluginId) {
+    public boolean isSCMPlugin(String pluginId) {
         return pluginManager.isPluginOfType(SCMExtension.EXTENSION_NAME, pluginId);
+    }
+
+    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
+        return pluginSettingsMessageHandlerMap;
     }
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {

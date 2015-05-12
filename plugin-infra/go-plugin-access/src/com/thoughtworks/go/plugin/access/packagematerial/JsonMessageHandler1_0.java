@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.common.handler.CommonJSONMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
@@ -36,8 +37,13 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
-
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    private final CommonJSONMessageHandler commonJSONMessageHandler;
+
+    public JsonMessageHandler1_0() {
+        commonJSONMessageHandler = new CommonJSONMessageHandler();
+    }
 
     @Override
     public RepositoryConfiguration responseMessageForRepositoryConfiguration(String responseBody) {
@@ -70,25 +76,25 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForIsRepositoryConfigurationValid(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForIsRepositoryConfigurationValid(String responseBody) {
-        return toValidationResult(responseBody);
+        return commonJSONMessageHandler.toValidationResult(responseBody);
     }
 
     @Override
     public String requestMessageForCheckConnectionToRepository(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public Result responseMessageForCheckConnectionToRepository(String responseBody) {
-        return toResult(responseBody);
+        return commonJSONMessageHandler.toResult(responseBody);
     }
 
     @Override
@@ -122,34 +128,34 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForIsPackageConfigurationValid(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", propertyToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForIsPackageConfigurationValid(String responseBody) {
-        return toValidationResult(responseBody);
+        return commonJSONMessageHandler.toValidationResult(responseBody);
     }
 
     @Override
     public String requestMessageForCheckConnectionToPackage(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", propertyToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public Result responseMessageForCheckConnectionToPackage(String responseBody) {
-        return toResult(responseBody);
+        return commonJSONMessageHandler.toResult(responseBody);
     }
 
     @Override
     public String requestMessageForLatestRevision(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", propertyToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
@@ -161,8 +167,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForLatestRevisionSince(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration, PackageRevision previousRevision) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", propertyToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", propertyToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
         configuredValues.put("previous-revision", packageRevisionToMap(previousRevision));
         return toJsonString(configuredValues);
     }
@@ -257,50 +263,6 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return packageMaterialProperty;
     }
 
-    ValidationResult toValidationResult(String responseBody) {
-        try {
-            ValidationResult validationResult = new ValidationResult();
-            if (isEmpty(responseBody)) return validationResult;
-
-            List errors;
-            try {
-                errors = parseResponseToList(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("Validation errors should be returned as list or errors, with  each error represented as a map");
-            }
-
-            for (Object item : errors) {
-                if (!(item instanceof Map)) {
-                    throw new RuntimeException("Each validation error should be represented as a map");
-                }
-                Map error = (Map) item;
-                String key;
-                try {
-                    key = (String) error.get("key");
-                } catch (Exception e) {
-                    throw new RuntimeException("Validation error key should be of type string");
-                }
-
-
-                String message;
-                try {
-                    message = (String) error.get("message");
-                } catch (Exception e) {
-                    throw new RuntimeException("Validation message should be of type string");
-                }
-
-                if (isEmpty(key)) {
-                    validationResult.addError(new ValidationError(message));
-                } else {
-                    validationResult.addError(new ValidationError(key, message));
-                }
-            }
-            return validationResult;
-        } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
-        }
-    }
-
     PackageRevision toPackageRevision(String responseBody) {
         try {
             Map map;
@@ -359,66 +321,11 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    private Map propertyToMap(Configuration configuration) {
-        Map configuredValuesForRepo = new LinkedHashMap();
-        for (Property property : configuration.list()) {
-            Map map = new LinkedHashMap();
-            map.put("value", property.getValue());
-            configuredValuesForRepo.put(property.getKey(), map);
-        }
-        return configuredValuesForRepo;
-    }
-
     private Map packageRevisionToMap(PackageRevision packageRevision) {
         Map map = new LinkedHashMap();
         map.put("revision", packageRevision.getRevision());
         map.put("timestamp", new SimpleDateFormat(DATE_PATTERN).format(packageRevision.getTimestamp()));
         map.put("data", packageRevision.getData());
         return map;
-    }
-
-    Result toResult(String responseBody) {
-        try {
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("Check connection result should be returned as map, with key represented as string and messages represented as list");
-            }
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-
-            String status;
-            try {
-                status = (String) map.get("status");
-            } catch (Exception e) {
-                throw new RuntimeException("Check connection 'status' should be of type string");
-            }
-
-            if (isEmpty(status)) {
-                throw new RuntimeException("Check connection 'status' is a required field");
-            }
-
-            List messages = new ArrayList<String>();
-            if (map.containsKey("messages") && map.get("messages") != null) {
-                messages = (List) map.get("messages");
-                for (Object message : messages) {
-                    if (!(message instanceof String)) {
-                        throw new RuntimeException("Check connection 'message' should be of type string");
-                    }
-                }
-            }
-            Result result = new Result();
-            if ("success".equalsIgnoreCase(status)) {
-                result.withSuccessMessages(messages);
-            } else {
-                result.withErrorMessages(messages);
-            }
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
-        }
     }
 }

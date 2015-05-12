@@ -410,7 +410,8 @@ var PipelineActions = Class.create({
             return;/* Can't duplicate submit when submitting */
         }
 
-        var url = contextPath + "/pausePipeline.json?pipelineName=" + pipelineName;
+        var url = contextPath + "/api/pipelines/" + pipelineName + "/pause";
+
         var cause = prompt("Specify the reason why you want to stop scheduling on this pipeline (only a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe is valid) :");
         while (!this.isPauseReasonValid(cause).result) {
             cause = prompt(this.isPauseReasonValid(cause).reason);
@@ -442,7 +443,7 @@ var PipelineActions = Class.create({
 
         $('pause-' + pipelineName).removeClassName('pause-build-link').addClassName('submiting-link');
 
-        var url = contextPath + "/unpausePipeline.json?pipelineName=" + pipelineName;
+        var url = contextPath + "/api/pipelines/" + pipelineName + "/unpause";
 
         this.rememberButtonIsSpinning('Pause', pipelineName);
 

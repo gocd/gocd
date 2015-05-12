@@ -18,4 +18,5 @@
 JRUBY_BASE="$(dirname $0)/../jruby-1.7.11"
 export GEM_HOME="$JRUBY_BASE"
 export GEM_PATH="$JRUBY_BASE/lib/ruby/gems/shared/"
+export PATH=$GEM_HOME/bin:$PATH
 exec $JRUBY_BASE/bin/jruby "$@"

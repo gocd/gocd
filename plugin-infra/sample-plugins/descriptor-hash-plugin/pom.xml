@@ -21,10 +21,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>descriptor-hash-plugin</artifactId>
-    <version>1.0</version>
+    <version>15.2.0</version>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <go.version>15.1.0</go.version>
+        <go.target.version>15.1.0</go.target.version>
+        <go.version>${project.version}</go.version>
+        <plugin.version>${project.version}</plugin.version>
     </properties>
 
     <dependencies>
@@ -57,7 +60,7 @@
                 <directory>test-resources</directory>
             </testResource>
         </testResources>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
 
         <plugins>
             <plugin>
@@ -97,6 +100,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
                     <archive>
                         <manifestEntries>
                             <Go-Version>${go.version}</Go-Version>
@@ -104,6 +108,34 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- replaces the version number in plugin.xml -->
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${project.basedir}/target/classes/plugin.xml</file>
+                    <replacements>
+                        <replacement>
+                            <token>GO_TARGET_VERSION_NUMBER</token>
+                            <value>${go.target.version}</value>
+                        </replacement>
+                        <replacement>
+                            <token>PLUGIN_VERSION_NUMBER</token>
+                            <value>${plugin.version}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>

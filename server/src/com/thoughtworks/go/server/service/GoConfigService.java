@@ -205,10 +205,6 @@ public class GoConfigService implements Initializer {
         return agents().getAgentByUuid(uuid);
     }
 
-    public boolean agentExists(String uuid) {
-        return agents().hasAgent(uuid);
-    }
-
     public boolean isPipelineEmpty() {
         return getCurrentConfig().hasPipeline();
     }
@@ -571,7 +567,7 @@ public class GoConfigService implements Initializer {
         for (AgentInstance agentInstance : instances) {
             String uuid = agentInstance.getUuid();
 
-            if (this.agents().hasAgentIdentifiedWith(uuid)) {
+            if (hasAgent(uuid)) {
                 command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, disabled));
             } else {
                 AgentConfig agentConfig = agentInstance.agentConfig();
@@ -588,7 +584,7 @@ public class GoConfigService implements Initializer {
 
     public void approvePendingAgent(AgentInstance agentInstance) {
         agentInstance.enable();
-        if (this.agents().hasAgentIdentifiedWith(agentInstance.getUuid())) {
+        if (hasAgent(agentInstance.getUuid())) {
             LOGGER.warn("Registered agent with the same uuid [" + agentInstance + "] already approved.");
         } else {
             this.addAgent(agentInstance.agentConfig());
@@ -647,7 +643,7 @@ public class GoConfigService implements Initializer {
         GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : instances) {
             String uuid = agentInstance.getUuid();
-            if (this.agents().hasAgentIdentifiedWith(uuid)) {
+            if (hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
                     command.addCommand(new GoConfigFileDao.ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
                 }
@@ -679,7 +675,7 @@ public class GoConfigService implements Initializer {
         GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : agents) {
             String uuid = agentInstance.getUuid();
-            if (this.agents().hasAgentIdentifiedWith(uuid)) {
+            if (hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
                     command.addCommand(new GoConfigFileDao.ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
                 }
@@ -1395,7 +1391,7 @@ public class GoConfigService implements Initializer {
 
     public void saveOrUpdateAgent(AgentInstance agent) {
         AgentConfig agentConfig = agent.agentConfig();
-        if (this.agents().hasAgentIdentifiedWith(agentConfig.getUuid())) {
+        if (hasAgent(agentConfig.getUuid())) {
             this.updateAgentApprovalStatus(agentConfig.getUuid(), agentConfig.isDisabled());
         } else {
             this.addAgent(agentConfig);

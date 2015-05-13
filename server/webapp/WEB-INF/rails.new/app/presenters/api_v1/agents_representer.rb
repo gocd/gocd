@@ -18,7 +18,7 @@ module ApiV1
   class AgentsRepresenter < BaseRepresenter
 
     link :self do |opts|
-      opts[:url_builder].api_agents_url
+      opts[:url_builder].apiv1_agents_url
     end
 
     link :doc do

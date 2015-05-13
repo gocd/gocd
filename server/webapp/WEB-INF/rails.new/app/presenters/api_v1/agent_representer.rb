@@ -19,15 +19,15 @@ module ApiV1
     alias_method :agent, :represented
 
     link :self do |opts|
-      opts[:url_builder].api_agent_url(agent.getUuid())
+      opts[:url_builder].apiv1_agent_url(agent.getUuid())
     end
 
     link :enable do |opts|
-      opts[:url_builder].enable_api_agent_url(agent.getUuid())
+      opts[:url_builder].enable_apiv1_agent_url(agent.getUuid())
     end
 
     link :disable do |opts|
-      opts[:url_builder].disable_api_agent_url(agent.getUuid())
+      opts[:url_builder].disable_apiv1_agent_url(agent.getUuid())
     end
 
     link :doc do |opts|
@@ -35,7 +35,7 @@ module ApiV1
     end
 
     link :find do |opts|
-      opts[:url_builder].api_agent_url(':uuid')
+      opts[:url_builder].apiv1_agent_url(':uuid')
     end
 
     property :getUuid, as: :uuid

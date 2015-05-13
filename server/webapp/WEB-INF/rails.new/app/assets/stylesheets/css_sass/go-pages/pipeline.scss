@@ -28,6 +28,11 @@
         float: right;
         padding-right: 4px;
     }
+    &.setting-left {
+      background-position: 0 -211.5px;
+      float: left;
+      padding-right: 5px;
+    }
 }
 
 .pipeline_bundle {

@@ -213,6 +213,9 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore unless defined? SCMMetadataStore
   java_import com.thoughtworks.go.plugin.access.scm.SCMConfigurations unless defined? SCMConfigurations
   java_import com.thoughtworks.go.plugin.access.scm.SCMConfiguration unless defined? SCMConfiguration
+  java_import com.thoughtworks.go.server.service.PluginService unless defined? PluginService
+  java_import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore unless defined? PluginSettingsMetadataStore
+  java_import com.thoughtworks.go.server.domain.PluginSettings unless defined? PluginSettings
   java_import com.thoughtworks.go.domain.config.ConfigurationKey unless defined? ConfigurationKey
   java_import com.thoughtworks.go.domain.config.ConfigurationValue unless defined? ConfigurationValue
   java_import com.thoughtworks.go.domain.config.EncryptedConfigurationValue unless defined? EncryptedConfigurationValue

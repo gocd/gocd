@@ -24,6 +24,7 @@ class Admin::Plugins::PluginsController < AdminController
                               .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
     @upload_feature_enabled = Toggles.isToggleOn(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY)
+    assert_load :meta_data_store, meta_data_store
   end
 
   def upload
@@ -46,9 +47,35 @@ class Admin::Plugins::PluginsController < AdminController
     end
   end
 
+  def edit_settings
+    plugin_settings = plugin_service.getPluginSettingsFor(params[:plugin_id])
+    render_settings_page(plugin_settings, 200)
+  end
+
+  def update_settings
+    plugin_settings = plugin_service.getPluginSettingsFor(params[:plugin_id], params[:plugin_settings])
+    plugin_service.validatePluginSettingsFor(plugin_settings)
+    if plugin_settings.hasErrors()
+      flash.now[:error] = l.string('SAVE_FAILED')
+      render_settings_page(plugin_settings, 400)
+    else
+      plugin_service.savePluginSettingsFor(plugin_settings)
+      render(:text => 'Saved successfully', :location => url_options_with_flash(l.string('SAVED_SUCCESSFULLY'), {:action => :index, :class => 'success'}))
+    end
+  end
+
   private
   def set_tab_name
     @tab_name = 'plugins-listing'
   end
 
+  def meta_data_store
+    PluginSettingsMetadataStore.getInstance()
+  end
+
+  def render_settings_page(plugin_settings, status_code)
+    assert_load :meta_data_store, meta_data_store
+    assert_load :plugin_settings, plugin_settings
+    render template: "/admin/plugins/plugins/settings", status: status_code, layout: false
+  end
 end

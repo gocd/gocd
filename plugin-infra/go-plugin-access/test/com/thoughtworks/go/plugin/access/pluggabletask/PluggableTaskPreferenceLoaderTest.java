@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -39,8 +40,14 @@ public class PluggableTaskPreferenceLoaderTest {
     private TaskExtension taskExtension;
 
     @Before
-    public void setup() {
+    public void setUp() {
         taskExtension = mock(TaskExtension.class);
+        PluggableTaskConfigStore.store().clear();
+    }
+
+    @After
+    public void tearDown() {
+        PluggableTaskConfigStore.store().clear();
     }
 
     @Test
@@ -51,7 +58,7 @@ public class PluggableTaskPreferenceLoaderTest {
     }
 
     @Test
-    public void shouldSetConfigForTheTaskCorrespondingToGivenPluginId_ApiBasedPlugin() throws Exception {
+    public void shouldSetConfigForTheTaskCorrespondingToGivenPluginId() throws Exception {
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         String pluginId = "test-plugin-id";
         when(descriptor.id()).thenReturn(pluginId);
@@ -62,6 +69,7 @@ public class PluggableTaskPreferenceLoaderTest {
         when(task.view()).thenReturn(taskView);
         PluginManager pluginManager = mock(PluginManager.class);
         final TaskExtension taskExtension = mock(TaskExtension.class);
+        when(taskExtension.isTaskPlugin(pluginId)).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -74,38 +82,6 @@ public class PluggableTaskPreferenceLoaderTest {
 
         when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(true);
         when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(false);
-
-        PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
-        pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
-        assertThat(PluggableTaskConfigStore.store().hasPreferenceFor(pluginId), is(true));
-        assertThat(PluggableTaskConfigStore.store().preferenceFor(pluginId), is(new TaskPreference(task)));
-        verify(pluginManager).addPluginChangeListener(pluggableTaskPreferenceLoader, Task.class, GoPlugin.class);
-    }
-
-    @Test
-    public void shouldSetConfigForTheTaskCorrespondingToGivenPluginId_JSONBasedPlugin() throws Exception {
-        final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
-        String pluginId = "test-plugin-id";
-        when(descriptor.id()).thenReturn(pluginId);
-        final Task task = mock(Task.class);
-        TaskConfig config = new TaskConfig();
-        TaskView taskView = mock(TaskView.class);
-        when(task.config()).thenReturn(config);
-        when(task.view()).thenReturn(taskView);
-        PluginManager pluginManager = mock(PluginManager.class);
-        final TaskExtension taskExtension = mock(TaskExtension.class);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
-        }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
-
-        when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
         pluggableTaskPreferenceLoader.pluginLoaded(descriptor);
@@ -144,9 +120,8 @@ public class PluggableTaskPreferenceLoaderTest {
         when(task.config()).thenReturn(config);
         when(task.view()).thenReturn(taskView);
         PluginManager pluginManager = mock(PluginManager.class);
-        when(pluginManager.hasReferenceFor(Task.class, pluginId)).thenReturn(false);
-        when(pluginManager.isPluginOfType("task-plugin", pluginId)).thenReturn(false);
         final TaskExtension taskExtension = mock(TaskExtension.class);
+        when(taskExtension.isTaskPlugin(pluginId)).thenReturn(false);
 
         doAnswer(new Answer() {
             @Override

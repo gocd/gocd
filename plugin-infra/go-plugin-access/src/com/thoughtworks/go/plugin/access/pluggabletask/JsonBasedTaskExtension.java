@@ -17,6 +17,9 @@
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -25,28 +28,26 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-class JsonBasedTaskExtension implements TaskExtensionContract {
+class JsonBasedTaskExtension extends AbstractExtension implements TaskExtensionContract {
     public final static String TASK_EXTENSION = "task";
+    private final static List<String> supportedVersions = Arrays.asList(JsonBasedTaskExtensionHandler_V1.VERSION);
+
     public final static String CONFIGURATION_REQUEST = "configuration";
     public final static String VALIDATION_REQUEST = "validate";
     public final static String EXECUTION_REQUEST = "execute";
     public final static String TASK_VIEW_REQUEST = "view";
 
-    private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap;
-    private final PluginRequestHelper pluginRequestHelper;
-    private PluginManager pluginManager;
-    private List<String> supportedVersions = new ArrayList<String>();
+    private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
 
     JsonBasedTaskExtension(PluginManager pluginManager) {
-        this.pluginManager = pluginManager;
-        supportedVersions.add(JsonBasedTaskExtensionHandler_V1.VERSION);
-        handlerHashMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
+        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, TASK_EXTENSION));
+        pluginSettingsMessageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0());
         handlerHashMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
-        pluginRequestHelper = new PluginRequestHelper(pluginManager, supportedVersions, TASK_EXTENSION);
     }
 
     @Override
@@ -65,5 +66,13 @@ class JsonBasedTaskExtension implements TaskExtensionContract {
     public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
         JsonBasedPluggableTask task = new JsonBasedPluggableTask(pluginId, pluginRequestHelper, handlerHashMap);
         return task.validate(taskConfig);
+    }
+
+    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
+        return pluginSettingsMessageHandlerMap;
+    }
+
+    Map<String, JsonBasedTaskExtensionHandler> getMessageHandlerMap() {
+        return handlerHashMap;
     }
 }

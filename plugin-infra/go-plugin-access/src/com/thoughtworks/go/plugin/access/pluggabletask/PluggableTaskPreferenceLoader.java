@@ -43,7 +43,7 @@ public class PluggableTaskPreferenceLoader implements PluginChangeListener {
     }
 
     private void loadTaskConfigIntoPreferenceStore(GoPluginDescriptor descriptor) {
-        if (pluginManager.hasReferenceFor(Task.class, descriptor.id()) || pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, descriptor.id())) {
+        if (taskExtension.isTaskPlugin(descriptor.id())) {
             taskExtension.doOnTask(descriptor.id(), new Action<Task>() {
                 @Override
                 public void execute(Task task, GoPluginDescriptor pluginDescriptor) {

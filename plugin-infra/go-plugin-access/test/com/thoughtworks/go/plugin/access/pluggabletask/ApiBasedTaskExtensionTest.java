@@ -29,8 +29,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ApiBasedTaskExtensionTest {
@@ -44,6 +43,37 @@ public class ApiBasedTaskExtensionTest {
         pluginManager = mock(PluginManager.class);
         extension = new ApiBasedTaskExtension(pluginManager);
         pluginId = "plugin-id";
+    }
+
+
+    @Test
+    public void shouldThrowExceptionForPluginSettingsConfiguration() {
+        try {
+            extension.getPluginSettingsConfiguration(pluginId);
+            fail("should have thrown up");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("not implemented"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionForPluginSettingsView() {
+        try {
+            extension.getPluginSettingsView(pluginId);
+            fail("should have thrown up");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("not implemented"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionForValidatePluginSettings() {
+        try {
+            extension.validatePluginSettings(pluginId, null);
+            fail("should have thrown up");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("not implemented"));
+        }
     }
 
     @Test

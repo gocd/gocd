@@ -270,26 +270,6 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldValidateIncorrectJsonForValidationResult() {
-        assertThat(errorMessageForValidationResult("{{\"key\":\"abc\",\"message\":\"msg\"}}"), is("Unable to de-serialize json response. Validation errors should be returned as list or errors, with each error represented as a map"));
-        assertThat(errorMessageForValidationResult("[[{\"key\":\"abc\",\"message\":\"msg\"}]]"), is("Unable to de-serialize json response. Each validation error should be represented as a map"));
-        assertThat(errorMessageForValidationResult("[{\"key\":true,\"message\":\"msg\"}]"), is("Unable to de-serialize json response. Validation error key should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":{}}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
-        assertThat(errorMessageForValidationResult("[{\"key\":\"abc\",\"message\":[]}]"), is("Unable to de-serialize json response. Validation message should be of type string"));
-    }
-
-    @Test
-    public void shouldValidateIncorrectJsonForResult() {
-        assertThat(errorMessageForCheckConnectionResult(""), is("Unable to de-serialize json response. Empty response body"));
-        assertThat(errorMessageForCheckConnectionResult("[{\"result\":\"success\"}]"), is("Unable to de-serialize json response. Check connection result should be returned as map, with key represented as string and messages represented as list"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":true}"), is("Unable to de-serialize json response. Check connection 'status' should be of type string"));
-        assertThat(errorMessageForCheckConnectionResult("{\"result\":true}"), is("Unable to de-serialize json response. Check connection 'status' is a required field"));
-
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":{}}"), is("Unable to de-serialize json response. Check connection 'messages' should be of type list of string"));
-        assertThat(errorMessageForCheckConnectionResult("{\"status\":\"success\",\"messages\":[{},{}]}"), is("Unable to de-serialize json response. Check connection 'message' should be of type string"));
-    }
-
-    @Test
     public void shouldValidateIncorrectJsonForSCMRevisions() {
         assertThat(errorMessageForSCMRevisions("{\"revisions\":{}}"), is("Unable to de-serialize json response. 'revisions' should be of type list of map"));
         assertThat(errorMessageForSCMRevisions("{\"revisions\":[\"crap\"]}"), is("Unable to de-serialize json response. SCM revision should be of type map"));
@@ -380,26 +360,6 @@ public class JsonMessageHandler1_0Test {
     private String errorMessageForSCMView(String message) {
         try {
             messageHandler.responseMessageForSCMView(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
-    }
-
-    private String errorMessageForValidationResult(String message) {
-        try {
-            messageHandler.toValidationResult(message);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-        return null;
-    }
-
-    private String errorMessageForCheckConnectionResult(String message) {
-        try {
-            messageHandler.toResult(message);
             fail("should have thrown exception");
         } catch (Exception e) {
             return e.getMessage();

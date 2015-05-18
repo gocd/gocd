@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
@@ -60,6 +61,25 @@ public class PackageAsRepositoryExtensionTest {
         packageAsRepositoryExtension = new PackageAsRepositoryExtension(pluginManager);
         PackageAsRepositoryExtensionContract contract = packageAsRepositoryExtension.resolveBy(pluginId);
         assertThat(contract, IsInstanceOf.instanceOf(JsonBasedPackageRepositoryExtension.class));
+    }
+
+    @Test
+    public void shouldGetPluginSettingsConfiguration() throws Exception {
+        packageAsRepositoryExtension.getPluginSettingsConfiguration(PLUGIN_ID);
+        verify(contract).getPluginSettingsConfiguration(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldGetPluginSettingsView() throws Exception {
+        packageAsRepositoryExtension.getPluginSettingsView(PLUGIN_ID);
+        verify(contract).getPluginSettingsView(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldValidatePluginSettings() throws Exception {
+        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
+        packageAsRepositoryExtension.validatePluginSettings(PLUGIN_ID, configuration);
+        verify(contract).validatePluginSettings(PLUGIN_ID, configuration);
     }
 
     @Test

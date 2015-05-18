@@ -18,6 +18,9 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,24 +33,21 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 @Component
-public class NotificationExtension {
+public class NotificationExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
-
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
 
     public static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
 
-    private PluginManager pluginManager;
-    private final PluginRequestHelper pluginRequestHelper;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
 
     @Autowired
-    public NotificationExtension(PluginManager defaultPluginManager) {
-        this.pluginManager = defaultPluginManager;
-        this.pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME);
+    public NotificationExtension(PluginManager pluginManager) {
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME));
+        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
@@ -89,8 +89,12 @@ public class NotificationExtension {
         });
     }
 
-    boolean isNotificationPlugin(String pluginId) {
+    public boolean isNotificationPlugin(String pluginId) {
         return pluginManager.isPluginOfType(EXTENSION_NAME, pluginId);
+    }
+
+    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
+        return pluginSettingsMessageHandlerMap;
     }
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {

@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
@@ -30,7 +33,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,24 +45,35 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.packagematerial.JsonBasedPackageRepositoryExtension.EXTENSION_NAME;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class JsonBasedPackageRepositoryExtensionTest {
-
     public static final String PLUGIN_ID = "plugin-id";
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    @Mock
     private PluginManager pluginManager;
+    @Mock
+    private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
+    @Mock
+    private JsonMessageHandler1_0 jsonMessageHandler;
     private JsonBasedPackageRepositoryExtension jsonBasedPackageRepositoryExtension;
+    private PluginSettingsConfiguration pluginSettingsConfiguration;
     private RepositoryConfiguration repositoryConfiguration;
     private PackageConfiguration packageConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        pluginManager = Mockito.mock(PluginManager.class);
+        initMocks(this);
         jsonBasedPackageRepositoryExtension = new JsonBasedPackageRepositoryExtension(pluginManager);
+
+        pluginSettingsConfiguration = new PluginSettingsConfiguration();
 
         repositoryConfiguration = new RepositoryConfiguration();
         repositoryConfiguration.add(new PackageMaterialProperty("key-one", "value-one"));
@@ -73,6 +87,64 @@ public class JsonBasedPackageRepositoryExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
     }
 
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+        jsonBasedPackageRepositoryExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
+        jsonBasedPackageRepositoryExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
+
+        String responseBody = "expected-response";
+        PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
+
+        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        PluginSettingsConfiguration response = jsonBasedPackageRepositoryExtension.getPluginSettingsConfiguration(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+        jsonBasedPackageRepositoryExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
+        jsonBasedPackageRepositoryExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
+
+        String responseBody = "expected-response";
+        String deserializedResponse = "";
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
+
+        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        String response = jsonBasedPackageRepositoryExtension.getPluginSettingsView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+        jsonBasedPackageRepositoryExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
+        jsonBasedPackageRepositoryExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
+
+        String requestBody = "expected-request";
+        when(pluginSettingsJSONMessageHandler.requestMessageForPluginSettingsValidation(pluginSettingsConfiguration)).thenReturn(requestBody);
+        String responseBody = "expected-response";
+        ValidationResult deserializedResponse = new ValidationResult();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
+
+        when(pluginManager.isPluginOfType(EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        ValidationResult response = jsonBasedPackageRepositoryExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
+
+        assertRequest(requestArgumentCaptor.getValue(), EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
+        assertSame(response, deserializedResponse);
+    }
     @Test
     public void shouldTalkToPluginToGetRepositoryConfiguration() throws Exception {
         String expectedRequestBody = null;

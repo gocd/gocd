@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -62,6 +63,21 @@ public class TaskExtension implements TaskExtensionContract {
         throw new RuntimeException(String.format("Plugin should use either message-based or api-based extension. Plugin-id: %s", pluginId));
     }
 
+    @Override
+    public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
+        return getExtension(pluginId).getPluginSettingsConfiguration(pluginId);
+    }
+
+    @Override
+    public String getPluginSettingsView(String pluginId) {
+        return getExtension(pluginId).getPluginSettingsView(pluginId);
+    }
+
+    @Override
+    public ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration) {
+        return getExtension(pluginId).validatePluginSettings(pluginId, configuration);
+    }
+
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {
         return getExtension(pluginId).execute(pluginId, actionWithReturn);
     }
@@ -74,5 +90,9 @@ public class TaskExtension implements TaskExtensionContract {
     @Override
     public ValidationResult validate(String pluginId, TaskConfig taskConfig) {
         return getExtension(pluginId).validate(pluginId, taskConfig);
+    }
+
+    public boolean isTaskPlugin(String pluginId) {
+        return pluginManager.hasReferenceFor(Task.class, pluginId) || pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId);
     }
 }

@@ -18,13 +18,13 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,6 +36,12 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    private final JSONResultMessageHandler jsonResultMessageHandler;
+
+    public JsonMessageHandler1_0() {
+        jsonResultMessageHandler = new JSONResultMessageHandler();
+    }
 
     @Override
     public SCMPropertyConfiguration responseMessageForSCMConfiguration(String responseBody) {
@@ -115,31 +121,31 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForIsSCMConfigurationValid(SCMPropertyConfiguration scmConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForIsSCMConfigurationValid(String responseBody) {
-        return toValidationResult(responseBody);
+        return jsonResultMessageHandler.toValidationResult(responseBody);
     }
 
     @Override
     public String requestMessageForCheckConnectionToSCM(SCMPropertyConfiguration scmConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public Result responseMessageForCheckConnectionToSCM(String responseBody) {
-        return toResult(responseBody);
+        return jsonResultMessageHandler.toResult(responseBody);
     }
 
     @Override
     public String requestMessageForLatestRevision(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
         return toJsonString(configuredValues);
@@ -154,7 +160,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForLatestRevisionsSince(SCMPropertyConfiguration scmConfiguration, Map<String, String> materialData, String flyweightFolder, SCMRevision previousRevision) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("scm-data", materialData);
         configuredValues.put("flyweight-folder", flyweightFolder);
         configuredValues.put("previous-revision", scmRevisionToMap(previousRevision));
@@ -171,7 +177,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForCheckout(SCMPropertyConfiguration scmConfiguration, String destinationFolder, SCMRevision revision) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("scm-configuration", propertyToMap(scmConfiguration));
+        configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("destination-folder", destinationFolder);
         configuredValues.put("revision", scmRevisionToMap(revision));
         return toJsonString(configuredValues);
@@ -179,7 +185,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public Result responseMessageForCheckout(String responseBody) {
-        return toResult(responseBody);
+        return jsonResultMessageHandler.toResult(responseBody);
     }
 
     private List<Map> parseResponseToList(String responseBody) {
@@ -263,52 +269,6 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             scmProperty.with(Property.DISPLAY_ORDER, displayOrder);
         }
         return scmProperty;
-    }
-
-    ValidationResult toValidationResult(String responseBody) {
-        try {
-            ValidationResult validationResult = new ValidationResult();
-
-            if (isEmpty(responseBody)) return validationResult;
-
-            List errors;
-            try {
-                errors = parseResponseToList(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("Validation errors should be returned as list or errors, with each error represented as a map");
-            }
-
-            for (Object errorObj : errors) {
-                if (!(errorObj instanceof Map)) {
-                    throw new RuntimeException("Each validation error should be represented as a map");
-                }
-                Map errorMap = (Map) errorObj;
-
-                String key;
-                try {
-                    key = (String) errorMap.get("key");
-                } catch (Exception e) {
-                    throw new RuntimeException("Validation error key should be of type string");
-                }
-
-                String message;
-                try {
-                    message = (String) errorMap.get("message");
-                } catch (Exception e) {
-                    throw new RuntimeException("Validation message should be of type string");
-                }
-
-                if (isEmpty(key)) {
-                    validationResult.addError(new ValidationError(message));
-                } else {
-                    validationResult.addError(new ValidationError(key, message));
-                }
-            }
-
-            return validationResult;
-        } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
-        }
     }
 
     private Map getResponseMap(String responseBody) {
@@ -484,81 +444,11 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return new SCMRevision(revision, timestamp, user, revisionComment, data, modifiedFiles);
     }
 
-    private Map propertyToMap(SCMPropertyConfiguration configuration) {
-        Map configuredValuesForSCM = new LinkedHashMap();
-        for (Property property : configuration.list()) {
-            Map map = new LinkedHashMap();
-            map.put("value", property.getValue());
-            configuredValuesForSCM.put(property.getKey(), map);
-        }
-        return configuredValuesForSCM;
-    }
-
     private Map scmRevisionToMap(SCMRevision scmRevision) {
         Map map = new LinkedHashMap();
         map.put("revision", scmRevision.getRevision());
         map.put("timestamp", new SimpleDateFormat(DATE_PATTERN).format(scmRevision.getTimestamp()));
         map.put("data", scmRevision.getData());
         return map;
-    }
-
-    Result toResult(String responseBody) {
-        try {
-            Result result = new Result();
-
-            Map map;
-            try {
-                map = parseResponseToMap(responseBody);
-            } catch (Exception e) {
-                throw new RuntimeException("Check connection result should be returned as map, with key represented as string and messages represented as list");
-            }
-            if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
-            }
-
-            String status;
-            try {
-                status = (String) map.get("status");
-            } catch (Exception e) {
-                throw new RuntimeException("Check connection 'status' should be of type string");
-            }
-
-            if (isEmpty(status)) {
-                throw new RuntimeException("Check connection 'status' is a required field");
-            }
-
-            if ("success".equalsIgnoreCase(status)) {
-                result.withSuccessMessages(new ArrayList<String>());
-            } else {
-                result.withErrorMessages(new ArrayList<String>());
-            }
-
-            if (map.containsKey("messages") && map.get("messages") != null) {
-                List messages = null;
-                try {
-                    messages = (List) map.get("messages");
-                } catch (Exception e) {
-                    throw new RuntimeException("Check connection 'messages' should be of type list of string");
-                }
-
-                if (!messages.isEmpty()) {
-                    for (Object message : messages) {
-                        if (!(message instanceof String)) {
-                            throw new RuntimeException("Check connection 'message' should be of type string");
-                        }
-                    }
-
-                    if (result.isSuccessful()) {
-                        result.withSuccessMessages(messages);
-                    } else {
-                        result.withErrorMessages(messages);
-                    }
-                }
-            }
-
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(format("Unable to de-serialize json response. %s", e.getMessage()));
-        }
     }
 }

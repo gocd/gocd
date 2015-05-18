@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
@@ -23,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,7 +75,6 @@ public class TaskExtensionTest {
 
     @Test
     public void shouldReturnCorrectTaskExtensionImplForAPIBasedTaskPlugin() {
-
         when(pluginManager.hasReferenceFor(Task.class, apiBasedPlugin)).thenReturn(true);
 
         assertTrue(taskExtension.getExtension(apiBasedPlugin) instanceof ApiBasedTaskExtension);
@@ -86,7 +85,7 @@ public class TaskExtensionTest {
         when(pluginManager.hasReferenceFor(Task.class, messageBasedPlugin)).thenReturn(false);
         when(pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, messageBasedPlugin)).thenReturn(true);
 
-        Assert.assertTrue(taskExtension.getExtension(messageBasedPlugin) instanceof JsonBasedTaskExtension);
+        assertTrue(taskExtension.getExtension(messageBasedPlugin) instanceof JsonBasedTaskExtension);
     }
 
     @Test
@@ -133,6 +132,46 @@ public class TaskExtensionTest {
 
         verify(pluginManager).doOn(Task.class, pluginId, actionWithReturn);
         assertThat(result.getMessagesForDisplay(), is("success"));
+    }
+
+    @Test
+    public void shouldGetPluginSettingsConfiguration() {
+        TaskExtension taskExtension = spy(this.taskExtension);
+        TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
+
+        String pluginId = "pluginId";
+        doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
+
+        taskExtension.getPluginSettingsConfiguration(pluginId);
+
+        verify(actualImpl).getPluginSettingsConfiguration(pluginId);
+    }
+
+    @Test
+    public void shouldGetPluginSettingsView() {
+        TaskExtension taskExtension = spy(this.taskExtension);
+        TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
+
+        String pluginId = "pluginId";
+        doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
+
+        taskExtension.getPluginSettingsView(pluginId);
+
+        verify(actualImpl).getPluginSettingsView(pluginId);
+    }
+
+    @Test
+    public void shouldValidatePluginSettings() {
+        TaskExtension taskExtension = spy(this.taskExtension);
+        TaskExtensionContract actualImpl = mock(TaskExtensionContract.class);
+
+        String pluginId = "pluginId";
+        doReturn(actualImpl).when(taskExtension).getExtension(pluginId);
+
+        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
+        taskExtension.validatePluginSettings(pluginId, configuration);
+
+        verify(actualImpl).validatePluginSettings(pluginId, configuration);
     }
 
     @Test

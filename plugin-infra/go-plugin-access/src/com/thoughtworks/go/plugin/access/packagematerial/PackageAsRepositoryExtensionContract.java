@@ -16,12 +16,18 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 public interface PackageAsRepositoryExtensionContract {
+    PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId);
+
+    String getPluginSettingsView(String pluginId);
+
+    ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration);
 
     RepositoryConfiguration getRepositoryConfiguration(String pluginId);
 

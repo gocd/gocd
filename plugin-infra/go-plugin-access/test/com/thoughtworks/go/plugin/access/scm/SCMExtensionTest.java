@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -28,7 +31,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,10 +49,13 @@ public class SCMExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
+    @Mock
     private JsonMessageHandler1_0 jsonMessageHandler;
     private SCMExtension scmExtension;
     private String requestBody = "expected-request";
     private String responseBody = "expected-response";
+    private PluginSettingsConfiguration pluginSettingsConfiguration;
     private SCMPropertyConfiguration scmPropertyConfiguration;
     private Map<String, String> materialData;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
@@ -59,8 +64,10 @@ public class SCMExtensionTest {
     public void setUp() throws Exception {
         initMocks(this);
         scmExtension = new SCMExtension(pluginManager);
+        scmExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
         scmExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
+        pluginSettingsConfiguration = new PluginSettingsConfiguration();
         scmPropertyConfiguration = new SCMPropertyConfiguration();
         materialData = new HashMap<String, String>();
 
@@ -69,6 +76,43 @@ public class SCMExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(SCMExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+        PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
+
+        PluginSettingsConfiguration response = scmExtension.getPluginSettingsConfiguration(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+        String deserializedResponse = "";
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
+
+        String response = scmExtension.getPluginSettingsView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetValidatePluginSettings() throws Exception {
+        when(pluginSettingsJSONMessageHandler.requestMessageForPluginSettingsValidation(pluginSettingsConfiguration)).thenReturn(requestBody);
+        ValidationResult deserializedResponse = new ValidationResult();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
+
+        ValidationResult response = scmExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
+
+        assertRequest(requestArgumentCaptor.getValue(), SCMExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
+        assertSame(response, deserializedResponse);
     }
 
     @Test

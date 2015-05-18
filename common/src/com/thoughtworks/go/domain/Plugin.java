@@ -48,6 +48,10 @@ public class Plugin extends PersistentObject {
         this.pluginId = pluginId;
     }
 
+    public String getConfiguration() {
+        return configuration;
+    }
+
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
         this.configurationDataMap = JsonHelper.safeFromJson(this.configuration, HashMap.class);

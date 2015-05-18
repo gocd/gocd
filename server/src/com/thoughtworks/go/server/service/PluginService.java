@@ -95,10 +95,8 @@ public class PluginService {
             plugin = new Plugin(pluginSettings.getPluginId(), null);
         }
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
-        if (plugin.requiresUpdate(settingsMap)) {
-            plugin.setConfiguration(toJSON(settingsMap));
-            pluginDao.saveOrUpdate(plugin);
-        }
+        plugin.setConfiguration(toJSON(settingsMap));
+        pluginDao.saveOrUpdate(plugin);
     }
 
     private String toJSON(Map<String, String> settingsMap) {

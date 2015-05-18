@@ -60,10 +60,9 @@ public class PluginSettings {
     }
 
     public void populateSettingsMap(Plugin plugin) {
-        Map<String, String> pluginSettingsDataMap = plugin.getConfigurationDataMap();
-        for (String settingsKey : pluginSettingsDataMap.keySet()) {
+        for (String settingsKey : plugin.getAllConfigurationKeys()) {
             Map<String, String> map = getSettingsMapFor(settingsKey);
-            map.put(VALUE_KEY, pluginSettingsDataMap.get(settingsKey));
+            map.put(VALUE_KEY, plugin.getConfigurationValue(settingsKey));
         }
     }
 

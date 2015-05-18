@@ -1,46 +1,36 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.GsonBuilder;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class PluginTest {
-    @Test
-    public void shouldAnswerRequiresUpdateTrueWhenConfigurationDataIsUpdated() throws Exception {
+    private Plugin plugin;
+
+    @Before
+    public void setUp() throws Exception {
         Map<String, String> configuration = new HashMap<String, String>();
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
-        String configurationJSON = new GsonBuilder().create().toJson(configuration);
-        Plugin plugin = new Plugin("plugin-id", configurationJSON);
-
-        Map<String, String> updatedConfiguration = new HashMap<String, String>();
-        updatedConfiguration.put("k1", "v1");
-        updatedConfiguration.put("k2", "v3");
-        assertThat(plugin.requiresUpdate(updatedConfiguration), is(true));
+        plugin = new Plugin("plugin-id", new GsonBuilder().create().toJson(configuration));
     }
 
     @Test
-    public void shouldAnswerRequiresUpdateFalseWhenConfigurationDataIsSame() throws Exception {
-        Map<String, String> configuration = new HashMap<String, String>();
-        configuration.put("k1", "v1");
-        configuration.put("k2", "v2");
-        String configurationJSON = new GsonBuilder().create().toJson(configuration);
-        Plugin plugin = new Plugin("plugin-id", configurationJSON);
-
-        Map<String, String> updatedConfiguration = new HashMap<String, String>();
-        updatedConfiguration.put("k1", "v1");
-        updatedConfiguration.put("k2", "v2");
-        assertThat(plugin.requiresUpdate(updatedConfiguration), is(false));
+    public void shouldGetAllConfigurationKeys() {
+        assertEquals(new HashSet<String>(asList("k1", "k2")), plugin.getAllConfigurationKeys());
     }
 
     @Test
-    public void shouldAnswerRequiresUpdateFalseWhenConfigurationDataIsEmpty() throws Exception {
-        Plugin plugin = new Plugin("plugin-id", null);
-        assertThat(plugin.requiresUpdate(null), is(false));
+    public void shouldGetValueForConfigurationKey() throws Exception {
+        assertThat(plugin.getConfigurationValue("k1"), is("v1"));
     }
 }

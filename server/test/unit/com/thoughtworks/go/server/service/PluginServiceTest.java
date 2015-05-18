@@ -243,23 +243,6 @@ public class PluginServiceTest {
         verify(pluginDao).saveOrUpdate(plugin);
     }
 
-    @Test
-    public void shouldNotUpdatePluginSettingsToDBIfNotRequired() {
-        Map<String, String> parameterMap = new HashMap<String, String>();
-        parameterMap.put("p1-k1", "v1");
-        parameterMap.put("p1-k2", "");
-        parameterMap.put("p1-k3", null);
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-1");
-        pluginSettings.populateSettingsMap(parameterMap);
-
-        pluginService.savePluginSettingsFor(pluginSettings);
-
-        Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
-        plugin.setId(1L);
-        verify(pluginDao, never()).saveOrUpdate(plugin);
-    }
-
     private String toJSON(Map<String, String> configuration) {
         return new GsonBuilder().serializeNulls().create().toJson(configuration);
     }

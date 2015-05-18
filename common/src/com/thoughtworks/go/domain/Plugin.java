@@ -18,8 +18,10 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.json.JsonHelper;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -46,24 +48,21 @@ public class Plugin extends PersistentObject {
         this.pluginId = pluginId;
     }
 
-    public String getConfiguration() {
-        return configuration;
-    }
-
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
         this.configurationDataMap = JsonHelper.safeFromJson(this.configuration, HashMap.class);
     }
 
-    public Map<String, String> getConfigurationDataMap() {
-        return configurationDataMap == null ? new HashMap<String, String>() : configurationDataMap;
+    public Set<String> getAllConfigurationKeys() {
+        return Collections.unmodifiableSet(getConfigurationDataMap().keySet());
     }
 
-    public boolean requiresUpdate(Map<String, String> configurationDataMap) {
-        if (configurationDataMap == null) {
-            configurationDataMap = new HashMap<String, String>();
-        }
-        return !this.getConfigurationDataMap().equals(configurationDataMap);
+    public String getConfigurationValue(String key) {
+        return getConfigurationDataMap().get(key);
+    }
+
+    private Map<String, String> getConfigurationDataMap() {
+        return configurationDataMap == null ? new HashMap<String, String>() : configurationDataMap;
     }
 
     @Override

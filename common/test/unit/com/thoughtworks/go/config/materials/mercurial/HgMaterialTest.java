@@ -157,6 +157,13 @@ public class HgMaterialTest {
     }
 
     @Test
+    public void shouldNotAppendDestinationDirectoryWhileFetchingModifications() throws Exception {
+        hgMaterial.setFolder("dest");
+        hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
+        assertThat(new File(workingFolder, "dest").exists(), is(false));
+    }
+
+    @Test
     public void shouldGetModificationsBasedOnRevision() throws Exception {
         List<Modification> modificationsSince = hgMaterial.modificationsSince(workingFolder,
                 new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
@@ -182,6 +189,14 @@ public class HgMaterialTest {
 
         hgMaterial.updateTo(outputStreamConsumer, new StringRevision("1"), workingFolder, new TestSubprocessExecutionContext());
         assertThat(end2endFolder.listFiles().length, is(4));
+    }
+
+    @Test
+    public void shouldUpdateToDestinationFolder() throws Exception {
+        hgMaterial.setFolder("dest");
+        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        File end2endFolder = new File(workingFolder, "dest/end2end");
+        assertThat(end2endFolder.exists(), is(true));
     }
 
     @Test

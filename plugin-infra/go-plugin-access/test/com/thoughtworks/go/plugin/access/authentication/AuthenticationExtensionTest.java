@@ -18,8 +18,12 @@ package com.thoughtworks.go.plugin.access.authentication;
 
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,9 +50,12 @@ public class AuthenticationExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
+    @Mock
     private JsonMessageHandler1_0 jsonMessageHandler;
 
     private AuthenticationExtension authenticationExtension;
+    private PluginSettingsConfiguration pluginSettingsConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before
@@ -56,13 +63,53 @@ public class AuthenticationExtensionTest {
         initMocks(this);
 
         authenticationExtension = new AuthenticationExtension(pluginManager);
+        authenticationExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
         authenticationExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 
+        pluginSettingsConfiguration = new PluginSettingsConfiguration();
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(RESPONSE_BODY));
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+        PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        PluginSettingsConfiguration response = authenticationExtension.getPluginSettingsConfiguration(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+        String deserializedResponse = "";
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        String response = authenticationExtension.getPluginSettingsView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+        String requestBody = "expected-request";
+        when(pluginSettingsJSONMessageHandler.requestMessageForPluginSettingsValidation(pluginSettingsConfiguration)).thenReturn(requestBody);
+        ValidationResult deserializedResponse = new ValidationResult();
+        when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(RESPONSE_BODY)).thenReturn(deserializedResponse);
+
+        ValidationResult response = authenticationExtension.validatePluginSettings(PLUGIN_ID, pluginSettingsConfiguration);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthenticationExtension.EXTENSION_NAME, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(RESPONSE_BODY);
+        assertSame(response, deserializedResponse);
     }
 
     @Test

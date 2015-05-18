@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
@@ -40,15 +41,18 @@ public class PluginService {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private NotificationExtension notificationExtension;
+    private AuthenticationExtension authenticationExtension;
     private PluginSqlMapDao pluginDao;
 
     @Autowired
     public PluginService(PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
-                         TaskExtension taskExtension, NotificationExtension notificationExtension, PluginSqlMapDao pluginDao) {
+                         TaskExtension taskExtension, NotificationExtension notificationExtension,
+                         AuthenticationExtension authenticationExtension, PluginSqlMapDao pluginDao) {
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.notificationExtension = notificationExtension;
+        this.authenticationExtension = authenticationExtension;
         this.pluginDao = pluginDao;
     }
 
@@ -81,6 +85,8 @@ public class PluginService {
             result = taskExtension.validatePluginSettings(pluginId, configuration);
         } else if (notificationExtension.isNotificationPlugin(pluginId)) {
             result = notificationExtension.validatePluginSettings(pluginId, configuration);
+        } else if (authenticationExtension.isAuthenticationPlugin(pluginId)) {
+            result = authenticationExtension.validatePluginSettings(pluginId, configuration);
         }
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {

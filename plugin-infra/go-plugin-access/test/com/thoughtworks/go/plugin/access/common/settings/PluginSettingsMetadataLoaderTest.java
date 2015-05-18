@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -45,6 +46,8 @@ public class PluginSettingsMetadataLoaderTest {
     @Mock
     private NotificationExtension notificationExtension;
     @Mock
+    private AuthenticationExtension authenticationExtension;
+    @Mock
     private PluginManager pluginManager;
     private PluginSettingsMetadataLoader metadataLoader;
     private GoPluginDescriptor pluginDescriptor;
@@ -53,7 +56,7 @@ public class PluginSettingsMetadataLoaderTest {
     public void setUp() {
         initMocks(this);
         pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
-        metadataLoader = new PluginSettingsMetadataLoader(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, pluginManager);
+        metadataLoader = new PluginSettingsMetadataLoader(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension, pluginManager);
 
         PluginSettingsMetadataStore.getInstance().clear();
     }
@@ -113,6 +116,20 @@ public class PluginSettingsMetadataLoaderTest {
         when(notificationExtension.isNotificationPlugin(pluginDescriptor.id())).thenReturn(true);
         when(notificationExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(configuration);
         when(notificationExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
+
+        metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
+
+        verifyMetadataForPlugin(pluginDescriptor.id());
+    }
+
+    @Test
+    public void shouldFetchPluginSettingsMetadataForPluginsWhichImplementAuthenticationExtensionPoint() {
+        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
+        configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
+
+        when(authenticationExtension.isAuthenticationPlugin(pluginDescriptor.id())).thenReturn(true);
+        when(authenticationExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(configuration);
+        when(authenticationExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 

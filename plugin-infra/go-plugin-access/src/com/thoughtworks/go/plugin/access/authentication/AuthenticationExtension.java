@@ -20,6 +20,9 @@ import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,7 +34,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 @Component
-public class AuthenticationExtension {
+public class AuthenticationExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "authentication";
     private static final List<String> goSupportedVersions = asList("1.0");
 
@@ -39,14 +42,12 @@ public class AuthenticationExtension {
     public static final String REQUEST_AUTHENTICATE_USER = "go.authentication.authenticate-user";
     public static final String REQUEST_SEARCH_USER = "go.authentication.search-user";
 
-    private PluginManager pluginManager;
-    private final PluginRequestHelper pluginRequestHelper;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
 
     @Autowired
     public AuthenticationExtension(PluginManager defaultPluginManager) {
-        this.pluginManager = defaultPluginManager;
-        this.pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME);
+        super(defaultPluginManager, new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME));
+        this.pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
@@ -107,8 +108,12 @@ public class AuthenticationExtension {
         });
     }
 
-    boolean isAuthenticationPlugin(String pluginId) {
+    public boolean isAuthenticationPlugin(String pluginId) {
         return pluginManager.isPluginOfType(EXTENSION_NAME, pluginId);
+    }
+
+    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
+        return pluginSettingsMessageHandlerMap;
     }
 
     Map<String, JsonMessageHandler> getMessageHandlerMap() {

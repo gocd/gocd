@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.access.common.settings;
 
 public interface PluginSettingsConstants {
-    public static final String REQUEST_PLUGIN_SETTINGS_CONFIGURATION = "plugin-settings-configuration";
-    public static final String REQUEST_PLUGIN_SETTINGS_VIEW = "plugin-settings-view";
-    public static final String REQUEST_VALIDATE_PLUGIN_SETTINGS = "validate-plugin-settings";
+    public static final String REQUEST_PLUGIN_SETTINGS_CONFIGURATION = "go.plugin-settings.get-configuration";
+    public static final String REQUEST_PLUGIN_SETTINGS_VIEW = "go.plugin-settings.get-view";
+    public static final String REQUEST_VALIDATE_PLUGIN_SETTINGS = "go.plugin-settings.validate-configuration";
 }

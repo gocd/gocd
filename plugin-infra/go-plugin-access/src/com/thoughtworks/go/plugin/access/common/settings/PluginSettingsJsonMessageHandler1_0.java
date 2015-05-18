@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.plugin.access.common.handler.CommonJSONMessageHandler;
+import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
@@ -31,10 +31,10 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class PluginSettingsJsonMessageHandler1_0 implements PluginSettingsJsonMessageHandler {
-    private final CommonJSONMessageHandler commonJSONMessageHandler;
+    private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public PluginSettingsJsonMessageHandler1_0() {
-        commonJSONMessageHandler = new CommonJSONMessageHandler();
+        jsonResultMessageHandler = new JSONResultMessageHandler();
     }
 
     @Override
@@ -94,13 +94,13 @@ public class PluginSettingsJsonMessageHandler1_0 implements PluginSettingsJsonMe
     @Override
     public String requestMessageForPluginSettingsValidation(PluginSettingsConfiguration configuration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("plugin-settings", commonJSONMessageHandler.configurationToMap(configuration));
+        configuredValues.put("plugin-settings", jsonResultMessageHandler.configurationToMap(configuration));
         return new GsonBuilder().create().toJson(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForPluginSettingsValidation(String responseBody) {
-        return commonJSONMessageHandler.toValidationResult(responseBody);
+        return jsonResultMessageHandler.toValidationResult(responseBody);
     }
 
     private Map parseResponseToMap(String responseBody) {

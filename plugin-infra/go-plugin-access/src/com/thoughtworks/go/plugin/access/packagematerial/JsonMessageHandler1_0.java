@@ -18,15 +18,13 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.plugin.access.common.handler.CommonJSONMessageHandler;
-import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
 
@@ -39,10 +37,10 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-    private final CommonJSONMessageHandler commonJSONMessageHandler;
+    private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public JsonMessageHandler1_0() {
-        commonJSONMessageHandler = new CommonJSONMessageHandler();
+        jsonResultMessageHandler = new JSONResultMessageHandler();
     }
 
     @Override
@@ -76,25 +74,25 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForIsRepositoryConfigurationValid(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForIsRepositoryConfigurationValid(String responseBody) {
-        return commonJSONMessageHandler.toValidationResult(responseBody);
+        return jsonResultMessageHandler.toValidationResult(responseBody);
     }
 
     @Override
     public String requestMessageForCheckConnectionToRepository(RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public Result responseMessageForCheckConnectionToRepository(String responseBody) {
-        return commonJSONMessageHandler.toResult(responseBody);
+        return jsonResultMessageHandler.toResult(responseBody);
     }
 
     @Override
@@ -128,34 +126,34 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForIsPackageConfigurationValid(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public ValidationResult responseMessageForIsPackageConfigurationValid(String responseBody) {
-        return commonJSONMessageHandler.toValidationResult(responseBody);
+        return jsonResultMessageHandler.toValidationResult(responseBody);
     }
 
     @Override
     public String requestMessageForCheckConnectionToPackage(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
     @Override
     public Result responseMessageForCheckConnectionToPackage(String responseBody) {
-        return commonJSONMessageHandler.toResult(responseBody);
+        return jsonResultMessageHandler.toResult(responseBody);
     }
 
     @Override
     public String requestMessageForLatestRevision(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         return toJsonString(configuredValues);
     }
 
@@ -167,8 +165,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String requestMessageForLatestRevisionSince(PackageConfiguration packageConfiguration, RepositoryConfiguration repositoryConfiguration, PackageRevision previousRevision) {
         Map configuredValues = new LinkedHashMap();
-        configuredValues.put("repository-configuration", commonJSONMessageHandler.configurationToMap(repositoryConfiguration));
-        configuredValues.put("package-configuration", commonJSONMessageHandler.configurationToMap(packageConfiguration));
+        configuredValues.put("repository-configuration", jsonResultMessageHandler.configurationToMap(repositoryConfiguration));
+        configuredValues.put("package-configuration", jsonResultMessageHandler.configurationToMap(packageConfiguration));
         configuredValues.put("previous-revision", packageRevisionToMap(previousRevision));
         return toJsonString(configuredValues);
     }

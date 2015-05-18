@@ -32,7 +32,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 
-public class CommonJSONMessageHandler {
+public class JSONResultMessageHandler {
     public Map configurationToMap(Configuration configuration) {
         Map configuredValuesForRepo = new LinkedHashMap();
         for (Property property : configuration.list()) {

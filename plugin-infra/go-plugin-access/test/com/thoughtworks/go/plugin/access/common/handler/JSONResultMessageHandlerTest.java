@@ -29,12 +29,12 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class CommonJSONMessageHandlerTest {
-    private CommonJSONMessageHandler messageHandler;
+public class JSONResultMessageHandlerTest {
+    private JSONResultMessageHandler messageHandler;
 
     @Before
     public void setUp() {
-        messageHandler = new CommonJSONMessageHandler();
+        messageHandler = new JSONResultMessageHandler();
     }
 
     @Test

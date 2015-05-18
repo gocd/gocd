@@ -297,6 +297,8 @@
                 /gadgets/remote_materials.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /gadgets/remote_materials/**=ROLE_OAUTH_USER,ROLE_USER
 
+                /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
+
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR
                 /metrics=ROLE_SUPERVISOR

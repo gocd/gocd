@@ -28,6 +28,7 @@ import static java.util.Collections.unmodifiableMap;
 public class DefaultGoApiResponse extends GoApiResponse {
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
+    public static final int REDIRECT_RESPONSE_CODE = 302;
     public static final int INTERNAL_ERROR = 500;
     public static final int VALIDATION_ERROR = 412;
 

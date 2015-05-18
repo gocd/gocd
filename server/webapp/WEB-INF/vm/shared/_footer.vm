@@ -35,9 +35,9 @@
             </div>
         </div>
         <!-- end content -->
-    
+
     </div></div></div><!-- end of body_bg, body_hightlight, body_wrapper-->
-            <div class="back_to_top" title="Scroll to Top">Top</div>
+           <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
     <script type="text/javascript">
         restoreSidebarStatus();
@@ -50,7 +50,7 @@
         }
 
         new AjaxRefresher("$req.getContextPath()/server/messages.json", "$req.getContextPath()/auth/login", {executeImmediately: true});
-        
+
         #if($global_error_message && $global_error_message != "")
             FlashMessageLauncher.warn("$esc.javascript("$global_error_message")", null, true);
         #end

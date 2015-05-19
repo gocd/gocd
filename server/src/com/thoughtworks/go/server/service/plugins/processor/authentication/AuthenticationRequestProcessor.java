@@ -83,7 +83,7 @@ public class AuthenticationRequestProcessor implements GoPluginApiRequestProcess
         } catch (Exception e) {
             LOGGER.error("Error occurred while authenticating user", e);
         }
-        return new DefaultGoApiResponse(400);
+        return new DefaultGoApiResponse(500);
     }
 
     GoUserPrinciple getGoUserPrincipal(User user) {

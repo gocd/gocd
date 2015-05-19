@@ -74,7 +74,7 @@ public class SessionRequestProcessor implements GoPluginApiRequestProcessor {
         } catch (Exception e) {
             LOGGER.error("Error occurred while authenticating user", e);
         }
-        return new DefaultGoApiResponse(400);
+        return new DefaultGoApiResponse(500);
     }
 
     private GoApiResponse handleSessionPutRequest(GoApiRequest goPluginApiRequest) {

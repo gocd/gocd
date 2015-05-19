@@ -76,7 +76,7 @@ public class AuthenticationRequestProcessorTest {
     @Test
     public void shouldHandleIncorrectAPIVersion() {
         GoApiResponse response = processor.process(getGoPluginApiRequest("1.1", null));
-        assertThat(response.responseCode(), is(400));
+        assertThat(response.responseCode(), is(500));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class AuthenticationRequestProcessorTest {
     @Test
     public void shouldHandleEmptyRequestBody() {
         GoApiResponse response = processor.process(getGoPluginApiRequest("1.0", "{}"));
-        assertThat(response.responseCode(), is(400));
+        assertThat(response.responseCode(), is(500));
     }
 
     private void verifyGrantAuthorities(GrantedAuthority[] authorities) {

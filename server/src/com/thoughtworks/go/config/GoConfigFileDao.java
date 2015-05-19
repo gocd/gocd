@@ -129,42 +129,6 @@ public class GoConfigFileDao {
         updateConfig(new UpdateAgentIp(uuid, ipAddress, userName));
     }
 
-    public void updateBuild(final String pipeline, final String stage, final int buildIndex, final JobConfig build, final String md5) {
-        updateConfig(new NoOverwriteUpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                JobConfigs jobConfigs = cruiseConfig.stageConfigByName(new CaseInsensitiveString(pipeline), new CaseInsensitiveString(stage)).allBuildPlans();
-                bombIf(jobConfigs.size() <= buildIndex,
-                        "Build " + pipeline + ":" + stage + ":" + build.name() + " does not exist in config file. "
-                                + "Unable to update Build"
-                );
-                jobConfigs.set(buildIndex, build);
-                return cruiseConfig;
-            }
-
-            public String unmodifiedMd5() {
-                return md5;
-            }
-        });
-    }
-
-    public void updateStage(final String pipeline, final int stageIndex, final StageConfig stage, final String md5) {
-        updateConfig(new NoOverwriteUpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-                bombIf(pipelineConfig.size() <= stageIndex,
-                        "Stage " + pipeline + ":" + stage.name() + " does not exist in config file. "
-                                + "Unable to update Stage."
-                );
-                pipelineConfig.set(stageIndex, stage);
-                return cruiseConfig;
-            }
-
-            public String unmodifiedMd5() {
-                return md5;
-            }
-        });
-    }
-
     public CruiseConfig loadForEditing() {
         return cachedConfigService.loadForEditing();
     }
@@ -175,36 +139,6 @@ public class GoConfigFileDao {
 
     public String md5OfConfigFile() {
         return cachedConfigService.currentConfig().getMd5();
-    }
-
-    public void updatePipelineGroup(final PipelineConfigs pipelineConfigs, final String groupName, final String md5) {
-        updateConfig(new NoOverwriteUpdateConfigCommand() {
-            public CruiseConfig update(final CruiseConfig cruiseConfig) {
-                bombIf(!cruiseConfig.hasPipelineGroup(groupName),
-                        "Pipeline group " + groupName + " does not exist in config file. "
-                                + "Unable to update the Pipeline group."
-                );
-                cruiseConfig.updateGroup(pipelineConfigs, groupName);
-                return cruiseConfig;
-            }
-
-            public String unmodifiedMd5() {
-                return md5;
-            }
-        });
-    }
-
-    public void updateTemplates(final TemplatesConfig templates, final String md5) {
-        updateConfig(new NoOverwriteUpdateConfigCommand() {
-            public CruiseConfig update(final CruiseConfig cruiseConfig) {
-                cruiseConfig.setTemplates(templates);
-                return cruiseConfig;
-            }
-
-            public String unmodifiedMd5() {
-                return md5;
-            }
-        });
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {

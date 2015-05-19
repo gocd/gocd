@@ -61,10 +61,6 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
     }
 
     public boolean hasAgent(String uuid) {
-        return !(getAgentByUuid(uuid) instanceof NullAgent);
-    }
-
-    public boolean hasAgentIdentifiedWith(String uuid) {
         return !getAgentByUuid(uuid).isNull();
     }
 
@@ -82,7 +78,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
                 approvedAgents++;
             }
         }
-        
+
         return approvedAgents;
     }
 

@@ -514,18 +514,6 @@ public class GoConfigFileDaoTest {
     }
 
     @Test
-    public void shouldUpdateBuildInConfigFileWithXmlPartial() throws Exception {
-        useConfigString(ConfigFileFixture.CRUISE);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("mac"), new Resources("osx"), new ArtifactPlans());
-        goConfigFileDao.updateBuild("cruise", "dev", 1, jobConfig, goConfigFileDao.md5OfConfigFile());
-        CruiseConfig config = goConfigFileDao.load();
-        JobConfigs jobConfigs = config.stageConfigByName(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")).allBuildPlans();
-        assertThat(jobConfigs.size(), is(2));
-        assertThat(jobConfigs.get(0).name(), is(new CaseInsensitiveString("linux")));
-        assertThat(jobConfigs.get(1).name(), is(new CaseInsensitiveString("mac")));
-    }
-
-    @Test
     public void should_NOT_allowUpdateOf_serverId() throws Exception {
         useConfigString(ConfigFileFixture.CRUISE);
         String oldServerId = goConfigFileDao.load().server().getServerId();
@@ -548,18 +536,6 @@ public class GoConfigFileDaoTest {
         assertThat(ex.getMessage(), is("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified."));
         CruiseConfig config = goConfigFileDao.load();
         assertThat(config.server().getServerId(), is(oldServerId));
-    }
-
-    @Test
-    public void shouldUpdateStageInConfigFileWithXmlPartial() throws Exception {
-        useConfigString(ConfigFileFixture.CRUISE);
-        JobConfigs jobConfigs = goConfigFileDao.load().stageConfigByName(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")).allBuildPlans();
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("ft"), jobConfigs);
-        goConfigFileDao.updateStage("cruise", 0, stage, goConfigFileDao.md5OfConfigFile());
-        CruiseConfig config = goConfigFileDao.load();
-        PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("cruise"));
-        assertThat(pipeline.size(), is(1));
-        assertThat(pipeline.get(0).name(), is(new CaseInsensitiveString("ft")));
     }
 
     @Test

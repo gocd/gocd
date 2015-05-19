@@ -120,6 +120,11 @@
                 <bean factory-bean="licenseEnforcementProviderFactory" factory-method="setProvider">
                     <constructor-arg index="0" ref="ldapAuthProvider"/>
                 </bean>
+                <bean factory-bean="licenseEnforcementProviderFactory" factory-method="setProvider">
+                    <constructor-arg index="0">
+                        <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider" autowire="autodetect"/>
+                    </constructor-arg>
+                </bean>
                 <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider" p:key="anonymousKey"/>
             </list>
         </property>
@@ -291,6 +296,8 @@
                 /gadgets/pipeline/**=ROLE_OAUTH_USER,ROLE_USER
                 /gadgets/remote_materials.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /gadgets/remote_materials/**=ROLE_OAUTH_USER,ROLE_USER
+
+                /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR

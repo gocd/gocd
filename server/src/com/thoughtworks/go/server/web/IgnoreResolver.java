@@ -31,6 +31,7 @@ public class IgnoreResolver {
     public boolean shouldIgnore(HttpServletRequest request) {
         try {
             return isGoingToAbout(request) ||
+                    isGoingToPlugin(request) ||
                     isDownloadAgentJar(request) ||
                     isGoingToLogin(request) ||
                     isGoingToServerInfo(request) ||
@@ -74,6 +75,10 @@ public class IgnoreResolver {
 
     private boolean isGoingToAbout(HttpServletRequest request) {
         return StringUtils.contains(request.getRequestURI(), request.getContextPath() + "/about");
+    }
+
+    private boolean isGoingToPlugin(HttpServletRequest request) {
+        return StringUtils.contains(request.getRequestURI(), request.getContextPath() + "/plugin/interact/");
     }
 
     private boolean isHttpMethod(HttpServletRequest request, String targetingMethod) {

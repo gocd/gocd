@@ -35,6 +35,7 @@ public class IgnoreResolverTest {
     @DataPoint public static final String URL_CRUISE_LOGIN_WITH_SESSION_ID = "/go/auth/login;jsessionid=1b4x150x1eln94";
     @DataPoint public static final String URL_DOWNLOAD_AGENT_JAR = "/go/admin/agent";
     @DataPoint public static final String URL_ABOUT = "/go/about";
+    @DataPoint public static final String URL_PLUGIN_INTERACT = "/go/plugin/interact/plugin.id/request.name";
     @DataPoint public static final String URL_SERVER_INFO = "/go/api/server.xml";
     @DataPoint public static final String STYLESHEETS = "/go/stylesheets/foo.css?world=hello";
     @DataPoint public static final String STYLESHEETS_FROM_CSS_DIRECTORY = "/go/css/hello.css?foo=bar";
@@ -59,7 +60,7 @@ public class IgnoreResolverTest {
     }
 
     @Theory
-    public void shouldIgnoreTheRequestToAboutPage(String url) throws Exception {
+    public void shouldIgnoreTheRequestTo(String url) throws Exception {
         mockHttpServletRequest.setRequestURI(url);
         assertThat(url + " should be ignored, but not", ignoreResolver.shouldIgnore(mockHttpServletRequest), is(true));
     }

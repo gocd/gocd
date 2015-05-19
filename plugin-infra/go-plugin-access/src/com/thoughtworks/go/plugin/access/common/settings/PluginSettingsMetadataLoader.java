@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -39,15 +40,18 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private NotificationExtension notificationExtension;
+    private AuthenticationExtension authenticationExtension;
     private PluginSettingsMetadataStore metadataStore = PluginSettingsMetadataStore.getInstance();
 
     @Autowired
     public PluginSettingsMetadataLoader(PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
-                                        TaskExtension taskExtension, NotificationExtension notificationExtension, PluginManager pluginManager) {
+                                        TaskExtension taskExtension, NotificationExtension notificationExtension,
+                                        AuthenticationExtension authenticationExtension, PluginManager pluginManager) {
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.notificationExtension = notificationExtension;
+        this.authenticationExtension = authenticationExtension;
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
@@ -78,6 +82,9 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
             } else if (notificationExtension.isNotificationPlugin(pluginId)) {
                 configuration = notificationExtension.getPluginSettingsConfiguration(pluginId);
                 view = notificationExtension.getPluginSettingsView(pluginId);
+            } else if (authenticationExtension.isAuthenticationPlugin(pluginId)) {
+                configuration = authenticationExtension.getPluginSettingsConfiguration(pluginId);
+                view = authenticationExtension.getPluginSettingsView(pluginId);
             }
             if (configuration == null || view == null) {
                 throw new RuntimeException("Plugin Settings - Configuration or View cannot be null");

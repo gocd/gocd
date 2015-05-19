@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
@@ -54,6 +55,8 @@ public class PluginServiceTest {
     @Mock
     private NotificationExtension notificationExtension;
     @Mock
+    private AuthenticationExtension authenticationExtension;
+    @Mock
     private PluginSqlMapDao pluginDao;
 
     private PluginService pluginService;
@@ -86,7 +89,7 @@ public class PluginServiceTest {
         configuration2.add(new PluginSettingsProperty("p2-k3"));
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
-        pluginService = new PluginService(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, pluginDao);
+        pluginService = new PluginService(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension, pluginDao);
     }
 
     @After
@@ -172,6 +175,17 @@ public class PluginServiceTest {
         pluginService.validatePluginSettingsFor(pluginSettings);
 
         verify(notificationExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
+    }
+
+    @Test
+    public void shouldTalkToPluginForPluginSettingsValidation_Authentication() {
+        when(authenticationExtension.isAuthenticationPlugin("plugin-id-4")).thenReturn(true);
+        when(authenticationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+
+        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
+        pluginService.validatePluginSettingsFor(pluginSettings);
+
+        verify(authenticationExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
     }
 
     @Test

@@ -16,8 +16,12 @@
 
 package com.thoughtworks.go.server.controller;
 
+import java.io.IOException;
+import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.server.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,23 +30,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-
 @Controller
 public class AuthorizationController {
     private final Localizer localizer;
     private final SecurityService securityService;
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
 
     @Autowired
-    public AuthorizationController(Localizer localizer, SecurityService securityService,
-                                   AuthenticationPluginRegistry authenticationPluginRegistry) {
+    public AuthorizationController(Localizer localizer, SecurityService securityService) {
         this.localizer = localizer;
         this.securityService = securityService;
-        this.authenticationPluginRegistry = authenticationPluginRegistry;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -51,7 +47,6 @@ public class AuthorizationController {
         HashMap model = new HashMap();
         model.put("login_error", loginError);
         model.put("l", localizer);
-        model.put("authentication_plugin_registry", authenticationPluginRegistry);
         return new ModelAndView("auth/login", model);
     }
 

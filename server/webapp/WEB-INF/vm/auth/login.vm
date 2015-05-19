@@ -153,11 +153,6 @@
                                 </p>
 
                                 <div class='clear-both'><!-- Clear floats --></div>
-
-                                #foreach ($authentication_plugin_id in $authentication_plugin_registry.getAuthenticationPlugins())
-                                    <a class="link_as_button primary" href="/go/plugin/interact/$authentication_plugin_id/index">$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)</a>
-                                #end
-
                             </form>
                         </div>
                     </div>

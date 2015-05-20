@@ -1,0 +1,5 @@
+require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'
+require 'bundler/vendor/molinillo/lib/molinillo/errors'
+require 'bundler/vendor/molinillo/lib/molinillo/resolver'
+require 'bundler/vendor/molinillo/lib/molinillo/modules/ui'
+require 'bundler/vendor/molinillo/lib/molinillo/modules/specification_provider'

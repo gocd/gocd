@@ -56,13 +56,29 @@
     </filter-mapping>
 
     <context-param>
-      <param-name>rails.env</param-name>                                 
+      <param-name>rails.env</param-name>
       <param-value>development</param-value>
+    </context-param>
+
+
+    <context-param>
+        <param-name>rails.root</param-name>
+        <param-value>/WEB-INF/rails.new</param-value>
     </context-param>
 
     <context-param>
       <param-name>public.root</param-name>
-      <param-value>/</param-value>
+      <param-value>/WEB-INF/rails.new/public</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>gem.home</param-name>
+      <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>gem.path</param-name>
+      <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
     </context-param>
 
     <context-param>

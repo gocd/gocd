@@ -80,7 +80,6 @@ public class GoServer {
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setCookieExpirePeriod(twoWeeks());
-        server.setInitParameter("rails.root", "/WEB-INF/rails.new");
         server.addStopServlet();
         return server;
     }

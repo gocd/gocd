@@ -8,14 +8,20 @@ gem 'dynamic_form'
 
 gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
 gem 'sprockets-rails'
-gem 'sass-rails'
+gem 'sass-rails', '4.0.3' # see https://github.com/rails/sass-rails/issues/191
 gem 'yui-compressor'
 gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 gem 'versionist'
 gem 'roar'
 
-group :development, :test do
+group :test do
+  gem 'minitest'
   gem "jasmine-rails"
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'
+
+  gem 'rspec-rails', '2.14.2'
+  gem 'rspec-extra-formatters'
+
+  gem 'capybara', '2.2.1'
 end

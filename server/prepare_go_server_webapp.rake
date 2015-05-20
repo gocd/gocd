@@ -97,44 +97,49 @@ def create_pathing_jar classpath_file
   sh "jar cmf #{manifest_file} #{pathing_jar}"
   pathing_jar
 end
-def set_classpath
+
+def classpath
   server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
   if Gem.win_platform?
-    classpath = create_pathing_jar server_test_dependency_file_path
+    create_pathing_jar server_test_dependency_file_path
   else
-    classpath = File.read(server_test_dependency_file_path)
+    File.read(server_test_dependency_file_path)
   end
-  ENV['CLASSPATH'] = classpath
 end
 
 def ruby_executable
   File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'jruby.bat' : 'jruby')))
 end
 
+def rails_root(*path)
+  File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new", *path))
+end
+
+def sh_with_environment(cmd, env={})
+  original_env = ENV.clone.to_hash
+  begin
+    export_or_set = Gem.win_platform? ? 'set' : 'export'
+    env.each do |k, v|
+      $stderr.puts "#{export_or_set} #{k}=#{v[0..100]}"
+    end
+
+    ENV.replace(ENV.clone.to_hash.merge(env))
+    sh(cmd)
+  ensure
+    ENV.replace(original_env)
+  end
+end
+
+
 task :precompile_assets do
-  ruby = ruby_executable
-  set_classpath
-  if Gem.win_platform?
-    ENV['RAILS_ENV'] = "production"
-    sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake assets:clobber assets:precompile
-END
-  else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  cd rails_root do
+    sh_with_environment("#{ruby_executable} -S ./bin/rake assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
   end
 end
 
 task :jasmine_tests do
-  ruby = ruby_executable
-  ENV['RAILS_ENV'] = "test"
-  ENV['REPORTERS'] = "console,junit"
-  set_classpath
-  if Gem.win_platform?
-    sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake spec:javascript
-END
-  else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && #{ruby} -S rake spec:javascript"
+  cd rails_root do
+    sh_with_environment("#{ruby_executable} -S ./bin/rake spec:javascript", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
   end
 end
 

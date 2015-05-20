@@ -42,7 +42,7 @@ def execute_under_rails command
 
   log4j_properties = File.join(File.dirname(__FILE__), 'properties', 'test', 'log4j.properties')
 
-  jruby = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'go.jruby')
+  jruby = File.join(File.dirname(__FILE__), '..', 'tools', 'bin', 'jruby')
 
   mkpath db_dir # create SPEC_SERVER_DIR & db_dir so that SPEC_SERVER_DIR/config, SPEC_SERVER_DIR/db/h2db & SPEC_SERVER_DIR/db/h2deltas get copied correctly.
 
@@ -126,7 +126,7 @@ task "spec" => RAILS_DEPENDENCIES do
 end
 
 task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|
-  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_module" if args[:spec_module_path] == nil
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/jruby -S rake --rakefile server/run_rspec_tests.rake spec_module" if args[:spec_module_path] == nil
 
   path = args[:spec_module_path].split('rails.new/spec/')[1]
 
@@ -148,7 +148,7 @@ task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|
 end
 
 task "spec_file", [:spec_file_path, :spec_file_line] => RAILS_DEPENDENCIES do |t, args|
-  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/go.jruby -S rake --rakefile server/run_rspec_tests_use_new_rails.rake spec_file" if args[:spec_file_path] == nil
+  raise "specify spec file to run. format: spec_file=<some_spec.rb> ./tools/bin/jruby -S rake --rakefile server/run_rspec_tests.rake spec_file" if args[:spec_file_path] == nil
 
   running_tests!
   rm_rf SPEC_SERVER_DIR

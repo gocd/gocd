@@ -22,5 +22,4 @@ else
 fi
 export TF_CLC_HOME=$project_root/tfs-tool
 
-$(dirname $0)/tools/bin/go.jruby -J-Xmx2048m -S buildr $*
-
+$(dirname $0)/tools/bin/jruby -S buildr "$@"

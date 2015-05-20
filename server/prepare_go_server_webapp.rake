@@ -107,8 +107,12 @@ def set_classpath
   ENV['CLASSPATH'] = classpath
 end
 
+def ruby_executable
+  File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'jruby.bat' : 'jruby')))
+end
+
 task :precompile_assets do
-  ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  ruby = ruby_executable
   set_classpath
   if Gem.win_platform?
     ENV['RAILS_ENV'] = "production"
@@ -121,7 +125,7 @@ END
 end
 
 task :jasmine_tests do
-  ruby = File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'go.jruby.bat' : 'go.jruby')))
+  ruby = ruby_executable
   ENV['RAILS_ENV'] = "test"
   ENV['REPORTERS'] = "console,junit"
   set_classpath

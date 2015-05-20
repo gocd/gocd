@@ -170,15 +170,3 @@ task "exec" => RAILS_DEPENDENCIES do
   not_running_tests!
   execute_under_rails ENV['command']
 end
-
-task "spork" => RAILS_DEPENDENCIES do
-  not_running_tests!
-  rm_rf SPEC_SERVER_DIR
-  execute_under_rails "spork"
-end
-
-task "spec_server" => RAILS_DEPENDENCIES do
-  running_tests!
-  rm_rf SPEC_SERVER_DIR
-  execute_under_rails "script/spec_server -J-Xdebug -J-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5678"
-end

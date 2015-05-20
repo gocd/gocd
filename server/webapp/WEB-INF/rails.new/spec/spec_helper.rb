@@ -91,7 +91,6 @@ def with_caching(perform_caching)
 end
 
 
-include SporkConfig
 include JavaImports
 include JavaSpecImports
 include CacheStoreForTest

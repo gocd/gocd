@@ -34,6 +34,7 @@ public class AgentRegistrationPropertiesReaderTest {
         properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_KEY, "foo");
         properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_RESOURCES, "foo, zoo");
         properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_ENVIRONMENTS, "foo, bar");
+        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
     }
 
     @Test
@@ -42,6 +43,7 @@ public class AgentRegistrationPropertiesReaderTest {
         assertThat(reader.getAgentAutoRegisterKey(), is("foo"));
         assertThat(reader.getAgentAutoRegisterResources(), is("foo, zoo"));
         assertThat(reader.getAgentAutoRegisterEnvironments(), is("foo, bar"));
+        assertThat(reader.getAgentAutoRegisterHostname(), is("agent01.example.com"));
     }
 
     @Test
@@ -51,5 +53,6 @@ public class AgentRegistrationPropertiesReaderTest {
         assertThat(reader.getAgentAutoRegisterKey().isEmpty(), is(true));
         assertThat(reader.getAgentAutoRegisterResources().isEmpty(), is(true));
         assertThat(reader.getAgentAutoRegisterEnvironments().isEmpty(), is(true));
+        assertThat(reader.getAgentAutoRegisterHostname().isEmpty(), is(true));
     }
 }

@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.io.IOUtils;
@@ -188,24 +189,27 @@ public class AgentRegistrationController {
                                      @RequestParam("agentAutoRegisterKey") String agentAutoRegisterKey,
                                      @RequestParam("agentAutoRegisterResources") String agentAutoRegisterResources,
                                      @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvironments,
+                                     @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
                                      HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Processing registration request from agent [%s/%s]", hostname, ipAddress));
         }
         Registration keyEntry;
+        String preferredHostname = hostname;
         try {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+                preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
                 GoConfigFileDao.CompositeConfigCommand compositeConfigCommand = new GoConfigFileDao.CompositeConfigCommand(
-                        new ApproveAgentCommand(uuid, ipAddress, hostname),
+                        new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
                 goConfigService.updateConfig(compositeConfigCommand);
             }
             keyEntry = agentService.requestRegistration(
-                    AgentRuntimeInfo.fromServer(new AgentConfig(uuid, hostname, ipAddress), goConfigService.hasAgent(uuid), location,
+                    AgentRuntimeInfo.fromServer(new AgentConfig(uuid, preferredHostname, ipAddress), goConfigService.hasAgent(uuid), location,
                             Long.parseLong(usablespace), operatingSystem));
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
@@ -263,6 +267,10 @@ public class AgentRegistrationController {
         }
     }
 
+    private String getPreferredHostname(String agentAutoRegisterHostname, String hostname) {
+        return !StringUtil.isBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
+    }
+
     public static interface InputStreamSrc {
         InputStream invoke() throws FileNotFoundException;
     }
@@ -284,4 +292,6 @@ public class AgentRegistrationController {
             return new FileInputStream(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
         }
     }
+
+
 }

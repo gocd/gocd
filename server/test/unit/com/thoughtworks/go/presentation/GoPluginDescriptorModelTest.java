@@ -100,6 +100,16 @@ public class GoPluginDescriptorModelTest {
     }
 
     @Test
+    public void shouldNotAddHttpToUrlIfSecureProtocolIsAlreadyPresent() throws Exception {
+        GoPluginDescriptor.Vendor vendor = new GoPluginDescriptor.Vendor(null, "https://ali.com");
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About(null, null, "13.3.0","some description", vendor, Arrays.asList("Linux", "Windows"));
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.jar", "1", about, "some_path", new File("bundle_location"), false);
+        GoPluginDescriptor descriptorModel = GoPluginDescriptorModel.convertToDescriptorWithAllValues(descriptor);
+
+        assertThat(descriptorModel.about().vendor().url(), is("https://ali.com"));
+    }
+
+    @Test
     public void shouldNotAddHttpToUrlIfUrlIsNull() throws Exception {
         GoPluginDescriptor.Vendor vendor = new GoPluginDescriptor.Vendor(null, null);
         GoPluginDescriptor.About about = new GoPluginDescriptor.About(null, null, "13.3.0","some description", vendor, Arrays.asList("Linux", "Windows"));

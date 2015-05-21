@@ -15,12 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 require 'securerandom'
-require 'active_support'
 require 'rubygems'
-
-# active support
-ActiveSupport::JSON::Encoding.use_standard_json_time_format = true
-ActiveSupport::JSON::Encoding.escape_html_entities_in_json = false
 
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]

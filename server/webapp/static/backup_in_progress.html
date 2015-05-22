@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <!-- *************************GO-LICENSE-START******************************
  * Copyright 2014 ThoughtWorks, Inc.
  *
@@ -49,13 +49,28 @@
 
         .header #application_logo {
             background-image: url("images/logo_go.png");
+            background-position: 0 4px;
             background-repeat: no-repeat;
-            border-right: 1px solid #555;
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
             float: left;
-            height: 40px;
-            margin: 0 5px 0px 12px;
+            height: 35px;
             width: 114px;
+        }
+
+        .message {
+            margin: 10px;
+            float: left;
+            font-size: 11px;
+            font-weight: 200;
+            color: #999;
+            font-family: Arial,​ Helvetica,​ sans-serif;
+        }
+
+        .clear_float::after {
+            clear: both;
+            content: ".";
+            display: block;
+            height: 0;
+            visibility: hidden;
         }
 
     </style>
@@ -66,7 +81,7 @@
         <div class="header clear_float">
             <a href="#" id="application_logo">&nbsp;</a>
 
-            <div style="margin: 10px; float: left;">Go backup in progress. Backup initiated by '<span
+            <div class="message">Go backup in progress. Backup initiated by '<span
                     id="backup_started_by">&nbsp;</span>' on '<span id="backup_started_at">&nbsp;</span>'
             </div>
         </div>

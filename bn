@@ -22,4 +22,6 @@ else
 fi
 export TF_CLC_HOME=$project_root/tfs-tool
 
-$(dirname $0)/tools/bin/jruby -S buildr "$@"
+export JRUBY_OPTS='-J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compile.invokedynamic=false -J-Dcompile.mode=OFF'
+
+exec $(dirname $0)/tools/bin/jruby -S buildr "$@"

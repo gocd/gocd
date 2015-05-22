@@ -39,7 +39,7 @@ public class GoPluginDescriptorModel {
     }
 
     private static String verifyProtocol(String url) {
-        if (url != null && !url.startsWith("http://")) {
+        if (url != null && !(url.startsWith("http://") || url.startsWith("https://"))) {
             url = "http://".concat(url);
         }
         return url;

@@ -45,7 +45,7 @@ public class PluginController {
         this.pluginManager = pluginManager;
     }
 
-    @RequestMapping(value = "/{pluginId}/{requestName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{pluginId}/{requestName}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
     public ModelAndView handlePluginInteractRequest(
             @PathVariable String pluginId,
             @PathVariable String requestName,

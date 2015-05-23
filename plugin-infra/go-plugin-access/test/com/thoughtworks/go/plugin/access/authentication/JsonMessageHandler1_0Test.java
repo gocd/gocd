@@ -57,13 +57,13 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldHandleResponseMessageForAuthenticateUser() throws Exception {
-        User user = messageHandler.responseMessageForAuthenticateUser("{\"username\":\"username\",\"display-name\":\"display-name\",\"email-id\":\"test@test.com\"}");
+        User user = messageHandler.responseMessageForAuthenticateUser("{\"user\":{\"username\":\"username\",\"display-name\":\"display-name\",\"email-id\":\"test@test.com\"}}");
         assertThat(user, is(new User("username", "display-name", "test@test.com")));
     }
 
     @Test
     public void shouldHandleMissingDataInResponseMessageForAuthenticateUser() throws Exception {
-        User user = messageHandler.responseMessageForAuthenticateUser("{\"username\":\"username\"}");
+        User user = messageHandler.responseMessageForAuthenticateUser("{\"user\":{\"username\":\"username\"}}");
         assertThat(user, is(new User("username", null, null)));
     }
 
@@ -110,10 +110,11 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldValidateIncorrectJsonForAuthenticateUser() {
         assertThat(errorMessageForAuthenticateUser("[]"), is("User should be returned as a map"));
-        assertThat(errorMessageForAuthenticateUser("{\"username\":true}"), is("User 'username' should be of type string"));
-        assertThat(errorMessageForAuthenticateUser("{\"username\":\"\"}"), is("User 'username' cannot be empty"));
-        assertThat(errorMessageForAuthenticateUser("{\"username\":\"name\",\"display-name\":true}"), is("User 'display-name' should be of type string"));
-        assertThat(errorMessageForAuthenticateUser("{\"username\":\"name\",\"display-name\":\"display\",\"email-id\":true}"), is("User 'email-id' should be of type string"));
+        assertThat(errorMessageForAuthenticateUser("{\"user\":[]}"), is("User should be returned as a map"));
+        assertThat(errorMessageForAuthenticateUser("{\"user\":{\"username\":true}}"), is("User 'username' should be of type string"));
+        assertThat(errorMessageForAuthenticateUser("{\"user\":{\"username\":\"\"}}"), is("User 'username' cannot be empty"));
+        assertThat(errorMessageForAuthenticateUser("{\"user\":{\"username\":\"name\",\"display-name\":true}}"), is("User 'display-name' should be of type string"));
+        assertThat(errorMessageForAuthenticateUser("{\"user\":{\"username\":\"name\",\"display-name\":\"display\",\"email-id\":true}}"), is("User 'email-id' should be of type string"));
     }
 
     @Test

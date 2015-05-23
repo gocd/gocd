@@ -73,10 +73,6 @@ task :copy_files do
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
 
-  if File.directory?("../helper/build")
-    safe_cp "../helper/build/", "target/webapp/"
-    FileUtils.mv "target/webapp/build", "target/webapp/help"
-  end
 end
 
 task :write_revision_number do

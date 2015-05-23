@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.authentication;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,11 +53,11 @@ public class AuthenticationPluginRegistry {
     }
 
     public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
-        return new HashSet<String>(pluginsThatSupportsPasswordBasedAuthentication);
+        return Collections.unmodifiableSet(pluginsThatSupportsPasswordBasedAuthentication);
     }
 
     public Set<String> getPluginsThatSupportsUserSearch() {
-        return new HashSet<String>(pluginsThatSupportsUserSearch);
+        return Collections.unmodifiableSet(pluginsThatSupportsUserSearch);
     }
 
     public String getDisplayNameFor(String pluginId) {

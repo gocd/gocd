@@ -31,6 +31,7 @@ import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,13 +46,14 @@ public class PluginController {
         this.pluginManager = pluginManager;
     }
 
-    @RequestMapping(value = "/{pluginId}/{requestName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{pluginId}/{requestName}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
     public ModelAndView handlePluginInteractRequest(
             @PathVariable String pluginId,
             @PathVariable String requestName,
             HttpServletRequest request) {
         DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(null, null, requestName);
         apiRequest.setRequestParams(getParameterMap(request));
+        addRequestHeaders(request, apiRequest);
 
         try {
             GoPluginApiResponse response = pluginManager.submitTo(pluginId, apiRequest);
@@ -84,6 +86,15 @@ public class PluginController {
             }
         }
         return pluginParameterMap;
+    }
+
+    private void addRequestHeaders(HttpServletRequest request, DefaultGoPluginApiRequest apiRequest) {
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String header = (String) headerNames.nextElement();
+            String value = request.getHeader(header);
+            apiRequest.addRequestHeader(header, value);
+        }
     }
 
     private ModelAndView renderPluginResponse(final GoPluginApiResponse response) {

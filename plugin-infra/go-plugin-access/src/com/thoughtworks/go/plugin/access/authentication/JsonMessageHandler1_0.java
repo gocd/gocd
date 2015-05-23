@@ -61,7 +61,14 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             return null;
         }
 
-        User user = toUser(map);
+        Map userMap;
+        try {
+            userMap = (Map) map.get("user");
+        } catch (Exception e) {
+            throw new RuntimeException("User should be returned as a map");
+        }
+
+        User user = toUser(userMap);
         return user;
     }
 

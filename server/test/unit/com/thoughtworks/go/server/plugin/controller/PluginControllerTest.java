@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.plugin.controller;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,8 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -42,6 +42,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginControllerTest {
+    public static final String PLUGIN_ID = "plugin.id";
+    public static final String REQUEST_NAME = "request.name";
+
     @Mock
     private PluginManager pluginManager;
     @Mock
@@ -67,7 +70,7 @@ public class PluginControllerTest {
 
     @Test
     public void shouldForwardWebRequestToPlugin() throws Exception {
-        when(pluginManager.submitTo(eq("plugin.id"), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(200));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(200));
 
         Map<String, String[]> springParameterMap = new HashMap<String, String[]>();
         springParameterMap.put("k1", new String[]{"v1"});
@@ -76,14 +79,24 @@ public class PluginControllerTest {
         springParameterMap.put("k4", null);
         when(servletRequest.getParameterMap()).thenReturn(springParameterMap);
 
-        pluginController.handlePluginInteractRequest("plugin.id", "request.name", servletRequest);
+        List<String> elements = Arrays.asList("h1", "h2", "h3");
+        when(servletRequest.getHeader("h1")).thenReturn("v1");
+        when(servletRequest.getHeader("h2")).thenReturn("");
+        when(servletRequest.getHeader("h3")).thenReturn(null);
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(elements));
+
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
 
         Map<String, String> requestParameters = new HashMap<String, String>();
         requestParameters.put("k1", "v1");
         requestParameters.put("k2", "v2");
         requestParameters.put("k3", null);
         requestParameters.put("k4", null);
-        assertRequest(requestArgumentCaptor.getValue(), "request.name", requestParameters);
+        Map<String, String> requestHeaders = new HashMap<String, String>();
+        requestHeaders.put("h1", "v1");
+        requestHeaders.put("h2", "");
+        requestHeaders.put("h3", null);
+        assertRequest(requestArgumentCaptor.getValue(), REQUEST_NAME, requestParameters, requestHeaders);
     }
 
     @Test
@@ -91,15 +104,17 @@ public class PluginControllerTest {
         DefaultGoPluginApiResponse apiResponse = new DefaultGoPluginApiResponse(200);
         String responseBody = "response-body";
         apiResponse.setResponseBody(responseBody);
-        when(pluginManager.submitTo(eq("plugin.id"), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(apiResponse);
 
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest("plugin.id", "request.name", servletRequest);
+        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
         modelAndView.getView().render(null, servletRequest, servletResponse);
 
         assertThat(modelAndView.getView().getContentType(), is(PluginController.CONTENT_TYPE_HTML));
         verify(writer).write(responseBody);
+        assertRequest(requestArgumentCaptor.getValue(), REQUEST_NAME, new HashMap<String, String>(), new HashMap<String, String>());
     }
 
     @Test
@@ -109,11 +124,12 @@ public class PluginControllerTest {
         apiResponse.responseHeaders().put("Content-Type", contentType);
         String responseBody = "response-body";
         apiResponse.setResponseBody(responseBody);
-        when(pluginManager.submitTo(eq("plugin.id"), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
 
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest("plugin.id", "request.name", servletRequest);
+        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
         modelAndView.getView().render(null, servletRequest, servletResponse);
 
         assertThat(modelAndView.getView().getContentType(), is(contentType));
@@ -125,21 +141,42 @@ public class PluginControllerTest {
         DefaultGoPluginApiResponse apiResponse = new DefaultGoPluginApiResponse(302);
         String redirectLocation = "/go/plugin/interact/plugin.id/request.name";
         apiResponse.responseHeaders().put("Location", redirectLocation);
-        when(pluginManager.submitTo(eq("plugin.id"), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
+        when(pluginManager.submitTo(eq(PLUGIN_ID), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
 
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest("plugin.id", "request.name", servletRequest);
+        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
 
 
         assertThat(modelAndView.getViewName(), is("redirect:" + redirectLocation));
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String requestName, Map<String, String> requestParameters) {
+    private Enumeration<String> getMockEnumeration(List<String> elements) {
+        Enumeration<String> enumeration = new Enumeration<String>() {
+            private List<String> elements;
+            int i = 0;
+
+            @Override
+            public boolean hasMoreElements() {
+                return i < elements.size();
+            }
+
+            @Override
+            public String nextElement() {
+                return elements.get(i++);
+            }
+        };
+        ReflectionUtil.setField(enumeration, "elements", elements);
+        return enumeration;
+    }
+
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String requestName, Map<String, String> requestParameters, Map<String, String> requestHeaders) {
         assertThat(goPluginApiRequest.extension(), is(nullValue()));
         assertThat(goPluginApiRequest.extensionVersion(), is(nullValue()));
         assertThat(goPluginApiRequest.requestName(), is(requestName));
         assertEquals(requestParameters, goPluginApiRequest.requestParameters());
+        assertEquals(requestHeaders, goPluginApiRequest.requestHeaders());
         assertThat(goPluginApiRequest.requestBody(), is(nullValue()));
     }
 }

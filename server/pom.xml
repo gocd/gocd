@@ -688,7 +688,7 @@
                 <excludes>
                     <exclude>WEB-INF/classes/**/*</exclude>
                     <exclude>WEB-INF/lib/**/*</exclude>
-                    <exclude>WEB-INF/rails/**/*</exclude>
+                    <exclude>WEB-INF/rails.new/**/*</exclude>
                 </excludes>
             </testResource>
             <testResource>

@@ -527,16 +527,16 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
       zip_file_name = f if !f.scan(/go-server-.*-[0-9]+.zip/).empty?
     end
 
-    `unzip -o #{zip_file_name} -d #{cmd_repo_verification_dir}/go-server`
+    sh("unzip -o #{zip_file_name} -d #{cmd_repo_verification_dir}/go-server")
 
     #unzip go.jar and defaultFiles/defaultCommandSnippets.zip
     unzipped_go_server_dir = Dir.glob("#{cmd_repo_verification_dir}/go-server/*")[0]
-    `unzip -o #{unzipped_go_server_dir}/go.jar -d #{unzipped_go_server_dir}`
-    `unzip -o #{unzipped_go_server_dir}/defaultFiles/defaultCommandSnippets.zip -d #{unzipped_go_server_dir}/defaultCommandRepo`
-    `cd #{unzipped_go_server_dir}/defaultCommandRepo; git rev-parse HEAD > #{packaged_rev_file}`
+    sh("unzip -o #{unzipped_go_server_dir}/go.jar -d #{unzipped_go_server_dir}")
+    sh("unzip -o #{unzipped_go_server_dir}/defaultFiles/defaultCommandSnippets.zip -d #{unzipped_go_server_dir}/defaultCommandRepo")
+    sh("cd #{unzipped_go_server_dir}/defaultCommandRepo; git rev-parse HEAD > #{packaged_rev_file}")
 
     clone_command_repo("#{cmd_repo_verification_dir_absolute_path}/go-command-repo")
-    `cd #{cmd_repo_verification_dir}/go-command-repo; git rev-parse HEAD > #{current_rev_file}`
+    sh("cd #{cmd_repo_verification_dir}/go-command-repo; git rev-parse HEAD > #{current_rev_file}")
 
     packaged_revision = File.read("#{packaged_rev_file}")
     current_revision = File.read("#{current_rev_file}")
@@ -561,8 +561,8 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
   end
 
   task :unzip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip'] do
-    `unzip -o #{project('cruise:agent-bootstrapper:dist').path_to(:zip_package)} -d #{_(:target, '..')}`
-    `unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}`
+    sh("unzip -o #{project('cruise:agent-bootstrapper:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
+    sh("unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
   end
 
   task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian'] do

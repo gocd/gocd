@@ -279,7 +279,7 @@ module SolarisPackageHelper
         FileUtils.chmod 0755, sol_pkg_file
       end
 
-      Dir.chdir(sol_pkg_dir(name_with_version)) do
+      cd(sol_pkg_dir(name_with_version)) do
         command = "/usr/bin/pkgproto .=go-#{package} >> #{sol_prototype_file(name_with_version)}"
         puts "Executing command #{command} from #{`pwd`}"
         sh command
@@ -418,7 +418,7 @@ module OSXPackageHelper
   def build_osx_installer(pkg, pkg_dir)
     go_pkg_name_with_release_revision = "#{"go-#{pkg}-#{VERSION_NUMBER}"}-#{RELEASE_REVISION}"
 
-    Dir.chdir(osx_dir) do
+    cd(osx_dir) do
       contents_dir = create_dir_if_not_present(pkg_dir, "Contents")
       cp File.join("..", "..", "..", "..", "installers", pkg, "osx", "Info.plist"), contents_dir
       replace_content_in_file(File.join(contents_dir, "Info.plist"), "@VERSION@", "#{VERSION_NUMBER}.#{RELEASE_REVISION}")

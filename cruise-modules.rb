@@ -421,37 +421,6 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     end
   end
 
-  def javascript_lint(files)
-    jslint_root = project('cruise:server').path_to("webapp/WEB-INF/rails/vendor/other/jslint")
-    jslint = %[java -jar #{File.join(jslint_root, "rhino.jar")} #{File.join(jslint_root, "jslint.js")}]
-    fail = false
-    errors = []
-    files.each do |file|
-      path = File.expand_path(file)
-      command = %[#{jslint} #{path}]
-      output = `#{command}`
-      unless output =~ /No problems found/i
-        errors << "#{path}:\n#{output}"
-        putc "F"
-        $stdout.flush
-        fail = true
-      else
-        putc "."
-        $stdout.flush
-      end
-    end
-    if fail
-      puts "\n" + errors.join("\n")
-      exit 1
-    else
-      puts "\n"
-    end
-  end
-
-  task :jslint do
-    javascript_lint Dir[project('cruise:server').path_to("webapp/javascripts/*.js")]
-  end
-
   task :jsunit => [:set_browser_path, :prepare_jsunit_file_structure] do
     jsunit_jars = (Dir.glob(project('cruise:server').path_to("jsunit/java/lib/*.jar")) + jars_with_abs_path('ant')) << _(:target, 'jsunit/java/config')
     properties = {

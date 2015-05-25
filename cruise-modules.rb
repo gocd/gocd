@@ -264,7 +264,7 @@ define "cruise:server", :layout => server_layout("server") do
     File.open("#{plugins_dist_dir}/version.txt", "w") { |h| h.write("%s(%s)" % [VERSION_NUMBER, RELEASE_COMMIT]) } if File.exists? plugins_dist_dir
   end
 
-  cruise_war = _('target/cruise.war')
+  cruise_war = _(:target, 'cruise.war')
 
   cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,

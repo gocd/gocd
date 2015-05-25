@@ -457,7 +457,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
   end
 
   task :prepare_jsunit_file_structure do
-    js_file = Dir["server/target/webapp/WEB-INF/rails.new/public/assets/*.js"][0]
+    js_file = Dir["#{project('cruise:server').path_to("target/webapp/WEB-INF/rails.new/public/assets")}/application-*.js"][0]
     raise "#{js_file} not found! did you run ./bn clean cruise:prepare?" unless File.exist?(js_file)
 
     mkdir_p _(:target, 'jsunit/compressed')

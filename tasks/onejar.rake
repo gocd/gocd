@@ -89,18 +89,6 @@ def exclude_fileset_from_target(jar, module_name, pattern)
   do_with_fileset_under(:exclude, jar, pattern, search_under)
 end
 
-def include_fileset(jar, project, pattern, target_dir = :classes)
-  do_with_fileset(:include, jar, project, pattern, target_dir)
-end
-
-def exclude_fileset(jar, project, pattern)
-  do_with_fileset(:exclude, jar, project, pattern)
-end
-
-def do_with_fileset(action, jar, project, pattern, target_dir = :classes)
-  search_under = project._(:target, :main, target_dir)
-  do_with_fileset_under(action, jar, pattern, search_under)
-end
 
 def do_with_fileset_under(action, jar, pattern, search_under)
   base_for_search = File.join($PROJECT_BASE, search_under)

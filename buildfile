@@ -15,7 +15,7 @@
 #*************************GO-LICENSE-END**********************************
 
 require 'java' if RUBY_PLATFORM == "java"
-$PROJECT_BASE = "."
+$PROJECT_BASE = File.expand_path("../", __FILE__)
 
 RUNNING_TESTS = 'running_tests'
 

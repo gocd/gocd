@@ -73,10 +73,6 @@ task :copy_files do
   cp "messages/message.properties", "target/webapp"
   cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
 
-  if File.directory?("../helper/build")
-    safe_cp "../helper/build/", "target/webapp/"
-    FileUtils.mv "target/webapp/build", "target/webapp/help"
-  end
 end
 
 task :write_revision_number do
@@ -85,36 +81,6 @@ task :write_revision_number do
   {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
     File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
   end
-end
-
-YUI_CSS_OUTPUT = ".css$:.css"
-YUI_JS_OUTPUT = ".js$:.js"
-
-def yui_compress_all(pattern, parent_directory, extension)
-  sh "java -jar ../tools/yui-compressor-2.4.8/yuicompressor-2.4.8.jar --charset utf-8 -o '#{pattern}' #{File.join(parent_directory, extension)}" if ENV['YUI_COMPRESS_ASSETS'] == 'Y'
-end
-
-CSS_FILE_TERMINATOR=''
-JS_FILE_TERMINATOR=';'
-
-def merge(file_handle, path, terminator=CSS_FILE_TERMINATOR)
-  contents = File.read(path)
-  name = File.basename(path)
-  file_handle.puts "/* #{name} - start */"
-  file_handle.write(contents)
-  file_handle.write(terminator) # Terminate file contents with *_FILE_TERMINATOR. For example, in case the JS script does not end with a ; as the author might be assuming it will be loaded standalone, we will introduce a ;
-  file_handle.puts "\n/* #{name} - end */"
-end
-
-# javascript optimization
-JS_LIB_DIR = "target/webapp/javascripts/lib"
-JS_APP_DIR = "target/webapp/javascripts"
-JS_APP_PUT_FIRST = [JS_APP_DIR + "/build_base_observer.js", JS_APP_DIR + "/json_to_css.js", JS_APP_DIR + "/util.js", JS_APP_DIR + "/micro_content_popup.js", JS_APP_DIR + "/ajax_popup_handler.js", JS_APP_DIR + "/compare_pipelines.js"]
-COMPRESSED_ALL_DOT_JS = "target/all.js"
-JS_TO_BE_SKIPPED = [JS_LIB_DIR + "/d3-3.1.5.min.js", JS_APP_DIR + "/test_helper.js"]
-
-def put_first(lib_paths, files_to_put_first)
-  files_to_put_first + (lib_paths - files_to_put_first)
 end
 
 def create_pathing_jar classpath_file
@@ -173,14 +139,6 @@ END
   end
 end
 
-# css optimization
-CSS_DIRS = ["target/webapp/css", "target/webapp/stylesheets"]
-COMPRESSED_ALL_DOT_CSS = ["target/plugins.css", "target/patterns.css", "target/views.css", "target/css_sass.css", "target/vm.css"]
-
-def expand_css_wildcard wildcard
-  Dir.glob("target/webapp/stylesheets/" + wildcard)
-end
-
 # inline partials
 RAILS_DIR = "rails.new"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR
@@ -207,10 +165,6 @@ end
 def render_args call
   args_of_fn('render', call)
 end
-
-#:locals => ({:scope => expr})
-#:locals => ({:scope => ({foo => bar}).merge(:baz => quux)})
-#:object =>
 
 def locals_hash file, call
   render_arguments = render_args(call)

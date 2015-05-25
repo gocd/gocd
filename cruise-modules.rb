@@ -264,7 +264,7 @@ define "cruise:server", :layout => server_layout("server") do
     File.open("#{plugins_dist_dir}/version.txt", "w") { |h| h.write("%s(%s)" % [VERSION_NUMBER, RELEASE_COMMIT]) } if File.exists? plugins_dist_dir
   end
 
-  cruise_war = _('target/cruise.war')
+  cruise_war = _(:target, 'cruise.war')
 
   cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,
@@ -421,37 +421,6 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     end
   end
 
-  def javascript_lint(files)
-    jslint_root = project('cruise:server').path_to("webapp/WEB-INF/rails/vendor/other/jslint")
-    jslint = %[java -jar #{File.join(jslint_root, "rhino.jar")} #{File.join(jslint_root, "jslint.js")}]
-    fail = false
-    errors = []
-    files.each do |file|
-      path = File.expand_path(file)
-      command = %[#{jslint} #{path}]
-      output = `#{command}`
-      unless output =~ /No problems found/i
-        errors << "#{path}:\n#{output}"
-        putc "F"
-        $stdout.flush
-        fail = true
-      else
-        putc "."
-        $stdout.flush
-      end
-    end
-    if fail
-      puts "\n" + errors.join("\n")
-      exit 1
-    else
-      puts "\n"
-    end
-  end
-
-  task :jslint do
-    javascript_lint Dir[project('cruise:server').path_to("webapp/javascripts/*.js")]
-  end
-
   task :jsunit => [:set_browser_path, :prepare_jsunit_file_structure] do
     jsunit_jars = (Dir.glob(project('cruise:server').path_to("jsunit/java/lib/*.jar")) + jars_with_abs_path('ant')) << _(:target, 'jsunit/java/config')
     properties = {
@@ -488,7 +457,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
   end
 
   task :prepare_jsunit_file_structure do
-    js_file = Dir["server/target/webapp/WEB-INF/rails.new/public/assets/*.js"][0]
+    js_file = Dir["#{project('cruise:server').path_to("target/webapp/WEB-INF/rails.new/public/assets")}/application-*.js"][0]
     raise "#{js_file} not found! did you run ./bn clean cruise:prepare?" unless File.exist?(js_file)
 
     mkdir_p _(:target, 'jsunit/compressed')
@@ -527,16 +496,16 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
       zip_file_name = f if !f.scan(/go-server-.*-[0-9]+.zip/).empty?
     end
 
-    `unzip -o #{zip_file_name} -d #{cmd_repo_verification_dir}/go-server`
+    sh("unzip -o #{zip_file_name} -d #{cmd_repo_verification_dir}/go-server")
 
     #unzip go.jar and defaultFiles/defaultCommandSnippets.zip
     unzipped_go_server_dir = Dir.glob("#{cmd_repo_verification_dir}/go-server/*")[0]
-    `unzip -o #{unzipped_go_server_dir}/go.jar -d #{unzipped_go_server_dir}`
-    `unzip -o #{unzipped_go_server_dir}/defaultFiles/defaultCommandSnippets.zip -d #{unzipped_go_server_dir}/defaultCommandRepo`
-    `cd #{unzipped_go_server_dir}/defaultCommandRepo; git rev-parse HEAD > #{packaged_rev_file}`
+    sh("unzip -o #{unzipped_go_server_dir}/go.jar -d #{unzipped_go_server_dir}")
+    sh("unzip -o #{unzipped_go_server_dir}/defaultFiles/defaultCommandSnippets.zip -d #{unzipped_go_server_dir}/defaultCommandRepo")
+    sh("cd #{unzipped_go_server_dir}/defaultCommandRepo; git rev-parse HEAD > #{packaged_rev_file}")
 
     clone_command_repo("#{cmd_repo_verification_dir_absolute_path}/go-command-repo")
-    `cd #{cmd_repo_verification_dir}/go-command-repo; git rev-parse HEAD > #{current_rev_file}`
+    sh("cd #{cmd_repo_verification_dir}/go-command-repo; git rev-parse HEAD > #{current_rev_file}")
 
     packaged_revision = File.read("#{packaged_rev_file}")
     current_revision = File.read("#{current_rev_file}")
@@ -561,8 +530,8 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
   end
 
   task :unzip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip'] do
-    `unzip -o #{project('cruise:agent-bootstrapper:dist').path_to(:zip_package)} -d #{_(:target, '..')}`
-    `unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}`
+    sh("unzip -o #{project('cruise:agent-bootstrapper:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
+    sh("unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
   end
 
   task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian'] do

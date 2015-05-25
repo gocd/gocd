@@ -113,9 +113,10 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
 end
 
 def clone_command_repo(command_repository_default_dir)
-  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "git://"
+  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "https://"
   url = ENV["COMMAND_REPO_URL"] || 'github.com/gocd/go-command-repo.git'
-  system "git clone #{protocol}#{url} #{command_repository_default_dir}"
+  rm_rf command_repository_default_dir
+  sh "git clone #{protocol}#{url} #{command_repository_default_dir}"
 end
 
 define "cruise:server", :layout => server_layout("server") do

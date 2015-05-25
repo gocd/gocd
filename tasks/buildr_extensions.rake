@@ -52,8 +52,7 @@ def agent_bootstrapper_layout(_module)
 end
 
 def server_layout(_module)
-  layout = Layout.new
-  layout[:target] = "../target/#{_module}"
+  layout = Layout::Default.new
   layout[:root] = ".."
   layout[:reports, :specs] = "../target/specs/#{_module}"
   layout[:reports, :twist] = "../target/reports/twist/#{_module}"

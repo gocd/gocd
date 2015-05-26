@@ -113,9 +113,10 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
 end
 
 def clone_command_repo(command_repository_default_dir)
-  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "git://"
+  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "https://"
   url = ENV["COMMAND_REPO_URL"] || 'github.com/gocd/go-command-repo.git'
-  system "git clone #{protocol}#{url} #{command_repository_default_dir}"
+  rm_rf command_repository_default_dir
+  sh "git clone #{protocol}#{url} #{command_repository_default_dir}"
 end
 
 define "cruise:server", :layout => server_layout("server") do
@@ -370,28 +371,26 @@ define "cruise:server", :layout => server_layout("server") do
     require 'tmpdir'
     tmp_dir = Dir.tmpdir
     temp_checkout_dir_location = File.join(tmp_dir, 'go-command-repo-for-push')
-    if (File.directory? temp_checkout_dir_location)
-      FileUtils.remove_dir temp_checkout_dir_location
-    end
-    if (File.file? temp_checkout_dir_location)
-      FileUtils.rm temp_checkout_dir_location
-    end
-    FileUtils.mkdir(temp_checkout_dir_location)
-    system "git clone #{repo_full_url} #{temp_checkout_dir_location}"
+    rm_rf temp_checkout_dir_location
+    mkdir_p temp_checkout_dir_location
+    sh "git clone #{repo_full_url} #{temp_checkout_dir_location}"
 
     version_file_location = File.join(temp_checkout_dir_location, 'version.txt')
     version_content_array = File.read(version_file_location).split('=')
     bump_version = bump_by_1(version_content_array[1])
     File.open(version_file_location, 'w') { |f| f.write("#{version_content_array[0]}=#{bump_version}") }
-    system <<END
-    cd #{temp_checkout_dir_location};
-    git config user.name gocd;
-    git config user.email go-cd@googlegroups.com;
-    git add #{version_file_location};
-    git commit -m 'Version - #{bump_version}';
-    git config remote.origin.url #{repo_full_url};
-    git push;
-END
+    cd temp_checkout_dir_location do
+      [
+        'git config user.name gocd',
+        'git config user.email go-cd@googlegroups.com',
+        "git add #{version_file_location}",
+        "git commit -m 'Version - #{bump_version}'",
+        "git config remote.origin.url #{repo_full_url}",
+        'git push'
+      ].each do |cmd|
+        sh cmd
+      end
+    end
   end
 
   def bump_by_1 old_value

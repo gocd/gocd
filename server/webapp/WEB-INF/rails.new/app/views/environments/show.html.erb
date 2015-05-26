@@ -6,7 +6,7 @@
         <div class="added_item added_pipelines">
             <h3>
                 <%= l.string("PIPELINES") %>
-                <button value="Edit View" type="button" id="edit_pipelines" class="submit"><span><%= l.string("EDIT") %></span></button>
+                <button value="Edit View" type="button" id="edit_pipelines" class="submit edit-environment edit-pipelines"><span><%= l.string("EDIT") %></span></button>
             </h3>
             <ul>
                 <%- @environment.getPipelineNames().each do |pipelineName| -%>
@@ -17,7 +17,7 @@
         <div class="added_item added_agents">
             <h3>
                 <%= l.string("AGENTS") %>
-                <button value="Edit View" type="button" id="edit_agents" class="submit"><span><%= l.string("EDIT") %></span></button>
+                <button value="Edit View" type="button" id="edit_agents" class="submit edit-environment edit-agents"><span><%= l.string("EDIT") %></span></button>
             </h3>
             <ul>
                 <%- @agent_details.each do |agent| -%>
@@ -25,14 +25,27 @@
                 <%- end -%>
             </ul>
         </div>
+
         <div class="added_item added_environment_variables">
             <h3>
                 <%= l.string("ENVIRONMENT_VARIABLES") %>
-                <button value="Edit View" type="button" id="edit_environment_variables" class="submit"><span><%= l.string("EDIT") %></span></button>
+                <button value="Edit View" type="button" id="edit_environment_variables" class="submit edit-environment edit-environment-vars"><span><%= l.string("EDIT") %></span></button>
             </h3>
+
+
             <ul>
-                <%- @environment.getVariables().each do |var| -%>
+                <%- @environment.getPlainTextVariables().each do |var| -%>
                     <li><%= h(var.getName()) %> = <%= h(var.getValue()) -%></li>
+                <%- end -%>
+            </ul>
+            <br>
+            <h3>
+                <%= l.string("SECURE_ENVIRONMENT_VARIABLES") %>
+            </h3>
+
+            <ul>
+                <%- @environment.getSecureVariables().each do |var| -%>
+                    <li><%= h(var.getName()) %> = <%= h(var.getDisplayValue()) -%></li>
                 <%- end -%>
             </ul>
         </div>

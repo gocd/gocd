@@ -22,6 +22,7 @@ describe 'environments/show.html.erb' do
     @environment.addPipeline(CaseInsensitiveString.new "another-pipeline")
     @environment.addEnvironmentVariable("ENV1", "VAL1")
     @environment.addEnvironmentVariable("ENV2", "VAL2")
+    @environment.addSecureEnvironmentVariable("SECURE_VAR", "SECURE_VALUE")
 
     @agent_details = AgentsViewModelMother.getTwoAgents()
 
@@ -55,7 +56,7 @@ describe 'environments/show.html.erb' do
     Capybara.string(response.body).find(".environment.show_environment .added_item.added_environment_variables").tap do |variables_section|
       all_variables = variables_section.all("ul li").collect {|node| node.text}.sort
 
-      expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2"])
+      expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2", "SECURE_VAR = ****"])
       expect(variables_section).to have_selector("h3", :text => "Environment Variables")
       expect(variables_section).to have_selector("h3 button#edit_environment_variables", :text => "Edit")
     end

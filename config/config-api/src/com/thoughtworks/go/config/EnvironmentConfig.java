@@ -204,6 +204,14 @@ public class EnvironmentConfig implements ParamsAttributeAware, Validatable, Env
         return variables;
     }
 
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        return variables.getPlainTextVariables();
+    }
+
+    public EnvironmentVariablesConfig getSecureVariables() {
+        return variables.getSecureVariables();
+    }
+
     public void setConfigAttributes(Object attributes) {
         if (attributes == null) {
             return;

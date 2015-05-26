@@ -199,6 +199,14 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return variables;
     }
 
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        return variables.getPlainTextVariables();
+    }
+
+    public EnvironmentVariablesConfig getSecureVariables() {
+        return variables.getSecureVariables();
+    }
+
     public boolean hasVariableInScope(String variableName) {
         if (variables.hasVariable(variableName)) {
             return true;

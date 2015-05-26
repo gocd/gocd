@@ -1,2 +1,2 @@
-%~dp0\tools\bin\go.jruby.bat -S buildr %*
+%~dp0\tools\bin\jruby.bat -S buildr %*
 

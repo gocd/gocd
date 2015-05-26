@@ -463,7 +463,7 @@ module ApplicationHelper
   end
 
   def register_defaultable_list nested_name
-    "<input type=\"hidden\" name=\"default_as_empty_list[]\" value=\"#{nested_name}\"/>".html_safe
+    hidden_field_tag 'default_as_empty_list[]', nested_name, id: nil
   end
 
   def form_remote_tag_new(options = {})

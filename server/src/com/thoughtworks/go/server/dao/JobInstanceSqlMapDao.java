@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
@@ -53,7 +54,7 @@ import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
 @SuppressWarnings("unchecked")
 @Component
-public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao {
+public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao, JobStatusListener {
     private static final Logger LOG = Logger.getLogger(JobInstanceSqlMapDao.class);
     private Cache cache;
     private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -212,7 +213,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         String key = cacheKeyForOriginalJobIdentifier(stageIdentifier, jobName);
 
         JobIdentifier jobIdentifier = (JobIdentifier) goCache.get(key);
-
         if (jobIdentifier == null) {
             synchronized (key) {
                 jobIdentifier = (JobIdentifier) goCache.get(key);
@@ -389,7 +389,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
 		return new JobInstances(results);
 	}
- 
+
     public List<JobPlan> orderedScheduledBuilds() {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
 
@@ -469,5 +469,12 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         transition.setJobId(jobInstance.getId());
         transition.setStageId(jobInstance.getStageId());
         getSqlMapClientTemplate().insert("insertTransition", transition);
+    }
+
+    @Override
+    public void jobStatusChanged(final JobInstance job) {
+        if(job.isRescheduled()) {
+            goCache.remove(cacheKeyForOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName()));
+        }
     }
 }

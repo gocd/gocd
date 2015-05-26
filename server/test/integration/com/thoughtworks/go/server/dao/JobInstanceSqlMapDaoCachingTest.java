@@ -16,18 +16,13 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.domain.DefaultJobPlan;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.JobStatusListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,15 +32,15 @@ import org.springframework.orm.ibatis.SqlMapClientTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.*;
+
+import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -233,6 +228,61 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         verify(mockTemplate, times(2)).queryForList("getActiveJobIds");
         verify(mockTemplate, times(2)).queryForObject("getActiveJobById", arguments("id", 1L).asMap());
+    }
+
+    @Test
+    public void shouldCacheJobIdentifier() throws Exception {
+        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
+
+        JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
+        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+
+        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any(Map.class));
+    }
+
+    @Test
+    public void shouldClearJobIdentifierFromCacheWhenJobIsRescheduled() throws Exception {
+        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
+
+        JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
+        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+
+        job.changeState(JobState.Rescheduled, new Date());
+
+        JobStatusListener listener = jobInstanceDao;
+        listener.jobStatusChanged(job);
+
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+
+        verify(mockTemplate, times(2)).queryForObject(eq("findJobId"), any(Map.class));
+    }
+
+    @Test
+    public void shouldnotClearJobIdentifierFromCacheForAnyOtherJobStateChangeOtherThanRescheduledAsTheBuildIdDoesNotChange() throws Exception {
+        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
+
+        JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
+        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+
+        List<JobState> jobStatesForWhichCacheNeedsToBeMaintained = asList(JobState.Assigned, JobState.Building, JobState.Completed, JobState.Discontinued,
+                JobState.Paused, JobState.Scheduled, JobState.Preparing, JobState.Assigned.Unknown);
+
+        JobStatusListener listener = jobInstanceDao;
+        for (JobState jobState : jobStatesForWhichCacheNeedsToBeMaintained) {
+            job.changeState(jobState, new Date());
+            listener.jobStatusChanged(job);
+        }
+
+        jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
+
+        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any(Map.class));
     }
 
     private DefaultJobPlan jobPlan(long id) {

@@ -48,13 +48,11 @@ public class TfsSDKCommand extends AbstractTfsCommand {
 
     private static final Logger LOGGER = Logger.getLogger(TfsSDKCommand.class);
     private GoTfsVersionControlClient client;
-    private String domain;
     private TFSTeamProjectCollection collection;
     private SystemEnvironment systemEnvironment;
 
     public TfsSDKCommand(String materialFingerprint, CommandArgument url, String domain, String userName, String password, String workspace, String projectPath) {
         super(materialFingerprint, url, domain, userName, password, workspace, projectPath);
-        this.domain = domain;
         systemEnvironment = new SystemEnvironment();
     }
 
@@ -180,10 +178,10 @@ public class TfsSDKCommand extends AbstractTfsCommand {
 
     public void init() {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Init TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), domain));
+            LOGGER.debug(String.format("[TFS SDK] Init TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), getDomain()));
         }
         try {
-            collection = new TFSTeamProjectCollection(getUrl().toString(), getUserName(), domain, getPassword());
+            collection = new TFSTeamProjectCollection(getUrl().toString(), getUserName(), getDomain(), getPassword());
             collection.getHTTPClient().getParams().setSoTimeout(systemEnvironment.getTfsSocketTimeout());
             client = new GoTfsVersionControlClient(collection.getVersionControlClient());
         } catch (Exception e) {
@@ -193,7 +191,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
 
     public void destroy() {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("[TFS SDK] Destroying TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), domain));
+            LOGGER.debug(String.format("[TFS SDK] Destroying TFS Collection & Client for URL: %s, Username: %s, Domain: %s", getUrl(), getUserName(), getDomain()));
         }
         closeClient();
         closeCollection();

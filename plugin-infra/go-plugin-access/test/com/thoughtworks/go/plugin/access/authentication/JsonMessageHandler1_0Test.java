@@ -16,17 +16,24 @@
 
 package com.thoughtworks.go.plugin.access.authentication;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.util.json.Json;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class JsonMessageHandler1_0Test {
@@ -52,7 +59,12 @@ public class JsonMessageHandler1_0Test {
     @Test
     public void shouldBuildRequestBodyForAuthenticateUser() throws Exception {
         String requestMessage = messageHandler.requestMessageForAuthenticateUser("username", "password");
-        assertThat(requestMessage, is("{\"username\":\"username\",\"password\":\"password\"}"));
+        Object o = new GsonBuilder().create().fromJson(requestMessage, Object.class);
+
+        Map<String, String> requestMap = new HashMap<String, String>();
+        requestMap.put("username", "username");
+        requestMap.put("password", "password");
+        assertEquals(o, requestMap);
     }
 
     @Test

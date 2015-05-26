@@ -57,3 +57,49 @@ shared_examples_for :environment_variables_form do
     end
   end
 end
+
+shared_examples_for :secure_environment_variables_form do
+
+  it "should display the secure variables section" do
+    render :template => @view_file
+
+    expect(response.body).to have_selector("h3", :text => "Secure Variables");
+  end
+
+  it "should populate secure env vars for the pipeline" do
+    render :template => @view_file
+
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][name]'][value='password']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][original_name]'][value='password']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][secure]'][value='true']")
+
+      expect(form).to have_selector("input[name='default_as_empty_list[]'][value='#{@object_name}>variables']")
+    end
+  end
+
+  it "should have correct row templates for secure section" do
+    render :template => @view_file
+
+    Capybara.string(response.body).find('form').tap do |form|
+      textarea_content = form.find("textarea#variables_secure_variables_template").text
+
+      expect(textarea_content).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][type='password']")
+      expect(textarea_content).to have_selector("input##{@object_name}_variables__secure")
+      expect(textarea_content).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='true']")
+    end
+  end
+
+  it "should show edit link" do
+    render :template => @view_file
+
+    Capybara.string(response.body).find('form').tap do |form|
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='password'][readonly='readonly']")
+      expect(form).to have_selector("input[name='#{@object_name}[variables][][originalValue]'][value='#{@encryptedVariable.getEncryptedValue()}'][type='hidden']")
+      expect(form).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='false']")
+      expect(form).to have_selector("a.edit.skip_dirty_stop", :text => "Edit")
+      expect(form).to have_selector("a.reset.hidden.skip_dirty_stop", :text => "Reset")
+    end
+  end
+end

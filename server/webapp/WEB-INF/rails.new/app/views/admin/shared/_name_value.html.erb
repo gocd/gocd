@@ -57,7 +57,7 @@
                                        secure_variable_action_class_name = random_dom_id("secure_variable")
                                     %>
                                     <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value #{secure_variable_value_field_class_name}", :id => nil, :readonly => 'readonly'-%>
-                                    <%= hidden_field_tag("pipeline[variables][][originalValue]", variable.getValueForDisplay(), :class => secure_variable_hidden_field_class_name) -%>
+                                    <%= hidden_field_tag("#{scope[:form].object_name}[variables][][originalValue]", variable.getValueForDisplay(), :class => secure_variable_hidden_field_class_name) -%>
                                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
                                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => secure_variable_is_changed_class_name %>
                                 <% else %>

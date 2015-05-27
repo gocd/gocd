@@ -51,11 +51,6 @@
             <url>file:${main.dir}/local-maven-repo/</url>
         </repository>
         <repository>
-            <id>go-maven-output-dir</id>
-            <name>go-maven-output-repository</name>
-            <url>file:${main.dir}/maven-output-dir</url>
-        </repository>
-        <repository>
             <id>caja</id>
             <url>http://google-caja.googlecode.com/svn/maven</url>
         </repository>
@@ -127,27 +122,42 @@
         <module>development-utility/development-server-with-jetty6</module>
     </modules>
     <profiles>
-            <profile>
-                <id>no-docker-tests</id>
-                <activation>
-                    <activeByDefault>true</activeByDefault>
-                </activation>
-                <build>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>2.18.1</version>
-                            <configuration>
-                                <excludes>
-                                    <exclude>**/*DockerTest.java</exclude>
-                                </excludes>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </build>
+        <profile>
+            <id>use-temporary-output-dir</id>
+            <activation>
+                <property>
+                    <name>env.GO_SERVER_URL</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>go-maven-output-dir</id>
+                    <name>go-maven-output-repository</name>
+                    <url>file:${main.dir}/maven-output-dir</url>
+                </repository>
+            </repositories>
+        </profile>
+        <profile>
+            <id>no-docker-tests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.18.1</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*DockerTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
 
-            </profile>
+        </profile>
         <profile>
             <id>docker-tests</id>
             <activation></activation>

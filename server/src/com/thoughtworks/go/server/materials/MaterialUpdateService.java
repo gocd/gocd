@@ -130,6 +130,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             for (Material material : prunedMaterialList) {
                 updateMaterial(material);
             }
+
+            result.noContent();
         } else {
             result.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
         }

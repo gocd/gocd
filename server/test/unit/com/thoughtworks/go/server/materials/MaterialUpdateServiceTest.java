@@ -218,6 +218,11 @@ public class MaterialUpdateServiceTest {
         spyService.notifyMaterialsForUpdate(username, params, result);
         verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
         verify(spyService).updateMaterial(svnMaterial);
+
+        HttpLocalizedOperationResult noContentResult = new HttpLocalizedOperationResult();
+        noContentResult.noContent();
+
+        assertThat(result, is(noContentResult));
     }
 
     @Test

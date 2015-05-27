@@ -88,6 +88,14 @@ public class HttpLocalizedOperationResultTest {
     }
 
     @Test
+    public void shouldReturnNoContent() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        result.noContent();
+
+        assertThat(result.httpCode(), is(204));
+    }
+
+    @Test
     public void shouldNotFailWhenNoMessageSet() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Localizer localizer = mock(Localizer.class);

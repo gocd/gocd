@@ -87,6 +87,10 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
     }
 
+    public void noContent() {
+        httpCode = HttpStatus.SC_NO_CONTENT;
+    }
+
     public boolean isSuccessful() {
         return 200 <= httpCode && httpCode < 300; // I hate java
     }
@@ -120,16 +124,17 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         HttpLocalizedOperationResult that = (HttpLocalizedOperationResult) o;
 
         if (httpCode != that.httpCode) return false;
-        if (!healthStateType.equals(that.healthStateType)) return false;
-        if (!message.equals(that.message)) return false;
+        if (healthStateType != null ? !healthStateType.equals(that.healthStateType) : that.healthStateType != null)
+            return false;
+        if (message != null ? !message.equals(that.message) : that.message != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = message.hashCode();
-        result = 31 * result + healthStateType.hashCode();
+        int result = message != null ? message.hashCode() : 0;
+        result = 31 * result + (healthStateType != null ? healthStateType.hashCode() : 0);
         result = 31 * result + httpCode;
         return result;
     }

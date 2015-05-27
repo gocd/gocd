@@ -51,6 +51,11 @@
             <url>file:${main.dir}/local-maven-repo/</url>
         </repository>
         <repository>
+            <id>go-maven-output-dir</id>
+            <name>go-maven-output-repository</name>
+            <url>file:${main.dir}/maven-output-dir</url>
+        </repository>
+        <repository>
             <id>caja</id>
             <url>http://google-caja.googlecode.com/svn/maven</url>
         </repository>

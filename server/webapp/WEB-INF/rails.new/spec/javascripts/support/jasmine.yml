@@ -49,6 +49,7 @@ helpers:
 # list of file expressions to include as specs into spec runner
 # relative path from spec_dir
 spec_files:
+  - "environment_variable_edit_spec.js"
   - "agent_filter_spec.js"
   - "check_connection_spec.js"
   - "environment_wizard_spec.js"

@@ -71,7 +71,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         this.message = message;
         httpCode = HttpStatus.SC_CONFLICT;
     }
-    
+
     public void internalServerError(Localizable message) {
         this.message = message;
         httpCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -110,5 +110,27 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
      */
     public Localizable localizable() {
         return message;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HttpLocalizedOperationResult that = (HttpLocalizedOperationResult) o;
+
+        if (httpCode != that.httpCode) return false;
+        if (!healthStateType.equals(that.healthStateType)) return false;
+        if (!message.equals(that.message)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = message.hashCode();
+        result = 31 * result + healthStateType.hashCode();
+        result = 31 * result + httpCode;
+        return result;
     }
 }

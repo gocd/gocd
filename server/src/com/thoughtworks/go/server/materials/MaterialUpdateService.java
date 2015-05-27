@@ -121,6 +121,12 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             final PipelineGroups allGroups = goConfigService.currentCruiseConfig().getGroups();
             Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(allGroups.getAllUniquePostCommitSchedulableMaterials());
             final Set<Material> prunedMaterialList = materialTypeImplementer.prune(allUniquePostCommitSchedulableMaterials, attributes);
+
+            if (prunedMaterialList.isEmpty()) {
+                result.notFound(LocalizedMessage.string("MATERIAL_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+                return;
+            }
+
             for (Material material : prunedMaterialList) {
                 updateMaterial(material);
             }

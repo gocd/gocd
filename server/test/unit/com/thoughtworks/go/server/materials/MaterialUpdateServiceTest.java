@@ -28,11 +28,13 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.metrics.domain.context.Context;
 import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -65,9 +67,7 @@ import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMater
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -169,6 +169,36 @@ public class MaterialUpdateServiceTest {
         assertThat(result.httpCode(), is(HttpStatus.SC_BAD_REQUEST));
         assertThat(result.hasMessage(), is(true));
         verify(goConfigService).isUserAdmin(username);
+    }
+
+    @Test
+    public void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
+        when(goConfigService.isUserAdmin(username)).thenReturn(true);
+
+        PostCommitHookMaterialType materialType = mock(PostCommitHookMaterialType.class);
+        when(postCommitHookMaterialType.toType("type")).thenReturn(materialType);
+
+        PostCommitHookImplementer hookImplementer = mock(PostCommitHookImplementer.class);
+        when(materialType.getImplementer()).thenReturn(hookImplementer);
+        when(materialType.isKnown()).thenReturn(true);
+
+        CruiseConfig config = mock(CruiseConfig.class);
+        when(goConfigService.currentCruiseConfig()).thenReturn(config);
+        when(config.getGroups()).thenReturn(new PipelineGroups());
+
+        when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
+
+        final HashMap params = new HashMap();
+        params.put(MaterialUpdateService.TYPE, "type");
+
+        service.notifyMaterialsForUpdate(username, params, result);
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        operationResult.notFound(LocalizedMessage.string("MATERIAL_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        assertThat(result, is(operationResult));
+
+        verify(hookImplementer).prune(anySet(), anyMap());
     }
 
     @Test

@@ -1,33 +1,56 @@
 <div class="form_content">
-    <div class="environment_variables_section popup_form">
-        <textarea id="environment_variables_template" class="template">
+  <div class="environment_variables_section popup_form">
+        <textarea id="plain_text_environment_variables_template" class="template">
             <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
-                <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form}} -%>
+                <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
             <%- end -%>
         </textarea>
-        <ul class="variables">
-            <% scope[:form].object.variables.each do |variable| -%>
-                <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-                    <li>
-                        <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :variable => variable}} -%>
-                    </li>
-                <% end %>
+
+        <textarea id="secure_environment_variables_template" class="template">
+            <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
+                <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
             <%- end -%>
-        </ul>
-        <a class="add_item" id="add_variable"><%= l.string("ADD") -%></a>
-    </div>
+        </textarea>
+
+    <table class="variables plain-text-variables">
+      <h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3>
+      <% scope[:form].object.getPlainTextVariables().each do |variable| -%>
+        <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
+          <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
+        <% end %>
+      <%- end -%>
+    </table>
+
+    <a class="add_item" data-add-environment-to=".plain-text-variables" data-environment-template="#plain_text_environment_variables_template"><%= l.string("ADD") -%></a>
+
+    <table class="variables secure-variables">
+      <br>
+
+      <h3><%= l.string("SECURE_ENVIRONMENT_VARIABLES") %></h3>
+      <% scope[:form].object.getSecureVariables().each do |variable| -%>
+        <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
+          <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
+        <% end %>
+      <%- end -%>
+    </table>
+    <a class="add_item" data-add-environment-to=".secure-variables" data-environment-template="#secure_environment_variables_template"><%= l.string("ADD") -%></a>
+  </div>
 </div>
 <script type="text/javascript">
-    Util.on_load(function() {
-        function setupEnvVarForm(finish_button) {
-            var rowCreator = new EnvironmentVariables.RowCreator(jQuery('#environment_variables_template'), 'li', '.delete_parent');
-            var environmentVariables = new EnvironmentVariables(jQuery('ul.variables'), rowCreator, null, null, null);
-            environmentVariables.addDefaultRow();
-            environmentVariables.registerAddButton(jQuery("#add_variable"));
-            environmentVariables.registerFinishButton(finish_button);
-        }
+  (function ($) {
+    function setupEnvVarForm(finish_button) {
+      $('.add_item').each(function (i, elem) {
+        var addButton = $(elem);
+        var template = $(addButton.attr('data-environment-template'));
+        var addRowTo = $(addButton.attr('data-add-environment-to'));
+        var rowCreator = new EnvironmentVariables.RowCreator(template, null, '.delete_parent');
+        var environmentVariables = new EnvironmentVariables(addRowTo, rowCreator, null, null, null);
+        environmentVariables.addDefaultRow();
+        environmentVariables.registerAddButton(addButton);
+        environmentVariables.registerFinishButton(finish_button);
+      });
+    }
 
-        var finish_button = jQuery(".finish");
-        setupEnvVarForm(finish_button);
-    });
+    setupEnvVarForm($('.finish'))
+  })(jQuery);
 </script>

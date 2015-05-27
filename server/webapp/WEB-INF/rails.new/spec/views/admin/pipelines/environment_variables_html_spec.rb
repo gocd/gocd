@@ -37,7 +37,7 @@ describe "admin/pipelines/environment_variables.html.erb" do
     assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", @pipeline)
 
-    in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/pipelines")
+    in_params(pipeline_name: "foo_bar", action: "new", controller: "admin/pipelines")
 
     @view_file = "admin/pipelines/environment_variables.html.erb"
     @object_name = 'pipeline'

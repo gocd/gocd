@@ -39,7 +39,7 @@ describe "admin/jobs/environment_variables.html.erb" do
     assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", pipeline)
 
-    in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")
+    in_params(stage_parent: "pipelines", pipeline_name: "foo_bar", stage_name: "stage-name", action: "edit", controller: "admin/stages", job_name: "foo_bar_baz", current_tab: "environment_variables")
 
     @view_file = "admin/jobs/environment_variables.html.erb"
     @object_name = 'job'

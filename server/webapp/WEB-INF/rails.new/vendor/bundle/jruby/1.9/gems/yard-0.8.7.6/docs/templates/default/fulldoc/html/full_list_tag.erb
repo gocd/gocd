@@ -1,0 +1,7 @@
+<% n = 1 %>
+<% collect_tags.each do |tag| %>
+  <li class="r<%= n %> <%= tag.object.has_tag?(:deprecated) ? 'deprecated' : '' %>">
+    <span class="object_link"><%= tag_link(tag) %></span>
+  </li>
+  <% n = n == 2 ? 1 : 2 %>
+<% end %>

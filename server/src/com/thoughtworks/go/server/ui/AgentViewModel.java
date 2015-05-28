@@ -16,13 +16,7 @@
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -34,7 +28,7 @@ import info.aduna.text.NumericStringComparator;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * @understands agent information for the UI 
+ * @understands agent information for the UI
  */
 public class AgentViewModel implements Comparable<AgentViewModel>{
     static final String MISSING_AGENT_BOOTSTRAPPER_VERSION = "Unknown";
@@ -46,13 +40,13 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         this(agentInstance, new HashSet<String>());
     }
 
-    public AgentViewModel(AgentInstance agentInstance, Set<String> environments) {
+    public AgentViewModel(AgentInstance agentInstance, Collection<String> environments) {
         this.agentInstance = agentInstance;
-        this.environments = environments;
+        this.environments = new TreeSet<String>(environments);
     }
 
     public AgentViewModel(AgentInstance agentInstance, String...  environments) {
-        this(agentInstance, new TreeSet<String>(Arrays.asList(environments)));
+        this(agentInstance, Arrays.asList(environments));
     }
 
     public String getHostname() {
@@ -112,9 +106,13 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
     public boolean isBuilding(){
         return agentInstance.isBuilding();
     }
-    
+
     public boolean isCancelled(){
         return agentInstance.isCancelled();
+    }
+
+    public boolean isEnabled(){
+        return !agentInstance.isDisabled();
     }
 
     public static Comparator<AgentViewModel> STATUS_COMPARATOR = new Comparator<AgentViewModel>() {
@@ -181,7 +179,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     @Override public String toString() {
         return "hostname= " + agentInstance.getHostname() +
-                " location = " + agentInstance.getLocation() + 
+                " location = " + agentInstance.getLocation() +
                 " environments = " + environments +
                 " resources= " + getResources().toString() +
                 " os= " + getOperatingSystem() +

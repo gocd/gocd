@@ -1,0 +1,18 @@
+class SingletonClass
+  
+  # Public
+  def self.foo
+    'foo'
+  end
+  
+  # Private
+  def self.bar
+  end
+  
+  # Private from reopening class.
+  def self.baz
+  end
+  
+  private_class_method :new, :bar
+  
+end

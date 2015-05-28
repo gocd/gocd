@@ -1,0 +1,42 @@
+From ae49d7a73b043bccb7631e7d9577bcaa0bbf8528 Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Mon, 1 Jul 2013 21:10:10 +0800
+Subject: [PATCH 04/14] EXSLT function str:replace() is broken as-is
+
+the str:replace() function is no longer usable without a transform
+context. I take it from the bug report that it is not supposed to be used
+from plain XPath but only from XSLT according to the EXSLT specification.
+
+However, the previous implementation used to work in XPath and is still
+registered on an xmlXPathContext by the exsltStrXpathCtxtRegister()
+function. When called from plain XPath, it results in a memory error in
+line 526 (exsltStrReturnString()) of strings.c because xsltCreateRVT()
+returns NULL as an error indicator due to a NULL transform context being
+passed in, which was the return value from xsltXPathGetTransformContext() a
+bit further up (and the code doesn't validate that).
+
+Since fixing the function looks impossible, best is to remove it.
+---
+ libexslt/strings.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/libexslt/strings.c b/libexslt/strings.c
+index 045cc14..c0c7a18 100644
+--- a/libexslt/strings.c
++++ b/libexslt/strings.c
+@@ -838,11 +838,7 @@ exsltStrXpathCtxtRegister (xmlXPathContextPtr ctxt, const xmlChar *prefix)
+         && !xmlXPathRegisterFuncNS(ctxt,
+                                    (const xmlChar *) "concat",
+                                    (const xmlChar *) EXSLT_STRINGS_NAMESPACE,
+-                                   exsltStrConcatFunction)
+-        && !xmlXPathRegisterFuncNS(ctxt,
+-                                   (const xmlChar *) "replace",
+-                                   (const xmlChar *) EXSLT_STRINGS_NAMESPACE,
+-                                   exsltStrReplaceFunction)) {
++                                   exsltStrConcatFunction)) {
+         return 0;
+     }
+     return -1;
+-- 
+1.8.4.1
+

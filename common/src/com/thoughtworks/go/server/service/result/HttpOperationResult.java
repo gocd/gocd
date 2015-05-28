@@ -27,7 +27,7 @@ import com.thoughtworks.go.util.StringUtil;
 public class HttpOperationResult implements OperationResult {
 
     private static final String BLANK_STRING = "";
-    int httpCode;
+    int httpCode = -1;
     private String message;
     final private ServerHealthStateOperationResult serverHealthStateOperationResult = new ServerHealthStateOperationResult();
 
@@ -45,6 +45,15 @@ public class HttpOperationResult implements OperationResult {
     public void badRequest(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
         httpCode = 400;
+    }
+
+    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+        error(message, description, healthStateType);
+        httpCode = 422;
+    }
+
+    public boolean isSuccess(){
+        return httpCode >= 200 && httpCode <= 299;
     }
 
     public ServerHealthState warning(String message, String description, HealthStateType type) {
@@ -80,7 +89,7 @@ public class HttpOperationResult implements OperationResult {
     public void notFound(String message, String description, HealthStateType healthStateType) {
         serverHealthStateOperationResult.notFound(message, description, healthStateType);
         httpCode = 404;
-        this.message = message;        
+        this.message = message;
     }
 
     public int httpCode() {

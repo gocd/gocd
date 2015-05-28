@@ -16,18 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -59,18 +48,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.*;
+
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -938,6 +925,70 @@ public class AgentServiceIntegrationTest {
         assertThat(agentService.agents().size(), is(2));
         assertThat(agentService.agents().get(0).getUuid(), is(UUID3));
         assertThat(agentService.agents().get(1).getUuid(), is("uuid4"));
+    }
+
+    @Test
+    public void testShouldUpdateAnAgentIfInputsAreValid() throws Exception {
+        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+
+        goConfigFileDao.load();
+
+        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().get(0).getHostname(), is(not("some-hostname")));
+
+        HttpOperationResult operationResult = new HttpOperationResult();
+        agentService.updateAgentAttributes(USERNAME, operationResult, UUID, "some-hostname", "linux,java");
+
+        assertThat(operationResult.httpCode(), is(200));
+        assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+
+        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().get(0).getHostname(), is("some-hostname"));
+        assertThat(agentService.agents().get(0).resources(), is(new Resources("linux,java")));
+    }
+
+    @Test
+    public void testShouldNotUpdateHostnameOrResourcesIfNoneAreSpecified() throws Exception {
+        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        String originalHostname = agent.getHostname();
+
+        goConfigFileDao.load();
+        goConfigFileDao.updateAgentResources(agent.getUuid(), new Resources("linux,java"));
+
+        assertThat(agentService.agents().size(), is(1));
+
+        HttpOperationResult operationResult = new HttpOperationResult();
+        agentService.updateAgentAttributes(USERNAME, operationResult, UUID, null, null);
+
+        assertThat(operationResult.httpCode(), is(200));
+        assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+
+        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().get(0).getHostname(), is(originalHostname));
+        assertThat(agentService.agents().get(0).resources().resourceNames(), is(new Resources("linux,java").resourceNames()));
+    }
+
+    @Test
+    public void testShouldThrowErrorOnUpdatingAgentOnInvalidInputs() throws Exception {
+        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        String originalHostname = agent.getHostname();
+        List<String> originalResourceNames = agent.getResources().resourceNames();
+
+        goConfigFileDao.load();
+
+        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().get(0).getHostname(), is(not("some-hostname")));
+
+        HttpOperationResult operationResult = new HttpOperationResult();
+        agentService.updateAgentAttributes(USERNAME, operationResult, UUID, "some-hostname", "lin!ux");
+
+        assertThat(operationResult.httpCode(), is(422));
+        assertThat(operationResult.message(), is("Updating agents failed"));
+        assertThat(operationResult.detailedMessage(), is("Updating agents failed { Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$' }\n"));
+
+        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().get(0).getHostname(), is(originalHostname));
+        assertThat(agentService.agents().get(0).getResources(), is(originalResourceNames));
     }
 
     @Test

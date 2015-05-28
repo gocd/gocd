@@ -76,6 +76,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.domain.xml.JobPlanXmlViewModel unless defined? JobPlanXmlViewModel
   java_import com.thoughtworks.go.domain.WaitingJobPlan unless defined? WaitingJobPlan
   java_import com.thoughtworks.go.domain.feed.Author unless defined? Author
+  java_import com.thoughtworks.go.domain.NullAgentInstance unless defined? NullAgentInstance
   java_import com.thoughtworks.go.server.ui.MingleCard unless defined? MingleCard
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
   java_import com.thoughtworks.go.server.web.PipelineRevisionRange unless defined? PipelineRevisionRange

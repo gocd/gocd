@@ -1,0 +1,11 @@
+* Cleanup the manifest part in Decorator.
+
+* all property objects should be extended/wrapped so we don't need the switch.
+
+# Deprecations
+
+* deprecate instance: { nil } which is superseded by parse_strategy: :sync
+
+
+
+from_hash, property :band, class: vergessen

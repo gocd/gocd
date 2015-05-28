@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -33,9 +29,11 @@ import com.thoughtworks.go.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.thoughtworks.go.util.ExceptionUtils.*;
 
 /**
  * @understands how to modify the cruise config file
@@ -125,8 +123,44 @@ public class GoConfigFileDao {
         }
     }
 
+    private static class UpdateAgentHostname implements UpdateConfigCommand, UserAware {
+        private final String uuid;
+        private final String hostname;
+        private final String userName;
+
+        private UpdateAgentHostname(String uuid, String hostname, String userName) {
+            this.uuid = uuid;
+            this.hostname = hostname;
+            this.userName = userName;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent hostname; Agent [" + uuid + "] not found.");
+            agentConfig.setHostName(hostname);
+            return cruiseConfig;
+        }
+
+        public ConfigModifyingUser user() {
+            return new ConfigModifyingUser(userName);
+        }
+    }
+
     public void updateAgentIp(final String uuid, final String ipAddress, String userName) {
         updateConfig(new UpdateAgentIp(uuid, ipAddress, userName));
+    }
+
+    public void updateAgentAttributes(final String uuid, String userName, final String hostname, String resources) {
+        CompositeConfigCommand command = new CompositeConfigCommand();
+
+        if (hostname != null) {
+            command.addCommand(new UpdateAgentHostname(uuid, hostname, userName));
+        }
+        if (resources != null) {
+            command.addCommand(new UpdateResourcesCommand(uuid, new Resources(resources)));
+        }
+
+        updateConfig(command);
     }
 
     public CruiseConfig loadForEditing() {

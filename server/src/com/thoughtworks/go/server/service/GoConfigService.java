@@ -436,6 +436,10 @@ public class GoConfigService implements Initializer {
         goConfigFileDao.updateAgentIp(uuid, ipAddress, userName);
     }
 
+    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources) {
+        goConfigFileDao.updateAgentAttributes(uuid, userName, hostname, resources);
+    }
+
     public void updateAgentApprovalStatus(String uuid, Boolean isDenied) {
         goConfigFileDao.updateAgentApprovalStatus(uuid, isDenied);
     }

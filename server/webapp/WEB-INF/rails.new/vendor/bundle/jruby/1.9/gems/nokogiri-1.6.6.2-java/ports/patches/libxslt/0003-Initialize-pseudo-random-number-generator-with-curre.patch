@@ -1,0 +1,60 @@
+From 3fcf11ead6ad226227b0a3ef4cc6565b8d5857ff Mon Sep 17 00:00:00 2001
+From: Nils Werner <wernerns@iis.fraunhofer.de>
+Date: Thu, 24 Jan 2013 19:44:03 +0100
+Subject: [PATCH 03/14] Initialize pseudo random number generator with current
+ time or optional command line parameter
+
+---
+ xsltproc/xsltproc.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/xsltproc/xsltproc.c b/xsltproc/xsltproc.c
+index dfd6d31..45adf5d 100644
+--- a/xsltproc/xsltproc.c
++++ b/xsltproc/xsltproc.c
+@@ -514,6 +514,7 @@ static void usage(const char *name) {
+     printf("\t--maxdepth val : increase the maximum depth (default %d)\n", xsltMaxDepth);
+     printf("\t--maxvars val : increase the maximum variables (default %d)\n", xsltMaxVars);
+     printf("\t--maxparserdepth val : increase the maximum parser depth\n");
++    printf("\t--seed-rand val : initialize pseudo random number generator with specific seed\n");
+ #ifdef LIBXML_HTML_ENABLED
+     printf("\t--html: the input document is(are) an HTML file(s)\n");
+ #endif
+@@ -556,6 +557,7 @@ main(int argc, char **argv)
+         return (1);
+     }
+ 
++    srand(time(NULL));
+     xmlInitMemory();
+ 
+     LIBXML_TEST_VERSION
+@@ -750,6 +752,15 @@ main(int argc, char **argv)
+                 if (value > 0)
+                     xmlParserMaxDepth = value;
+             }
++        } else if ((!strcmp(argv[i], "-seed-rand")) ||
++                   (!strcmp(argv[i], "--seed-rand"))) {
++            int value;
++
++            i++;
++            if (sscanf(argv[i], "%d", &value) == 1) {
++                if (value > 0)
++                    srand(value);
++            }
+         } else if ((!strcmp(argv[i],"-dumpextensions"))||
+ 			(!strcmp(argv[i],"--dumpextensions"))) {
+ 		dumpextensions++;
+@@ -786,6 +797,10 @@ main(int argc, char **argv)
+             (!strcmp(argv[i], "--maxparserdepth"))) {
+             i++;
+             continue;
++        } else if ((!strcmp(argv[i], "-seed-rand")) ||
++            (!strcmp(argv[i], "--seed-rand"))) {
++            i++;
++            continue;
+         } else if ((!strcmp(argv[i], "-o")) ||
+                    (!strcmp(argv[i], "-output")) ||
+                    (!strcmp(argv[i], "--output"))) {
+-- 
+1.8.4.1
+

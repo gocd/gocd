@@ -26,8 +26,19 @@ Go::Application.configure do
   # Disable Rails's static asset server (Apache or nginx will already do this).
   config.serve_static_assets = false
 
-  config.assets.css_compressor = :yui
-  config.assets.js_compressor = :yui
+  if ENV['NO_COMPRESS_ASSETS']
+    class NoCompression
+      def compress(string)
+        # do nothing
+        string
+      end
+    end
+    config.assets.js_compressor = NoCompression.new
+    config.assets.css_compressor = NoCompression.new
+  else
+    config.assets.css_compressor = :yui
+    config.assets.js_compressor = :yui
+  end
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false

@@ -63,8 +63,10 @@
 ##    #end
 
 
-        <div id="header"><div class="header">
+        <div id="header">
+            <div class="header">
             <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
+            #if ($l)
             <div class="application_nav">
 
                     #if ($principal)
@@ -126,7 +128,9 @@
                     <div id="cruise_message_counts" class="cruise_messages"></div>
                     <div id="cruise_message_body" style="display:none;"></div>
                 </div>
-        </div></div>
+            #end
+            </div>
+        </div>
 
-            <div id="bd">
+        <div id="bd">
                    

@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -181,10 +180,12 @@ public class AgentService {
         try {
             agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources);
             result.ok(String.format("Updated agent with uuid %s.", uuid));
-        }  catch (GoConfigInvalidException e){
-           result.unprocessibleEntity("Updating agents failed", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
         } catch (Exception e) {
-            result.internalServerError("Updating agents failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            if (e.getCause() instanceof GoConfigInvalidException) {
+                result.unprocessibleEntity("Updating agents failed", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            } else {
+                result.internalServerError("Updating agents failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            }
         }
 
     }

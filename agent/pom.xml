@@ -168,8 +168,12 @@
                             <target name="update-one-jar">
                                 <zip destfile="${project.basedir}/target/agent.jar" update="true">
                                     <mappedresources>
-                                        <fileset file="${main.dir}/tfs-impl/target/tfs-impl.jar"/>
+                                        <fileset file="${main.dir}/tfs-impl/tfs-impl-10/target/tfs-impl-10.jar"/>
                                         <globmapper from="*" to="lib/*"/>
+                                    </mappedresources>
+                                    <mappedresources>
+                                      <fileset file="${main.dir}/tfs-impl/tfs-impl-12/target/tfs-impl-12.jar"/>
+                                      <globmapper from="*" to="lib/*"/>
                                     </mappedresources>
                                     <mappedresources>
                                         <fileset dir="${project.basedir}/target/classes/com/thoughtworks/go/agent">

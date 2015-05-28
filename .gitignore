@@ -196,7 +196,8 @@ db/target/
 metrics/target/
 test-utils/target/
 util/target/
-tfs-impl/target/
+tfs-impl/tfs-impl-10/target/
+tfs-impl/tfs-impl-12/target/
 common/target/
 agent-bootstrapper/target
 agent-launcher/target/

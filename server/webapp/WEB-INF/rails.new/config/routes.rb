@@ -33,6 +33,8 @@ Go::Application.routes.draw do
 
   root 'welcome#index' # put to get root_path. '/' is handled by java.
 
+  get "about", controller: :about, action: :show, as: :about
+
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet
   get "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#show", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_show
   get "admin/pipelines/snippet/:group_name/edit" => "admin/pipelines_snippet#edit", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_edit

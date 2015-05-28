@@ -1,0 +1,46 @@
+<div id="about-page">
+  <div>
+    <h1>Server Info</h1>
+
+    <table>
+      <tbody>
+      <tr>
+        <td>Go Server Version:</td>
+        <td><%= version %></td>
+      </tr>
+      <tr>
+        <td>JVM version:</td>
+        <td><%= jvm_version %></td>
+      </tr>
+      <tr>
+        <td>OS Information:</td>
+        <td><%= os_information %></td>
+      </tr>
+      <tr>
+        <td>Usable space in artifacts repository:</td>
+        <td><%= available_space %></td>
+      </tr>
+      <tr>
+        <td>Database schema version:</td>
+        <td><%= schema_version %></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <h1>Go Team</h1>
+
+    <h2>Past and present members</h2>
+
+    <p>These people are, or have been, part of tde Go team (in alphabetical order).</p>
+
+    <p><%= go_team_members %></p>
+
+    <h2>Go contributors</h2>
+
+    <p>These people have contributed code, ideas, time or energy (in alphabetical order).</p>
+
+    <p><%= go_contributors %></p>
+  </div>
+</div>

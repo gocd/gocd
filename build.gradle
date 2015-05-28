@@ -80,10 +80,10 @@ allprojects {
   apply plugin: 'idea'
 
   rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
-  rootProject.ext.goVersion       = GO_VERSION
-  rootProject.ext.distVersion     = DIST_VERSION
-  rootProject.ext.fullVersion     = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  rootProject.ext.gitRevision     = GIT_REVISION
+  rootProject.ext.goVersion = GO_VERSION
+  rootProject.ext.distVersion = DIST_VERSION
+  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+  rootProject.ext.gitRevision = GIT_REVISION
 
   rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
@@ -98,10 +98,7 @@ allprojects {
     mavenLocal()
     jcenter()
 
-    if (System.getenv().containsKey("GO_SERVER_URL")) {
-      maven { url "file://${rootProject.rootDir}/maven-output-dir" }
-    }
-    maven { url "${script.buildscript.sourceFile.parent}/local-maven-repo" }
+    maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
     maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/oauth" }
     maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/google-caja" }
   }
@@ -276,5 +273,5 @@ task allDependencies {
 }
 
 ext.versions = [
-        jetty: '9.2.18.v20160721'
+    jetty: '9.2.18.v20160721'
 ]

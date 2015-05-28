@@ -42,7 +42,6 @@ describe("build_detail", function(){
             "<div id=\"tab-content-of-modifications\" style=\"display:none\">\n" +
             "</div>\n" +
             "<div id=\"collapsible\" class=\"title_message_collapsed\"></div>\n" +
-            "<iframe id=\"build-output-console-iframe\"></iframe>\n" +
             "<div class=\"widget\" id=\"build-output-console-warnning\" style=\"display: none;\">No build output.</div>");
 
         window.tabsManager = new TabsManager();
@@ -107,8 +106,6 @@ describe("build_detail", function(){
         assertFalse($('build-output-console-warnning').visible());
         var bd = new BuildOutputDetector('pipeline-2', 'stageName', true);
         assertEquals('/go/files/pipeline/pipeline-2/stage/stageName/cruise-output/console.log', bd.url);
-        var source = $('build-output-console-iframe').src;
-        assertEquals(bd.url, source.substring(source.indexOf('/go/'), source.length));
         assertFalse($('build-output-console-warnning').visible());
     });
 });

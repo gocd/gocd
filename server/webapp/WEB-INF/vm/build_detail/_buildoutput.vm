@@ -15,17 +15,18 @@
  *************************GO-LICENSE-END***********************************#
 
 <div id="tab-content-of-console" $buildoutput_extra_attrs>
-    <div id="raw-console-file">
-        <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
+    <div id="console-action-bar">
+        <div>
+            <a class='change-theme' href="javascript:void(0);">Change theme</a>
+            <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
+        </div>
     </div>
     #if($presenter.isCompleted())
+        <pre id="buildoutput_pre"></pre>
         <div class="console_iframe_container"></div>
-        <iframe id="build-output-console-iframe" style="display: none;"></iframe>
         <div class="widget" id="build-output-console-warnning" style="display: none;">No console output.</div>
     #else
-        <div class="widget">
-            <pre id="buildoutput_pre"></pre>
-        </div>
+        <pre id="buildoutput_pre"></pre>
     #end
 </div>
 
@@ -35,4 +36,13 @@
             $('buildoutput_pre').up('div').setStyle({overflow: 'visible'});
         }).delay(0.1);
     }
+    jQuery(function(){
+        jQuery('.change-theme').on('click', function(evt){
+            if (jQuery('#buildoutput_pre').length === 0){
+                return; // there's no theme to change
+            }
+            jQuery('#buildoutput_pre').toggleClass('white-theme');
+            jQuery('#console-action-bar').toggleClass('white-theme');
+        });
+    });
 </script>

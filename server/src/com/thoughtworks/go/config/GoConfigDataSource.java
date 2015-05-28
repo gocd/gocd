@@ -209,7 +209,7 @@ public class GoConfigDataSource {
             throw e;
         } catch (GoConfigInvalidException e){
             LOGGER.warn("Configuration file is invalid: " + e.getMessage(), e);
-            throw e;
+            throw bomb(e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Configuration file is not valid: " + e.getMessage(), e);
             throw bomb(e.getMessage(), e);

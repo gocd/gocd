@@ -61,7 +61,7 @@ repositories.remote << "http://repo1.maven.org/maven2/"
 
 desc "Go - ThoughtWorks Studios"
 define "cruise" do |project|
-  compile.options[:other] = %w[-encoding UTF-8 -target 1.6 -source 1.6]
+  compile.options[:other] = %w[-encoding UTF-8 -target 1.7 -source 1.7]
   TMP_DIR = test.options[:properties]['java.io.tmpdir'] = _('target/temp')
   mkpath TMP_DIR
 

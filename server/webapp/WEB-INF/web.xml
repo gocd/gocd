@@ -207,11 +207,6 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>spring-pages</servlet-name>
-        <url-pattern>/about</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>spring-rest</servlet-name>
         <url-pattern>*.json</url-pattern>
     </servlet-mapping>

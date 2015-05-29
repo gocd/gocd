@@ -66,7 +66,6 @@ a#add-new-pipeline-button {
 }
 
 
-
 #tab-content-of-about {
     margin: 0.75em;
 }
@@ -341,16 +340,13 @@ ol.builds li.build {
 .build-content th, 
 .build-content td, 
 .material-and-dependencies th, 
-.material-and-dependencies td,
-#server-details-table th,
-#server-details-table td {
+.material-and-dependencies td {
     border-top: 1px dotted #ccc;
     padding: 7px 10px;
 }
 
 
-#pipelines-configuration table th,
-#server-details-table table th {
+#pipelines-configuration table th {
     background-color: #eee;
     float: none;
     color: #333333;
@@ -494,28 +490,6 @@ span.build-plan-operations a.link_as_button {
     margin-right: 0;
 }   
 /* About page start */
-#content-of-about,
-#content-of-about-us {
-    
-}
-#content-of-about-us h2 {
-
-}
-
-#content-of-about-us p {
-
-}
-
-
-#content-of-about .ab-corner,
-#content-of-about-us .ab-corner {
-    border-color: #FFF;
-}
-#tab-content-of-about table,
-#content-of-about table {
-    width: 100%;
-    border: none;
-}
 td {
     padding: 5px 10px;
     border-bottom: 1px dotted #ccc;
@@ -530,17 +504,6 @@ td {
     /*background-color: #e4d8bd;*/
     /*border: none;*/
 /*}*/
-
-#server-details-table td {
-    font-weight: bold; 
-    background-color: #eee;
-}
-
-#server-details-table td.value_column {
-    font-weight: normal; 
-    background-color: #fff;
-    width: 75%; 
-}
 
 
 .save-edit-xml {
@@ -674,44 +637,6 @@ td {
     background: image_url('g9/icons/arrow_closed.png') 0 50% no-repeat transparent;
 }
 
-#content-of-about .table_wrapper{
-
-}
-
-#server-details-table {
-    margin-top: 15px;
-}
-
-#content-of-about-us {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #ccc;
-}
-
-#content-of-about .content_wrapper_outer{
-
-}
-#content-of-about tr.odd,
-#content-of-about tr.even{
-
-}
-#content-of-about tr.even{
-
-}
-#content-of-about td{
-
-}
-#content-of-about .content_wrapper_inner {
-    height: 350px;
-}
-*:first-child+html #content-of-about .content_wrapper_outer {
-    height: 380px;
-}
-#content-of-about-us .content_wrapper_inner h3,
-#content-of-about-us .content_wrapper_inner p
-{
-    padding: 0 13px 4px 13px;
-}
 #build-status-panel h1{
     padding: 0;
     margin: 0;

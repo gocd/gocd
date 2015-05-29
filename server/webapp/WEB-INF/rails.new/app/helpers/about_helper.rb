@@ -28,7 +28,7 @@ module AboutHelper
   end
 
   def available_space
-    artifact_dir = Spring.bean(com.thoughtworks.go.server.service.ArtifactsDirHolder.java_class).getArtifactsDir
+    artifact_dir = artifacts_dir_holder.getArtifactsDir
     number_to_human_size artifact_dir.getUsableSpace()
   end
 
@@ -57,7 +57,7 @@ module AboutHelper
 
   GO_TEAM_MEMBERS = [
     'Anandha Krishnan', 'Anush Ramani', 'Aravind Shimoga Venkatanaranappa', 'Arika Goyal', 'Bobby Norton', 'Chad Wathington',
-    'Chris Read', 'Chris Stevenson', 'Chris Turner', 'Deepthi G Chandramouli', 'Gao Li', 'Gilberto Medrano', 'Hakan Raberg',
+    'Chris Read', 'Chris Stevenson', 'Chris Turner', 'Deepthi G Chandramouli', 'Gao Li', 'Gilberto Medrano', "H\u00E5kan R\u00E5berg",
     'Hu Kai', 'Janmejay Singh', 'Jef Bekes', 'Jenny Wong', 'Jez Humble', 'Joe Monahan', 'Jon Tirsen', 'Junaid Shah', 'Jyoti Singh',
     'Li Guanglei', 'Li Yanhui', 'Luke Barrett', 'Manish Pillewar', 'Marco Abis', 'Mark Chang', 'Maulik Suchak', 'Md Ali Ejaz',
     'Nandhakumar Ramanathan', 'Pavan K Sudarshan', 'Praveen D Shivanagoudar', 'Prince M Jain', 'Princy James', 'Qiao Liang',

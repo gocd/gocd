@@ -280,7 +280,7 @@ describe "/agents/index.html.erb" do
 
     it "should populate environments" do
       render
-      expect(response).to have_selector("tr#UUID_host6 td.environments", :text => "uat | blah")
+      expect(response).to have_selector("tr#UUID_host6 td.environments", :text => "blah | uat")
       expect(response).to have_selector("tr#UUID_host5 td.environments", :text => "no environments specified")
     end
 

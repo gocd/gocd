@@ -85,7 +85,7 @@ describe "/agent_details/show.html.erb" do
           end
           ele.find(".environments").tap do |f|
             expect(f).to have_selector("label", :text=>"Environments:")
-            expect(f).to have_selector("span", :text=>"uat | blah")
+            expect(f).to have_selector("span", :text=> 'blah | uat')
           end
       end
     end

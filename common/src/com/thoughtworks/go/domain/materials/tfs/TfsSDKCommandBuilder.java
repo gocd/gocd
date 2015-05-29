@@ -83,7 +83,7 @@ class TfsSDKCommandBuilder {
 
     }
 
-    private String tfsSdkCommandTCLAdapterClassName() {
+    String tfsSdkCommandTCLAdapterClassName() {
         String className = "com.thoughtworks.go.tfssdk12.TfsSDKCommandTCLAdapter";
         if (new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10)){
             className = "com.thoughtworks.go.tfssdk10.TfsSDKCommandTCLAdapter";

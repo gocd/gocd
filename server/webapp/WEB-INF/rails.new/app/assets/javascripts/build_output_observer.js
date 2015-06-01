@@ -24,7 +24,7 @@ BuildOutputObserver.prototype = {
         this.was_building = false;
         this.is_output_empty = false;
         this.is_completed = false;
-
+        this.ansi_up = ansi_up.ansi_to_html_obj();
         options = options || {};
         this.chosen_update_of_live_output = options.colorize == true ? this._update_live_output_color : this._update_live_output_raw;
     },
@@ -89,29 +89,17 @@ BuildOutputObserver.prototype = {
     _update_live_output_color: function(build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
-            var tempArea = jQuery('<div></div>');
-            jQuery.each(ansiparse(build_output), function () {
-                var output = jQuery('<span></span>').html(this.text.escapeHTML());
-                if (this.foreground) {
-                    output.addClass("fg-" + this.foreground);
-                }
-                if (this.background) {
-                    output.addClass("bg-" + this.background);
-                }
+            var consoleElement = jQuery('#buildoutput_pre');
 
-                if (this.bold) {
-                    output.addClass('bold');
-                }
-                if (this.italic) {
-                    output.addClass('italic');
-                }
-                if (this.underline) {
-                    output.addClass('underline');
-                }
-                tempArea.append(output);
-            });
+            // parsing the entier console output and building HTML is computationally expensive and blows up memory
+            // we therefore chunk the console output into 1000 lines each and hand it over to the parser, and also insert it into the DOM.
 
-            jQuery('#buildoutput_pre').append(tempArea.html());
+            var lines = build_output.match(/^.*([\n\r]+|$)/gm);
+            while(lines.length){
+                var slice = lines.splice(0, 1000);
+                var htmlContents = this.ansi_up.ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
+                consoleElement.append(htmlContents);
+            }
         }
         return is_output_empty;
     },

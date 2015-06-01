@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import org.apache.commons.lang.StringUtils;
-import com.jpeterson.util.Unsigned;
 
 /**
  * @understands the network address for a machine
@@ -48,26 +47,41 @@ public class IpAddress implements Comparable<IpAddress> {
     }
 
     public int compareTo(IpAddress other) {
-        byte[] address1 = address.getAddress();
-        byte[] address2 = other.address.getAddress();
-        int compareLen = address1.length - address2.length;
-        if(compareLen!=0) return compareLen;
-        for (int i = 0; i < address1.length; i++) {
-            long compareByte = Unsigned.unsigned(address1[i]) - Unsigned.unsigned(address2[i]);
-            if(compareByte == 0) continue;
-            return compareByte > 0 ? 1 : -1; 
+        byte[] myAddressInBytes = address.getAddress();
+        byte[] otherAddresInBytes = other.address.getAddress();
+
+        // general ordering: ipv4 before ipv6
+        if (myAddressInBytes.length < otherAddresInBytes.length) return -1;
+        if (myAddressInBytes.length > otherAddresInBytes.length) return 1;
+
+        // we have 2 ips of the same type, so we have to compare each byte
+        for (int i = 0; i < myAddressInBytes.length; i++) {
+            int b1 = unsignedByteToInt(myAddressInBytes[i]);
+            int b2 = unsignedByteToInt(otherAddresInBytes[i]);
+            if (b1 == b2)
+                continue;
+            if (b1 < b2)
+                return -1;
+            else
+                return 1;
         }
         return 0;
     }
 
 
+    private int unsignedByteToInt(byte b) {
+        return (int) b & 0xFF;
+    }
+
     private static class NullIpAddress extends IpAddress {
         public NullIpAddress() throws UnknownHostException {
             super(InetAddress.getByName("0.0.0.0"));
         }
+
         public String toString() {
             return "";
         }
+
         public int compareTo(IpAddress other) {
             return -1;
         }

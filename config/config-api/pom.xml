@@ -75,12 +75,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpeterson</groupId>
-            <artifactId>x10</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.47</version>

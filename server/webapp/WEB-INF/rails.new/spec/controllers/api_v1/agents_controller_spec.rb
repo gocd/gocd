@@ -92,68 +92,15 @@ describe ApiV1::AgentsController do
     end
   end
 
-  describe :disable do
-    it 'should render 200 and the agent json when disabling succeeds' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:disableAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.ok('Disabled 1 agent(s).')
-      end
-
-      delete_with_api_header :disable, :uuid => agent.getUuid()
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
-
-    it 'should render message on bad response' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:disableAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
-      end
-
-      delete_with_api_header :disable, :uuid => agent.getUuid()
-      expect(response).to have_api_message_response(406, 'Not Acceptable')
-    end
-  end
-
-  describe :enable do
-    it 'should render 200 and the agent json when enabling succeeds' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:enableAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.ok('Enabled 1 agent(s).')
-      end
-
-      delete_with_api_header :enable, :uuid => agent.getUuid()
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
-
-    it 'should render message on bad response' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:enableAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
-      end
-      delete_with_api_header :enable, :uuid => agent.getUuid()
-      expect(response).to have_api_message_response(406, 'Not Acceptable')
-    end
-  end
-
   describe :update do
     it 'should return agent json when agent name update is successful' do
       agent = AgentInstanceMother.idle()
       @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil) do |user, result, uuid, new_hostname|
+      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
         result.ok("Updated agent with uuid #{agent.getUuid()}")
       end
 
-      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
+      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
     end
@@ -161,11 +108,35 @@ describe ApiV1::AgentsController do
     it 'should return agent json when agent resources update is successful by specifing a comma separated string' do
       agent = AgentInstanceMother.idle()
       @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox") do |user, result, uuid, new_hostname|
+      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
         result.ok("Updated agent with uuid #{agent.getUuid()}")
       end
 
-      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
+      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
+      expect(response).to be_ok
+      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+    end
+
+    it 'should return agent json when agent is enabled' do
+      agent = AgentInstanceMother.idle()
+      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.TRUE) do |user, result, uuid, new_hostname|
+        result.ok("Updated agent with uuid #{agent.getUuid()}")
+      end
+
+      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: true
+      expect(response).to be_ok
+      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+    end
+
+    it 'should return agent json when agent is disabled' do
+      agent = AgentInstanceMother.idle()
+      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.FALSE) do |user, result, uuid, new_hostname|
+        result.ok("Updated agent with uuid #{agent.getUuid()}")
+      end
+
+      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: "fALSe"
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
     end
@@ -173,11 +144,11 @@ describe ApiV1::AgentsController do
     it 'should return agent json when agent resources update is successful by specifying a resource array' do
       agent = AgentInstanceMother.idle()
       @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox") do |user, result, uuid, new_hostname|
+      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
         result.ok("Updated agent with uuid #{agent.getUuid()}")
       end
 
-      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
+      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
     end

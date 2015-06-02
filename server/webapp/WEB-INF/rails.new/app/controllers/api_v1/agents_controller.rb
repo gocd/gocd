@@ -35,7 +35,7 @@ module ApiV1
                   else
                     params[:resources]
                   end
-      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources)
+      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, TriState.from(params[:enabled].to_s))
 
       if result.isSuccess
         load_agent
@@ -43,31 +43,6 @@ module ApiV1
       else
         render_http_operation_result(result)
       end
-    end
-
-    def enable
-      result = HttpOperationResult.new
-      agent_service.enableAgents(current_user, result, [params[:uuid]])
-
-      if result.isSuccess
-        load_agent
-        render json_hal_v1: agent_presenter.to_hash(url_builder: self)
-      else
-        render_http_operation_result(result)
-      end
-    end
-
-    def disable
-      result = HttpOperationResult.new
-      agent_service.disableAgents(current_user, result, [params[:uuid]])
-
-      if result.isSuccess
-        load_agent
-        render json_hal_v1: agent_presenter.to_hash(url_builder: self)
-      else
-        render_http_operation_result(result)
-      end
-
     end
 
     def destroy

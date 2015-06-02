@@ -55,23 +55,8 @@ public class GoConfigAdministrationControllerTest {
         provider = mock(GoMailSenderProvider.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        controller = new GoConfigAdministrationController(provider, goConfigService, securityService);
+        controller = new GoConfigAdministrationController(goConfigService, securityService);
     }
-
-    @Test
-    public void shouldReportValidIfMailSentSuccessfully() {
-        when(provider.createSender(new MailHost("smtp.company.com", 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com"))).thenReturn(sender);
-
-        when(sender.send(any(String.class), any(String.class), eq("jez@me.com"))).thenReturn(ValidationBean.valid());
-
-        ModelAndView json = controller.sendTestEmailToAdministrator("smtp.company.com", "25", "smtpuser", "password", true, "cruise@me.com", "jez@me.com", new MockHttpServletResponse());
-        Map map = json.getModel();
-        JsonMap jsonMap = (JsonMap) map.get("json");
-        assertThat(jsonMap.get("isValid").toString(), is("\"true\""));
-        verify(provider).createSender(new MailHost("smtp.company.com", 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com"));
-        verify(sender).send(any(String.class), any(String.class), eq("jez@me.com"));
-    }
-
 
     @Test
     public void shouldLoadSpecificConfigVersionWhenHistoricalVersionIsRequested() throws Exception {

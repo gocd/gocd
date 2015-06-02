@@ -244,53 +244,6 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRegisterUnregisteredAgentWhenRequestRegister() throws Exception {
-
-        request.setMethod("POST");
-        request.addParameter("uuid", UUID);
-        ModelAndView modelAndView = controller.registerAgent(response, UUID);
-        JsonMap result = (JsonMap) modelAndView.getModel().get("json");
-
-        new JsonTester(result).is(
-                "{ 'result' : 'success' }"
-        );
-        verify(agentService).approve(UUID);
-        assertThat(HttpServletResponse.SC_CREATED, is(equal(response.getStatus())));
-    }
-
-    @Test
-    public void shouldRejectUnregisteredAgentWhenRequestReject() throws Exception {
-
-
-        request.setMethod("POST");
-        request.addParameter("uuid", UUID);
-        ModelAndView modelAndView = controller.denyAgent(response, UUID);
-        JsonMap result = (JsonMap) modelAndView.getModel().get("json");
-
-        new JsonTester(result).is(
-                "{ 'result' : 'success' }"
-        );
-
-        assertThat(HttpServletResponse.SC_CREATED, is(equal(response.getStatus())));
-        verify(agentService).disableAgents(eq(USERNAME), any(HttpOperationResult.class), eq(Arrays.asList(UUID)));
-    }
-
-    @Test
-    public void shouldReturnHelpfulMessageIfExceptionOccurs() throws Exception {
-        final String exceptionMessage = "The agent at test.com is already registered.";
-        doThrow(new RuntimeException(exceptionMessage)).when(agentService).approve(UUID);
-        request.setMethod("POST");
-        request.addParameter("uuid", UUID);
-        ModelAndView modelAndView = controller.registerAgent(response, UUID);
-        JsonMap result = (JsonMap) modelAndView.getModel().get("json");
-
-        new JsonTester(result).is(
-                "{ 'result' : 'failed',"
-                        + "  '" + ERROR_FOR_JSON + "' : '" + exceptionMessage + "' }"
-        );
-    }
-
-    @Test
     public void checkAgentStatusShouldIncludeMd5Checksum_forAllPlugins() throws Exception {
         when(pluginsZip.md5()).thenReturn("md5");
         controller.checkAgentStatus(response);

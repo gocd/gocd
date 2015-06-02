@@ -237,36 +237,6 @@ public class AgentRegistrationController {
         });
     }
 
-    @RequestMapping(value = "/**/registerAgent.json", method = RequestMethod.POST)
-    public ModelAndView registerAgent(HttpServletResponse response,
-                                      @RequestParam("uuid") String uuid) {
-        try {
-            agentService.approve(uuid);
-            JsonMap result = JsonView.getSimpleAjaxResult("result", "success");
-            return JsonAction.jsonCreated(result).respond(response);
-        } catch (Exception ex) {
-            String message = ex.getMessage();
-            LOG.error(String.format("Error approving agent [%s]", uuid), ex);
-            JsonMap result = JsonView.getSimpleAjaxResult("result", "failed");
-            result.put(ERROR_FOR_JSON, message);
-            return JsonAction.jsonNotAcceptable(result).respond(response);
-        }
-    }
-
-    @RequestMapping(value = "/**/denyAgent.json", method = RequestMethod.POST)
-    public ModelAndView denyAgent(HttpServletResponse response, @RequestParam("uuid") String uuid) {
-        try {
-            agentService.disableAgents(UserHelper.getUserName(), new HttpOperationResult(), Arrays.asList(uuid));
-            JsonMap result = JsonView.getSimpleAjaxResult("result", "success");
-            return JsonAction.jsonCreated(result).respond(response);
-        } catch (Exception ex) {
-            String message = ex.getMessage();
-            JsonMap result = JsonView.getSimpleAjaxResult("result", "failed");
-            result.put(ERROR_FOR_JSON, message);
-            return JsonAction.jsonNotAcceptable(result).respond(response);
-        }
-    }
-
     private String getPreferredHostname(String agentAutoRegisterHostname, String hostname) {
         return !StringUtil.isBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
     }

@@ -88,11 +88,13 @@ public class HttpLocalizedOperationResultTest {
     }
 
     @Test
-    public void shouldReturnNoContent() throws Exception {
+    public void shouldReturnAccepted() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.noContent();
+        Localizable localizable = LocalizedMessage.string("KEY");
+        result.accepted(localizable);
 
-        assertThat(result.httpCode(), is(204));
+        assertThat(result.httpCode(), is(202));
+        assertThat(result.localizable(), is(localizable));
     }
 
     @Test

@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -46,11 +39,7 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.serverhealth.ServerHealthStates;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -63,19 +52,17 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtMost;
 
+import java.util.*;
+
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {
     private MaterialUpdateQueue queue;
@@ -219,10 +206,10 @@ public class MaterialUpdateServiceTest {
         verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
         verify(spyService).updateMaterial(svnMaterial);
 
-        HttpLocalizedOperationResult noContentResult = new HttpLocalizedOperationResult();
-        noContentResult.noContent();
+        HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
+        acceptedResult.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
 
-        assertThat(result, is(noContentResult));
+        assertThat(result, is(acceptedResult));
     }
 
     @Test

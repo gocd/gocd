@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service.result;
 
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.commons.httpclient.HttpStatus;
 
@@ -82,13 +82,14 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         httpCode = HttpStatus.SC_BAD_REQUEST;
     }
 
+    public void accepted(Localizable message) {
+        this.message = message;
+        httpCode = HttpStatus.SC_ACCEPTED;
+    }
+
     public void notAcceptable(Localizable message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
-    }
-
-    public void noContent() {
-        httpCode = HttpStatus.SC_NO_CONTENT;
     }
 
     public boolean isSuccessful() {

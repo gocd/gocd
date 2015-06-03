@@ -775,6 +775,7 @@
                                     <arg value="--rakefile"></arg>
                                     <arg value="prepare_go_server_webapp.rake"></arg>
                                     <arg value="prepare_webapp"></arg>
+                                    <arg value="--trace"></arg>
                                 </exec>
                                 <exec executable="${main.dir}/tools/bin/jruby" failonerror="true" osfamily="unix">
                                     <arg value="-S"></arg>
@@ -782,6 +783,7 @@
                                     <arg value="--rakefile"></arg>
                                     <arg value="prepare_go_server_webapp.rake"></arg>
                                     <arg value="prepare_webapp"></arg>
+                                    <arg value="--trace"></arg>
                                 </exec>
                             </tasks>
                         </configuration>

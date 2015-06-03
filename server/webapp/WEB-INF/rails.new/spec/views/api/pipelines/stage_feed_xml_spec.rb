@@ -14,8 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper')
-require 'xmlsimple'
+require 'spec_helper'
 
 describe "/api/feeds/index" do
   before(:each) do

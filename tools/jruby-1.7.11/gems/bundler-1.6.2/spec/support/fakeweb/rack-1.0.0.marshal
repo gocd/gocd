@@ -1,2 +1,0 @@
-[{	:dependencies[["	thin"	>= 0["ruby-openid"~> 2.0.0["mongrel"	>= 0["memcache-client"	>= 0["	fcgi"	>= 0["camping"	>= 0["test-spec"	>= 0:platform"	ruby:	name"	rack:number"
-1.0.0

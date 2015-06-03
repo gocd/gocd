@@ -35,12 +35,41 @@ task :prepare_webapp do
 
   # rails
   task('copy-code-to-be-interpolated').invoke
+  task('keep-only-prod-gems').invoke
   task('inline-rails-partials').invoke
   task('copy_inlined_erbs_to_webapp').invoke
 
   #prepare for production mode
   task('write_revision_number').invoke
   task('change_rails_env_to_production').invoke
+end
+
+desc "erase any non-prod gems from the final distribution"
+task 'keep-only-prod-gems' do
+  require 'pathname'
+
+  $stderr.puts "*** Cleaning up any gems not needed in production environment"
+  gemfile = Pathname.new("target/webapp/WEB-INF/rails.new/Gemfile").expand_path
+  root = gemfile.dirname
+  puts "*** Using gemfile #{gemfile}"
+
+  cd root do
+    require 'bundler'
+    definition = ::Bundler.definition
+    all = definition.specs.to_a
+    puts "*** All gems - #{all.collect(&:full_name)}"
+    requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
+    puts "*** Requested gems - #{requested.collect(&:full_name)}"
+    ignored_gems = all - requested
+    puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
+
+    gem_dirs_to_remove = Dir["vendor/bundle/jruby/1.9/gems/{#{ignored_gems.collect(&:full_name).join(',')}}"]
+    spec_files_to_remove = Dir["vendor/bundle/jruby/1.9/specifications/{#{ignored_gems.collect(&:full_name).join(',')}}.gemspec"]
+
+    (gem_dirs_to_remove + spec_files_to_remove).each do |file|
+      rm_rf file
+    end
+  end
 end
 
 task :handle_assets_rails4 do
@@ -97,44 +126,49 @@ def create_pathing_jar classpath_file
   sh "jar cmf #{manifest_file} #{pathing_jar}"
   pathing_jar
 end
-def set_classpath
+
+def classpath
   server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
   if Gem.win_platform?
-    classpath = create_pathing_jar server_test_dependency_file_path
+    create_pathing_jar server_test_dependency_file_path
   else
-    classpath = File.read(server_test_dependency_file_path)
+    File.read(server_test_dependency_file_path)
   end
-  ENV['CLASSPATH'] = classpath
 end
 
 def ruby_executable
   File.expand_path(File.join(File.dirname(__FILE__), "..", "tools", "bin", (Gem.win_platform? ? 'jruby.bat' : 'jruby')))
 end
 
+def rails_root(*path)
+  File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new", *path))
+end
+
+def sh_with_environment(cmd, env={})
+  original_env = ENV.clone.to_hash
+  begin
+    export_or_set = Gem.win_platform? ? 'set' : 'export'
+    env.each do |k, v|
+      $stderr.puts "#{export_or_set} #{k}=#{v[0..100]}"
+    end
+
+    ENV.replace(ENV.clone.to_hash.merge(env))
+    sh(cmd)
+  ensure
+    ENV.replace(original_env)
+  end
+end
+
+
 task :precompile_assets do
-  ruby = ruby_executable
-  set_classpath
-  if Gem.win_platform?
-    ENV['RAILS_ENV'] = "production"
-    sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake assets:clobber assets:precompile
-END
-  else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && RAILS_ENV=production #{ruby} -S rake assets:clobber assets:precompile"
+  cd rails_root do
+    sh_with_environment("#{ruby_executable} -S ./bin/rake assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
   end
 end
 
 task :jasmine_tests do
-  ruby = ruby_executable
-  ENV['RAILS_ENV'] = "test"
-  ENV['REPORTERS'] = "console,junit"
-  set_classpath
-  if Gem.win_platform?
-    sh <<END
-    cd #{File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new"))} && #{ruby} -S rake spec:javascript
-END
-  else
-    sh "cd #{File.join("webapp/WEB-INF/rails.new")} && #{ruby} -S rake spec:javascript"
+  cd rails_root do
+    sh_with_environment("#{ruby_executable} -S ./bin/rake spec:javascript", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
   end
 end
 

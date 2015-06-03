@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+# Exit cleanly from an early interrupt
+Signal.trap("INT") { exit 1 }
+
+require 'bundler'
+# Check if an older version of bundler is installed
+$LOAD_PATH.each do |path|
+  if path =~ %r'/bundler-0\.(\d+)' && $1.to_i < 9
+    err = "Looks like you have a version of bundler that's older than 0.9.\n"
+    err << "Please remove your old versions.\n"
+    err << "An easy way to do this is by running `gem cleanup bundler`."
+    abort(err)
+  end
+end
+
+require 'bundler/friendly_errors'
+Bundler.with_friendly_errors do
+  require 'bundler/cli'
+  Bundler::CLI.start(ARGV, :debug => true)
+end

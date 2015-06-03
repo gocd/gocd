@@ -1,15 +1,11 @@
 require File.expand_path('../boot', __FILE__)
 
-require "action_controller/railtie"
-require "rails"
-require "oauth2_provider"
-require "dynamic_form"
-require "gadgets"
-require "sprockets/railtie"
-require "versionist"
-require "roar"
-require "jasmine-rails" if ENV['RAILS_ENV']!= 'production'
-require "jasmine-core" if ENV['RAILS_ENV']!= 'production'
+require 'action_controller/railtie'
+require 'action_view/railtie'
+require 'sprockets/railtie'
+require 'rails/test_unit/railtie'
+
+Bundler.require(*Rails.groups)
 
 module Go
   class Application < Rails::Application

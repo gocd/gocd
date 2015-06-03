@@ -14,15 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'rubygems'
-require 'spork'
-require 'rexml/document'
-
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
 require 'capybara/rspec'
+require 'rspec-extra-formatters'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
@@ -31,6 +28,15 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 Dir["#{File.dirname(__FILE__)}/util/*.rb"].each { |f| load f }
 
 RSpec.configure do |config|
+  # Use color not only in STDOUT but also in pagers and files
+  config.tty   = true
+  config.color = true
+
+  # config.add_formatter :documentation
+  config.add_formatter :documentation
+  # config.add_formatter 'TapFormatter',   File.join(ENV['REPORTS_DIR'] || Rails.root.join('tmp/reports'), 'spec_full_report')
+  config.add_formatter 'JUnitFormatter', File.join(ENV['REPORTS_DIR'] || Rails.root.join('tmp/reports'), 'spec_full_report.xml')
+
   # If true, the base class of anonymous controllers will be inferred
   # automatically. This will be the default behavior in future versions of
   # rspec-rails.

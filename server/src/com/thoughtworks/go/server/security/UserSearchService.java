@@ -16,18 +16,21 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.util.List;
-import java.util.ArrayList;
-
+import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @understands searching for users(from authentication sources)
@@ -36,15 +39,21 @@ import org.springframework.stereotype.Service;
 public class UserSearchService {
     private final LdapUserSearch ldapUserSearch;
     private final PasswordFileUserSearch passwordFileUserSearch;
+    private AuthenticationPluginRegistry authenticationPluginRegistry;
+    private AuthenticationExtension authenticationExtension;
     private GoConfigService goConfigService;
 
     private static final Logger LOGGER = Logger.getLogger(UserSearchService.class);
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
 
     @Autowired
-    public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch, GoConfigService goConfigService) {
+    public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch,
+                             AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension,
+                             GoConfigService goConfigService) {
         this.ldapUserSearch = ldapUserSearch;
         this.passwordFileUserSearch = passwordFileUserSearch;
+        this.authenticationPluginRegistry = authenticationPluginRegistry;
+        this.authenticationExtension = authenticationExtension;
         this.goConfigService = goConfigService;
     }
 
@@ -55,11 +64,11 @@ public class UserSearchService {
         }
         boolean passwordSearchFailed = searchPasswordFile(searchText, result, userSearchModels);
         searchLdap(searchText, result, userSearchModels, passwordSearchFailed);
+        searchUsingPlugins(searchText, userSearchModels);
 
         if (userSearchModels.size() == 0 && !result.hasMessage()) {
-           result.setMessage(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR"));
+            result.setMessage(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR"));
         }
-        
         return userSearchModels;
     }
 
@@ -85,7 +94,7 @@ public class UserSearchService {
 
     private boolean searchPasswordFile(String searchText, HttpLocalizedOperationResult result, List<UserSearchModel> userSearchModels) {
         boolean passwordSearchFailed = false;
-        if(!goConfigService.isPasswordFileConfigured()){
+        if (!goConfigService.isPasswordFileConfigured()) {
             return false;
         }
         try {
@@ -95,9 +104,29 @@ public class UserSearchService {
         } catch (Exception e) {
             passwordSearchFailed = true;
             result.setMessage(LocalizedMessage.string("PASSWORD_SEARCH_FAILED"));
-            LOGGER.error(String.format("User search for %s on password failed with IOException.", searchText),e);
+            LOGGER.error(String.format("User search for %s on password failed with IOException.", searchText), e);
         }
         return passwordSearchFailed;
+    }
+
+    private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
+        List<User> searchResults = new ArrayList<User>();
+        Set<String> pluginsThatSupportsUserSearch = authenticationPluginRegistry.getPluginsThatSupportsUserSearch();
+        if (!pluginsThatSupportsUserSearch.isEmpty()) {
+            for (final String pluginId : pluginsThatSupportsUserSearch) {
+                try {
+                    List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
+                    if (users != null && !users.isEmpty()) {
+                        for (com.thoughtworks.go.plugin.access.authentication.model.User user : users) {
+                            searchResults.add(new User(user.getUsername(), user.getDisplayName(), user.getEmailId()));
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Error occurred while performing user search using plugin: " + pluginId, e);
+                }
+            }
+        }
+        userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));
     }
 
     private boolean isInputValid(String searchText, HttpLocalizedOperationResult result) {
@@ -115,5 +144,4 @@ public class UserSearchService {
         }
         return userSearchModels;
     }
-
 }

@@ -16,42 +16,49 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.io.IOException;
-
-import com.thoughtworks.go.i18n.Localizable;
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.hamcrest.core.Is.is;
-
 import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class UserSearchServiceTest {
+    @Mock
     private LdapUserSearch ldapUserSearch;
+    @Mock
     private PasswordFileUserSearch passwordFileUserSearch;
-    private UserSearchService userSearchService;
+    @Mock
+    private AuthenticationPluginRegistry authenticationPluginRegistry;
+    @Mock
+    private AuthenticationExtension authenticationExtension;
+    @Mock
     private GoConfigService goConfigService;
+    private UserSearchService userSearchService;
 
     @Before
     public void setUp() {
-        ldapUserSearch = mock(LdapUserSearch.class);
-        passwordFileUserSearch = mock(PasswordFileUserSearch.class);
-        goConfigService = mock(GoConfigService.class);
+        initMocks(this);
+
         when(goConfigService.isLdapConfigured()).thenReturn(true);
-        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, goConfigService);
+
+        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<String>());
+
+        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, authenticationPluginRegistry, authenticationExtension, goConfigService);
     }
 
     @Test
@@ -61,6 +68,25 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search("foo")).thenReturn(Arrays.asList(foo, bar));
         List<UserSearchModel> models = userSearchService.search("foo", new HttpLocalizedOperationResult());
         assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP))));
+    }
+
+    @Test
+    public void shouldAddPluginSearchResults() throws Exception {
+        String searchTerm = "foo";
+
+        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
+        User bar = new User("bar-foo", new ArrayList<String>(), "bar@go.com", true);
+        when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
+
+        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2");
+        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new LinkedHashSet<String>(pluginIds));
+        when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
+        when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.model.User>());
+
+        List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
+
+        assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP), new UserSearchModel(getUser(1), UserSourceType.PLUGIN), new UserSearchModel(getUser(2), UserSourceType.PLUGIN), new UserSearchModel(getUser(3), UserSourceType.PLUGIN))));
     }
 
     @Test
@@ -92,6 +118,17 @@ public class UserSearchServiceTest {
         when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo));
         userSearchService.search("foo", result);
         verifyNoMoreInteractions(ldapUserSearch);
+    }
+
+    @Test
+    public void search_shouldNotAttemptSearchThroughPluginIfNoPluginSupportsUserSearch() throws Exception {
+        when(goConfigService.isPasswordFileConfigured()).thenReturn(false);
+        when(goConfigService.isLdapConfigured()).thenReturn(false);
+        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<String>());
+
+        userSearchService.search("foo", new HttpLocalizedOperationResult());
+
+        verify(authenticationExtension, never()).searchUser(any(String.class), eq("foo"));
     }
 
     @Test
@@ -156,7 +193,15 @@ public class UserSearchServiceTest {
         when(passwordFileUserSearch.search("foo")).thenReturn(new ArrayList<User>());
 
         List<UserSearchModel> models = userSearchService.search("foo", result);
-        assertThat(models.size(),is(2));
+        assertThat(models.size(), is(2));
         assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("NOT_ALL_RESULTS_SHOWN")));
+    }
+
+    private User getUser(Integer userId) {
+        return new User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
+    }
+
+    private com.thoughtworks.go.plugin.access.authentication.model.User getPluginUser(Integer userId) {
+        return new com.thoughtworks.go.plugin.access.authentication.model.User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
     }
 }

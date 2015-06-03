@@ -26,9 +26,16 @@ public enum UserSourceType {
         }
 
     },
-    PASSWORD_FILE {public String displayString() {
-        return "Password File";
-    }};
+    PASSWORD_FILE {
+        public String displayString() {
+            return "Password File";
+        }
+    },
+    PLUGIN {
+        public String displayString() {
+            return "Plugin";
+        }
+    };
 
     public abstract String displayString();
 }

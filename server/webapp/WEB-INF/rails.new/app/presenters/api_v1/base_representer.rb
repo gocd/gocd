@@ -22,6 +22,9 @@ module ApiV1
   class BaseRepresenter < Roar::Decorator
     include Roar::JSON::HAL
 
+    CONTENT_TYPE_API_V1 = "application/vnd.go.cd.v1+json"
+    CONTENT_TYPE_HTML   = "text/html"
+
     class <<self
       def property(name, options={})
         if (options[:skip_nil])

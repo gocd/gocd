@@ -223,6 +223,7 @@ Go::Application.routes.draw do
       end
 
       match '*url', via: :all, to: 'errors#not_found'
+      get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
     end
   end
 

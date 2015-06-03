@@ -14,6 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
+require 'application_helper'
 module ApiSpecHelper
   [:get, :delete, :head].each do |http_verb|
     class_eval(<<-EOS, __FILE__, __LINE__)
@@ -72,6 +73,8 @@ class UrlBuilder
   def method_missing(method, *args)
     Rails.application.routes.url_helpers.send(method, *add_hostname(args))
   end
+
+  include ApplicationHelper
 
   def add_hostname(args)
     opts        = args.extract_options! || {}

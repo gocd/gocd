@@ -945,9 +945,8 @@ a.xlink_as_button {
 .sub_tabs_container {
     background: #999 image_url('g9/backgrounds/overlay_bottom_inside_shadow.png') bottom repeat-x !important;
     border: 0 !important;
-    padding: 10px;
-    padding-bottom: 0;
-    margin-bottom: 10px !important;
+    padding: 10px 10px 0 10px;
+    margin-bottom: 10px;
     -moz-border-radius-topright: 6px;
     -moz-border-radius-topleft: 6px;
     -webkit-border-top-right-radius: 6px;

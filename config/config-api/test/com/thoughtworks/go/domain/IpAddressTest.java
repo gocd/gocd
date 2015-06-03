@@ -36,15 +36,16 @@ public class IpAddressTest  {
     @Test public void shouldAcceptLegalValuesForIpAddresses() {
         assertThat(IpAddress.create("255.255.255.255").toString(), is("255.255.255.255"));
     }
-    
-    
+
+
     @Test public void ipAddressComparator(){
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3")),is(greaterThan(0)));
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20")),is(0));
         assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("")), is(greaterThan(0)));
         assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3")), is(lessThan(0)));
         assertThat(IpAddress.create("").compareTo(IpAddress.create("")), is(lessThan(0)));
         assertThat(IpAddress.create("8:8:8:8:8:8:8:8").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
     }
-    
+
 }

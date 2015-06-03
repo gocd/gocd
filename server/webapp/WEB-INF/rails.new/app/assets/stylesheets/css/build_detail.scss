@@ -290,35 +290,72 @@ div.build_detail_container_content {
 .widget iframe {
     border: none;
 }
+
+#console-action-bar {
+    min-height: 20px;
+    padding: 10px;
+
+    background-color: #333;
+
+    div {
+        float: right;
+    }
+
+    a {
+        padding-right: 15px;
+        color: yellow;
+    }
+
+    &.white-theme {
+        background-color: white;
+        a {
+            color: #1F66BD;
+        }
+    }
+}
+
 #buildoutput_pre {
     overflow: auto;
+
+    white-space: pre;
     white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
 
     padding-left: 10px;
     padding-bottom: 10px;
 
-    @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'gray' {
-        .fg-#{$color} {
-            color: #{$color};
+
+    background-color: #333;
+    color: white;
+
+    &.white-theme {
+        background-color: white;
+        color: black;
+    }
+
+    * {
+        font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        line-height: 19px;
+    }
+
+    @each $color in black, red, green, yellow, blue, magenta, cyan, white {
+        .ansi-#{$color}-fg {
+            color: $color;
         }
-    }
 
-    @each $color in 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white' {
-        .bg-#{$color} {
-            color: #{$color};
+        .ansi-#{$color}-bg {
+            background-color: $color;
         }
-    }
 
-    .bold {
-        font-weight: bold;
-    }
+        .ansi-bright-#{$color}-fg {
+            color: lighten($color, 33%);
+        }
 
-    .italic {
-        font-style: italic;
-    }
-
-    .underline {
-        text-decoration: underline;
+        .ansi-bright-#{$color}-bg {
+            background-color: lighten($color, 33%);
+        }
     }
 
 }
@@ -451,7 +488,7 @@ div.sub_tab_container_content {
 }
 
 .modifications td.deleted {
-    background: image_url('g9/icons/icon_delete.png') no-repeat 0 3px;    
+    background: image_url('g9/icons/icon_delete.png') no-repeat 0 3px;
 }
 
 

@@ -382,6 +382,7 @@ module WinPackageHelper
   def win_build depend_on, package, package_name, windows_name, windows_java
     task :exe => depend_on do
       cp win_pkg_src(package, 'cruisewrapper.exe'), win_pkg_content_dir(package_name)
+      disable_logging_value = ENV['DISABLE_WIN_INSTALLER_LOGGING'] || "false"
       Buildr.ant('win') do |win|
         win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
         win.gunzip :src => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
@@ -402,6 +403,7 @@ module WinPackageHelper
           exec.env :key => "REGVER", :value => "#{VERSION_NUMBER}#{padded_release_revision}".gsub(/\./, '')
           exec.env :key => "JAVA", :value => windows_java
           exec.env :key => "JAVASRC", :value => windows_dir_file("jre1.7.0_09")
+          exec.env :key => "DISABLE_LOGGING", :value => disable_logging_value
           exec.arg :line => "-NOCD #{win_pkg_src(package, package_name + '.nsi')}"
         end
       end

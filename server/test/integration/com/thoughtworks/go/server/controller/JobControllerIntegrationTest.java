@@ -26,14 +26,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.JobDetailService;
-import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.PropertiesService;
-import com.thoughtworks.go.server.service.RestfulService;
-import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
@@ -59,7 +52,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class JobControllerTest {
+public class JobControllerIntegrationTest {
 
     private JobController controller;
     private MockHttpServletResponse response;

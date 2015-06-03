@@ -47,7 +47,7 @@ public class LocalArtifactsView implements ArtifactsView {
         File file = isConsoleOutput(filePath) ? consoleService.findConsoleArtifact(translatedId)
                 : artifactsService.findArtifact(translatedId, filePath);
 
-        if (file.exists() && file.isFile()) {
+        if (file.exists() && file.isFile() && file.length() != 0 ) {
             return FileModelAndView.createFileView(file, sha);
         }
 

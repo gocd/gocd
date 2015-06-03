@@ -173,12 +173,15 @@ public class ConsoleService {
     public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
         try {
             File from = chooser.temporaryConsoleFile(locatableEntity);
-
-            // Job cancellation skips temporary file creation. Force create one if it does not exist.
-            FileUtils.touch(from);
-
             File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
-            FileUtils.moveFile(from, to);
+
+            if(from.exists()) {
+                FileUtils.moveFile(from, to);
+            }
+
+            if(!to.exists()) {
+                FileUtils.touch(to);
+            } // to ensure, temporary file will not get created, in case if buffered logs comes after job complition signal(when moving artifacts is done)
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (IllegalArtifactLocationException e) {

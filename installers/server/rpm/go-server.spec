@@ -2,7 +2,7 @@ Name: go-server
 Version: @VERSION@
 Release: @RELEASE@
 Summary: Go Server Component
-License: ThoughtWorks Studios EULA
+License: Apache License Version 2.0
 Group: Development/Build Tools
 BuildRoot: @ROOT@
 Obsoletes: go-server
@@ -64,7 +64,7 @@ if [ "$1" = "1" ] ; then  # first install
 
     fix_server_defaults_ownership
     create_necessary_server_directories_and_fix_ownership
-    
+
     chkconfig --add go-server
 fi
 

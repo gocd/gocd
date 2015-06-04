@@ -21,7 +21,7 @@ describe ApiV1::AgentRepresenter do
 
   it 'renders an agent with hal representation' do
     presenter   = ApiV1::AgentRepresenter.new(idle_agent(
-                                                hostname:         'Agent01',
+                                                hostname:         'agent01.example.com',
                                                 location:         '/var/lib/go-server',
                                                 uuid:             'some-uuid',
                                                 space:            10.gigabytes,
@@ -32,11 +32,9 @@ describe ApiV1::AgentRepresenter do
                                               ))
     actual_json = JSON.parse(presenter.to_json(url_builder: UrlBuilder.new))
 
-    expect(actual_json).to have_links(:self, :enable, :disable, :find, :doc)
+    expect(actual_json).to have_links(:self, :find, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/agents/some-uuid')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/agents/:uuid')
-    expect(actual_json).to have_link(:enable).with_url('http://test.host/api/agents/some-uuid/enable')
-    expect(actual_json).to have_link(:disable).with_url('http://test.host/api/agents/some-uuid/disable')
     expect(actual_json).to have_link(:doc).with_url('http://www.go.cd/documentation/user/current/api/v1/agents.html')
 
     actual_json.delete('_links')
@@ -45,16 +43,16 @@ describe ApiV1::AgentRepresenter do
 
   def agent_hash
     {
-      uuid:          'some-uuid',
-      agent_name:    'Agent01',
-      ip_address:    '127.0.0.1',
-      enabled:       true,
-      sandbox:       '/var/lib/go-server',
-      status:        'Idle',
-      os:            'Linux',
-      free_space:    10.gigabytes,
-      resources:     ['firefox', 'linux'],
-      environments:  ['load_test', 'uat']
+      uuid:             'some-uuid',
+      hostname:         'agent01.example.com',
+      ip_address:       '127.0.0.1',
+      enabled:          true,
+      sandbox:          '/var/lib/go-server',
+      status:           'Idle',
+      operating_system: 'Linux',
+      free_space:       10.gigabytes,
+      resources:        ['firefox', 'linux'],
+      environments:     ['load_test', 'uat']
     }.as_json
   end
 

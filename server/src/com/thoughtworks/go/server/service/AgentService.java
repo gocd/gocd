@@ -38,6 +38,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,7 +168,7 @@ public class AgentService {
         return true;
     }
 
-    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources) {
+    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, TriState enable) {
         if (!hasOperatePermission(username, result)) {
             return;
         }
@@ -178,7 +179,7 @@ public class AgentService {
         }
 
         try {
-            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources);
+            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources, enable, agentInstances);
             result.ok(String.format("Updated agent with uuid %s.", uuid));
         } catch (Exception e) {
             if (e.getCause() instanceof GoConfigInvalidException) {
@@ -187,7 +188,6 @@ public class AgentService {
                 result.internalServerError("Updating agents failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
             }
         }
-
     }
 
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {

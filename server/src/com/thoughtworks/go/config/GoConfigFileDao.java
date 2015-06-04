@@ -26,6 +26,7 @@ import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.TriState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -123,12 +124,12 @@ public class GoConfigFileDao {
         }
     }
 
-    private static class UpdateAgentHostname implements UpdateConfigCommand, UserAware {
+    public static class UpdateAgentHostname implements UpdateConfigCommand, UserAware {
         private final String uuid;
         private final String hostname;
         private final String userName;
 
-        private UpdateAgentHostname(String uuid, String hostname, String userName) {
+        public UpdateAgentHostname(String uuid, String hostname, String userName) {
             this.uuid = uuid;
             this.hostname = hostname;
             this.userName = userName;
@@ -148,19 +149,6 @@ public class GoConfigFileDao {
 
     public void updateAgentIp(final String uuid, final String ipAddress, String userName) {
         updateConfig(new UpdateAgentIp(uuid, ipAddress, userName));
-    }
-
-    public void updateAgentAttributes(final String uuid, String userName, final String hostname, String resources) {
-        CompositeConfigCommand command = new CompositeConfigCommand();
-
-        if (hostname != null) {
-            command.addCommand(new UpdateAgentHostname(uuid, hostname, userName));
-        }
-        if (resources != null) {
-            command.addCommand(new UpdateResourcesCommand(uuid, new Resources(resources)));
-        }
-
-        updateConfig(command);
     }
 
     public CruiseConfig loadForEditing() {

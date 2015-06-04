@@ -218,9 +218,8 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv1 do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
-      resources :agents, param: :uuid, except: [:new, :create, :edit] do
-        put :enable, on: :member
-        put :disable, on: :member
+      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+        patch :update, on: :member
       end
     end
   end

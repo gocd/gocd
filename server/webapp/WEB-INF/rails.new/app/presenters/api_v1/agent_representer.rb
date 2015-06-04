@@ -22,14 +22,6 @@ module ApiV1
       opts[:url_builder].apiv1_agent_url(agent.getUuid())
     end
 
-    link :enable do |opts|
-      opts[:url_builder].enable_apiv1_agent_url(agent.getUuid())
-    end
-
-    link :disable do |opts|
-      opts[:url_builder].disable_apiv1_agent_url(agent.getUuid())
-    end
-
     link :doc do |opts|
       'http://www.go.cd/documentation/user/current/api/v1/agents.html'
     end
@@ -39,12 +31,12 @@ module ApiV1
     end
 
     property :getUuid, as: :uuid
-    property :getHostname, as: :agent_name
+    property :getHostname, as: :hostname
     property :getIpAddress, as: :ip_address
     property :isEnabled, as: :enabled
     property :getLocation, as: :sandbox
     property :get_status_for_display, as: :status
-    property :getOperatingSystem, as: :os
+    property :getOperatingSystem, as: :operating_system
     property :free_space, exec_context: :decorator
     property :getResources, as: :resources
     property :getEnvironments, as: :environments

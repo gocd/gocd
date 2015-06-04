@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 module ApiSpecHelper
-  [:get, :post, :put, :delete, :head].each do |http_verb|
+  [:get, :post, :put, :delete, :head, :patch].each do |http_verb|
     class_eval(<<-EOS, __FILE__, __LINE__)
       def #{http_verb}_with_api_header(path, params={}, headers={})
         #{http_verb} path, params, {'Accept' => 'application/vnd.go.cd.v1+json'}.merge(headers)

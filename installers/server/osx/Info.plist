@@ -48,8 +48,6 @@
         <dict>
             <key>ClassPath</key>
             <string>$APP_PACKAGE/go.jar</string>
-            <key>JVMVersion</key>
-            <string>1.6+</string>
             <key>MainClass</key>
             <string>com.thoughtworks.go.server.util.GoMacLauncher</string>
             <key>Properties</key>

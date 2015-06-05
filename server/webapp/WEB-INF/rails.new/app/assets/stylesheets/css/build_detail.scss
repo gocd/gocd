@@ -263,7 +263,6 @@ ul.summary li strong {
 }
 
 div.build_detail_container {
-    margin-top: -10px;
     padding: 0;
     zoom: 1;
     _width : 95%;
@@ -271,6 +270,14 @@ div.build_detail_container {
 
 div.build_detail_container_content {
     padding: 1em;
+}
+
+.ansi-color-toggle-true {
+  margin-top: -10px;
+}
+.ansi-color-toggle-false .buildoutput_pre {
+  margin-top: -10px;
+  padding-top: 10px;
 }
 
 /* Styles in tabbed report section below summary bar */
@@ -292,7 +299,7 @@ div.build_detail_container_content {
     border: none;
 }
 
-#console-action-bar {
+.console-action-bar {
     min-height: 20px;
     padding: 10px;
 
@@ -315,7 +322,7 @@ div.build_detail_container_content {
     }
 }
 
-#buildoutput_pre {
+.buildoutput_pre {
     overflow: auto;
 
     white-space: pre;
@@ -325,6 +332,7 @@ div.build_detail_container_content {
 
     padding-left: 10px;
     padding-bottom: 10px;
+    min-height: 800px;
 
 
     background-color: #333;

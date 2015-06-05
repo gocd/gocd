@@ -136,7 +136,11 @@ def classpath
   cd SERVER_MODULE_ROOT do
     sh("mvn dependency:build-classpath -Dmdep.outputFile=#{dependencies_for_test_file}")
     File.read(dependencies_for_test_file).tap do |deps|
-      new_deps = [File.join(SERVER_MODULE_ROOT, 'target/cruise-classes.jar'), deps.strip].join(File::PATH_SEPARATOR)
+      new_deps = [
+        File.join(SERVER_MODULE_ROOT, 'target/classes'),
+        File.join(SERVER_MODULE_ROOT, 'target/test-classes'),
+        deps.strip
+      ].join(File::PATH_SEPARATOR)
       File.open(dependencies_for_test_file, 'w') {|f| f.puts new_deps}
     end
   end

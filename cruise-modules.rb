@@ -14,7 +14,6 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'buildr/java/cobertura' unless ENV['INSTRUMENT_FOR_COVERAGE'].nil?
 require 'buildr/core/util'
 
 task :prepare do

@@ -17,6 +17,9 @@
 require 'securerandom'
 require 'rubygems'
 
+GO_ROOT = File.expand_path('../../', __FILE__)
+SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
+
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]
 RELEASE_COMMIT = ENV["RELEASE_COMMIT"]
@@ -128,11 +131,20 @@ def create_pathing_jar classpath_file
 end
 
 def classpath
-  server_test_dependency_file_path = File.expand_path(File.join(File.dirname(__FILE__), "target", "server-test-dependencies"))
+  dependencies_for_test_file = File.join(SERVER_MODULE_ROOT, 'target/server-test-dependencies')
+
+  cd SERVER_MODULE_ROOT do
+    sh("mvn dependency:build-classpath -Dmdep.outputFile=#{dependencies_for_test_file}")
+    File.read(dependencies_for_test_file).tap do |deps|
+      new_deps = [File.join(SERVER_MODULE_ROOT, 'target/cruise-classes.jar'), deps.strip].join(File::PATH_SEPARATOR)
+      File.open(dependencies_for_test_file, 'w') {|f| f.puts new_deps}
+    end
+  end
+
   if Gem.win_platform?
-    create_pathing_jar server_test_dependency_file_path
+    create_pathing_jar dependencies_for_test_file
   else
-    File.read(server_test_dependency_file_path)
+    File.read(dependencies_for_test_file)
   end
 end
 

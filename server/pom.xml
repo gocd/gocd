@@ -614,38 +614,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>2.0.3</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun</groupId>
-                    <artifactId>tools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>servlet-api-2.5</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty-util</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>jetty-servlet-tester</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.8.1</version>
@@ -749,19 +717,6 @@
                 <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>store-server-test-classpath</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <property name="test_classpath" refid="maven.test.classpath"/>
-                                <echo file="target/server-test-dependencies" append="false">${test_classpath}</echo>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>prepare-webapp</id>
                         <phase>prepare-package</phase>
                         <goals>
@@ -798,22 +753,13 @@
                             <tasks if="run.tests.using.tlb">
                                 <property name="target.dir" location="target"/>
                                 <property name="classes.dir" location="${target.dir}/classes"/>
-                                <property name="instrumented.dir" location="${target.dir}/instrumented-classes"/>
                                 <property name="test-classes.dir" location="${target.dir}/test-classes"/>
-                                <property name="cobertura.dir" location="${target.dir}/cobertura"/>
                                 <property name="reports.dir" location="${target.dir}/reports"/>
 
-                                <mkdir dir="${cobertura.dir}"/>
                                 <mkdir dir="${reports.dir}"/>
 
-                                <!-- instrument for coverage -->
                                 <taskdef classpath="maven.plugin.classpath" resource="tasks.properties"/>
 
-                                <cobertura-instrument todir="${instrumented.dir}">
-                                    <fileset dir="${classes.dir}">
-                                        <include name="**/*.class" />
-                                    </fileset>
-                                </cobertura-instrument>
 
                                 <!-- run tests through TLB -->
 
@@ -827,7 +773,7 @@
                                 </pathconvert>
 
                                 <path id="classpath.for.tests">
-                                    <pathelement path="${instrumented.dir}"/>
+                                    <pathelement path="${classes.dir}"/>
                                     <path refid="maven.test.classpath"/>
                                     <pathelement path="${additional.classpath.elements}"/>
                                 </path>
@@ -835,7 +781,6 @@
                                 <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="classpath.for.tests" />
 
                                 <junit failureproperty="test.failed" printsummary="yes" haltonfailure="false" haltonerror="false" showoutput="true" fork="true" maxmemory="2048m">
-                                    <sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.dir}/cobertura.ser" />
                                     <sysproperty key="go.enforce.serverId.immutability" value="N"/>
                                     <sysproperty key="rails.use.compressed.js" value="false"/>
                                     <sysproperty key="go.database.provider" value="${go.database.provider}"/>
@@ -863,33 +808,6 @@
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant-junit</artifactId>
                         <version>1.9.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>net.sourceforge.cobertura</groupId>
-                        <artifactId>cobertura</artifactId>
-                        <version>2.0.3</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>com.sun</groupId>
-                                <artifactId>tools</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>servlet-api-2.5</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty-util</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.mortbay.jetty</groupId>
-                                <artifactId>jetty-servlet-tester</artifactId>
-                            </exclusion>
-                        </exclusions>
                     </dependency>
                 </dependencies>
             </plugin>

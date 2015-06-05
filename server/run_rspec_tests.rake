@@ -14,10 +14,10 @@ def not_running_tests!
 end
 
 def server_class_path
-  server_test_dependencies_file = File.join(File.dirname(__FILE__), 'target', 'server-test-dependencies')
-  raise "#{server_test_dependencies_file} not found! did you run ./bn clean cruise:prepare?" unless File.exist?(server_test_dependencies_file)
+  dependencies_for_test_file = 'target/server-test-dependencies'
+  sh("mvn dependency:build-classpath -Dmdep.outputFile=#{dependencies_for_test_file}")
 
-  classpath = File.read(server_test_dependencies_file).split(':')
+  classpath = File.read(dependencies_for_test_file).split(File::PATH_SEPARATOR)
   classpath << File.join(File.dirname(__FILE__), 'webapp')
   classpath
 end

@@ -14,12 +14,18 @@ def not_running_tests!
 end
 
 def server_class_path
-  dependencies_for_test_file = 'target/server-test-dependencies'
-  sh("mvn dependency:build-classpath -Dmdep.outputFile=#{dependencies_for_test_file}")
+  dependencies_for_test_file = File.join(File.dirname(__FILE__), 'target/server-test-dependencies')
 
-  classpath = File.read(dependencies_for_test_file).split(File::PATH_SEPARATOR)
-  classpath << File.join(File.dirname(__FILE__), 'webapp')
-  classpath
+  cd File.dirname(__FILE__) do
+    sh("mvn dependency:build-classpath -DincludeScope=test -Dmdep.outputFile=#{dependencies_for_test_file}")
+  end
+
+  [
+    File.join(File.dirname(__FILE__), 'target/classes'),
+    File.join(File.dirname(__FILE__), 'target/test-classes'),
+    File.read(dependencies_for_test_file).split(File::PATH_SEPARATOR),
+    File.join(File.dirname(__FILE__), 'webapp'),
+  ].flatten
 end
 
 def property_file_path

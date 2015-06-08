@@ -773,8 +773,8 @@
                                 </pathconvert>
 
                                 <path id="classpath.for.tests">
-                                    <pathelement path="${classes.dir}"/>
                                     <path refid="maven.test.classpath"/>
+                                    <pathelement path="${classes.dir}"/>
                                     <pathelement path="${additional.classpath.elements}"/>
                                 </path>
 

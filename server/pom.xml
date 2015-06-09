@@ -751,31 +751,14 @@
                         </goals>
                         <configuration>
                             <tasks if="run.tests.using.tlb">
-                                <property name="target.dir" location="target"/>
-                                <property name="classes.dir" location="${target.dir}/classes"/>
-                                <property name="test-classes.dir" location="${target.dir}/test-classes"/>
-                                <property name="reports.dir" location="${target.dir}/reports"/>
+                                <property name="reports.dir" location="${project.build.directory}/reports"/>
 
                                 <mkdir dir="${reports.dir}"/>
 
-                                <taskdef classpath="maven.plugin.classpath" resource="tasks.properties"/>
-
-
-                                <!-- run tests through TLB -->
-
-                                <!-- Convert comma-separated maven.test.additionalClasspath property into a semi-colon separated path-like element. -->
-                                <pathconvert property="additional.classpath.elements">
-                                    <path path="${maven.test.additionalClasspath}" />
-                                    <map from="${basedir}" to="" />
-                                    <filtermapper>
-                                        <replacestring from="," to=";"/>
-                                    </filtermapper>
-                                </pathconvert>
-
                                 <path id="classpath.for.tests">
                                     <path refid="maven.test.classpath"/>
-                                    <pathelement path="${classes.dir}"/>
-                                    <pathelement path="${additional.classpath.elements}"/>
+                                    <!-- go.additionalClasspath is used to add addons to CP -->
+                                    <pathelement path="${go.additionalClasspath}"/>
                                 </path>
 
                                 <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet" classpathref="classpath.for.tests" />
@@ -790,7 +773,7 @@
                                     <sysproperty key="db.name" value="${db.name}"/>
                                     <sysproperty key="db.port" value="${db.port}"/>
 
-                                    <classpath refid="classpath.for.tests" />
+                                    <classpath refid="classpath.for.tests"/>
 
                                     <batchtest todir="${reports.dir}">
                                         <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class" moduleName="server" />

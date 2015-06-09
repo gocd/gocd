@@ -206,19 +206,14 @@
                         </goals>
                         <configuration>
                             <target if="run.tests.using.tlb">
-                                <property name="target.dir" location="target"/>
-                                <property name="classes.dir" location="${target.dir}/classes"/>
-                                <property name="test-classes.dir" location="${target.dir}/test-classes"/>
-                                <property name="reports.dir" location="${target.dir}/reports"/>
+                                <property name="reports.dir" location="${project.build.directory}/reports"/>
 
                                 <mkdir dir="${reports.dir}"/>
 
-                                <taskdef classpath="maven.plugin.classpath" resource="tasks.properties"/>
-
-                                <!-- run tests through TLB -->
                                 <path id="classpath.for.tests">
-                                    <pathelement path="${classes.dir}"/>
                                     <path refid="maven.test.classpath"/>
+                                    <!-- go.additionalClasspath is used to add addons to CP -->
+                                    <pathelement path="${go.additionalClasspath}"/>
                                 </path>
 
                                 <typedef name="load-balanced-fileset" classname="tlb.ant.LoadBalancedFileSet"

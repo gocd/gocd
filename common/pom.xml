@@ -225,7 +225,7 @@
                                     <classpath refid="classpath.for.tests"/>
 
                                     <batchtest todir="${reports.dir}">
-                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class"
+                                        <load-balanced-fileset dir="${project.build.testOutputDirectory}" includes="**/*Test.class"
                                                                excludes="**/*DockerTest.class" moduleName="common"/>
                                         <formatter classname="tlb.ant.JunitDataRecorder"/>
                                         <formatter type="xml"/>

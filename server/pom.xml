@@ -776,7 +776,7 @@
                                     <classpath refid="classpath.for.tests"/>
 
                                     <batchtest todir="${reports.dir}">
-                                        <load-balanced-fileset dir="${test-classes.dir}" includes="**/*Test.class" moduleName="server" />
+                                        <load-balanced-fileset dir="${project.build.testOutputDirectory}" includes="**/*Test.class" moduleName="server" />
                                         <formatter classname="tlb.ant.JunitDataRecorder"/>
                                         <formatter type="xml"/>
                                     </batchtest>

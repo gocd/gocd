@@ -42,7 +42,9 @@ public class DevelopmentAgent {
         File activatorJarFromTarget = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
         File activatorJarFromMaven = new File(System.getProperty("user.home") + "/.m2/repository/com/thoughtworks/go/go-plugin-activator/1.0/go-plugin-activator-1.0.jar");
         File activatorJar = activatorJarFromTarget.exists() ? activatorJarFromTarget : activatorJarFromMaven;
-        new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, activatorJar.getName());
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        systemEnvironment.set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, activatorJar.getName());
+        systemEnvironment.set(SystemEnvironment.PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS, 5);
 
         if (activatorJar.exists()) {
             FileUtils.copyFileToDirectory(activatorJar, classpath());

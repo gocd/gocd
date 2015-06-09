@@ -6,7 +6,7 @@ License: Apache License Version 2.0
 Group: Development/Build Tools
 BuildRoot: @ROOT@
 Obsoletes: go-agent
-Url: @URL@
+Url: http://www.go.cd
 %description
 Next generation continuous integration and release management server from ThoughtWorks
 

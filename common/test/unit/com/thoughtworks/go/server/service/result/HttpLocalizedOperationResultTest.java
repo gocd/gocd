@@ -23,6 +23,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -87,9 +88,41 @@ public class HttpLocalizedOperationResultTest {
     }
 
     @Test
+    public void shouldReturnAccepted() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Localizable localizable = LocalizedMessage.string("KEY");
+        result.accepted(localizable);
+
+        assertThat(result.httpCode(), is(202));
+        assertThat(result.localizable(), is(localizable));
+    }
+
+    @Test
     public void shouldNotFailWhenNoMessageSet() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Localizer localizer = mock(Localizer.class);
         assertThat(result.message(localizer), is(nullValue()));
+    }
+
+    @Test
+    public void shouldTestEquality() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        result.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        HttpLocalizedOperationResult equalResult = new HttpLocalizedOperationResult();
+        equalResult.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        assertThat(result, is(equalResult));
+    }
+
+    @Test
+    public void shouldTestInEquality() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        result.unauthorized(LocalizedMessage.string("KEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        HttpLocalizedOperationResult equalResult = new HttpLocalizedOperationResult();
+        equalResult.unauthorized(LocalizedMessage.string("ANOTHERKEY"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        assertThat(result, is(not(equalResult)));
     }
 }

@@ -19,6 +19,8 @@ class Api::MaterialsController < Api::ApiController
   def notify
     result = HttpLocalizedOperationResult.new
     material_update_service.notifyMaterialsForUpdate(current_user, params, result)
+
+    self.response.headers['Content-Type'] = 'text/plain; charset=UTF-8'
     render_localized_operation_result result
   end
 

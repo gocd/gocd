@@ -106,6 +106,8 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
+    ruby-debug-base (0.10.5.rc10-java)
+    ruby-debug-ide (0.4.30)
     rubyzip (1.1.7)
     sass (3.2.19)
     sass-rails (4.0.3)
@@ -162,6 +164,8 @@ DEPENDENCIES
   roar
   rspec-extra-formatters
   rspec-rails (= 2.14.2)
+  ruby-debug-base (= 0.10.5.rc10)
+  ruby-debug-ide (= 0.4.30)
   sass-rails (= 4.0.3)
   selenium-webdriver
   sprockets-rails

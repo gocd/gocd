@@ -22,6 +22,8 @@ import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
+import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.util.TriState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,8 +63,8 @@ public class AgentConfigService {
         goConfigService.updateAgentIpByUuid(uuid, ipAdress, userName);
     }
 
-    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources) {
-        goConfigService.updateAgentAttributes(uuid, userName, hostname, resources);
+    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, TriState enable, AgentInstances agentInstances) {
+        goConfigService.updateAgentAttributes(uuid, userName, hostname, resources, enable, agentInstances);
     }
 
     public void saveOrUpdateAgent(AgentInstance agentInstance) {

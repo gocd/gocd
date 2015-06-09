@@ -21,7 +21,7 @@ describe ApiV1::AgentsRepresenter do
 
   it 'renders all agents with hal representation' do
     presenter   = ApiV1::AgentsRepresenter.new([idle_agent(
-                                                  hostname:         'Agent01',
+                                                  hostname:         'agent01.example.com',
                                                   location:         '/var/lib/go-server',
                                                   uuid:             'some-uuid',
                                                   space:            10.gigabytes,
@@ -40,16 +40,16 @@ describe ApiV1::AgentsRepresenter do
 
   def agent_hash
     {
-      uuid:          'some-uuid',
-      agent_name:    'Agent01',
-      ip_address:    '127.0.0.1',
-      enabled:       true,
-      sandbox:       '/var/lib/go-server',
-      status:        'Idle',
-      os:            'Linux',
-      free_space:    10.gigabytes,
-      resources:     ['firefox', 'linux'],
-      environments:  ['load_test', 'uat']
+      uuid:             'some-uuid',
+      hostname:         'agent01.example.com',
+      ip_address:       '127.0.0.1',
+      enabled:          true,
+      sandbox:          '/var/lib/go-server',
+      status:           'Idle',
+      operating_system: 'Linux',
+      free_space:       10.gigabytes,
+      resources:        ['firefox', 'linux'],
+      environments:     ['load_test', 'uat']
     }.as_json
   end
 

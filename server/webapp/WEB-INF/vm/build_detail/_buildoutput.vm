@@ -31,11 +31,6 @@
 </div>
 
 <script type="text/javascript">
-    if(navigator && navigator.userAgent && navigator.userAgent.include('Firefox/2') && $('buildoutput_pre')){
-        (function(){
-            $('buildoutput_pre').up('div').setStyle({overflow: 'visible'});
-        }).delay(0.1);
-    }
     jQuery(function(){
         jQuery('.change-theme').on('click', function(evt){
             if (jQuery('#buildoutput_pre').length === 0){

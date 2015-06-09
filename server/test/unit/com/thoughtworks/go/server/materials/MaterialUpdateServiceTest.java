@@ -43,7 +43,6 @@ import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.httpclient.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,9 +128,12 @@ public class MaterialUpdateServiceTest {
     public void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(false);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult unauthorizedResult = new HttpLocalizedOperationResult();
+        unauthorizedResult.unauthorized(LocalizedMessage.string("API_ACCESS_UNAUTHORIZED"), HealthStateType.unauthorised());
+
+        assertThat(result, is(unauthorizedResult));
+
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -139,9 +141,12 @@ public class MaterialUpdateServiceTest {
     public void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_BAD_REQUEST));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+
+        assertThat(result, is(badRequestResult));
+
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -152,9 +157,12 @@ public class MaterialUpdateServiceTest {
         final HashMap params = new HashMap();
         params.put(MaterialUpdateService.TYPE, "some_invalid_type");
         service.notifyMaterialsForUpdate(username, params, result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_BAD_REQUEST));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+
+        assertThat(result, is(badRequestResult));
+
         verify(goConfigService).isUserAdmin(username);
     }
 

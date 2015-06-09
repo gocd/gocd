@@ -139,4 +139,13 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         result = 31 * result + httpCode;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "HttpLocalizedOperationResult{" +
+                "message=" + message +
+                ", healthStateType=" + healthStateType +
+                ", httpCode=" + httpCode +
+                '}';
+    }
 }

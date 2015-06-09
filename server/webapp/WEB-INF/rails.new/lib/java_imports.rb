@@ -158,6 +158,7 @@ module JavaImports
   java_import com.thoughtworks.go.util.SystemEnvironment unless defined? SystemEnvironment
   java_import com.thoughtworks.go.util.SystemUtil unless defined? SystemUtil
   java_import com.thoughtworks.go.util.TimeConverter unless defined? TimeConverter
+  java_import com.thoughtworks.go.util.TriState unless defined? TriState
   #java_import com.thoughtworks.go.domain.config.Admin unless defined? com.thoughtworks.go.domain.config.Admin
   java_import java.lang.System unless defined? System
   java_import java.util.HashMap unless defined? HashMap

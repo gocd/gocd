@@ -153,7 +153,7 @@ describe ApiV1::AgentsController do
         result.ok("Updated agent with uuid #{agent.getUuid()}")
       end
 
-      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
+      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
     end
@@ -165,7 +165,7 @@ describe ApiV1::AgentsController do
         result.ok("Updated agent with uuid #{agent.getUuid()}")
       end
 
-      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
+      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
     end
@@ -186,7 +186,7 @@ describe ApiV1::AgentsController do
       null_agent = NullAgentInstance.new('some-uuid')
       @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
 
-      put_with_api_header :update, uuid: null_agent.getUuid()
+      patch_with_api_header :update, uuid: null_agent.getUuid()
       expect(response).to have_api_message_response(404, 'The resource you requested was not found!')
     end
   end

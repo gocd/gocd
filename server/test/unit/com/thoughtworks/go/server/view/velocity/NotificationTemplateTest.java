@@ -31,7 +31,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class NotificationTemplateTest {
-
     public static final String TEMPLATE_PATH = "/WEB-INF/vm/mycruise/_notification.vm";
 
     @Test

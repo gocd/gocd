@@ -51,6 +51,10 @@ module ApplicationHelper
     url_for_job_identifier(job.getIdentifier())
   end
 
+  def url_for_pipeline(pipeline_name, options = {})
+    url_for_path("/tab/pipeline/history/#{pipeline_name}", options)
+  end
+
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
     stage_detail_tab_path pipeline_name:    stage_identifier.getPipelineName(),

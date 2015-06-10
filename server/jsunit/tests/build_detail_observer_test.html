@@ -27,7 +27,7 @@
     <script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
     <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
     <script language="JavaScript" type="text/javascript" src="../compressed/test_helper.js"></script>
-<script type="text/javascript" src="../app/after_load_enhancements.js"></script>
+    <script type="text/javascript" src="../app/after_load_enhancements.js"></script>
 
     <script language="JavaScript" type="text/javascript">
         var orig_write_attribute = Element.writeAttribute;
@@ -38,7 +38,7 @@
 
         function setUp() {
             Element.addMethods({writeAttribute :  orig_write_attribute});
-            $('buildoutput_pre').innerHTML = '';
+            jQuery('.buildoutput_pre').html('')
 
             observer = new BuildOutputObserver(1, "project1");
             $('container').className = "building_passed";
@@ -57,7 +57,7 @@
         function test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output() {
             var build_output = "Build Failed."
             observer._update_live_output_raw(build_output)
-            assertEquals("Build Failed.", $('buildoutput_pre').innerHTML.stripTags());
+            assertEquals("Build Failed.", jQuery('.buildoutput_pre').text());
         }
 
         function test_should_invoke_word_break_to_break_text() {
@@ -89,7 +89,7 @@
             class="r1"></b></b></span>
 </div>
 
-<span id="buildoutput_pre"></span>
+<span class="buildoutput_pre"></span>
 
 <div id="trans_content"></div>
 </body>

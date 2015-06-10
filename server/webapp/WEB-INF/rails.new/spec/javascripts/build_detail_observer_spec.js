@@ -39,33 +39,30 @@ describe("build_detail_observer", function () {
             "            class=\"r1\"></b></b></span>\n" +
             "</div>\n" +
             "\n" +
-            "<span id=\"buildoutput_pre\"></span>\n" +
+            "<span class=\"buildoutput_pre\"></span>\n" +
             "\n" +
             "<div id=\"trans_content\"></div>");
         Element.addMethods({writeAttribute: orig_write_attribute});
-        $('buildoutput_pre').innerHTML = '';
+        jQuery('.buildoutput_pre').html('');
 
         observer = new BuildOutputObserver(1, "project1");
-        $('container').className = "building_passed";
+        jQuery('#container').addClass("building_passed");
 
-        $('trans_content').update("");
+        jQuery('#trans_content').html('');
         TransMessage.prototype.initialize = Prototype.emptyFunction;
     });
 
-    afterEach(function () {
-    });
-
     it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
-        $$('.build_detail_summary')[0].ancestors()[0].className = "building_passed"
+        jQuery('.build_detail_summary').parent().addClass("building_passed");
         var json = failed_json('project1')
         observer.update_page(json);
-        assertEquals("failed", $$('.build_detail_summary')[0].ancestors()[0].className);
+        assertTrue("failed", jQuery('.build_detail_summary').parent().hasClass("failed"));
     });
 
     it("test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output", function () {
-        var build_output = "Build Failed."
-        observer._update_live_output_raw(build_output)
-        assertEquals("Build Failed.", $('buildoutput_pre').innerHTML.stripTags());
+        var build_output = "Build Failed.";
+        observer._update_live_output_raw(build_output);
+        assertEquals("Build Failed.", jQuery('.buildoutput_pre').text());
     });
 
     it("test_should_invoke_word_break_to_break_text", function () {
@@ -73,6 +70,6 @@ describe("build_detail_observer", function () {
             return "breaked text";
         }
         observer.display_error_message_if_necessary(inactive_json("project1"))
-        assertTrue($('trans_content').innerHTML.indexOf("breaked text") > -1);
+        assertTrue(jQuery('#trans_content').text().indexOf("breaked text") > -1);
     });
 });

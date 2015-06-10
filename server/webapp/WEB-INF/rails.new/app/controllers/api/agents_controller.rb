@@ -44,6 +44,12 @@ class Api::AgentsController < Api::ApiController
     render text: bulk_edit.message()
   end
 
+  def work
+    identifier = AgentIdentifier.new(params[:hostname], params[:ip_address], params[:uuid])
+    work = build_repository_message_producer.getWork(AgentRuntimeInfo.fromAgent(identifier))
+    render json: work
+  end
+
   def job_run_history
     offset = params[:offset].to_i
     page_size = 10

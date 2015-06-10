@@ -138,6 +138,7 @@ GEM
 
 PLATFORMS
   java
+  ruby
 
 DEPENDENCIES
   capybara (= 2.2.1)

@@ -19,6 +19,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 describe Api::AgentsController do
   before do
     controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
+    controller.stub(:build_repository_message_producer).and_return(@build_repository = double('build-repository'))
     controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
     controller.stub(:current_user).and_return(@user = Object.new)
   end
@@ -143,6 +144,13 @@ describe Api::AgentsController do
     it "should show error if no agents are selected" do
       post :edit_agents, :operation => 'Enable', :selected => [], :no_layout => true
       expect(response.body).to eq("No agents were selected. Please select at least one agent and try again.")
+    end
+  end
+
+  describe :work do
+    it 'should get some work' do
+      get :work, hostname: 'my-host', ip_address: '255.0.0.1', uuid: 'random-uuid'
+      expect(response.body).to eq({})
     end
   end
 

@@ -58,6 +58,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.apache.log4j.Logger;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
+import org.dbunit.database.AmbiguousTableNameException;
 import org.dbunit.dataset.DefaultDataSet;
 import org.dbunit.dataset.DefaultTable;
 import org.dbunit.operation.DatabaseOperation;
@@ -100,7 +101,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private InstanceFactory instanceFactory;
 
     @Deprecated // Should not be creating a new spring context for every test
-    public DatabaseAccessHelper() {
+    public DatabaseAccessHelper() throws AmbiguousTableNameException {
         ClassPathXmlApplicationContext context = createDataContext();
         dataSource = (DataSource) context.getBean("dataSource");
         initialize(dataSource);
@@ -120,7 +121,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     @Deprecated //use Autowired version
-    public DatabaseAccessHelper(DataSource dataSource) {
+    public DatabaseAccessHelper(DataSource dataSource) throws AmbiguousTableNameException {
         this.dataSource = dataSource;
         initialize(dataSource);
     }
@@ -138,7 +139,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                                 TransactionTemplate transactionTemplate,
                                 TransactionSynchronizationManager transactionSynchronizationManager,
                                 GoCache goCache,
-                                PipelineService pipelineService, InstanceFactory instanceFactory) {
+                                PipelineService pipelineService, InstanceFactory instanceFactory) throws AmbiguousTableNameException {
         this.dataSource = dataSource;
         this.sqlMapClient = sqlMapClient;
         this.stageDao = stageDao;
@@ -156,7 +157,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         initialize(dataSource);
     }
 
-    private void initialize(DataSource dataSource) {
+    private void initialize(DataSource dataSource) throws AmbiguousTableNameException {
         databaseTester = new DataSourceDatabaseTester(dataSource);
         databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
         databaseTester.setTearDownOperation(DatabaseOperation.DELETE_ALL);

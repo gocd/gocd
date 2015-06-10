@@ -212,8 +212,8 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldTellIfAnEnvironmentExists() throws Exception {
-        EnvironmentConfig first = new EnvironmentConfig(new CaseInsensitiveString("first"));
-        EnvironmentConfig second = new EnvironmentConfig(new CaseInsensitiveString("second"));
+        BasicEnvironmentConfig first = new BasicEnvironmentConfig(new CaseInsensitiveString("first"));
+        BasicEnvironmentConfig second = new BasicEnvironmentConfig(new CaseInsensitiveString("second"));
         CruiseConfig config = new CruiseConfig();
         config.addEnvironment(first);
         config.addEnvironment(second);
@@ -1354,7 +1354,7 @@ public class GoConfigServiceTest {
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingEnvironment() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigFileDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateEnvironment("env", new EnvironmentConfig(), "md5");
+        ConfigSaveState configSaveState = goConfigService.updateEnvironment("env", new BasicEnvironmentConfig(), "md5");
         assertThat(configSaveState, is(expectedSaveState));
     }
 

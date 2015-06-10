@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import org.hamcrest.Matchers;
@@ -31,11 +31,11 @@ import static org.junit.Assert.fail;
 
 public class EnvironmentsConfigTest {
     private EnvironmentsConfig configs;
-    private EnvironmentConfig env;
+    private BasicEnvironmentConfig env;
 
     @Before public void setUp() throws Exception {
         configs = new EnvironmentsConfig();
-        env = new EnvironmentConfig(new CaseInsensitiveString("uat"));
+        env = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         env.addPipeline(new CaseInsensitiveString("deployment"));
         env.addAgent("agent-one");
         configs.add(env);
@@ -82,13 +82,13 @@ public class EnvironmentsConfigTest {
 
     @Test
     public void shouldRemoveAgentFromAllEnvironments() throws Exception {
-        EnvironmentConfig env2 = new EnvironmentConfig(new CaseInsensitiveString("prod"));
+        BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
         env2.addPipeline(new CaseInsensitiveString("test"));
         env2.addAgent("agent-one");
         env2.addAgent("agent-two");
         configs.add(env2);
 
-        EnvironmentConfig env3 = new EnvironmentConfig(new CaseInsensitiveString("dev"));
+        BasicEnvironmentConfig env3 = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
         env3.addPipeline(new CaseInsensitiveString("build"));
         env3.addAgent("agent-two");
         env3.addAgent("agent-three");

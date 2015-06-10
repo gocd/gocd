@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -628,12 +627,12 @@ public class CruiseConfig implements Validatable {
     }
 
     public EnvironmentConfig addEnvironment(String environmentName) {
-        EnvironmentConfig environmentConfig = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         environments.add(environmentConfig);
         return environmentConfig;
     }
 
-    public void addEnvironment(EnvironmentConfig config) {
+    public void addEnvironment(BasicEnvironmentConfig config) {
         environments.add(config);
     }
 

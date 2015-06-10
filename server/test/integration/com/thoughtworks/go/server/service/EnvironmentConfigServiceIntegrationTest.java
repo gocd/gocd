@@ -105,7 +105,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     
     @Test
     public void shouldUpdateExistingEnvironment() throws Exception{
-        EnvironmentConfig uat = environmentConfig("uat");
+        BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
         goConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"));
@@ -114,12 +114,12 @@ public class EnvironmentConfigServiceIntegrationTest {
         uat.addAgent("uuid-2");
         uat.addEnvironmentVariable("env-one", "ONE");
         uat.addEnvironmentVariable("env-two", "TWO");
-        goConfigService.addEnvironment(new EnvironmentConfig(new CaseInsensitiveString("dev")));
-        goConfigService.addEnvironment(new EnvironmentConfig(new CaseInsensitiveString("qa")));
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")));
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")));
         goConfigService.addEnvironment(uat);
-        goConfigService.addEnvironment(new EnvironmentConfig(new CaseInsensitiveString("acceptance")));
-        goConfigService.addEnvironment(new EnvironmentConfig(new CaseInsensitiveString("function_testing")));
-        EnvironmentConfig newUat = new EnvironmentConfig(new CaseInsensitiveString("prod"));
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")));
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")));
+        EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
         newUat.addPipeline(new CaseInsensitiveString("bar"));
         newUat.addAgent("uuid-1");
         newUat.addEnvironmentVariable("env-three", "THREE");
@@ -191,7 +191,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(result.message(localizer), is("Failed to update environment 'prod'. " + ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH));
     }
 
-    private EnvironmentConfig environmentConfig(String name) {
-        return new EnvironmentConfig(new CaseInsensitiveString(name));
+    private BasicEnvironmentConfig environmentConfig(String name) {
+        return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
     }
 }

@@ -157,7 +157,7 @@ public class MagicalGoConfigXmlWriterTest {
         String xml = ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
-        cruiseConfig.addEnvironment(new EnvironmentConfig());
+        cruiseConfig.addEnvironment(new BasicEnvironmentConfig());
         try {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when the environment name is not set");

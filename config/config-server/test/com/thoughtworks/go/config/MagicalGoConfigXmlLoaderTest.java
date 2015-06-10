@@ -1819,7 +1819,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDenied='true' />"
                         + "</agents>");
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        EnvironmentConfig element = new EnvironmentConfig(new CaseInsensitiveString("uat"));
+        EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("VAR_NAME_1", "variable_name_value_1");
         element.addEnvironmentVariable("CRUISE_ENVIRONEMNT_NAME", "variable_name_value_2");
         assertThat(config.getEnvironments(), hasItem(element));
@@ -1865,7 +1865,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDenied='true' />"
                         + "</agents>");
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        EnvironmentConfig element = new EnvironmentConfig(new CaseInsensitiveString("uat"));
+        EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("cdata", multiLinedata);
         assertThat(config.getEnvironments().get(0), is(element));
     }

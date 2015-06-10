@@ -40,7 +40,7 @@ public class EnvironmentConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        environmentConfig = new EnvironmentConfig(new CaseInsensitiveString("UAT"));
+        environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
     }
 
     @Test
@@ -82,19 +82,19 @@ public class EnvironmentConfigTest {
 
     @Test
     public void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() throws Exception {
-        EnvironmentConfig another = new EnvironmentConfig(new CaseInsensitiveString("UAT"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         assertThat(another, Matchers.is(environmentConfig));
     }
 
     @Test
     public void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() throws Exception {
-        EnvironmentConfig another = new EnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
         assertThat(another, Matchers.is(not(environmentConfig)));
     }
 
     @Test
     public void shouldAddEnvironmentVariablesToEnvironmentVariableContext() throws Exception {
-        EnvironmentConfig another = new EnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
         another.addEnvironmentVariable("variable-name", "variable-value");
         EnvironmentVariableContext context = another.createEnvironmentContext();
         assertThat(context.getProperty("variable-name"), is("variable-value"));
@@ -102,7 +102,7 @@ public class EnvironmentConfigTest {
 
     @Test
     public void shouldAddEnvironmentNameToEnvironmentVariableContext() throws Exception {
-        EnvironmentConfig another = new EnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
         EnvironmentVariableContext context = another.createEnvironmentContext();
         assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME), is("other"));
     }
@@ -119,21 +119,21 @@ public class EnvironmentConfigTest {
 
     @Test
     public void shouldUpdateName() {
-        environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.NAME_FIELD, "PROD"));
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
         assertThat(environmentConfig.name(), is(new CaseInsensitiveString("PROD")));
     }
 
     @Test
     public void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
-        environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.PIPELINES_FIELD, Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
         assertThat(environmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"))));
     }
 
     @Test
     public void shouldUpdateAgents() {
         environmentConfig.addAgent("uuid-1");
-        environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.AGENTS_FIELD, Arrays.asList(new SingletonMap("uuid", "uuid-2"), new SingletonMap("uuid", "uuid-3"))));
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.AGENTS_FIELD, Arrays.asList(new SingletonMap("uuid", "uuid-2"), new SingletonMap("uuid", "uuid-3"))));
         EnvironmentAgentsConfig expectedAgents = new EnvironmentAgentsConfig();
         expectedAgents.add(new EnvironmentAgentConfig("uuid-2"));
         expectedAgents.add(new EnvironmentAgentConfig("uuid-3"));
@@ -143,7 +143,7 @@ public class EnvironmentConfigTest {
     @Test
     public void shouldUpdateEnvironmentVariables() {
         environmentConfig.addEnvironmentVariable("hello", "world");
-        environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
         assertThat(environmentConfig.getVariables().size(), is(2));
@@ -151,7 +151,7 @@ public class EnvironmentConfigTest {
 
     @Test
     public void shouldNotSetEnvironmentVariableFromConfigAttributesIfNameAndValueIsEmpty() {
-        environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
         assertThat(environmentConfig.errors().isEmpty(), is(true));
         assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("", "anything")));
         assertThat(environmentConfig.getVariables().size(), is(1));

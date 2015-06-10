@@ -420,7 +420,7 @@ public class GoConfigService implements Initializer {
         };
     }
 
-    public void addEnvironment(EnvironmentConfig environmentConfig) {
+    public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
         goConfigFileDao.addEnvironment(environmentConfig);
     }
 

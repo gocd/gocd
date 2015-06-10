@@ -32,7 +32,7 @@ import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
  * @understands the current persistent information related to multiple logical groupings of machines
  */
 @ConfigTag("environments")
-@ConfigCollection(EnvironmentConfig.class)
+@ConfigCollection(BasicEnvironmentConfig.class)
 public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
@@ -74,7 +74,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
                 return config;
             }
         }
-        EnvironmentConfig config = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         add(config);
         return config;
     }

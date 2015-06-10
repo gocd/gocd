@@ -150,14 +150,14 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         try {
             CruiseConfig config = goConfigService.getConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
-            edit = new ConfigElementForEdit<EnvironmentConfig>(cloner.deepClone(env), config.getMd5());
+            edit = new ConfigElementForEdit<BasicEnvironmentConfig>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
             result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
         }
         return edit;
     }
 
-    public void createEnvironment(final EnvironmentConfig config, Username user, final LocalizedOperationResult result) {
+    public void createEnvironment(final BasicEnvironmentConfig config, Username user, final LocalizedOperationResult result) {
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", user.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
         editEnvironments(new EditEnvironments() {

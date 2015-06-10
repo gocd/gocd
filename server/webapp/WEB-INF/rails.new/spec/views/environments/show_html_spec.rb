@@ -22,6 +22,7 @@ describe 'environments/show.html.erb' do
     @environment.addPipeline(CaseInsensitiveString.new "another-pipeline")
     @environment.addEnvironmentVariable("ENV1", "VAL1")
     @environment.addEnvironmentVariable("ENV2", "VAL2")
+    @environment.addSecureEnvironmentVariable("SECURE_VAR", "SECURE_VALUE")
 
     @agent_details = AgentsViewModelMother.getTwoAgents()
 
@@ -36,8 +37,8 @@ describe 'environments/show.html.erb' do
       all_pipeline_names = pipelines_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_pipeline_names).to eq(["another-pipeline", "foo-pipeline"])
-      expect(pipelines_section).to have_selector("h3", :text => "PIPELINES")
-      expect(pipelines_section).to have_selector("h3 button#edit_pipelines", :text => "Edit")
+      expect(pipelines_section).to have_selector("h3", text: "PIPELINES")
+      expect(pipelines_section).to have_selector("h3 button#edit_pipelines", text: "Edit")
     end
   end
 
@@ -46,8 +47,8 @@ describe 'environments/show.html.erb' do
       all_agent_names = agents_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_agent_names).to eq(["CCeDev01 (10.18.5.1)", "CCeDev01 (10.18.5.1)"])
-      expect(agents_section).to have_selector("h3", :text => "AGENTS")
-      expect(agents_section).to have_selector("h3 button#edit_agents", :text => "Edit")
+      expect(agents_section).to have_selector("h3", text: "AGENTS")
+      expect(agents_section).to have_selector("h3 button#edit_agents", text: "Edit")
     end
   end
 
@@ -55,9 +56,9 @@ describe 'environments/show.html.erb' do
     Capybara.string(response.body).find(".environment.show_environment .added_item.added_environment_variables").tap do |variables_section|
       all_variables = variables_section.all("ul li").collect {|node| node.text}.sort
 
-      expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2"])
-      expect(variables_section).to have_selector("h3", :text => "Environment Variables")
-      expect(variables_section).to have_selector("h3 button#edit_environment_variables", :text => "Edit")
+      expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2", "SECURE_VAR = ****"])
+      expect(variables_section).to have_selector("h3", text: "Environment Variables")
+      expect(variables_section).to have_selector("h3 button#edit_environment_variables", text: "Edit")
     end
   end
 

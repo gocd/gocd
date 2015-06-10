@@ -125,8 +125,7 @@ EnvironmentVariables = function() {
     };
 
     init.RowCreator.prototype.createRow = function(on_remove) {
-        var row = createWrapperElement(this.wrapper_element_type);
-        row.html(this.template_text);
+        var row = createWrapperElement(this.wrapper_element_type, this.template_text);
         this.registerExistingRow(row, on_remove);
         return row;
     };
@@ -138,8 +137,12 @@ EnvironmentVariables = function() {
         });
     };
 
-    function createWrapperElement(tag_type) {
-        return jQuery(document.createElement(tag_type));
+    function createWrapperElement(tag_type, template_text) {
+        if(tag_type){
+          return jQuery(document.createElement(tag_type)).html(template_text);
+        } else {
+          return jQuery(template_text);
+        }
     }
 
     function mapAssoc(array, fn) {

@@ -15,6 +15,10 @@ import java.util.Set;
  */
 public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  implements EnvironmentConfig {
 
+    private final ConfigErrors configErrors = new ConfigErrors();
+
+    public static final String CONSISTENT_KV = "ConsistentEnvVariables";
+
     public MergeEnvironmentConfig(EnvironmentConfig... configs)
     {
         for(EnvironmentConfig part : configs) {
@@ -85,9 +89,15 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
+    public void addPipeline(CaseInsensitiveString pipelineName) {
+
+    }
+
+    @Override
     public void removeAgent(String uuid) {
 
     }
+
 
     @Override
     public boolean hasName(CaseInsensitiveString environmentName) {
@@ -108,13 +118,6 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     public boolean contains(String pipelineName) {
         return false;
     }
-
-    @Override
-    public void addPipeline(CaseInsensitiveString pipelineName) {
-
-    }
-
-
 
     @Override
     public CaseInsensitiveString name() {

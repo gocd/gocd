@@ -31,7 +31,7 @@ describe "environments/edit_variables.html.erb" do
   end
 
   it "should display existing variables" do
-    Capybara.string(response.body).find("table.variables.plain-text-variables").tap do |variables|
+    Capybara.string(response.body).find("div.plain-text-variables table.variables").tap do |variables|
       expect(variables).to have_selector("input.environment_variable_name[name='environment[variables][][name]'][value='plain_name']")
       expect(variables).to have_selector("input.environment_variable_value[name='environment[variables][][valueForDisplay]'][value='plain_value']")
     end

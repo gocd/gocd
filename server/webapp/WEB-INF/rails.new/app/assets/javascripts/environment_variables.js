@@ -118,8 +118,8 @@ EnvironmentVariables = function() {
         jQuery(firstTextField).focus();
     }
 
-    init.RowCreator = function(template_textarea, wrapper_element_type, remove_button_selector) {
-        this.template_text = template_textarea.text();
+    init.RowCreator = function(template_element, wrapper_element_type, remove_button_selector, useInnerHtmlInsteadOfTextFromTemplate) {
+        this.template_text = useInnerHtmlInsteadOfTextFromTemplate ? template_element.html() : template_element.text();
         this.remove_button_selector = remove_button_selector;
         this.wrapper_element_type = wrapper_element_type;
     };

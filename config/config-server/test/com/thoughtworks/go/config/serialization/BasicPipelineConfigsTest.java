@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PipelineConfigsTest {
+public class BasicPipelineConfigsTest {
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private static final String PIPELINES_WITH_PERMISSION = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "

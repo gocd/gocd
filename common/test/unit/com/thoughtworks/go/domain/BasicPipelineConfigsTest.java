@@ -36,7 +36,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class PipelineConfigsTest {
+public class BasicPipelineConfigsTest {
 
     @Test
     public void shouldReturnTrueIfPipelineExist() {

@@ -39,6 +39,7 @@ import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -352,7 +353,7 @@ public class EnvironmentConfigServiceTest {
         env.addEnvironmentVariable("quux", "bang");
         config.getEnvironments().add(env);
         when(mockGoConfigService.getConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), is(env));
+        assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 

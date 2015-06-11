@@ -328,7 +328,7 @@ public class GoConfigFileDaoTest {
     public void shouldBePassedTheLatestCruiseConfigWhileCheckingBeforeUpdate() {
         configHelper.addTemplate("my-template", "my-stage");
         configHelper.addPipeline("pipeline", "stage");
-        configHelper.addPipelineWithTemplate(BasicPipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
+        configHelper.addPipelineWithTemplate(PipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
         CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true));
         goConfigFileDao.updateConfig(command);
         verify(command).canContinue(cachedGoConfig.currentConfig());

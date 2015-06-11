@@ -63,7 +63,7 @@ import static com.thoughtworks.go.utils.CommandUtils.exec;
 public class PipelineWithTwoStages implements PreCondition {
     private SvnCommand svnClient;
 
-    public String groupName = BasicPipelineConfigs.DEFAULT_GROUP;
+    public String groupName = PipelineConfigs.DEFAULT_GROUP;
     public final String pipelineName;
     public final String devStage = "dev";
     public final String ftStage = "ft";

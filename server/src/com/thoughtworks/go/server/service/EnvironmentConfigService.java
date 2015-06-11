@@ -150,7 +150,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         try {
             CruiseConfig config = goConfigService.getConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
-            edit = new ConfigElementForEdit<BasicEnvironmentConfig>(cloner.deepClone(env), config.getMd5());
+            edit = new ConfigElementForEdit<EnvironmentConfig>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
             result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
         }

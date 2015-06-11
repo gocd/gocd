@@ -18,9 +18,11 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +45,7 @@ public class EnvironmentsConfigTest {
 
     @Test
     public void shouldFindEnvironmentGivenPipelineName() throws Exception {
-        assertThat(configs.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), is(env));
+        assertThat(configs.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), Is.<EnvironmentConfig>is(env));
     }
     
     @Test public void shouldFindIfAGivenPipelineBelongsToAnyEnvironment() throws Exception {
@@ -63,7 +65,7 @@ public class EnvironmentsConfigTest {
     }
 
     @Test public void shouldFindEnvironmentConfigGivenAnEnvironmentName() throws Exception {
-        assertThat(configs.named(new CaseInsensitiveString("uat")), is(env));
+        assertThat(configs.named(new CaseInsensitiveString("uat")), Is.<EnvironmentConfig>is(env));
     }
 
     @Test

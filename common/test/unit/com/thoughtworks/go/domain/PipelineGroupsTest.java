@@ -203,9 +203,9 @@ public class PipelineGroupsTest {
         Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
 
         assertThat(packageToPipelineMap.get("package-id-one").size(), is(1));
-        assertThat(packageToPipelineMap.get("package-id-one"), hasItems(new Pair<PipelineConfig,BasicPipelineConfigs>(p1,groupOne)));
+        assertThat(packageToPipelineMap.get("package-id-one"), hasItems(new Pair<PipelineConfig,PipelineConfigs>(p1,groupOne)));
         assertThat(packageToPipelineMap.get("package-id-two").size(), is(2));
-        assertThat(packageToPipelineMap.get("package-id-two"), hasItems(new Pair<PipelineConfig,BasicPipelineConfigs>(p1,groupOne), new Pair<PipelineConfig,BasicPipelineConfigs>(p2,groupTwo)));
+        assertThat(packageToPipelineMap.get("package-id-two"), hasItems(new Pair<PipelineConfig,PipelineConfigs>(p1,groupOne), new Pair<PipelineConfig,PipelineConfigs>(p2,groupTwo)));
     }
 
     @Test
@@ -238,9 +238,9 @@ public class PipelineGroupsTest {
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesOne = groups.getPluggableSCMMaterialUsageInPipelines();
 
         assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one").size(), is(1));
-        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one"), hasItems(new Pair<PipelineConfig, BasicPipelineConfigs>(p1, groupOne)));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne)));
         assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two").size(), is(2));
-        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two"), hasItems(new Pair<PipelineConfig, BasicPipelineConfigs>(p1, groupOne), new Pair<PipelineConfig, BasicPipelineConfigs>(p2, groupTwo)));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne), new Pair<PipelineConfig, PipelineConfigs>(p2, groupTwo)));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesTwo = groups.getPluggableSCMMaterialUsageInPipelines();
         assertSame(pluggableSCMMaterialUsageInPipelinesOne, pluggableSCMMaterialUsageInPipelinesTwo);

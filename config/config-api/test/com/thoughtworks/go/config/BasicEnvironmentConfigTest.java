@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class EnvironmentConfigTest {
+public class BasicEnvironmentConfigTest {
     public EnvironmentConfig environmentConfig;
     private static final String AGENT_UUID = "uuid";
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by tomzo on 6/10/15.
+ * @understands the current persistent information related to a logical grouping of machines
  */
 public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope {
     void validate(ValidationContext validationContext);

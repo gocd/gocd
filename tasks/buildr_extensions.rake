@@ -334,8 +334,7 @@ module RpmPackageHelper
   def rpm_build depend_on, package, package_name
     task :rpm => depend_on do
       mkdir_p rpm_ctrl_dir, :mode => 0755
-      build_cause_url="/go/tab/build/detail/#{ENV['GO_PIPELINE_NAME']}/#{ENV['GO_PIPELINE_COUNTER']}/#{ENV['GO_STAGE_NAME']}/#{ENV['GO_STAGE_COUNTER']}/#{ENV['GO_JOB_NAME']}"
-      sub_and_copy_with_mode rpm_metadata(package), "#{package_name}.spec", rpm_ctrl_dir, "#{package_name}.spec", {:VERSION => VERSION_NUMBER, :RELEASE => RELEASE_REVISION, :ROOT => linux_dir,:URL => build_cause_url, :pre => shared_pre, :post => shared_post, :rpm_pre => shared_rpm_pre, :rpm_post => shared_rpm_post}, 0644
+      sub_and_copy_with_mode rpm_metadata(package), "#{package_name}.spec", rpm_ctrl_dir, "#{package_name}.spec", {:VERSION => VERSION_NUMBER, :RELEASE => RELEASE_REVISION, :ROOT => linux_dir, :pre => shared_pre, :post => shared_post, :rpm_pre => shared_rpm_pre, :rpm_post => shared_rpm_post}, 0644
       sh "fakeroot rpmbuild --buildroot #{linux_dir} --define '_rpmdir #{rpm_ctrl_dir}' -bb --target noarch #{rpm_ctrl_dir}/#{package_name}.spec"
       cp_r File.join(rpm_ctrl_dir, "noarch", "#{package_name}-#{VERSION_NUMBER}-#{RELEASE_REVISION}.noarch.rpm"), _(:redhat_package)
     end
@@ -382,6 +381,7 @@ module WinPackageHelper
   def win_build depend_on, package, package_name, windows_name, windows_java
     task :exe => depend_on do
       cp win_pkg_src(package, 'cruisewrapper.exe'), win_pkg_content_dir(package_name)
+      disable_logging_value = ENV['DISABLE_WIN_INSTALLER_LOGGING'] || "false"
       Buildr.ant('win') do |win|
         win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
         win.gunzip :src => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
@@ -402,6 +402,7 @@ module WinPackageHelper
           exec.env :key => "REGVER", :value => "#{VERSION_NUMBER}#{padded_release_revision}".gsub(/\./, '')
           exec.env :key => "JAVA", :value => windows_java
           exec.env :key => "JAVASRC", :value => windows_dir_file("jre1.7.0_09")
+          exec.env :key => "DISABLE_LOGGING", :value => disable_logging_value
           exec.arg :line => "-NOCD #{win_pkg_src(package, package_name + '.nsi')}"
         end
       end

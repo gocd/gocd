@@ -16,38 +16,20 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Properties;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
+import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
+import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.util.json.Json;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.util.json.JsonList;
 import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
-import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.JobDetailService;
-import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.PropertiesService;
-import com.thoughtworks.go.server.service.RestfulService;
-import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.util.ErrorHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,9 +39,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
 
 /*
  * Handles requests for Build Details: See urlrewrite.xml.
@@ -154,10 +141,12 @@ public class JobController {
                                       HttpServletResponse response) {
         Json json;
         try {
-            JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobId);
-            JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-                    goConfigService.agentByUuid(instance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, instance));
+            JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
+            JobInstance mostRecentJobInstance = jobDetailService.findMostRecentBuild(requestedInstance.getIdentifier());
+
+            JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
+                    goConfigService.agentByUuid(mostRecentJobInstance.getAgentUuid()),
+                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn(e);

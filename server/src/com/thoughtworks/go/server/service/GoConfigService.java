@@ -37,6 +37,7 @@ import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.UserDao;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -48,10 +49,7 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.SystemTimeClock;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -436,10 +434,6 @@ public class GoConfigService implements Initializer {
         goConfigFileDao.updateAgentIp(uuid, ipAddress, userName);
     }
 
-    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources) {
-        goConfigFileDao.updateAgentAttributes(uuid, userName, hostname, resources);
-    }
-
     public void updateAgentApprovalStatus(String uuid, Boolean isDenied) {
         goConfigFileDao.updateAgentApprovalStatus(uuid, isDenied);
     }
@@ -580,6 +574,34 @@ public class GoConfigService implements Initializer {
             }
         }
         updateConfig(command);
+    }
+
+    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, TriState enable, AgentInstances agentInstances) {
+        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+
+        if (!hasAgent(uuid) && enable.isTrue()){
+            AgentInstance agentInstance = agentInstances.findAgent(uuid);
+            AgentConfig agentConfig = agentInstance.agentConfig();
+            command.addCommand(GoConfigFileDao.createAddAgentCommand(agentConfig));
+        }
+
+        if (enable.isTrue()) {
+            command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, false));
+        }
+
+        if (enable.isFalse()){
+            command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, true));
+        }
+
+        if (hostname != null) {
+            command.addCommand(new GoConfigFileDao.UpdateAgentHostname(uuid, hostname, userName));
+        }
+        if (resources != null) {
+            command.addCommand(new GoConfigFileDao.UpdateResourcesCommand(uuid, new Resources(resources)));
+        }
+
+
+        goConfigFileDao.updateConfig(command);
     }
 
     public void deleteAgents(AgentInstance... agentInstances) {

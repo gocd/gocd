@@ -118,7 +118,6 @@ public class GoServerTest {
 
         assertThat((String) appServerStub.calls.get("addExtraJarsToClasspath"), is(""));
         assertThat((Integer) appServerStub.calls.get("setCookieExpirePeriod"), is(1209600));
-        assertThat(appServerStub.initparams.get("rails.root"), is("/WEB-INF/rails.new"));
         assertThat((Boolean) appServerStub.calls.get("addStopServlet"), is(true));
         assertThat((Boolean) appServerStub.calls.get("getUnavailableException"), is(true));
         assertThat((Boolean) appServerStub.calls.get("configure"), is(true));

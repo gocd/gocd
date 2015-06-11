@@ -2,11 +2,11 @@ Name: go-agent
 Version: @VERSION@
 Release: @RELEASE@
 Summary: Go Agent Component
-License: ThoughtWorks Studios EULA
+License: Apache License Version 2.0
 Group: Development/Build Tools
 BuildRoot: @ROOT@
 Obsoletes: go-agent
-
+Url: http://www.go.cd
 %description
 Next generation continuous integration and release management server from ThoughtWorks
 

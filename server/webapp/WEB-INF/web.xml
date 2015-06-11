@@ -14,11 +14,11 @@
  * limitations under the License.
  *************************GO-LICENSE-END******************************* -->
 
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-         version="2.4">
-
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        metadata-complete="true"
+        version="3.0">
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
@@ -56,13 +56,29 @@
     </filter-mapping>
 
     <context-param>
-      <param-name>rails.env</param-name>                                 
+      <param-name>rails.env</param-name>
       <param-value>development</param-value>
+    </context-param>
+
+
+    <context-param>
+        <param-name>rails.root</param-name>
+        <param-value>/WEB-INF/rails.new</param-value>
     </context-param>
 
     <context-param>
       <param-name>public.root</param-name>
-      <param-value>/</param-value>
+      <param-value>/WEB-INF/rails.new/public</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>gem.home</param-name>
+      <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>gem.path</param-name>
+      <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
     </context-param>
 
     <context-param>
@@ -281,5 +297,6 @@
     <!-- Do not timeout idle/stale sessions for 14 days: 60 * 24 * 14 minutes. -->
     <session-config>
         <session-timeout>20160</session-timeout>
+        <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 </web-app>

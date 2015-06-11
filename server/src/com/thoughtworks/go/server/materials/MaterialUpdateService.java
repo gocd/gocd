@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
@@ -46,6 +40,12 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
@@ -121,9 +121,17 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             final PipelineGroups allGroups = goConfigService.currentCruiseConfig().getGroups();
             Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(allGroups.getAllUniquePostCommitSchedulableMaterials());
             final Set<Material> prunedMaterialList = materialTypeImplementer.prune(allUniquePostCommitSchedulableMaterials, attributes);
+
+            if (prunedMaterialList.isEmpty()) {
+                result.notFound(LocalizedMessage.string("MATERIAL_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+                return;
+            }
+
             for (Material material : prunedMaterialList) {
                 updateMaterial(material);
             }
+
+            result.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
         } else {
             result.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
         }

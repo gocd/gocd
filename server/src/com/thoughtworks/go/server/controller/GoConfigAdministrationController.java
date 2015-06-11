@@ -20,30 +20,24 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.controller.actions.RestfulAction;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
-import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 
-import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 @Controller
@@ -51,22 +45,15 @@ public class GoConfigAdministrationController {
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
-    private GoMailSenderProvider provider;
-
     private static final org.apache.commons.logging.Log LOGGER = LogFactory.getLog(GoConfigAdministrationController.class);
 
     public GoConfigAdministrationController() {
     }
 
-    GoConfigAdministrationController(GoMailSenderProvider provider, GoConfigService goConfigService, SecurityService securityService) {
-        this.provider = provider;
-        this.goConfigService = goConfigService;
-        this.securityService = securityService;
-    }
-
     @Autowired
     GoConfigAdministrationController(GoConfigService goConfigService, SecurityService securityService) {
-        this(GoMailSenderProvider.DEFAULT_PROVIDER, goConfigService, securityService);
+        this.goConfigService = goConfigService;
+        this.securityService = securityService;
     }
 
     @RequestMapping("/restful/configuration/build/GET/xml")
@@ -194,7 +181,7 @@ public class GoConfigAdministrationController {
         if (oldMd5 != null && !oldMd5.equals(newMd5)) {
             return XmlAction.xmlMd5Conflict(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH, newMd5);
         }
-        
+
         return XmlAction.xmlFound(xml, newMd5);
     }
 
@@ -254,50 +241,4 @@ public class GoConfigAdministrationController {
         return UserHelper.getUserName();
     }
 
-    @RequestMapping("/**/testNotification.json")
-    public ModelAndView sendTestEmailToAdministrator(@RequestParam("hostName")String hostName,
-                                                     @RequestParam("port")String port,
-                                                     @RequestParam("username")String username,
-                                                     @RequestParam("password")String password,
-                                                     @RequestParam(value = "tls", required = false)Boolean tls,
-                                                     @RequestParam("from")String from,
-                                                     @RequestParam("adminMail")String adminMail,
-                                                     HttpServletResponse response) {
-        try {
-            validate(hostName, port, from, adminMail);
-        } catch (Exception e) {
-            HashMap map = new HashMap();
-            map.put("json", ValidationBean.notValid("Please make sure your cofiguration is correct"));
-            return new ModelAndView(new JsonView(), map);
-        }
-        MailHost mailHost = new MailHost(hostName.trim(), Integer.valueOf(port.trim()), username, password,
-                true, tls == null ? Boolean.FALSE : tls, from,
-                adminMail);
-        GoMailSender sender = provider.createSender(mailHost);
-
-        ValidationBean validationBean = sender.send(TEST_EMAIL_SUBJECT, GoSmtpMailSender.emailBody(), adminMail);
-        return JsonAction.jsonFound(validationBean).respond(response);
-    }
-
-    @RequestMapping(value = "/validate/hostname.json", method = RequestMethod.GET)
-    public ModelAndView validateHostname(@RequestParam("value")String value) {
-        return Validator.HOSTNAME.validateForJson(value.trim(), new JsonView());
-    }
-
-    @RequestMapping(value = "/validate/email.json", method = RequestMethod.GET)
-    public ModelAndView validateEmailAddress(@RequestParam("value")String value) {
-        return Validator.EMAIL.validateForJson(value.trim(), new JsonView());
-    }
-
-    @RequestMapping(value = "/validate/port.json", method = RequestMethod.GET)
-    public ModelAndView validatePort(@RequestParam("value")String value) {
-        return Validator.PORT.validateForJson(value.trim(), new JsonView());
-    }
-
-    private void validate(String hostName, String port, String from, String adminMail) {
-        Validator.HOSTNAME.assertValid(hostName.trim());
-        Validator.PORT.assertValid(port.trim());
-        Validator.EMAIL.assertValid(from.trim());
-        Validator.EMAIL.assertValid(adminMail.trim());
-    }
 }

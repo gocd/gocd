@@ -76,7 +76,6 @@ spec_files:
 #  - "form_fields_table.html
   - "pipeline_history_spec.js"
   - "pipeline_history_comment_spec.js"
-  - "agent_spec.js"
   - "i18n_spec.js"
   - "build_detail_observer_spec.js"
   - "build_base_observer_spec.js"

@@ -23,8 +23,11 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,17 +40,23 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 public class ConsoleServiceTest {
 
     private ArtifactDirectoryChooser chooser;
     private ConsoleService service;
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
         chooser = mock(ArtifactDirectoryChooser.class);
         service = new ConsoleService(chooser);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        testFolder.delete();
     }
 
     @Test
@@ -126,6 +135,38 @@ public class ConsoleServiceTest {
 
         verify(chooser).temporaryConsoleFile(jobIdentifier);
         verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
+    }
+
+    @Test
+    public void shouldMoveConsoleArtifacts() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File temporaryConsoleLog = testFolder.newFile("temporary_console.log");
+        File finalConsoleLog = new File(testFolder.getRoot(), "final_console.log");
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);
+
+        service.moveConsoleArtifacts(jobIdentifier);
+
+        assertThat(temporaryConsoleLog.exists(), is(false));
+        assertThat(finalConsoleLog.exists(), is(true));
+    }
+
+    @Test
+    public void shouldCreateTemporaryConsoleFileAndMoveIfItDoesNotExist() throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File temporaryConsoleLog = new File(testFolder.getRoot(), "temporary_console.log");
+        File finalConsoleLog = new File(testFolder.getRoot(), "final_console.log");
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);
+
+        service.moveConsoleArtifacts(jobIdentifier);
+
+        assertThat(temporaryConsoleLog.exists(), is(false));
+        assertThat(finalConsoleLog.exists(), is(true));
     }
 
 }

@@ -69,9 +69,9 @@ Function CustomInstallBits
     ClearErrors
     ExecWait 'net start "Go Agent"'
     IfErrors 0 +3
-        LogText "Error starting Go Agent Windows Service. Check if service is disabled."
+        ${LogText} "Error starting Go Agent Windows Service. Check if service is disabled."
         Goto DONE
-    LogText "Successfully started Go Agent"
+    ${LogText} "Successfully started Go Agent"
     DONE:
 FunctionEnd
 

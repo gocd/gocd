@@ -16,23 +16,18 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.metrics.domain.context.Context;
 import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -44,15 +39,10 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.serverhealth.ServerHealthStates;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.httpclient.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,21 +51,17 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtMost;
 
+import java.util.*;
+
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {
     private MaterialUpdateQueue queue;
@@ -142,9 +128,12 @@ public class MaterialUpdateServiceTest {
     public void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(false);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult unauthorizedResult = new HttpLocalizedOperationResult();
+        unauthorizedResult.unauthorized(LocalizedMessage.string("API_ACCESS_UNAUTHORIZED"), HealthStateType.unauthorised());
+
+        assertThat(result, is(unauthorizedResult));
+
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -152,9 +141,12 @@ public class MaterialUpdateServiceTest {
     public void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_BAD_REQUEST));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+
+        assertThat(result, is(badRequestResult));
+
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -165,10 +157,43 @@ public class MaterialUpdateServiceTest {
         final HashMap params = new HashMap();
         params.put(MaterialUpdateService.TYPE, "some_invalid_type");
         service.notifyMaterialsForUpdate(username, params, result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_BAD_REQUEST));
-        assertThat(result.hasMessage(), is(true));
+
+        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+        badRequestResult.badRequest(LocalizedMessage.string("API_BAD_REQUEST"));
+
+        assertThat(result, is(badRequestResult));
+
         verify(goConfigService).isUserAdmin(username);
+    }
+
+    @Test
+    public void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
+        when(goConfigService.isUserAdmin(username)).thenReturn(true);
+
+        PostCommitHookMaterialType materialType = mock(PostCommitHookMaterialType.class);
+        when(postCommitHookMaterialType.toType("type")).thenReturn(materialType);
+
+        PostCommitHookImplementer hookImplementer = mock(PostCommitHookImplementer.class);
+        when(materialType.getImplementer()).thenReturn(hookImplementer);
+        when(materialType.isKnown()).thenReturn(true);
+
+        CruiseConfig config = mock(CruiseConfig.class);
+        when(goConfigService.currentCruiseConfig()).thenReturn(config);
+        when(config.getGroups()).thenReturn(new PipelineGroups());
+
+        when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
+
+        final HashMap params = new HashMap();
+        params.put(MaterialUpdateService.TYPE, "type");
+
+        service.notifyMaterialsForUpdate(username, params, result);
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        operationResult.notFound(LocalizedMessage.string("MATERIAL_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+
+        assertThat(result, is(operationResult));
+
+        verify(hookImplementer).prune(anySet(), anyMap());
     }
 
     @Test
@@ -188,6 +213,11 @@ public class MaterialUpdateServiceTest {
         spyService.notifyMaterialsForUpdate(username, params, result);
         verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
         verify(spyService).updateMaterial(svnMaterial);
+
+        HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
+        acceptedResult.accepted(LocalizedMessage.string("MATERIAL_SCHEDULE_NOTIFICATION_ACCEPTED"));
+
+        assertThat(result, is(acceptedResult));
     }
 
     @Test

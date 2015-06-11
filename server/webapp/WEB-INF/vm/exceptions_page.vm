@@ -21,12 +21,14 @@
 
     #parse("shared/_flash_message.vm")
     <div id="yui-main">
-      <div class="yui-b"></div><!-- end yui-b -->
+      <div class="yui-b"></div>
     </div>
     <script type="text/javascript">
-        $('trans_content').update("$esc.javascript("$errorMessage")");
+        $('trans_content').update("Sorry, an unexpected error occurred. :( Please check the server logs for more information.");
         var transMessage = new TransMessage('trans_message', document.body,
                                                 {type:TransMessage.TYPE_ERROR, offsetTop:200, autoHide:false});
     </script>
+
+<!-- $esc.javascript("$errorMessage") -->
 </body>
 </html>

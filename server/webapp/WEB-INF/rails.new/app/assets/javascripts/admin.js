@@ -25,9 +25,6 @@ AdminPage.prototype = {
         if (!$('tab-content-of-source-xml')) {
             return;
         }
-        if (navigator && navigator.userAgent && navigator.userAgent.include('Firefox/2')) {
-            this.fixLayoutOfFirefox2();
-        }
         this.bindObserver();
         AdminPage.instance = this;
     },
@@ -173,27 +170,4 @@ AdminPage.prototype = {
         });
         return false;
     },
-
-    testNotification: function(form) {
-         $('admin_mail_error_message').removeClassName("error_message").addClassName("ok_message").update('Sending...').show();
-        new Ajax.Request(context_path("testNotification.json"), {
-            method: 'GET',
-            parameters: 'hostName=' + encodeURIComponent($('hostName').value) + '&port=' + encodeURIComponent($('port').value) + '&username=' + encodeURIComponent($('username').value) + '&password=' + encodeURIComponent($('password').value) + '&tls=' + $('use-tls-yes').checked + '&from=' + encodeURIComponent($('from').value) + '&adminMail=' + encodeURIComponent($('adminMail').value),
-            onSuccess: function(transport) {
-                var jsonText = transport.responseText;
-                var testEmail = jsonText.evalJSON();
-                var isvalid = testEmail.isValid == "true";
-                if (!isvalid) {
-                    $('admin_mail_error_message').removeClassName("ok_message").addClassName("error_message").update(testEmail.error).show();
-                } else {
-                    $('admin_mail_error_message').removeClassName("error_message").addClassName("ok_message").update('Test mail was sent successfully. Please check your inbox to confirm that the email was received.').show();
-                }
-            }
-        });
-    },
-
-
-    fixLayoutOfFirefox2: function() {
-        $('admin-holder-for-admin-config-source-xml').setStyle({overflow:'visible'});
-    }
 };

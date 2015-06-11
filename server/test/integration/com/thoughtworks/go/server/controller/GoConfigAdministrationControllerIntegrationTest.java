@@ -792,31 +792,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
         assertThat((String) response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(newMd5));
     }
 
-    @Test
-    public void shouldValidateHostnames() throws Exception {
-        ModelAndView json = controller.validateHostname("something-to-validate");
-        assertThat(json.getView(), is(instanceOf((JsonView.class))));
-        assertThat(json.getModel().get("json"), is(instanceOf(ValidationBean.class)));
-    }
-
-    @Test
-    public void shouldValidateEmailAddresses() throws Exception {
-        ModelAndView json = controller.validateEmailAddress("something@somewhere.com");
-        assertThat(json.getView(), is(instanceOf(JsonView.class)));
-        assertThat((ValidationBean) json.getModel().get("json"), is(ValidationBean.valid()));
-    }
-
     private void assertValidContentAndStatus(int status, String contentType, String content) throws Exception {
         RestfulActionTestHelper.assertValidContentAndStatus(response, status, contentType, content);
     }
 
-    @Test
-    public void shouldReportInValidIfMailSentFails() {
-        final String message = "Please make sure your cofiguration is correct";
-        ModelAndView json = controller.sendTestEmailToAdministrator("smtp.company.com", "25", "smtpuser", "password",
-                true, "cruise%me.com", "jez@me.com", new MockHttpServletResponse());
-        ValidationBean bean = (ValidationBean) json.getModel().get("json");
-        assertThat(bean.isValid(), is(false));
-        assertThat(bean.getError(), is(message));
-    }
 }

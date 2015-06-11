@@ -157,22 +157,21 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
 
-        BasicEnvironmentConfig that = (BasicEnvironmentConfig) o;
+        EnvironmentConfig that = as(EnvironmentConfig.class,o);
+        if(that == null)
+            return  false;
 
-        if (agents != null ? !agents.equals(that.agents) : that.agents != null) {
+        if (agents != null ? !agents.equals(that.getAgents()) : that.getAgents() != null) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (name != null ? !name.equals(that.name()) : that.name() != null) {
             return false;
         }
-        if (pipelines != null ? !pipelines.equals(that.pipelines) : that.pipelines != null) {
+        if (pipelines != null ? !pipelines.equals(that.getPipelines()) : that.getPipelines() != null) {
             return false;
         }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
+        if (variables != null ? !variables.equals(that.getVariables()) : that.getVariables() != null) {
             return false;
         }
 
@@ -188,6 +187,13 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         return result;
     }
 
+    private static <T> T as(Class<T> clazz, Object o){
+        if(clazz.isInstance(o)){
+            return clazz.cast(o);
+        }
+        return null;
+    }
+
     @Override public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
@@ -199,7 +205,8 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public EnvironmentVariableContext createEnvironmentContext() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(name));
+        EnvironmentVariableContext context = new EnvironmentVariableContext(
+                GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(name));
         variables.addTo(context);
         return context;
 

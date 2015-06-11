@@ -52,6 +52,7 @@ public class MergeEnvironmentConfigTest {
     public void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() throws Exception {
         EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("One"));
         assertThat(another, Matchers.<EnvironmentConfig>is(singleEnvironmentConfig));
+        assertThat(singleEnvironmentConfig, Matchers.<EnvironmentConfig>is(another));
     }
 
     @Test
@@ -61,7 +62,7 @@ public class MergeEnvironmentConfigTest {
     }
     @Test
     public void shouldAddEnvironmentVariablesToEnvironmentVariableContext() throws Exception {
-        singleEnvironmentConfig.addEnvironmentVariable("variable-name", "variable-value");
+        singleEnvironmentConfig.first().addEnvironmentVariable("variable-name", "variable-value");
         EnvironmentVariableContext context = singleEnvironmentConfig.createEnvironmentContext();
         assertThat(context.getProperty("variable-name"), is("variable-value"));
     }
@@ -74,8 +75,8 @@ public class MergeEnvironmentConfigTest {
 
     @Test
     public void shouldReturnPipelineNamesContainedInIt() throws Exception {
-        singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("deployment"));
-        singleEnvironmentConfig.addPipeline(new CaseInsensitiveString("testing"));
+        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("deployment"));
+        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("testing"));
         List<CaseInsensitiveString> pipelineNames = singleEnvironmentConfig.getPipelineNames();
         assertThat(pipelineNames.size(), is(2));
         assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));

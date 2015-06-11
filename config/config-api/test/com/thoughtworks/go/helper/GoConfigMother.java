@@ -279,7 +279,7 @@ public class GoConfigMother {
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(new SvnMaterialConfig("file:///foo", null, null, false)), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(job)));
-        config.addPipeline(PipelineConfigs.DEFAULT_GROUP, pipelineConfig);
+        config.addPipeline(BasicPipelineConfigs.DEFAULT_GROUP, pipelineConfig);
         return config;
     }
 

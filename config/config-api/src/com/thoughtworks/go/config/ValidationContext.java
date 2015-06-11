@@ -143,7 +143,7 @@ public class ValidationContext {
     }
 
     public boolean isWithinPipelines() {
-        return hasParentOfType(PipelineConfigs.class);
+        return hasParentOfType(BasicPipelineConfigs.class);
     }
 
     private <T> boolean hasParentOfType(Class<T> validatable) {
@@ -151,7 +151,7 @@ public class ValidationContext {
     }
 
     public PipelineConfigs getPipelineGroup() {
-        return loadFirstOfType(PipelineConfigs.class);
+        return loadFirstOfType(BasicPipelineConfigs.class);
     }
 
     @Override

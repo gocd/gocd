@@ -56,18 +56,18 @@ public class PipelineConfigsService {
 
     public GoConfigOperationalResponse<PipelineConfigs> updateXml(String groupName, String xmlPartial, final String md5, Username username, HttpLocalizedOperationResult result) throws Exception {
         if (!userHasPermissions(username, groupName, result)) {
-            return new GoConfigOperationalResponse<PipelineConfigs>(GoConfigValidity.valid(), null);
+            return new GoConfigOperationalResponse<BasicPipelineConfigs>(GoConfigValidity.valid(), null);
         }
         GoConfigValidity goConfigValidity = goConfigService.groupSaver(groupName).saveXml(xmlPartial, md5);
         if (!goConfigValidity.isValid()) {
             handleError(groupName, goConfigValidity, result);
-            return new GoConfigOperationalResponse<PipelineConfigs>(goConfigValidity, null);
+            return new GoConfigOperationalResponse<BasicPipelineConfigs>(goConfigValidity, null);
         }
         Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
         Localizable localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
         result.setMessage(localizableMessage);
-        PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, PipelineConfigs.class);
-        return new GoConfigOperationalResponse<PipelineConfigs>(goConfigValidity, pipelineConfigs);
+        PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, BasicPipelineConfigs.class);
+        return new GoConfigOperationalResponse<BasicPipelineConfigs>(goConfigValidity, pipelineConfigs);
     }
 
     public String getXml(String groupName, Username username, HttpLocalizedOperationResult result) {

@@ -40,7 +40,7 @@ public class ValidationContextTest {
 
     @Test
     public void testShouldReturnFalseIfTemplatesIsNotAnAncestor() {
-        ValidationContext context = ValidationContext.forChain(new CruiseConfig(), new PipelineGroups(), new PipelineConfigs(), new PipelineConfig());
+        ValidationContext context = ValidationContext.forChain(new CruiseConfig(), new PipelineGroups(), new BasicPipelineConfigs(), new PipelineConfig());
         assertThat(context.isWithinTemplates(), is(false));
     }
     

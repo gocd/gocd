@@ -1023,7 +1023,7 @@ public class GoConfigService implements Initializer {
             return null;
         }
         PipelineConfigs config = cloner.deepClone(configForEdit.configForEdit.findGroup(groupName));
-        return new ConfigForEdit<PipelineConfigs>(config, configForEdit);
+        return new ConfigForEdit<BasicPipelineConfigs>(config, configForEdit);
     }
 
     public boolean doesMd5Match(String md5) {

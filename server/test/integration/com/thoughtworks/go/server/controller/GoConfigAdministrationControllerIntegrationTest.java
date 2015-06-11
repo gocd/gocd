@@ -540,7 +540,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldGetPipelineAsPartialXml() throws Exception {
         //get the pipeline XML
         configHelper.addPipeline("pipeline", "dev", "linux", "windows");
-        groupName = PipelineConfigs.DEFAULT_GROUP;
+        groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         controller.getPipelineAsXmlPartial(0, groupName, null, response);
         String xml = response.getContentAsString();
         assertThat(xml, containsString("pass"));
@@ -567,7 +567,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = NEW_PIPELINE;
         String md5 = goConfigFileDao.md5OfConfigFile();
-        groupName = PipelineConfigs.DEFAULT_GROUP;
+        groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET));
@@ -729,7 +729,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfPipelineAsPartialXml() throws Exception {
-        groupName = PipelineConfigs.DEFAULT_GROUP;
+        groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String md5 = goConfigFileDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(4, groupName, NEW_PIPELINE, md5, response);
@@ -743,7 +743,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @Test public void shouldReturnXmlAndErrorMessageWhenPostOfPipelineAsInvalidXml() throws Exception {
-        groupName = PipelineConfigs.DEFAULT_GROUP;
+        groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String badXml = "<;askldjfa;dsklfja;sdjas;lkdf";
         String md5 = goConfigFileDao.md5OfConfigFile();
@@ -758,7 +758,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @Test public void shouldReturnXmlAndErrorMessageWhenPostOfPipelineAsInvalidPartialXml() throws Exception {
-        groupName = PipelineConfigs.DEFAULT_GROUP;
+        groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String badXml = "<pipeline name=\"cruise\" labeltemplate=\"invalid\">\n"
                 + "  <materials>\n"

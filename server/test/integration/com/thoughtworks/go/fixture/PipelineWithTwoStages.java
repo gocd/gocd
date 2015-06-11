@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.UUID;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -66,7 +63,7 @@ import static com.thoughtworks.go.utils.CommandUtils.exec;
 public class PipelineWithTwoStages implements PreCondition {
     private SvnCommand svnClient;
 
-    public String groupName = PipelineConfigs.DEFAULT_GROUP;
+    public String groupName = BasicPipelineConfigs.DEFAULT_GROUP;
     public final String pipelineName;
     public final String devStage = "dev";
     public final String ftStage = "ft";

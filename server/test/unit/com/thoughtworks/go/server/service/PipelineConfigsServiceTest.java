@@ -292,10 +292,10 @@ public class PipelineConfigsServiceTest {
 	@Test
 	public void shouldGetPipelineGroupsForUser() {
 		PipelineConfig pipelineInGroup1 = new PipelineConfig();
-		PipelineConfigs group1 = new PipelineConfigs(pipelineInGroup1);
+		PipelineConfigs group1 = new BasicPipelineConfigs(pipelineInGroup1);
 		group1.setGroup("group1");
 		PipelineConfig pipelineInGroup2 = new PipelineConfig();
-		PipelineConfigs group2 = new PipelineConfigs(pipelineInGroup2);
+		PipelineConfigs group2 = new BasicPipelineConfigs(pipelineInGroup2);
 		group2.setGroup("group2");
 		when(goConfigService.groups()).thenReturn(new PipelineGroups(group1, group2));
 		String user = "looser";

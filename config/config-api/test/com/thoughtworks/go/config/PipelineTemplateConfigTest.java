@@ -68,7 +68,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldUpdateAuthorization() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 DataStructureUtils.m(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
@@ -86,7 +86,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldReInitializeAuthorizationIfWeClearAllPermissions() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 DataStructureUtils.m(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
@@ -103,7 +103,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldIgnoreBlankUserWhileSettingAttributes() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 DataStructureUtils.m(Authorization.NAME, "", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, null, Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
                 DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));

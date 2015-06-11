@@ -127,7 +127,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldUnderstandIfAnEnvironmentVariableIsConfiguredForAPipeline() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
         otherPipeline.setVariables(GoConfigFileHelper.env("OTHER_PIPELINE_LEVEL", "other pipeline"));
@@ -172,7 +172,7 @@ public class GoConfigServiceTest {
         StageConfig stage = pipeline.first();
         stage.setFetchMaterials(false);
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(pipeline));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(pipeline));
         expectLoad(cruiseConfig);
 
         assertThat(goConfigService.shouldFetchMaterials("cruise", "dev"), is(false));
@@ -192,7 +192,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldGetAllStagesWithOne() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
         expectLoad(new CruiseConfig(newPipeline));
@@ -201,7 +201,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldTellIfAnUSerIsGroupAdministrator() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
         newPipeline.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("dawg")))));
@@ -246,7 +246,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
-        PipelineConfigs newPipelines = new PipelineConfigs();
+        PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.unit));
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.file));
@@ -258,7 +258,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldGetCommentRenderer() throws Exception {
-        PipelineConfigs newPipeline = new PipelineConfigs();
+        PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
         newPipeline.add(pipelineConfig);
@@ -267,13 +267,13 @@ public class GoConfigServiceTest {
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setMingleConfig(new MingleConfig("baseUrl", "projIdentifier", "mql"));
-        newPipeline = new PipelineConfigs();
+        newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
         expectLoad(new CruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new MingleConfig("baseUrl", "projIdentifier", "mql"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        newPipeline = new PipelineConfigs();
+        newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
         expectLoad(new CruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool());
@@ -281,7 +281,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldUnderstandIfAPipelineIsLockable() throws Exception {
-        PipelineConfigs group = new PipelineConfigs();
+        PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
         expectLoad(new CruiseConfig(group));
@@ -890,7 +890,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldDetermineIfStageExistsInCurrentConfig() throws Exception {
-        PipelineConfigs pipelineConfigs = new PipelineConfigs();
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.add(createPipelineConfig("pipeline", "stage", "job"));
         expectLoad(new CruiseConfig(pipelineConfigs));
         assertThat(goConfigService.stageExists("pipeline", "randomstage"), is(false));

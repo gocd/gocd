@@ -84,7 +84,7 @@ public class PipelineConfigsTest {
                 new CaseInsensitiveString("mingle")));
         Authorization authorization = new Authorization(operationConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
-        PipelineConfigs pipelineConfigs = new PipelineConfigs(authorization, pipelineConfig);
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(authorization, pipelineConfig);
         MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 metricsProbeService);
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);

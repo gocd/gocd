@@ -238,7 +238,7 @@ public class CruiseConfig implements Validatable {
 
     private PipelineConfigs pipelinesFromAllGroups() {
         //#2388 - hack to flatten all pipelines.  We need a "pipelineGroup" model
-        return new PipelineConfigs(allPipelines().toArray(new PipelineConfig[0]));
+        return new BasicPipelineConfigs(allPipelines().toArray(new PipelineConfig[0]));
     }
 
     public Map<String, List<Authorization.PrivilegeType>> groupsAffectedByDeletionOfRole(final String roleName) {
@@ -373,7 +373,7 @@ public class CruiseConfig implements Validatable {
 
     public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
         if (groups.isEmpty()) {
-            PipelineConfigs configs = new PipelineConfigs();
+            PipelineConfigs configs = new BasicPipelineConfigs();
             configs.add(pipeline);
             groups.add(configs);
         }
@@ -858,7 +858,7 @@ public class CruiseConfig implements Validatable {
     }
 
     public String sanitizedGroupName(String name) {
-        return PipelineConfigs.sanitizedGroupName(name);
+        return BasicPipelineConfigs.sanitizedGroupName(name);
     }
 
     public void removePackageRepository(String id) {

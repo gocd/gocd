@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
@@ -1803,7 +1804,7 @@ public final class ConfigFileFixture {
     }
 
     public static CruiseConfig configWith(PipelineConfig... pipelineConfigs) {
-        PipelineConfigs configs = new PipelineConfigs();
+        BasicPipelineConfigs configs = new BasicPipelineConfigs();
         configs.setGroup("defaultGroup");
         configs.addAll(Arrays.asList(pipelineConfigs));
         return new CruiseConfig(configs);

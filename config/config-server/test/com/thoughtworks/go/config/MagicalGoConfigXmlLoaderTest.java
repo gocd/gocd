@@ -2278,7 +2278,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEmptyPipelineGroup() throws Exception {
-        PipelineConfigs group = new PipelineConfigs("defaultGroup", new Authorization());
+        PipelineConfigs group = new BasicPipelineConfigs("defaultGroup", new Authorization());
         CruiseConfig config = new CruiseConfig(group);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(config, stream, true);
@@ -2734,7 +2734,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </stage>\n"
                 + "  </pipeline>\n"
                 + "</pipelines>";
-        PipelineConfigs pipelineConfigs = xmlLoader.fromXmlPartial(partialXml, PipelineConfigs.class);
+        PipelineConfigs pipelineConfigs = xmlLoader.fromXmlPartial(partialXml, BasicPipelineConfigs.class);
         PipelineConfig pipeline = pipelineConfigs.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline, is(notNullValue()));
         assertThat(pipeline.materialConfigs().size(), is(1));

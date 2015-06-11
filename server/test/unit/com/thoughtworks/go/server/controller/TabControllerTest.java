@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.controller;
 
 import java.io.IOException;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -104,7 +104,7 @@ public class TabControllerTest {
         TabController controller = new TabController(service, localizer);
         StubResponse response = new StubResponse();
         assertThat(controller.handleOldPipelineTab(new MockHttpServletRequest(), response), is(nullValue()));
-        assertThat(response.url, is(String.format("admin/pipeline/new?group=%s", PipelineConfigs.DEFAULT_GROUP)));
+        assertThat(response.url, is(String.format("admin/pipeline/new?group=%s", BasicPipelineConfigs.DEFAULT_GROUP)));
     }
 
     private class StubResponse extends MockHttpServletResponse {

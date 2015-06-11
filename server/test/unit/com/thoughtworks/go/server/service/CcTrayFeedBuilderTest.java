@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.ArrayList;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.activity.CcTrayStatus;
@@ -54,7 +55,7 @@ public class CcTrayFeedBuilderTest {
             }
         });
         PipelineConfig withStages = PipelineConfigMother.createPipelineConfig("cruise", "dev", "linux-firefox");
-        PipelineConfigs group = new PipelineConfigs(withStages);
+        PipelineConfigs group = new BasicPipelineConfigs(withStages);
         ccTrayFeedBuilder.visit(group);
     }
 }

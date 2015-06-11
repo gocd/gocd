@@ -59,12 +59,12 @@ import static org.mockito.Mockito.*;
 
 public class CruiseConfigTest {
     public GoConfigMother goConfigMother;
-    private PipelineConfigs pipelines;
+    private BasicPipelineConfigs pipelines;
     private CruiseConfig cruiseConfig;
 
     @Before
     public void setup() throws Exception {
-        pipelines = new PipelineConfigs("existing_group", new Authorization());
+        pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new CruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
     }
@@ -214,7 +214,7 @@ public class CruiseConfigTest {
 
         PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
 
         cruiseConfig.addTemplate(template);
         SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
@@ -246,7 +246,7 @@ public class CruiseConfigTest {
 
         PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
 
         cruiseConfig.addTemplate(firstTemplate);
         cruiseConfig.addTemplate(secondTemplate);
@@ -280,7 +280,7 @@ public class CruiseConfigTest {
 
         PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
 
         SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
@@ -680,9 +680,9 @@ public class CruiseConfigTest {
     @Test
     public void shouldReturnDefaultGroupNameIfNoGroupNameIsSpecified() {
         CruiseConfig cfg = new CruiseConfig();
-        assertThat(cfg.sanitizedGroupName(null), is(PipelineConfigs.DEFAULT_GROUP));
+        assertThat(cfg.sanitizedGroupName(null), is(BasicPipelineConfigs.DEFAULT_GROUP));
         cfg.addPipeline("grp1", PipelineConfigMother.pipelineConfig("foo"));
-        assertThat(cfg.sanitizedGroupName(null), is(PipelineConfigs.DEFAULT_GROUP));
+        assertThat(cfg.sanitizedGroupName(null), is(BasicPipelineConfigs.DEFAULT_GROUP));
     }
 
     @Test

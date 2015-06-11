@@ -263,15 +263,15 @@ public class SecurityServiceIntegrationTest {
         cachedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
         configHelper.setViewPermissionForGroup("first","foo");
         configHelper.setViewPermissionForGroup("second","foo");
-        PipelineConfigs first = configService.getCurrentConfig().findGroup("first");
-        PipelineConfigs second = configService.getCurrentConfig().findGroup("second");
+        BasicPipelineConfigs first = configService.getCurrentConfig().findGroup("first");
+        BasicPipelineConfigs second = configService.getCurrentConfig().findGroup("second");
         assertUserCanView("admin", first);
         assertUserCanView("pavan", second);
         assertUserCanView("foo", first, second);
         assertUserCanView("bar");
     }
 
-    private void assertUserCanView(String username, PipelineConfigs... expected) {
+    private void assertUserCanView(String username, BasicPipelineConfigs... expected) {
         List<PipelineConfigs> groups;
         groups = securityService.viewableGroupsFor(new Username(new CaseInsensitiveString(username)));
         assertThat(groups.size(),is(expected.length));

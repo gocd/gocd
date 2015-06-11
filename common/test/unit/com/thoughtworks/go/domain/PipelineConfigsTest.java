@@ -18,12 +18,7 @@ package com.thoughtworks.go.domain;
 
 import java.util.List;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
@@ -45,58 +40,58 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldReturnTrueIfPipelineExist() {
-        PipelineConfigs configs = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         assertThat("shouldReturnTrueIfPipelineExist", configs.hasPipeline(new CaseInsensitiveString("pipeline1")), is(true));
     }
 
     @Test
     public void shouldReturnFalseIfPipelineNotExist() {
-        PipelineConfigs configs = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         assertThat("shouldReturnFalseIfPipelineNotExist", configs.hasPipeline(new CaseInsensitiveString("not-exist")), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfAuthorizationIsNotDefined() {
-        assertThat(new PipelineConfigs().hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
+        assertThat(new BasicPipelineConfigs().hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(true));
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined() {
-        assertThat(new PipelineConfigs().hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
+        assertThat(new BasicPipelineConfigs().hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
 
     @Test
     public void validate_shouldMakeSureTheNameIsAppropriate() {
-        PipelineConfigs group = new PipelineConfigs();
+        PipelineConfigs group = new BasicPipelineConfigs();
         group.validate(null);
-        assertThat(group.errors().on(PipelineConfigs.GROUP), is("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(group.errors().on(BasicPipelineConfigs.GROUP), is("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
     public void shouldValidateThatPipelineNameIsUnique() {
         PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
-        PipelineConfigs group = new PipelineConfigs(first, PipelineConfigMother.pipelineConfig("second"));
+        PipelineConfigs group = new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second"));
         PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
         group.addWithoutValidation(duplicate);
 
@@ -107,28 +102,28 @@ public class PipelineConfigsTest {
     }
     @Test
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveOperatePermission() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null), is(true));
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat("hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined", group.hasViewPermissionDefined(),
                 is(true));
@@ -136,14 +131,14 @@ public class PipelineConfigsTest {
 
     @Test
     public void hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         assertThat("hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined",
                 group.hasViewPermissionDefined(), is(false));
     }
 
     @Test
     public void shouldReturnIndexOfPipeline() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        BasicPipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfig pipelineConfig = (PipelineConfig) group.first().clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
@@ -152,8 +147,8 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldUpdateName() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(PipelineConfigs.GROUP, "my-new-group"));
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
         assertThat(group.getGroup(), is("my-new-group"));
 
         group.setConfigAttributes(m());
@@ -162,14 +157,14 @@ public class PipelineConfigsTest {
         group.setConfigAttributes(null);
         assertThat(group.getGroup(), is("my-new-group"));
 
-        group.setConfigAttributes(m(PipelineConfigs.GROUP, null));
+        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, null));
         assertThat(group.getGroup(), is(nullValue()));
     }
 
     @Test
     public void shouldUpdateAuthorization() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
                 m(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
@@ -190,8 +185,8 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldReInitializeAuthorizationIfWeClearAllPermissions() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
                 m(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
@@ -214,8 +209,8 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldIgnoreBlankUserOrRoleNames_whileSettingAttributes() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, null,         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
                 m(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
@@ -236,8 +231,8 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldSetViewPermissionByDefaultIfNameIsPresentAndPermissionsAreOff_whileSettingAttributes() {
-        PipelineConfigs group = new PipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(PipelineConfigs.AUTHORIZATION, a(
+        PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "user1", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)),
                 m(Authorization.NAME, "role1", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)))));
         Authorization authorization = group.getAuthorization();
@@ -251,10 +246,10 @@ public class PipelineConfigsTest {
 
     @Test
     public void shouldSetToDefaultGroupWithGroupNameIsEmptyString() {
-        PipelineConfigs pipelineConfigs = new PipelineConfigs();
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup("");
 
-        assertThat(pipelineConfigs.getGroup(), is(PipelineConfigs.DEFAULT_GROUP));
+        assertThat(pipelineConfigs.getGroup(), is(BasicPipelineConfigs.DEFAULT_GROUP));
     }
 
     private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {

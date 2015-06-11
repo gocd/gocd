@@ -61,7 +61,7 @@ public class TemplateConfigServiceTest {
         when(securityService.isUserAdmin(user)).thenReturn(true);
         PipelineTemplateConfig template = template("first_template");
         PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
 
         cruiseConfig.addTemplate(template);
         cruiseConfig.addTemplate(emptyTemplate);
@@ -177,7 +177,7 @@ public class TemplateConfigServiceTest {
         PipelineTemplateConfig another = template("another_template");
         PipelineConfig pipelineWithoutTemplateOne = pipelineConfig("first_without_template");
         PipelineConfig pipelineWithoutTemplateTwo = pipelineConfig("another_without_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(createPipelineWithTemplate("first", template),
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template),
                 createPipelineWithTemplate("second", template),
                 pipelineWithoutTemplateOne,
                 pipelineWithoutTemplateTwo,
@@ -210,7 +210,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldLoadTemplateForViewing(){
         PipelineTemplateConfig template = template("first_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
+        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
         cruiseConfig.addTemplate(template);
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
         PipelineTemplateConfig actual = service.loadForView(template.name().toString(), new HttpLocalizedOperationResult());

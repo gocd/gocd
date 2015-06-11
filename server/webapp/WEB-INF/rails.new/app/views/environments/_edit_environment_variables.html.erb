@@ -1,19 +1,19 @@
 <div class="form_content">
   <div class="environment_variables_section popup_form">
-        <textarea id="plain_text_environment_variables_template" class="template">
+        <table id="plain_text_environment_variables_template" class="template" style="display: none;">
             <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
                 <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
             <%- end -%>
-        </textarea>
+        </table>
 
-        <textarea id="secure_environment_variables_template" class="template">
+        <table id="secure_environment_variables_template" class="template" style="display: none;">
             <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
                 <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
             <%- end -%>
-        </textarea>
+        </table>
 
+    <h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3>
     <table class="variables plain-text-variables">
-      <h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3>
       <% scope[:form].object.getPlainTextVariables().each do |variable| -%>
         <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
           <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
@@ -23,10 +23,8 @@
 
     <a class="add_item" data-add-environment-to=".plain-text-variables" data-environment-template="#plain_text_environment_variables_template"><%= l.string("ADD") -%></a>
 
+    <h3><%= l.string("SECURE_ENVIRONMENT_VARIABLES") %></h3>
     <table class="variables secure-variables">
-      <br>
-
-      <h3><%= l.string("SECURE_ENVIRONMENT_VARIABLES") %></h3>
       <% scope[:form].object.getSecureVariables().each do |variable| -%>
         <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
           <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
@@ -38,6 +36,9 @@
 </div>
 <script type="text/javascript">
   (function ($) {
+    $(function () {
+      EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
+    });
     function setupEnvVarForm(finish_button) {
       $('.add_item').each(function (i, elem) {
         var addButton = $(elem);

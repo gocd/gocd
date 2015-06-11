@@ -31,7 +31,7 @@ describe "environments/edit_variables.html.erb" do
   end
 
   it "should display existing variables" do
-    Capybara.string(response.body).find("ul.variables").tap do |variables|
+    Capybara.string(response.body).find("table.variables.plain-text-variables").tap do |variables|
       expect(variables).to have_selector("input.environment_variable_name[name='environment[variables][][name]'][value='plain_name']")
       expect(variables).to have_selector("input.environment_variable_value[name='environment[variables][][valueForDisplay]'][value='plain_value']")
     end
@@ -43,10 +43,9 @@ describe "environments/edit_variables.html.erb" do
 
   # Capybara does not understand how to search for an input tag *inside* a textarea.
   it "should have a template for newly added environment variables" do
-    textarea_tag = 'textarea id="environment_variables_template"'
-    name_input = 'input class=".*environment_variable_name" name="environment\[variables\]\[\]\[name\]"'
-    value_input = 'input class="form_input environment_variable_value" name="environment\[variables\]\[\]\[valueForDisplay\]"'
-
-    expect(response.body).to match Regexp.new("#{textarea_tag}.*\n.*#{name_input}.*\n.*#{value_input}")
+    Capybara.string(response.body).find('#plain_text_environment_variables_template', visible: false).tap do |template|
+      expect(template).to have_selector("input.environment_variable_name[name='environment[variables][][name]']", visible: false)
+      expect(template).to have_selector("input.environment_variable_value[name='environment[variables][][valueForDisplay]']", visible: false)
+    end
   end
 end

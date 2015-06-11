@@ -22,7 +22,7 @@ describe 'environments/show.html.erb' do
     @environment.addPipeline(CaseInsensitiveString.new "another-pipeline")
     @environment.addEnvironmentVariable("ENV1", "VAL1")
     @environment.addEnvironmentVariable("ENV2", "VAL2")
-    @environment.addSecureEnvironmentVariable("SECURE_VAR", "SECURE_VALUE")
+    @environment.getVariables().add(EnvironmentVariableConfig.new(GoCipher.new, "SECURE_VAR", "SECURE_VALUE", true))
 
     @agent_details = AgentsViewModelMother.getTwoAgents()
 

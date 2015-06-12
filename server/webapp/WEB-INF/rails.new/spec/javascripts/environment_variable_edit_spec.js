@@ -69,6 +69,6 @@ describe("environment variable spec", function () {
         expect(resetLink).not.toBeVisible();
         expect(changedField.val()).toBe('false');
         expect(passwordField).toBeReadonly();
-
+        expect(passwordField.val()).toBe('p@ssw0rd');
     });
 });

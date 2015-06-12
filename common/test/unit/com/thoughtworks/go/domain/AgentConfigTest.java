@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -40,7 +41,7 @@ public class AgentConfigTest {
 
     @Test
     public void agentWithNoIpAddressShouldBeValid() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         AgentConfig agent = new AgentConfig();
         cruiseConfig.agents().add(agent);
 
@@ -75,7 +76,7 @@ public class AgentConfigTest {
     }
 
     private void shouldBeValid(String ipAddress) throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setIpAddress(ipAddress);
         cruiseConfig.agents().add(agentConfig);

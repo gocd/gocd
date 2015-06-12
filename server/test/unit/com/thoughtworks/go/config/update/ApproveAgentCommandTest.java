@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ApproveAgentCommandTest {
     @Test
     public void shouldAddAnAgentToAgentsConfig() throws Exception {
         String uuid = "uuid";
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         ApproveAgentCommand command = new ApproveAgentCommand(uuid, "remote", "8153");
 
         command.update(cruiseConfig);

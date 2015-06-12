@@ -26,7 +26,7 @@ public class DeleteTemplateCommandTest {
     @Test
     public void shouldRemoveATemplateWithTheGivenName() throws Exception {
         DeleteTemplateCommand command = new DeleteTemplateCommand("template", "md5");
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template")));
         command.update(config);
         assertThat(config.getTemplates().isEmpty(), is(true));

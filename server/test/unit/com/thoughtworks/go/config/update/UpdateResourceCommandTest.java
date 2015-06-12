@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
@@ -31,7 +28,7 @@ public class UpdateResourceCommandTest {
     @Test
     public void shouldAssociateListOfResourcesForAnAgent() throws Exception {
         String uuid = "uuid";
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.agents().add(new AgentConfig(uuid, "localhost", "8153"));
         UpdateResourceCommand command = new UpdateResourceCommand(uuid, "foo, foo, bar, zoo,   moo   ,    blah");
 

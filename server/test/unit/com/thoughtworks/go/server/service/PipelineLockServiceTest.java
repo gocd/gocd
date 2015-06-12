@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
@@ -118,7 +119,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() throws Exception {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
         when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(true);
@@ -133,7 +134,7 @@ public class PipelineLockServiceTest {
     }
 
     @Test public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() throws Exception {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
         when(pipelineDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);

@@ -317,7 +317,7 @@ public class GoConfigService implements Initializer {
                 CruiseConfig badConfig = ex.getCruiseConfig();
                 setMD5(md5, badConfig);
                 Validatable node = updatedConfigResolver.getNode(command, updateCommand.cruiseConfig());
-                CruiseConfig.copyErrors(command.updatedNode(badConfig), node);
+                BasicCruiseConfig.copyErrors(command.updatedNode(badConfig), node);
                 result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
                 return new ConfigUpdateResponse(badConfig, node, subjectFromNode(command, updatedConfigResolver, node), updateCommand, null);
             } else {

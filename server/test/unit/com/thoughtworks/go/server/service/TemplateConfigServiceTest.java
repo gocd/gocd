@@ -61,7 +61,7 @@ public class TemplateConfigServiceTest {
         when(securityService.isUserAdmin(user)).thenReturn(true);
         PipelineTemplateConfig template = template("first_template");
         PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
 
         cruiseConfig.addTemplate(template);
         cruiseConfig.addTemplate(emptyTemplate);
@@ -78,7 +78,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldDeleteATemplateWithAGivenName() {
         PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
 
         service.removeTemplate("empty_template", cruiseConfig, "md5", new HttpLocalizedOperationResult());
@@ -89,7 +89,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturn404WhenTheTemplateToBeDeletedIsNotFound() {
         PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
 
         TemplateConfigService service = new TemplateConfigService(goConfigService, securityService);
@@ -108,7 +108,7 @@ public class TemplateConfigServiceTest {
         Username templateUser = new Username(templateAdminUser);
 
         PipelineTemplateConfig emptyTemplate = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminUser))), StageConfigMother.stageConfig("some_stage"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
         when(securityService.isAuthorizedToEditTemplate(templateName, templateUser)).thenReturn(true);
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
@@ -133,7 +133,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldErrorOutIfTemplateIsNotFound() {
         PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
         when(securityService.isAuthorizedToEditTemplate(anyString(), any(Username.class))).thenReturn(true);
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
@@ -151,7 +151,7 @@ public class TemplateConfigServiceTest {
         Username username = new Username(new CaseInsensitiveString("user"));
         String templateName = "templateName";
         PipelineTemplateConfig emptyTemplate = PipelineTemplateConfigMother.createTemplate(templateName);
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
         when(securityService.isAuthorizedToEditTemplate(templateName, username)).thenReturn(false);
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
@@ -177,7 +177,7 @@ public class TemplateConfigServiceTest {
         PipelineTemplateConfig another = template("another_template");
         PipelineConfig pipelineWithoutTemplateOne = pipelineConfig("first_without_template");
         PipelineConfig pipelineWithoutTemplateTwo = pipelineConfig("another_without_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template),
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template),
                 createPipelineWithTemplate("second", template),
                 pipelineWithoutTemplateOne,
                 pipelineWithoutTemplateTwo,
@@ -210,7 +210,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldLoadTemplateForViewing(){
         PipelineTemplateConfig template = template("first_template");
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(createPipelineWithTemplate("first", template), createPipelineWithTemplate("second", template)));
         cruiseConfig.addTemplate(template);
         when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
         PipelineTemplateConfig actual = service.loadForView(template.name().toString(), new HttpLocalizedOperationResult());

@@ -183,7 +183,7 @@ public class GoConfigMother {
 
     public static CruiseConfig defaultCruiseConfig() {
         try {
-            CruiseConfig cruiseConfig = new CruiseConfig();
+            CruiseConfig cruiseConfig = new BasicCruiseConfig();
             ServerConfig serverConfig = new ServerConfig("artifactsDir", new SecurityConfig());
             cruiseConfig.setServerConfig(serverConfig);
             return cruiseConfig;
@@ -205,7 +205,7 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {
-        final CruiseConfig config = new CruiseConfig();
+        final CruiseConfig config = new BasicCruiseConfig();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setMailHost(mailHost);
         config.setServerConfig(serverConfig);
@@ -213,7 +213,7 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig configWithPipelines(String... names) {
-        final CruiseConfig config = new CruiseConfig();
+        final CruiseConfig config = new BasicCruiseConfig();
         GoConfigMother mother = new GoConfigMother();
         for (String name : names) {
             mother.addPipeline(config, name, "stage", "job");
@@ -222,7 +222,7 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig configWithPackageRepo(String... ids) throws Exception {
-        final CruiseConfig config = new CruiseConfig();
+        final CruiseConfig config = new BasicCruiseConfig();
         PackageConfigurations configuration = new PackageConfigurations();
         configuration.addConfiguration(new PackageConfiguration("key1"));
         configuration.addConfiguration(new PackageConfiguration("key2").with(PackageConfiguration.SECURE, true));
@@ -247,7 +247,7 @@ public class GoConfigMother {
     }
 
     public static PipelineConfig createPipelineConfigWithMaterialConfig(String pipelineName, MaterialConfig... materialConfigs) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         MaterialConfigs toAdd = new MaterialConfigs();
         toAdd.addAll(Arrays.asList(materialConfigs));
         return new GoConfigMother().addPipeline(config, pipelineName, "stage", toAdd, "job");
@@ -261,7 +261,7 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig pipelineHavingJob(String pipelineName, String stageName, String jobPlanName, String filePath, String directoryPath) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("logs");
         JobConfig job = new JobConfig(jobPlanName);
         String workingDir = new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + stageName).getPath();
@@ -290,7 +290,7 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig simpleDiamond() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(MaterialConfigsMother.gitMaterialConfig("g1")));
         PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(MaterialConfigsMother.gitMaterialConfig("g1")));
         PipelineConfig pipeline3 = PipelineConfigMother.pipelineConfig("p3",

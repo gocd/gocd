@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.HashMap;
 
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -264,7 +261,7 @@ public class ScheduleServiceTest {
     public void shouldSetServerHealthMessageWhenPipelineCreationFailsWithCannotScheduleException() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
@@ -285,7 +282,7 @@ public class ScheduleServiceTest {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
         final MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
@@ -302,7 +299,7 @@ public class ScheduleServiceTest {
 
     @Test
     public void shouldNotifyForEveryPipelineCreated() throws Exception {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         StubPipelineScheduleTopic stubTopic = new StubPipelineScheduleTopic();

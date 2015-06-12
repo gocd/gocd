@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.Date;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -77,7 +74,7 @@ public class AutoBuildCauseTest {
 
     @Before public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         pipelineService = mock(PipelineService.class);
         materialChecker = mock(MaterialChecker.class);

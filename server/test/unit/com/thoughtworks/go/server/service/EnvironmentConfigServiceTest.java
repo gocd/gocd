@@ -346,7 +346,7 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldReturnEnvironmentConfigForEdit() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
         env.addPipeline(new CaseInsensitiveString("bar"));
         env.addAgent("baz");

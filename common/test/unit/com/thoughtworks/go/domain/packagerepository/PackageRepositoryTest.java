@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.packagerepository;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -257,7 +257,7 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
     @Test
     public void shouldValidateIfNameIsMissing() {
         PackageRepository packageRepository = new PackageRepository();
-        packageRepository.validate(new ValidationContext(new CruiseConfig(), null));
+        packageRepository.validate(new ValidationContext(new BasicCruiseConfig(), null));
         assertThat(packageRepository.errors().getAllOn("name"), is(asList("Please provide name")));
     }
 

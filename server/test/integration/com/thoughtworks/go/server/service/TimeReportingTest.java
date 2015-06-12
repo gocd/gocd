@@ -74,7 +74,7 @@ public class TimeReportingTest {
     @Test
     @Ignore("Not really testing anything.")
     public void shouldBeAbleToShortlistPipelinesQuicklyWithPipelineSelections() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         final CruiseConfig afterUpdate = getConfigWith(cruiseConfig, 60, 40);
         List<String> allNames = new ArrayList<String>();
         for (CaseInsensitiveString name : afterUpdate.getAllPipelineNames()) {

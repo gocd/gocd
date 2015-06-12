@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service.materials.commands;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
@@ -52,7 +53,7 @@ public class PackageDefinitionCreatorTest {
         packageDefinitionService = mock(PackageDefinitionService.class);
         doNothing().when(packageDefinitionService).performPluginValidationsFor(any(PackageDefinition.class));
 
-        cruiseConfig = mock(CruiseConfig.class);
+        cruiseConfig = mock(BasicCruiseConfig.class);
         packageRepository = PackageRepositoryMother.create(repoId);
         packageDefinition = PackageDefinitionMother.create(pkgId);
         packageRepository.addPackage(packageDefinition);

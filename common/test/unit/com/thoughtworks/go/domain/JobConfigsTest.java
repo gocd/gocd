@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +45,7 @@ public class JobConfigsTest {
 
     @Test
     public void shouldNotFailForRepeatedJobNames_shouldInsteedSetErrorsOnValidation() throws Exception{
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         config.addPipeline("grp", pipelineConfig);
         JobConfigs jobs = pipelineConfig.get(0).getJobs();

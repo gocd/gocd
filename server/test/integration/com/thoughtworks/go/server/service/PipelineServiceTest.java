@@ -19,11 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -135,7 +131,7 @@ public class PipelineServiceTest {
 
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(pipelineConfig);
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(revs,
-                createCruiseConfigFromGraph(new CruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name());
+                createCruiseConfigFromGraph(new BasicCruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name());
         assertThat(finalRevisions.getRevisions(), is(revs.getRevisions()));
     }
 
@@ -242,7 +238,7 @@ public class PipelineServiceTest {
         when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter("up1", 1)).thenReturn(BuildCause.createManualForced(expectedIfPegged, new Username(str("loser"))));
 
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, new PipelineConfigDependencyGraph(up1));
-        assertThat(service.getRevisionsBasedOnDependencies(actual, createCruiseConfigFromGraph(new CruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name()), is(actual));
+        assertThat(service.getRevisionsBasedOnDependencies(actual, createCruiseConfigFromGraph(new BasicCruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name()), is(actual));
     }
 
     @Test

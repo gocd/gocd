@@ -68,13 +68,13 @@ public class PipelineConfigsServiceTest {
         service = new PipelineConfigsService(configCache, registry, goConfigService, securityService, metricsProbeService);
         result = new HttpLocalizedOperationResult();
 
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         ReflectionUtil.setField(cruiseConfig, "md5", "md5");
     }
 
     @Test
     public void shouldReturnXmlForGivenGroup_onGetXml() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String groupName = "group_name";
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);

@@ -2279,7 +2279,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldSupportEmptyPipelineGroup() throws Exception {
         PipelineConfigs group = new BasicPipelineConfigs("defaultGroup", new Authorization());
-        CruiseConfig config = new CruiseConfig(group);
+        CruiseConfig config = new BasicCruiseConfig(group);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(config, stream, true);
         GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService)
@@ -2352,7 +2352,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowResourcesWithParamsForJobs() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithJobResource("#{PLATFORM}")));
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
@@ -2367,7 +2367,7 @@ public class MagicalGoConfigXmlLoaderTest {
     //BUG: #5209
     @Test
     public void shouldAllowRoleWithParamsForStageInTemplate() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.server().security().addRole(new Role(new CaseInsensitiveString("role")));
 
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithAuth("#{ROLE}")));

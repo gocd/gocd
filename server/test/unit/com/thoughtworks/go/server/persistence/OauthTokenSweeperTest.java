@@ -16,14 +16,7 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.LdapConfig;
-import com.thoughtworks.go.config.PasswordFileConfig;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import org.junit.Before;
@@ -126,7 +119,7 @@ public class OauthTokenSweeperTest {
     }
 
     private CruiseConfig configWithoutSecurity() {
-        return new CruiseConfig();
+        return new BasicCruiseConfig();
     }
 
     private CruiseConfig configWithLdap() {

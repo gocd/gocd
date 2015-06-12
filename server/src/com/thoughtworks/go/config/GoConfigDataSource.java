@@ -293,7 +293,7 @@ public class GoConfigDataSource {
     private CruiseConfig getOldConfigAndMutateWithChanges(NoOverwriteUpdateConfigCommand noOverwriteCommand, String oldMd5) throws Exception {
         LOGGER.debug("[Config Save] --- Mutating old config");
         String configXmlAtOldMd5 = configRepository.getRevision(oldMd5).getContent();
-        CruiseConfig cruiseConfigAtOldMd5 = magicalGoConfigXmlLoader.fromXmlPartial(configXmlAtOldMd5, CruiseConfig.class);
+        CruiseConfig cruiseConfigAtOldMd5 = magicalGoConfigXmlLoader.fromXmlPartial(configXmlAtOldMd5, BasicCruiseConfig.class);
         CruiseConfig config = noOverwriteCommand.update(cruiseConfigAtOldMd5);
         LOGGER.debug("[Config Save] --- Done mutating old config");
         return config;

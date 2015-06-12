@@ -57,7 +57,7 @@ public class ApprovalTest {
         Approval approval = new Approval();
         approval.setConfigAttributes(new SingletonMap(Approval.TYPE, "not-manual-or-success"));
         assertThat(approval.getType(), is("not-manual-or-success"));
-        approval.validate(ValidationContext.forChain(new CruiseConfig(), new BasicPipelineConfigs()));
+        approval.validate(ValidationContext.forChain(new BasicCruiseConfig(), new BasicPipelineConfigs()));
         assertThat(approval.errors().firstError(), is("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'."));
     }
 

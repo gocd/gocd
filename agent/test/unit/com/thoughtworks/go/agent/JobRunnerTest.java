@@ -139,7 +139,7 @@ public class JobRunnerTest {
     }
 
     private BuildWork getWork(JobConfig jobConfig) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("logs");
         String stageName = "mingle";
         String pipelineName = "pipeline1";

@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.BasicPipelineConfigs;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.util.GoConstants;
 import org.dom4j.*;
@@ -1800,14 +1797,14 @@ public final class ConfigFileFixture {
                     + "</cruise>";
 
     public static CruiseConfig configWith(PipelineConfigs... pipelineConfigses) {
-        return new CruiseConfig(pipelineConfigses);
+        return new BasicCruiseConfig(pipelineConfigses);
     }
 
     public static CruiseConfig configWith(PipelineConfig... pipelineConfigs) {
         BasicPipelineConfigs configs = new BasicPipelineConfigs();
         configs.setGroup("defaultGroup");
         configs.addAll(Arrays.asList(pipelineConfigs));
-        return new CruiseConfig(configs);
+        return new BasicCruiseConfig(configs);
     }
 
     //    public static String addLicenseIdNeeded(InputStream stream) {

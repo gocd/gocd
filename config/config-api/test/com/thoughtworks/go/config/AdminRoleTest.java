@@ -35,7 +35,7 @@ public class AdminRoleTest {
     public void shouldThrowExceptionIfRoleNameInStageAuthorizationDoesNotExist() throws Exception {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role2"));
         StageConfig stage = StageConfigMother.custom("ft", new AuthConfig(role));
-        CruiseConfig config = new CruiseConfig(new BasicPipelineConfigs(new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage)));
+        CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage)));
         role.validate(ValidationContext.forChain(config));
         ConfigErrors configErrors = role.errors();
         assertThat(configErrors.isEmpty(), is(false));
@@ -46,7 +46,7 @@ public class AdminRoleTest {
     public void shouldThrowExceptionIfRoleNameInPipelinesAuthorizationDoesNotExist() throws Exception {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role2"));
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs(new Authorization(new ViewConfig(role)));
-        CruiseConfig config = new CruiseConfig(pipelinesConfig);
+        CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         role.validate(ValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty(), is(false));
@@ -57,7 +57,7 @@ public class AdminRoleTest {
     public void shouldNotThrowExceptionIfRoleNameExistInPipelinesAuthorization() throws Exception {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role2"));
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs(new Authorization(new ViewConfig(role)));
-        CruiseConfig config = new CruiseConfig(pipelinesConfig);
+        CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         config.server().security().addRole(new Role(new CaseInsensitiveString("role2")));
         role.validate(ValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));
@@ -69,7 +69,7 @@ public class AdminRoleTest {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role1"));
         StageConfig stage = StageConfigMother.custom("ft", new AuthConfig(role));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage));
-        CruiseConfig config = new CruiseConfig(pipelineConfigs);
+        CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         config.server().security().addRole(new Role(new CaseInsensitiveString("role1")));
         role.validate(ValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));
@@ -81,7 +81,7 @@ public class AdminRoleTest {
         ))
         );
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs("group", new Authorization(), new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage));
-        CruiseConfig config = new CruiseConfig(pipelinesConfig);
+        CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
         config.server().security().addRole(new Role(new CaseInsensitiveString("role1")));
         pipelinesConfig.validate(ValidationContext.forChain(config));
         assertThat(pipelinesConfig.errors().isEmpty(), is(true));
@@ -91,7 +91,7 @@ public class AdminRoleTest {
     public void shouldThrowExceptionIfRoleNameInPipelinesAuthorizationAdminSectionDoesNotExist() throws Exception {
         AdminRole role = new AdminRole(new CaseInsensitiveString("shilpaIsNotHere"));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(new Authorization(new AdminsConfig(role)));
-        CruiseConfig config = new CruiseConfig(pipelineConfigs);
+        CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         role.validate(ValidationContext.forChain(config));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty(), is(false));
@@ -102,7 +102,7 @@ public class AdminRoleTest {
     public void shouldNotThrowExceptionIfRoleNameInPipelinesAuthorizationAdminSectionExists() throws Exception {
         AdminRole role = new AdminRole(new CaseInsensitiveString("shilpaIsHere"));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(new Authorization(new AdminsConfig(role)));
-        CruiseConfig config = new CruiseConfig(pipelineConfigs);
+        CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
         config.server().security().addRole(new Role(new CaseInsensitiveString("shilpaIsHere")));
         role.validate(ValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));

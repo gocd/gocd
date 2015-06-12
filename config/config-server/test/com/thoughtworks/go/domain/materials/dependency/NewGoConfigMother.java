@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.materials.dependency;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -25,7 +26,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 
 public class NewGoConfigMother {
     GoConfigMother mother = new GoConfigMother();
-    private CruiseConfig config = new CruiseConfig();
+    private CruiseConfig config = new BasicCruiseConfig();
 
     public NewGoConfigMother() {
     }

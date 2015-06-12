@@ -34,19 +34,19 @@ public class ValidationContextTest {
 
     @Test
     public void testShouldReturnTrueIfTemplatesIsAnAncestor() {
-        ValidationContext context = ValidationContext.forChain(new CruiseConfig(), new TemplatesConfig(), new PipelineTemplateConfig());
+        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig(), new PipelineTemplateConfig());
         assertThat(context.isWithinTemplates(), is(true));
     }
 
     @Test
     public void testShouldReturnFalseIfTemplatesIsNotAnAncestor() {
-        ValidationContext context = ValidationContext.forChain(new CruiseConfig(), new PipelineGroups(), new BasicPipelineConfigs(), new PipelineConfig());
+        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new PipelineGroups(), new BasicPipelineConfigs(), new PipelineConfig());
         assertThat(context.isWithinTemplates(), is(false));
     }
     
     @Test
     public void shouldReturnAllMaterialsMatchingTheFingerprint() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         HgMaterialConfig hg = new HgMaterialConfig("url", null);
         for (int i=0; i<10; i++) {
             PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
@@ -59,7 +59,7 @@ public class ValidationContextTest {
 
     @Test
     public void shouldReturnEmptyListWhenNoMaterialsMatch() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         ValidationContext context = ValidationContext.forChain(cruiseConfig);
         assertThat(context.getAllMaterialsByFingerPrint("something").isEmpty(), is(true));
     }

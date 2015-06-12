@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain.scm;
 
-import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
@@ -290,7 +290,7 @@ public class SCMTest {
     @Test
     public void shouldValidateIfNameIsMissing() {
         SCM scm = new SCM();
-        scm.validate(new ValidationContext(new CruiseConfig(), null));
+        scm.validate(new ValidationContext(new BasicCruiseConfig(), null));
 
         assertThat(scm.errors().getAllOn(SCM.NAME), is(asList("Please provide name")));
     }

@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -103,7 +100,7 @@ public class StageServiceTest {
         pipelineNames = asList(new CaseInsensitiveString("blah-pipeline"));
         user = new Username(new CaseInsensitiveString("poovan"));
         operationResult = new HttpLocalizedOperationResult();
-		cruiseConfig = mock(CruiseConfig.class);
+		cruiseConfig = mock(BasicCruiseConfig.class);
         goConfigService = mock(GoConfigService.class);
         changesetService = mock(ChangesetService.class);
         goCache = mock(GoCache.class);
@@ -431,7 +428,7 @@ public class StageServiceTest {
     }
 
     private CruiseConfig cruiseConfigWithMingle(final String pipelineName, MingleConfig mingleConfig) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
         pipelineConfig.setMingleConfig(mingleConfig);
         config.addPipeline("group", pipelineConfig);
@@ -476,7 +473,7 @@ public class StageServiceTest {
     @Test
     public void shouldReturnFeedsEvenIfUpstreamPipelineIsDeleted() {
         Date updateDate = new Date();
-        CruiseConfig config = mock(CruiseConfig.class);
+        CruiseConfig config = mock(BasicCruiseConfig.class);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("down");
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
         pipelineConfig.setMingleConfig(mingleConfig);

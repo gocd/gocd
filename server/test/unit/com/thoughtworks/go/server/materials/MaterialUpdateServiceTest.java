@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -177,7 +178,7 @@ public class MaterialUpdateServiceTest {
         when(materialType.getImplementer()).thenReturn(hookImplementer);
         when(materialType.isKnown()).thenReturn(true);
 
-        CruiseConfig config = mock(CruiseConfig.class);
+        CruiseConfig config = mock(BasicCruiseConfig.class);
         when(goConfigService.currentCruiseConfig()).thenReturn(config);
         when(config.getGroups()).thenReturn(new PipelineGroups());
 
@@ -201,7 +202,7 @@ public class MaterialUpdateServiceTest {
         final HashMap params = new HashMap();
         params.put(MaterialUpdateService.TYPE, "svn");
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
-        final CruiseConfig cruiseConfig = new CruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
+        final CruiseConfig cruiseConfig = new BasicCruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
         final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
@@ -300,7 +301,7 @@ public class MaterialUpdateServiceTest {
     public void shouldClearSchedulableMaterialCacheOnConfigChange() {
         when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
         service.onTimer();
-        service.onConfigChange(mock(CruiseConfig.class));
+        service.onConfigChange(mock(BasicCruiseConfig.class));
         service.onTimer();
         verify(goConfigService, times(2)).getSchedulableMaterials();
     }

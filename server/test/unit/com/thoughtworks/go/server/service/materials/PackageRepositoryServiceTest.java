@@ -176,7 +176,7 @@ public class PackageRepositoryServiceTest {
 
         UpdateConfigFromUI updateCommand = service.getPackageRepositoryUpdateCommand(packageRepository, username);
 
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         updateCommand.update(cruiseConfig);
         verify(cruiseConfig).savePackageRepository(packageRepository);
     }

@@ -21,10 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -99,7 +96,7 @@ Above scenario allowed
 
     @Test
     public void shouldReturnValidWhenThereIsNoCycle() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
@@ -141,7 +138,7 @@ Above scenario allowed
 
     @Test
     public void shouldReturnTrueWhenDependencyPipelineDoesNotExist() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         pipelineConfig.materialConfigs().validate(ValidationContext.forChain(cruiseConfig));
@@ -185,7 +182,7 @@ Above scenario allowed
 
     @Test
     public void shouldReturnNullWhenMaterialNotFoundForTheGivenFingerPrint() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         assertThat(pipeline.materialConfigs().getByFingerPrint("invalid"), is(nullValue()));
     }
@@ -278,7 +275,7 @@ Above scenario allowed
 
     @Test
     public void shouldReturnMaterialBasedOnPiplineUniqueFingerPrint() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         HgMaterialConfig expectedMaterial = MaterialConfigsMother.hgMaterialConfig();
         pipeline1.addMaterialConfig(expectedMaterial);
@@ -291,7 +288,7 @@ Above scenario allowed
 
     @Test
     public void shouldReturnTrueWhenNoDependencyDefined() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         pipelineConfig.materialConfigs().validate(ValidationContext.forChain(cruiseConfig));

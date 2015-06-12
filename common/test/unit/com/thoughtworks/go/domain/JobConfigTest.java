@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.DataStructureUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -137,7 +136,7 @@ public class JobConfigTest {
 		JobConfig jobConfig1 = new JobConfig(new CaseInsensitiveString("test"));
 		jobConfig1.setRunInstanceCount(-1);
 
-		jobConfig1.validate(ValidationContext.forChain(new CruiseConfig()));
+		jobConfig1.validate(ValidationContext.forChain(new BasicCruiseConfig()));
 
 		ConfigErrors configErrors1 = jobConfig1.errors();
 		assertThat(configErrors1.isEmpty(), is(false));
@@ -146,7 +145,7 @@ public class JobConfigTest {
 		JobConfig jobConfig2 = new JobConfig(new CaseInsensitiveString("test"));
 		ReflectionUtil.setField(jobConfig2, "runInstanceCount", "abcd");
 
-		jobConfig2.validate(ValidationContext.forChain(new CruiseConfig()));
+		jobConfig2.validate(ValidationContext.forChain(new BasicCruiseConfig()));
 
 		ConfigErrors configErrors2 = jobConfig2.errors();
 		assertThat(configErrors2.isEmpty(), is(false));
@@ -159,7 +158,7 @@ public class JobConfigTest {
 		jobConfig.setRunOnAllAgents(true);
 		jobConfig.setRunInstanceCount(10);
 
-		jobConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+		jobConfig.validate(ValidationContext.forChain(new BasicCruiseConfig()));
 
 		ConfigErrors configErrors = jobConfig.errors();
 		assertThat(configErrors.isEmpty(), is(false));
@@ -340,7 +339,7 @@ public class JobConfigTest {
     public void shouldValidateThatTheTimeoutIsAValidNumber() {
         JobConfig job = new JobConfig("job");
         job.setTimeout("5.5");
-        job.validate(ValidationContext.forChain(new CruiseConfig()));
+        job.validate(ValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(job.errors().isEmpty(), is(true));
     }
 
@@ -348,7 +347,7 @@ public class JobConfigTest {
     public void shouldMarkJobInvalidIfTimeoutIsNotAValidNumber() {
         JobConfig job = new JobConfig("job");
         job.setTimeout("5.5MN");
-        job.validate(ValidationContext.forChain(new CruiseConfig()));
+        job.validate(ValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(job.errors().isEmpty(), is(false));
         assertThat(job.errors().on(JobConfig.TIMEOUT), is("Timeout should be a valid number as it represents number of minutes"));
     }
@@ -378,7 +377,7 @@ public class JobConfigTest {
     public void shouldErrorOutWhenTimeoutIsANegativeNumber() {
         JobConfig jobConfig = new JobConfig("job");
         jobConfig.setTimeout("-1");
-        jobConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+        jobConfig.validate(ValidationContext.forChain(new BasicCruiseConfig()));
 
         assertThat(jobConfig.errors().isEmpty(), is(false));
         assertThat(jobConfig.errors().on(JobConfig.TIMEOUT), is("Timeout cannot be a negative number as it represents number of minutes"));
@@ -386,7 +385,7 @@ public class JobConfigTest {
 
     private JobConfig createJobAndValidate(final String name) {
         JobConfig jobConfig = new JobConfig(name);
-        jobConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+        jobConfig.validate(ValidationContext.forChain(new BasicCruiseConfig()));
         return jobConfig;
     }
 }

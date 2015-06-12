@@ -262,7 +262,7 @@ public class ParamResolverTest {
 
         PipelineConfig withoutParams = PipelineConfigMother.createPipelineConfig("mingle", "dev", "ant");
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addPipeline("group", withParams);
         cruiseConfig.addPipeline("group", withoutParams);
         cruiseConfig.server().setArtifactsDir("/#{foo}/#{bar}");
@@ -284,10 +284,10 @@ public class ParamResolverTest {
     @Test
     public void shouldSkipResolution() throws NoSuchFieldException {
         Object[] specs = new Object[] {
-            CruiseConfig.class, "serverConfig",
-            CruiseConfig.class, "templatesConfig",
-            CruiseConfig.class, "environments",
-            CruiseConfig.class, "agents",
+            BasicCruiseConfig.class, "serverConfig",
+            BasicCruiseConfig.class, "templatesConfig",
+            BasicCruiseConfig.class, "environments",
+            BasicCruiseConfig.class, "agents",
             BasicPipelineConfigs.class, "authorization",
             PipelineConfig.class, "name",
             PipelineConfig.class, "params",

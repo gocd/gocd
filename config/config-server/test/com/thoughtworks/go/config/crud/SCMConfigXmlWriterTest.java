@@ -38,7 +38,7 @@ import static org.junit.Assert.fail;
 public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldWriteSCMConfiguration() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         scm.setId("id");
@@ -62,7 +62,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
 
     @Test
     public void shouldWriteSCMConfigurationWhenNoSCMIdIsProvided() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         scm.setName("name");
@@ -83,7 +83,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldNotAllowMultipleSCMsWithSameId() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm1 = createSCM("id", "name1", "plugin-id-1", "1.0", configuration);
 
@@ -101,7 +101,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldNotAllowSCMWithInvalidId() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = createSCM("id wth space", "name", "plugin-id", "1.0", configuration);
 
@@ -117,7 +117,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldNotAllowMultipleSCMsWithSameName() throws Exception {
         Configuration scmConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm1 = createSCM("id1", "scm-name-1", "plugin-id", "1.0", scmConfiguration);
 
@@ -135,7 +135,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldNotAllowSCMWithInvalidName() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = createSCM("id", "name with space", "plugin-id", "1.0", configuration);
 
@@ -151,7 +151,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
 
     @Test
     public void shouldAllowSCMTypeMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         String scmId = "scm-id";
@@ -181,7 +181,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
 
     @Test
     public void shouldAllowFolderAndFilterForPluggableSCMMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         SCM scm = new SCM();
         String scmId = "scm-id";
@@ -213,7 +213,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
 
     @Test
     public void shouldFailValidationIfSCMTypeMaterialForPipelineHasARefToNonExistentSCM() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
         String scmId = "does-not-exist";
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(scmId);
         SCM scm = SCMMother.create("scm-id", "scm-name", "pluginid", "1.0", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
@@ -232,7 +232,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldNotWriteToFileWithDefaultValueOfTrueForSCMAutoUpdateWhenTrue() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         SCM scm = createSCM("id", "name", "plugin-id", "1.0", configuration);
         scm.setAutoUpdate(true);
         cruiseConfig.setSCMs(new SCMs(scm));
@@ -245,7 +245,7 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
     @Test
     public void shouldWriteToFileWithValueOfFalseForSCMAutoUpdateWhenFalse() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         SCM scm = createSCM("id", "name", "plugin-id", "1.0", configuration);
         scm.setAutoUpdate(false);
         cruiseConfig.setSCMs(new SCMs(scm));

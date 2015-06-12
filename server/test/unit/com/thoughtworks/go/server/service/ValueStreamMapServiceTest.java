@@ -128,7 +128,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(materialConfig));
 
         when(pipelineService.buildCauseFor(pipelineName, counter)).thenReturn(buildCause);
-        when(goConfigService.currentCruiseConfig()).thenReturn(new CruiseConfig(new BasicPipelineConfigs(p1Config)));
+        when(goConfigService.currentCruiseConfig()).thenReturn(new BasicCruiseConfig(new BasicPipelineConfigs(p1Config)));
         when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("MYPIPELINE", "p1-label", buildCause));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap("MYPIPELINE", counter, user, result);
@@ -160,7 +160,7 @@ public class ValueStreamMapServiceTest {
 
         when(pipelineService.buildCauseFor(pipeline, counter)).thenReturn(buildCause);
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig(pipeline, new MaterialConfigs(material));
-        when(goConfigService.currentCruiseConfig()).thenReturn(new CruiseConfig(new BasicPipelineConfigs(p1Config)));
+        when(goConfigService.currentCruiseConfig()).thenReturn(new BasicCruiseConfig(new BasicPipelineConfigs(p1Config)));
         when(pipelineService.findPipelineByCounterOrLabel(pipeline, "1")).thenReturn(new Pipeline(pipeline, "p1-label", buildCause));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(pipeline, counter, user, result);
@@ -202,7 +202,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(git.config()));
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause));
@@ -255,7 +255,7 @@ public class ValueStreamMapServiceTest {
 		PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
 				new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
 		PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("g1", new Authorization(), p1Config, p2Config, p3Config);
-		CruiseConfig cruiseConfig = new CruiseConfig(pipelineConfigs);
+		CruiseConfig cruiseConfig = new BasicCruiseConfig(pipelineConfigs);
 
 		when(goConfigService.groups()).thenReturn(new PipelineGroups(pipelineConfigs));
 		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
@@ -315,7 +315,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig(p2, new MaterialConfigs(gitConfig, new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name())));
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig(p3,
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause));
 
@@ -403,7 +403,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig(p2, new MaterialConfigs(git.config(), dependencyMaterialP1.config()));
         DependencyMaterial dependencyMaterialP2 = new DependencyMaterial(new CaseInsensitiveString(p2), p2Config.getFirstStageConfig().name());
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig(p3, new MaterialConfigs(dependencyMaterialP1.config(), dependencyMaterialP2.config()));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
         BuildCause p1buildCause = createBuildCause(new ArrayList<String>(), asList(git));
         BuildCause p2buildCause = createBuildCause(asList(p1), asList(git));
@@ -469,7 +469,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig(p3, new MaterialConfigs(g2.config(), new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name())));
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig(p2,
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p3Config.name(), p3Config.getFirstStageConfig().name())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(pipelineService.findPipelineByCounterOrLabel(p2, "1")).thenReturn(new Pipeline(p2, "p2-label", p2buildCause));
@@ -509,7 +509,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
         when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -545,7 +545,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
 
         when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause));
 
@@ -584,7 +584,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
 
         when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause));
 
@@ -607,7 +607,7 @@ public class ValueStreamMapServiceTest {
 
         GitMaterial git = new GitMaterial("git");
         String pipelineName = "p1";
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
         BuildCause p1buildCause = createBuildCause(new ArrayList<String>(), asList(git));
@@ -628,7 +628,7 @@ public class ValueStreamMapServiceTest {
 
         GitMaterial git = new GitMaterial("git");
         String pipelineName = "p1";
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
         BuildCause p1buildCause = createBuildCause(new ArrayList<String>(), asList(git));
@@ -659,7 +659,7 @@ public class ValueStreamMapServiceTest {
 
 
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3", new MaterialConfigs(new GitMaterialConfig("test")));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(p3Config));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p1"))).thenReturn(false);
@@ -677,7 +677,7 @@ public class ValueStreamMapServiceTest {
     public void shouldPopulateErrorWhenPipelineNameAndCounterAreMultiple() {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("MYPIPELINE", new MaterialConfigs(new GitMaterialConfig("sampleGit")));
-        CruiseConfig cruiseConfig = new CruiseConfig(new BasicPipelineConfigs(pipelineConfig));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
 
         when(pipelineService.findPipelineByCounterOrLabel("MYPIPELINE", "1")).thenThrow(Exception.class);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -703,7 +703,7 @@ public class ValueStreamMapServiceTest {
 		MaterialConfig gitConfig = gitMaterial.config();
 		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		PipelineConfigs groups = new BasicPipelineConfigs(groupName, new Authorization(), PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(gitConfig)));
-		CruiseConfig cruiseConfig = new CruiseConfig(groups);
+		CruiseConfig cruiseConfig = new BasicCruiseConfig(groups);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 		when(goConfigService.groups()).thenReturn(new PipelineGroups(groups));
 

@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
@@ -413,14 +413,14 @@ public class BuildCauseProducerServiceTest {
         config.addMaterialConfig(svnMaterial.config());
         config.addMaterialConfig(dependencyMaterial.config());
 
-        when(pipelineService.getRevisionsBasedOnDependencies(Matchers.<MaterialRevisions>any(), Matchers.<CruiseConfig>any(), Matchers.<CaseInsensitiveString>any())).thenThrow(
+        when(pipelineService.getRevisionsBasedOnDependencies(Matchers.<MaterialRevisions>any(), Matchers.<BasicCruiseConfig>any(), Matchers.<CaseInsensitiveString>any())).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
         when(pipelineScheduleQueue.mostRecentScheduled(pipelineName)).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));
         when(specificMaterialRevisionFactory.create(Matchers.<String>any(), Matchers.<Map<String, String>>any())).thenReturn(MaterialRevisions.EMPTY);
-        when(goConfigService.upstreamDependencyGraphOf(Matchers.<String>any(), Matchers.<CruiseConfig>any())).thenReturn(new PipelineConfigDependencyGraph(config));
+        when(goConfigService.upstreamDependencyGraphOf(Matchers.<String>any(), Matchers.<BasicCruiseConfig>any())).thenReturn(new PipelineConfigDependencyGraph(config));
 
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(svnMaterial.config(), dependencyMaterial.config());
         Materials materials = new Materials(svnMaterial, dependencyMaterial);

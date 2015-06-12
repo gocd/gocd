@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -58,7 +59,7 @@ public class DiskSpaceFullCheckerTest {
     @Test
     public void shouldReturnTrueIfTheArtifactFolderHasSizeLimit() {
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "1M");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(".", new SecurityConfig()));
 
         ArtifactsDiskSpaceFullChecker fullChecker = createChecker(cruiseConfig);
@@ -102,7 +103,7 @@ public class DiskSpaceFullCheckerTest {
 
     private CruiseConfig simulateFullDisk() {
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "1200009M");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(".", new SecurityConfig()));
         return cruiseConfig;
     }
@@ -130,7 +131,7 @@ public class DiskSpaceFullCheckerTest {
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
         String expectedHelpUrl = "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html";
         ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);
 
         GoConfigService goConfigService = mock(GoConfigService.class);

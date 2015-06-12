@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigFileDao;
@@ -428,7 +429,7 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void loadActivePipelines_shouldCacheResult() {
         final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig=mock(CruiseConfig.class);
+        CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
         GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
@@ -547,7 +548,7 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void shouldRemovePipelineIdFromCacheWhenStageFinishesForNonLatestPipeline() {
         final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig=mock(CruiseConfig.class);
+        CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
         GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
@@ -584,7 +585,7 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void shouldRemovePipelineIdFromCacheWhenPipelineCeasesToBeTheLatestAndIsNotActive() {
         final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig=mock(CruiseConfig.class);
+        CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
         GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));

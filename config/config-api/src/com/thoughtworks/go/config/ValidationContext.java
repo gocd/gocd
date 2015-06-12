@@ -73,7 +73,7 @@ public class ValidationContext {
     }
 
     public CruiseConfig getCruiseConfig() {
-        return loadFirstOfType(CruiseConfig.class);
+        return loadFirstOfType(BasicCruiseConfig.class);
     }
 
     public JobConfig getJob() {

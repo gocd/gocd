@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.serialization;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigMigrator;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.config.CruiseConfig;
@@ -37,7 +38,7 @@ public class EnvironmentFeatureValidatorTest {
 
     @Test public void shouldBeInValidIfEnvironmentsAreDefined() throws Exception {
         assertThat(feature.isValidFeature(configWithEnvironment(), null), is(false));
-        assertThat(feature.isValidFeature(new CruiseConfig(), null), is(true));
+        assertThat(feature.isValidFeature(new BasicCruiseConfig(), null), is(true));
     }
 
     private CruiseConfig configWithEnvironment() throws Exception {

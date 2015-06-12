@@ -21,7 +21,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class MergePipelineConfigsTest {
 
@@ -40,37 +42,63 @@ public class MergePipelineConfigsTest {
         MergePipelineConfigs merge = new MergePipelineConfigs(part1);
         assertThat("shouldReturnFalseIfPipelineNotExist", merge.hasPipeline(new CaseInsensitiveString("not-exist")), is(false));
     }
+    @Test
+    public void shouldSetAuthorizationInFile() {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs merge = new MergePipelineConfigs(filePart,new BasicPipelineConfigs());
+
+        Authorization auth = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("buddy"))));
+        merge.setAuthorization(auth);
+        assertThat(filePart.getAuthorization(),is(auth));
+    }
 
     @Test
     public void shouldReturnTrueIfAuthorizationIsNotDefined() {
-        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs());
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs merge = new MergePipelineConfigs(filePart,new BasicPipelineConfigs());
         assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(true));
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined() {
-        assertThat(new MergePipelineConfigs(new BasicPipelineConfigs()).hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        assertThat(new MergePipelineConfigs(filePart).hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
 
     @Test
@@ -84,9 +112,10 @@ public class MergePipelineConfigsTest {
     @Test
     public void shouldValidateThatPipelineNameIsUnique() {
         PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second")));
+        BasicPipelineConfigs part = new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second"));
+        PipelineConfigs group = new MergePipelineConfigs(part);
         PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
-        group.addWithoutValidation(duplicate);
+        part.addWithoutValidation(duplicate);
 
         group.validate(null);
         assertThat(duplicate.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
@@ -95,28 +124,37 @@ public class MergePipelineConfigsTest {
     }
     @Test
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveOperatePermission() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null), is(true));
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat("hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined", group.hasViewPermissionDefined(),
                 is(true));
@@ -124,7 +162,10 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),filePart);
         assertThat("hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined",
                 group.hasViewPermissionDefined(), is(false));
     }
@@ -133,14 +174,23 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldReturnIndexOfPipeline() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(
+                PipelineConfigMother.pipelineConfig("pipeline1"),PipelineConfigMother.pipelineConfig("pipeline2")));
+        PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
+        assertThat(group.indexOf(pipelineConfig),is(1));
+    }
+    @Test
+    public void shouldApplyChangesToPipelineWhenPartEditable() {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         PipelineConfig pipelineConfig = (PipelineConfig) group.get(0).clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
         assertThat(group.get(0).getLabelTemplate(), is("blah"));
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void shouldUpdateName() {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
         group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
@@ -159,7 +209,10 @@ public class MergePipelineConfigsTest {
     //TODO this must always work. At least in xml authorization can be defined.
     @Test
     public void shouldUpdateAuthorization() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart,new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
         group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
@@ -181,7 +234,10 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldReInitializeAuthorizationIfWeClearAllPermissions() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart,new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
         group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
@@ -205,7 +261,10 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldIgnoreBlankUserOrRoleNames_whileSettingAttributes() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(filePart);
         group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
                 m(Authorization.NAME, null,         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
@@ -227,7 +286,10 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldSetViewPermissionByDefaultIfNameIsPresentAndPermissionsAreOff_whileSettingAttributes() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")));
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),filePart);
         group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
                 m(Authorization.NAME, "user1", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)),
                 m(Authorization.NAME, "role1", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)))));
@@ -240,7 +302,7 @@ public class MergePipelineConfigsTest {
         assertThat(authorization.getAdminsConfig().size(), is(0));
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void shouldSetToDefaultGroupWithGroupNameIsEmptyString() {
         PipelineConfigs pipelineConfigs = new MergePipelineConfigs(new BasicPipelineConfigs());
         pipelineConfigs.setGroup("");
@@ -254,8 +316,7 @@ public class MergePipelineConfigsTest {
                 Authorization.PrivilegeType.VIEW.toString(), view.toString()));
     }
 
-    // 2 parts cases
-
+    // 2 parts and more cases
 
     @Test
     public void shouldReturnTrueIfPipelineExistIn2Parts() {
@@ -277,7 +338,10 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldReturnTrueIfAuthorizationIsNotDefinedIn2Parts() {
-        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs());
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), filePart);
         assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
     @Test
@@ -296,16 +360,22 @@ public class MergePipelineConfigsTest {
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefinedIn2Parts() {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline3"));
+        filePart.setOrigin(new FileConfigOrigin());
+
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
-                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")),filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefinedIn2Parts() {
-        assertThat(new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs())
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
                 .hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
 
@@ -336,4 +406,145 @@ public class MergePipelineConfigsTest {
 
     }
 
+    @Test
+    public void shouldReturnSizeSummedFrom2Parts(){
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
+        assertThat(group.size(),is(2));
+    }
+    @Test
+    public void shouldReturnTrueWhenAllPartsEmpty(){
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(),
+                new BasicPipelineConfigs());
+        assertThat(group.isEmpty(),is(true));
+    }
+    @Test
+    public void shouldReturnFalseSomePartIsNotEmpty(){
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
+                new BasicPipelineConfigs());
+        assertThat(group.isEmpty(),is(false));
+    }
+    @Test
+    public  void  shouldReturnTrueWhenContainsPipeline() {
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(pipe1),
+                new BasicPipelineConfigs());
+        assertThat(group.contains(pipe1),is(true));
+    }
+    @Test
+    public  void  shouldReturnFalseWhenDoesNotContainPipeline() {
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(pipe1),
+                new BasicPipelineConfigs());
+        assertThat(group.contains(PipelineConfigMother.pipelineConfig("pipeline2")),is(false));
+    }
+
+    @Test
+    public void shouldReturnPipelinesInOrder(){
+        PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfig pipeline3 = PipelineConfigMother.pipelineConfig("pipeline3");
+        PipelineConfig pipeline5 = PipelineConfigMother.pipelineConfig("pipeline5");
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        PipelineConfig pipeline4 = PipelineConfigMother.pipelineConfig("pipeline4");
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(pipeline1, pipeline2),
+                new BasicPipelineConfigs(pipeline3),
+                new BasicPipelineConfigs(pipeline4, pipeline5));
+
+        assertThat(group.get(0),is(pipeline1));
+        assertThat(group.get(1),is(pipeline2));
+        assertThat(group.get(2),is(pipeline3));
+        assertThat(group.get(3),is(pipeline4));
+        assertThat(group.get(4),is(pipeline5));
+    }
+
+    @Test
+    public  void  shouldReturnFirstEditablePartWhenExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+        part1.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs());
+
+        assertThat(group.getFirstEditablePart(), Matchers.<PipelineConfigs>is(part1));
+
+    }
+
+    @Test
+    public  void  shouldReturnNullWhenFirstEditablePartNotExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs());
+
+        assertNull(group.getFirstEditablePart());
+
+    }
+
+    @Test
+    public  void  shouldReturnPartWithPipelineWhenExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+        part1.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
+
+        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1")), Matchers.<PipelineConfigs>is(part1));
+
+    }
+
+    @Test
+    public  void  shouldReturnNullPartWithPipelineNotExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs());
+
+        assertNull(group.getPartWithPipeline(new CaseInsensitiveString("pipelineX")));
+
+    }
+
+
+    @Test
+    public void shouldAddPipelineToFirstEditablePartWhenExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+        part1.setOrigin(new FileConfigOrigin());
+
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs());
+
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        group.add(pipeline2);
+
+        assertThat(group.contains(pipeline2),is(true));
+    }
+
+    @Test
+    public void shouldBombWhenAddPipelineAndNoEditablePartExists(){
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
+
+        MergePipelineConfigs group = new MergePipelineConfigs(
+                part1, new BasicPipelineConfigs());
+
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        try {
+            group.add(pipeline2);
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(),is("No editable configuration sources"));
+            return;
+        }
+
+        fail("exception not thrown");
+    }
 }

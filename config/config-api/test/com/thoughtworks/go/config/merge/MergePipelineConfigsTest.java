@@ -1,8 +1,11 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.List;
@@ -20,9 +23,6 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by tomzo on 6/12/15.
- */
 public class MergePipelineConfigsTest {
 
     // 1 part cases, basically tests backward compatibility
@@ -265,4 +265,75 @@ public class MergePipelineConfigsTest {
         assertThat("shouldReturnTrueIfPipelineExist", merge.hasPipeline(new CaseInsensitiveString("pipeline1")), is(true));
         assertThat("shouldReturnTrueIfPipelineExist", merge.hasPipeline(new CaseInsensitiveString("pipeline2")), is(true));
     }
+
+
+    @Test
+    public void shouldReturnFalseIfPipelineNotExistIn2Parts() {
+        PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
+        MergePipelineConfigs merge = new MergePipelineConfigs(part2);
+        assertThat("shouldReturnFalseIfPipelineNotExist", merge.hasPipeline(new CaseInsensitiveString("not-exist")), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueIfAuthorizationIsNotDefinedIn2Parts() {
+        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs());
+        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
+    }
+    @Test
+    public void shouldReturnAuthorizationFromFileIfDefinedIn2Parts() {
+        BasicPipelineConfigs part1 = new BasicPipelineConfigs();
+        Authorization fileAuth = new Authorization();
+        part1.setAuthorization(fileAuth);
+        part1.setOrigin(new FileConfigOrigin());
+
+        BasicPipelineConfigs part2 = new BasicPipelineConfigs();
+        part2.setAuthorization(new Authorization());
+        MergePipelineConfigs merge = new MergePipelineConfigs(part1,part2);
+
+        assertThat(merge.getAuthorization(),is(fileAuth));
+    }
+
+    @Test
+    public void shouldReturnFalseIfViewPermissionIsNotDefinedIn2Parts() {
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
+                new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
+        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefinedIn2Parts() {
+        assertThat(new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs())
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
+    }
+
+    @Test
+    public void validate_shouldMakeSureTheNameIsAppropriateIn2Parts() {
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs());
+        group.validate(null);
+        assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
+                is("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowOnPartsWithDifferentGroupNames(){
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs("one",null),new BasicPipelineConfigs("two",null));
+    }
+
+    @Test
+    public void shouldValidateThatPipelineNameIsUniqueIn2Parts() {
+        PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
+        PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second")),
+                new BasicPipelineConfigs(duplicate, PipelineConfigMother.pipelineConfig("third")));
+
+        group.validate(null);
+        assertThat(duplicate.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
+        assertThat(first.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
+
+    }
+
 }

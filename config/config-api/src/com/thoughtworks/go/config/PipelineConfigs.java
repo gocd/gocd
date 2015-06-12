@@ -20,6 +20,7 @@ public interface PipelineConfigs extends List<PipelineConfig>, Cloneable, Serial
     public static final String DEFAULT_GROUP = "defaultGroup";
     public static final String GROUP = "group";
     public static final String AUTHORIZATION = "authorization";
+    public static final String NO_REMOTE_AUTHORIZATION = "no_remote_authorization";
 
     ConfigOrigin getOrigin();
 

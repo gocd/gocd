@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -35,12 +36,15 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @ConfigCollection(value = PipelineConfig.class, asFieldName = "pipelines")
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs {
 
+
     @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution
     private String group;
 
 
     @ConfigSubtag @SkipParameterResolution
     private Authorization authorization = new Authorization();
+
+    private ConfigOrigin configOrigin;
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
@@ -65,7 +69,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        return configOrigin;
     }
 
     @Override
@@ -291,6 +295,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
             this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
         }
+        if(!(this.configOrigin instanceof FileConfigOrigin))
+        {
+            this.configErrors.add(NO_REMOTE_AUTHORIZATION,
+                "Authorization can be defined only in configuration file");
+        }
 
         verifyPipelineNameUniqueness();
     }
@@ -390,5 +399,9 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         for (PipelineConfig pipelineConfig : this){
             pipelineConfig.cleanupAllUsagesOfRole(roleToDelete);
         }
+    }
+
+    public void setOrigin(ConfigOrigin origin) {
+        this.configOrigin = origin;
     }
 }

@@ -1,109 +1,95 @@
 <div class="form_content">
   <div class="environment_variables_section popup_form">
     <% template_row_id_prefix = scope[:collection_name].to_s + (scope[:secure] ? "_secure" : "") %>
-    <textarea id="<%= template_row_id_prefix -%>_variables_template" class="template">
-      <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
-        <td class="name_value_cell">
-          <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
-        </td>
-        <td class="name_value_cell">
-          <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
-        </td>
-        <td class="name_value_cell">
-          <div>
-            <% if scope[:secure] %>
-              <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
-              <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
-              <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", true, class: 'is-changed-field' %>
-            <% else %>
-              <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
-            <% end %>
-          </div>
-        </td>
-        <td class="name_value_cell">
-          <span class="icon_remove delete_parent"></span>
-        </td>
-      <% end %>
-    </textarea>
-    <table class="<%= scope[:collection_name] -%>">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th></th>
-        <th>Value</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody class="<%= scope[:collection_name] -%>" id="<%= template_row_id_prefix -%>">
-      <% scope[:collection].each do |variable| -%>
-        <%= scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| %>
-          <tr class="environment-variable-edit-row">
-            <td class="name_value_cell">
-              <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
-              <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::NAME, :css_class => "name_value_error") %>
-              <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", variable.getName() %>
-            </td>
-            <td class="name_value_cell">
-              <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
-            </td>
-            <td class="name_value_cell">
-              <div>
-                <% if scope[:secure] %>
-                  <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :readonly => 'readonly' -%>
-                  <%= hidden_field_tag("#{scope[:form].object_name}[variables][][originalValue]", variable.getValueForDisplay(), :class => "original-secure-variable-value") -%>
-                  <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
-                  <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => "is-changed-field" %>
-                <% else %>
-                  <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
-                <% end %>
+    <div id="<%= template_row_id_prefix %>">
+      <table class="<%= scope[:collection_name] -%> variables">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th></th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody class="<%= scope[:collection_name] -%>" >
+        <% scope[:collection].each do |variable| -%>
+          <%= scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| %>
+            <tr class="environment-variable-edit-row">
+              <td class="name_value_cell">
+                <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
+                <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::NAME, :css_class => "name_value_error") %>
+                <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][original_name]", variable.getName() %>
+              </td>
+              <td class="name_value_cell">
+                <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+              </td>
+              <td class="name_value_cell">
+                <div>
+                  <% if scope[:secure] %>
+                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :readonly => 'readonly' -%>
+                    <%= hidden_field_tag("#{scope[:form].object_name}[variables][][originalValue]", variable.getValueForDisplay(), :class => "original-secure-variable-value") -%>
+                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
+                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => "is-changed-field" %>
+                  <% else %>
+                    <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
+                  <% end %>
 
-                <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::VALUE, :css_class => "name_value_error") %>
-              </div>
-            </td>
-            <% if scope[:secure] %>
-              <td class="name_value_cell cell_edit_reset_actions">
-                <%= link_to 'Edit', '#', :class => "edit skip_dirty_stop" -%>
-                <%= link_to 'Reset', '#', :class => "reset hidden skip_dirty_stop" -%>
+                  <%= error_message_on(variable, com.thoughtworks.go.config.EnvironmentVariableConfig::VALUE, :css_class => "name_value_error") %>
+                </div>
+              </td>
+              <% if scope[:secure] %>
+                <td class="name_value_cell cell_edit_reset_actions">
+                  <%= link_to 'Edit', '#', :class => "edit skip_dirty_stop" -%>
+                  <%= link_to 'Reset', '#', :class => "reset hidden skip_dirty_stop" -%>
+                </td>
+              <% end %>
+              <td class="name_value_cell icon_remove_cell">
+                <span class="icon_remove delete_parent"></span>
+              </td>
+            </tr>
+          <%- end -%>
+        <%- end -%>
+        </tbody>
+      </table>
+      <%= action_icon({:type => "add", :text => l.string("ADD"), :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
+      <table style="display: none;">
+        <tbody class="template">
+          <tr class="environment-variable-edit-row">
+            <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
+              <td class="name_value_cell">
+                <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
+              </td>
+              <td class="name_value_cell">
+                <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+              </td>
+              <td class="name_value_cell">
+                <div>
+                  <% if scope[:secure] %>
+                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
+                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
+                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", true, class: 'is-changed-field' %>
+                  <% else %>
+                    <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
+                  <% end %>
+                </div>
+              </td>
+              <td class="name_value_cell">
+                <span class="icon_remove delete_parent"></span>
               </td>
             <% end %>
-            <td class="name_value_cell icon_remove_cell">
-              <span class="icon_remove delete_parent"></span>
-            </td>
           </tr>
-        <%- end -%>
-      <%- end -%>
-      </tbody>
-    </table>
-    <%= action_icon({:type => "add", :text => l.string("ADD"), :href => "#", :id => id="add_#{template_row_id_prefix}", :class => "skip_dirty_stop"}) %>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </div>
+
 <script type="text/javascript">
-    (function($){
-        $(function(){
-            EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
-        });
-    })(jQuery);
-
-    Util.on_load(function () {
-        function setupVarForm(finish_button) {
-            var rowCreator = new EnvironmentVariables.RowCreator(jQuery('#<%=template_row_id_prefix-%>_variables_template'), 'tr', '.delete_parent');
-            var variables = new EnvironmentVariables(
-                    jQuery('tbody#<%=template_row_id_prefix-%>'),
-                    rowCreator,
-                    null,
-                    function (inputs) {
-                        inputs.dirty_form();
-                    },
-                    function (row) {
-                        row.parents("form.dirtyform").data("dirty", true);
-                    });
-
-            variables.registerAddButton(jQuery("#add_<%=template_row_id_prefix-%>"))
-            variables.addDefaultRow();
-            variables.registerFinishButton(finish_button);
-        }
-
-        var finish_button = jQuery(".finish");
-        setupVarForm(finish_button);
+  (function ($) {
+    $(function () {
+      EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
+      EnvironmentVariableAddRemove($('#<%=template_row_id_prefix-%>'));
     });
+  })(jQuery);
 </script>

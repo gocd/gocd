@@ -14,6 +14,49 @@
  * limitations under the License.
  */
 
+describe("environment variable add remove", function () {
+    beforeEach(function () {
+        setFixtures('' +
+          '<div class="parent">' +
+          '  <table class="variables">' +
+          '    <tbody>' +
+          '    </tbody>' +
+          '  </table>' +
+          '  <table>' +
+          '    <tbody class="template">' +
+          '      <tr class="environment-variable-edit-row">' +
+          '        <td>foobar</td>' +
+          '        <td><span class="icon_remove delete_parent"></span></td>' +
+          '      </tr>' +
+          '    </tbody>' +
+          '  </table>' +
+          '  <a href="#" class="add_item">add item</a>' +
+          '</div>')
+    });
+
+    it('should insert the template when add item is clicked', function(){
+        EnvironmentVariableAddRemove(jQuery('.parent'));
+
+        expect(jQuery('table.variables tr').length).toBe(1);
+        jQuery('.add_item').click();
+        expect(jQuery('table.variables tr').length).toBe(2);
+    });
+
+    it('should remove the row when add item is clicked', function(){
+        EnvironmentVariableAddRemove(jQuery('.parent'));
+
+        expect(jQuery('table.variables tr').length).toBe(1);
+
+        jQuery('.add_item').click();
+        jQuery('.add_item').click();
+        jQuery('.add_item').click();
+        expect(jQuery('table.variables tr').length).toBe(4);
+        jQuery(jQuery('table.variables .delete_parent').get(1)).click();
+        expect(jQuery('table.variables tr').length).toBe(3);
+    });
+
+});
+
 describe("environment variable spec", function () {
     beforeEach(function () {
         setFixtures('' +

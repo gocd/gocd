@@ -74,8 +74,7 @@ public class PluginsZip {
             String digestOfPlugins = digestOfBundledFolder + digestOfExternalFolder;
             return DigestUtils.md5Hex(digestOfPlugins);
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Could not compute md5 of plugins." +
-                    " Exception occurred: %s", e.getStackTrace()));
+            throw new RuntimeException(String.format("Could not compute md5 of plugins. Exception occurred: %s", e.getStackTrace()));
         }
     }
 
@@ -86,8 +85,7 @@ public class PluginsZip {
             String folder = bundled ? externalPlugins.getAbsolutePath() : bundledPlugins.getAbsolutePath();
             LOG.error(String.format("Could not read plugins." +
                     "Please check access rights on files in folder: %s.", folder));
-            throw new FileAccessRightsCheckException(String.format("Could not read plugins. " +
-                    "Please check access rights in folder: %s", folder));
+            throw new FileAccessRightsCheckException(String.format("Could not read plugins. Please check access rights in folder: %s", folder));
         }
     }
 }

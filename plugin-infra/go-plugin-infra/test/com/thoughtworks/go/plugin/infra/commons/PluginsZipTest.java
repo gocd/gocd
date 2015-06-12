@@ -154,7 +154,7 @@ public class PluginsZipTest {
         when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
         FileUtils.writeStringToFile(new File(externalPluginsDir, "external1.jar"), "External1");
         expectedException.expect(FileAccessRightsCheckException.class);
-        expectedException.expectMessage(String.format("folder: %s", "/dummy"));
+        expectedException.expectMessage("dummy");
 
         PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, new ZipUtil());
         pluginsZipFail.create();

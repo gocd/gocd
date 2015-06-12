@@ -118,7 +118,9 @@ public class UserSearchService {
                     List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
                     if (users != null && !users.isEmpty()) {
                         for (com.thoughtworks.go.plugin.access.authentication.model.User user : users) {
-                            searchResults.add(new User(user.getUsername(), user.getDisplayName(), user.getEmailId()));
+                            String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
+                            String emailId = user.getEmailId() == null ? "" : user.getEmailId();
+                            searchResults.add(new User(user.getUsername(), displayName, emailId));
                         }
                     }
                 } catch (Exception e) {

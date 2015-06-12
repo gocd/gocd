@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -254,5 +255,10 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         if (attributeMap.containsKey(VARIABLES_FIELD)) {
             variables.setConfigAttributes(attributeMap.get(VARIABLES_FIELD));
         }
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return null;
     }
 }

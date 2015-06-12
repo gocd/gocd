@@ -1,5 +1,6 @@
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -20,9 +21,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by tomzo on 6/12/15.
+ * @understands the configuration for cruise
  */
-public interface CruiseConfig extends Validatable {
+public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String WORKING_BASE_DIR = "pipelines/";
 
     @PostConstruct

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -60,6 +61,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         super(pipelineConfigs);
         this.group = group;
         this.authorization = authorization;
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return null;
     }
 
     @Override

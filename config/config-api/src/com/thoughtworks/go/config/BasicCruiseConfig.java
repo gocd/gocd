@@ -32,6 +32,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.JobConfigVisitor;
 import com.thoughtworks.go.domain.NullTask;
@@ -1010,6 +1011,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
         return groups.canDeletePluggableSCMMaterial(scmConfig);
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return null;
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

@@ -1,5 +1,6 @@
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -10,7 +11,8 @@ import java.util.Set;
 /**
  * @understands the current persistent information related to a logical grouping of machines
  */
-public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope {
+public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
+
     void validate(ValidationContext validationContext);
 
     ConfigErrors errors();

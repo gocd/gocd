@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
@@ -20,6 +21,11 @@ public class MergePipelineConfigs implements PipelineConfigs {
         {
             this.parts.add(part);
         }
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return null;
     }
 
     @Override

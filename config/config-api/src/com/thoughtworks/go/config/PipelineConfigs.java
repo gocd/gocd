@@ -1,5 +1,8 @@
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 
@@ -11,11 +14,14 @@ import java.util.Map;
 /**
  * Created by tomzo on 6/11/15.
  */
-public interface PipelineConfigs extends List<PipelineConfig>, Cloneable, Serializable, Validatable, ParamsAttributeAware {
+public interface PipelineConfigs extends List<PipelineConfig>, Cloneable, Serializable, Validatable,
+        ParamsAttributeAware, ConfigOriginTraceable {
 
     public static final String DEFAULT_GROUP = "defaultGroup";
     public static final String GROUP = "group";
     public static final String AUTHORIZATION = "authorization";
+
+    ConfigOrigin getOrigin();
 
     PipelineConfig findBy(CaseInsensitiveString pipelineName);
 

@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @ConfigTag("pipelines")
 @ConfigCollection(value = PipelineConfig.class, asFieldName = "pipelines")
-public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs {
+public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
 
 
     @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution

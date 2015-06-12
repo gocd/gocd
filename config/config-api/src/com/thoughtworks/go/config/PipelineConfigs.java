@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by tomzo on 6/11/15.
  */
-public interface PipelineConfigs extends List<PipelineConfig>, Cloneable, Serializable, Validatable,
+public interface PipelineConfigs extends List<PipelineConfig>, Cloneable, Validatable,
         ParamsAttributeAware, ConfigOriginTraceable {
 
     public static final String DEFAULT_GROUP = "defaultGroup";

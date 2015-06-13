@@ -18,10 +18,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
@@ -834,6 +831,50 @@ public class MergeCruiseConfigTest {
     }
 
     // TODO actual merge cases
+
+    @Test
+    public void shouldReturnTrueHasPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new MergeCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")),is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenHasNotPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new MergeCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")),is(false));
+    }
+    @Test
+    public void shouldReturnGroupsFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new MergeCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "g2"));
+
+        assertThat(cruiseConfig.hasPipelineGroup("g2"),is(true));
+    }
+    @Test
+    public void shouldAddPipelineToMain()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new MergeCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+        cruiseConfig.addPipeline("group_main",PipelineConfigMother.pipelineConfig("pipe3"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+        assertThat(mainCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+    }
 
 
     private Role setupSecurityWithRole() {

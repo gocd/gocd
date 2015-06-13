@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.*;
@@ -13,10 +14,14 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.feature.EnterpriseFeature;
 import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.licensing.LicenseValidity;
+import com.thoughtworks.go.util.DFSCycleDetector;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
  * Composite of main CruiseConfig and parts.
@@ -27,6 +32,10 @@ public class MergeCruiseConfig implements CruiseConfig {
     private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
     private PipelineGroups groups = new PipelineGroups();
+    private EnvironmentsConfig environments = new EnvironmentsConfig();
+
+    private ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+    private ConfigErrors errors = new ConfigErrors();
 
     public  MergeCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
         this.main = main;
@@ -35,6 +44,11 @@ public class MergeCruiseConfig implements CruiseConfig {
         }
 
         mergePipelineConfigs();
+        mergeEnvironmentConfigs();
+    }
+
+    private void mergeEnvironmentConfigs() {
+        //first add environment configs from main
     }
 
     private void mergePipelineConfigs() {
@@ -91,17 +105,45 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
-
+        areThereCyclicDependencies();
     }
 
     @Override
     public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
-        return null;
+        final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<CaseInsensitiveString, Node>();
+        this.accept(new PiplineConfigVisitor() {
+            public void visit(PipelineConfig pipelineConfig) {
+                hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode());
+            }
+        });
+        return hashtable;
+    }
+
+    private void areThereCyclicDependencies() {
+        final DFSCycleDetector dfsCycleDetector = new DFSCycleDetector();
+        final Hashtable<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
+        List<PipelineConfig> pipelineConfigs = this.getAllPipelineConfigs();
+        for (PipelineConfig pipelineConfig : pipelineConfigs) {
+            try {
+                dfsCycleDetector.topoSort(pipelineConfig.name(), dependencyTable);
+            } catch (Exception e) {
+                addToErrorsBaseOnMaterialsIfDoesNotExist(e.getMessage(), pipelineConfig.materialConfigs(), pipelineConfigs);
+            }
+        }
+    }
+
+    private void addToErrorsBaseOnMaterialsIfDoesNotExist(String errorMessage, MaterialConfigs materialConfigs, List<PipelineConfig> pipelineConfigs) {
+        for (PipelineConfig config : pipelineConfigs) {
+            if (config.materialConfigs().errors().getAll().contains(errorMessage)) {
+                return;
+            }
+        }
+        materialConfigs.addError("base", errorMessage);
     }
 
     @Override
     public ConfigErrors errors() {
-        return null;
+        return errors;
     }
 
     @Override
@@ -120,8 +162,17 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfig pipelineConfigByName(CaseInsensitiveString name) {
-        return null;
+    public PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
+        if (pipelineNameToConfigMap.containsKey(name)) {
+            return pipelineNameToConfigMap.get(name);
+        }
+        PipelineConfig pipelineConfig = getPipelineConfigByName(name);
+        if (pipelineConfig == null) {
+            throw new PipelineNotFoundException("Pipeline '" + name + "' not found.");
+        }
+        pipelineNameToConfigMap.putIfAbsent(pipelineConfig.name(), pipelineConfig);
+
+        return pipelineConfig;
     }
 
     @Override
@@ -131,32 +182,53 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
+        for(PipelineConfigs pipes : this.groups)
+        {
+            for(PipelineConfig conf : pipes)
+            {
+                if(conf.name().equals(pipelineName))
+                    return conf;
+            }
+        }
         return null;
     }
 
     @Override
     public boolean hasPipelineNamed(CaseInsensitiveString pipelineName) {
-        return false;
+        PipelineConfig pipelineConfig = getPipelineConfigByName(pipelineName);
+        return pipelineConfig != null;
     }
 
     @Override
-    public boolean hasNextStage(CaseInsensitiveString pipelineName, CaseInsensitiveString lastStageName) {
-        return false;
+    public boolean hasNextStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString lastStageName) {
+        PipelineConfig pipelineConfig = getPipelineConfigByName(pipelineName);
+        if (pipelineConfig == null) {
+            return false;
+        }
+        return pipelineConfig.nextStage(lastStageName) != null;
     }
 
     @Override
-    public boolean hasPreviousStage(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
-        return false;
+    public boolean hasPreviousStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
+        PipelineConfig pipelineConfig = getPipelineConfigByName(pipelineName);
+        if (pipelineConfig == null) {
+            return false;
+        }
+        return pipelineConfig.previousStage(stageName) != null;
     }
 
     @Override
-    public StageConfig nextStage(CaseInsensitiveString pipelineName, CaseInsensitiveString lastStageName) {
-        return null;
+    public StageConfig nextStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString lastStageName) {
+        StageConfig stageConfig = pipelineConfigByName(pipelineName).nextStage(lastStageName);
+        bombIfNull(stageConfig, "Build stage after '" + lastStageName + "' not found.");
+        return stageConfig;
     }
 
     @Override
-    public StageConfig previousStage(CaseInsensitiveString pipelineName, CaseInsensitiveString lastStageName) {
-        return null;
+    public StageConfig previousStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString lastStageName) {
+        StageConfig stageConfig = pipelineConfigByName(pipelineName).previousStage(lastStageName);
+        bombIfNull(stageConfig, "Build stage after '" + lastStageName + "' not found.");
+        return stageConfig;
     }
 
     @Override
@@ -221,8 +293,12 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void accept(PiplineConfigVisitor visitor) {
-
+    public void accept(final PiplineConfigVisitor visitor) {
+        accept(new PipelineGroupVisitor() {
+            public void visit(PipelineConfigs group) {
+                group.accept(visitor);
+            }
+        });
     }
 
     @Override
@@ -237,11 +313,12 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-
+        groups.addPipeline(groupName, pipelineConfig);
     }
 
     @Override
     public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
+        groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
 
     }
 

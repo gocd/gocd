@@ -20,6 +20,16 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     private EnvironmentsConfig environments;
     private PipelineGroups pipelines;
 
+    public PartialConfig(){
+    }
+    public PartialConfig(PipelineGroups pipelines){
+        this.pipelines = pipelines;
+    }
+    public PartialConfig(EnvironmentsConfig environments,PipelineGroups pipelines){
+        this.environments = environments;
+        this.pipelines = pipelines;
+    }
+
     @Override
     public void validate(ValidationContext validationContext) {
 

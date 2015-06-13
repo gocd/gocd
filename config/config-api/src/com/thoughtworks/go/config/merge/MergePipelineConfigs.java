@@ -392,7 +392,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean isNamed(String groupName) {
-        return this.getGroup().equals(groupName);
+        return this.isSameGroup(groupName);
     }
 
     public void update(String groupName, PipelineConfig pipeline, String pipelineName) {

@@ -296,7 +296,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
             this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
         }
-        if(!(this.configOrigin instanceof FileConfigOrigin))
+        if(this.configOrigin != null && //when there is no origin specified we should not check it at all
+                !(this.configOrigin instanceof FileConfigOrigin))
         {
             this.configErrors.add(NO_REMOTE_AUTHORIZATION,
                 "Authorization can be defined only in configuration file");

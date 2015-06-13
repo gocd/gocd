@@ -169,21 +169,21 @@ public class GoConfigMother {
         config.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(dependsOnPipeline), new CaseInsensitiveString(dependsOnStage)));
     }
 
-    public CruiseConfig cruiseConfigWithTwoPipelineGroups() throws Exception {
-        final CruiseConfig config = cruiseConfigWithOnePipelineGroup();
+    public BasicCruiseConfig cruiseConfigWithTwoPipelineGroups() throws Exception {
+        final BasicCruiseConfig config = cruiseConfigWithOnePipelineGroup();
         addPipelineWithGroup(config, "group2", "pipeline2", "stage", "job");
         return config;
     }
 
-    public CruiseConfig cruiseConfigWithOnePipelineGroup() throws Exception {
-        final CruiseConfig config = defaultCruiseConfig();
+    public BasicCruiseConfig cruiseConfigWithOnePipelineGroup() throws Exception {
+        final BasicCruiseConfig config = defaultCruiseConfig();
         addPipelineWithGroup(config, "group1", "pipeline1", "stage", "job");
         return config;
     }
 
-    public static CruiseConfig defaultCruiseConfig() {
+    public static BasicCruiseConfig defaultCruiseConfig() {
         try {
-            CruiseConfig cruiseConfig = new BasicCruiseConfig();
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
             ServerConfig serverConfig = new ServerConfig("artifactsDir", new SecurityConfig());
             cruiseConfig.setServerConfig(serverConfig);
             return cruiseConfig;
@@ -204,16 +204,16 @@ public class GoConfigMother {
         return new JobConfig(new CaseInsensitiveString(name), new Resources(), new ArtifactPlans());
     }
 
-    public static CruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {
-        final CruiseConfig config = new BasicCruiseConfig();
+    public static BasicCruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {
+        final BasicCruiseConfig config = new BasicCruiseConfig();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setMailHost(mailHost);
         config.setServerConfig(serverConfig);
         return config;
     }
 
-    public static CruiseConfig configWithPipelines(String... names) {
-        final CruiseConfig config = new BasicCruiseConfig();
+    public static BasicCruiseConfig configWithPipelines(String... names) {
+        final BasicCruiseConfig config = new BasicCruiseConfig();
         GoConfigMother mother = new GoConfigMother();
         for (String name : names) {
             mother.addPipeline(config, name, "stage", "job");

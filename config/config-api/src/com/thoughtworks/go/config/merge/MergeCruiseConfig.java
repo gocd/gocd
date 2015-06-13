@@ -16,10 +16,7 @@ import com.thoughtworks.go.licensing.LicenseValidity;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.Pair;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Composite of main CruiseConfig and parts.
@@ -27,23 +24,29 @@ import java.util.Set;
 public class MergeCruiseConfig implements CruiseConfig {
 
     private BasicCruiseConfig main;
+    private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
-    private List<PartialConfig> parts;
+    public  MergeCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
+        this.main = main;
+        for (PartialConfig part : parts) {
+            this.parts.add(part);
+        }
+    }
 
-
+    //TODO could this be removed?
     @Override
     public void initializeServer() {
-
+        this.main.initializeServer();
     }
 
     @Override
     public String getMd5() {
-        return null;
+        return this.main.getMd5();
     }
 
     @Override
     public int schemaVersion() {
-        return 0;
+        return this.main.schemaVersion();
     }
 
     @Override

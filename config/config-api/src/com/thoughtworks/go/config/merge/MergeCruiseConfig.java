@@ -33,6 +33,11 @@ public class MergeCruiseConfig implements CruiseConfig {
         }
     }
 
+    @Override
+    public ConfigOrigin getOrigin() {
+        return null;
+    }
+
     //TODO could this be removed?
     @Override
     public void initializeServer() {
@@ -125,21 +130,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Agents agents() {
-        return null;
-    }
-
-    @Override
-    public ServerConfig server() {
-        return null;
-    }
-
-    @Override
-    public MailHost mailHost() {
-        return null;
-    }
-
-    @Override
     public EnvironmentsConfig getEnvironments() {
         return null;
     }
@@ -163,6 +153,7 @@ public class MergeCruiseConfig implements CruiseConfig {
     public boolean doesAdminConfigContainRole(String roleToDelete) {
         return false;
     }
+
 
     @Override
     public List<PipelineConfig> allPipelines() {
@@ -265,11 +256,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isSmtpEnabled() {
-        return false;
-    }
-
-    @Override
     public boolean isInFirstGroup(CaseInsensitiveString pipelineName) {
         return false;
     }
@@ -290,16 +276,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void setServerConfig(ServerConfig serverConfig) {
-
-    }
-
-    @Override
-    public String adminEmail() {
-        return null;
-    }
-
-    @Override
     public boolean hasPipelineGroup(String groupName) {
         return false;
     }
@@ -315,11 +291,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isMailHostConfigured() {
-        return false;
-    }
-
-    @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
         return null;
     }
@@ -328,17 +299,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     public List<CaseInsensitiveString> getAllPipelineNames() {
         return null;
     }
-
-    @Override
-    public boolean isAdministrator(String username) {
-        return false;
-    }
-
-    @Override
-    public boolean doesRoleHaveAdminPrivileges(String rolename) {
-        return false;
-    }
-
     @Override
     public void setEnvironments(EnvironmentsConfig environments) {
 
@@ -358,27 +318,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     public Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig) {
         return null;
     }
-
-    @Override
-    public boolean isLicenseValid() {
-        return false;
-    }
-
-    @Override
-    public FeatureSupported validateFeature(EnterpriseFeature enterpriseFeature) {
-        return null;
-    }
-
-    @Override
-    public Edition validEdition() {
-        return null;
-    }
-
-    @Override
-    public LicenseValidity licenseValidity() {
-        return null;
-    }
-
     @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
         return null;
@@ -397,31 +336,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     @Override
     public Set<Resource> getAllResources() {
         return null;
-    }
-
-    @Override
-    public TemplatesConfig getTemplates() {
-        return null;
-    }
-
-    @Override
-    public PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName) {
-        return null;
-    }
-
-    @Override
-    public void addTemplate(PipelineTemplateConfig pipelineTemplate) {
-
-    }
-
-    @Override
-    public PipelineTemplateConfig getTemplateByName(CaseInsensitiveString pipeline) {
-        return null;
-    }
-
-    @Override
-    public void setTemplates(TemplatesConfig templates) {
-
     }
 
     @Override
@@ -470,11 +384,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Edition edition() {
-        return null;
-    }
-
-    @Override
     public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {
         return null;
     }
@@ -510,46 +419,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public String sanitizedGroupName(String name) {
-        return null;
-    }
-
-    @Override
-    public void removePackageRepository(String id) {
-
-    }
-
-    @Override
-    public PackageRepositories getPackageRepositories() {
-        return null;
-    }
-
-    @Override
-    public void savePackageRepository(PackageRepository packageRepository) {
-
-    }
-
-    @Override
-    public void savePackageDefinition(PackageDefinition packageDefinition) {
-
-    }
-
-    @Override
-    public void setPackageRepositories(PackageRepositories packageRepositories) {
-
-    }
-
-    @Override
-    public SCMs getSCMs() {
-        return null;
-    }
-
-    @Override
-    public void setSCMs(SCMs scms) {
-
-    }
-
-    @Override
     public boolean canDeletePackageRepository(PackageRepository repository) {
         return false;
     }
@@ -559,8 +428,141 @@ public class MergeCruiseConfig implements CruiseConfig {
         return false;
     }
 
+    // simple passthrough to main configuration
+
     @Override
-    public ConfigOrigin getOrigin() {
-        return null;
+    public Agents agents() {
+        return this.main.agents();
     }
+
+    @Override
+    public ServerConfig server() {
+        return this.main.server();
+    }
+
+    @Override
+    public MailHost mailHost() {
+        return this.main.mailHost();
+    }
+
+    @Override
+    public boolean isSmtpEnabled() {
+        return this.main.isSmtpEnabled();
+    }
+
+    @Override
+    public void setServerConfig(ServerConfig serverConfig) {
+        this.main.setServerConfig(serverConfig);
+    }
+
+    @Override
+    public String adminEmail() {
+        return this.main.adminEmail();
+    }
+
+    @Override
+    public boolean isMailHostConfigured() {
+        return this.main.isMailHostConfigured();
+    }
+
+    @Override
+    public boolean isAdministrator(String username) {
+        return this.main.isAdministrator(username);
+    }
+
+    @Override
+    public boolean doesRoleHaveAdminPrivileges(String rolename) {
+        return this.main.doesRoleHaveAdminPrivileges(rolename);
+    }
+
+    @Override
+    public boolean isLicenseValid() {
+        return this.main.isLicenseValid();
+    }
+
+    @Override
+    public FeatureSupported validateFeature(EnterpriseFeature enterpriseFeature) {
+        return this.main.validateFeature(enterpriseFeature);
+    }
+
+    @Override
+    public Edition validEdition() {
+        return this.main.validEdition();
+    }
+
+    @Override
+    public LicenseValidity licenseValidity() {
+        return this.main.licenseValidity();
+    }
+
+    @Override
+    public TemplatesConfig getTemplates() {
+        return this.main.getTemplates();
+    }
+
+    @Override
+    public PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName) {
+        return this.main.findTemplate(templateName);
+    }
+
+    @Override
+    public void addTemplate(PipelineTemplateConfig pipelineTemplate) {
+        this.main.addTemplate(pipelineTemplate);
+    }
+
+    @Override
+    public PipelineTemplateConfig getTemplateByName(CaseInsensitiveString pipeline) {
+        return this.main.getTemplateByName(pipeline);
+    }
+
+    @Override
+    public void setTemplates(TemplatesConfig templates) {
+        this.main.setTemplates(templates);
+    }
+
+    @Override
+    public Edition edition() {
+        return this.main.edition();
+    }
+
+    @Override
+    public String sanitizedGroupName(String name) {
+        return this.main.sanitizedGroupName(name);
+    }
+
+    @Override
+    public void removePackageRepository(String id) {
+        this.main.removePackageRepository(id);
+    }
+
+    @Override
+    public PackageRepositories getPackageRepositories() {
+        return this.main.getPackageRepositories();
+    }
+
+    @Override
+    public void savePackageRepository(PackageRepository packageRepository) {
+        this.main.savePackageRepository(packageRepository);
+    }
+
+    @Override
+    public void savePackageDefinition(PackageDefinition packageDefinition) {
+        this.main.savePackageDefinition(packageDefinition);
+    }
+
+    @Override
+    public void setPackageRepositories(PackageRepositories packageRepositories) {
+        this.main.setPackageRepositories(packageRepositories);
+    }
+
+    @Override
+    public SCMs getSCMs() {
+        return this.main.getSCMs();
+    }
+
+    @Override
+    public void setSCMs(SCMs scms) {
+        this.main.setSCMs(scms);
+    }
+
 }

@@ -26,10 +26,45 @@ public class MergeCruiseConfig implements CruiseConfig {
     private BasicCruiseConfig main;
     private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
+    private PipelineGroups groups = new PipelineGroups();
+
     public  MergeCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
         this.main = main;
         for (PartialConfig part : parts) {
             this.parts.add(part);
+        }
+
+        mergePipelineConfigs();
+    }
+
+    private void mergePipelineConfigs() {
+        // first add pipeline configs from main part
+        List<PipelineConfigs> allPipelineConfigs = new ArrayList<PipelineConfigs>();
+        for(PipelineConfigs partPipesConf : this.main.getGroups())
+        {
+            allPipelineConfigs.add(partPipesConf);
+        }
+        // then add from each part
+        for (PartialConfig part : this.parts) {
+            for(PipelineConfigs partPipesConf : part.getGroups())
+            {
+                allPipelineConfigs.add(partPipesConf);
+            }
+        }
+        //there may be duplicated names and conflicts in general in the PipelineConfigs
+
+        // lets group them by 'pipeline group' name
+        Map<String, List<PipelineConfigs>> map = new HashMap<String, List<PipelineConfigs>>();
+        for (PipelineConfigs pipes : allPipelineConfigs) {
+            String key = pipes.getGroup();
+            if (map.get(key) == null) {
+                map.put(key, new ArrayList<PipelineConfigs>());
+            }
+            map.get(key).add(pipes);
+        }
+        for(List<PipelineConfigs> oneGroup : map.values())
+        {
+            groups.add(new MergePipelineConfigs(oneGroup));
         }
     }
 
@@ -197,7 +232,7 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineGroups getGroups() {
-        return null;
+        return groups;
     }
 
     @Override
@@ -277,7 +312,7 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean hasPipelineGroup(String groupName) {
-        return false;
+        return groups.hasGroup(groupName);
     }
 
     @Override

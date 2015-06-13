@@ -817,6 +817,25 @@ public class MergeCruiseConfigTest {
         assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigTwo), is(true));
     }
 
+    @Test
+    public void shouldReturnGroupsOtherThanMain()
+    {
+        assertNotSame(mainCruiseConfig.getGroups(), cruiseConfig.getGroups());
+    }
+    @Test
+    public void shouldReturnTrueWhenHasGroup()
+    {
+        assertThat(cruiseConfig.hasPipelineGroup("existing_group"), is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenDoesNotHaveGroup()
+    {
+        assertThat(cruiseConfig.hasPipelineGroup("non_existing_group"),is(false));
+    }
+
+    // TODO actual merge cases
+
+
     private Role setupSecurityWithRole() {
         SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
@@ -871,7 +890,5 @@ public class MergeCruiseConfigTest {
         }
 
     }
-
-    // TODO actual merge cases
 
 }

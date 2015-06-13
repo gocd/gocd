@@ -30,6 +30,14 @@ public class MergePipelineConfigsTest {
     // 1 part cases, basically tests backward compatibility
 
     @Test
+    public void shouldReturnTrueIfNamed() {
+        PipelineConfigs part = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        part.setGroup("gr");
+        MergePipelineConfigs merge = new MergePipelineConfigs(part);
+        assertThat(merge.isNamed("gr"), is(true));
+    }
+
+    @Test
     public void shouldReturnTrueIfPipelineExist() {
         PipelineConfigs part = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part);

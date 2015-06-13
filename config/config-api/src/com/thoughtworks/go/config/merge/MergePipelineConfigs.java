@@ -35,6 +35,19 @@ public class MergePipelineConfigs implements PipelineConfigs {
             this.parts.add(part);
         }
     }
+    public MergePipelineConfigs(List<PipelineConfigs> parts)
+    {
+        this.parts = parts;
+
+        String name = this.parts.get(0).getGroup();
+        for(PipelineConfigs part : this.parts)
+        {
+            String otherName = part.getGroup();
+            if(!StringUtils.equals(otherName, name))
+                throw new IllegalArgumentException("Group names must be the same in merge");
+        }
+    }
+
     public PipelineConfigs getAuthorizationPart()
     {
         for(PipelineConfigs part : parts)
@@ -379,7 +392,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean isNamed(String groupName) {
-        return false;
+        return this.getGroup().equals(groupName);
     }
 
     public void update(String groupName, PipelineConfig pipeline, String pipelineName) {

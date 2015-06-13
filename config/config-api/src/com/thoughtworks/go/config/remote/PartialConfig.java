@@ -6,6 +6,7 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.PipelineGroups;
 
 /**
  * Part of cruise configuration that can be stored outside of main cruise-config.xml.
@@ -17,7 +18,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     private ConfigOrigin origin;
 
     private EnvironmentsConfig environments;
-    private PipelineConfigs pipelines;
+    private PipelineGroups pipelines;
 
     @Override
     public void validate(ValidationContext validationContext) {
@@ -38,5 +39,25 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     @Override
     public ConfigOrigin getOrigin() {
         return origin;
+    }
+
+    public void setOrigin(ConfigOrigin origin) {
+        this.origin = origin;
+    }
+
+    public EnvironmentsConfig getEnvironments() {
+        return environments;
+    }
+
+    public void setEnvironments(EnvironmentsConfig environments) {
+        this.environments = environments;
+    }
+
+    public PipelineGroups getGroups() {
+        return pipelines;
+    }
+
+    public void setPipelines(PipelineGroups pipelines) {
+        this.pipelines = pipelines;
     }
 }

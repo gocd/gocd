@@ -35,6 +35,8 @@ public class MergeCruiseConfig implements CruiseConfig {
     private EnvironmentsConfig environments = new EnvironmentsConfig();
 
     private ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+    private List<PipelineConfig> allPipelineConfigs;
+
     private ConfigErrors errors = new ConfigErrors();
 
     public  MergeCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
@@ -153,7 +155,9 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public StageConfig stageConfigByName(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
-        return null;
+        StageConfig stageConfig = pipelineConfigByName(pipelineName).findBy(stageName);
+        StageNotFoundException.bombIfNull(stageConfig, pipelineName, stageName);
+        return stageConfig;
     }
 
     @Override
@@ -233,7 +237,12 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public JobConfig jobConfigByName(String pipelineName, String stageName, String jobInstanceName, boolean ignoreCase) {
-        return null;
+        JobConfig jobConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobInstanceName,
+                ignoreCase);
+        bombIfNull(jobConfig,
+                String.format("Job [%s] is not found in pipeline [%s] stage [%s].", jobInstanceName,
+                        pipelineName, stageName));
+        return jobConfig;
     }
 
     @Override
@@ -284,12 +293,28 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public void accept(JobConfigVisitor visitor) {
-
+        for (PipelineConfig pipelineConfig : this.getAllPipelineConfigs()) {
+            for (StageConfig stageConfig : pipelineConfig) {
+                for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
+                    visitor.visit(pipelineConfig, stageConfig, jobConfig);
+                }
+            }
+        }
     }
 
     @Override
     public void accept(TaskConfigVisitor visitor) {
-
+        for (PipelineConfig pipelineConfig : this.getAllPipelineConfigs()) {
+            for (StageConfig stageConfig : pipelineConfig) {
+                for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
+                    for (Task task : jobConfig.tasks()) {
+                        if (!(task instanceof NullTask)) {
+                            visitor.visit(pipelineConfig, stageConfig, jobConfig, task);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -369,22 +394,20 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isInFirstGroup(CaseInsensitiveString pipelineName) {
-        return false;
+        if (groups.isEmpty()) {
+            throw new IllegalStateException("No pipeline group defined yet!");
+        }
+        return groups.first().hasPipeline(pipelineName);
     }
 
     @Override
     public boolean hasMultiplePipelineGroups() {
-        return false;
+        return groups.size() > 1;
     }
 
     @Override
     public void accept(PipelineGroupVisitor visitor) {
-
-    }
-
-    @Override
-    public boolean isSecurityEnabled() {
-        return false;
+        groups.accept(visitor);
     }
 
     @Override
@@ -404,12 +427,24 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
-        return null;
+        if (allPipelineConfigs == null) {
+            List<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+            PipelineGroups groups = getGroups();
+            for (PipelineConfigs group : groups) {
+                configs.addAll(group);
+            }
+            allPipelineConfigs = configs;
+        }
+        return allPipelineConfigs;
     }
 
     @Override
     public List<CaseInsensitiveString> getAllPipelineNames() {
-        return null;
+        List<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        for (PipelineConfig config : getAllPipelineConfigs()) {
+            names.add(config.name());
+        }
+        return names;
     }
     @Override
     public void setEnvironments(EnvironmentsConfig environments) {
@@ -442,12 +477,25 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public Boolean isPipelineLocked(String pipelineName) {
-        return null;
+        PipelineConfig pipelineConfig = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        if (pipelineConfig.hasExplicitLock()) {
+            return pipelineConfig.explicitLock();
+        }
+        return false;
     }
 
     @Override
     public Set<Resource> getAllResources() {
-        return null;
+        final HashSet<Resource> resources = new HashSet<Resource>();
+        accept(new JobConfigVisitor() {
+            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
+                resources.addAll(jobConfig.resources());
+            }
+        });
+        for (AgentConfig agent : this.agents()) {
+            resources.addAll(agent.getResources());
+        }
+        return resources;
     }
 
     @Override
@@ -605,6 +653,11 @@ public class MergeCruiseConfig implements CruiseConfig {
     @Override
     public LicenseValidity licenseValidity() {
         return this.main.licenseValidity();
+    }
+    
+    @Override
+    public boolean isSecurityEnabled() {
+        return this.main.isSecurityEnabled();
     }
 
     @Override

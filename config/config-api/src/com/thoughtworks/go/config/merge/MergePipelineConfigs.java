@@ -6,7 +6,6 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -77,7 +76,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         return null;
     }
 
-    public PipelineConfigs getFirstEditablePart()
+    public PipelineConfigs getFirstEditablePartOrNull()
     {
         for(PipelineConfigs part : parts)
         {
@@ -85,6 +84,15 @@ public class MergePipelineConfigs implements PipelineConfigs {
                 return  part;
         }
         return  null;
+    }
+    public PipelineConfigs getFirstEditablePart()
+    {
+        for(PipelineConfigs part : parts)
+        {
+            if(part.getOrigin() != null && part.getOrigin().canEdit())
+                return  part;
+        }
+        throw bomb("No editable confgiration part");
     }
 
     @Override
@@ -157,7 +165,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     @Override
     public boolean add(PipelineConfig pipelineConfig) {
         verifyUniqueName(pipelineConfig);
-        PipelineConfigs part = this.getFirstEditablePart();
+        PipelineConfigs part = this.getFirstEditablePartOrNull();
         if(part == null)
             throw bomb("No editable configuration sources");
 
@@ -181,7 +189,13 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object[] array = new Object[this.size()];
+        int i = 0;
+        for(PipelineConfig pipe : this)
+        {
+            array[i++] = pipe;
+        }
+        return array;
     }
 
     @Override
@@ -245,7 +259,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean addWithoutValidation(PipelineConfig pipelineConfig) {
-        PipelineConfigs part = this.getFirstEditablePart();
+        PipelineConfigs part = this.getFirstEditablePartOrNull();
         if(part == null)
             throw bomb("No editable configuration sources");
 
@@ -276,7 +290,8 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void addToTop(PipelineConfig pipelineConfig) {
-
+        PipelineConfigs part = this.getFirstEditablePart();
+        part.addToTop(pipelineConfig);
     }
 
     @Override
@@ -425,7 +440,12 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean save(PipelineConfig pipeline, String groupName) {
-        return false;
+        if (isSameGroup(groupName)) {
+            this.addToTop(pipeline);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

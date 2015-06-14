@@ -5,7 +5,6 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,9 +20,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class MergePipelineConfigsTest {
 
@@ -179,6 +176,18 @@ public class MergePipelineConfigsTest {
     }
 
     //TODO updates
+    @Test
+    public void shouldAddToFirstEditableWhenAddToTop()
+    {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
+        filePart.setOrigin(new FileConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),filePart);
+        group.addToTop(PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        assertThat(filePart.hasPipeline(new CaseInsensitiveString("pipeline3")),is(true));
+        assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3")),is(true));
+    }
 
     @Test
     public void shouldReturnIndexOfPipeline() {
@@ -480,7 +489,7 @@ public class MergePipelineConfigsTest {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertThat(group.getFirstEditablePart(), Matchers.<PipelineConfigs>is(part1));
+        assertThat(group.getFirstEditablePartOrNull(), Matchers.<PipelineConfigs>is(part1));
 
     }
 
@@ -491,7 +500,7 @@ public class MergePipelineConfigsTest {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertNull(group.getFirstEditablePart());
+        assertNull(group.getFirstEditablePartOrNull());
 
     }
 

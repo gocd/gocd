@@ -132,6 +132,32 @@ public class MergeCruiseConfig implements CruiseConfig {
         return this.main.hasPipelineNamed(pipelineName);
     }
 
+    //TODO validations of illegal references
+
+    //TODO confusing methods, how should these behave?
+    @Override
+    public void setEnvironments(EnvironmentsConfig environments) {
+
+    }
+    @Override
+    public void setGroup(PipelineGroups pipelineGroups) {
+
+    }
+
+    @Override
+    public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
+
+    }
+
+    @Override
+    public void copyErrorsTo(CruiseConfig to) {
+
+    }
+
+    @Override
+    public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
+    }
+
     @Override
     public ConfigOrigin getOrigin() {
         return null;
@@ -224,10 +250,6 @@ public class MergeCruiseConfig implements CruiseConfig {
         //TODO add rather than reconstruct
         this.environments = mergeEnvironmentConfigs();
     }
-    @Override
-    public void setEnvironments(EnvironmentsConfig environments) {
-
-    }
 
 
     @Override
@@ -239,7 +261,9 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public JobConfig findJob(String pipelineName, String stageName, String jobName) {
-        return null;
+        return pipelineConfigByName(new CaseInsensitiveString(pipelineName))
+                .findBy(new CaseInsensitiveString(stageName))
+                .jobConfigByConfigName(new CaseInsensitiveString(jobName));
     }
 
     @Override
@@ -424,11 +448,6 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void setGroup(PipelineGroups pipelineGroups) {
-
-    }
-
-    @Override
     public PipelineGroups getGroups() {
         return groups;
     }
@@ -526,9 +545,6 @@ public class MergeCruiseConfig implements CruiseConfig {
         return groups.findGroup(groupName);
     }
 
-    @Override
-    public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-    }
 
     @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
@@ -624,10 +640,6 @@ public class MergeCruiseConfig implements CruiseConfig {
         return resources;
     }
 
-    @Override
-    public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-
-    }
 
     @Override
     public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
@@ -696,10 +708,6 @@ public class MergeCruiseConfig implements CruiseConfig {
         return allErrors;
     }
 
-    @Override
-    public void copyErrorsTo(CruiseConfig to) {
-
-    }
 
     @Override
     public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {

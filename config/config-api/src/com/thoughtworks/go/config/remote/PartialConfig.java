@@ -17,8 +17,8 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     private ConfigOrigin origin;
 
-    private EnvironmentsConfig environments;
-    private PipelineGroups pipelines;
+    private EnvironmentsConfig environments = new EnvironmentsConfig();
+    private PipelineGroups pipelines = new PipelineGroups();
 
     public PartialConfig(){
     }

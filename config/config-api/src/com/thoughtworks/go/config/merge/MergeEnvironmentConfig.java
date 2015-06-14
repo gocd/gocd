@@ -30,6 +30,16 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
             this.add(part);
         }
     }
+    public MergeEnvironmentConfig(List<EnvironmentConfig> configs)
+    {
+        CaseInsensitiveString name = configs.get(0).name();
+        for(EnvironmentConfig part : configs) {
+            if(!part.name().equals(name))
+                throw new IllegalArgumentException(
+                        "partial environment configs must all have the same name");
+            this.add(part);
+        }
+    }
 
     @Override
     public void validate(ValidationContext validationContext) {

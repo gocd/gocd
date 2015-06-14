@@ -47,15 +47,51 @@ public class MergeCruiseConfig implements CruiseConfig {
             this.parts.add(part);
         }
 
-        mergePipelineConfigs();
-        mergeEnvironmentConfigs();
+        groups = mergePipelineConfigs();
+        environments = mergeEnvironmentConfigs();
     }
 
-    private void mergeEnvironmentConfigs() {
+    private EnvironmentsConfig mergeEnvironmentConfigs() {
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+
         //first add environment configs from main
+        List<EnvironmentConfig> allEnvConfigs = new ArrayList<EnvironmentConfig>();
+        for(EnvironmentConfig envConfig : this.main.getEnvironments())
+        {
+            allEnvConfigs.add(envConfig);
+        }
+        // then add from each part
+        for (PartialConfig part : this.parts) {
+            for(EnvironmentConfig partPipesConf : part.getEnvironments())
+            {
+                allEnvConfigs.add(partPipesConf);
+            }
+        }
+
+        // lets group them by environment name
+        Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new HashMap<CaseInsensitiveString, List<EnvironmentConfig>>();
+        for(EnvironmentConfig env : allEnvConfigs)
+        {
+            CaseInsensitiveString key = env.name();
+            if (map.get(key) == null) {
+                map.put(key, new ArrayList<EnvironmentConfig>());
+            }
+            map.get(key).add(env);
+        }
+        for(List<EnvironmentConfig> oneEnv : map.values())
+        {
+            if(oneEnv.size() == 1)
+                environments.add(oneEnv.get(0));
+            else
+                environments.add(new MergeEnvironmentConfig(oneEnv));
+        }
+
+        return environments;
     }
 
-    private void mergePipelineConfigs() {
+    private PipelineGroups mergePipelineConfigs() {
+        PipelineGroups groups = new PipelineGroups();
+
         // first add pipeline configs from main part
         List<PipelineConfigs> allPipelineConfigs = new ArrayList<PipelineConfigs>();
         for(PipelineConfigs partPipesConf : this.main.getGroups())
@@ -87,6 +123,8 @@ public class MergeCruiseConfig implements CruiseConfig {
             else
                 groups.add(new MergePipelineConfigs(oneGroup));
         }
+
+        return groups;
     }
 
     public boolean isPipelineDefinedInMain(CaseInsensitiveString pipelineName)
@@ -160,22 +198,31 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public void addError(String fieldName, String message) {
-
+        errors.add(fieldName, message);
     }
 
     @Override
     public EnvironmentVariablesConfig variablesFor(String pipelineName) {
-        return null;
+        EnvironmentVariablesConfig pipelineVariables = pipelineConfigByName(new CaseInsensitiveString(pipelineName)).getVariables();
+        EnvironmentConfig environment = this.environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+        return environment != null ? environment.getVariables().overrideWith(pipelineVariables) : pipelineVariables;
     }
 
     @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
-        return null;
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        this.addEnvironment(environmentConfig);
+        return environmentConfig;
     }
 
     @Override
     public void addEnvironment(BasicEnvironmentConfig config) {
-
+        //validate at global scope
+        this.environments.validateNotADuplicate(config);
+        // but append to main config
+        this.main.addEnvironment(config);
+        //TODO add rather than reconstruct
+        this.environments = mergeEnvironmentConfigs();
     }
     @Override
     public void setEnvironments(EnvironmentsConfig environments) {

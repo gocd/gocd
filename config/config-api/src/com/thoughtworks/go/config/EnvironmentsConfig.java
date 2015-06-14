@@ -94,7 +94,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return super.add(environment);
     }
 
-    private void validateNotADuplicate(EnvironmentConfig environmentConfig) {
+    public void validateNotADuplicate(EnvironmentConfig environmentConfig) {
         if (hasEnvironmentNamed(environmentConfig.name())) {
             throw new RuntimeException(String.format("Environment with name '%s' already exists.", environmentConfig.name()));
         }

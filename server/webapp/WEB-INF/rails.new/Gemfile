@@ -16,7 +16,7 @@ gem 'roar'
 
 group :test do
   gem 'minitest'
-  gem "jasmine-rails"
+  gem "jasmine"
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'
 

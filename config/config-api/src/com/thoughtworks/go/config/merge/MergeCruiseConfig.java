@@ -2,6 +2,8 @@ package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.*;
@@ -80,8 +82,16 @@ public class MergeCruiseConfig implements CruiseConfig {
         }
         for(List<PipelineConfigs> oneGroup : map.values())
         {
-            groups.add(new MergePipelineConfigs(oneGroup));
+            if(oneGroup.size() == 1)
+                groups.add(oneGroup.get(0));
+            else
+                groups.add(new MergePipelineConfigs(oneGroup));
         }
+    }
+
+    public boolean isPipelineDefinedInMain(CaseInsensitiveString pipelineName)
+    {
+        return this.main.hasPipelineNamed(pipelineName);
     }
 
     @Override
@@ -154,6 +164,26 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public EnvironmentVariablesConfig variablesFor(String pipelineName) {
+        return null;
+    }
+
+    @Override
+    public EnvironmentConfig addEnvironment(String environmentName) {
+        return null;
+    }
+
+    @Override
+    public void addEnvironment(BasicEnvironmentConfig config) {
+
+    }
+    @Override
+    public void setEnvironments(EnvironmentsConfig environments) {
+
+    }
+
+
+    @Override
     public StageConfig stageConfigByName(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
         StageConfig stageConfig = pipelineConfigByName(pipelineName).findBy(stageName);
         StageNotFoundException.bombIfNull(stageConfig, pipelineName, stageName);
@@ -181,7 +211,11 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean hasStageConfigNamed(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, boolean ignoreCase) {
-        return false;
+        PipelineConfig pipelineConfig = getPipelineConfigByName(pipelineName);
+        if (pipelineConfig == null) {
+            return false;
+        }
+        return pipelineConfig.findBy(stageName) != null;
     }
 
     @Override
@@ -247,48 +281,64 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public EnvironmentsConfig getEnvironments() {
-        return null;
+        return environments;
     }
 
     @Override
     public Map<String, List<Authorization.PrivilegeType>> groupsAffectedByDeletionOfRole(String roleName) {
-        return null;
+        Map<String, List<Authorization.PrivilegeType>> result = new HashMap<String, List<Authorization.PrivilegeType>>();
+        for (PipelineConfigs group : groups) {
+            final List<Authorization.PrivilegeType> privileges = group.getAuthorization().privilagesOfRole(new CaseInsensitiveString(roleName));
+            if (privileges.size() > 0) {
+                result.put(group.getGroup(), privileges);
+            }
+        }
+        return result;
     }
 
     @Override
     public Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(String roleName) {
-        return null;
-    }
-
-    @Override
-    public void removeRole(Role roleToDelete) {
-
-    }
-
-    @Override
-    public boolean doesAdminConfigContainRole(String roleToDelete) {
-        return false;
+        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<Pair<PipelineConfig, StageConfig>>();
+        for (PipelineConfig pipelineConfig : allPipelines()) {
+            result.addAll(pipelineConfig.stagesWithPermissionForRole(new CaseInsensitiveString(roleName)));
+        }
+        return result;
     }
 
 
     @Override
     public List<PipelineConfig> allPipelines() {
-        return null;
+        return this.getAllPipelineConfigs();
     }
 
     @Override
     public PipelineConfigs pipelines(String groupName) {
-        return null;
+        PipelineGroups pipelineGroups = this.getGroups();
+        for (PipelineConfigs pipelineGroup : pipelineGroups) {
+            if (pipelineGroup.isNamed(groupName)) {
+                return pipelineGroup;
+            }
+        }
+        throw new RuntimeException("");
     }
 
     @Override
-    public boolean hasBuildPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, String buildName, boolean ignoreCase) {
-        return false;
+    public boolean hasBuildPlan(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, String buildName, boolean ignoreCase) {
+        if (!hasStageConfigNamed(pipelineName, stageName, ignoreCase)) {
+            return false;
+        }
+        StageConfig stageConfig = stageConfigByName(pipelineName, stageName);
+        return stageConfig != null && stageConfig.jobConfigByInstanceName(buildName, ignoreCase) != null;
     }
 
     @Override
-    public boolean requiresApproval(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
-        return false;
+    public boolean requiresApproval(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
+        PipelineConfig pipelineConfig = getPipelineConfigByName(pipelineName);
+        if (pipelineConfig == null) {
+            return false;
+        }
+        final StageConfig stageConfig = pipelineConfig.findBy(stageName);
+        return stageConfig != null && stageConfig.requiresApproval();
     }
 
     @Override
@@ -349,47 +399,56 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
-
+        if (groups.isEmpty()) {
+            PipelineConfigs configs = new BasicPipelineConfigs();
+            configs.add(pipeline);
+            groups.add(configs);
+        }
+        groups.update(groupName, pipelineName, pipeline);
     }
 
     @Override
     public boolean exist(int pipelineIndex) {
-        return false;
+        return pipelineIndex < this.getAllPipelineConfigs().size();
     }
 
     @Override
     public boolean hasPipeline() {
-        return false;
+        return !this.getAllPipelineConfigs().isEmpty();
     }
 
     @Override
     public PipelineConfig find(String groupName, int pipelineIndex) {
-        return null;
+        return groups.findPipeline(groupName, pipelineIndex);
     }
 
     @Override
     public int numberOfPipelines() {
-        return 0;
+        return this.getAllPipelineConfigs().size();
     }
 
     @Override
     public int numbersOfPipeline(String groupName) {
-        return 0;
+        return pipelines(groupName).size();
     }
 
     @Override
     public void groups(List<String> allGroup) {
-
+        for (PipelineConfigs group : groups) {
+            group.add(allGroup);
+        }
     }
 
     @Override
     public boolean exist(String groupName, String pipelineName) {
-        return false;
+        PipelineConfigs configs = groups.findGroup(groupName);
+        PipelineConfig pipelineConfig = configs.findBy(new CaseInsensitiveString(pipelineName));
+        return pipelineConfig != null;
     }
 
     @Override
     public List<Task> tasksForJob(String pipelineName, String stageName, String jobName) {
-        return null;
+        return jobConfigByName(pipelineName, stageName, jobName, true).tasks();
     }
 
     @Override
@@ -417,12 +476,11 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineConfigs findGroup(String groupName) {
-        return null;
+        return groups.findGroup(groupName);
     }
 
     @Override
     public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-
     }
 
     @Override
@@ -446,34 +504,55 @@ public class MergeCruiseConfig implements CruiseConfig {
         }
         return names;
     }
-    @Override
-    public void setEnvironments(EnvironmentsConfig environments) {
 
-    }
 
     @Override
     public Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelines() {
-        return null;
+        return getUniqueMaterials(true);
     }
 
     @Override
     public Set<MaterialConfig> getAllUniqueMaterials() {
-        return null;
+        return getUniqueMaterials(false);
+    }
+
+    private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines) {
+        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
+        Set<Map> uniqueMaterials = new HashSet<Map>();
+        for (PipelineConfig pipelineConfig : this.getAllPipelineConfigs()) {
+            for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
+                if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
+                    boolean shouldSkipPolling = !materialConfig.isAutoUpdate();
+                    boolean scmOrPackageMaterial = !(materialConfig instanceof DependencyMaterialConfig);
+                    if (ignoreManualPipelines && scmOrPackageMaterial && shouldSkipPolling) {
+                        continue;
+                    }
+                    materialConfigs.add(materialConfig);
+                    uniqueMaterials.add(materialConfig.getSqlCriteria());
+                }
+            }
+        }
+        return materialConfigs;
     }
 
     @Override
     public Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig) {
-        return null;
-    }
-    @Override
-    public EnvironmentConfig addEnvironment(String environmentName) {
-        return null;
+        Set<String> stagesUsedAsMaterials = new HashSet<String>();
+        for (MaterialConfig materialConfig : getAllUniqueMaterials()) {
+            if (materialConfig instanceof DependencyMaterialConfig) {
+                DependencyMaterialConfig dep = (DependencyMaterialConfig) materialConfig;
+                stagesUsedAsMaterials.add(dep.getPipelineName() + "|" + dep.getStageName());
+            }
+        }
+        Set<StageConfig> stages = new HashSet<StageConfig>();
+        for (StageConfig stage : pipelineConfig) {
+            if (stagesUsedAsMaterials.contains(pipelineConfig.name() + "|" + stage.name())) {
+                stages.add(stage);
+            }
+        }
+        return stages;
     }
 
-    @Override
-    public void addEnvironment(BasicEnvironmentConfig config) {
-
-    }
 
     @Override
     public Boolean isPipelineLocked(String pipelineName) {
@@ -505,37 +584,69 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
-        return null;
+        ArrayList<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+        for (PipelineConfig pipelineConfig : this.getAllPipelineConfigs()) {
+            if (pipelineConfig.dependsOn(new CaseInsensitiveString(pipelineName))) {
+                configs.add(pipelineConfig);
+            }
+        }
+        return configs;
     }
 
     @Override
     public boolean hasVariableInScope(String pipelineName, String variableName) {
-        return false;
+        EnvironmentConfig environmentConfig = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+        if (environmentConfig != null) {
+            if (environmentConfig.hasVariable(variableName)) {
+                return true;
+            }
+        }
+        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).hasVariableInScope(variableName);
     }
 
     @Override
-    public EnvironmentVariablesConfig variablesFor(String pipelineName) {
-        return null;
-    }
-
-    @Override
-    public boolean isGroupAdministrator(CaseInsensitiveString userName) {
-        return false;
+    public boolean isGroupAdministrator(final CaseInsensitiveString userName) {
+        final List<Role> roles = server().security().memberRoleFor(userName);
+        FindPipelineGroupAdminstrator finder = new FindPipelineGroupAdminstrator(userName, roles);
+        groups.accept(finder);
+        return finder.isGroupAdmin;
     }
 
     @Override
     public List<ConfigErrors> getAllErrors() {
-        return null;
+        return getAllErrors(this);
+    }
+
+    private List<ConfigErrors> getAllErrors(Validatable v) {
+        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
+        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
+            @Override
+            public void handleValidation(Validatable validatable, ValidationContext context) {
+                // do nothing here
+            }
+        });
+        return allErrors;
     }
 
     @Override
     public List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable) {
-        return null;
+        List<ConfigErrors> all = getAllErrors();
+        if (skipValidatable != null) {
+            all.removeAll(getAllErrors(skipValidatable));
+        }
+        return all;
     }
 
     @Override
     public List<ConfigErrors> validateAfterPreprocess() {
-        return null;
+        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
+        new GoConfigGraphWalker(this).walk(new ErrorCollectingHandler(allErrors) {
+            @Override
+            public void handleValidation(Validatable validatable, ValidationContext context) {
+                validatable.validate(context);
+            }
+        });
+        return allErrors;
     }
 
     @Override
@@ -545,47 +656,114 @@ public class MergeCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {
-        return null;
+        String groupName = getGroups().findGroupNameByPipeline(pipelineConfig.name());
+        return findGroup(groupName);
     }
 
     @Override
     public PipelineConfig findPipelineUsingThisPipelineAsADependency(String pipelineName) {
+        List<PipelineConfig> configs = getAllPipelineConfigs();
+        for (PipelineConfig config : configs) {
+            DependencyMaterialConfig materialConfig = config.materialConfigs().findDependencyMaterial(new CaseInsensitiveString(pipelineName));
+            if (materialConfig != null) {
+                return config;
+            }
+        }
         return null;
     }
 
     @Override
     public Map<String, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
-        return null;
+        List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
+        Map<String, List<PipelineConfig>> result = new HashMap<String, List<PipelineConfig>>();
+
+        for (PipelineConfig currentPipeline : pipelineConfigs) {
+            String currentPipelineName = currentPipeline.name().toString();
+            if (!result.containsKey(currentPipelineName)) {
+                result.put(currentPipelineName, new ArrayList<PipelineConfig>());
+            }
+
+            for (MaterialConfig materialConfig : currentPipeline.materialConfigs()) {
+                if (materialConfig instanceof DependencyMaterialConfig) {
+                    String pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName().toString();
+                    if (!result.containsKey(pipelineWhichTriggersMe)) {
+                        result.put(pipelineWhichTriggersMe, new ArrayList<PipelineConfig>());
+                    }
+                    result.get(pipelineWhichTriggersMe).add(currentPipeline);
+                }
+            }
+        }
+        return result;
     }
 
     @Override
     public List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName) {
-        return null;
+        PipelineConfig currentPipeline = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        List<PipelineConfig> pipelinesForFetchArtifact = currentPipeline.allFirstLevelUpstreamPipelines(this);
+        pipelinesForFetchArtifact.add(currentPipeline);
+        return pipelinesForFetchArtifact;
     }
 
     @Override
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        return null;
+        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<CaseInsensitiveString, List<CaseInsensitiveString>>();
+        for (PipelineTemplateConfig template : getTemplates()) {
+            if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), null)) {
+                templateToPipelines.put(template.name(), new ArrayList<CaseInsensitiveString>());
+            }
+        }
+        for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
+            CaseInsensitiveString name = pipelineConfig.getTemplateName();
+            if (pipelineConfig.hasTemplate() && templateToPipelines.containsKey(name)) {
+                templateToPipelines.get(name).add(pipelineConfig.name());
+            }
+        }
+        return templateToPipelines;
     }
 
     @Override
     public boolean isArtifactCleanupProhibited(String pipelineName, String stageName) {
-        return false;
+        if (!hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true)) {
+            return false;
+        }
+        StageConfig stageConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return stageConfig.isArtifactCleanupProhibited();
     }
 
     @Override
     public MaterialConfig materialConfigFor(String fingerprint) {
+        for (MaterialConfig materialConfig : getUniqueMaterialConfigs(false)) {
+            if (materialConfig.getFingerprint().equals(fingerprint)) {
+                return materialConfig;
+            }
+        }
         return null;
+    }
+    private Set<MaterialConfig> getUniqueMaterialConfigs(boolean ignoreManualPipelines) {
+        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
+        Set<Map> uniqueMaterials = new HashSet<Map>();
+        for (PipelineConfig pipelineConfig : this.getAllPipelineConfigs()) {
+            for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
+                if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
+                    if (ignoreManualPipelines && !materialConfig.isAutoUpdate() && materialConfig instanceof ScmMaterialConfig) {
+                        continue;
+                    }
+                    materialConfigs.add(materialConfig);
+                    uniqueMaterials.add(materialConfig.getSqlCriteria());
+                }
+            }
+        }
+        return materialConfigs;
     }
 
     @Override
     public boolean canDeletePackageRepository(PackageRepository repository) {
-        return false;
+        return groups.canDeletePackageRepository(repository);
     }
 
     @Override
     public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
-        return false;
+        return groups.canDeletePluggableSCMMaterial(scmConfig);
     }
 
     // simple passthrough to main configuration
@@ -636,6 +814,23 @@ public class MergeCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public void removeRole(Role roleToDelete) {
+        if (doesAdminConfigContainRole(roleToDelete.getName().toString())) {
+            server().security().adminsConfig().removeRole(roleToDelete);
+        }
+        for (PipelineConfigs group : this.getGroups()) {
+            // this can fail if used in remote config
+            group.cleanupAllUsagesOfRole(roleToDelete);
+        }
+        server().security().deleteRole(roleToDelete);
+    }
+
+    @Override
+    public boolean doesAdminConfigContainRole(String roleToDelete) {
+        return this.main.doesAdminConfigContainRole(roleToDelete);
+    }
+
+    @Override
     public boolean isLicenseValid() {
         return this.main.isLicenseValid();
     }
@@ -654,7 +849,7 @@ public class MergeCruiseConfig implements CruiseConfig {
     public LicenseValidity licenseValidity() {
         return this.main.licenseValidity();
     }
-    
+
     @Override
     public boolean isSecurityEnabled() {
         return this.main.isSecurityEnabled();
@@ -728,6 +923,42 @@ public class MergeCruiseConfig implements CruiseConfig {
     @Override
     public void setSCMs(SCMs scms) {
         this.main.setSCMs(scms);
+    }
+
+    private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
+        private final List<ConfigErrors> allErrors;
+
+        public ErrorCollectingHandler(List<ConfigErrors> allErrors) {
+            this.allErrors = allErrors;
+        }
+
+        public void handle(Validatable validatable, ValidationContext context) {
+            handleValidation(validatable, context);
+            ConfigErrors configErrors = validatable.errors();
+
+            if (!configErrors.isEmpty()) {
+                allErrors.add(configErrors);
+            }
+        }
+
+        public abstract void handleValidation(Validatable validatable, ValidationContext context);
+    }
+
+    private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {
+        private final CaseInsensitiveString username;
+        private final List<Role> roles;
+        private boolean isGroupAdmin;
+
+        public FindPipelineGroupAdminstrator(CaseInsensitiveString username, List<Role> roles) {
+            this.username = username;
+            this.roles = roles;
+        }
+
+        public void visit(PipelineConfigs pipelineConfigs) {
+            if (pipelineConfigs.getAuthorization().isUserAnAdmin(username, roles)) {
+                isGroupAdmin = true;
+            }
+        }
     }
 
 }

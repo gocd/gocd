@@ -170,7 +170,7 @@ public class MergeCruiseConfigTest {
     public void shouldGetPipelinesWithGroupName() throws Exception {
         PipelineConfigs group1 = createGroup("group1", createPipelineConfig("pipeline1", "stage1"));
         PipelineConfigs group2 = createGroup("group2", createPipelineConfig("pipeline2", "stage2"));
-        CruiseConfig config = new MergeCruiseConfig(new BasicCruiseConfig());
+        CruiseConfig config = new MergeCruiseConfig(new BasicCruiseConfig(group1,group2));
         config.setGroup(new PipelineGroups(group1, group2));
 
 
@@ -898,6 +898,16 @@ public class MergeCruiseConfigTest {
         goConfigMother.addPipeline(cruiseConfig, "cruise", "dev", "linux-firefox");
         JobConfig job = cruiseConfig.jobConfigByName("cruise", "dev", "linux-firefox", true);
         assertNotNull(job);
+    }
+    @Test
+    public void createsMergePipelineConfigsOnlyWhenManyParts()
+    {
+        assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(false));
+
+        cruiseConfig = new MergeCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "existing_group"));
+        assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(true));
+
     }
 
     private Role setupSecurityWithRole() {

@@ -146,7 +146,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public boolean isNamed(String groupName) {
-        return group.equals(groupName);
+        return isSameGroup(groupName);
     }
 
 

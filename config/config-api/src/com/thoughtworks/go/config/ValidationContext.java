@@ -73,7 +73,7 @@ public class ValidationContext {
     }
 
     public CruiseConfig getCruiseConfig() {
-        return loadFirstOfType(BasicCruiseConfig.class);
+        return loadFirstOfType(CruiseConfig.class);
     }
 
     public JobConfig getJob() {
@@ -110,6 +110,21 @@ public class ValidationContext {
         } else if (immediateParent.getClass().equals(klass)) {
             return (T) immediateParent;
         }
+        else
+        {
+            // added because of higher hierarchy of configuration types.
+            // now there are interfaces with more than one implementation
+            // so when asking for CruiseConfig there are 2 matching classes - BasicCruiseConfig and MergeCruiseConfig
+            Class<?>[] interfacesOfCandidate = immediateParent.getClass().getInterfaces();
+            for(Class<?> inter : interfacesOfCandidate)
+            {
+                if(inter.equals(klass))
+                {
+                    // candidate implements interface whose instances we are looking for
+                    return (T) immediateParent;
+                }
+            }
+        }
 
         return null;
     }
@@ -143,7 +158,7 @@ public class ValidationContext {
     }
 
     public boolean isWithinPipelines() {
-        return hasParentOfType(BasicPipelineConfigs.class);
+        return hasParentOfType(PipelineConfigs.class);
     }
 
     private <T> boolean hasParentOfType(Class<T> validatable) {
@@ -151,7 +166,7 @@ public class ValidationContext {
     }
 
     public PipelineConfigs getPipelineGroup() {
-        return loadFirstOfType(BasicPipelineConfigs.class);
+        return loadFirstOfType(PipelineConfigs.class);
     }
 
     @Override

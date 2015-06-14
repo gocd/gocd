@@ -169,6 +169,7 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().agents();
     }
 
+    @Deprecated()
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();
     }
@@ -177,10 +178,12 @@ public class GoConfigService implements Initializer {
         return agents().countApprovedRemoteAgents();
     }
 
+    @Deprecated()
     public CruiseConfig getCurrentConfig() {
         return cruiseConfig();
     }
 
+    @Deprecated()
     public CruiseConfig getConfigForEditing() {
         return goConfigFileDao.loadForEditing();
     }
@@ -1020,10 +1023,12 @@ public class GoConfigService implements Initializer {
         return true;
     }
 
+    @Deprecated()
     public GoConfigHolder getConfigHolder() {
         return goConfigFileDao.loadConfigHolder();
     }
 
+    @Deprecated()
     public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());

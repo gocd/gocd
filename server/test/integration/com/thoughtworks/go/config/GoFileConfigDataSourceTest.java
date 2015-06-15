@@ -92,7 +92,9 @@ public class GoFileConfigDataSourceTest {
         }, configRepository, new TimeProvider(), configCache, registry, metricsProbeService),
                 configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, metricsProbeService, mock(ServerHealthService.class));
         dataSource.upgradeIfNecessary();
-        CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, new ServerHealthService());
+        CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, new ServerHealthService());
+        GoPartialConfig partialConfig = null;//TODO
+        CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, new ServerHealthService(),fileService,partialConfig);
         cachedConfigService.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedConfigService, metricsProbeService);
         configHelper.load();

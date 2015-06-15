@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
@@ -31,6 +32,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
+    private GoRepoConfigDataSource repoConfigDataSource;
 
     public MaterialUpdateListener(MaterialUpdateCompletedTopic topic, MaterialDatabaseUpdater updater, MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor) {
         this.topic = topic;
@@ -46,6 +48,10 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
             mduPerformanceLogger.pickedUpMaterialForMDU(message.trackingId(), material);
             bombIf(diskSpaceMonitor.isLowOnDisk(), "Cruise server is too low on disk to continue with material update");
             updater.updateMaterial(material);
+            //TODO #1133 now parse configuration from material so that it is available before update completed is fired
+            // we do not want next update to start before parsing is over
+            // we do want to reuse pipelines/flyweight directory where a complete clean checkout is.
+            repoConfigDataSource.onPolledMaterial(material);
             mduPerformanceLogger.postingMessageAboutMDUCompletion(message.trackingId(), material);
             topic.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
         }

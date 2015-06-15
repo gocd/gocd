@@ -39,8 +39,8 @@ public class CachedGoConfig {
     private static final Logger LOGGER = Logger.getLogger(CachedGoConfig.class);
 
     //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old CachedGoConfig
-    private final CachedFileGoConfig fileService;
-    private final GoPartialConfig partialConfig;
+    private CachedFileGoConfig fileService;
+    private GoPartialConfig partialConfig;
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
@@ -51,6 +51,13 @@ public class CachedGoConfig {
     private volatile CruiseConfig currentConfigForEdit;
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
+
+    public CachedGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService) {
+        this.dataSource = dataSource;
+        this.serverHealthService = serverHealthService;
+    }
+
+    //TODO remove above constructor, rewrite service and use below
 
     @Autowired public CachedGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService,
                                      CachedFileGoConfig fileService,GoPartialConfig partialConfig) {

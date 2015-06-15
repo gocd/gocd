@@ -13,3 +13,19 @@
 #   config.prevent_phantom_js_auto_install = true
 #end
 #
+require 'jasmine'
+require 'selenium-webdriver'
+require File.expand_path(File.dirname(__FILE__) + '/jasmine_with_selenium_runner')
+
+
+Jasmine.configure do |config|
+  if ENV['BROWSER'] && ENV['BROWSER'] != "phantomjs"
+    config.runner = lambda { |formatter, jasmine_server_url|
+      filepath = File.join(Dir.pwd, 'spec', 'javascripts', 'support', 'config.yml')
+      runner_config = YAML::load(ERB.new(File.read(filepath)).result(binding))
+      JasmineWithSeleniumRunner.new(formatter, jasmine_server_url, runner_config)
+    }
+  end
+end
+
+

@@ -177,12 +177,6 @@ describe "pipelines/index.html.erb" do
     expect(response).to have_selector("button[value='Trigger'][id='deploy-pipeline-4']")
   end
 
-  it "should have the same contents as the jsunit fixture" do
-    render
-
-    assert_fixture_equal("pipeline_dashboard_test_rails_new.html", response.body)
-  end
-
   it "should render changes popup content holder" do
     modification = Modification.new(@date=java.util.Date.new, "1234", "label-1", nil)
     modification.setUserName("username")

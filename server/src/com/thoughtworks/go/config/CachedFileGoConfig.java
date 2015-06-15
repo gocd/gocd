@@ -38,7 +38,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class CachedFileGoConfig {
     private static final Logger LOGGER = Logger.getLogger(CachedFileGoConfig.class);
 
-    private final GoConfigDataSource dataSource;
+    private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
 
@@ -47,7 +47,7 @@ public class CachedFileGoConfig {
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    @Autowired public CachedFileGoConfig(GoConfigDataSource dataSource, ServerHealthService serverHealthService) {
+    @Autowired public CachedFileGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService) {
         this.dataSource = dataSource;
         this.serverHealthService = serverHealthService;
     }
@@ -94,7 +94,7 @@ public class CachedFileGoConfig {
     }
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
-        GoConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, new GoConfigHolder(currentConfig, currentConfigForEdit));
+        GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, new GoConfigHolder(currentConfig, currentConfigForEdit));
         saveValidConfigToCache(saveResult.getConfigHolder());
         return saveResult.getConfigSaveState();
     }

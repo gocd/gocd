@@ -63,8 +63,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GoConfigDataSourceTest {
-    private GoConfigDataSource dataSource;
+public class GoFileConfigDataSourceTest {
+    private GoFileConfigDataSource dataSource;
 
     private GoConfigFileHelper configHelper;
     private SystemEnvironment systemEnvironment;
@@ -85,7 +85,7 @@ public class GoConfigDataSourceTest {
         when(timeProvider.currentTime()).thenReturn(new Date());
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        dataSource = new GoConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
+        dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
             public void handle(Exception e) {
                 throw new RuntimeException(e);
             }
@@ -215,7 +215,7 @@ public class GoConfigDataSourceTest {
         assertThat(configHolder.configForEdit.getMd5(), is(not(md5)));
         GoConfigRevision commitedVersion = configRepository.getRevision(secondMd5);
         assertThat(commitedVersion.getContent(), is(xmlText));
-        assertThat(commitedVersion.getUsername(), is(GoConfigDataSource.FILESYSTEM));
+        assertThat(commitedVersion.getUsername(), is(GoFileConfigDataSource.FILESYSTEM));
     }
 
     @Test
@@ -283,7 +283,7 @@ public class GoConfigDataSourceTest {
         dataSource.reloadIfModified();
         assertThat(dataSource.load(), not(nullValue()));
 
-        GoConfigDataSource.ReloadIfModified reloadStrategy = (GoConfigDataSource.ReloadIfModified) ReflectionUtil.getField(dataSource, "reloadStrategy");
+        GoFileConfigDataSource.ReloadIfModified reloadStrategy = (GoFileConfigDataSource.ReloadIfModified) ReflectionUtil.getField(dataSource, "reloadStrategy");
 
         ReflectionUtil.setField(reloadStrategy, "lastModified", -1);
         ReflectionUtil.setField(reloadStrategy, "prevSize", -1);
@@ -349,7 +349,7 @@ public class GoConfigDataSourceTest {
 
         goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
-        GoConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public String unmodifiedMd5() {
                 return oldMD5;
@@ -406,7 +406,7 @@ public class GoConfigDataSourceTest {
         configHelper.addMailHost(getMailHost("mailhost.local"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
-        GoConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);
+        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);
         assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.MERGED));
     }
 
@@ -419,7 +419,7 @@ public class GoConfigDataSourceTest {
         String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
-        GoConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);
+        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);
         assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.UPDATED));
     }
 }

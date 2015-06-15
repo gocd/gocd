@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigDataSource;
+import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
@@ -78,7 +78,7 @@ public class ApplicationInitializerTest {
     @Mock
     private GoConfigService goConfigService;
     @Mock
-    private GoConfigDataSource goConfigDataSource;
+    private GoFileConfigDataSource goFileConfigDataSource;
     @Mock
     private GoLicenseService goLicenseService;
     @Mock

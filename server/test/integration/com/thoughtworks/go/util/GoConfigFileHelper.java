@@ -138,7 +138,7 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
-            GoConfigDataSource dataSource = new GoConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
+            GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, serverHealthService);

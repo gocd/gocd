@@ -39,19 +39,25 @@ public class CachedGoConfig {
     private static final Logger LOGGER = Logger.getLogger(CachedGoConfig.class);
 
     //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old CachedGoConfig
+    private final CachedFileGoConfig fileService;
+    private final GoPartialConfig partialConfig;
 
-    private final GoConfigDataSource dataSource;
+    private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
 
+    // these should be merged configs
     private volatile CruiseConfig currentConfig;
     private volatile CruiseConfig currentConfigForEdit;
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    @Autowired public CachedGoConfig(GoConfigDataSource dataSource, ServerHealthService serverHealthService) {
+    @Autowired public CachedGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService,
+                                     CachedFileGoConfig fileService,GoPartialConfig partialConfig) {
         this.dataSource = dataSource;
         this.serverHealthService = serverHealthService;
+        this.fileService = fileService;
+        this.partialConfig = partialConfig;
     }
 
     public CruiseConfig loadForEditing() {
@@ -96,7 +102,7 @@ public class CachedGoConfig {
     }
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
-        GoConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, new GoConfigHolder(currentConfig, currentConfigForEdit));
+        GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, new GoConfigHolder(currentConfig, currentConfigForEdit));
         saveValidConfigToCache(saveResult.getConfigHolder());
         return saveResult.getConfigSaveState();
     }

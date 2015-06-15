@@ -72,7 +72,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigAdministrationController controller;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDataSource dataSource;
+    @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
     @Autowired private MetricsProbeService metricsProbeService;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();

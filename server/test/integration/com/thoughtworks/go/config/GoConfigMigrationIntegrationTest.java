@@ -54,7 +54,6 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
 import org.jdom.Document;
 import org.jdom.filter.ElementFilter;
 import org.junit.After;
@@ -1194,7 +1193,7 @@ public class GoConfigMigrationIntegrationTest {
         }, configRepository, new TimeProvider(), configCache, registry,
                 metricsProbeService);
         SystemEnvironment sysEnv = new SystemEnvironment();
-        GoConfigDataSource configDataSource = new GoConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
+        GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
                 registry, metricsProbeService, serverHealthService);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);

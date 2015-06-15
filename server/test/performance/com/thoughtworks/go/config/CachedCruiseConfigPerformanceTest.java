@@ -46,7 +46,7 @@ public class CachedCruiseConfigPerformanceTest {
         ConfigCache configCache = new ConfigCache();
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry register = ConfigElementImplementationRegistryMother.withNoPlugins();
-        cache = new CachedGoConfig(new GoConfigDataSource(new GoConfigMigration(repo, new TimeProvider(), configCache, register,
+        cache = new CachedGoConfig(new GoFileConfigDataSource(new GoConfigMigration(repo, new TimeProvider(), configCache, register,
                 null), repo, env, new TimeProvider(), configCache,
                 serverVersion, register, null, new ServerHealthService()), new ServerHealthService());
         cache.save(config, true);

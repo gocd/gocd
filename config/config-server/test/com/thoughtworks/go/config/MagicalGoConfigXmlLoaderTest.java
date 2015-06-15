@@ -569,6 +569,39 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    public void shouldBeAbleToReadForceScheduleForEveryChangeAttributeForAPipeline() throws Exception {
+        String pipelineWithForceScheduleForEveryChangeTrue =
+                "<pipeline name=\"pipeline\" forceScheduleForEveryChange=\"true\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "</pipeline>\n";
+        PipelineConfig pipeline1 = xmlLoader.fromXmlPartial(toInputStream(pipelineWithForceScheduleForEveryChangeTrue), PipelineConfig.class);
+
+        assertThat(pipeline1.isForceScheduleForEveryChange(), is(true));
+
+        String pipelineWithForceScheduleForEveryChangeFalse =
+                "<pipeline name=\"pipeline\" forceScheduleForEveryChange=\"false\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "</pipeline>\n";
+        PipelineConfig pipeline2 = xmlLoader.fromXmlPartial(toInputStream(pipelineWithForceScheduleForEveryChangeFalse), PipelineConfig.class);
+
+        assertThat(pipeline2.isForceScheduleForEveryChange(), is(false));
+
+        String pipelineWithNoForceScheduleForEveryChange =
+                "<pipeline name=\"pipeline\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "</pipeline>\n";
+        PipelineConfig pipeline3 = xmlLoader.fromXmlPartial(toInputStream(pipelineWithNoForceScheduleForEveryChange), PipelineConfig.class);
+
+        assertThat(pipeline3.isForceScheduleForEveryChange(), is(false));
+    }
+
+    @Test
     public void shouldBeAbleToExplicitlyUnlockAPipeline() throws Exception {
         String pipelineXmlPartial =
                 "<pipeline name=\"pipeline\" isLocked=\"false\">\n"

@@ -119,6 +119,22 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
+    public void shouldBeAbleToSetForceScheduleForEveryChangeForAPipeline() throws Exception {
+        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
+        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setForceScheduleForEveryChange(true);
+        xmlWriter.write(config, output, false);
+        assertThat(output.toString(), containsString("forceScheduleForEveryChange=\"true"));
+    }
+
+    @Test
+    public void shouldBeAbleToRemoveForceScheduleForEveryChangeForAPipeline() throws Exception {
+        CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
+        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setForceScheduleForEveryChange(false);
+        xmlWriter.write(config, output, false);
+        assertThat(output.toString(), not(containsString("forceScheduleForEveryChange=")));
+    }
+
+    @Test
     public void shouldWriteServerConfig() throws Exception {
         String xml = ConfigFileFixture.SERVER_WITH_ARTIFACTS_DIR;
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(xml))).config;

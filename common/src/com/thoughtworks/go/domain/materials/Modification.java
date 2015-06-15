@@ -21,17 +21,11 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.ModificationVisitor;
 import com.thoughtworks.go.domain.PersistentObject;
@@ -410,5 +404,19 @@ public class Modification extends PersistentObject implements Comparable, Serial
 
     public String getAdditionalData() {
         return additionalData;
+    }
+
+    public boolean shouldBeIgnoredByFilterIn(MaterialConfig materialConfig) {
+        Filter filter = materialConfig.filter();
+        if (filter.shouldNeverIgnore() || !filter.hasIgnorePattern()) {
+            return false;
+        }
+
+        for (ModifiedFile file : files) {
+            if (!filter.isIgnoredFile(materialConfig, file.getFileName())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

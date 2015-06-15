@@ -16,17 +16,23 @@
 
 package com.thoughtworks.go.server.scheduling;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.materials.MaterialUpdateCompletedMessage;
@@ -56,6 +62,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -211,6 +218,8 @@ public class BuildCauseProducerService {
                 buildCause.addOverriddenVariables(scheduleOptions.getVariables());
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
                 if (materialConfigurationChanged || buildType.isValidBuildCause(pipelineConfig, buildCause)) {
+                    pruneRevisionsIfRequired(buildType, pipelineConfig, buildCause);
+
                     pipelineScheduleQueue.schedule(pipelineName, buildCause);
 
                     schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
@@ -247,6 +256,52 @@ public class BuildCauseProducerService {
 
     private void updateChangedRevisions(CaseInsensitiveString pipelineName, BuildCause buildCause) {
         materialChecker.updateChangedRevisions(pipelineName, buildCause);
+    }
+
+    void pruneRevisionsIfRequired(BuildType buildType, PipelineConfig pipelineConfig, BuildCause buildCause) {
+        if (!canPruneRevisions(buildType, pipelineConfig, buildCause)) {
+            return;
+        }
+
+        for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
+            if (materialRevision.numberOfModifications() > 1) {
+                MaterialConfig materialConfigForRevision = getMaterialConfigForRevision(pipelineConfig, materialRevision);
+
+                pruneRevisions(materialRevision, materialConfigForRevision);
+            }
+        }
+    }
+
+    boolean canPruneRevisions(BuildType buildType, PipelineConfig pipelineConfig, BuildCause buildCause) {
+        return buildType instanceof AutoBuild && pipelineConfig.isForceScheduleForEveryChange() && buildCause.hasOnlyOneMaterialRevisionChange();
+    }
+
+    private MaterialConfig getMaterialConfigForRevision(PipelineConfig pipelineConfig, MaterialRevision materialRevision) {
+        String pipelineUniqueFingerprint = materialRevision.getMaterial().getPipelineUniqueFingerprint();
+        for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+            if (currentMaterialConfig.getPipelineUniqueFingerprint().equals(pipelineUniqueFingerprint)) {
+                return currentMaterialConfig;
+            }
+        }
+        throw new RuntimeException("Could not find MaterialConfig for MaterialRevision - Material: " + materialRevision.getMaterial());
+    }
+
+    // add modifications till one with a non-ignored file is found
+    private void pruneRevisions(MaterialRevision materialRevision, MaterialConfig materialConfigForRevision) {
+        List<Modification> modifications = new ArrayList<Modification>();
+
+        for (int i = materialRevision.numberOfModifications() - 1; i >= 0; i--) {
+            Modification modification = materialRevision.getModification(i);
+            modifications.add(modification);
+
+            if (!modification.shouldBeIgnoredByFilterIn(materialConfigForRevision)) {
+                break;
+            }
+        }
+
+        Collections.reverse(modifications);
+
+        materialRevision.replaceModifications(modifications);
     }
 
     private ServerHealthState showError(String pipelineName, String message, String desc) {

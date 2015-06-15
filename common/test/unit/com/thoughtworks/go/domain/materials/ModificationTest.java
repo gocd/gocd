@@ -21,19 +21,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.IgnoredFiles;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -126,5 +135,32 @@ public class ModificationTest {
         Modification modification = new Modification(null, "Fixing #3455 and #1234",null , null, null);
         assertThat(modification.getCardNumbersFromComment().size(), is(2));
         assertThat(modification.getCardNumbersFromComment(), hasItems("3455","1234"));
+    }
+
+    @Test
+    public void shouldNeverIgnorePackageMaterialModification() {
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
+        Filter filter = packageMaterialConfig.filter();
+        MatcherAssert.assertThat(filter, Is.is(notNullValue()));
+        MatcherAssert.assertThat(new Modification().shouldBeIgnoredByFilterIn(packageMaterialConfig), Is.is(false));
+    }
+
+    @Test
+    public void shouldIncludeModificationIfAnyFileIsNotIgnored() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        materialConfig.setFilter(filter);
+
+        assertThat(aCheckIn("100", "a.doc", "a.pdf", "a.java").shouldBeIgnoredByFilterIn(materialConfig), Is.is(false));
+    }
+
+    @Test
+    public void shouldIgnoreModificationIfAllTheIgnoresMatch() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        materialConfig.setFilter(filter);
+
+        assertThat(aCheckIn("100", "a.doc", "a.pdf").shouldBeIgnoredByFilterIn(materialConfig), Is.is(true));
+        assertThat(aCheckIn("100", "a.doc", "a.doc").shouldBeIgnoredByFilterIn(materialConfig), Is.is(true));
     }
 }

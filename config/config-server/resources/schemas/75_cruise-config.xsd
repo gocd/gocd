@@ -74,7 +74,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="76"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="75"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -284,7 +284,6 @@
                     <xsd:attribute name="name" type="nameType" use="required"/>
                     <xsd:attribute name="labeltemplate" type="labelType"/>
                     <xsd:attribute name="isLocked" type="xsd:boolean"/>
-                    <xsd:attribute name="forceScheduleForEveryChange" type="xsd:boolean"/>
                     <xsd:attribute name="template" type="nameType" use="optional"/>
                 </xsd:complexType>
             </xsd:element>
@@ -713,7 +712,7 @@
     </xsd:simpleType>
     <xsd:simpleType name="labelType">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)\])?\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
+            <xsd:pattern value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="jobnameType">

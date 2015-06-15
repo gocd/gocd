@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.Pipeline;
@@ -70,7 +70,7 @@ public class StageNotificationServiceIntegrationTest {
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private DataSource dataSource;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private UserDao userDao;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -103,7 +103,7 @@ public class StageNotificationServiceIntegrationTest {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();

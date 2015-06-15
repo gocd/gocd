@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.io.IOException;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -62,7 +62,7 @@ import static org.junit.Assert.assertThat;
 public class ChangeMaterialsTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private ScheduleCheckCompletedTopic topic;
     @Autowired private ScheduleHelper scheduleHelper;
 
@@ -100,7 +100,7 @@ public class ChangeMaterialsTest {
         username = new Username(new CaseInsensitiveString("gli"));
 
         dbHelper.onSetUp();
-        cruiseConfig = new GoConfigFileHelper().usingCruiseConfigDao(goConfigFileDao);
+        cruiseConfig = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         cruiseConfig.onSetUp();
         cruiseConfig.initializeConfigFile();
 
@@ -153,7 +153,7 @@ public class ChangeMaterialsTest {
     @Test public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
         String p4view = "//depot/... //localhost/...";
         cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4TestRepo.materialConfig(p4view));
-        mingle = goConfigFileDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+        mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
 
         assertThat(mingle.materialConfigs().get(0), is(instanceOf(P4MaterialConfig.class)));
 

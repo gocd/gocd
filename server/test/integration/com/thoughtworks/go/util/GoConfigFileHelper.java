@@ -90,7 +90,7 @@ public class GoConfigFileHelper {
 
     public GoConfigMother goConfigMother = new GoConfigMother();
     private File passwordFile = null;
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigDao;
     private CachedGoConfig cachedGoConfig;
     private SystemEnvironment sysEnv;
     private String originalConfigDir;
@@ -100,14 +100,14 @@ public class GoConfigFileHelper {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
     }
 
-    public GoConfigFileHelper(GoConfigFileDao goConfigFileDao) {
-        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, goConfigFileDao);
+    public GoConfigFileHelper(GoConfigDao goConfigDao) {
+        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, goConfigDao);
     }
 
-     private GoConfigFileHelper(String xml, GoConfigFileDao goConfigFileDao) {
+     private GoConfigFileHelper(String xml, GoConfigDao goConfigDao) {
          new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVERID_MUTABILITY, "N");
          this.originalXml = xml;
-         assignFileDao(goConfigFileDao);
+         assignFileDao(goConfigDao);
          try {
              File dir = TestFileUtil.createTempFolder("server-config-dir");
              this.configFile = new File(dir, "cruise-config.xml");
@@ -120,18 +120,18 @@ public class GoConfigFileHelper {
         }
     }
 
-    private void assignFileDao(GoConfigFileDao goConfigFileDao) {
-        this.goConfigFileDao = goConfigFileDao;
+    private void assignFileDao(GoConfigDao goConfigDao) {
+        this.goConfigDao = goConfigDao;
         try {
-            Field field = GoConfigFileDao.class.getDeclaredField("cachedConfigService");
+            Field field = GoConfigDao.class.getDeclaredField("cachedConfigService");
             field.setAccessible(true);
-            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigFileDao);
+            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigDao);
         } catch (Exception e) {
             bomb(e);
         }
     }
 
-    public static GoConfigFileDao createTestingDao() {
+    public static GoConfigDao createTestingDao() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
             NoOpMetricsProbeService probeService = new NoOpMetricsProbeService();
@@ -143,7 +143,7 @@ public class GoConfigFileHelper {
             dataSource.upgradeIfNecessary();
             CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, serverHealthService);
             cachedConfigService.loadConfigIfNull();
-            return new GoConfigFileDao(cachedConfigService, probeService);
+            return new GoConfigDao(cachedConfigService, probeService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -165,8 +165,8 @@ public class GoConfigFileHelper {
        this(xml, createTestingDao());
     }
 
-    public GoConfigFileDao getGoConfigFileDao() {
-        return goConfigFileDao;
+    public GoConfigDao getGoConfigFileDao() {
+        return goConfigDao;
     }
 
     public CachedGoConfig getCachedGoConfig() {
@@ -179,8 +179,8 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
     }
 
-    public GoConfigFileHelper usingCruiseConfigDao(GoConfigFileDao goConfigFileDao) {
-        assignFileDao(goConfigFileDao);
+    public GoConfigFileHelper usingCruiseConfigDao(GoConfigDao goConfigDao) {
+        assignFileDao(goConfigDao);
         return this;
     }
 
@@ -201,7 +201,7 @@ public class GoConfigFileHelper {
     public void writeXmlToConfigFile(String xml) {
         try {
             FileUtils.writeStringToFile(configFile, xml);
-            goConfigFileDao.forceReload();
+            goConfigDao.forceReload();
         } catch (Exception e) {
             throw bomb("Error writing config file: " + configFile.getAbsolutePath(), e);
         }
@@ -209,7 +209,7 @@ public class GoConfigFileHelper {
 
     public void onSetUp() throws IOException {
         initializeConfigFile();
-        goConfigFileDao.forceReload();
+        goConfigDao.forceReload();
         writeConfigFile(load());
         originalConfigDir = sysEnv.getConfigDir();
         File configDir = configFile.getParentFile();
@@ -508,8 +508,8 @@ public class GoConfigFileHelper {
 
     public CruiseConfig load() {
         try {
-            goConfigFileDao.forceReload();
-            return new Cloner().deepClone(goConfigFileDao.load());
+            goConfigDao.forceReload();
+            return new Cloner().deepClone(goConfigDao.load());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

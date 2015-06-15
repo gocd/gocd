@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Pipeline;
@@ -77,7 +77,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ScheduleServiceStageTriggerTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageService stageService;
     @Autowired private PipelineService pipelineService;
     @Autowired private ScheduleService scheduleService;
@@ -115,7 +115,7 @@ public class ScheduleServiceStageTriggerTest {
     public void setUp() throws Exception {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

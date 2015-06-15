@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -61,7 +61,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class JobStatusCacheTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private JobStatusCache jobStatusCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
@@ -74,7 +74,7 @@ public class JobStatusCacheTest {
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();

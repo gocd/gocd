@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain.activity;
 
 import javax.sql.DataSource;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StageConfigIdentifier;
 import com.thoughtworks.go.domain.StageEvent;
@@ -61,7 +61,7 @@ public class StageResultCacheTest {
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private DataSource dataSource;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusTopic stageStatusTopic;
     @Autowired private MessagingService messagingService;
     @Autowired private StageResultCache stageResultCache;
@@ -78,7 +78,7 @@ public class StageResultCacheTest {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();

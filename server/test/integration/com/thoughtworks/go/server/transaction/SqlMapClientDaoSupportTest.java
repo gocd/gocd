@@ -20,7 +20,7 @@ import java.sql.SQLException;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapExecutor;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -51,7 +51,7 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class SqlMapClientDaoSupportTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -68,7 +68,7 @@ public class SqlMapClientDaoSupportTest {
     @Before
     public void setUp() throws Exception {
         assertionUtil = new TransactionCacheAssertionUtil(goCache, transactionTemplate);
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();

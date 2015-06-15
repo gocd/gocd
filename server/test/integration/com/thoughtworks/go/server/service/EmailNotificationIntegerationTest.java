@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.googlecode.junit.ext.JunitExtSpringRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.SocketChecker;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
@@ -66,7 +66,7 @@ import static org.hamcrest.core.IsNot.not;
 )
 public class EmailNotificationIntegerationTest {
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private UserDao usersettingDao;
     @Autowired private BuildRepositoryMessageProducer producer;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -97,7 +97,7 @@ public class EmailNotificationIntegerationTest {
     public void setUp() throws Exception {
         userName = "GAO LI";
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         dbHelper.onSetUp();
         pipelineConfig = PipelineMother.withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans(

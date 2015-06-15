@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -48,7 +48,7 @@ public class ArtifactsDirChangeTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao configDao;
+    @Autowired private GoConfigDao configDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private TransactionTemplate transactionTemplate;

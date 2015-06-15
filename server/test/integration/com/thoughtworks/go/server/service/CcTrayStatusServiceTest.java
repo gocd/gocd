@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.Pipeline;
@@ -62,7 +62,7 @@ public class CcTrayStatusServiceTest {
     @Autowired private StageService stageService;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigService serverConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private CcTrayStatusService ccTrayStatusService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
@@ -75,7 +75,7 @@ public class CcTrayStatusServiceTest {
     public void setUp() throws Exception {
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

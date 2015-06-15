@@ -26,7 +26,7 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.JobInstances;
@@ -107,7 +107,7 @@ public class PipelineSqlMapDaoCachingTest {
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private GoConfigFileDao configFileDao;
+    @Autowired private GoConfigDao configFileDao;
     @Autowired private DatabaseStrategy databaseStrategy;
     private SqlMapClientTemplate mockTemplate;
     private MaterialRepository repository;
@@ -430,7 +430,7 @@ public class PipelineSqlMapDaoCachingTest {
     public void loadActivePipelines_shouldCacheResult() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
-        GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
+        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
 
@@ -549,7 +549,7 @@ public class PipelineSqlMapDaoCachingTest {
     public void shouldRemovePipelineIdFromCacheWhenStageFinishesForNonLatestPipeline() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
-        GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
+        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
 
@@ -586,7 +586,7 @@ public class PipelineSqlMapDaoCachingTest {
     public void shouldRemovePipelineIdFromCacheWhenPipelineCeasesToBeTheLatestAndIsNotActive() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig=mock(BasicCruiseConfig.class);
-        GoConfigFileDao mockconfigFileDao = mock(GoConfigFileDao.class);
+        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
 

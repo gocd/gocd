@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.controller.StageController;
@@ -53,7 +53,7 @@ public class StageControllerIntegrationTest {
     @Autowired private PipelineService pipelineService;
     @Autowired private StageController controller;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -67,7 +67,7 @@ public class StageControllerIntegrationTest {
     public void setUp() throws Exception {
         fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
         this.configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         request = new MockHttpServletRequest();

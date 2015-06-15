@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -59,7 +59,7 @@ public class JsonCurrentActivityServiceIntegrationTest {
 
     @Autowired private JsonCurrentActivityService service;
     @Autowired private CachedCurrentActivityService currentActivityService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusCache stageStatusCache;
     @Autowired private JobStatusCache jobStatusCache;
     @Autowired private MaterialRepository materialRepository;
@@ -71,7 +71,7 @@ public class JsonCurrentActivityServiceIntegrationTest {
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }

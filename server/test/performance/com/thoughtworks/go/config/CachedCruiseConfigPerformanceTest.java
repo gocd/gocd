@@ -64,7 +64,7 @@ public class CachedCruiseConfigPerformanceTest {
     }
 
     private UpdateConfigCommand addAgent(int count) {
-        return GoConfigFileDao.createAddAgentCommand(new AgentConfig("UUID" + count, "host-" + count, "127.0.0." + count));
+        return GoConfigDao.createAddAgentCommand(new AgentConfig("UUID" + count, "host-" + count, "127.0.0." + count));
     }
 
     private void assertCommandPerformance(UpdateConfigCommand command, int seconds) {

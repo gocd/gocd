@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -95,7 +95,7 @@ public class JobInstanceSqlMapDaoTest {
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private InstanceFactory instanceFactory;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -132,7 +132,7 @@ public class JobInstanceSqlMapDaoTest {
         JobInstance job = savedPipeline.getStages().first().getJobInstances().first();
         job.setIgnored(true);
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
     }
 

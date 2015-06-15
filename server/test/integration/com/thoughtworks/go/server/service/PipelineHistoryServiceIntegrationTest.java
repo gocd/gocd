@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleUser;
@@ -97,7 +97,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class PipelineHistoryServiceIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private CachedCurrentActivityService currentActivityService;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -129,7 +129,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.setGroupName("group2");
 
         diskIsFull = new ArtifactsDiskIsFull();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

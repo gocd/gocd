@@ -249,7 +249,7 @@ describe EnvironmentsController do
     end
 
     def md5
-      Spring.bean("goConfigFileDao").md5OfConfigFile()
+      Spring.bean("goConfigDao").md5OfConfigFile()
     end
 
     it "should return error message and the response status code of the passed in result" do

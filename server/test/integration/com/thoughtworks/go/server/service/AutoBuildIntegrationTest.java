@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -54,7 +54,7 @@ public class AutoBuildIntegrationTest {
     public static final Cloner CLONER = new Cloner();
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private MaterialRepository materialRepository;
@@ -71,7 +71,7 @@ public class AutoBuildIntegrationTest {
     @Before
     public void setUp() throws Exception {
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();
@@ -110,7 +110,7 @@ public class AutoBuildIntegrationTest {
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         currentConfig.pipelineConfigByName(new CaseInsensitiveString("down_pipe")).removeMaterialConfig(svn.config());
         configHelper.writeConfigFile(currentConfig);
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         MaterialRevisions given = scheduleUtil.mrs(scheduleUtil.mr(up_pipe, true, up_pipe_1));
 

@@ -72,7 +72,7 @@ public class GoConfigDataSourceTest {
     private TimeProvider timeProvider;
     private ConfigCache configCache = new ConfigCache();
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigDao;
 
     @Before
     public void setup() throws Exception {
@@ -94,7 +94,7 @@ public class GoConfigDataSourceTest {
         dataSource.upgradeIfNecessary();
         CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, new ServerHealthService());
         cachedConfigService.loadConfigIfNull();
-        goConfigFileDao = new GoConfigFileDao(cachedConfigService, metricsProbeService);
+        goConfigDao = new GoConfigDao(cachedConfigService, metricsProbeService);
         configHelper.load();
     }
 
@@ -127,9 +127,9 @@ public class GoConfigDataSourceTest {
     public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException, IOException {
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
-        goConfigFileDao.updateMailHost(getMailHost("mailhost.local"));
+        goConfigDao.updateMailHost(getMailHost("mailhost.local"));
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         GoConfigRevision revision = configRepository.getRevision(cruiseConfig.getMd5());
         assertThat(revision.getUsername(), is("loser_boozer"));
     }
@@ -197,7 +197,7 @@ public class GoConfigDataSourceTest {
 
     @Test
     public void shouldLoadAsUser_Filesystem_WithMd5Sum() throws Exception {
-        GoConfigHolder configHolder = goConfigFileDao.loadConfigHolder();
+        GoConfigHolder configHolder = goConfigDao.loadConfigHolder();
         String md5 = DigestUtils.md5Hex(FileUtils.readFileToString(dataSource.fileLocation()));
         assertThat(configHolder.configForEdit.getMd5(), is(md5));
         assertThat(configHolder.config.getMd5(), is(md5));
@@ -304,7 +304,7 @@ public class GoConfigDataSourceTest {
             public void run() {
                 for (int i = 0; i < 5; i++) {
                     try {
-                        goConfigFileDao.updateMailHost(new MailHost("hostname", 9999, "user", "password", false, false, "from@local", "admin@local"));
+                        goConfigDao.updateMailHost(new MailHost("hostname", 9999, "user", "password", false, false, "from@local", "admin@local"));
                     } catch (Exception e) {
                         e.printStackTrace();
                         errors.add(e);
@@ -345,7 +345,7 @@ public class GoConfigDataSourceTest {
         assertThat(oldMailHost.getHostName(), is("mailhost.local.old"));
         assertThat(oldMailHost.getHostName(), is(not("mailhost.local")));
 
-        goConfigFileDao.updateMailHost(getMailHost("mailhost.local"));
+        goConfigDao.updateMailHost(getMailHost("mailhost.local"));
 
         goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
@@ -369,7 +369,7 @@ public class GoConfigDataSourceTest {
     @Test
     public void shouldPropagateConfigHasChangedException() throws Exception {
         String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
-        goConfigFileDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "b1"));
+        goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "b1"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
         try {
@@ -383,9 +383,9 @@ public class GoConfigDataSourceTest {
     @Test
     public void shouldThrowConfigMergeExceptionWhenConfigMergeFeatureIsTurnedOff() throws Exception {
         String firstMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
-        goConfigFileDao.updateConfig(configHelper.addPipelineCommand(firstMd5, "p0", "s0", "b0"));
+        goConfigDao.updateConfig(configHelper.addPipelineCommand(firstMd5, "p0", "s0", "b0"));
         String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
-        goConfigFileDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "j1"));
+        goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "j1"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, Boolean.FALSE);

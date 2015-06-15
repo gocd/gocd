@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
@@ -53,7 +53,7 @@ public class PropertiesServiceTest {
     @Autowired private PropertiesService propertiesService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper;
@@ -61,7 +61,7 @@ public class PropertiesServiceTest {
     @Before
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

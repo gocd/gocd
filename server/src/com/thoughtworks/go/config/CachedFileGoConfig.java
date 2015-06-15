@@ -32,13 +32,11 @@ import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands when to reload the config file or other config source
+ * @understands when to reload the config file
  */
 @Component
-public class CachedGoConfig {
-    private static final Logger LOGGER = Logger.getLogger(CachedGoConfig.class);
-
-    //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old CachedGoConfig
+public class CachedFileGoConfig {
+    private static final Logger LOGGER = Logger.getLogger(CachedFileGoConfig.class);
 
     private final GoConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
@@ -49,7 +47,7 @@ public class CachedGoConfig {
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    @Autowired public CachedGoConfig(GoConfigDataSource dataSource, ServerHealthService serverHealthService) {
+    @Autowired public CachedFileGoConfig(GoConfigDataSource dataSource, ServerHealthService serverHealthService) {
         this.dataSource = dataSource;
         this.serverHealthService = serverHealthService;
     }

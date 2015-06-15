@@ -23,13 +23,8 @@ import java.util.ArrayList;
 import javax.sql.DataSource;
 
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
@@ -81,7 +76,7 @@ public class BackupServiceH2IntegrationTest {
     @Autowired ArtifactsDirHolder artifactsDirHolder;
     @Autowired DatabaseAccessHelper dbHelper;
     @Autowired
-    GoConfigFileDao goConfigFileDao;
+    GoConfigDao goConfigDao;
     @Autowired
     ServerBackupRepository backupInfoRepository;
     @Autowired TimeProvider timeProvider;
@@ -106,7 +101,7 @@ public class BackupServiceH2IntegrationTest {
         admin = new Username(new CaseInsensitiveString("admin"));
         configHelper.addSecurityWithPasswordFile();
         configHelper.addAdmins(CaseInsensitiveString.str(admin.getUsername()));
-        goConfigFileDao.forceReload();
+        goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         FileUtils.deleteQuietly(backupsDirectory);
         tempFiles = new TempFiles();

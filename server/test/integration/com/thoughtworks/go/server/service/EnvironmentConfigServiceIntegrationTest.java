@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
@@ -56,7 +56,7 @@ import static org.junit.Assert.assertThat;
 public class EnvironmentConfigServiceIntegrationTest {
 
     @Autowired private SecurityService securityService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private EnvironmentConfigService service;
     @Autowired private Localizer localizer;
@@ -67,7 +67,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();
@@ -123,7 +123,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         newUat.addPipeline(new CaseInsensitiveString("bar"));
         newUat.addAgent("uuid-1");
         newUat.addEnvironmentVariable("env-three", "THREE");
-        HttpLocalizedOperationResult result = service.updateEnvironment("uat", newUat, new Username(new CaseInsensitiveString("foo")), goConfigFileDao.md5OfConfigFile());
+        HttpLocalizedOperationResult result = service.updateEnvironment("uat", newUat, new Username(new CaseInsensitiveString("foo")), goConfigDao.md5OfConfigFile());
         EnvironmentConfig updatedEnv = service.named("prod");
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
         assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
@@ -141,7 +141,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo");
         configHelper.turnOnSecurity();
         configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")),  goConfigFileDao.md5OfConfigFile());
+        HttpLocalizedOperationResult result = service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")),  goConfigDao.md5OfConfigFile());
         assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
 
@@ -149,14 +149,14 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists() {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
-        HttpLocalizedOperationResult result = service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigFileDao.md5OfConfigFile());
+        HttpLocalizedOperationResult result = service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigDao.md5OfConfigFile());
         assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
     }
 
     @Test
     public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName() {
         configHelper.addEnvironments("foo-env");
-        HttpLocalizedOperationResult result = service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigFileDao.md5OfConfigFile());
+        HttpLocalizedOperationResult result = service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigDao.md5OfConfigFile());
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
     }
@@ -181,9 +181,9 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Test
     public void shouldNotUpdateEnvironmentIfEditingOverAStaleCopy() throws Exception{
         configHelper.addEnvironments("prod");
-        String staleMd5 = goConfigFileDao.md5OfConfigFile();
+        String staleMd5 = goConfigDao.md5OfConfigFile();
         service.updateEnvironment("prod", environmentConfig("uat1"), new Username(new CaseInsensitiveString("foo")), staleMd5);
-        assertThat("md5 should be stale", goConfigFileDao.md5OfConfigFile(), is(not(staleMd5)));
+        assertThat("md5 should be stale", goConfigDao.md5OfConfigFile(), is(not(staleMd5)));
 
         HttpLocalizedOperationResult result = service.updateEnvironment("prod", environmentConfig("uat2"), new Username(new CaseInsensitiveString("foo")),  staleMd5);
 

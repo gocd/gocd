@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -57,7 +57,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class MultipleMaterialsWithFilterTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private BuildCauseProducerService buildCauseProducerService;
@@ -77,7 +77,7 @@ public class MultipleMaterialsWithFilterTest {
     @Before
     public void setUp() throws Exception {
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         fixture = new PipelineWithMultipleMaterials(materialRepository, transactionTemplate);
         fixture.usingFilterForFirstMaterial("**/*.doc").usingConfigHelper(configHelper).usingDbHelper(
                 dbHelper).onSetUp();

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -56,7 +56,7 @@ public class JobStatusListenerTest  {
     @Autowired private StageService stageService;
 	@Autowired private DatabaseAccessHelper dbHelper;
 	@Autowired private ScheduleHelper scheduleHelper;
-	@Autowired private GoConfigFileDao goConfigFileDao;
+	@Autowired private GoConfigDao goConfigDao;
 	@Autowired private GoCache goCache;
 
     private static final String PIPELINE_NAME = "mingle";
@@ -77,7 +77,7 @@ public class JobStatusListenerTest  {
     public void setUp() throws Exception {
         goCache.clear();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         PipelineConfig pipelineConfig = withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans(JOB_NAME));
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);

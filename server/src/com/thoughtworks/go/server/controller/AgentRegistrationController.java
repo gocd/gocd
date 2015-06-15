@@ -17,22 +17,17 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.update.ApproveAgentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,12 +43,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 
 @Controller
 public class AgentRegistrationController {
@@ -201,7 +194,7 @@ public class AgentRegistrationController {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
-                GoConfigFileDao.CompositeConfigCommand compositeConfigCommand = new GoConfigFileDao.CompositeConfigCommand(
+                GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)

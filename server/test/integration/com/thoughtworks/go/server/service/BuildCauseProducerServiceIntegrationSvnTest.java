@@ -20,7 +20,7 @@ import java.io.File;
 import java.sql.SQLException;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -64,7 +64,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     private static final String STAGE_NAME = "dev";
 
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private BuildCauseProducerService buildCauseProducerService;
     @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
@@ -83,7 +83,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         workingFolder = TestFileUtil.createTempFolder("workingFolder");

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.valuestreammap.*;
@@ -62,7 +62,7 @@ import static org.junit.Assert.assertThat;
 public class ValueStreamMapServiceIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private ValueStreamMapService valueStreamMapService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -76,7 +76,7 @@ public class ValueStreamMapServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.turnOnSecurity();
         configHelper.addAdmins("admin");

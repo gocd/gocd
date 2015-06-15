@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.config.GoConfigFileDao;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class InvalidConfigurationTest {
-    private GoConfigFileDao goConfigFileDao = GoConfigFileHelper.createTestingDao();
+    private GoConfigDao goConfigDao = GoConfigFileHelper.createTestingDao();
 
     private void useConfig(String configContents) throws Exception {
         GoConfigFileHelper goConfigFileHelper = new GoConfigFileHelper(configContents);
@@ -42,14 +42,14 @@ public class InvalidConfigurationTest {
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionIfMultiplePipelinesExistWithTheSameName() throws Exception {
         useConfig(ConfigFileFixture.PIPELINES_WITH_SAME_NAME);
-        goConfigFileDao.load();
+        goConfigDao.load();
     }
 
     @Test
     public void shouldThrowExceptionIfBuildPlansExistWithTheSameNameWithinAPipeline() throws Exception {
         try {
             useConfig(ConfigFileFixture.JOBS_WITH_SAME_NAME);
-            goConfigFileDao.load();
+            goConfigDao.load();
             fail("Should throw Exception about duplicated job name");
         } catch (Exception e) {
             assertThat(
@@ -65,7 +65,7 @@ public class InvalidConfigurationTest {
     public void shouldThrowExceptionIfPipelineDoesNotContainAnyBuildPlans() throws Exception {
         try {
             useConfig(ConfigFileFixture.STAGE_WITH_NO_JOBS);
-            goConfigFileDao.load();
+            goConfigDao.load();
             fail("Should throw Exception about duplicated job name");
         } catch (Exception e) {
             assertThat(

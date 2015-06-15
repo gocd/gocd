@@ -22,7 +22,7 @@ import java.io.IOException;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -66,7 +66,7 @@ import static org.junit.Assert.assertThat;
 })
 public class GoConfigServiceIntegrationTest {
     @Autowired private SecurityService securityService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private Localizer localizer;
@@ -80,7 +80,7 @@ public class GoConfigServiceIntegrationTest {
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
     }
@@ -583,7 +583,7 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldThrowUpOnConfigSaveMergeConflict_ViaMergeFlow() throws Exception {
         // User 1 loads page
-        CruiseConfig user1SeeingConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig user1SeeingConfig = goConfigDao.loadForEditing();
         String user1SeeingMd5 = user1SeeingConfig.getMd5();
 
         // User 2 edits config
@@ -607,7 +607,7 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldThrowUpOnConfigSavePreValidationError_ViaMergeFlow() throws Exception {
         // User 1 loads page
-        CruiseConfig user1SeeingConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig user1SeeingConfig = goConfigDao.loadForEditing();
         String user1SeeingMd5 = user1SeeingConfig.getMd5();
 
         // User 2 edits config
@@ -664,7 +664,7 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldThrowUpOnConfigSaveValidationError_ViaNormalFlow() throws Exception {
         // User 1 loads page
-        CruiseConfig user1SeeingConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig user1SeeingConfig = goConfigDao.loadForEditing();
         String user1SeeingMd5 = user1SeeingConfig.getMd5();
 
         // User 1 edits old config
@@ -749,7 +749,7 @@ public class GoConfigServiceIntegrationTest {
         }
 
         // User 1 loads page
-        CruiseConfig user1SeeingConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig user1SeeingConfig = goConfigDao.loadForEditing();
         String user1SeeingMd5 = user1SeeingConfig.getMd5();
 
         // User 2 edits config
@@ -771,7 +771,7 @@ public class GoConfigServiceIntegrationTest {
     @Test
     public void shouldNotThrowUpOnConfigSave_ViaNormalFlow() throws Exception {
         // User 1 loads page
-        CruiseConfig user1SeeingConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig user1SeeingConfig = goConfigDao.loadForEditing();
 
         // User 2 edits config
         configHelper.addPipelineWithGroup("defaultGroup", "user2_pipeline", "user2_stage", "user2_job");

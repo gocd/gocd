@@ -72,7 +72,7 @@ public class CachedGoConfigTest {
         serverHealthService = new ServerHealthService();
         cachedGoConfig = new CachedGoConfig(dataSource, serverHealthService);
         cachedGoConfig.loadConfigIfNull();
-        configHelper.usingCruiseConfigDao(new GoConfigFileDao(cachedGoConfig, mock(MetricsProbeService.class)));
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedGoConfig, mock(MetricsProbeService.class)));
     }
 
     @Test public void shouldUpdateCachedConfigOnSave() throws Exception {

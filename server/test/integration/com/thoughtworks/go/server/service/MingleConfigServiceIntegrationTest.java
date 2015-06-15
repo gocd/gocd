@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.config.Authorization;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.LdapConfig;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PasswordFileConfig;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertThat;
 public class MingleConfigServiceIntegrationTest {
     @Autowired private MingleConfigService mingleConfigService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private Localizer localizer;
 
     private GoConfigFileHelper configHelper;
@@ -64,7 +64,7 @@ public class MingleConfigServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        configHelper = new GoConfigFileHelper(goConfigFileDao);
+        configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
         configHelper.addPipeline("bar", "stage", MaterialConfigsMother.defaultMaterialConfigs(), "build");
 

@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -55,7 +55,7 @@ public class SecurityServiceIntegrationTest {
     private static final String OPERATOR = "operator";
     private static final String HACKER = "hacker";
 
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private SecurityService securityService;
     @Autowired private GoConfigService configService;
@@ -65,7 +65,7 @@ public class SecurityServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.addPipelineWithGroup(GROUP_NAME, PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         configHelper.addSecurityWithAdminConfig();

@@ -218,7 +218,7 @@ public final class LogFileHelper {
         private File artifactsDir;
 
         public FakeGoConfigService(File artifactsDir) throws IOException {
-            super(new GoConfigFileDao(new CachedGoConfig(new GoConfigDataSource(new DoNotUpgrade(), mock(ConfigRepository.class), new SystemEnvironment(), new TimeProvider(),
+            super(new GoConfigDao(new CachedGoConfig(new GoConfigDataSource(new DoNotUpgrade(), mock(ConfigRepository.class), new SystemEnvironment(), new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, new ServerHealthService()), new ServerHealthService()),
                     metricsProbeService) {
                 public CruiseConfig load() {

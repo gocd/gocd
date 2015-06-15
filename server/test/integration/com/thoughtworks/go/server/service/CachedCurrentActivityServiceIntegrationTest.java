@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -44,7 +44,7 @@ public class CachedCurrentActivityServiceIntegrationTest {
 
     @Autowired private CachedCurrentActivityService cachedCurrentActivityService;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -53,7 +53,7 @@ public class CachedCurrentActivityServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
         configFileHelper.onSetUp();
 
         fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);

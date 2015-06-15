@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.AuthConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleUser;
@@ -52,13 +52,13 @@ public class StageApprovalAuthorizationTest {
     private AuthConfig authConfigWithUserJez = new AuthConfig(new AdminUser(new CaseInsensitiveString("jez")));
     private AuthConfig authConfigWithAdminRole = new AuthConfig(new AdminRole(new CaseInsensitiveString("adminRole")));
 
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private SecurityService securityService;
     private static final String STAGE_NAME = "dev";
 
     @Before
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, STAGE_NAME);
     }

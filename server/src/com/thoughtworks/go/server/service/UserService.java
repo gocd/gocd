@@ -27,7 +27,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.StageConfigIdentifier;
@@ -160,7 +160,7 @@ public class UserService {
             }
         }
         try {
-            final GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+            final GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
             command.addCommand(goConfigService.modifyRolesCommand(users, roleSelections));
             command.addCommand(goConfigService.modifyAdminPrivilegesCommand(users, adminPrivilege));
             goConfigService.updateConfig(command);

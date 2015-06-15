@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.StageArtifactCleanupProhibited;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ConfigDbStateRepositoryIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired ConfigDbStateRepository configDbStateRepository;
     @Autowired private DatabaseAccessHelper dbHelper;
 
@@ -53,7 +53,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

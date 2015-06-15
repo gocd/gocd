@@ -30,7 +30,7 @@ import java.util.zip.ZipInputStream;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -97,7 +97,7 @@ public class BackupServiceIntegrationTest {
     @Autowired ArtifactsDirHolder artifactsDirHolder;
     @Autowired DatabaseAccessHelper dbHelper;
     @Autowired
-    GoConfigFileDao goConfigFileDao;
+    GoConfigDao goConfigDao;
     @Autowired
     ServerBackupRepository backupInfoRepository;
     @Autowired TimeProvider timeProvider;
@@ -122,7 +122,7 @@ public class BackupServiceIntegrationTest {
         admin = new Username(new CaseInsensitiveString("admin"));
         configHelper.addSecurityWithPasswordFile();
         configHelper.addAdmins(CaseInsensitiveString.str(admin.getUsername()));
-        goConfigFileDao.forceReload();
+        goConfigDao.forceReload();
         backupsDirectory = new File(artifactsDirHolder.getArtifactsDir(), ServerConfig.SERVER_BACKUPS);
         cleanupBackups();
         tempFiles = new TempFiles();

@@ -72,7 +72,7 @@ import static java.lang.String.format;
 
 @Service
 public class GoConfigService implements Initializer {
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigDao;
     private PipelineRepository pipelineRepository;
     private GoConfigMigration upgrader;
     private GoCache goCache;
@@ -90,10 +90,10 @@ public class GoConfigService implements Initializer {
     private InstanceFactory instanceFactory;
 
     @Autowired
-    public GoConfigService(GoConfigFileDao goConfigFileDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
+    public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
                            MetricsProbeService metricsProbeService, InstanceFactory instanceFactory) {
-        this.goConfigFileDao = goConfigFileDao;
+        this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
         this.configRepository = configRepository;
@@ -105,16 +105,16 @@ public class GoConfigService implements Initializer {
     }
 
     //for testing
-    public GoConfigService(GoConfigFileDao goConfigFileDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
+    public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, UserDao userDao, ConfigElementImplementationRegistry registry,
                            MetricsProbeService metricsProbeService, InstanceFactory instanceFactory) {
-        this(goConfigFileDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, metricsProbeService, instanceFactory);
+        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, metricsProbeService, instanceFactory);
         this.clock = clock;
     }
 
     @Override
     public void initialize() {
-        this.goConfigFileDao.load();
+        this.goConfigDao.load();
         register(new BaseUrlChangeListener(serverConfig(), goCache));
         File dir = artifactsDir();
         if (!dir.exists()) {
@@ -185,15 +185,15 @@ public class GoConfigService implements Initializer {
 
     @Deprecated()
     public CruiseConfig getConfigForEditing() {
-        return goConfigFileDao.loadForEditing();
+        return goConfigDao.loadForEditing();
     }
 
     private CruiseConfig cruiseConfig() {
-        return goConfigFileDao.load();
+        return goConfigDao.load();
     }
 
     public void populateLicenseAndConfigValidityInfo(Map<String, Object> model) {
-        GoConfigValidity configValidity = goConfigFileDao.checkConfigFileValid();
+        GoConfigValidity configValidity = goConfigDao.checkConfigFileValid();
         if (!configValidity.isValid()) {
             model.put(GoConstants.ERROR_FOR_PAGE, configValidity.errorMessage());
         } else {
@@ -236,7 +236,7 @@ public class GoConfigService implements Initializer {
     }
 
     public String fileLocation() {
-        return goConfigFileDao.fileLocation();
+        return goConfigDao.fileLocation();
     }
 
     public File artifactsDir() {
@@ -250,11 +250,11 @@ public class GoConfigService implements Initializer {
     }
 
     public void addAgent(AgentConfig agentConfig) {
-        goConfigFileDao.addAgent(agentConfig);
+        goConfigDao.addAgent(agentConfig);
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
-        return goConfigFileDao.updateConfig(command);
+        return goConfigDao.updateConfig(command);
     }
 
     public long getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
@@ -377,7 +377,7 @@ public class GoConfigService implements Initializer {
     }
 
     public void updateMailHost(MailHost mailHost) {
-        goConfigFileDao.updateMailHost(mailHost);
+        goConfigDao.updateMailHost(mailHost);
     }
 
     public ConfigSaveState updateServerConfig(final MailHost mailHost, final LdapConfig ldapConfig, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin,
@@ -385,8 +385,8 @@ public class GoConfigService implements Initializer {
                                               final String siteUrl, final String secureSiteUrl, final String taskRepositoryLocation) {
         final List<ConfigSaveState> result = new ArrayList<ConfigSaveState>();
         result.add(updateConfig(
-                new GoConfigFileDao.NoOverwriteCompositeConfigCommand(md5,
-                        goConfigFileDao.mailHostUpdater(mailHost),
+                new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
+                        goConfigDao.mailHostUpdater(mailHost),
                         securityUpdater(ldapConfig, passwordFileConfig, shouldAllowAutoLogin),
                         serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl, taskRepositoryLocation))));
         //should not reach here with empty result
@@ -422,27 +422,27 @@ public class GoConfigService implements Initializer {
     }
 
     public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
-        goConfigFileDao.addEnvironment(environmentConfig);
+        goConfigDao.addEnvironment(environmentConfig);
     }
 
     public void addPipeline(PipelineConfig pipeline, String groupName) {
-        goConfigFileDao.addPipeline(pipeline, groupName);
+        goConfigDao.addPipeline(pipeline, groupName);
     }
 
     public void updateAgentResources(String uuid, Resources newResources) {
-        goConfigFileDao.updateAgentResources(uuid, newResources);
+        goConfigDao.updateAgentResources(uuid, newResources);
     }
 
     public void updateAgentIpByUuid(String uuid, String ipAddress, String userName) {
-        goConfigFileDao.updateAgentIp(uuid, ipAddress, userName);
+        goConfigDao.updateAgentIp(uuid, ipAddress, userName);
     }
 
     public void updateAgentApprovalStatus(String uuid, Boolean isDenied) {
-        goConfigFileDao.updateAgentApprovalStatus(uuid, isDenied);
+        goConfigDao.updateAgentApprovalStatus(uuid, isDenied);
     }
 
     public void register(ConfigChangedListener listener) {
-        goConfigFileDao.registerListener(listener);
+        goConfigDao.registerListener(listener);
     }
 
     GoAcl readAclBy(String pipelineName, String stageName) {
@@ -564,51 +564,51 @@ public class GoConfigService implements Initializer {
     }
 
     public void disableAgents(boolean disabled, AgentInstance... instances) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : instances) {
             String uuid = agentInstance.getUuid();
 
             if (hasAgent(uuid)) {
-                command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, disabled));
+                command.addCommand(GoConfigDao.updateApprovalStatus(uuid, disabled));
             } else {
                 AgentConfig agentConfig = agentInstance.agentConfig();
                 agentConfig.disable(disabled);
-                command.addCommand(GoConfigFileDao.createAddAgentCommand(agentConfig));
+                command.addCommand(GoConfigDao.createAddAgentCommand(agentConfig));
             }
         }
         updateConfig(command);
     }
 
     public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, TriState enable, AgentInstances agentInstances) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
 
         if (!hasAgent(uuid) && enable.isTrue()){
             AgentInstance agentInstance = agentInstances.findAgent(uuid);
             AgentConfig agentConfig = agentInstance.agentConfig();
-            command.addCommand(GoConfigFileDao.createAddAgentCommand(agentConfig));
+            command.addCommand(GoConfigDao.createAddAgentCommand(agentConfig));
         }
 
         if (enable.isTrue()) {
-            command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, false));
+            command.addCommand(GoConfigDao.updateApprovalStatus(uuid, false));
         }
 
         if (enable.isFalse()){
-            command.addCommand(GoConfigFileDao.updateApprovalStatus(uuid, true));
+            command.addCommand(GoConfigDao.updateApprovalStatus(uuid, true));
         }
 
         if (hostname != null) {
-            command.addCommand(new GoConfigFileDao.UpdateAgentHostname(uuid, hostname, userName));
+            command.addCommand(new GoConfigDao.UpdateAgentHostname(uuid, hostname, userName));
         }
         if (resources != null) {
-            command.addCommand(new GoConfigFileDao.UpdateResourcesCommand(uuid, new Resources(resources)));
+            command.addCommand(new GoConfigDao.UpdateResourcesCommand(uuid, new Resources(resources)));
         }
 
 
-        goConfigFileDao.updateConfig(command);
+        goConfigDao.updateConfig(command);
     }
 
     public void deleteAgents(AgentInstance... agentInstances) {
-        goConfigFileDao.deleteAgents(agentInstances);
+        goConfigDao.deleteAgents(agentInstances);
     }
 
     public void approvePendingAgent(AgentInstance agentInstance) {
@@ -669,44 +669,44 @@ public class GoConfigService implements Initializer {
     }
 
     public void modifyResources(AgentInstance[] instances, List<TriStateSelection> selections) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : instances) {
             String uuid = agentInstance.getUuid();
             if (hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
-                    command.addCommand(new GoConfigFileDao.ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
+                    command.addCommand(new GoConfigDao.ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
                 }
             }
         }
         updateConfig(command);
     }
 
-    public GoConfigFileDao.CompositeConfigCommand modifyRolesCommand(List<String> users, List<TriStateSelection> roleSelections) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+    public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users, List<TriStateSelection> roleSelections) {
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (String user : users) {
             for (TriStateSelection roleSelection : roleSelections) {
-                command.addCommand(new GoConfigFileDao.ModifyRoleCommand(user, roleSelection));
+                command.addCommand(new GoConfigDao.ModifyRoleCommand(user, roleSelection));
             }
         }
         return command;
     }
 
     public UpdateConfigCommand modifyAdminPrivilegesCommand(List<String> users, TriStateSelection adminPrivilege) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (String user : users) {
-            command.addCommand(new GoConfigFileDao.ModifyAdminPrivilegeCommand(user, adminPrivilege));
+            command.addCommand(new GoConfigDao.ModifyAdminPrivilegeCommand(user, adminPrivilege));
         }
         return command;
     }
 
 
     public void modifyEnvironments(List<AgentInstance> agents, List<TriStateSelection> selections) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : agents) {
             String uuid = agentInstance.getUuid();
             if (hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
-                    command.addCommand(new GoConfigFileDao.ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
+                    command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
                 }
             }
         }
@@ -739,7 +739,7 @@ public class GoConfigService implements Initializer {
 	}
 
     public GoConfigValidity checkConfigFileValid() {
-        return goConfigFileDao.checkConfigFileValid();
+        return goConfigDao.checkConfigFileValid();
     }
 
     public boolean isSecurityEnabled() {
@@ -829,7 +829,7 @@ public class GoConfigService implements Initializer {
     }
 
     public String configFileMd5() {
-        return goConfigFileDao.md5OfConfigFile();
+        return goConfigDao.md5OfConfigFile();
     }
 
     public List<PipelineConfig> downstreamPipelinesOf(String pipelineName) {
@@ -957,7 +957,7 @@ public class GoConfigService implements Initializer {
     }
 
     public ConfigSaveState updateEnvironment(final String named, final EnvironmentConfig newEnvDefinition, final String md5) {
-        return goConfigFileDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+        return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 EnvironmentsConfig environments = cruiseConfig.getEnvironments();
                 EnvironmentConfig oldConfig = environments.named(new CaseInsensitiveString(named));
@@ -1025,7 +1025,7 @@ public class GoConfigService implements Initializer {
 
     @Deprecated()
     public GoConfigHolder getConfigHolder() {
-        return goConfigFileDao.loadConfigHolder();
+        return goConfigDao.loadConfigHolder();
     }
 
     @Deprecated()
@@ -1122,7 +1122,7 @@ public class GoConfigService implements Initializer {
             final CruiseConfig config = configXmlLoader.loadConfigHolder(xmlString).configForEdit;
 
             LOGGER.debug("[Config Save] Updating config");
-            ConfigSaveState configSaveState = goConfigFileDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+            ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     return config;
                 }
@@ -1137,7 +1137,7 @@ public class GoConfigService implements Initializer {
         }
 
         protected org.dom4j.Document documentRoot() throws Exception {
-            CruiseConfig cruiseConfig = goConfigFileDao.loadForEditing();
+            CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, true);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
@@ -1431,7 +1431,7 @@ public class GoConfigService implements Initializer {
 
     // for test
     public void forceNotifyListeners() throws Exception {
-        goConfigFileDao.reloadListeners();
+        goConfigDao.reloadListeners();
     }
 
     public ConfigElementImplementationRegistry getRegistry() {

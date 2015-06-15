@@ -398,8 +398,6 @@ define "cruise:server", :layout => server_layout("server") do
 end
 
 define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
-  JS_UNIT_URL = "\"http://localhost:8585/jsunit/testRunner.html?testPage=http://localhost:8585/jsunit/tests/jsUnitTestSuite.html\&autoRun=true\&submitResults=localhost:8585/jsunit/acceptor\""
-
   task :assert_all_partitions_executed do
     Buildr.ant('check-missing-partitions') do |ant|
       tlb_deps = [maven_dependency('commons-io', 'commons-io', '1.4'), maven_dependency('commons-codec', 'commons-codec', '1.4'),
@@ -417,63 +415,6 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
         ant.check_missing_partitions(:moduleNames => "util,common,agent,agent-bootstrapper,test-utils,server")
       end
     end
-  end
-
-  task :jsunit => [:set_browser_path, :prepare_jsunit_file_structure] do
-    jsunit_jars = (Dir.glob(project('cruise:server').path_to("jsunit/java/lib/*.jar")) + jars_with_abs_path('ant')) << _(:target, 'jsunit/java/config')
-    properties = {
-            "java.io.tmpdir" => _(:target, 'jsunit/tmp'),
-            "browserFileNames" => "\"#{$browser_path}\"",
-            "description" => "\"javascript unit tests\"",
-            "closeBrowsersAfterTestRuns" => true,
-            "logsDirectory" => _(:target, "jsunit/logs"),
-            "port" => 8585,
-            "resourceBase" => _(:target, 'jsunit'),
-            "timeoutSeconds" => 300,
-            "url" => JS_UNIT_URL}
-    properties = properties.inject("") { |injected, tuple| injected + " -D#{tuple.first}=#{tuple.last}" }
-    sh "java #{properties} -classpath #{ jsunit_jars.join(File::PATH_SEPARATOR) } org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner net.jsunit.StandaloneTest filtertrace=true haltOnError=true haltOnFailure=true showoutput=true outputtoformatters=true logtestlistenerevents=true formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter"
-  end
-
-  task :jsunit_server => [:prepare_jsunit_file_structure] do
-    properties = {
-            "java.io.tmpdir" => _(:target, 'jsunit/tmp'),
-            "browserFileNames" => $browser_path,
-            "description" => "'javascript unit tests'",
-            "closeBrowsersAfterTestRuns" => true,
-            "logsDirectory" => _(:target, "jsunit/logs"),
-            "port" => 8585,
-            "resourceBase" => _(:target, 'jsunit'),
-            "timeoutSeconds" => 300,
-            "url" => JS_UNIT_URL}
-    properties = properties.inject("") { |injected, tuple| injected + " -D#{tuple.first}=#{tuple.last}" }
-    sh "cd #{_(:target)} && ant -f jsunit.xml start_server"
-  end
-
-  task :jsunit_test => [:prepare_jsunit_file_structure] do
-    sh "firefox http://localhost:8585/jsunit/testRunner.html?testPage=http://localhost:8585/jsunit/tests/#{ENV['test']}.html\\&autoRun=true"
-  end
-
-  task :prepare_jsunit_file_structure do
-    js_file = Dir["#{project('cruise:server').path_to("target/webapp/WEB-INF/rails.new/public/assets")}/application-*.js"][0]
-    raise "#{js_file} not found! did you run ./bn clean cruise:prepare?" unless File.exist?(js_file)
-
-    mkdir_p _(:target, 'jsunit/compressed')
-    filter_files(project('cruise:server').path_to("jsunit"), _(:target, "jsunit"))
-    cp project('cruise:server').path_to("jsunit.xml"), _(:target)
-    dest_file = _(:target, 'jsunit/compressed') + "/all.js"
-    rm dest_file if File.exist?(dest_file)
-    cp js_file, dest_file
-    cp "server/webapp/WEB-INF/rails.new/app/assets/javascripts/lib/d3-3.1.5.min.js", _(:target, 'jsunit/compressed')
-    cp "server/webapp/WEB-INF/rails.new/spec/javascripts/helpers/test_helper.js", _(:target, 'jsunit/compressed')
-
-    Dir.glob("server/webapp/WEB-INF/rails.new/public/assets/application*.css") {|f| cp File.expand_path(f), _(:target, 'jsunit/css/application.css') }
-  end
-
-  task :set_browser_path do
-    $browser_path = (ENV['BROWSER_PATH'] || ENV['BROWSER_PATH_JSUNIT'] || '/usr/bin/firefox')
-    raise "Browser executable not found @ #{$browser_path}" unless File.exists?($browser_path)
-    $stderr.write("Using browser path: [#{$browser_path}]\n")
   end
 
   task :sync_xsd do

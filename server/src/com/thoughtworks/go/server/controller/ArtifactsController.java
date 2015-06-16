@@ -249,6 +249,8 @@ public class ArtifactsController {
             return new ModelAndView(new ConsoleOutView(consoleOut.calculateNextStart(), consoleOut.output()));
         } catch (FileNotFoundException e) {
             return new ModelAndView(new ConsoleOutView(0, ""));
+        } catch (Exception e) {
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         }
     }
 

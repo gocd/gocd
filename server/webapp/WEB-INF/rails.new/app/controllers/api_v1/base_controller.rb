@@ -22,6 +22,7 @@ module ApiV1
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 
     skip_before_filter :verify_authenticity_token
+    before_filter :verify_content_type_on_post
     before_filter :set_default_response_format
 
     def set_default_response_format
@@ -43,6 +44,12 @@ module ApiV1
 
     rescue_from RecordNotFound do |exception|
       render :json_hal_v1 => { :message => 'The resource you requested was not found!' }, :status => 404
+    end
+
+    def verify_content_type_on_post
+      if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
+        render json_hal_v1: { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
+      end
     end
 
     def render_http_operation_result(result)
